@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.rackspace.papi</groupId>
+    <artifactId>support-pom-master</artifactId>
+    <version>0.9-SNAPSHOT</version>
+
+    <name>Rackspace Cloud Support Master POM</name>
+
+    <description>
+        Master POM file to provide deployment and other useful information to
+        child projects. Should not enforce version control outside of plugin
+        profiles.
+    </description>
+
+    <packaging>pom</packaging>
+
+    <organization>
+        <name>Rackspace Cloud Research</name>
+        <url>http://research.rackspace.com/</url>
+    </organization>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.license>apache20</project.license>
+    </properties>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+    </licenses>
+
+    <modules>
+        <module>profiles</module>
+    </modules>
+
+    <scm>
+        <connection>scm:git:ssh://git@github.com:rackspace/power-api.git</connection>
+    </scm>
+
+    <distributionManagement>
+        <repository>
+            <id>releases.maven.research.rackspace.com</id>
+ 
+            <name>Internal Rackspace Cloud Research Releases</name>
+            <url>http://maven-n01.research.rackspace.com/content/repositories/releases</url>
+        </repository>
+
+        <snapshotRepository>
+            <uniqueVersion>false</uniqueVersion>
+            
+            <id>snapshots.maven.research.rackspace.com</id>
+
+            <name>Internal Rackspace Cloud Research Snapshots</name>
+            <url>http://maven-n01.research.rackspace.com/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+    
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-release-plugin</artifactId>
+                    <version>2.1</version>
+                    
+                    <configuration>
+                        <preparationGoals>clean install</preparationGoals>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>
