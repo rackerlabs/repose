@@ -1,0 +1,2 @@
+To build:
+rpmbuild -i papi.spec

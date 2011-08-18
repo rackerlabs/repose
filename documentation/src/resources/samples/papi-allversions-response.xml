@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<versions xmlns="http://docs.openstack.org/common/api/v1.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <version id="v1.0" status="DEPRECATED">
+        <media-types>
+            <media-type base="application/xml" type="application/vnd.vendor.service-v1.0+xml" />
+            <media-type base="application/json" type="application/vnd.vendor.service-v1.0+json" />
+        </media-types>
+        
+        <atom:link rel="self" href="http://service.api.vendor.com/root/v1.0/" />
+    </version>
+    
+    <version id="v2.0" status="CURRENT">
+        <media-types>
+            <media-type base="application/xml" type="application/vnd.vendor.service-v2.0+xml" />
+            <media-type base="application/json" type="application/vnd.vendor.service-v2.0+json" />
+        </media-types>
+        
+        <atom:link rel="self" href="http://service.api.vendor.com/v2.0/" />
+    </version>
+</versions>

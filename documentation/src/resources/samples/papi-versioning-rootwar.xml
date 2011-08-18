@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<versioning xmlns="http://docs.rackspacecloud.com/power-api/versioning/v1.0">
+    <service-root href="http://yourdomain.com/" />
+    
+    <version-mapping id="v1" pp-host-id="service-v1" name="Service Version 1" status="DEPRECATED">
+        <media-types>
+            <media-type base="application/xml" type="application/vnd.vendor.service-v1+xml" />
+            <media-type base="application/json" type="application/vnd.vendor.service-v1+json" />
+        </media-types>
+    </version-mapping>
+    
+    <version-mapping id="v2" pp-host-id="service-v2" name="Service Version 2" status="CURRENT">
+        <media-types>
+            <media-type base="application/xml" type="application/vnd.vendor.service-v2+xml" />
+            <media-type base="application/json" type="application/vnd.vendor.service-v2+json" />
+        </media-types>
+    </version-mapping>
+</versioning>

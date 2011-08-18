@@ -1,0 +1,349 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+    <!-- Some useful entities borrowed from HTML -->
+    <!ENTITY ndash  "&#x2013;">
+    <!ENTITY mdash  "&#x2014;">
+    <!ENTITY hellip "&#x2026;">
+
+    <!-- Useful for describing APIs -->
+    <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
+    <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
+    <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
+    <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
+
+    <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Check_mark_23x20_02.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+
+    <!ENTITY ARROW  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Arrow_east.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+]>
+<book version="5.0" status="draft" xmlns="http://docbook.org/ns/docbook"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:svg="http://www.w3.org/2000/svg"
+      xmlns:m="http://www.w3.org/1998/Math/MathML"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      xmlns:db="http://docbook.org/ns/docbook" >
+    <?rax pdf.url="../../papi-versioning-deploy.pdf"?>
+    <title>Rackspace Cloud Power API Root.WAR Deployment Handbook</title>
+    <?rax status.bar.text="CONFIDENTIAL"?>
+    <?rax title.font.size="35px" subtitle.font.size="20px"?>
+    <titleabbrev>RAX Cloud PAPI Root.WAR Deployment</titleabbrev>
+    <info>
+        <author>
+            <personname>
+                <firstname/>
+                <surname/>
+            </personname>
+            <affiliation>
+                <orgname>Rackspace Cloud</orgname>
+            </affiliation>
+        </author>
+        <copyright>
+            <year>2010</year>
+            <year>2011</year>
+            <holder>Rackspace US, Inc.</holder>
+        </copyright>
+        <releaseinfo>API v0.9</releaseinfo>
+        <productname>Rackspace Cloud Power API</productname>
+        <pubdate>2011-06-15</pubdate>
+        <legalnotice role="rs-api">
+            <annotation>
+                <remark>Copyright details are filled in by the template.</remark>
+            </annotation>
+        </legalnotice>
+        <abstract>
+            <para>This document is intended for systems administrators interested in configuring their service to use the Root.WAR component of the Rackspace Cloud Power Application Program Interface
+                (<abbrev>API</abbrev>).
+            </para>
+        </abstract>
+        <cover>
+            <para>this is a placeholder for the front cover</para>
+        </cover>
+        <cover>
+            <para>this is a placeholder for the back cover</para>
+        </cover>
+    </info>
+    <chapter xml:id="Overview-d1e85">
+        <title>Overview</title>
+        <section xml:id="Purpose-d1e90">
+            <title>Purpose</title>
+            <para>
+                The purpose of this handbook is to facilitate deployment of Power API 
+                as an application container root web application.
+                This handbook is not a tutorial.
+                It provides basic information that will help you understand and deploy this Power API component, but you must adapt this information to suit your own configuration.
+            </para>
+            <para>
+                This guide is focused on one Power API component.
+                Other Power API components are documented in companion guides.
+            </para>
+        </section>
+        <section xml:id="Document_Change_History-d1e102">
+            <title>Document Change History</title>
+            <para>This version of the guide replaces and obsoletes all previous versions.
+                The most recent changes are described in the table below: </para>
+            <informaltable rules="all">
+                <thead>
+                    <tr align="center">
+                        <td colspan="1">Revision Date</td>
+                        <td colspan="4">Summary of Changes</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr align="left">
+                        <td colspan="1" align="center">Jun 15, 2011</td>
+                        <td colspan="4" align="left">
+                            <itemizedlist spacing="compact">
+                                <listitem>
+                                    <para>Initial release.</para>
+                                </listitem>
+                            </itemizedlist>
+                        </td>
+                    </tr>
+                </tbody>
+            </informaltable>
+        </section>
+        <section security="writeronly" xml:id="Additional_Resources_REPLACE_WITH_PAPI_CONTENT_-d1e147">
+            <title>Additional Resources (REPLACE WITH PAPI CONTENT)</title>
+            <annotation>
+                <remark>"Additional Resources" is used in other API doc to suggest places to go for
+                    help if this document isn't helping enough: contact Cloud Support, check the
+                    Knowledge Center, visit the retail site, blogs, twitter, wherever people might
+                    be offering help. We don't have any sources like that to offer for Power API
+                    support, so this text is included from Load Balancers as an example &amp;
+                    reminder; build this section correctly when we have something useful to offer." </remark>
+            </annotation>
+            <para>You can download the most current version of this document from the Rackspace Cloud website at <link xlink:href="http://docs.rackspacecloud.com/loadbalancers/api/clb-devguide-latest.pdf">
+                http://docs.rackspacecloud.com/loadbalancers/api/clb-devguide-latest.pdf</link>. </para>
+            <para>For more details about the Rackspace Cloud Load Balancer service, refer to <link xlink:href="http://www.rackspace.com/cloud/cloud_hosting_products/loadbalancers/">http://www.rackspace.com/cloud/cloud_hosting_products/loadbalancers/</link>.
+                This site also offers links to Rackspace's official support channels, including
+                knowledge base articles, forums, phone, chat, and email. </para>
+            <para>You can also follow updates and announcements via twitter at <link xlink:href="http://www.twitter.com/Rackspace">http://www.twitter.com/Rackspace</link>.
+            </para>
+        </section>
+    </chapter>
+    <chapter xml:id="Default_Configuration_Model-d1e172">
+        <title>Default Configuration Model</title>
+        <para>We recommend that you deploy Power API using the following operating systems, user and
+            group configurations, and directories for configuration, artifacts, and deployment. </para>
+        <section xml:id="Target_Operating_System_Environments-d1e180">
+            <title>Target Operating System Environments</title>
+            <para>
+                <itemizedlist spacing="compact">
+                    <listitem>
+                        <para> RHEL Versions 5 and 6 </para>
+                    </listitem>
+                    <listitem>
+                        <para> CentOS Versions 5 and 6 </para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+        </section>
+        <section xml:id="User_and_Group_Configuration-d1e204">
+            <title>User and Group Configuration</title>
+            <para>
+            <itemizedlist spacing="compact">
+                <listitem>
+                    <para> User: <code>powerapi</code> </para>
+                </listitem>
+                <listitem>
+                    <para> Group: <code>powerapi</code> </para>
+                </listitem>
+            </itemizedlist>
+            </para>
+            <para> Dedicate a user and group to Power API to improve isolation of Power API's
+                permissions. Be sure the Power API user and group can write to the file system as
+                well as read configurations stored in the file system. </para>
+        </section>
+        <section xml:id="Configuration_Directory-d1e237">
+            <title>Configuration Directory</title>
+            <para>
+                <itemizedlist spacing="compact">
+                    <listitem>
+                        <para> Directory: <code>/etc/powerapi</code> </para>
+                    </listitem>
+                    <listitem>
+                        <para> Owner/Group: <code>root:powerapi</code> </para>
+                    </listitem>
+                    <listitem>
+                        <para> Permissions: <code>540</code> </para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>Store all of Power API's XML configurations in the configuration directory. 
+                Power API only supports file system configuration locations. </para>
+        </section>
+        <section xml:id="Artifact_Directory-d1e280">
+            <title>Artifact Directory</title>
+            <para>
+                <itemizedlist spacing="compact">
+                    <listitem>
+                        <para> Directory: <code>/usr/share/powerapi/filters</code>
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <para> Owner/Group: <code>root:powerapi</code> </para>
+                    </listitem>
+                    <listitem>
+                        <para> Permissions: <code>540</code> </para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>Store all the artifacts that Power API has been configured to use in the
+                configuration directory.</para>
+        </section>
+        <section xml:id="Deployment_Directory-d1e322">
+            <title>Deployment Directory</title>
+            <para>
+                <itemizedlist spacing="compact">
+                    <listitem>
+                        <para> Directory: <code>/var/powerapi/</code>
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <para> Owner/Group: <code>root:powerapi</code> </para>
+                    </listitem>
+                    <listitem>
+                        <para> Permissions: <code>760</code>
+                        </para>
+                    </listitem>
+                </itemizedlist>
+            </para>
+            <para>Define a deployment directory as a writable location. 
+                Power API uses the deployment directory to copy deployed versions of the artifacts it has been configured to use.</para>
+        </section>
+    </chapter>
+    <chapter xml:id="Artifacts-d1e365">
+        <title>Artifacts</title>
+        <para>These artifacts are required for installation of Power API.</para>
+        <section xml:id="WAR_Files-d1e373">
+            <title>WAR Files</title>
+            <para>
+                The <code>root.war</code> artifact is a Web application ARchive (WAR). 
+                It contains all the components needed to install Power API 
+                into a running application container. 
+                One of these components is a default <code>web.xml</code> that can start up Power API in the standard configuration model. 
+            </para>
+         </section>
+         <section xml:id="EAR_Files-d1e388">
+            <title>EAR Files</title>
+            <para>
+                All consumable artifacts meant for deployment through Power API 
+                must conform to the Java Platform, Enterprise Edition (JEE 6) specification for Enterprise ARchive (EAR) files.
+                Components used by Power API include:
+            </para>
+             <para>
+                 <itemizedlist spacing="compact">
+                     <listitem>
+                         <para> <code>content-normalization.ear</code>
+                         </para>
+                     </listitem>
+                     <listitem>
+                         <para> <code>versioning.ear</code> </para>
+                     </listitem>
+                     <listitem>
+                         <para> <code>local-versioning-router.ear</code>
+                         </para>
+                     </listitem>
+                 </itemizedlist>
+             </para>
+         </section>
+    </chapter>
+    <chapter xml:id="Core_and_Component_Configurations-d1e431">
+        <title>Core and Component Configurations</title>
+        <para>
+            Customize the XML samples in this section to use Power API's core and component configurations. 
+            The power proxy and container configurations are within the scope of the core.
+            The content normalization and versioning configurations are components outside the scope of the core.
+        </para>
+        <section xml:id="Scope_Core-d1e439">
+        <title>Scope = Core</title>
+        <para>
+            Power API core configurations outline the deployment layout for the service cluster and tell the system where to look for component artifacts.
+        </para>
+        <section xml:id="Power_Proxy-d1e447">
+            <title>Power Proxy</title>
+               <para> The power proxy configuration is considered to be the Power API system mode.
+                    This configuration outlines the entire deployment layout for the service
+                    cluster. Power API must be aware of this in order to configure itself and
+                    correctly coordinate routing if necessary. </para>
+               <para> The system model also lets Power API know where the other Power API nodes
+                    reside. Using this information, Power API can coordinate its own clustering to
+                    help balance load or share data among nodes that share common filters. </para>
+            <example>
+                <title>Power Proxy Configuration: XML</title>
+                <programlisting language="xml">
+<xi:include href="samples/papi-powerproxy-rootwar.xml" parse="text"/>
+                    </programlisting>
+            </example>
+        </section>
+            <section xml:id="Container-d1e470">
+                <title>Container</title>
+                <para>
+                    The container configuration in Power API is used to tell the system where to look for component artifacts and where to deploy them. 
+                    The deployment directory's configuration element includes an attribute that tells Power API whether or not it should clean up deployed artifacts once they're no longer in use. 
+                    In addition, the artifact directory's configuration element includes an optional attribute that can be used to tweak the polling interval. 
+                    Based on the polling interval, Power API checks for modified, deleted, or new artifacts.
+                </para>
+                <example>
+                    <title>Container Configuration: XML</title>
+                    <programlisting language="xml">
+<xi:include href="samples/papi-container.xml" parse="text"/>
+                    </programlisting>
+                </example>
+            </section>
+            </section>
+            <section xml:id="Scope_Component-d1e491">
+            <title>Scope = Component</title>
+            <para> Power API component configurations support normalization and versioning. </para>
+            <section xml:id="Content_Normalization-d1e499">
+                <title>Content Normalization</title>
+                <para> The content normalization filter is the first filter in the chain being provided by Power API. </para>
+                <para> Content normalization is only used for HTTP header filtering. 
+                    The configuration XML provided demonstrates how to specify whitelist header elements to the content normalization filter. 
+                    The filter will then remove all headers that have no whitelist configuration element. </para>
+                <example>
+                    <title>Content Normalization Configuration: XML</title>
+                    <programlisting language="xml">
+<xi:include href="samples/papi-contentnormalization.xml" parse="text"/>
+                    </programlisting>
+                </example>
+            </section>
+            <section xml:id="Versioning-d1e522">
+                <title>Versioning</title>
+                <para>
+                    The versioning configuration defines version mappings. 
+                    Based on those definitions, the versioning component will attempt to bind 
+                    to actual host entries within the power proxy system model.
+                </para>
+                <para>
+                    To facilitate routing, 
+                    the versioning component will first read in all the elements from both the versioning configuration and the power proxy system model configuration. 
+                    Then, based on the power proxy host id attribute (<code>pp-host-id</code>) provided in the versioning configuration,  
+                    the versioning component will link power proxy host entries to each version mapping.  
+                </para>
+                <para>
+                    The versioning component can facilitate routing but it does not perform routing. 
+                    Routing in Power API is a two-step process. 
+                    The versioning component tags a request with a header (<code>X-PP-OriginDestination</code>) before handing the request to the next component. 
+                    This header may be read by Power API's routing components to then facilitate routing to the correct service origin. 
+                </para>
+                <example>
+                    <title>Versioning Configuration: XML</title>
+                    <programlisting language="xml">
+<xi:include href="samples/papi-versioning-rootwar.xml" parse="text"/>
+                    </programlisting>
+                </example>
+            </section>                
+            </section>
+    </chapter>
+</book>

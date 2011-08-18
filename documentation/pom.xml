@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>com.rackspace.papi</groupId>
+        <artifactId>papi</artifactId>
+        <version>0.9-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.rackspace.papi.documentation</groupId>
+    <artifactId>papi-documentation</artifactId>
+
+    <name>Power API - Documentation</name>
+    <packaging>jar</packaging>
+    
+    <pluginRepositories>
+        <pluginRepository>
+            <id>rackspace-research</id>
+            <name>Rackspace Research Repository</name>
+            <url>http://maven.research.rackspacecloud.com/content/groups/public/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>batik-maven-plugin</artifactId>
+                <version>1.0-beta-1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>rasterize</goal>
+                        </goals>
+                        <configuration>
+                            <!-- identify locations of figures -->
+                            <srcDir>${basedir}/src/resources/figures</srcDir>
+                            <destDir>${basedir}/target/docbkx/webhelp/papi/content/figures</destDir>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>com.rackspace.cloud.api</groupId>
+                <artifactId>clouddocs-maven-plugin</artifactId>
+                <!-- this <version> relates only to the *plugin* used for document formatting -->
+                <!-- the version of the *API* that is the subject of the document is indicated within each document -->
+                <!-- 1.0.4 of the plugin supports yyyy-mm-dd pubdate, OpenStack branding -->
+                <version>1.0.4</version>
+                <executions>
+                    <execution>
+                        <id>g1</id>
+                        <goals>
+                            <!-- 2 output formats: PDF for print; HTML for online -->
+                            <goal>generate-pdf</goal>
+                            <goal>generate-webhelp</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <!-- support inclusion from external /samples/, /figures/, etc -->
+                            <xincludeSupported>true</xincludeSupported>
+                            <!-- set branding to OPENSTACK or RACKSPACE -->
+                            <branding>rackspace</branding>
+                            <!-- for WebHelp: -->
+                            <!-- enableDisqus turns on Disqus feature for feedback if any value other than 0; "intranet" for posting on our internal docs-beta.rackspace.com for internal review --> 
+                            <!-- disqusShortname = Disqus account where moderator is collecting this feedback -->
+                            <enableDisqus>intranet</enableDisqus>
+                            <disqusShortname>rc-integration</disqusShortname>
+                            <!--- open Webhelp at the front matter: copyright page, list of tables, list of figures, list of examples -->
+                            <htmlhelpDefaultTopic>index.html</htmlhelpDefaultTopic>
+                            <!-- look here for the .xml and everything to include such as samples and figures -->
+                            <sourceDirectory>src/resources</sourceDirectory>
+                            <!-- highlightSource bolds some elements of sample code but disables linewrapping -->
+                            <highlightSource>true</highlightSource>
+                            <!-- use this .XML as the source for the books to be generated as .PDF & .HTML -->
+                            <includes>papi-rootwar-deploy.xml,papi-versioning-deploy.xml,papi-ratelimiting-deploy.xml</includes>
+                            <postProcess>
+                                <copy todir="target/docbkx/webhelp/papi-rootwar-deploy/content/figures">
+                                    <fileset dir="src/resources/figures">
+                                        <include name="**/*.png" />
+                                    </fileset>
+                                </copy>
+                                <copy todir="target/docbkx/webhelp/papi-versioning-deploy/content/figures">
+                                    <fileset dir="src/resources/figures">
+                                        <include name="**/*.png" />
+                                    </fileset>
+                                </copy>
+                                <copy todir="target/docbkx/webhelp/papi-ratelimiting-deploy/content/figures">
+                                    <fileset dir="src/resources/figures">
+                                        <include name="**/*.png" />
+                                    </fileset>
+                                </copy>
+                            </postProcess>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.docbook</groupId>
+                        <artifactId>docbook-xml</artifactId>
+                        <version>4.4</version>
+                        <scope>runtime</scope>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
+</project>

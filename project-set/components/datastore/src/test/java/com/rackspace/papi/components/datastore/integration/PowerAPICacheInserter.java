@@ -1,0 +1,125 @@
+package com.rackspace.papi.components.datastore.integration;
+
+import com.rackspace.papi.commons.util.io.ObjectSerializer;
+import com.rackspace.papi.components.datastore.hash.HashRingDatastoreManager;
+import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
+import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
+import com.rackspace.papi.service.datastore.impl.ehcache.EHCacheDatastoreManager;
+import java.io.ByteArrayOutputStream;
+import java.io.ObjectOutputStream;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.util.concurrent.TimeUnit;
+import net.sf.ehcache.CacheManager;
+
+public class PowerAPICacheInserter {
+
+    private static class CacheInserterRunnable implements Runnable {
+
+        private final int sleepDuration, finishTotal;
+        private final Datastore datastore;
+        private final String myKey;
+
+        public CacheInserterRunnable(int sleepDuration, int finishTotal, Datastore datastore, String myKey) {
+            this.sleepDuration = sleepDuration;
+            this.finishTotal = finishTotal;
+            this.datastore = datastore;
+            this.myKey = myKey;
+        }
+
+        @Override
+        public void run() {
+            try {
+                while (total < finishTotal) {
+                    try {
+                        Thread.sleep(sleepDuration);
+                    } catch (InterruptedException ie) {
+                        break;
+                    }
+
+                    final CacheableValue myValue = datastore.get(myKey).elementAs(CacheableValue.class);
+                    datastore.put(myKey, ObjectSerializer.instance().writeObject(myValue.next()), 300, TimeUnit.SECONDS);
+
+                    total++;
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+    protected static volatile long total, beginTimestamp;
+
+    public static void main(String[] args) throws Exception {
+        final MutableClusterView view = new ThreadSafeClusterView();
+        final EHCacheDatastoreManager localManager = new EHCacheDatastoreManager(new CacheManager());
+        final HashRingDatastoreManager remoteManager = new HashRingDatastoreManager("temp-host-key", view, localManager.getDatastore("ds"));
+        final Datastore datastore = remoteManager.getDatastore("papi:datastore/distributed/default");
+
+        view.updateLocal(new InetSocketAddress(InetAddress.getLocalHost(), 20000));
+        view.updateMembers(new InetSocketAddress[]{
+                    new InetSocketAddress(InetAddress.getLocalHost(), 2101),
+                    new InetSocketAddress(InetAddress.getLocalHost(), 2102),
+                    new InetSocketAddress(InetAddress.getLocalHost(), 2103),
+                    new InetSocketAddress(InetAddress.getLocalHost(), 2104)});
+
+        final String myKey = "mykey";
+        final int finishTotal = 9700,
+                sleep1 = 100,
+                sleep2 = 75,
+                sleep3 = 125,
+                sleep4 = 150;
+
+        total = 0;
+
+        final Thread inserter1 = new Thread(new CacheInserterRunnable(sleep1, finishTotal, datastore, myKey)),
+                inserter2 = new Thread(new CacheInserterRunnable(sleep2, finishTotal, datastore, myKey)),
+                inserter3 = new Thread(new CacheInserterRunnable(sleep3, finishTotal, datastore, myKey)),
+                inserter4 = new Thread(new CacheInserterRunnable(sleep4, finishTotal, datastore, myKey));
+
+        final Thread reader = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try {
+                    while (true) {
+                        try {
+                            Thread.sleep(400);
+                        } catch (InterruptedException ie) {
+                            break;
+                        }
+
+                        final CacheableValue myValue = datastore.get(myKey).elementAs(CacheableValue.class);
+                        System.out.println("Acquired: " + myValue.getValue() + " out of " + total
+                                + "\t\t\t\t- Potential Drift Ratio: " + ((double) myValue.getValue() / (double) total)
+                                + "\t\t- Elapsed time: " + (System.currentTimeMillis() - beginTimestamp) + "ms");
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }, "Reader 1");
+
+        Thread.sleep(4000);
+
+        final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        final ObjectOutputStream oos = new ObjectOutputStream(baos);
+
+        oos.writeObject(new CacheableValue(0, true));
+        oos.close();
+
+        beginTimestamp = System.currentTimeMillis();
+
+        datastore.put(myKey, baos.toByteArray(), 200, TimeUnit.SECONDS);
+
+        reader.start();
+        inserter1.start();
+        inserter2.start();
+        inserter3.start();
+        inserter4.start();
+
+        Thread.sleep(200000);
+
+        System.exit(0);
+    }
+}

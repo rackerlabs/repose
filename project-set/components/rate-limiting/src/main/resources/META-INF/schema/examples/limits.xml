@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<limits xmlns="http://docs.openstack.org/common/api/v1.0">
+    <rates>
+        <rate uri="*loadbalancer*" regex="/loadbalancer/.*">
+            <limit value="100" verb="GET" unit="HOUR" remaining="59" next-available="2010-12-15T22:42:12Z" />
+            <limit value="10" verb="PUT" unit="HOUR" remaining="1" next-available="2010-12-15T22:42:12Z" />
+            <limit value="10" verb="POST" unit="HOUR" remaining="4" next-available="2010-12-15T22:42:12Z" />
+            <limit value="3" verb="DELETE" unit="MINUTE" remaining="1" next-available="2010-12-15T22:42:12Z" />
+        </rate>
+
+        <rate uri="*loadbalancer/vips*" regex="/loadbalancer/vips/.*">
+            <limit value="100" verb="GET" unit="HOUR" remaining="59" next-available="2010-12-15T22:42:12Z" />
+            <limit value="10" verb="PUT" unit="HOUR" remaining="9" next-available="2010-12-15T22:42:12Z" />
+            <limit value="10" verb="POST" unit="HOUR" remaining="9" next-available="2010-12-15T22:42:12Z" />
+            <limit value="3" verb="DELETE" unit="MINUTE" remaining="10" next-available="2010-12-15T22:42:12Z" />
+        </rate>
+    </rates>
+</limits>

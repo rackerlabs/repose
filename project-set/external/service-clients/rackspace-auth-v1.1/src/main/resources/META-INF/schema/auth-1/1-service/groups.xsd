@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../xslt/schema.xslt"?>
+
+<!-- (C) 2010 Rackspace Hosting, All Rights Reserved -->
+
+<schema
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:auth="http://docs.rackspacecloud.com/auth/api/v1.1"
+    xmlns:xsdxt="http://docs.rackspacecloud.com/xsd-ext/v1.0"
+    targetNamespace="http://docs.rackspacecloud.com/auth/api/v1.1">
+
+    <annotation>
+        <xsd:appinfo
+            xml:lang="EN"
+            xmlns="http://www.w3.org/1999/xhtml">
+            <xsdxt:title>Auth User Groups</xsdxt:title>
+            <xsdxt:link rel="index" href="admin-api.xsd" />
+        </xsd:appinfo>
+        <xsd:documentation
+            xml:lang="EN"
+            xmlns="http://www.w3.org/1999/xhtml">
+            <p>
+                This schema defines entity contains entities related to the groups of a user.
+            </p>
+        </xsd:documentation>
+    </annotation>
+
+    <element name="groups" type="auth:GroupsList">
+        <annotation>
+            <xsd:documentation
+                xml:lang="EN"
+                xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    Auth Groups.
+                </p>
+            </xsd:documentation>
+            <xsd:appinfo>
+                <xsdxt:samples>
+                    <xsdxt:sample>
+                        <xsdxt:code type="application/xml" href="../samples/groups.xml" />
+                    </xsdxt:sample>
+                    <xsdxt:sample>
+                        <xsdxt:code type="application/json" href="../samples/groups.json" />
+                    </xsdxt:sample>
+                </xsdxt:samples>
+            </xsd:appinfo>
+        </annotation>
+    </element>
+
+    <!-- Complex Types -->
+    <complexType name="GroupsList">
+        <sequence>
+            <element name="group" type="auth:Group" minOccurs="0" maxOccurs="1000"/>
+        </sequence>
+    </complexType>
+
+    <complexType name="Group">
+    <sequence>
+          <element name="description" type="string" minOccurs="0" maxOccurs="1">
+           <annotation>
+               <xsd:documentation
+                   xml:lang="EN"
+                   xmlns="http://www.w3.org/1999/xhtml">
+                   <p>
+                       Description of the group.
+                   </p>
+               </xsd:documentation>
+           </annotation>
+          </element>
+       </sequence>
+       <attribute name="id" type="xsd:string" use="required">
+           <annotation>
+               <xsd:documentation
+                   xml:lang="EN"
+                   xmlns="http://www.w3.org/1999/xhtml">
+                   <p>
+                       ID of the group.
+                   </p>
+               </xsd:documentation>
+           </annotation>
+      </attribute>
+    </complexType>
+
+</schema>

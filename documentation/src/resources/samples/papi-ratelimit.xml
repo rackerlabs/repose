@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<rate-limiting-config xmlns="http://docs.rackspacecloud.com/power-api/rate-limiting/v1.0">
+    <limits-request-endpoint uri-regex="/service/limits/" include-absolute-limits="true" />
+    
+    <limit-group id="customer-limits" roles="customer" default="true">
+        <limit uri="/service/*" uri-regex="/service/([\d^/]*)/.*" 
+            http-methods="GET" unit="SECOND" value="1" />
+        <limit uri="/service/*" uri-regex="/service/([\d^/]*)/.*" 
+            http-methods="DELETE" unit="MINUTE" value="5" />
+        <limit uri="/service/*" uri-regex="/service/([\d^/]*)/.*" 
+            http-methods="PUT" unit="HOUR" value="15" />
+        <limit uri="/service/*" uri-regex="/service/([\d^/]*)/.*" 
+            http-methods="POST" unit="DAY" value="2" />
+    </limit-group>
+    
+    <limit-group id="admin-limits" roles="admin">
+        <limit uri="/service/admin/*" uri-regex="/service/admin/(.*)" 
+            http-methods="GET POST PUT DELETE" unit="SECOND" value="1" />
+    </limit-group>
+</rate-limiting-config>

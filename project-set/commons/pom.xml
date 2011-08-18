@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.rackspace.papi</groupId>
+        <artifactId>profile-support</artifactId>
+        <version>0.9-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.rackspace.papi.commons</groupId>
+    <artifactId>commons-support</artifactId>
+    <version>0.9-SNAPSHOT</version>
+        
+    <name>Power API Commons - Commons Support</name>
+
+    <packaging>pom</packaging>
+
+    <properties>
+        <org.springframework.version>3.0.3.RELEASE</org.springframework.version>
+    </properties>
+
+    <modules>
+        <module>utilities</module>
+        <module>configuration</module>
+        <module>classloader</module>
+        <module>jetty</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.rackspace.papi.external</groupId>
+                <artifactId>jee6-schemas</artifactId>
+                <version>0.9-SNAPSHOT</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.rackspace.papi.commons</groupId>
+                <artifactId>utilities</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.commons</groupId>
+                <artifactId>configuration</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>org.springframework.core</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>org.springframework.beans</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>org.springframework.context</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>org.springframework.web.servlet</artifactId>
+                <version>${org.springframework.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>commons-lang</groupId>
+                <artifactId>commons-lang</artifactId>
+                <version>2.5</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-server</artifactId>
+                <version>8.0.0.M3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>jetty-servlet</artifactId>
+                <version>8.0.0.M3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-httpclient</groupId>
+                <artifactId>commons-httpclient</artifactId>
+                <version>3.1</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-antrun-plugin</artifactId>
+
+                <executions>
+                    <execution>
+                        <id>doxygen-generate</id>
+
+                        <phase>generate-resources</phase>
+                        <inherited>false</inherited>
+
+                        <goals>
+                            <goal>run</goal>
+                        </goals>
+
+                        <!-- TODO: Read this -> http://www.stack.nl/~dimitri/doxygen/custcmd.html -->
+
+                        <configuration>
+                            <target>
+                                <mkdir dir="${project.basedir}/target" />
+
+                                <exec dir="${project.basedir}" executable="doxygen">
+                                    <arg value="rc-commons-doxygen.config" />
+                                </exec>
+                            </target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+

@@ -1,0 +1,37 @@
+package com.rackspace.papi.commons.config.parser.jaxb;
+
+import com.rackspace.papi.commons.config.parser.AbstractConfigurationObjectParser;
+import com.rackspace.papi.commons.config.resource.ConfigurationResource;
+import com.rackspace.papi.commons.util.pooling.GenericBlockingResourcePool;
+import com.rackspace.papi.commons.util.pooling.Pool;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.Unmarshaller;
+
+public class JaxbConfigurationObjectParser <T> extends AbstractConfigurationObjectParser<T> {
+
+    private final Pool<Unmarshaller> marshallerPool;
+
+    public JaxbConfigurationObjectParser(Class<T> configurationClass, JAXBContext jaxbContext) {
+        super(configurationClass);
+
+        marshallerPool = new GenericBlockingResourcePool<Unmarshaller>(
+                new UnmarshallerConstructionStrategy(jaxbContext));
+    }
+    
+    @Override
+    public T read(ConfigurationResource cr) {
+        final Object parsedObject = marshallerPool.use(new UnmarshallerResourceContext(cr));
+        final Object returnable = parsedObject instanceof JAXBElement
+                ? ((JAXBElement)parsedObject).getValue()
+                : parsedObject;
+                
+        if (!configurationClass().isInstance(returnable)) {
+             throw new ClassCastException("Parsed object from XML does not match the expected configuration class. "
+                     + "Expected: " + configurationClass().getCanonicalName() + "  -  "
+                     + "Actual: " + returnable.getClass().getCanonicalName());
+        }
+        
+        return configurationClass().cast(returnable);
+    }
+}

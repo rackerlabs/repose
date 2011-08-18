@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<limits xmlns:lim="http://docs.openstack.org/common/api/v1.0" xmlns="http://docs.openstack.org/common/api/v1.0">
+    <rates>
+        <rate regex="/loadbalancer/.*" uri="*loadbalancer*">
+            <limit next-available="2011-04-07T19:07:29.730Z" unit="HOUR" remaining="20" value="20" verb="GET"/>
+            <limit next-available="2011-04-07T19:07:29.734Z" unit="HOUR" remaining="20" value="20" verb="PUT"/>
+            <limit next-available="2011-04-07T19:07:29.736Z" unit="HOUR" remaining="20" value="20" verb="DELETE"/>
+            <limit next-available="2011-04-07T19:07:29.737Z" unit="HOUR" remaining="20" value="20" verb="POST"/>
+        </rate>
+        
+        <rate regex="/loadbalancer/vips/.*" uri="*loadbalancer/vips*">
+            <limit next-available="2011-04-07T19:07:29.738Z" unit="HOUR" remaining="18" value="20" verb="GET"/>
+            <limit next-available="2011-04-07T19:07:29.740Z" unit="HOUR" remaining="20" value="20" verb="DELETE"/>
+            <limit next-available="2011-04-07T19:07:29.741Z" unit="HOUR" remaining="18" value="20" verb="PUT"/>
+            <limit next-available="2011-04-07T19:07:29.742Z" unit="HOUR" remaining="20" value="20" verb="POST"/>
+        </rate>
+    </rates>
+    
+    <absolute>
+        <limit name="an absolute" value="5"/>
+        <limit name="domain_value" value="3"/>
+    </absolute>
+</limits>

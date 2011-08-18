@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+    <!-- Some useful entities borrowed from HTML -->
+    <!ENTITY ndash  "&#x2013;">
+    <!ENTITY mdash  "&#x2014;">
+    <!ENTITY hellip "&#x2026;">
+
+    <!-- Useful for describing APIs -->
+    <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
+    <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
+    <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
+    <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
+
+    <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Check_mark_23x20_02.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+
+    <!ENTITY ARROW  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Arrow_east.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+]>
+<book version="5.0" status="draft" xmlns="http://docbook.org/ns/docbook"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:svg="http://www.w3.org/2000/svg"
+      xmlns:m="http://www.w3.org/1998/Math/MathML"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      xmlns:db="http://docbook.org/ns/docbook" >
+    <?rax pdf.url="../../papi-versioning-deploy.pdf"?>
+    <title>Rackspace Cloud Power API Versioning Component Deployment Handbook</title>
+    <?rax status.bar.text="CONFIDENTIAL"?>
+    <?rax title.font.size="35px" subtitle.font.size="20px"?>
+    <titleabbrev>RAX Cloud PAPI Versioning Deployment</titleabbrev>
+    <info>
+        <author>
+            <personname>
+                <firstname/>
+                <surname/>
+            </personname>
+            <affiliation>
+                <orgname>Rackspace Cloud</orgname>
+            </affiliation>
+        </author>
+        <copyright>
+            <year>2010</year>
+            <year>2011</year>
+            <holder>Rackspace US, Inc.</holder>
+        </copyright>
+        <releaseinfo>API v0.9</releaseinfo>
+        <productname>Rackspace Cloud Power API</productname>
+        <pubdate>2011-06-15</pubdate>
+        <legalnotice role="rs-api">
+            <annotation>
+                <remark>Copyright details are filled in by the template.</remark>
+            </annotation>
+        </legalnotice>
+        <abstract>
+            <para>This document is intended for systems administrators interested in configuring
+                their service to use the Versioning component of the Rackspace Cloud Power
+                Application Program Interface (<abbrev>API</abbrev>). </para>
+        </abstract>
+        <cover>
+            <para>this is a placeholder for the front cover</para>
+        </cover>
+        <cover>
+            <para>this is a placeholder for the back cover</para>
+        </cover>
+    </info>
+    <chapter xml:id="Overview-d1e85">
+        <title>Overview</title>
+        <section xml:id="Purpose-d1e90">
+            <title>Purpose</title>
+            <para>
+                The purpose of this handbook is to facilitate deployment of Power API's versioning component. 
+                This handbook is not a tutorial.
+                It provides basic information that will help you understand and deploy this Power API component, but you must adapt this information to suit your own configuration.
+            </para>
+            <para>
+                Versioning enables ReST services to roll out updates and changes without causing end-client breakage.
+                A new version of the service API can be released, but clients who are not ready to use the new version can specify a preference for the old version.
+                Clients can also request a catalog of available versions; 
+                each version in the catalog is marked with a status, such as <code>CURRENT</code> or <code>DEPRECATED</code>, which the client can use for guidance in deciding which version to use.
+            </para>
+            <para>
+                This handbook is focused on one Power API component.
+                Other Power API components are documented in companion handbooks.
+            </para>
+        </section>
+        <section xml:id="Document_Change_History-d1e102">
+            <title>Document Change History</title>
+            <para>This version of the guide replaces and obsoletes all previous versions.
+                The most recent changes are described in the table below: </para>
+            <informaltable rules="all">
+                <thead>
+                    <tr align="center">
+                        <td colspan="1">Revision Date</td>
+                        <td colspan="4">Summary of Changes</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr align="left">
+                        <td colspan="1" align="center">Jun 30, 2011</td>
+                        <td colspan="4" align="left">
+                            <itemizedlist spacing="compact">
+                                <listitem>
+                                    <para>Initial release.</para>
+                                </listitem>
+                            </itemizedlist>
+                        </td>
+                    </tr>
+                </tbody>
+            </informaltable>
+        </section>
+        <section security="writeronly" xml:id="Additional_Resources_REPLACE_WITH_PAPI_CONTENT_-d1e147">
+            <title>Additional Resources (REPLACE WITH PAPI CONTENT)</title>
+            <annotation>
+                <remark>"Additional Resources" is used in other API doc to suggest places to go for
+                    help if this document isn't helping enough: contact Cloud Support, check the
+                    Knowledge Center, visit the retail site, blogs, twitter, wherever people might
+                    be offering help. We don't have any sources like that to offer for Power API
+                    support, so this text is included from Load Balancers as an example &amp;
+                    reminder; build this section correctly when we have something useful to offer." </remark>
+            </annotation>
+            <para>You can download the most current version of this document from the Rackspace Cloud website at <link xlink:href="http://docs.rackspacecloud.com/loadbalancers/api/clb-devguide-latest.pdf">
+                http://docs.rackspacecloud.com/loadbalancers/api/clb-devguide-latest.pdf</link>. </para>
+            <para>For more details about the Rackspace Cloud Load Balancer service, refer to <link xlink:href="http://www.rackspace.com/cloud/cloud_hosting_products/loadbalancers/">http://www.rackspace.com/cloud/cloud_hosting_products/loadbalancers/</link>.
+                This site also offers links to Rackspace's official support channels, including
+                knowledge base articles, forums, phone, chat, and email. </para>
+            <para>You can also follow updates and announcements via twitter at <link xlink:href="http://www.twitter.com/Rackspace">http://www.twitter.com/Rackspace</link>.
+            </para>
+        </section>
+    </chapter>
+    <chapter xml:id="Msg_Enhancement-d1e172">
+        <title>Message Enhancement and Routing</title>
+        <para>
+            The versioning component does not route requests, nor is it responsible for routing. 
+            The versioning component's purpose is to annotate incoming requests with their intended destination and describe the available versions to the user.
+        </para>
+        <para> The versioning component enhances the incoming request with an HTTP header named
+                <code>X-PP-Service-Origin</code>. This header can be used by components further down
+            the stack to perform routing. </para>
+        <figure xml:id="Overview">
+            <title>Overview of PAPI Versioning</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="figures/papi-versioning-overview.png" format="PNG" align="center"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+    </chapter>
+    <chapter xml:id="Configuration-d1e365">
+        <title>Configuration</title>
+        <example>
+            <title>System Model: XML</title>
+            <programlisting language="xml">
+<xi:include href="samples/papi-powerproxy-versioning.xml" parse="text"/>
+                    </programlisting>
+        </example>
+        <example>
+            <title>Versioning Configuration: XML</title>
+            <programlisting language="xml">
+<xi:include href="samples/papi-versioning-versioning.xml" parse="text"/>
+                    </programlisting>
+        </example>        
+        <section xml:id="Service_Root-d1e373">
+            <title>Service Root</title>
+            <para>
+                The configuration's service root describes the base URL of the origin service without any versioning information in the URI variant. 
+                This value is used to identify requests against the origin service's resource root as well as construct valid, versioned URIs for the origin service.   
+            </para>
+         </section>
+         <section xml:id="Version_Mappings-d1e388">
+            <title>Version Mappings</title>
+            <para>
+                Version mappings describe the available versions to the requester.
+            </para>
+            <para>
+                A version mapping must include:
+            </para>
+                <itemizedlist> 
+                <listitem>
+                <para> 
+                    <code>id</code>: The ID is responsible for two things. 
+                    First, a service version's ID must uniquely identify the version mapping within the configuration; 
+                    no two service versions may share the same ID. 
+                    In addition, the ID must also be the resource variant that follows the service root which identifies this version. 
+                    For example, in <code>http://service.api.vendor.com/root/[v1.0/]path/to/resource</code>, the version variant is within square brackets.
+                </para>
+                </listitem>
+                <listitem>
+                <para>
+                    <code>pp-host-id</code>: The power proxy host ID is used to identify which power proxy host (as described in the system model) will answer to versioned requests that match this version mapping.
+                </para>
+                </listitem>
+                <listitem>
+                <para>
+                    <code>name</code>: The name of a version mapping is an arbitrary, human-readable identifier that need not maintain uniqueness.
+                </para>
+                </listitem>
+                <listitem>
+                <para>
+                    <code>status</code>: A version mapping's status is described as one of four string enumerations (see Appendix A) which describe the status of the version. 
+                    This status may be interpreted by the requester without restriction.
+                </para>
+                </listitem>
+                <listitem>
+                <para>
+                    <code>media-types</code>: A version mapping must also describe the types of content it can understand and return. 
+                    These media types must include both their base type (described as a MIME type without versioning or vendor information) and the complex type (described as a MIME type with versioning and/or vendor information) 
+                    as human-readable attributes.
+                </para>
+                </listitem>
+                </itemizedlist>  
+         </section>
+        <section xml:id="ATOM_Links-d1e398">
+            <title>Atom Links</title>
+            <para>
+                Atom links are used to richly describe any links that are identified in any returned service version. 
+                For more information about Atom. please see the Atom Syndication Format as defined in RFC 4287 
+                at <link xlink:href="http://tools.ietf.org/html/rfc4287/">http://tools.ietf.org/html/rfc4287/</link>.
+            </para>
+        </section>
+    </chapter>
+    <chapter xml:id="Handling_Requests-d1e431">
+        <title>Handling Requests</title>
+        <para> Versioning in Power API operates on requests in two ways: 
+            <itemizedlist
+                spacing="compact">
+                <listitem>
+                    <para> accept header introspection </para>
+                </listitem>
+                <listitem>
+                    <para> URI variant introspection </para>
+                </listitem>
+            </itemizedlist>
+        </para>
+        <figure xml:id="Normal">
+            <title>Normal Handling of Versioning Request</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="figures/papi-versioning-normal.png" format="PNG" align="center"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <section xml:id="Complex_MIME-d1e439">
+        <title>Complex Request MIME Types</title>
+        <para>
+            The versioning component supports two methods for describing the requested service version in the HTTP request.
+        </para>
+        <section xml:id="Complex_MIME_Vendor-d1e447">
+            <title>Complex MIME Type with Vendor Specification</title>
+               <para> 
+                    In the MIME Type for the "Accept" HTTP header, a request may specify which vendor namespace it is expecting to format the response.
+                    For example, in <code>application/vnd.rackspace-v1.0+xml</code>,           
+                    the vendor namespace has been specified as <code>vnd.rackspace</code> and version <code>v1.0</code> of the service API has been requested.
+               </para>
+               <para>
+                   Vendor specifications do not modify how the versioning service routes requests. 
+                   The information is still parsed and stored, however, and may be utilized by other components further down the stack.
+               </para>
+        </section>
+            <section xml:id="Complex-MIME-Version-d1e470">
+                <title>Complex MIME Type with Version Specification</title>
+                <para>
+                    In the MIME Type for the "Accept" HTTP header, a request may specify which version it is expecting to process the response.
+                    For example, in <code>application/v1.0+xml</code>,           
+                    version <code>v1.0</code> of the service API has been requested.
+                </para>
+            </section>
+            </section>
+            <section xml:id="Request_Variant-d1e491">
+            <title>Request URI Variants</title>
+            <para> 
+                In addition to MIME type introspection, the versioning component supports version tagging via the requested URI variant.
+            </para>
+            <para> For example, in &GET;
+                    /<parameter>root</parameter>/<code>v1.0</code>/<parameter>path</parameter>/<parameter>to</parameter>/<parameter>resource</parameter>
+                HTTP/1.1 version <code>v1.0</code> of the service API has been requested. </para> 
+            </section>
+    </chapter>
+    <chapter xml:id="Describing_Versions-d1e531">
+        <title>Describing Versions</title>
+        <para>
+            The versioning component may, upon request, describe all of the available service versions or one particular version.
+        </para>
+        <figure xml:id="Description">
+            <title>Version Catalog as Response to Versioning Request</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="figures/papi-versioning-description.png" format="PNG" align="center"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <section xml:id="All_Versions-d1e539">
+            <title>Describing All Versions</title>
+            <para>
+                A requester may request that the versioning component describe all available service versions.
+                This is done by requesting the service root without any versioning information in the request.
+            </para>            
+            <example>
+                <title>Describe All Versions Request: XML</title>
+                <?dbfo keep-together="always"?>
+                <literallayout class="monospaced">
+GET /root/ HTTP/1.1
+Accept: application/xml
+                </literallayout>
+            </example>
+            <example>
+                <title>Multiple Choices Response: XML</title>
+                <programlisting language="xml">
+<xi:include href="samples/papi-allversions-response.xml" parse="text"/>
+                    </programlisting>
+            </example>
+        </section>
+            <section xml:id="One_Version-d1e547">
+                <title>Describing a Single Version</title>
+                <para> 
+                    A requester may request that the versioning component describe a single service version by requesting the service version's root. 
+                    The service version's root may be requested in two ways:
+                    <itemizedlist
+                        spacing="compact">
+                        <listitem>
+                            <para> via URI variant </para>
+                        </listitem>
+                        <listitem>
+                            <para> via complex MIME Type </para>
+                        </listitem>
+                    </itemizedlist> 
+                </para>
+                <example>
+                    <title>Describe Single Version Using URI Variant Request: XML</title>
+                    <?dbfo keep-together="always"?>
+                    <literallayout class="monospaced">
+GET /root/v1.0/ HTTP/1.1
+Accept: application/xml
+                </literallayout>
+                </example>
+                <example>
+                    <title>Describe Single Version Using Complex MIME Type Request: XML</title>
+                    <?dbfo keep-together="always"?>
+                    <literallayout class="monospaced">
+GET /root/ HTTP/1.1
+Accept: application/v1.0+xml
+                </literallayout>
+                </example>
+                <example>
+                    <title>Describe Single Version Using Namespace in Complex MIME Type Request: XML</title>
+                    <?dbfo keep-together="always"?>
+                    <literallayout class="monospaced">
+GET /root/ HTTP/1.1
+Accept: application/vnd.rackspace-v1.0+xml
+                </literallayout>
+                </example>
+                <example>
+                    <title>Single Version Response: XML</title>
+                    <programlisting language="xml">
+<xi:include href="samples/papi-1version-response.xml" parse="text"/>
+                    </programlisting>
+                </example>                
+            </section>
+    </chapter>
+    <chapter xml:id="Errors-d1e631">
+        <title>Handling Errors</title>
+        <para>
+            If a requester makes a request that cannot be mapped to a valid service version,
+            the versioning component will return a 300 (Multiple Choices) as well as a full service version catalog that the requester can then use to make the correct request. 
+            The resulting Atom links within the service version catalog will retain the incorrectly-requested resource in an attempt to correctly link the requester to valid, versioned representations.
+        </para>
+        <figure xml:id="Error">
+            <title>Error Handling of Versioning Request</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="figures/papi-versioning-error.png" format="PNG" align="center"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <example>
+            <title>Unspecified Version Request: XML</title>
+            <?dbfo keep-together="always"?>
+            <literallayout class="monospaced">
+GET /1234/path/to/widget/12 HTTP/1.1
+Accept: application/xml
+                </literallayout>
+        </example>
+        <example>
+            <title>Multiple Choices Response: XML</title>
+            <programlisting language="xml">
+<xi:include href="samples/papi-choices-response.xml" parse="text"/>
+                    </programlisting>
+        </example>
+    </chapter>
+</book>

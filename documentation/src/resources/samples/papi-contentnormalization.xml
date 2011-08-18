@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<content-normalization xmlns="http://docs.api.rackspacecloud.com/powerapi/content-normalization/v1.0">
+    <http-header-whitelist>
+        <header>ACCEPT</header>
+        <header>X-AUTH-TOKEN</header>
+        <header>X-AUTH-USER</header>
+        <header>X-API-CALLBACK</header>
+    </http-header-whitelist>
+</content-normalization>

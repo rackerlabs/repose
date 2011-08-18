@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.rackspace.papi.external.clients</groupId>
+        <artifactId>service-client-support</artifactId>
+        <version>0.9-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.rackspace.cloud.services.clients</groupId>
+    <artifactId>rackspace-auth-v1.1</artifactId>
+    <version>0.9-SNAPSHOT</version>
+
+    <name>Power API Service Client - Rackspace Auth v1.1</name>
+    
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-httpclient</groupId>
+            <artifactId>commons-httpclient</artifactId>
+        </dependency>
+    </dependencies>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.sun.tools.xjc.maven2</groupId>
+                <artifactId>maven-jaxb-plugin</artifactId>
+                
+                <configuration>                    
+                    <includeSchemas>
+                        <includeSchema>**/*.xsd</includeSchema>
+                    </includeSchemas>
+                    
+                    <includeBindings>
+                        <includeBinding>**/*.xjb</includeBinding>
+                    </includeBindings>
+                    
+                    <strict>true</strict>
+                    <verbose>false</verbose>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+

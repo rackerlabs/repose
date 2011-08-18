@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.rackspace.papi.components</groupId>
+        <artifactId>components-support</artifactId>
+        <version>0.9-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.rackspace.papi.components</groupId>
+    <artifactId>filter-bundle</artifactId>
+    
+    <name>Power API Components - EAR Bundle</name>
+    <description>TODO</description>
+
+    <packaging>ear</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>rate-limiting</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>versioning</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>content-normalization</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>content-negotiation</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>client-auth</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>service-auth</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>http-logging</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>distributed-datastore</artifactId>
+        </dependency>                    
+    </dependencies>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-ear-plugin</artifactId>
+                    <version>2.5</version>
+
+                    <extensions>true</extensions>                    
+
+                    <executions>
+                        <execution>                           
+                            <id>Package Ear Contents</id>
+
+                            <phase>package</phase>
+
+                            <goals>
+                                <goal>ear</goal>
+                            </goals>
+                        </execution>
+                    </executions>                   
+
+                    <configuration>
+                        <generateApplicationXml>false</generateApplicationXml>
+                        <manifestFile>src/main/application/META-INF/MANIFEST.MF</manifestFile>
+                        <modules>
+                            <jarModule>
+                                <groupId>com.rackspace.papi.components</groupId>
+                                <artifactId>versioning</artifactId>
+                            </jarModule>
+
+                            <jarModule>
+                                <groupId>com.rackspace.papi.components</groupId>
+                                <artifactId>client-auth</artifactId>
+                            </jarModule>
+
+                            <jarModule>
+                                <groupId>com.rackspace.papi.components</groupId>
+                                <artifactId>content-negotiation</artifactId>
+                            </jarModule>
+
+                            <jarModule>
+                                <groupId>com.rackspace.papi.components</groupId>
+                                <artifactId>content-normalization</artifactId>
+                            </jarModule>
+
+                            <jarModule>
+                                <groupId>com.rackspace.papi.components</groupId>
+                                <artifactId>http-logging</artifactId>
+                            </jarModule>                            
+
+                            <jarModule>
+                                <groupId>com.rackspace.papi.components</groupId>
+                                <artifactId>rate-limiting</artifactId>
+                            </jarModule>
+
+                            <jarModule>
+                                <groupId>com.rackspace.papi.components</groupId>
+                                <artifactId>service-auth</artifactId>
+                            </jarModule>
+                            
+                            <jarModule>
+                                <groupId>com.rackspace.papi.components</groupId>
+                                <artifactId>distributed-datastore</artifactId>
+                            </jarModule>             
+                        </modules>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>

@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../xslt/schema.xslt"?>
+
+<!-- (C) 2010 Rackspace Hosting, All Rights Reserved -->
+
+<schema
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:auth="http://docs.rackspacecloud.com/auth/api/v1.1"
+    xmlns:xsdxt="http://docs.rackspacecloud.com/xsd-ext/v1.0"
+    targetNamespace="http://docs.rackspacecloud.com/auth/api/v1.1">
+
+    <annotation>
+        <xsd:appinfo
+            xml:lang="EN"
+            xmlns="http://www.w3.org/1999/xhtml">
+            <xsdxt:title>Auth User</xsdxt:title>
+            <xsdxt:link rel="index" href="admin-api.xsd" />
+        </xsd:appinfo>
+        <xsd:documentation
+            xml:lang="EN"
+            xmlns="http://www.w3.org/1999/xhtml">
+            <p>
+                This schema defines entity contains entities related to a user.
+            </p>
+        </xsd:documentation>
+    </annotation>
+
+    <include schemaLocation="baseURLs.xsd">
+        <annotation>
+            <xsd:documentation
+                xml:lang="EN"
+                xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    Entities related to baseURLs and baseURLRefrences, used to
+                    build serviceCatalogs.
+                </p>
+            </xsd:documentation>
+        </annotation>
+    </include>
+
+    <element name="user" type="auth:User">
+        <annotation>
+            <xsd:documentation
+                xml:lang="EN"
+                xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    An Auth User.
+                </p>
+            </xsd:documentation>
+            <xsd:appinfo>
+                <xsdxt:samples>
+                    <xsdxt:sample>
+                        <xsdxt:code type="application/xml" href="../samples/user.xml" />
+                    </xsdxt:sample>
+                    <xsdxt:sample>
+                        <xsdxt:code type="application/json" href="../samples/user.json" />
+                    </xsdxt:sample>
+                </xsdxt:samples>
+            </xsd:appinfo>
+        </annotation>
+    </element>
+
+    <!-- Complex Types -->
+    <complexType name="User">
+        <sequence>
+            <element ref="auth:baseURLRefs" minOccurs="0">
+                <annotation>
+                    <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                        <p>
+                            A reference to BaseURLs associated with the user.
+                        </p>
+                    </xsd:documentation>
+                </annotation>
+            </element>
+        </sequence>
+        <attribute name="id" type="xsd:ID" use="optional">
+            <annotation>
+                <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        A  unique user id.  This is also known as the CLOUD username.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="mossoId" type="xsd:int" use="optional">
+            <annotation>
+                <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        The mosso account number associated with this user.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="nastId" type="xsd:string" use="optional">
+            <annotation>
+                <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        The mosso account number associated with this user.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="key" type="xsd:string" use="optional">
+            <annotation>
+                <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        The user's API Key.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="enabled" type="xsd:boolean" default="true" use="optional">
+            <annotation>
+                <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        True if the user is enabled.  A user cannot log in if
+                        enabled is false.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <!-- Migration-disabled --> 
+        <!-- 
+        <attribute name="migrated" type="xsd:boolean" use="optional">
+            <annotation>
+                <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        Whether this user has been migrated to IDM.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+         -->
+        <attribute name="created" type="xsd:dateTime" use="optional">
+            <annotation>
+                <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        A Timestamp of when the user was created.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+        <attribute name="updated" type="xsd:dateTime" use="optional">
+            <annotation>
+                <xsd:documentation
+                    xml:lang="EN"
+                    xmlns="http://www.w3.org/1999/xhtml">
+                    <p>
+                        A Timestamp of when the user was last updated.
+                    </p>
+                </xsd:documentation>
+            </annotation>
+        </attribute>
+    </complexType>
+
+    <complexType name="UserWithOnlyEnabled">
+        <annotation>
+            <xsd:documentation
+                xml:lang="EN"
+                xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    The only allowed attribute for this User type is the enabled
+                    attribute.
+                </p>
+            </xsd:documentation>
+        </annotation>
+        <complexContent>
+            <restriction base="auth:User">
+                <attribute name="id" type="xsd:ID" use="prohibited"/>
+                <attribute name="mossoId" type="xsd:int" use="prohibited"/>
+                <attribute name="nastId" type="xsd:string" use="prohibited"/>
+                <attribute name="key" type="xsd:string" use="prohibited"/>
+                <attribute name="created" type="xsd:dateTime" use="prohibited"/>
+                <attribute name="updated" type="xsd:dateTime" use="prohibited"/>
+                <attribute name="enabled" type="xsd:boolean" use="required">
+                    <annotation>
+                        <xsd:documentation
+                            xml:lang="EN"
+                            xmlns="http://www.w3.org/1999/xhtml">
+                            <p>
+                                True if the user is enabled.  A user cannot log in if
+                                enabled is false.
+                            </p>
+                        </xsd:documentation>
+                    </annotation>
+                </attribute>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="UserWithOnlyKey">
+        <annotation>
+            <xsd:documentation
+                xml:lang="EN"
+                xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    The only allowed attribute for this User type is the key
+                    attribute.
+                </p>
+            </xsd:documentation>
+        </annotation>
+        <complexContent>
+            <restriction base="auth:User">
+                <attribute name="id" type="xsd:ID" use="prohibited"/>
+                <attribute name="mossoId" type="xsd:int" use="prohibited"/>
+                <attribute name="nastId" type="xsd:string" use="prohibited"/>
+                <attribute name="enabled" type="xsd:boolean" use="prohibited"/>
+                <attribute name="created" type="xsd:dateTime" use="prohibited"/>
+                <attribute name="updated" type="xsd:dateTime" use="prohibited"/>
+                <attribute name="key" type="xsd:string" use="required">
+                    <annotation>
+                        <xsd:documentation
+                            xml:lang="EN"
+                            xmlns="http://www.w3.org/1999/xhtml">
+                            <p>
+                                The user's API Key.
+                            </p>
+                        </xsd:documentation>
+                    </annotation>
+                </attribute>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <complexType name="UserWithId">
+        <complexContent>
+            <restriction base="auth:User">
+                <attribute name="id" type="xsd:ID" use="required">
+                    <annotation>
+                        <xsd:documentation
+                            xml:lang="EN"
+                            xmlns="http://www.w3.org/1999/xhtml">
+                            <p>
+                                A  unique user id.  This is also known as the CLOUD username.
+                            </p>
+                        </xsd:documentation>
+                    </annotation>
+                </attribute>
+            </restriction>
+        </complexContent>
+    </complexType>
+
+    <!-- Simple Types -->
+    <simpleType name="UserType">
+        <annotation>
+            <xsd:documentation
+                xml:lang="EN"
+                xmlns="http://www.w3.org/1999/xhtml">
+                <p>
+                    An authRequest can be made with various user/account
+                    names. The UserType signifies what kind of account is
+                    being used to log in.
+                </p>
+            </xsd:documentation>
+        </annotation>
+        <restriction base="xsd:string">
+            <enumeration value="CLOUD">
+                <annotation>
+                    <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                        <p>
+                            Cloud username.  This is the same as the unique user id
+                            in the UserType.
+                        </p>
+                    </xsd:documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="NAST">
+                <annotation>
+                    <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                        <p>
+                            Nast account number.  This is the same as a nastId in
+                            the UserType.
+                        </p>
+                    </xsd:documentation>
+                </annotation>
+            </enumeration>
+            <enumeration value="MOSSO">
+                <annotation>
+                    <xsd:documentation
+                        xml:lang="EN"
+                        xmlns="http://www.w3.org/1999/xhtml">
+                        <p>
+                            Mosso account number. This is the same as mossoId in
+                            the UserType.
+                        </p>
+                    </xsd:documentation>
+                </annotation>
+            </enumeration>
+        </restriction>
+    </simpleType>
+</schema>

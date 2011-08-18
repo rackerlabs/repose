@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.rackspace.papi.core</groupId>
+        <artifactId>core-support</artifactId>
+        <version>0.9-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.rackspace.papi.core</groupId>
+    <artifactId>web-application</artifactId>
+
+    <name>Power API Core - Root Web Application</name>
+    
+    <description>
+        This is the ROOT.war application project for Power API. This is a simple
+        integration artifact that allows a client to let an application container
+        deploy this application and therefore host and start Power API. This model
+        is essential for existing Java API projects only.
+    </description>
+
+    <packaging>war</packaging>
+    
+    <dependencies>
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>classloader</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>utilities</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>configuration</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.rackspace.papi.core</groupId>
+            <artifactId>core-lib</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>ROOT</finalName>
+    </build>
+</project>

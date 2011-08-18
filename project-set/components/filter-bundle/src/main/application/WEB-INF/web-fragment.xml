@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-fragment xmlns="http://java.sun.com/xml/ns/javaee">
+    <filter>
+        <filter-name>dist-datastore</filter-name>
+        <filter-class>com.rackspace.papi.components.datastore.DistributedDatastoreFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>client-auth</filter-name>
+        <filter-class>com.rackspace.papi.components.clientauth.ClientAuthenticationFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>content-negotiation</filter-name>
+        <filter-class>com.rackspace.papi.components.cneg.ContentNegotiationFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>content-normalization</filter-name>
+        <filter-class>com.rackspace.papi.components.cnorm.ContentNormalizationFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>http-logging</filter-name>
+        <filter-class>com.rackspace.papi.components.logging.HttpLoggingFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>rate-limiting</filter-name>
+        <filter-class>com.rackspace.papi.components.ratelimit.RateLimitingFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>service-auth</filter-name>
+        <filter-class>com.rackspace.papi.components.serviceauth.ServiceAuthenticationFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>versioning</filter-name>
+        <filter-class>com.rackspace.papi.components.versioning.VersioningFilter</filter-class>
+    </filter>
+</web-fragment>

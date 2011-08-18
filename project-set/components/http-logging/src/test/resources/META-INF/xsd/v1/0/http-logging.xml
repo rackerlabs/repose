@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<http-logging xmlns="http://docs.rackspacecloud.com/power-api/http-logging/v1.0">
+    <http-log id="some-logger-1" format="[%t] %m %a %U">
+        <targets>
+            <file location ="b" />
+        </targets>
+    </http-log>
+
+    <http-log id="some-logger-2" format="%h %l">
+        <targets>
+            <file location ="a" />
+            <syslog host="external" port="5981" />
+        </targets>
+    </http-log>
+</http-logging>

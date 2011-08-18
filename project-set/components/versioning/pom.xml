@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.rackspace.papi.components</groupId>
+        <artifactId>components-support</artifactId>
+        <version>0.9-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.rackspace.papi.components</groupId>
+    <artifactId>versioning</artifactId>
+
+    <name>Power API Components - Versioning</name>
+    <description>TODO</description>
+
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.rackspace.papi.core</groupId>
+            <artifactId>core-lib</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>configuration</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>utilities</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!--<plugin>-->
+                <!--<groupId>org.codehaus.mojo</groupId>-->
+                <!--<artifactId>xml-maven-plugin</artifactId>-->
+                <!--<version>1.0-beta-3</version>-->
+
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<goals>-->
+                            <!--<goal>transform</goal>-->
+                        <!--</goals>-->
+                        <!---->
+                        <!--<phase>generate-sources</phase>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+
+                <!--<configuration>-->
+                    <!--<transformationSets>-->
+                        <!--<transformationSet>-->
+                            <!--<dir>${basedir}/src/main/resources/META-INF/schema</dir>-->
+                            <!--<stylesheet>${basedir}/src/main/resources/META-INF/transform/xslt/s1.0p.xsl</stylesheet>-->
+                        <!--</transformationSet>-->
+                    <!--</transformationSets>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
+
+            <plugin>
+                <groupId>com.sun.tools.xjc.maven2</groupId>
+                <artifactId>maven-jaxb-plugin</artifactId>
+                
+                <configuration>
+                    <!--<schemaDirectory>${basedir}/target/generated-resources/xml/xslt</schemaDirectory>-->
+
+                    <includeSchemas>
+                        <includeSchema>**/*.xsd</includeSchema>
+                    </includeSchemas>
+                    
+                    <includeBindings>
+                        <includeBinding>**/*.xjb</includeBinding>
+                    </includeBindings>
+                    
+                    <strict>true</strict>
+                    <verbose>true</verbose>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

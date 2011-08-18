@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<limits xmlns="http://docs.openstack.org/common/api/v1.0">
+    <rates>
+        <rate uri="/service*" regex="/service/([\d^/]*)/.*">
+            <limit value="5" verb="DELETE" unit="MINUTE" 
+                remaining="1" next-available="2010-12-15T22:42:12Z" />
+            <limit value="15" verb="PUT" unit="HOUR" 
+                remaining="4" next-available="2010-12-15T22:42:12Z" />
+            <limit value="2" verb="POST" unit="DAY" 
+                remaining="1" next-available="2010-12-15T22:42:12Z" />
+        </rate>
+    </rates>
+</limits>

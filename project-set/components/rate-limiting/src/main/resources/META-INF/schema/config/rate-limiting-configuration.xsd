@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.rackspacecloud.com/power-api/rate-limiting/v1.0"
+           xmlns:rl="http://docs.rackspacecloud.com/power-api/rate-limiting/v1.0"
+           xmlns:live-limits="http://docs.openstack.org/common/api/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Import shared types with live limits -->
+    <xs:import namespace="http://docs.openstack.org/common/api/v1.0" schemaLocation="../limits/limits.xsd" />
+
+
+    <!-- Enumeration and SimpleType definitions -->
+    <xs:simpleType name="StringList">
+        <xs:list itemType="xs:string" />
+    </xs:simpleType>
+
+    <xs:simpleType name="HttpMethodList">
+        <xs:list itemType="live-limits:HttpMethod" />
+    </xs:simpleType>
+
+
+    <!-- Configuration Schema Definitions -->
+    <xs:element name="rate-limiting" type="rl:RateLimitingConfiguration" />
+
+    <xs:complexType name="RateLimitingConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Outlines a collection of rate limits as well as the descriptor
+                    for configuring an endpoint for rate limits introspection GET requests
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="request-endpoint" type="rl:RequestEndpoint" minOccurs="1" maxOccurs="1" />
+            <xs:element name="limit-group" type="rl:ConfiguredLimitGroup" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="RequestEndpoint">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Defines an endpoint with a matching regex to bind GET
+                    requests for returning rate limit information
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="include-absolute-limits" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Informs the rate limiting component that the origin 
+                        service will return absolute limits. If this is set to
+                        true then the request will be passed to the origin service
+                        and the response marshalled to include the returned absolute
+                        limits from the origin service.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="uri-regex" type="xs:string" use="optional" default="\/limits\/(\d*)\/">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines a regex to match the mapping against</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="ConfiguredLimitGroup">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines a list of rate limits and the groups they are associated with</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="limit" type="rl:ConfiguredRatelimit" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Unique id to identify the group of rate limits</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="default" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Determines whether or not this list of rate limits should
+                        be considered the default when role matching fails
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="roles" type="rl:StringList" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>List of roles that the list of rate limits is associated with</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="ConfiguredRatelimit">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines a single rate limit</html:p>
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:attribute name="uri" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Human readable version of the matcher used to enforce this rate limit</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="uri-regex" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Regex matcher used to map requests to this rate limit</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="http-methods" type="rl:HttpMethodList" use="optional" default="ALL">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>List of HTTP Methods this rate limit will match on</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="value" type="xs:int" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Number of requests that this rate limit will allow</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="unit" type="live-limits:TimeUnit" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Unit of time that limit enforcement should use</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+</xs:schema>

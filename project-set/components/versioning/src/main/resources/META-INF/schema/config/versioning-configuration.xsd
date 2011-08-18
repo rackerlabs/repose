@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.rackspacecloud.com/power-api/versioning/v1.0"
+           xmlns:vers-config="http://docs.rackspacecloud.com/power-api/versioning/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="versioning" type="vers-config:ServiceVersionMappingList" />
+
+    <xs:complexType name="ServiceVersionMappingList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="service-root" type="vers-config:ServiceRootContext" minOccurs="1" maxOccurs="1" />
+            <xs:element name="version-mapping" type="vers-config:ServiceVersionMapping" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ServiceRootContext">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="href" type="xs:anyURI">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="ServiceVersionMapping">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="media-types" type="vers-config:MediaTypeList" minOccurs="0" maxOccurs="1" />
+        </xs:sequence>
+
+        <xs:attribute name="id" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="pp-host-id" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="name" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="status" type="vers-config:VersionStatus" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        A status describes the current operational state of
+                        the given service version. The operational status is captured in a
+                        simple type enumeration called VersionStatus.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+    </xs:complexType>
+
+    <!-- Types -->
+    <xs:simpleType name="VersionStatus">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    The VersionStatus type describes a service's operational status.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="DEPRECATED" />
+            <xs:enumeration value="ALPHA" />
+            <xs:enumeration value="BETA" />
+            <xs:enumeration value="CURRENT" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="MediaTypeList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A MediaTypeList outlines a collection of valid media types for a given
+                    service version.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="media-type" type="vers-config:MediaType" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="MediaType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    A MediaType describes what content types the service version understands.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="base" type="xs:string" use="optional" default="">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The base of a given media type describes the simple MIME type
+                        that then a more complicated media type can be derived from. These
+                        types are basic and provide no namespace or version specific
+                        data and are only provided as a convenience. Because of this the
+                        base attribute is declared as optional.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="type" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        The type attribute of a MediaType describes the MIME specific
+                        identifier of the media type in question. This identifier should include
+                        a vendor namespace (
+                        <html:a href="http://tools.ietf.org/html/rfc2048">See RFC 2048</html:a>)
+                        as well as a version suffix.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+</xs:schema>

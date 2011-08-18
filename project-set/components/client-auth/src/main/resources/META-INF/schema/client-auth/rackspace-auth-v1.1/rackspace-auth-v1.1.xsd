@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.rackspacecloud.com/power-api/client-auth/auth-1.1/v1.0"
+           xmlns:auth-1.1="http://docs.rackspacecloud.com/power-api/client-auth/auth-1.1/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Enumerations -->
+    <xs:simpleType name="account-type">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Account types recognized by the service</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="MOSSO" />
+            <xs:enumeration value="NAST" />
+            <xs:enumeration value="CLOUD" />
+            <xs:enumeration value="EXT" />
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <!-- Configuration -->
+    <xs:element name="rackspace-auth">
+        <xs:complexType>
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines a Rackspace Cloud Auth version 1.1 configuration</html:p>
+                </xs:documentation>
+            </xs:annotation>
+
+            <xs:sequence>
+                <xs:element name="authentication-server" type="auth-1.1:authenticationServer" minOccurs="1" maxOccurs="1" />
+                <xs:element name="account-mapping" type="auth-1.1:accountMapping" minOccurs="1" maxOccurs="unbounded" />
+            </xs:sequence>
+            
+            <xs:attribute name="delegatable" type="xs:boolean" use="optional" default="false">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Tells the service whether or not to support auth delegation</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="authenticationServer">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Describes an authentication 1.1 endpoint</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="username" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Username to use (Basic Auth Only)</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="password" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Password to use (Basic Auth Only)</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="uri" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Target URI for authentication requests</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="accountMapping">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Describes how to extract the account id from a given URI</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="id-regex" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Regex used to extract the account id from a given URI</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        
+        <xs:attribute name="type" type="auth-1.1:account-type" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Type of the account id that was sent in as part of the request</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+</xs:schema>

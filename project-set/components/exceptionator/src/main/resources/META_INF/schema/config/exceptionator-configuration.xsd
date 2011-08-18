@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.rackspacecloud.com/power-api/exceptionator/v1.0"
+           xmlns:exp-config="http://docs.rackspacecloud.com/power-api/exceptionator/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="exceptionator" type="exp-config:ExceptionatorConfig" />
+
+    <xs:complexType name="ExceptionatorConfig">
+         <xs:annotation>
+             <xs:documentation>
+                 <html:p>This is the config object with the info for the exception thrown by the filter.</html:p>
+             </xs:documentation>
+         </xs:annotation>
+
+        <xs:attribute name="exceptionFQName" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>This is a fully-qualified name of the exception that should be thrown by the filter.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="exceptionMessage" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>This is the message that will be injected into the generated exception.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+     </xs:complexType>
+</xs:schema>

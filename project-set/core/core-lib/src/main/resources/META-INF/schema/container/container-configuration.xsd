@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.rackspacecloud.com/power-api/container/v1.0"
+           xmlns:papic="http://docs.rackspacecloud.com/power-api/container/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="powerapi-container" type="papic:ContainerConfiguration" />
+
+    <xs:complexType name="ContainerConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="deployment-config" type="papic:DeploymentConfiguration" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="DeploymentConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="deployment-directory" type="papic:DeploymentDirectory" minOccurs="1" maxOccurs="1" />
+            <xs:element name="artifact-directory" type="papic:ArtifactDirectory" minOccurs="1" maxOccurs="1" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ArtifactDirectory">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="check-interval" type="xs:int" use="optional" default="15">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>Directory check interval in seconds</html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>    
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="DeploymentDirectory">
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:annotation>
+                    <xs:documentation>
+                    </xs:documentation>
+                </xs:annotation>
+
+                <xs:attribute name="auto-clean" type="xs:boolean" use="optional" default="false">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>Clean up undeployed resources</html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+</xs:schema>

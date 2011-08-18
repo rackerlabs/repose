@@ -3,10 +3,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.rackspace.papi</groupId>
-    <artifactId>support-pom-master</artifactId>
+    <artifactId>papi</artifactId>
     <version>0.9-SNAPSHOT</version>
 
-    <name>Rackspace Cloud Support Master POM</name>
+    <name>Power API - Master Project POM</name>
 
     <description>
         Master POM file to provide deployment and other useful information to
@@ -34,27 +34,35 @@
     </licenses>
 
     <modules>
-        <module>profiles</module>
+        <module>documentation</module>
+        <module>project-set</module>
     </modules>
 
     <scm>
         <connection>scm:git:ssh://git@github.com:rackspace/power-api.git</connection>
     </scm>
+    
+    <repositories>
+        <repository>
+            <id>public.maven.research.rackspace.com</id>
+            
+            <name>Rackspace Research Plugins</name>
+            <url>http://maven-n01.rcloudtech.rackspacecloud.com/m2/content/groups/public/</url>
+        </repository>
+    </repositories>
 
     <distributionManagement>
         <repository>
             <id>releases.maven.research.rackspace.com</id>
  
-            <name>Internal Rackspace Cloud Research Releases</name>
+            <name>Rackspace Research Releases</name>
             <url>http://maven-n01.research.rackspace.com/content/repositories/releases</url>
         </repository>
-
+        
         <snapshotRepository>
-            <uniqueVersion>false</uniqueVersion>
-            
             <id>snapshots.maven.research.rackspace.com</id>
 
-            <name>Internal Rackspace Cloud Research Snapshots</name>
+            <name>Rackspace Research Snapshots</name>
             <url>http://maven-n01.research.rackspace.com/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>

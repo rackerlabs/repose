@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.rackspacecloud.com/power-api/system-model/v1.0"
+           xmlns:mod="http://docs.rackspacecloud.com/power-api/system-model/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="power-proxy" type="mod:PowerProxy" />
+
+    <xs:complexType name="PowerProxy">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Top level element for defining a power proxy system model</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="host" type="mod:Host" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Host">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines a single proxy in the system model</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="filters" type="mod:FilterList" minOccurs="0" maxOccurs="1" />
+        </xs:sequence>
+
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines the proxy's id which will be referenced elsewhere in different configs</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="hostname" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Hostname of the node this proxy model defines. This will be used for personality matching when the proxy is started</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="service-port" type="xs:int" use="optional" default="80">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Port number of the http service of the host</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        
+        <xs:attribute name="href" type="xs:anyURI" use="optional" default="">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>URI that describes the routable address the host presents to the world</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="FilterList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>List of filters that the proxy will then execute in order of definition</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="filter" type="mod:Filter" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="Filter">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines a filter that can be used to process and route requests</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The system context specific name of the filter module to be loaded</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+<!--
+    TODO: Revisit forwarding at the host level
+-->
+</xs:schema>

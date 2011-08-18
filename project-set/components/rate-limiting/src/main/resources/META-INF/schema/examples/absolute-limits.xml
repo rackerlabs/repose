@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<limits xmlns="http://docs.openstack.org/common/api/v1.0">
+    <absolute>
+        <limit name="an absolute" value="5" />
+        <limit name="domain_value" value="3" />
+    </absolute>
+</limits>
