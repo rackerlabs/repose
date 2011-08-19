@@ -33,10 +33,10 @@
       xmlns:html="http://www.w3.org/1999/xhtml"
       xmlns:db="http://docbook.org/ns/docbook" >
     <?rax pdf.url="../../papi-versioning-deploy.pdf"?>
-    <title>Rackspace Cloud Power API Rate Limiting Component Deployment Handbook</title>
+    <title>Power API Rate Limiting Component Deployment Handbook</title>
     <?rax status.bar.text="CONFIDENTIAL"?>
-    <?rax title.font.size="35px" subtitle.font.size="20px"?>
-    <titleabbrev>RAX Cloud PAPI Rate Limiting Deployment</titleabbrev>
+    <?rax title.font.size="35px" subtitle.font.size="16px"?>
+    <titleabbrev>PAPI Rate Limiting Deployment</titleabbrev>
     <info>
         <author>
             <personname>
@@ -53,8 +53,8 @@
             <holder>Rackspace US, Inc.</holder>
         </copyright>
         <releaseinfo>API v0.9</releaseinfo>
-        <productname>Rackspace Cloud Power API</productname>
-        <pubdate>2011-06-15</pubdate>
+        <productname>Power API</productname>
+        <pubdate>2011-08-19</pubdate>
         <legalnotice role="rs-api">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -65,12 +65,6 @@
                 their service to use the Rate Limiting component of the Rackspace Cloud Power
                 Application Program Interface (<abbrev>API</abbrev>). </para>
         </abstract>
-        <cover>
-            <para>this is a placeholder for the front cover</para>
-        </cover>
-        <cover>
-            <para>this is a placeholder for the back cover</para>
-        </cover>
     </info>
     <chapter xml:id="Overview-d1e85">
         <title>Overview</title>
