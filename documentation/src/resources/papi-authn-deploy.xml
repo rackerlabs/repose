@@ -32,10 +32,10 @@
       xmlns:m="http://www.w3.org/1998/Math/MathML"
       xmlns:html="http://www.w3.org/1999/xhtml"
       xmlns:db="http://docbook.org/ns/docbook" >
-    <?rax pdf.url="../../papi-versioning-deploy.pdf"?>
-    <title>Power API Rate Authentication Component Deployment Handbook</title>
+    <?rax pdf.url="../../papi-authn-deploy.pdf"?>
+    <title>Power API Authentication Component Deployment Handbook</title>
     <?rax status.bar.text="CONFIDENTIAL"?>
-    <?rax title.font.size="35px" subtitle.font.size="20px"?>
+    <?rax title.font.size="35px" subtitle.font.size="16px"?>
     <titleabbrev>PAPI Authentication Deployment</titleabbrev>
     <info>
         <author>
@@ -136,10 +136,54 @@
         </para>
         <example>
             <title>Client Authentication Configuration: XML</title>
-            <programlisting language="xml">
+            <programlistingco>
+                <areaspec>
+                    <area xml:id="papi-authn.xml.delegateable" units="linecolumn" coords="7 21"/>
+                    <area xml:id="papi-authn.xml.server" units="linecolumn" coords="10 10"/>
+                    <area xml:id="papi-authn.xml.uri" units="linecolumn" coords="11 13"/>
+                    <area xml:id="papi-authn.xml.auth" units="linecolumn" coords="11 51"/>
+                    <area xml:id="papi-authn.xml.regex" units="linecolumn" coords="13 29"/>
+                </areaspec> 
+                <programlisting language="xml">
 <xi:include href="samples/papi-authn.xml" parse="text"/>
-                    </programlisting>
-        </example>        
+                </programlisting>
+            </programlistingco>     
+        </example>
+        <calloutlist>
+            <callout arearefs="papi-authn.xml.delegateable">
+                <para>
+                    In accordance with http://wiki.openstack.org/openstack-authn all authentications modules support authentication <firstterm>delegation</firstterm>. 
+                    Delegation may be enabled or disabled by setting the rackspace-auth attribute "delegatable" to true or false. 
+                    To better protect services, delegation always defaults to false.
+                </para>
+            </callout>
+            <callout arearefs="papi-authn.xml.server">
+                <para>
+                    The <firstterm>authentication-server</firstterm> element is used to tell the component which authentication end-point to validate tokens against. 
+                    While the password is required in this configuration file, it is important to note that file permissions can be set to make this file user-readable only and therefore marginally safer.
+                </para>
+            </callout>
+            <callout arearefs="papi-authn.xml.uri">
+                <para> 
+                    The <firstterm>URI</firstterm> attribute of the authentication-server configuration element informs the component of where it must route token validation requests. 
+                    This URI must include all necessary information required to make an HTTP request, 
+                    including the port number the service is listening on as well as the authentication service's context root.
+                </para>
+            </callout>
+            <callout arearefs="papi-authn.xml.auth">
+                <para> 
+                    The authentication service's context root is <firstterm>/auth</firstterm> in this case.
+                </para>
+            </callout>
+            <callout arearefs="papi-authn.xml.regex">
+                <para> 
+                    Account mappings in the configuration inform the component of where in client requested URIs to source the client's identity string from. 
+                    This is achieved via a regular expression (<firstterm>regex</firstterm>). In this regular expression the service implementor is required to specify a regular expression capture group which, 
+                    when executed, will capture the requesting client's identity string. 
+                    This string will then be sent to the authentication service. The type of account must be specified in the type attribute.
+                </para>
+            </callout>
+        </calloutlist>
         <section xml:id="Setting_Active_Limits-d1e373">
             <title>Setting Active Limits</title>
             <para>
