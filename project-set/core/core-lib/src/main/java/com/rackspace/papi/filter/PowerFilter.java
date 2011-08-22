@@ -2,6 +2,7 @@ package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.config.manager.LockedConfigurationUpdater;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.filter.ApplicationContextAwareFilter;
 import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
@@ -100,6 +101,8 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
         final RequestFilterChainState requestFilterChainState = new RequestFilterChainState(Collections.unmodifiableList(this.filterChain), chain);
 
+        mutableHttpResponse.setHeader(CommonHttpHeader.CONTENT_TYPE.headerKey(), mutableHttpRequest.getHeader(CommonHttpHeader.ACCEPT.headerKey()));
+
         try {
             requestFilterChainState.doFilter(mutableHttpRequest, mutableHttpResponse);
         } catch (Throwable t) {
@@ -108,6 +111,8 @@ public class PowerFilter extends ApplicationContextAwareFilter {
             papiContext.responseMessageService().handle(mutableHttpRequest, mutableHttpResponse);
 
             LOG.error("Exception encountered while processing filter chain", t);
+        } finally {
+            mutableHttpResponse.flushBuffer();
         }
     }
 }
