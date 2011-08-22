@@ -15,13 +15,13 @@
     
     <listener>
         <display-name>Power API Context Loader</display-name>
-        <listener-class>com.rackspace.powerapi.service.context.PowerApiContextManager</listener-class>
+        <listener-class>com.rackspace.papi.service.context.PowerApiContextManager</listener-class>
     </listener>
 
     <!-- Filters -->
     <filter id="power-api-filter">
         <filter-name>power-api-filter</filter-name>
-        <filter-class>com.rackspace.powerapi.filter.PowerFilter</filter-class>
+        <filter-class>com.rackspace.papi.filter.PowerFilter</filter-class>
     </filter>
     
     <filter-mapping id="power-api-filter-mapping">
