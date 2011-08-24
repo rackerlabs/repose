@@ -23,10 +23,12 @@ public class PowerFilterChainBuilder {
     }
 
     public List<FilterContext> build(ApplicationClassLoader classLoaderContextManager, PowerProxy powerProxy) {
-        List<FilterContext> filterContexts = new LinkedList<FilterContext>();
+        final List<FilterContext> filterContexts = new LinkedList<FilterContext>();
 
         for (com.rackspace.papi.model.Filter papiFilter : new LocalhostFilterList(powerProxy).getFilters()) {
-            FilterContext context = getFilterContext(classLoaderContextManager, papiFilter);
+            //TODO: Validate Filter configuration contents - i.e. null name
+            
+            final FilterContext context = getFilterContext(classLoaderContextManager, papiFilter);
 
             if (context != null) {
                 filterContexts.add(context);
