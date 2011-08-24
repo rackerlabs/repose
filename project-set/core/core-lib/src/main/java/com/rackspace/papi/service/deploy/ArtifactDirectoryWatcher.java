@@ -12,7 +12,7 @@ public class ArtifactDirectoryWatcher implements Runnable, Destroyable {
     private static final int DEFAULT_DIRECTORY_CHECK_INTERVAL = 12000;
 
     private final EventService eventManagerReference;
-    private final Map<String, Long> artifactSizes;
+    private final Map<String, Long> artifactModificationTimes;
     
     private int checkIntervalInMilliseconds;
     private File artifactDirectory;
@@ -23,7 +23,7 @@ public class ArtifactDirectoryWatcher implements Runnable, Destroyable {
         this.eventManagerReference = eventManagerReference;
         this.checkIntervalInMilliseconds = DEFAULT_DIRECTORY_CHECK_INTERVAL;
 
-        artifactSizes = new HashMap<String, Long>();
+        artifactModificationTimes = new HashMap<String, Long>();
     }
 
     public synchronized void updateCheckInterval(int checkInterval) {
@@ -50,8 +50,9 @@ public class ArtifactDirectoryWatcher implements Runnable, Destroyable {
         }
     }
 
+    // TODO: decompose
     private void checkArtifacts(final File artifactDirectoryReference) {
-        final Set<String> previousArtifacts = new HashSet<String>(artifactSizes.keySet());
+        final Set<String> removedArtifacts = new HashSet<String>(artifactModificationTimes.keySet());
 
         if (artifactDirectoryReference == null) {
             throw new DeploymentDirectoryNotFoundException("The Power API configured deployment directory is null.  Please check the Power API configuration file.");
@@ -59,26 +60,28 @@ public class ArtifactDirectoryWatcher implements Runnable, Destroyable {
 
         for (String artifactPath : artifactDirectoryReference.list(EarFilenameFilter.getInstance())) {
             final File artifactFile = new File(artifactDirectoryReference, artifactPath);
-            final Long previousArtifactSize = artifactSizes.get(artifactPath), currentArtifactSize = artifactFile.length();
+            final long lastModifiedTime = artifactFile.lastModified();
+            
+            if (artifactModificationTimes.containsKey(artifactPath)) {
+                final long lastRecordedModifiedTime = artifactModificationTimes.get(artifactPath);
+                
+                removedArtifacts.remove(artifactPath);
 
-            if (previousArtifactSize != null) {
-                previousArtifacts.remove(artifactPath);
-
-                if (previousArtifactSize != artifactFile.length()) {
-                    artifactSizes.put(artifactPath, currentArtifactSize);
+                if (lastRecordedModifiedTime != lastModifiedTime) {
+                    artifactModificationTimes.put(artifactPath, lastModifiedTime);
                     eventManagerReference.newEvent(ApplicationArtifactEvent.UPDATED, artifactFile.getAbsolutePath());
                 }
             } else {
                 eventManagerReference.newEvent(ApplicationArtifactEvent.NEW, artifactFile.getAbsolutePath());
             }
             
-            artifactSizes.put(artifactPath, currentArtifactSize);
+            artifactModificationTimes.put(artifactPath, lastModifiedTime);
         }
 
-        for (String artifactPath : previousArtifacts) {
+        for (String artifactPath : removedArtifacts) {
             final File artifactFile = new File(artifactDirectoryReference, artifactPath);
             
-            artifactSizes.remove(artifactPath);
+            artifactModificationTimes.remove(artifactPath);
             eventManagerReference.newEvent(ApplicationArtifactEvent.DELETED, artifactFile.getAbsolutePath());
         }
     }

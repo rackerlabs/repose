@@ -131,7 +131,7 @@ public abstract class EarTestSupport {
     private static File createDeploymentDestination(String target) {
         final File deploymentDestination = new File(TMP_DIR, target);
 
-        if (!deploymentDestination.mkdirs()) {
+        if (!deploymentDestination.exists() && !deploymentDestination.mkdirs()) {
             fail("failed to make directory: {" + TMP_DIR + ",  " + target + "}");
         }
 

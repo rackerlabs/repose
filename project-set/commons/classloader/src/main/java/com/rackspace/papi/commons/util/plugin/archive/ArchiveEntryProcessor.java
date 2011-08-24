@@ -1,15 +1,21 @@
 package com.rackspace.papi.commons.util.plugin.archive;
 
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.io.OutputStreamSplitter;
+import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.plugin.archive.jar.DirectoryHelper;
 
 import java.io.*;
 import java.util.jar.JarInputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  */
 public class ArchiveEntryProcessor {
+    private static final Logger LOG = LoggerFactory.getLogger(ArchiveEntryProcessor.class);
+    
     private final ArchiveEntryDescriptor archiveEntryDescriptor;
     private final File unpackRootDirectory;
     private final ArchiveEntryListener listener;
@@ -48,14 +54,7 @@ public class ArchiveEntryProcessor {
             outputStreamReference = new OutputStreamSplitter(byteArrayOutput, unpackEntry());
         }
 
-        final byte[] buffer = new byte[BUFFER_READ_LENGTH_IN_BYTES];
-        int read;
-
-        while ((read = jarInputStream.read(buffer)) != -1) {
-            outputStreamReference.write(buffer, 0, read);
-        }
-
-        outputStreamReference.close();
+        RawInputStreamReader.instance().copyTo(jarInputStream, outputStreamReference);
 
         // add to internal resource hashtable
         return byteArrayOutput.toByteArray();
@@ -63,9 +62,17 @@ public class ArchiveEntryProcessor {
 
     public FileOutputStream unpackEntry() throws FileNotFoundException {
         final String prefix = archiveEntryDescriptor.getPrefix();
-        final File targetDir = new DirectoryHelper(unpackRootDirectory, prefix).createTargetDirectory();
+        final File targetDir = new File(unpackRootDirectory, StringUtilities.isBlank(prefix) ? "" : prefix);
+        final DirectoryHelper directoryHelper = new DirectoryHelper(targetDir);
+        
+        if (!directoryHelper.exists()) {
+            if (!directoryHelper.createTargetDirectory()) {
+                LOG.error("Unable to create target directory for unpacking artifact - Target directory: " + targetDir);
+            }
+        }
+        
         final File target = new File(targetDir, archiveEntryDescriptor.getSimpleName() + "." + archiveEntryDescriptor.getExtension());
-
+        
         return new FileOutputStream(target);
     }
 

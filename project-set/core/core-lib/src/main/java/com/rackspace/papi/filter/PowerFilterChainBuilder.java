@@ -1,8 +1,9 @@
 package com.rackspace.papi.filter;
 
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.model.Filter;
 import com.rackspace.papi.model.PowerProxy;
-import com.rackspace.papi.service.classloader.ApplicationClassLoader;
+import com.rackspace.papi.service.classloader.ApplicationClassLoaderManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,23 +23,30 @@ public class PowerFilterChainBuilder {
         filterContextManager = new FilterContextManagerImpl(filterConfig);
     }
 
-    public List<FilterContext> build(ApplicationClassLoader classLoaderContextManager, PowerProxy powerProxy) {
+    public List<FilterContext> build(ApplicationClassLoaderManager classLoaderContextManager, PowerProxy powerProxy) {
         final List<FilterContext> filterContexts = new LinkedList<FilterContext>();
 
         for (com.rackspace.papi.model.Filter papiFilter : new LocalhostFilterList(powerProxy).getFilters()) {
-            //TODO: Validate Filter configuration contents - i.e. null name
+            if (StringUtilities.isBlank(papiFilter.getName())) {
+                LOG.error("Filter declaration has a null or empty name value - please check your system model configuration");
+                continue;
+            }
             
-            final FilterContext context = getFilterContext(classLoaderContextManager, papiFilter);
+            if (classLoaderContextManager.hasFilter(papiFilter.getName())) {
+                final FilterContext context = getFilterContext(classLoaderContextManager, papiFilter);
 
-            if (context != null) {
-                filterContexts.add(context);
+                if (context != null) {
+                    filterContexts.add(context);
+                }
+            } else {
+                LOG.error("Unable to satisfy requested filter chain - none of the loaded artifacts supply a filter named " + papiFilter.getName());
             }
         }
 
         return new LinkedList<FilterContext>(filterContexts);
     }
 
-    public FilterContext getFilterContext(ApplicationClassLoader classLoaderContextManager, Filter papiFilter) {
+    public FilterContext getFilterContext(ApplicationClassLoaderManager classLoaderContextManager, Filter papiFilter) {
         FilterContext context = null;
 
         try {

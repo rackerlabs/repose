@@ -6,15 +6,16 @@ import com.rackspace.papi.service.event.Event;
 import com.rackspace.papi.service.event.listener.EventListener;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.service.deploy.ApplicationDeploymentEvent;
+import com.rackspace.papi.service.event.EventService;
 import javax.servlet.ServletContextEvent;
 
-public class ClassLoaderServiceContext implements ServiceContext<ApplicationClassLoader> {
+public class ClassLoaderServiceContext implements ServiceContext<ApplicationClassLoaderManager> {
 
     public static final String SERVICE_NAME = "powerapi:/kernel/classloader";
-    private final ApplicationClassLoaderImpl classLoaderContext;
+    private final ApplicationClassLoaderManagerImpl classLoaderContext;
 
     public ClassLoaderServiceContext() {
-        classLoaderContext = new ApplicationClassLoaderImpl();
+        classLoaderContext = new ApplicationClassLoaderManagerImpl();
     }
 
     @Override
@@ -23,23 +24,35 @@ public class ClassLoaderServiceContext implements ServiceContext<ApplicationClas
     }
 
     @Override
-    public ApplicationClassLoader getService() {
+    public ApplicationClassLoaderManager getService() {
         return classLoaderContext;
     }
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        ServletContextHelper.getPowerApiContext(sce.getServletContext()).eventService().listen(
+        final EventService eventSerivce = ServletContextHelper.getPowerApiContext(sce.getServletContext()).eventService();
+
+        eventSerivce.listen(
                 new EventListener<ApplicationDeploymentEvent, EarClassLoaderContext>() {
 
                     @Override
                     public void onEvent(Event<ApplicationDeploymentEvent, EarClassLoaderContext> e) {
                         final EarClassLoaderContext ctx = e.payload();
 
-                        classLoaderContext.putContext(ctx.getEarDescriptor().getApplicationName(), ctx);
+                        classLoaderContext.putApplication(ctx.getEarDescriptor().getApplicationName(), ctx);
                         e.eventManager().newEvent(ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED, ctx.getEarDescriptor().getApplicationName());
                     }
                 }, ApplicationDeploymentEvent.APPLICATION_LOADED);
+
+        eventSerivce.listen(
+                new EventListener<ApplicationDeploymentEvent, String>() {
+
+                    @Override
+                    public void onEvent(Event<ApplicationDeploymentEvent, String> e) {
+                        classLoaderContext.removeApplication(e.payload());
+                        e.eventManager().newEvent(ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED, e.payload());
+                    }
+                }, ApplicationDeploymentEvent.APPLICATION_DELETED);
     }
 
     @Override

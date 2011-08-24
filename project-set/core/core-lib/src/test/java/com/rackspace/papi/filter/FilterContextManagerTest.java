@@ -101,8 +101,8 @@ public class FilterContextManagerTest {
     }
 
     public static class WhenGettingFilterClassFactory {
-        @Test
-        public void shouldReturnNullIfGivenAnEmptyList() throws ClassNotFoundException {
+        @Test (expected=IllegalStateException.class)
+        public void shouldThrowExceptionIfGivenAnEmptyList() throws ClassNotFoundException {
             assertNull(FilterContextManagerImpl.getFilterClassFactory("", new LinkedList<EarClassLoaderContext>()));
         }
     }

@@ -5,13 +5,13 @@ import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.rms.ResponseMessageService;
 import com.rackspace.papi.service.ServiceUnavailableException;
 import com.rackspace.papi.service.event.EventService;
-import com.rackspace.papi.service.classloader.ApplicationClassLoader;
+import com.rackspace.papi.service.classloader.ApplicationClassLoaderManager;
 import com.rackspace.papi.service.thread.ThreadingService;
 
 public interface ContextAdapter {
 
     //used to load filter classes dynamically
-    ApplicationClassLoader classLoader() throws ServiceUnavailableException;
+    ApplicationClassLoaderManager classLoader() throws ServiceUnavailableException;
 
     EventService eventService() throws ServiceUnavailableException;
 
