@@ -47,7 +47,7 @@
             <id>public.maven.research.rackspace.com</id>
             
             <name>Rackspace Research</name>
-            <url>http://maven.research.rackspacecloud.com/content/groups/all/</url>
+            <url>http://maven.research.rackspacecloud.com/content/groups/aggregate//</url>
         </repository>
     </repositories>
 
