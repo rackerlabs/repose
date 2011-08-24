@@ -24,12 +24,7 @@ import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.Calendar;
 
 /**
@@ -39,21 +34,12 @@ import java.util.Calendar;
 public class AuthServiceClient {
 
     private final HttpClient client;
-    private final Unmarshaller jaxbTypeUnmarshaller;
+    private final ResponseUnmarshaller responseUnmarshaller;
     private final String targetHostUri;
 
     public AuthServiceClient(String targetHostUri, String username, String password) {
         this.client = new HttpClient();
-
-        try {
-            final JAXBContext jaxbContext = JAXBContext.newInstance(com.rackspacecloud.docs.auth.api.v1.ObjectFactory.class);
-            jaxbTypeUnmarshaller = jaxbContext.createUnmarshaller();
-        } catch (JAXBException jaxbe) {
-            throw new AuthServiceException(
-                    "Possible deployment problem! Unable to build JAXB Context for Auth v1.1 schema types. Reason: "
-                    + jaxbe.getMessage(), jaxbe);
-        }
-
+        this.responseUnmarshaller = new ResponseUnmarshaller();
         this.targetHostUri = targetHostUri;
 
         final Credentials defaultCredentials = new UsernamePasswordCredentials(username, password);
@@ -61,119 +47,99 @@ public class AuthServiceClient {
     }
 
     public AuthenticationResponse validateToken(Account account, String token) throws AuthServiceException {
-        final GetMethod validateTokenMethod = new GetMethod(targetHostUri + "/token/" + token);
-
         final NameValuePair[] queryParameters = new NameValuePair[2];
         queryParameters[0] = new NameValuePair("belongsTo", account.getId());
         queryParameters[1] = new NameValuePair("type", account.getType());
 
-        validateTokenMethod.setQueryString(queryParameters);
-        validateTokenMethod.addRequestHeader("Accept", "application/xml");
-
-        final int response = execute(validateTokenMethod);
+        final GetMethod validateTokenMethod = get(targetHostUri + "/token/" + token, queryParameters);
+        final int response = validateTokenMethod.getStatusCode();
+        AuthenticationResponse authenticationResponse;
 
         switch (response) {
             case 200:
-                final FullToken tokenResponse = marshallFromMethod(validateTokenMethod, FullToken.class);
+                final FullToken tokenResponse = responseUnmarshaller.unmarshall(validateTokenMethod, FullToken.class);
                 final Long expireTtl = tokenResponse.getExpires().toGregorianCalendar().getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
 
-                return new AuthenticationResponse(response, tokenResponse.getId(), true, expireTtl.intValue());
+                authenticationResponse = new AuthenticationResponse(response, tokenResponse.getId(), true, expireTtl.intValue());
+                break;
+            default :
+                authenticationResponse = new AuthenticationResponse(response, null, false, -1);
         }
 
-        return new AuthenticationResponse(response, null, false, -1);
-    }
-
-    public ServiceCatalog getServiceCatalogForUser(String user) throws AuthServiceException {
-        final GetMethod getServiceCatalogMethod = new GetMethod(targetHostUri + "/users/" + user + "/serviceCatalog");
-        getServiceCatalogMethod.addRequestHeader("Accept", "application/xml");
-
-        final int response = execute(getServiceCatalogMethod);
-
-        ServiceCatalog catalog = null;
-
-        switch (response) {
-            case 200:
-                catalog = marshallFromMethod(getServiceCatalogMethod, ServiceCatalog.class);
-        }
-
-        return catalog;
+        return authenticationResponse;
     }
 
     public GroupsList getGroups(String userId) {
-        final GetMethod groupsMethod = new GetMethod(targetHostUri + "/users/" + userId + "/groups");
-        groupsMethod.addRequestHeader("Accept", "application/xml");
-
-        final int response = execute(groupsMethod);
-
+        final GetMethod groupsMethod = get(targetHostUri + "/users/" + userId + "/groups", null);
+        final int response = groupsMethod.getStatusCode();
         GroupsList groups = null;
 
         switch (response) {
             case 200:
-                groups = marshallFromMethod(groupsMethod, GroupsList.class);
+                groups = responseUnmarshaller.unmarshall(groupsMethod, GroupsList.class);
         }
 
         return groups;
     }
 
-    //TODO: Fix multiple returns
-    public AuthorizationResponse authorizeUser(String user, String requestedUri) throws AuthServiceException {
-        final GetMethod getServiceCatalogMethod = new GetMethod(targetHostUri + "/users/" + user + "/serviceCatalog");
-        getServiceCatalogMethod.addRequestHeader("Accept", "application/xml");
-
-        final int response = execute(getServiceCatalogMethod);
+    public ServiceCatalog getServiceCatalogForUser(String user) throws AuthServiceException {
+        final GetMethod getServiceCatalogMethod = get(targetHostUri + "/users/" + user + "/serviceCatalog", null);
+        final int response = getServiceCatalogMethod.getStatusCode();
+        ServiceCatalog catalog = null;
 
         switch (response) {
             case 200:
-                final ServiceCatalog catalog = marshallFromMethod(getServiceCatalogMethod, ServiceCatalog.class);
+                catalog = responseUnmarshaller.unmarshall(getServiceCatalogMethod, ServiceCatalog.class);
+        }
+
+        return catalog;
+    }
+
+    public AuthorizationResponse authorizeUser(String user, String requestedUri) throws AuthServiceException {
+        final GetMethod getServiceCatalogMethod = get(targetHostUri + "/users/" + user + "/serviceCatalog", null);
+        final int response = getServiceCatalogMethod.getStatusCode();
+        AuthorizationResponse authorizationResponse = null;
+
+        switch (response) {
+            case 200:
+                final ServiceCatalog catalog = responseUnmarshaller.unmarshall(getServiceCatalogMethod, ServiceCatalog.class);
 
                 if (catalog != null) {
                     for (Service service : catalog.getService()) {
                         for (Endpoint endpoint : service.getEndpoint()) {
                             if (requestedUri.startsWith(endpoint.getPublicURL())) {
-                                return new AuthorizationResponse(response, true);
+                                authorizationResponse = new AuthorizationResponse(response, true);
                             }
                         }
                     }
                 }
 
-                return new AuthorizationResponse(403, false);
+                if (authorizationResponse == null) {
+                    authorizationResponse = new AuthorizationResponse(403, false);
+                }
+                break;
+            default :
+                authorizationResponse = new AuthorizationResponse(response, false);                     
         }
 
-        return new AuthorizationResponse(response, false);
+        return authorizationResponse;
     }
 
-    private <T> T marshallFromMethod(GetMethod method, Class<T> expectedType) {
-        try {
-            return marshalResponse(method.getResponseBodyAsString(), expectedType);
-        } catch (IOException ioe) {
-            throw new AuthServiceException("Failed to get response body from response.", ioe);
+    private GetMethod get(String uri, NameValuePair[] queryParameters) throws AuthServiceException {
+        final GetMethod getMethod = new GetMethod(uri);
+        getMethod.addRequestHeader("Accept", "application/xml");
+
+        if (queryParameters != null) {
+            getMethod.setQueryString(queryParameters);
         }
-    }
 
-    private <T> T marshalResponse(String responseBody, Class<T> classToMarshallTo) throws AuthServiceException {
         try {
-            final Object o = jaxbTypeUnmarshaller.unmarshal(new StringReader(responseBody));
-
-            if (o instanceof JAXBElement && ((JAXBElement) o).getDeclaredType().equals(classToMarshallTo)) {
-                return ((JAXBElement<T>) o).getValue();
-            } else if (o instanceof FullToken) {
-                return classToMarshallTo.cast(o);
-            } else {
-                throw new AuthServiceException("Failed to unmarshal response body. Unexpected element encountered. Body output is in debug.");
-                        
-            }
-        } catch (JAXBException jaxbe) {
-            throw new AuthServiceException("Failed to unmarshal response body. Body output is in debug. Reason: "
-                    + jaxbe.getMessage(), jaxbe);
-        }
-    }
-
-    private int execute(GetMethod method) {
-        try {
-            return client.executeMethod(method);
+            client.executeMethod(getMethod);
         } catch (IOException ioe) {
             throw new AuthServiceException("Failed to successfully communicate with Auth v1.1 Service ("
                     + targetHostUri + "): " + ioe.getMessage(), ioe);
         }
+
+        return getMethod;
     }
 }
