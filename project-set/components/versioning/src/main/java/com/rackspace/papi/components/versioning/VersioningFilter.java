@@ -45,7 +45,6 @@ public class VersioningFilter implements Filter {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(VersioningFilter.class);
     private VersioningHandler handler;
-    private ServletContext servletContext;
     private ConfigurationService configurationManager;
 
     @Override
@@ -70,12 +69,7 @@ public class VersioningFilter implements Filter {
                 mutableHttpResponse.getWriter().write(director.getResponseMessageBody());
                 mutableHttpResponse.setStatus(director.getResponseStatus().intValue());
                 director.responseHeaderManager().applyTo(mutableHttpResponse);
-                mutableHttpResponse.flushBuffer();
-                break;
-
-            case USE_MESSAGE_SERVICE:
-                ServletContextHelper.getPowerApiContext(servletContext).responseMessageService().handle(mutableHttpRequest, mutableHttpResponse);
-                break;
+                break;            
 
             case PASS:
                 chain.doFilter(mutableHttpRequest, response);
@@ -86,7 +80,7 @@ public class VersioningFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         handler = new VersioningHandler();
-        servletContext = filterConfig.getServletContext();
+        ServletContext servletContext = filterConfig.getServletContext();
         configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
                 
         configurationManager.subscribeTo("power-proxy.cfg.xml", handler.getSystemModelConfigurationListener(), PowerProxy.class);

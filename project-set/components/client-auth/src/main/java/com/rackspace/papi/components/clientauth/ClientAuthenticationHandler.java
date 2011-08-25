@@ -28,7 +28,7 @@ import com.rackspace.papi.commons.util.thread.KeyedStackLock;
 import com.rackspace.papi.auth.AuthModule;
 
 import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
-import com.rackspace.papi.components.clientauth.rackspace.RackspaceAuthModule;
+import com.rackspace.papi.components.clientauth.rackspace.RackspaceAuthenticationModule;
 import org.slf4j.Logger;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import net.sf.ehcache.CacheManager;
@@ -61,7 +61,7 @@ public class ClientAuthenticationHandler extends AbstractFilterLogicHandler {
                      * auth 'modules.'
                      */
                     if (modifiedConfig.getRackspaceAuth() != null) {
-                        authenticationModule = new RackspaceAuthModule(cacheManagerReference, modifiedConfig.getRackspaceAuth());
+                        authenticationModule = new RackspaceAuthenticationModule(cacheManagerReference, modifiedConfig.getRackspaceAuth());
                     } else if (modifiedConfig.getHttpBasicAuth() != null) {
                     } else {
                         LOG.error("Authentication module is not understood or supported. Please check your configuration.");

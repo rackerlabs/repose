@@ -46,7 +46,6 @@ public class ClientAuthenticationFilter implements Filter {
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ClientAuthenticationFilter.class);
     private CacheManager cacheManager;
     private ClientAuthenticationHandler handler;
-    private ServletContext servletContext;
 
     @Override
     public void destroy() {
@@ -80,7 +79,6 @@ public class ClientAuthenticationFilter implements Filter {
 
             default:
                 mutableHttpResponse.setStatus(director.getResponseStatus().intValue());
-                ServletContextHelper.getPowerApiContext(servletContext).responseMessageService().handle(mutableHttpRequest, mutableHttpResponse);
                 break;
         }
     }
@@ -89,7 +87,7 @@ public class ClientAuthenticationFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         cacheManager = new CacheManager();
         handler = new ClientAuthenticationHandler(cacheManager);
-        servletContext = filterConfig.getServletContext();
+        ServletContext servletContext = filterConfig.getServletContext();
         final ConfigurationService manager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
 
         manager.subscribeTo("client-auth-n.cfg.xml", handler.getClientAuthenticationConfigurationListener(), ClientAuthConfig.class);
