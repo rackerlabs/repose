@@ -71,7 +71,7 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
             // Associates this artifact with the application name for unlinking later
             setApplicationNameForArtifact(archive.getAbsolutePath(), classLoaderContext.getEarDescriptor().getApplicationName());
             
-            // Notify of the new application
+            // Notify the artifact manager of the new application
             eventManager.newEvent(ApplicationDeploymentEvent.APPLICATION_LOADED, classLoaderContext);
         } catch (IOException ioe) {
             LOG.error("Failure in loading artifact, \"" + archive.getAbsolutePath() + "\" - Reason: " + ioe.getMessage(), ioe);

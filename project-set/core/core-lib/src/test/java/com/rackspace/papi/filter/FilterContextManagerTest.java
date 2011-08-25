@@ -1,12 +1,8 @@
 package com.rackspace.papi.filter;
 
-import com.rackspace.papi.filter.FilterContextManager;
-import com.rackspace.papi.filter.FilterContext;
-import com.rackspace.papi.filter.FilterContextManagerImpl;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoader;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.commons.util.classloader.ear.EarDescriptor;
-import com.rackspace.papi.filter.FilterInitializationException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -23,12 +19,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-/**
- * Created by IntelliJ IDEA.
- * User: joshualockwood
- * Date: 6/27/11
- * Time: 12:58 PM
- */
 @RunWith(Enclosed.class)
 public class FilterContextManagerTest {
 

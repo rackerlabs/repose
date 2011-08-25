@@ -49,7 +49,7 @@ public class PowerApiConfigurationManager implements ConfigurationService {
         try {
             listener.configurationUpdated(parser.read(resource));
         } catch (Exception ex) {
-            LOG.error("Configuration update error: " + ex.getMessage());
+            LOG.error("Configuration update error: " + ex.getMessage(), ex);
         }
     }
 

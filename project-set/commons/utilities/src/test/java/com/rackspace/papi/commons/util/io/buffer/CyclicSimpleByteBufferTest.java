@@ -1,6 +1,5 @@
 package com.rackspace.papi.commons.util.io.buffer;
 
-import com.rackspace.papi.commons.util.io.buffer.CyclicSimpleByteBuffer;
 import com.rackspace.papi.commons.util.arrays.ByteArrayComparator;
 import org.junit.Before;
 import java.io.IOException;
@@ -55,12 +54,26 @@ public class CyclicSimpleByteBufferTest {
 
         @Test
         public void shouldGrowBuffer() throws IOException {
-            final int expectedAvailable = 2048;
+            final int expectedAvailable = 8;
 
             buffer.put(new byte[6]);
             buffer.get(new byte[6]);
 
-            assertEquals("Buffer size should should have 2046 available after growing", expectedAvailable, buffer.unsafeRemaining());
+            assertEquals("Buffer size should should have 8 available after growing", expectedAvailable, buffer.unsafeRemaining());
+        }
+
+        @Test
+        public void shouldGrowBufferWhenExactlyFull() throws IOException {
+            final int expectedAvailable = 8;
+
+            buffer.put((byte) 0x01);
+            buffer.put((byte) 0x02);
+            buffer.put((byte) 0x03);
+            buffer.put((byte) 0x04);
+            buffer.put((byte) 0x05);
+            buffer.get(new byte[5]);
+
+            assertEquals("Buffer size should should have 8 available after growing", expectedAvailable, buffer.unsafeRemaining());
         }
 
         @Test
