@@ -6,7 +6,7 @@
     <artifactId>papi</artifactId>
     <version>0.9-SNAPSHOT</version>
 
-    <name>Power API - Master Project POM</name>
+    <name>Power API</name>
 
     <description>
         Master POM file to provide deployment and other useful information to
