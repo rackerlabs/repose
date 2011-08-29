@@ -399,6 +399,12 @@
                 <listitem>
                     <para>application/json</para>
                 </listitem>
+                <listitem>
+                    <para>application/vnd.vendor.service-v1+xml</para>
+                </listitem>
+                <listitem>
+                    <para>application/vnd.vendor.service;f=2;e=xml</para>
+                </listitem>
             </itemizedlist>
         </para>
         <table frame="all">
