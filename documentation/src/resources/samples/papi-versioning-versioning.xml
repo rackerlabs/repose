@@ -10,10 +10,12 @@
         </media-types>
     </version-mapping>
     
-    <version-mapping id="v2.0" pp-host-id="service-v2" name="Service Version 2.0" status="CURRENT">
+    <version-mapping id="v2.0" pp-host-id="service-v2" name="Service Version 2" status="CURRENT">
         <media-types>
-            <media-type base="application/xml" type="application/vnd.vendor.service-v2.0+xml" />
-            <media-type base="application/json" type="application/vnd.vendor.service-v2.0+json" />
+            <media-type base="application/xml" type="application/vnd.vendor.service;f=2.0;e=xml" />
+            <media-type base="application/json" type="application/vnd.vendor.service;f=2.0;e=json" />
         </media-types>
+
+        <atom:link rel="self" href="http://service.api.vendor.com/v2.0/" />
     </version-mapping>
 </versioning>
