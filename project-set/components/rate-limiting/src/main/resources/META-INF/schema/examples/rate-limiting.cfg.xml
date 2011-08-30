@@ -3,14 +3,14 @@
 <rate-limiting xmlns="http://docs.rackspacecloud.com/power-api/rate-limiting/v1.0">
     <request-endpoint uri-regex="\/servers\/limits\/" />
 
-    <limit-group id="customer-limits" roles="user customer" default="true">
+    <limit-group id="customer-limits" groups="user customer" default="true">
         <limit uri="/servers/*" uri-regex="/loadbalancing/(.*)" http-methods="GET" unit="SECOND" value="3" />
         
         <limit uri="/servers/*" uri-regex="\/servers\/.*" http-methods="POST" unit="DAY" value="10"/>
         <limit uri="/servers/*" uri-regex="\/servers\/.*" http-methods="PUT" unit="HOUR" value="5" />
     </limit-group>
 
-    <limit-group id="customer-limits" roles="test">
+    <limit-group id="customer-limits" groups="test">
         <limit uri="/servers/*" uri-regex="/loadbalancing/(.*)" http-methods="GET" unit="SECOND" value="3" />
         
         <limit uri="/servers/*" uri-regex="\/servers\/.*" http-methods="POST" unit="DAY" value="10"/>
