@@ -350,6 +350,14 @@ Accept: application/v1.0+xml
                 </literallayout>
                 </example>
                 <example>
+                    <title>Describe Single Version Using Complex Parameterized MIME Type Request: XML</title>
+                    <?dbfo keep-together="always"?>
+                    <literallayout class="monospaced">
+GET /root/ HTTP/1.1
+Accept: application/vnd.vendor.service;f=2.0;e=xml
+                </literallayout>
+                </example>
+                <example>
                     <title>Describe Single Version Using Namespace in Complex MIME Type Request: XML</title>
                     <?dbfo keep-together="always"?>
                     <literallayout class="monospaced">

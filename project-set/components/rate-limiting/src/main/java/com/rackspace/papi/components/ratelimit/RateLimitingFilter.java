@@ -78,9 +78,6 @@ public class RateLimitingFilter implements Filter {
 
                 mutableHttpResponse.setStatus(director.getResponseStatus().intValue());
                 mutableHttpResponse.getWriter().write(director.getResponseMessageBody());
-
-                mutableHttpResponse.flushBuffer();
-
                 break;
         }
     }

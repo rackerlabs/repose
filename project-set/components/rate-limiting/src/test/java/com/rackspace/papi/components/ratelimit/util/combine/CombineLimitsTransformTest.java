@@ -77,7 +77,7 @@ public class CombineLimitsTransformTest extends RateLimitTestContext {
 
             configuredLimitGroup.setDefault(Boolean.TRUE);
             configuredLimitGroup.setId("configured-limit-group");
-            configuredLimitGroup.getRoles().add("user");
+            configuredLimitGroup.getGroups().add("user");
 
             cacheMap.put(SIMPLE_URI, newCachedRateLimitFor(SIMPLE_URI, SIMPLE_URI_REGEX, HttpMethod.GET, HttpMethod.PUT));
 

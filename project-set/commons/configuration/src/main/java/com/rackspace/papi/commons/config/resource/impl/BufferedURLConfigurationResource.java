@@ -47,7 +47,7 @@ public class BufferedURLConfigurationResource implements ConfigurationResource<B
         }
     }
 
-    //TODO::Review - File descriptor management is a concern we have not looked at in depth
+    //TODO: Review - File descriptor management is a concern we have not looked at in depth
     private byte[] read(SimpleByteBuffer buffer) {
         final OutputStream bufferOut = new SimpleByteBufferOutputStream(buffer);
         final MessageDigesterOutputStream mdos = newDigesterOutputStream("MD5");

@@ -7,7 +7,7 @@ import com.rackspace.papi.service.rms.ResponseMessageService;
 import com.rackspace.papi.service.ServiceUnavailableException;
 import com.rackspace.papi.service.event.EventService;
 import com.rackspace.papi.service.event.EventManagerServiceContext;
-import com.rackspace.papi.service.classloader.ApplicationClassLoader;
+import com.rackspace.papi.service.classloader.ApplicationClassLoaderManager;
 import com.rackspace.papi.service.classloader.ClassLoaderServiceContext;
 import com.rackspace.papi.service.config.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.ResponseMessageServiceContext;
@@ -35,7 +35,7 @@ public class JndiContextAdapter implements ContextAdapter {
     }
 
     @Override
-    public ApplicationClassLoader classLoader() throws ServiceUnavailableException {
+    public ApplicationClassLoaderManager classLoader() throws ServiceUnavailableException {
         return lookup(ClassLoaderServiceContext.SERVICE_NAME, namingContext);
     }
 
