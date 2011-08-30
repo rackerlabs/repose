@@ -33,7 +33,7 @@ public abstract class RateLimitingTestSupport {
         final ConfiguredLimitGroup limitGroup = new ConfiguredLimitGroup();
         limitGroup.setDefault(Boolean.TRUE);
         limitGroup.setId(limitGroupId);
-        limitGroup.getRoles().add(userRole);
+        limitGroup.getGroups().add(userRole);
 
         final ConfiguredRatelimit rateLimit = new ConfiguredRatelimit();
         rateLimit.setUnit(TimeUnit.MINUTE);

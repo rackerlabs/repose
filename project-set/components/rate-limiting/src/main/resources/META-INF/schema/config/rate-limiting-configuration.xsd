@@ -103,10 +103,10 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="roles" type="rl:StringList" use="required">
+        <xs:attribute name="groups" type="rl:StringList" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>List of roles that the list of rate limits is associated with</html:p>
+                    <html:p>List of groups that the list of rate limits is associated with</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
