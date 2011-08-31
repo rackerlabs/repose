@@ -23,7 +23,6 @@ import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import net.sf.ehcache.CacheManager;
 import org.slf4j.Logger;
 
 import javax.servlet.Filter;
@@ -44,14 +43,12 @@ import java.io.IOException;
 public class ClientAuthenticationFilter implements Filter {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ClientAuthenticationFilter.class);
-    private CacheManager cacheManager;
     private ClientAuthenticationHandler handler;
+    private ConfigurationService configurationManager;
 
     @Override
     public void destroy() {
-        if (cacheManager != null) {
-            cacheManager.shutdown();
-        }
+        configurationManager.unsubscribeFrom("client-auth-n.cfg.xml", handler.getClientAuthenticationConfigurationListener());
     }
 
     @Override
@@ -85,11 +82,10 @@ public class ClientAuthenticationFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        cacheManager = new CacheManager();
-        handler = new ClientAuthenticationHandler(cacheManager);
+        handler = new ClientAuthenticationHandler();
         ServletContext servletContext = filterConfig.getServletContext();
-        final ConfigurationService manager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
+        configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
 
-        manager.subscribeTo("client-auth-n.cfg.xml", handler.getClientAuthenticationConfigurationListener(), ClientAuthConfig.class);
+        configurationManager.subscribeTo("client-auth-n.cfg.xml", handler.getClientAuthenticationConfigurationListener(), ClientAuthConfig.class);
     }
 }
