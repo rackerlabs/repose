@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.ratelimit;
 
-import com.rackspace.papi.components.ratelimit.RateLimitingHandler;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import org.junit.Ignore;

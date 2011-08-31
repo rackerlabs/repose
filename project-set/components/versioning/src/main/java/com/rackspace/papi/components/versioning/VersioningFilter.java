@@ -62,7 +62,7 @@ public class VersioningFilter implements Filter {
 
         final FilterDirector director = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
 
-        director.requestHeaderManager().applyTo(mutableHttpRequest);
+        director.applyTo(mutableHttpRequest, mutableHttpResponse);
 
         switch (director.getFilterAction()) {
             case RETURN:

@@ -18,10 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.fail;
 
-/**
- *
- * 
- */
 public abstract class EarTestSupport {
     private static final Logger LOG = LoggerFactory.getLogger(EarTestSupport.class);
     public static final File TMP_DIR = new File(System.getProperty("java.io.tmpdir"));

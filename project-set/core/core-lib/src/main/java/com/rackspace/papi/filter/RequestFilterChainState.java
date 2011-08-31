@@ -1,5 +1,6 @@
 package com.rackspace.papi.filter;
 
+import com.rackspace.papi.commons.util.StringUtilities;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -7,6 +8,9 @@ import javax.servlet.ServletResponse;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author fran
@@ -21,23 +25,29 @@ import java.util.List;
  * 6.  If one of the container's filters breaks out of the chain then our chain should unwind correctly
  * 
  */
-public class RequestFilterChainState implements javax.servlet.FilterChain  {
+public class RequestFilterChainState implements javax.servlet.FilterChain {
+
     private final List<FilterContext> filterChainCopy;
     private final FilterChain containerFilterChain;
     private final ClassLoader containerClassLoader;
+    private final ServletContext context;
     private int position;
 
-    public RequestFilterChainState(List<FilterContext> filterChainCopy, FilterChain containerFilterChain) {
+    public RequestFilterChainState(List<FilterContext> filterChainCopy, FilterChain containerFilterChain, ServletContext context) {
         this.filterChainCopy = new LinkedList<FilterContext>(filterChainCopy);
         this.containerFilterChain = containerFilterChain;
+        this.context = context;
         this.containerClassLoader = Thread.currentThread().getContextClassLoader();
+    }
+    
+    public void startFilterChain(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
+        doFilter(servletRequest, servletResponse);
+        route(servletRequest, servletResponse);
     }
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
-        
         if (position < filterChainCopy.size()) {
-
             final FilterContext nextFilterContext = filterChainCopy.get(position++);
 
             final Thread currentThread = Thread.currentThread();
@@ -61,6 +71,19 @@ public class RequestFilterChainState implements javax.servlet.FilterChain  {
                 containerFilterChain.doFilter(servletRequest, servletResponse);
             } finally {
                 currentThread.setContextClassLoader(previousClassLoader);
+            }
+        }
+    }
+
+    private void route(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
+        final String uriPath = ((HttpServletRequest) servletRequest).getRequestURI();
+
+        if (!StringUtilities.isBlank(uriPath)) {
+            final ServletContext targetContext = context.getContext(uriPath);
+            
+            if (targetContext != null) {
+                final RequestDispatcher dispatcher = targetContext.getRequestDispatcher(uriPath);
+                dispatcher.forward(servletRequest, servletResponse);
             }
         }
     }

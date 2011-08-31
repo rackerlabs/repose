@@ -1,23 +1,23 @@
 package com.rackspace.papi.commons.util.http;
 
+import com.rackspace.papi.commons.util.http.media.MediaRange;
+import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
+import com.rackspace.papi.commons.util.http.media.servlet.RequestMediaRangeInterrogator;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
-/**
- * Created by IntelliJ IDEA.
- * User: joshualockwood
- * Date: 6/9/11
- * Time: 4:19 PM
- */
 public class HttpRequestInfoImpl implements HttpRequestInfo {
+    private final List<MediaRange> acceptMediaRange;
+    private final MediaRange preferedMediaRange;
     private final String uri;
     private final String url;
-    private final String acceptHeader;
 
     public HttpRequestInfoImpl(HttpServletRequest request) {
         this.uri = request.getRequestURI();
         this.url = request.getRequestURL().toString();
         
-        this.acceptHeader = request.getHeader(CommonHttpHeader.ACCEPT.headerKey());
+        this.acceptMediaRange = RequestMediaRangeInterrogator.interrogate(uri, request.getHeader(CommonHttpHeader.ACCEPT.headerKey()));
+        this.preferedMediaRange = MediaRangeParser.getPerferedMediaRange(acceptMediaRange);
     }
 
     @Override
@@ -31,7 +31,18 @@ public class HttpRequestInfoImpl implements HttpRequestInfo {
     }
 
     @Override
-    public String getAcceptHeader() {
-        return acceptHeader;
+    public MediaRange getPreferedMediaRange() {
+        return preferedMediaRange;
+    }
+    
+    @Override
+    public boolean hasMediaRange(MediaRange targetRange) {
+        for (MediaRange requestedRange : acceptMediaRange) {
+            if (requestedRange.equals(targetRange)) {
+                return true;
+            }
+        }
+        
+        return false;
     }
 }

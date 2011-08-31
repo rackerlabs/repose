@@ -2,7 +2,6 @@ package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.commons.util.http.*;
 import com.rackspace.papi.commons.util.http.media.MediaType;
-import com.rackspace.papi.commons.util.http.media.servlet.RequestMediaRangeInterrogator;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.limits.schema.Limits;
 import com.rackspace.papi.components.limits.schema.RateLimitList;
@@ -80,8 +79,8 @@ public class RateLimiterResponse extends RateLimitingOperation {
 
     private void writeLimitsResponse(byte[] readableContents, HttpRequestInfo request, FilterDirector filterDirector) throws IOException {
         filterDirector.setResponseStatus(HttpStatusCode.OK);
-
-        switch (RequestMediaRangeInterrogator.interrogate(request.getUri(), request.getAcceptHeader()).getMediaType()) {
+        
+        switch (request.getPreferedMediaRange().getMediaType()) {
             case APPLICATION_XML:
                 filterDirector.getResponseOutputStream().write(readableContents);
                 filterDirector.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.headerKey(), MediaType.APPLICATION_XML.toString());

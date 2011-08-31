@@ -1,8 +1,5 @@
 package com.rackspace.papi.commons.util.transform.jaxb;
 
-import com.rackspace.papi.commons.util.pooling.ConstructionStrategy;
-import com.rackspace.papi.commons.util.pooling.GenericBlockingResourcePool;
-import com.rackspace.papi.commons.util.pooling.Pool;
 import com.rackspace.papi.commons.util.pooling.ResourceConstructionException;
 import com.rackspace.papi.commons.util.pooling.ResourceContext;
 import com.rackspace.papi.commons.util.pooling.ResourceContextException;
@@ -17,14 +14,14 @@ import javax.xml.bind.Marshaller;
  *
  * 
  */
-public class JaxbEntityToXml<T> extends AbstractJaxbTransform implements Transform<JAXBElement<T>, String> {
+public class JaxbEntityToXml extends AbstractJaxbTransform implements Transform<JAXBElement, String> {
 
     public JaxbEntityToXml(JAXBContext ctx) {
         super(ctx);
     }
 
     @Override
-    public String transform(final JAXBElement<T> source) {
+    public String transform(final JAXBElement source) {
         return getMarshallerPool().use(new ResourceContext<Marshaller, String>() {
 
             @Override

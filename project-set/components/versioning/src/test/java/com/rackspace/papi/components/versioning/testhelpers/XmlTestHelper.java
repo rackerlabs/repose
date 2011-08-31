@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.versioning.testhelpers;
 
-import com.rackspace.papi.components.versioning.VersioningTaggerHelperTest;
+import com.rackspace.papi.components.versioning.VersioningFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
@@ -31,9 +31,9 @@ public class XmlTestHelper {
         try {
             schema = SCHEMA_FACTORY.newSchema(
                     new StreamSource[]{
-                            new StreamSource(VersioningTaggerHelperTest.class.getResourceAsStream("/META-INF/schema/xml/xml.xsd")),
-                            new StreamSource(VersioningTaggerHelperTest.class.getResourceAsStream("/META-INF/schema/atom/atom.xsd")),
-                            new StreamSource(VersioningTaggerHelperTest.class.getResourceAsStream("/META-INF/schema/versioning/versioning.xsd"))
+                            new StreamSource(VersioningFilter.class.getResourceAsStream("/META-INF/schema/xml/xml.xsd")),
+                            new StreamSource(VersioningFilter.class.getResourceAsStream("/META-INF/schema/atom/atom.xsd")),
+                            new StreamSource(VersioningFilter.class.getResourceAsStream("/META-INF/schema/versioning/versioning.xsd"))
                     });
         } catch(SAXException e) {
             LOG.error("Failed to create schema object!", e);

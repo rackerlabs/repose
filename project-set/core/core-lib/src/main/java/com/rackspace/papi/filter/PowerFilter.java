@@ -82,8 +82,6 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         this.filterConfig = filterConfig;
 
         papiContext = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext());
-        FilterRegistration filterRegistration = filterConfig.getServletContext().addFilter("local-version-routing", LocalContextVersionRoutingFilter.class);
-        filterRegistration.addMappingForUrlPatterns(EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD), true, "/*");
 
         papiContext.eventService().listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
         papiContext.configurationService().subscribeTo("power-proxy.cfg.xml", systemModelConfigurationListener, PowerProxy.class);
@@ -99,12 +97,12 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
-        final RequestFilterChainState requestFilterChainState = new RequestFilterChainState(Collections.unmodifiableList(this.filterChain), chain);
+        final RequestFilterChainState requestFilterChainState = new RequestFilterChainState(Collections.unmodifiableList(this.filterChain), chain, filterConfig.getServletContext());
 
         mutableHttpResponse.setHeader(CommonHttpHeader.CONTENT_TYPE.headerKey(), mutableHttpRequest.getHeader(CommonHttpHeader.ACCEPT.headerKey()));
 
         try {
-            requestFilterChainState.doFilter(mutableHttpRequest, mutableHttpResponse);
+            requestFilterChainState.startFilterChain(mutableHttpRequest, mutableHttpResponse);
         } catch (Throwable t) {
             mutableHttpResponse.setStatus(HttpStatusCode.BAD_GATEWAY.intValue());
 

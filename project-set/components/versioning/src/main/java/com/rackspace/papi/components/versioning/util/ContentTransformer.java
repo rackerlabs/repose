@@ -1,29 +1,31 @@
 package com.rackspace.papi.components.versioning.util;
 
 import com.rackspace.papi.commons.util.http.media.MediaType;
-import com.rackspace.papi.commons.util.logging.ExceptionLogger;
+import com.rackspace.papi.commons.util.transform.StreamTransform;
 import org.slf4j.Logger;
 import com.rackspace.papi.commons.util.transform.Transform;
 import com.rackspace.papi.commons.util.transform.jaxb.JaxbEntityToXml;
-import com.rackspace.papi.commons.util.transform.xslt.JaxbXsltTransform;
+import com.rackspace.papi.commons.util.transform.jaxb.JaxbToStreamTransform;
+import com.rackspace.papi.commons.util.transform.xslt.JaxbXsltToStringTransform;
+import com.rackspace.papi.commons.util.transform.xslt.XsltToStreamTransform;
 import com.rackspace.papi.commons.util.xslt.TemplatesFactory;
 import com.rackspace.papi.servlet.ServletContextInitException;
+import java.io.OutputStream;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.transform.Templates;
 
-/**
- *
- * @author jhopper
- */
 public class ContentTransformer {
 
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ContentTransformer.class);
-    private static final ExceptionLogger EXCEPTION_LOG = new ExceptionLogger(LOG);
-    public static final String JSON_XSLT = "/META-INF/transform/xslt/version-json.xsl";
-
-    private final Transform<JAXBElement<?>, String> jsonTransform;
-    private final Transform<JAXBElement<?>, String> xmlTransform;
+    private static final String JSON_XSLT = "/META-INF/transform/xslt/version-json.xsl";
+    
+    @Deprecated
+    private final Transform<JAXBElement, String> jsonTransform;
+    @Deprecated
+    private final Transform<JAXBElement, String> xmlTransform;
+    
+    private final StreamTransform<JAXBElement, OutputStream> jsonStreamTransform;
+    private final StreamTransform<JAXBElement, OutputStream> xmlStreamTransform;
 
     public ContentTransformer() {
         try {
@@ -34,14 +36,31 @@ public class ContentTransformer {
                     TemplatesFactory.instance().parseXslt(getClass().getResourceAsStream(JSON_XSLT));
 
             xmlTransform = new JaxbEntityToXml(context);
-            jsonTransform = new JaxbXsltTransform(jsonXsltTemplates, context);
+            jsonTransform = new JaxbXsltToStringTransform(jsonXsltTemplates, context);
+            
+            xmlStreamTransform = new JaxbToStreamTransform<OutputStream>(context);
+            jsonStreamTransform = new XsltToStreamTransform<OutputStream>(jsonXsltTemplates, context);
         } catch (Exception ex) {
-            throw EXCEPTION_LOG.newException(
+            throw new ServletContextInitException(
                     "Failed to build transformation processors for response marshalling. Reason: "
-                    + ex.getMessage(), ex, ServletContextInitException.class);
+                    + ex.getMessage(), ex);
         }
     }
 
+    public void transform(JAXBElement element, MediaType mediaType, OutputStream outputStream) {
+        switch (mediaType) {
+            case APPLICATION_XML:
+                xmlStreamTransform.transform(element, outputStream);
+                break;
+
+            case APPLICATION_JSON:
+            case UNKNOWN:
+            default:
+                jsonStreamTransform.transform(element, outputStream);
+        }
+    }
+
+    @Deprecated
     public String transform(JAXBElement element, MediaType mediaType) {
         switch (mediaType) {
             case APPLICATION_XML:

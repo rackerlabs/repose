@@ -1,5 +1,6 @@
 package com.rackspace.papi.filter;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.servlet.*;
 
 import org.junit.Test;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.servlet.http.HttpServletRequest;
 import static org.mockito.Mockito.*;
 
 /**
@@ -17,8 +19,8 @@ import static org.mockito.Mockito.*;
  */
 @RunWith(Enclosed.class)
 public class RequestFilterChainStateTest {
-    public static class WhenUsingPowerFilterChain {
 
+    public static class WhenUsingPowerFilterChain {
 
         @Test
         public void shouldDoFilter() throws IOException, ServletException {
@@ -31,16 +33,16 @@ public class RequestFilterChainStateTest {
             filterContextList.add(mockedFilterContext);
             FilterChain mockedFilterChain = mock(FilterChain.class);
 
-            RequestFilterChainState powerFilterChainState = new RequestFilterChainState(filterContextList, mockedFilterChain);
+            RequestFilterChainState powerFilterChainState = new RequestFilterChainState(filterContextList, mockedFilterChain, mock(ServletContext.class));
 
-            ServletRequest mockedServletRequest = mock(ServletRequest.class);
-            ServletResponse mockedServletResponse = mock(ServletResponse.class);
+            HttpServletRequest mockedServletRequest = mock(HttpServletRequest.class);
+            HttpServletResponse mockedServletResponse = mock(HttpServletResponse.class);
+
+            when(mockedServletRequest.getRequestURL()).thenReturn(new StringBuffer());
 
             powerFilterChainState.doFilter(mockedServletRequest, mockedServletResponse);
 
             powerFilterChainState.doFilter(mockedServletRequest, mockedServletResponse);
         }
-
-        
     }
 }

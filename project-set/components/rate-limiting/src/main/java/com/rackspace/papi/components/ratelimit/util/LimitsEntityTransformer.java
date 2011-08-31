@@ -2,7 +2,7 @@ package com.rackspace.papi.components.ratelimit.util;
 
 import com.rackspace.papi.commons.util.transform.Transform;
 import com.rackspace.papi.commons.util.transform.jaxb.JaxbEntityToXml;
-import com.rackspace.papi.commons.util.transform.xslt.JaxbXsltTransform;
+import com.rackspace.papi.commons.util.transform.xslt.JaxbXsltToStringTransform;
 import com.rackspace.papi.components.limits.schema.Limits;
 import com.rackspace.papi.components.limits.schema.ObjectFactory;
 import javax.xml.bind.JAXBContext;
@@ -19,15 +19,15 @@ public class LimitsEntityTransformer {
     public static final String XSLT_LOCATION = "/META-INF/xslt/limits-json.xsl";
     
     private final Transform<JAXBElement, String> jsonTransform;
-    private final Transform<JAXBElement<Limits>, String> xmlTransform;
+    private final Transform<JAXBElement, String> xmlTransform;
 
     public LimitsEntityTransformer() {
         this(buildJaxbContext());
     }
 
     public LimitsEntityTransformer(JAXBContext context) {
-        jsonTransform = new JaxbXsltTransform(getTemplates(), context);
-        xmlTransform = new JaxbEntityToXml<Limits>(context);
+        jsonTransform = new JaxbXsltToStringTransform(getTemplates(), context);
+        xmlTransform = new JaxbEntityToXml(context);
     }
 
     private static JAXBContext buildJaxbContext() {

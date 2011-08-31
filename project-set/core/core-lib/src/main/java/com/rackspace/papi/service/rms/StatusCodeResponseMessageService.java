@@ -5,8 +5,7 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpRequestInfo;
 import com.rackspace.papi.commons.util.http.HttpRequestInfoImpl;
-import com.rackspace.papi.commons.util.http.media.MediaType;
-import com.rackspace.papi.commons.util.http.media.servlet.RequestMediaRangeInterrogator;
+import com.rackspace.papi.commons.util.http.media.MediaRange;
 import com.rackspace.papi.commons.util.io.FileReader;
 import com.rackspace.papi.commons.util.io.FileReaderImpl;
 import com.rackspace.papi.commons.util.logging.apache.HttpLogFormatter;
@@ -33,16 +32,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- *
- * @author jhopper
- */
-//TODO: add coverage!
 public class StatusCodeResponseMessageService implements ResponseMessageService {
 
     private static final Logger LOG = LoggerFactory.getLogger(StatusCodeResponseMessageService.class);
     private static final Pattern URI_PATTERN = Pattern.compile(":\\/\\/");
-    
     private final List<StatusCode> statusCodes;
     private final Map<String, Pattern> statusCodeRegexes;
     private final Map<String, HttpLogFormatter> formatTemplates;
@@ -58,7 +51,6 @@ public class StatusCodeResponseMessageService implements ResponseMessageService 
         read = new Object();
         update = new Object();
     }
-    
     private final UpdateListener<ContentNegotiation> updateMessageConfig = new UpdateListener<ContentNegotiation>() {
 
         @Override
@@ -84,9 +76,9 @@ public class StatusCodeResponseMessageService implements ResponseMessageService 
     public void destroy() {
         //TODO: Implement
     }
-    
+
     public void configure(ConfigurationService configurationService) {
-        configurationService.subscribeTo("messaging.xml", updateMessageConfig, ContentNegotiation.class);       
+        configurationService.subscribeTo("messaging.xml", updateMessageConfig, ContentNegotiation.class);
     }
 
     @Override
@@ -96,17 +88,18 @@ public class StatusCodeResponseMessageService implements ResponseMessageService 
 
     @Override
     public void handle(String message, HttpServletRequest request, HttpServletResponse response) throws IOException {
+        // In the case where we pass/route the request, there is a chance that
+        // the repsonse will be committed by and underlying service, outside of papi
         if (response.isCommitted()) {
-            throw new IOException("The HttpServletResponse was already committed before the Status Code Negotiator could handle it."
-                    + "This is a logic failure in the filter chain. Please debug.");
+            return;
         }
 
         final StatusCode matchedCode = getMatchingStatusCode(String.valueOf(response.getStatus()));
 
         if (matchedCode != null) {
             final HttpRequestInfo requestInfo = new HttpRequestInfoImpl(request);
-            final MediaType mediaType = RequestMediaRangeInterrogator.interrogate(requestInfo.getUri(), requestInfo.getAcceptHeader()).getMediaType();
-            final StatusCodeMessage statusCodeMessage = getMatchingStatusCodeMessage(matchedCode, mediaType.toString());
+            final MediaRange preferedMediaRange = requestInfo.getPreferedMediaRange();
+            final StatusCodeMessage statusCodeMessage = getMatchingStatusCodeMessage(matchedCode, preferedMediaRange.getMediaType().toString());
 
             if (!statusCodeMessage.isPrependOrigin()) {
                 response.resetBuffer();
@@ -116,7 +109,7 @@ public class StatusCodeResponseMessageService implements ResponseMessageService 
 
             if (formatter != null) {
                 //Write the content type header and then write out our content
-                response.setHeader(CommonHttpHeader.CONTENT_TYPE.headerKey(), mediaType.toString());
+                response.setHeader(CommonHttpHeader.CONTENT_TYPE.headerKey(), preferedMediaRange.getMediaType().toString());
                 response.getWriter().append(formatter.format(message, request, response));
             } else {
                 //TODO: This is an error case

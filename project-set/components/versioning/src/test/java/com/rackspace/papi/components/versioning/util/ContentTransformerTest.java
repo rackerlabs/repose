@@ -6,7 +6,7 @@ import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.io.FilePathReaderImpl;
 import com.rackspace.papi.commons.util.io.FileReader;
 import com.rackspace.papi.commons.util.transform.Transform;
-import com.rackspace.papi.commons.util.transform.jaxb.InputStreamJaxbTransform;
+import com.rackspace.papi.commons.util.transform.jaxb.StreamToJaxbTransform;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -31,7 +31,7 @@ public class ContentTransformerTest {
 
     static {
         try {
-            xmlTransformer = new InputStreamJaxbTransform(
+            xmlTransformer = new StreamToJaxbTransform(
                     JAXBContext.newInstance(
                     com.rackspace.papi.components.versioning.schema.ObjectFactory.class,
                     com.rackspace.papi.components.versioning.config.ObjectFactory.class));
