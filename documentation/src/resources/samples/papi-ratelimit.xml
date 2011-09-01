@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <rate-limiting-config xmlns="http://docs.rackspacecloud.com/power-api/rate-limiting/v1.0">
-    <limits-request-endpoint uri-regex="/service/limits/" include-absolute-limits="true" />
+    <request-endpoint uri-regex="/service/limits/" include-absolute-limits="true" />
     
     <limit-group id="customer-limits" roles="customer" default="true">
         <limit uri="/service/*" uri-regex="/service/([\d^/]*)/.*" 
