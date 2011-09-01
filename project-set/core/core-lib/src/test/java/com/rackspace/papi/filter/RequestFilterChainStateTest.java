@@ -33,7 +33,7 @@ public class RequestFilterChainStateTest {
             filterContextList.add(mockedFilterContext);
             FilterChain mockedFilterChain = mock(FilterChain.class);
 
-            RequestFilterChainState powerFilterChainState = new RequestFilterChainState(filterContextList, mockedFilterChain, mock(ServletContext.class));
+            RequestFilterChainState powerFilterChainState = new RequestFilterChainState(filterContextList, mockedFilterChain);
 
             HttpServletRequest mockedServletRequest = mock(HttpServletRequest.class);
             HttpServletResponse mockedServletResponse = mock(HttpServletResponse.class);
