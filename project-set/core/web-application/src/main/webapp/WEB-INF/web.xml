@@ -4,7 +4,7 @@
     <display-name>Power API Root Web Application</display-name>
     <description>Proxies for fun</description>
         
-    <!-- This tells Power API where to look for its configuraitons -->
+    <!-- This tells Power API where to look for its configurations -->
     <context-param>
         <param-name>powerapi-config-directory</param-name>
         <param-value>/etc/powerapi</param-value>

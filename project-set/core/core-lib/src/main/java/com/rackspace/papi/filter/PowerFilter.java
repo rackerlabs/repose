@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
-import java.util.EnumSet;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -97,7 +96,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
-        final RequestFilterChainState requestFilterChainState = new RequestFilterChainState(Collections.unmodifiableList(this.filterChain), chain, filterConfig.getServletContext());
+        final RequestFilterChainState requestFilterChainState = new RequestFilterChainState(Collections.unmodifiableList(this.filterChain), chain);
 
         mutableHttpResponse.setHeader(CommonHttpHeader.CONTENT_TYPE.headerKey(), mutableHttpRequest.getHeader(CommonHttpHeader.ACCEPT.headerKey()));
 
