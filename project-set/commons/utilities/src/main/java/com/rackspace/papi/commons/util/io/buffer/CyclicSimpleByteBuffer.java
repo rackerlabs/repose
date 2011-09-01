@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util.io.buffer;
 
+import com.rackspace.papi.commons.util.ArrayUtilities;
 import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -27,7 +28,7 @@ public class CyclicSimpleByteBuffer implements SimpleByteBuffer {
         this.nextWritableIndex = 0;
         this.nextReadableIndex = 0;
         this.hasElements = hasElements;
-        this.buffer = buffer;
+        this.buffer = ArrayUtilities.nullSafeCopy(buffer);
 
         singleByte = new byte[1];
         bufferLock = new ReentrantLock();

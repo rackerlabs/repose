@@ -1,6 +1,7 @@
 package com.rackspace.papi.commons.config.resource.impl;
 
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
+import com.rackspace.papi.commons.util.ArrayUtilities;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,7 +12,7 @@ public class ByteArrayConfigurationResource implements ConfigurationResource<Byt
     private final String name;
 
     public ByteArrayConfigurationResource(String name, byte[] sourceArray) {
-        this.sourceArray = sourceArray;
+        this.sourceArray = ArrayUtilities.nullSafeCopy(sourceArray);
         this.name = name;
     }
 
