@@ -4,14 +4,12 @@ import com.rackspace.papi.commons.util.http.HttpRequestInfo;
 import com.rackspace.papi.commons.util.http.HttpRequestInfoImpl;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 import com.rackspace.papi.components.versioning.domain.ConfigurationData;
 import com.rackspace.papi.components.versioning.domain.VersionedOriginService;
 import com.rackspace.papi.components.versioning.schema.ObjectFactory;
 import com.rackspace.papi.components.versioning.schema.VersionChoiceList;
 import com.rackspace.papi.components.versioning.util.ContentTransformer;
 import com.rackspace.papi.components.versioning.util.VersionChoiceFactory;
-import com.rackspace.papi.model.Host;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
@@ -51,7 +49,7 @@ public class VersioningHelper {
                     transformer.transform(versionElement, httpRequestInfo.getPreferedMediaRange().getMediaType(), filterDirector.getResponseOutputStream());
                 } else {
                     filterDirector.setFilterAction(FilterAction.PASS);
-                    filterDirector.requestHeaderManager().putHeader(PowerApiHeader.ORIGIN_DESTINATION.headerKey(), targetOriginService.getOriginServiceHost().getId());
+                    filterDirector.requestHeaderManager().putHeader(PowerApiHeader.ROUTE_DESTINATION.headerKey(), targetOriginService.getOriginServiceHost().getId());
                     
                     // Set the URI to the correct, internally versioned path and pass it to the origin service
                     filterDirector.setRequestUri(configurationData.buildInternalVersionedUri(targetOriginService.getMapping(), httpRequestInfo));
