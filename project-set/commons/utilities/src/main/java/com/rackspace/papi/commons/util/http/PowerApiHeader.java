@@ -6,7 +6,7 @@ package com.rackspace.papi.commons.util.http;
  */
 public enum PowerApiHeader implements HttpHeader {
 
-    ORIGIN_DESTINATION("X-PP-OriginDestination"),
+    ROUTE_DESTINATION("X-PP-RouteDestination"),
     USER("X-PP-User"),
     GROUPS("X-PP-Groups");
 
