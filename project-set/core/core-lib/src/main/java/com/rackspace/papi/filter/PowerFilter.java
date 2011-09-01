@@ -29,6 +29,7 @@ import java.util.List;
 public class PowerFilter extends ApplicationContextAwareFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
+    private final EventListener<ApplicationDeploymentEvent, String> applicationDeploymentListener;
     private final UpdateListener<PowerProxy> systemModelConfigurationListener;
     private List<FilterContext> filterChain;
     private ContextAdapter papiContext;
@@ -52,25 +53,27 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                 papiContext.eventService().newEvent(PowerFilterEvent.POWER_FILTER_INITIALIZED, System.currentTimeMillis());
             }
         };
-    }
-    private final EventListener<ApplicationDeploymentEvent, String> applicationDeploymentListener = new EventListener<ApplicationDeploymentEvent, String>() {
 
-        @Override
-        public void onEvent(Event<ApplicationDeploymentEvent, String> e) {
-            LOG.info("Application collection has been modified. Application that changed: " + e.payload());
+        applicationDeploymentListener = new EventListener<ApplicationDeploymentEvent, String>() {
 
-            if (currentSystemModel != null) {
-                final List<FilterContext> newFilterChain = new PowerFilterChainBuilder(filterConfig).build(papiContext.classLoader(), currentSystemModel);
+            @Override
+            public void onEvent(Event<ApplicationDeploymentEvent, String> e) {
+                LOG.info("Application collection has been modified. Application that changed: " + e.payload());
 
-                updateFilterList(newFilterChain);
+                if (currentSystemModel != null) {
+                    final List<FilterContext> newFilterChain = new PowerFilterChainBuilder(filterConfig).build(papiContext.classLoader(), currentSystemModel);
+
+                    updateFilterList(newFilterChain);
+                }
             }
-        }
-    };
-
+        };
+    }
+    
     // This is written like this in case requests are already processing against the
     // existing filterChain.  If that is the case we create a new one for the deployment
     // update but the old list stays in memory as the garbage collector won't clean
     // it up until all RequestFilterChainState objects are no longer referencing it.
+
     private synchronized void updateFilterList(List<FilterContext> newFilterChain) {
         this.filterChain = new LinkedList<FilterContext>(newFilterChain);
     }
@@ -111,5 +114,5 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
             mutableHttpResponse.flushBuffer();
         }
-    }    
+    }
 }

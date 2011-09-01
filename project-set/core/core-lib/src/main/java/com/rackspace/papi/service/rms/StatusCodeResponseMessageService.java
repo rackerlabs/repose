@@ -51,6 +51,7 @@ public class StatusCodeResponseMessageService implements ResponseMessageService 
         read = new Object();
         update = new Object();
     }
+    
     private final UpdateListener<ContentNegotiation> updateMessageConfig = new UpdateListener<ContentNegotiation>() {
 
         @Override

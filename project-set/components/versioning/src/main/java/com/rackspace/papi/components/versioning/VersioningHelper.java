@@ -7,6 +7,7 @@ import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 import com.rackspace.papi.components.versioning.domain.ConfigurationData;
 import com.rackspace.papi.components.versioning.domain.VersionedOriginService;
+import com.rackspace.papi.components.versioning.domain.VersionedRequest;
 import com.rackspace.papi.components.versioning.schema.ObjectFactory;
 import com.rackspace.papi.components.versioning.schema.VersionChoiceList;
 import com.rackspace.papi.components.versioning.util.ContentTransformer;
@@ -37,12 +38,14 @@ public class VersioningHelper {
         final FilterDirector filterDirector = new FilterDirectorImpl();
         final HttpRequestInfo httpRequestInfo = new HttpRequestInfoImpl(request);
         final VersionedOriginService targetOriginService = configurationData.getOriginServiceForRequest(httpRequestInfo);
-        
+
         if (targetOriginService != null) {
             // Do we have a host that answers to the version being requested?
             if (targetOriginService.getOriginServiceHost() != null) {
+                final VersionedRequest versionedRequest = new VersionedRequest(httpRequestInfo, targetOriginService.getMapping(), configurationData.getServiceRootHref());
+                
                 // Is this a reuest to a version root we are aware of for describing it? (e.g. http://api.service.com/v1.0/)
-                if (configurationData.isDescribeVersionsRequest(httpRequestInfo)) {
+                if (versionedRequest.requestMatchesVersionMapping()) {
                     filterDirector.setResponseStatus(HttpStatusCode.OK);
                     filterDirector.setFilterAction(FilterAction.RETURN);
 
@@ -52,18 +55,21 @@ public class VersioningHelper {
                 } else {
                     filterDirector.setFilterAction(FilterAction.PASS);
                     filterDirector.requestHeaderManager().putHeader(PowerApiHeader.ORIGIN_DESTINATION.headerKey(), targetOriginService.getOriginServiceHost().getId());
-                    
+
                     // Set the URI to the correct, internally versioned path and pass it to the origin service
-                    filterDirector.setRequestUri(configurationData.buildInternalVersionedUri(targetOriginService.getMapping(), httpRequestInfo));
-                    filterDirector.setRequestUrl(new StringBuffer(configurationData.buildInternalVersionedUrl(targetOriginService.getMapping(), httpRequestInfo)));
+                    filterDirector.setRequestUri(versionedRequest.asInternalURI());
+                    filterDirector.setRequestUrl(new StringBuffer(versionedRequest.asInternalURL()));
                 }
             } else {
+                filterDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
+                filterDirector.setFilterAction(FilterAction.RETURN);
+
                 LOG.warn("Configured versioned service mapping: "
                         + targetOriginService.getMapping().getName()
                         + " does not map to a valid host in the system model. Expected host id was: "
                         + targetOriginService.getMapping().getPpHostId());
             }
-        } else if (configurationData.isDescribeVersionsRequest(httpRequestInfo)) {
+        } else if (configurationData.isRequestForVersions(httpRequestInfo)) {
             // Is this a request to the service root to describe the available versions? (e.g. http://api.service.com/)
             filterDirector.setResponseStatus(HttpStatusCode.OK);
             filterDirector.setFilterAction(FilterAction.RETURN);

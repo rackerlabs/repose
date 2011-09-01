@@ -7,17 +7,25 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 public class HttpRequestInfoImpl implements HttpRequestInfo {
+
+    private static List<MediaRange> getMediaRanges(HttpServletRequest request) {
+        return RequestMediaRangeInterrogator.interrogate(request.getRequestURI(), request.getHeader(CommonHttpHeader.ACCEPT.headerKey()));
+    }
+    
     private final List<MediaRange> acceptMediaRange;
     private final MediaRange preferedMediaRange;
     private final String uri;
     private final String url;
 
     public HttpRequestInfoImpl(HttpServletRequest request) {
-        this.uri = request.getRequestURI();
-        this.url = request.getRequestURL().toString();
-        
-        this.acceptMediaRange = RequestMediaRangeInterrogator.interrogate(uri, request.getHeader(CommonHttpHeader.ACCEPT.headerKey()));
+        this(getMediaRanges(request), request.getRequestURI(), request.getRequestURL().toString());
+    }
+
+    public HttpRequestInfoImpl(List<MediaRange> acceptMediaRange, String uri, String url) {
         this.preferedMediaRange = MediaRangeParser.getPerferedMediaRange(acceptMediaRange);
+        this.acceptMediaRange = acceptMediaRange;
+        this.uri = uri;
+        this.url = url;
     }
 
     @Override
@@ -34,7 +42,7 @@ public class HttpRequestInfoImpl implements HttpRequestInfo {
     public MediaRange getPreferedMediaRange() {
         return preferedMediaRange;
     }
-    
+
     @Override
     public boolean hasMediaRange(MediaRange targetRange) {
         for (MediaRange requestedRange : acceptMediaRange) {
@@ -42,7 +50,7 @@ public class HttpRequestInfoImpl implements HttpRequestInfo {
                 return true;
             }
         }
-        
+
         return false;
     }
 }
