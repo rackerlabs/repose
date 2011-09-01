@@ -57,9 +57,8 @@ public class ClientAuthenticationHandler extends AbstractFilterLogicHandler {
                 protected void onConfigurationUpdated(ClientAuthConfig modifiedConfig) {
                     if (modifiedConfig.getRackspaceAuth() != null) {
                         authenticationModule = new RackspaceAuthenticationModule(modifiedConfig.getRackspaceAuth());
-                    } else if (modifiedConfig.getHttpBasicAuth() != null) {
-                    } else {
-                        LOG.error("Authentication module is not understood or supported. Please check your configuration.");
+                    } else if (modifiedConfig.getHttpBasicAuth() == null) {
+                      LOG.error("Authentication module is not understood or supported. Please check your configuration.");
                     }
                 }
             };
