@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.datastore.impl;
 
+import com.rackspace.papi.commons.util.ArrayUtilities;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.service.datastore.StoredElement;
 import java.io.Serializable;
@@ -11,7 +12,7 @@ public class StoredElementImpl implements StoredElement {
     private Serializable resolvedElement;
 
     public StoredElementImpl(String key, byte[] elementBytes) {
-        this.elementBytes = elementBytes;
+        this.elementBytes = ArrayUtilities.nullSafeCopy(elementBytes);
         this.key = key;
     }
 

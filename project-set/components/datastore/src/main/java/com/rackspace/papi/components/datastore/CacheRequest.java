@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.datastore;
 
+import com.rackspace.papi.commons.util.ArrayUtilities;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 
@@ -69,7 +70,7 @@ public class CacheRequest {
         this.cacheKey = cacheKey;
         this.hostKey = hostKey;
         this.ttlInSeconds = ttlInSeconds;
-        this.payload = payload;
+        this.payload = ArrayUtilities.nullSafeCopy(payload);
     }
 
     public int getTtlInSeconds() {

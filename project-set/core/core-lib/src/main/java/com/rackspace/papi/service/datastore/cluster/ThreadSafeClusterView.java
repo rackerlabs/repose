@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.datastore.cluster;
 
+import com.rackspace.papi.commons.util.ArrayUtilities;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.Arrays;
@@ -12,7 +13,7 @@ public class ThreadSafeClusterView implements MutableClusterView {
 
     @Override
     public synchronized void updateMembers(InetSocketAddress[] view) {
-        clusterMembers = view;
+        clusterMembers = ArrayUtilities.nullSafeCopy(view);
         
         // Normalize the host array
         Arrays.sort(clusterMembers, new Comparator<InetSocketAddress>() {
