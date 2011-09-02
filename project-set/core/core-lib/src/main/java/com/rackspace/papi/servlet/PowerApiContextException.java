@@ -20,13 +20,13 @@ package com.rackspace.papi.servlet;
  *
  * @author jhopper
  */
-public class ServletContextInitException extends RuntimeException {
+public class PowerApiContextException extends RuntimeException {
 
-    public ServletContextInitException(String message, Throwable rootCause) {
+    public PowerApiContextException(String message, Throwable rootCause) {
         super(message, rootCause);
     }
 
-    public ServletContextInitException(String message) {
+    public PowerApiContextException(String message) {
         super(message);
     }
 }

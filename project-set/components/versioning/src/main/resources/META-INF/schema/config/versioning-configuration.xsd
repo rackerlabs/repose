@@ -31,7 +31,10 @@
         <xs:attribute name="href" type="xs:anyURI">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p></html:p>
+                    <html:p>
+                        This hypertext reference identifies the full URI for the
+                        origin service's root.
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -56,6 +59,14 @@
             </xs:annotation>
         </xs:attribute>
 
+        <xs:attribute name="context-path" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
         <xs:attribute name="pp-host-id" type="xs:string">
             <xs:annotation>
                 <xs:documentation>
@@ -63,15 +74,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
-        <xs:attribute name="name" type="xs:string">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p></html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
+        
         <xs:attribute name="status" type="vers-config:VersionStatus" use="required">
             <xs:annotation>
                 <xs:documentation>
@@ -83,7 +86,6 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
     </xs:complexType>
 
     <!-- Types -->
