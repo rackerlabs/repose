@@ -164,7 +164,7 @@ public abstract class LocalContext extends AbstractContext {
         final String localName = (String) name.remove(0);
         final Object objectRef = bindingsMap.get(localName);
 
-        if (objectRef != null && objectRef instanceof Context) {
+        if (objectRef instanceof Context) {
             if (!name.isEmpty()) {
                 ((Context) objectRef).destroySubcontext(name);
             } else {
