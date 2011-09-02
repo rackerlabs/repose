@@ -3,7 +3,7 @@ package com.rackspace.papi.filter;
 import com.rackspace.papi.model.Filter;
 import com.rackspace.papi.model.Host;
 import com.rackspace.papi.model.PowerProxy;
-import com.rackspace.papi.servlet.ServletContextInitException;
+import com.rackspace.papi.servlet.PowerApiContextException;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -39,7 +39,7 @@ public class LocalhostFilterList extends PowerProxy {
             final InetAddress addr = InetAddress.getLocalHost();
             return addr.getHostName();
         } catch (UnknownHostException e) {
-            throw new ServletContextInitException("Failed to get hostname. Something weird is going on.", e);
+            throw new PowerApiContextException("Failed to get hostname. Something weird is going on.", e);
         }
     }    
 }
