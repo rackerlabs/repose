@@ -37,53 +37,52 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
     private String lastLocalAddr;
     private HashRingDatastoreManager hashRingDatastoreManager;
     private HashedDatastore hashRingDatastore;
+    private class SystemModelUpdateListener implements UpdateListener<PowerProxy> {
+        @Override
+        public void configurationUpdated(PowerProxy configurationObject) {
+            if (configurationObject == null) {
+                LOG.error("Power Proxy configuration was null - please check your configurations and error logs");
+                return;
+            }
+
+            try {
+                final List<InetSocketAddress> cacheSiblings = new LinkedList<InetSocketAddress>();
+
+                for (Host hostInformation : configurationObject.getHost()) {
+                    if (hostInformation.getFilters() != null) {
+                        for (Filter f : hostInformation.getFilters().getFilter()) {
+                            if (f.getName().equals("dist-datastore")) {
+                                final InetAddress hostAddress = InetAddress.getByName(hostInformation.getHostname());
+                                final InetSocketAddress hostSocketAddress = new InetSocketAddress(hostAddress, hostInformation.getServicePort());
+
+                                cacheSiblings.add(hostSocketAddress);
+                            }
+                        }
+                    }
+                }
+
+                clusterView.updateMembers(cacheSiblings.toArray(new InetSocketAddress[cacheSiblings.size()]));
+            } catch (UnknownHostException uhe) {
+                LOG.error(uhe.getMessage(), uhe);
+            }
+
+            if (hashRingDatastoreManager == null) {
+                hashRingDatastoreManager = new HashRingDatastoreManager("temp-host-key", clusterView, datastoreService.defaultDatastore());
+                hashRingDatastore = hashRingDatastoreManager.getDatastore("default");
+
+                try {
+                    datastoreService.registerDatastoreManager(HashRingDatastoreManager.DATASTORE_MANAGER_NAME, hashRingDatastoreManager);
+                } catch (NamingException ne) {
+                    LOG.error(ne.getExplanation(), ne);
+                }
+            }
+        }
+    }
 
     public DatastoreFilterLogicHandler(DatastoreService ds) {
         datastoreService = ds;
         clusterView = new ThreadSafeClusterView();
-
-        systemModelUpdateListener = new UpdateListener<PowerProxy>() {
-
-            @Override
-            public void configurationUpdated(PowerProxy configurationObject) {
-                if (configurationObject == null) {
-                    LOG.error("Power Proxy configuration was null - please check your configurations and error logs");
-                    return;
-                }
-
-                try {
-                    final List<InetSocketAddress> cacheSiblings = new LinkedList<InetSocketAddress>();
-
-                    for (Host hostInformation : configurationObject.getHost()) {
-                        if (hostInformation.getFilters() != null) {
-                            for (Filter f : hostInformation.getFilters().getFilter()) {
-                                if (f.getName().equals("dist-datastore")) {
-                                    final InetAddress hostAddress = InetAddress.getByName(hostInformation.getHostname());
-                                    final InetSocketAddress hostSocketAddress = new InetSocketAddress(hostAddress, hostInformation.getServicePort());
-
-                                    cacheSiblings.add(hostSocketAddress);
-                                }
-                            }
-                        }
-                    }
-
-                    clusterView.updateMembers(cacheSiblings.toArray(new InetSocketAddress[cacheSiblings.size()]));
-                } catch (UnknownHostException uhe) {
-                    LOG.error(uhe.getMessage(), uhe);
-                }
-
-                if (hashRingDatastoreManager == null) {
-                    hashRingDatastoreManager = new HashRingDatastoreManager("temp-host-key", clusterView, datastoreService.defaultDatastore());
-                    hashRingDatastore = hashRingDatastoreManager.getDatastore("default");
-
-                    try {
-                        datastoreService.registerDatastoreManager(HashRingDatastoreManager.DATASTORE_MANAGER_NAME, hashRingDatastoreManager);
-                    } catch (NamingException ne) {
-                        LOG.error(ne.getExplanation(), ne);
-                    }
-                }
-            }
-        };
+        systemModelUpdateListener = new SystemModelUpdateListener();
     }
 
     public UpdateListener<PowerProxy> getSystemModelUpdateListener() {

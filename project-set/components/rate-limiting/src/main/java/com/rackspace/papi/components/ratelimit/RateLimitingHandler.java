@@ -41,36 +41,38 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
     private Pattern describeLimitsUriRegex;
     private RateLimitingConfiguration rateLimitingConfig;
 
+    private class RateLimitingConfigListener extends LockedConfigurationUpdater<RateLimitingConfiguration> {
+        private RateLimitingConfigListener(KeyedStackLock updateLock, Object updateKey) {
+            super(updateLock, updateKey);
+        }
+
+        @Override
+        protected void onConfigurationUpdated(RateLimitingConfiguration configurationObject) {
+            rateLimitingConfig = configurationObject;
+
+            regexCache.clear();
+
+            for (ConfiguredLimitGroup limitGroup : rateLimitingConfig.getLimitGroup()) {
+                final Map<String, Pattern> compiledRegexMap = new HashMap<String, Pattern>();
+
+                for (ConfiguredRatelimit configuredLimitGroup : limitGroup.getLimit()) {
+                    compiledRegexMap.put(configuredLimitGroup.getUri(), Pattern.compile(configuredLimitGroup.getUriRegex()));
+                }
+
+                regexCache.put(limitGroup.getId(), compiledRegexMap);
+            }
+
+            describeLimitsUriRegex = Pattern.compile(rateLimitingConfig.getRequestEndpoint().getUriRegex());
+        }
+    };
+
     public RateLimitingHandler(Datastore datastore) {
         rateLimitCache = new ManagedRateLimitCache(datastore);
-
         updateLock = new KeyedStackLock();
         readKey = new Object();
         updateKey = new Object();
         regexCache = new HashMap<String, Map<String, Pattern>>();
-
-        rateLimitingConfigurationListener =
-                new LockedConfigurationUpdater<RateLimitingConfiguration>(updateLock, updateKey) {
-
-                    @Override
-                    protected void onConfigurationUpdated(RateLimitingConfiguration configurationObject) {
-                        rateLimitingConfig = configurationObject;
-
-                        regexCache.clear();
-
-                        for (ConfiguredLimitGroup limitGroup : rateLimitingConfig.getLimitGroup()) {
-                            final Map<String, Pattern> compiledRegexMap = new HashMap<String, Pattern>();
-
-                            for (ConfiguredRatelimit configuredLimitGroup : limitGroup.getLimit()) {
-                                compiledRegexMap.put(configuredLimitGroup.getUri(), Pattern.compile(configuredLimitGroup.getUriRegex()));
-                            }
-
-                            regexCache.put(limitGroup.getId(), compiledRegexMap);
-                        }
-
-                        describeLimitsUriRegex = Pattern.compile(rateLimitingConfig.getRequestEndpoint().getUriRegex());
-                    }
-                };
+        rateLimitingConfigurationListener = new RateLimitingConfigListener(updateLock, updateKey);    
     }
 
     public UpdateListener<RateLimitingConfiguration> getRateLimitingConfigurationListener() {

@@ -16,12 +16,15 @@ import static org.mockito.Mockito.*;
 @RunWith(Enclosed.class)
 public class ManifestProcessorTest {
     public static class WhenProcessingManifest {
+        /*
         @Test
         public void shouldInstantiate () {
             ManifestProcessor processor = new ManifestProcessor();
 
             assertNotNull(processor);
         }
+         * 
+         */
 
         @Test
         public void shouldDoNothingForNullManifest () {

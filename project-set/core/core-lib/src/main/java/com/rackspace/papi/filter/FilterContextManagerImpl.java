@@ -1,7 +1,6 @@
 package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
-import java.util.logging.Level;
 import javax.servlet.ServletException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
