@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.ratelimit.util;
 
 import com.rackspace.papi.commons.util.logging.ExceptionLogger;
-import com.rackspace.papi.servlet.ServletContextInitException;
+import com.rackspace.papi.servlet.PowerApiContextException;
 import org.slf4j.Logger;
 
 import javax.xml.bind.JAXBContext;
@@ -25,7 +25,7 @@ public class TransformHelper {
             return JAXBContext.newInstance(objectFactories);
         } catch (Exception e) {
             throw EXCEPTION_LOG.newException("Unable to build Rate Limiter. Reason: " + e.getMessage(),
-                    e, ServletContextInitException.class);
+                    e, PowerApiContextException.class);
         }
     }
 

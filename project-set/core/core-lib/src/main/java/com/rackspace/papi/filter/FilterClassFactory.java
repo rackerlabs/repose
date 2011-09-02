@@ -1,6 +1,6 @@
 package com.rackspace.papi.filter;
 
-import com.rackspace.papi.servlet.ServletContextInitException;
+import com.rackspace.papi.servlet.PowerApiContextException;
 import javax.servlet.Filter;
 
 /**
@@ -21,13 +21,13 @@ public class FilterClassFactory {
 
     public void validate(Class clazz) {
         if (clazz == null) {
-            throw new ServletContextInitException("No deployed artifact found to satisfy required filter, \""
+            throw new PowerApiContextException("No deployed artifact found to satisfy required filter, \""
                     + className
                     + "\" - please verify that the artifact directory contains the required artifacts.");
         }
 
         if (!javax.servlet.Filter.class.isAssignableFrom(clazz)) {
-            throw new ServletContextInitException("Provided filter, \""
+            throw new PowerApiContextException("Provided filter, \""
                     + clazz.getCanonicalName()
                     + "\" does not implement javax.servlet.Filter - this class is unusable as a filter.");
         }
