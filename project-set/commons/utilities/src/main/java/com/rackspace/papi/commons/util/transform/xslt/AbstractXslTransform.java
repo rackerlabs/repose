@@ -13,8 +13,8 @@ public abstract class AbstractXslTransform {
     private final Pool<Transformer> xsltResourcePool;
     private final Templates transformationTemplates;
 
-    public AbstractXslTransform(Templates _transformationTemplates) {
-        this.transformationTemplates = _transformationTemplates;
+    public AbstractXslTransform(Templates transformTemplates) {
+        this.transformationTemplates = transformTemplates;
 
         xsltResourcePool = new GenericBlockingResourcePool<Transformer>(new ConstructionStrategy<Transformer>() {
 

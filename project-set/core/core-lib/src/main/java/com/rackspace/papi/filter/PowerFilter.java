@@ -105,11 +105,15 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
         try {
             requestFilterChainState.startFilterChain(mutableHttpRequest, mutableHttpResponse);
-        } catch (Throwable t) {
+        } catch (IOException t) {
             mutableHttpResponse.setStatus(HttpStatusCode.BAD_GATEWAY.intValue());
 
             LOG.error("Exception encountered while processing filter chain", t);
-        } finally {
+        } catch (ServletException t) {
+            mutableHttpResponse.setStatus(HttpStatusCode.BAD_GATEWAY.intValue());
+
+            LOG.error("Exception encountered while processing filter chain", t);
+        }finally {
             papiContext.responseMessageService().handle(mutableHttpRequest, mutableHttpResponse);
 
             mutableHttpResponse.flushBuffer();
