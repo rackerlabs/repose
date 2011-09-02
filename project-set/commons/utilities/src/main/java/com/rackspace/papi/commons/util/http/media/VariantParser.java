@@ -9,6 +9,10 @@ import java.util.regex.Pattern;
 public abstract class VariantParser {
 
     static final Pattern VARIANT_REGEX = Pattern.compile("[^\\?]*\\.([^\\?]+).*");
+    
+    private VariantParser() {
+        
+    }
 
     public static MediaType getMediaTypeFromVariant(String variant) {
         final Matcher matcher = VARIANT_REGEX.matcher(variant);

@@ -10,6 +10,10 @@ import java.util.List;
 
 public abstract class RequestMediaRangeInterrogator {
 
+    private RequestMediaRangeInterrogator() {
+        
+    }
+    
     public static List<MediaRange> interrogate(String requestUri, String acceptHeader) {
         final List<MediaRange> ranges = new LinkedList<MediaRange>();
         

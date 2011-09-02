@@ -13,6 +13,10 @@ public abstract class MediaRangeParser {
     public static final Pattern ACCEPTS_HEADER_REGEX = Pattern.compile("^((([\\w]+)|(\\*))/(([\\w][ \\w\\+\\.\\-\\;=]*[\\w])|(\\*)),? ?)+$");
     public static final String QUALITIY_PARAMETER_KEY = "q";
 
+    private MediaRangeParser() {
+        
+    }
+    
     public static MediaRange getPerferedMediaRange(List<MediaRange> ranges) {
         if (ranges == null || ranges.isEmpty()) {
             throw new IllegalArgumentException("No ranges specified to get the perfered range from");

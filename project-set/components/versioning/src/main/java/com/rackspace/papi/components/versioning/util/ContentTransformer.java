@@ -1,9 +1,7 @@
 package com.rackspace.papi.components.versioning.util;
 
 import com.rackspace.papi.commons.util.http.media.MediaRange;
-import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.transform.StreamTransform;
-import org.slf4j.Logger;
 import com.rackspace.papi.commons.util.transform.Transform;
 import com.rackspace.papi.commons.util.transform.jaxb.JaxbEntityToXml;
 import com.rackspace.papi.commons.util.transform.jaxb.JaxbToStreamTransform;
