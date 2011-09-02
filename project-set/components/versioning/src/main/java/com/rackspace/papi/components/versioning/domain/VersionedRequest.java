@@ -1,20 +1,37 @@
 package com.rackspace.papi.components.versioning.domain;
 
+import com.rackspace.papi.commons.util.http.HttpRequestInfo;
 import com.rackspace.papi.commons.util.http.UniformResourceInfo;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 
 public class VersionedRequest {
 
-    private final UniformResourceInfo requestInfo;
+    private final HttpRequestInfo requestInfo;
     private final ServiceVersionMapping mapping;
     private final String serviceRootUrl;
 
-    public VersionedRequest(UniformResourceInfo requestInfo, ServiceVersionMapping mapping, String serviceRootUrl) {
+    public VersionedRequest(HttpRequestInfo requestInfo, ServiceVersionMapping mapping, String serviceRootUrl) {
         this.requestInfo = requestInfo;
         this.mapping = mapping;
         this.serviceRootUrl = serviceRootUrl.endsWith("/") ? serviceRootUrl.substring(0, serviceRootUrl.length() - 1) : serviceRootUrl;
     }
 
+    public ServiceVersionMapping getMapping() {
+        return mapping;
+    }
+
+    public HttpRequestInfo getRequestInfo() {
+        return requestInfo;
+    }
+
+    public String getServiceRootUrl() {
+        return serviceRootUrl;
+    }
+    
+    public boolean isRequestForRoot() {
+        return formatUri(requestInfo.getUri()).isEmpty();
+    }
+    
     public boolean requestBelongsToVersionMapping() {
         final String requestedUri = formatUri(requestInfo.getUri());
 

@@ -42,11 +42,17 @@ public class ConfigurationData {
         return configuredHosts;
     }
 
-    public Host getHostForVersionMapping(ServiceVersionMapping mapping) {
-        return configuredHosts.get(mapping.getPpHostId());
+    public Host getHostForVersionMapping(ServiceVersionMapping mapping) throws VersionedHostNotFoundException {
+        final Host host = configuredHosts.get(mapping.getPpHostId());
+        
+        if (host == null) {
+            throw new VersionedHostNotFoundException("Power Proxy Host: " + mapping.getPpHostId() + " is not specified in the power proxy system model");
+        }
+        
+        return host;
     }
 
-    public VersionedOriginService getOriginServiceForRequest(HttpRequestInfo requestInfo) {
+    public VersionedOriginService getOriginServiceForRequest(HttpRequestInfo requestInfo) throws VersionedHostNotFoundException {
         // Check URI first to see if it matches configured host href
         VersionedOriginService destination = findOriginServiceByUri(requestInfo);
 
@@ -62,7 +68,7 @@ public class ConfigurationData {
         return destination;
     }
 
-    public VersionedOriginService findOriginServiceByUri(UniformResourceInfo requestResourceInfo) {
+    public VersionedOriginService findOriginServiceByUri(HttpRequestInfo requestResourceInfo) throws VersionedHostNotFoundException {
         for (Map.Entry<String, ServiceVersionMapping> entry : serviceMappings.entrySet()) {
             final VersionedRequest versionedRequest = new VersionedRequest(requestResourceInfo, entry.getValue(), serviceRootHref);
 
@@ -74,7 +80,7 @@ public class ConfigurationData {
         return null;
     }
 
-    public VersionChoiceList versionChoicesAsList(UniformResourceInfo requestResourceInfo) {
+    public VersionChoiceList versionChoicesAsList(HttpRequestInfo requestResourceInfo) {
         final VersionChoiceList versionChoices = new VersionChoiceList();
 
         for (ServiceVersionMapping mapping : getServiceMappings()) {
@@ -117,9 +123,6 @@ public class ConfigurationData {
     }
 
     public boolean isRequestForVersions(UniformResourceInfo uniformResourceInfo) {
-        final String requestedUri = VersionedRequest.formatUri(uniformResourceInfo.getUri());
-        final String rootUri = "/";
-
-        return requestedUri.equals(rootUri);
+        return VersionedRequest.formatUri(uniformResourceInfo.getUri()).isEmpty();
     }
 }

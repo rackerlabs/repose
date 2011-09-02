@@ -20,7 +20,7 @@ public class VersionChoiceFactory {
     public VersionChoice create() {
         VersionChoice versionChoice = new VersionChoice();
 
-        versionChoice.setId(serviceVersionMapping.getId());
+        versionChoice.setId(serviceVersionMapping.getName());
         versionChoice.setStatus(serviceVersionMapping.getStatus() == null ? null : VersionStatus.fromValue(serviceVersionMapping.getStatus().value()));
         versionChoice.setMediaTypes(convertMediaTypes());
 
