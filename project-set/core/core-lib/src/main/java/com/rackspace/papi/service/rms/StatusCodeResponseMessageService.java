@@ -112,9 +112,9 @@ public class StatusCodeResponseMessageService implements ResponseMessageService 
                 //Write the content type header and then write out our content
                 response.setHeader(CommonHttpHeader.CONTENT_TYPE.headerKey(), preferedMediaRange.getMediaType().toString());
                 response.getWriter().append(formatter.format(message, request, response));
-            } else {
-                //TODO: This is an error case
+                
             }
+            // else{} TODO: This is an error case
         }
     }
 
