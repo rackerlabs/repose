@@ -20,6 +20,10 @@ public class TransformHelper {
     private static final ExceptionLogger EXCEPTION_LOG = new ExceptionLogger(LOG);
     private static final TransformerFactory XSLT_TRANSFORMER_FACTORY = TransformerFactory.newInstance();
 
+    private TransformHelper() {
+        
+    }
+    
     public static JAXBContext buildJaxbContext(Class... objectFactories) {
         try {
             return JAXBContext.newInstance(objectFactories);
