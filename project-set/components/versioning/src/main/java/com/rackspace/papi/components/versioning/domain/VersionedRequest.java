@@ -35,13 +35,13 @@ public class VersionedRequest {
     public boolean requestBelongsToVersionMapping() {
         final String requestedUri = formatUri(requestInfo.getUri());
 
-        return requestedUri.startsWith(formatUri(mapping.getName()));
+        return requestedUri.startsWith(formatUri(mapping.getId()));
     }
 
     public boolean requestMatchesVersionMapping() {
         final String requestedUri = formatUri(requestInfo.getUri());
 
-        return requestedUri.equals(formatUri(mapping.getName()));
+        return requestedUri.equals(formatUri(mapping.getId()));
     }
 
     public String asExternalURL() {
@@ -49,7 +49,7 @@ public class VersionedRequest {
     }
 
     public String asExternalURI() {
-        return updateURI(requestInfo, formatUri(mapping.getId()), formatUri(mapping.getName()));
+        return updateURI(requestInfo, formatUri(mapping.getContextPath()), formatUri(mapping.getId()));
     }
 
     public String asInternalURL() {
@@ -57,7 +57,7 @@ public class VersionedRequest {
     }
 
     public String asInternalURI() {
-        return updateURI(requestInfo, formatUri(mapping.getName()), formatUri(mapping.getId()));
+        return updateURI(requestInfo, formatUri(mapping.getId()), formatUri(mapping.getContextPath()));
     }
 
     private String updateURI(UniformResourceInfo requestInfo, String target, String replacement) {
