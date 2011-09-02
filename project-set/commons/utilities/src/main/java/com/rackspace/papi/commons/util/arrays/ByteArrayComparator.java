@@ -1,12 +1,14 @@
 package com.rackspace.papi.commons.util.arrays;
 
+import com.rackspace.papi.commons.util.ArrayUtilities;
+
 public class ByteArrayComparator implements ArrayComparator {
 
     private final byte[] first, second;
 
     public ByteArrayComparator(byte[] first, byte[] second) {
-        this.first = first;
-        this.second = second;
+        this.first = ArrayUtilities.nullSafeCopy(first);
+        this.second = ArrayUtilities.nullSafeCopy(second);
     }
 
     @Override

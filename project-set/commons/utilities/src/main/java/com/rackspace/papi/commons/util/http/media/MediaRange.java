@@ -59,6 +59,15 @@ public class MediaRange {
         return false;
     }
 
+    @Override
+    public int hashCode() {
+        int hash = 7;
+        hash = 53 * hash + (this.mediaType != null ? this.mediaType.hashCode() : 0);
+        hash = 53 * hash + (this.parameters != null ? this.parameters.hashCode() : 0);
+        hash = 53 * hash + (this.vendorSpecificMediaType != null ? this.vendorSpecificMediaType.hashCode() : 0);
+        return hash;
+    }
+
     public <T, R> boolean mapsAreSame(Map<T, R> map1, Map<T, R> map2) {
         if (map1 == map2) {
             return true;

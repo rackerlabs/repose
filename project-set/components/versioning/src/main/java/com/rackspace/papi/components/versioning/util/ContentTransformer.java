@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.versioning.util;
 
+import com.rackspace.papi.commons.util.http.media.MediaRange;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.transform.StreamTransform;
 import org.slf4j.Logger;
@@ -47,8 +48,8 @@ public class ContentTransformer {
         }
     }
 
-    public void transform(JAXBElement element, MediaType mediaType, OutputStream outputStream) {
-        switch (mediaType) {
+    public void transform(JAXBElement element, MediaRange mediaRange, OutputStream outputStream) {
+        switch (mediaRange.getMediaType()) {
             case APPLICATION_XML:
                 xmlStreamTransform.transform(element, outputStream);
                 break;
@@ -61,8 +62,8 @@ public class ContentTransformer {
     }
 
     @Deprecated
-    public String transform(JAXBElement element, MediaType mediaType) {
-        switch (mediaType) {
+    public String transform(JAXBElement element, MediaRange mediaRange) {
+        switch (mediaRange.getMediaType()) {
             case APPLICATION_XML:
                 return xmlTransform.transform(element);
 
