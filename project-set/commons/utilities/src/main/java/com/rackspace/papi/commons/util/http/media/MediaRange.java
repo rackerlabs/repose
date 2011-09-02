@@ -69,7 +69,7 @@ public class MediaRange {
     }
 
     public <T, R> boolean mapsAreSame(Map<T, R> map1, Map<T, R> map2) {
-        if (map1 == map2) {
+        if (map1.equals(map2)) {
             return true;
         }
         
