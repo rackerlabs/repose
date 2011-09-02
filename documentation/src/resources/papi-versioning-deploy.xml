@@ -200,7 +200,8 @@
                 </listitem>
                 <listitem>
                 <para>
-                    <code>name</code>: The name of a version mapping is an arbitrary, human-readable identifier that need not maintain uniqueness.
+                    <code>context-path</code>: The context path attribute is used to indicate that the external mapping for this version, i.e. the id attribute, is not the internal mapping.
+                    The versioning component will then use this path to route the request to its intended destination.
                 </para>
                 </listitem>
                 <listitem>
