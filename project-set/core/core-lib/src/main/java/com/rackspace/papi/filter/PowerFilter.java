@@ -29,8 +29,10 @@ import java.util.List;
 public class PowerFilter extends ApplicationContextAwareFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
+    
     private final EventListener<ApplicationDeploymentEvent, String> applicationDeploymentListener;
     private final UpdateListener<PowerProxy> systemModelConfigurationListener;
+    
     private List<FilterContext> filterChain;
     private ContextAdapter papiContext;
     private PowerProxy currentSystemModel;

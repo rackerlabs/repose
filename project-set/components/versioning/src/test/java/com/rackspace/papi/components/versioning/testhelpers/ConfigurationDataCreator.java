@@ -34,7 +34,7 @@ public abstract class ConfigurationDataCreator {
 
             mapping = new ServiceVersionMapping();
             mapping.setId(id);
-            mapping.setName("Service Version 1." + i);
+            mapping.setContextPath(id);
             mapping.setPpHostId("service-v1." + i);
             mapping.setStatus(VersionStatus.CURRENT);
 
@@ -83,7 +83,7 @@ public abstract class ConfigurationDataCreator {
 
             mapping = new ServiceVersionMapping();
             mapping.setId(id);
-            mapping.setName("Service Version 1." + i);
+            mapping.setContextPath(id);
             mapping.setPpHostId("service-v1." + i);
             mapping.setStatus(VersionStatus.CURRENT);
 
