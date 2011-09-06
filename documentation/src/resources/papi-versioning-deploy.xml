@@ -381,4 +381,5 @@ Accept: application/xml
                     </programlisting>
         </example>
     </chapter>
+    <xi:include href="chapters/afterword.xml"/>
 </book>

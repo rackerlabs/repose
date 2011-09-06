@@ -323,4 +323,5 @@
             </section>                
             </section>
     </chapter>
+    <xi:include href="chapters/afterword.xml"/>
 </book>

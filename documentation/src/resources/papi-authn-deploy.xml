@@ -202,4 +202,5 @@
             For further information about Power API's handling of authentication requests, please refer to this blueprint.
         </para> 
     </chapter>
+    <xi:include href="chapters/afterword.xml"/>
 </book>

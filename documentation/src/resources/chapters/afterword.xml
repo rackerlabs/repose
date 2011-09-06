@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter xmlns="http://docbook.org/ns/docbook"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+    xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0"
+    xml:id="Afterword-d1e990">
+    <title>Afterword</title>
+    <para>
+        The information in this document is provided in good faith but without any warranty.
+        Although we have tested the sample code included here, results on your system may be different.
+    </para>
+    <para>
+        If find errors in this document or have suggestions about how to improve it, please let us know.
+        You can contact the maintainer directly at "john dot hopper at rackspace dot com". 
+    </para>
+    <para>
+        We hope you enjoy using Power API!
+    </para>
+</chapter>

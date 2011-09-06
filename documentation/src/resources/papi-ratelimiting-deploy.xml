@@ -489,4 +489,5 @@ Retry-After: Thu, 30 Jun 2011 20:24:39 GMT
                 </tgroup>
             </table>
     </chapter>
+    <xi:include href="chapters/afterword.xml"/>
 </book>
