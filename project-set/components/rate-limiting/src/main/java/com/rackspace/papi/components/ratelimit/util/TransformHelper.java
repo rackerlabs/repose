@@ -15,7 +15,7 @@ import java.io.InputStream;
  *
  * @author zinic
  */
-public class TransformHelper {
+public final class TransformHelper {
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(TransformHelper.class);
     private static final ExceptionLogger EXCEPTION_LOG = new ExceptionLogger(LOG);
     private static final TransformerFactory XSLT_TRANSFORMER_FACTORY = TransformerFactory.newInstance();
