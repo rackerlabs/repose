@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 /**
  *
  */
-public class ArchiveEntryDescriptorBuilder {
+public final class ArchiveEntryDescriptorBuilder {
     private static final Pattern JAR_ENTRY_NAMING_PATTERN = Pattern.compile("(.+?/)?([^/]+?)?(\\.([^.]*$)|$)");
     private static final int RAW_PACKAGE_NAME = 1, SIMPLE_NAME = 2, EXTENSION = 4;
 

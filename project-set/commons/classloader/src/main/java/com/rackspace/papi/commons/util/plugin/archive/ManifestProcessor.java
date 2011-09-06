@@ -6,7 +6,7 @@ import java.util.jar.Manifest;
 /**
  * 
  */
-public class ManifestProcessor {
+public final class ManifestProcessor {
     public static final String MANIFEST_PATH = "META-INF/MANIFEST.MF";
     
     private ManifestProcessor() {
