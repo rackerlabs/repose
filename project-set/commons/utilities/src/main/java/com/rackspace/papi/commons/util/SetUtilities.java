@@ -5,7 +5,7 @@ import java.util.Set;
 /**
  * @author fran
  */
-public class SetUtilities {
+public final class SetUtilities {
     private SetUtilities() {
         
     }

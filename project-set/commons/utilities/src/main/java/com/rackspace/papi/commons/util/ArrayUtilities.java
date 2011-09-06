@@ -18,7 +18,7 @@ package com.rackspace.papi.commons.util;
 
 import java.util.Arrays;
 
-public class ArrayUtilities {
+public final class ArrayUtilities {
     
     private ArrayUtilities() {
         

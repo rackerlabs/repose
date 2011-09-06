@@ -4,15 +4,17 @@ import com.rackspace.papi.commons.util.Destroyable;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.StoredElement;
+import java.util.Deque;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Queue;
 import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 public class CoalescentDatastoreWrapper implements Datastore, Runnable, Destroyable {
 
-    private final TreeMap<String, Queue<Operation>> operationQueues;
-    private final LinkedList<String> nextOperationList;
+    private final Map<String, Queue<Operation>> operationQueues;
+    private final Deque<String> nextOperationList;
     private final Datastore datastore;
     private final Thread threadReference;
     private boolean shouldContinue;

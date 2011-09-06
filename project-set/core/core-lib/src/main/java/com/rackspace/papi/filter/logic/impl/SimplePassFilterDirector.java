@@ -11,7 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
 
-public class SimplePassFilterDirector extends AbstractFilterDirector {
+public final class SimplePassFilterDirector extends AbstractFilterDirector {
 
     private static final FilterDirector SINGLETON_INSTANCE = new SimplePassFilterDirector();
     private static final String EMPTY_STRING = "";
