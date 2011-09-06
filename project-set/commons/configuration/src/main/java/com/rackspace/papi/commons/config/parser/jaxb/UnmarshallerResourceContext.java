@@ -18,7 +18,7 @@ public class UnmarshallerResourceContext implements ResourceContext<Unmarshaller
     }
 
     @Override
-    public Object perform(Unmarshaller resource) throws ResourceContextException {
+    public Object perform(Unmarshaller resource) {
         try {
             if (log) {
                 LoggerFactory.getLogger(UnmarshallerResourceContext.class).error(
