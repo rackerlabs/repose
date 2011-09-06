@@ -15,7 +15,7 @@ public class UnmarshallerConstructionStrategy implements ConstructionStrategy<Un
     }
     
     @Override
-    public Unmarshaller construct() throws ResourceConstructionException {
+    public Unmarshaller construct() {
         try {
             return context.createUnmarshaller();
         } catch(JAXBException jaxbe) {

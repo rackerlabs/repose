@@ -79,18 +79,18 @@ public abstract class HashRingDatastore extends CoalescentDatastoreWrapper imple
     }
 
     @Override
-    public StoredElement get(String key) throws DatastoreOperationException {
+    public StoredElement get(String key) {
         final byte[] keyHash = getHash(key);
 
         return get(Base64.encodeBase64URLSafeString(keyHash), keyHash);
     }
 
     @Override
-    public StoredElement getByHash(String base64EncodedHashString) throws DatastoreOperationException {
+    public StoredElement getByHash(String base64EncodedHashString) {
         return get(base64EncodedHashString, Base64.decodeBase64(base64EncodedHashString));
     }
 
-    public StoredElement get(String name, byte[] id) throws DatastoreOperationException {
+    public StoredElement get(String name, byte[] id) {
         final InetSocketAddress target = getTarget(id);
 
         if (!target.equals(clusterView.local())) {
@@ -103,12 +103,12 @@ public abstract class HashRingDatastore extends CoalescentDatastoreWrapper imple
     }
 
     @Override
-    public void put(String key, byte[] value) throws DatastoreOperationException {
+    public void put(String key, byte[] value) {
         put(key, value, 3, TimeUnit.MINUTES);
     }
 
     @Override
-    public void put(String key, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
+    public void put(String key, byte[] value, int ttl, TimeUnit timeUnit) {
         final byte[] keyHash = getHash(key);
 
         put(Base64.encodeBase64URLSafeString(keyHash), keyHash, value, ttl, timeUnit);
@@ -120,11 +120,11 @@ public abstract class HashRingDatastore extends CoalescentDatastoreWrapper imple
     }
 
     @Override
-    public void putByHash(String base64EncodedHashString, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
+    public void putByHash(String base64EncodedHashString, byte[] value, int ttl, TimeUnit timeUnit) {
         put(base64EncodedHashString, Base64.decodeBase64(base64EncodedHashString), value, ttl, timeUnit);
     }
 
-    public void put(String name, byte[] id, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
+    public void put(String name, byte[] id, byte[] value, int ttl, TimeUnit timeUnit) {
         final InetSocketAddress target = getTarget(id);
 
         if (!target.equals(clusterView.local())) {
