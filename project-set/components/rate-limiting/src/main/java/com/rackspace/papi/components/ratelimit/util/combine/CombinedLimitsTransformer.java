@@ -38,7 +38,7 @@ public class CombinedLimitsTransformer extends AbstractXslTransform implements S
         getXslTransformerPool().use(new SimpleResourceContext<Transformer>() {
 
             @Override
-            public void perform(Transformer resource) {
+            public void perform(Transformer resource) throws ResourceContextException {
                 final StreamResult resultWriter = new StreamResult(target);
                 
                 //This XSL requires a parameter to represent the absolute limits.

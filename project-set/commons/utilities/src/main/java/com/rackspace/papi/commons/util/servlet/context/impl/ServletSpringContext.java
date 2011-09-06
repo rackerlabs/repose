@@ -25,7 +25,7 @@ public class ServletSpringContext implements ApplicationContextAware, Applicatio
     private ApplicationContext applicationContext;
 
     @Override
-    public synchronized void setApplicationContext(ApplicationContext ac) {
+    public synchronized void setApplicationContext(ApplicationContext ac) throws BeansException {
         if (applicationContext == null) {
             applicationContext = ac;
         }

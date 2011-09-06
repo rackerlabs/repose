@@ -52,7 +52,7 @@ public class TokenCache {
         }
     }
 
-    public void removeAll(boolean doNotNotifyCacheReplicators) {
+    public void removeAll(boolean doNotNotifyCacheReplicators) throws IllegalStateException, CacheException {
         tokenCache.removeAll(doNotNotifyCacheReplicators);
     }
 
@@ -60,11 +60,11 @@ public class TokenCache {
         tokenCache.removeAll();
     }
 
-    public final boolean remove(Object key, boolean doNotNotifyCacheReplicators) {
+    public final boolean remove(Object key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         return tokenCache.remove(key, doNotNotifyCacheReplicators);
     }
 
-    public final boolean remove(Serializable key, boolean doNotNotifyCacheReplicators) {
+    public final boolean remove(Serializable key, boolean doNotNotifyCacheReplicators) throws IllegalStateException {
         return tokenCache.remove(key, doNotNotifyCacheReplicators);
     }
 
@@ -76,19 +76,19 @@ public class TokenCache {
         return tokenCache.remove(key);
     }
 
-    public final void put(Element element) {
+    public final void put(Element element) throws IllegalArgumentException, IllegalStateException, CacheException {
         tokenCache.put(element);
     }
 
-    public synchronized void dispose() {
+    public synchronized void dispose() throws IllegalStateException {
         tokenCache.dispose();
     }
 
-    public final Element get(Object key) {
+    public final Element get(Object key) throws IllegalStateException, CacheException {
         return tokenCache.get(key);
     }
 
-    public final Element get(Serializable key) {
+    public final Element get(Serializable key) throws IllegalStateException, CacheException {
         return tokenCache.get(key);
     }
 }

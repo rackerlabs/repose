@@ -88,7 +88,7 @@ public class HttpLogFormatter {
 
     private void handleApacheArgument(final String statusCodeModifiers,
                                       final LogArgumentFormatter argFormatter,
-                                      final String lastEntity) {
+                                      final String lastEntity) throws NumberFormatException {
         if (!isBlank(statusCodeModifiers)) {
             final String prunedModifiers = !statusCodeModifiers.startsWith("!") ? statusCodeModifiers : statusCodeModifiers.substring(1);
             final StatusCodeConstraint constraint = new StatusCodeConstraint(prunedModifiers.equals(statusCodeModifiers));
