@@ -5,7 +5,7 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.service.ServiceContext;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
-import com.rackspace.papi.servlet.ServletContextInitException;
+import com.rackspace.papi.servlet.PowerApiContextException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
@@ -35,7 +35,7 @@ public class ConfigurationServiceContext implements ServiceContext<Configuration
         final String configurationRoot = ctx.getInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName());
 
         if (StringUtilities.isBlank(configurationRoot)) {
-            throw new ServletContextInitException(
+            throw new PowerApiContextException(
                     "Power API requires a configuration directory to be specified as an init-param named, \""
                     + InitParameter.POWER_API_CONFIG_DIR.getParameterName() + "\"");
         }

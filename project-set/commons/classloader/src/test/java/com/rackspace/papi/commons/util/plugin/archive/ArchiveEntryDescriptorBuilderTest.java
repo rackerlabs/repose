@@ -13,12 +13,15 @@ import static org.junit.Assert.*;
 @RunWith(Enclosed.class)
 public class ArchiveEntryDescriptorBuilderTest {
     public static class WhenParsingJarEntryNames {
+        /*
         @Test
         public void shouldInstantiate() {
             final ArchiveEntryDescriptorBuilder archiveEntryDescriptorBuilder = new ArchiveEntryDescriptorBuilder();
 
             assertNotNull(archiveEntryDescriptorBuilder);
         }
+         * 
+         */
 
         @Test
         public void shouldParseComplexFileExtensions() {

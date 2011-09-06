@@ -4,10 +4,10 @@ import com.rackspace.papi.commons.util.pooling.ConstructionStrategy;
 import com.rackspace.papi.commons.util.pooling.GenericBlockingResourcePool;
 import com.rackspace.papi.commons.util.pooling.Pool;
 import com.rackspace.papi.commons.util.pooling.ResourceConstructionException;
-import com.rackspace.papi.commons.util.pooling.ResourceContext;
 import com.rackspace.papi.commons.util.pooling.ResourceContextException;
-import com.rackspace.papi.commons.util.transform.Transform;
-import java.io.StringWriter;
+import com.rackspace.papi.commons.util.pooling.SimpleResourceContext;
+import com.rackspace.papi.commons.util.transform.StreamTransform;
+import java.io.OutputStream;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.util.JAXBSource;
@@ -16,17 +16,13 @@ import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.stream.StreamResult;
 
-/**
- *
- * 
- */
-public class JaxbXsltTransform<T> implements Transform<JAXBElement<T>, String> {
+public class XsltToStreamTransform<T extends OutputStream> implements StreamTransform<JAXBElement, T> {
 
     private final Pool<Transformer> xsltResourcePool;
     private final Templates transformationTemplates;
     private final JAXBContext jaxbContext;
 
-    public JaxbXsltTransform(Templates transformTemplates, JAXBContext jaxbContext) {
+    public XsltToStreamTransform(Templates transformTemplates, JAXBContext jaxbContext) {
         this.transformationTemplates = transformTemplates;
         this.jaxbContext = jaxbContext;
 
@@ -46,22 +42,17 @@ public class JaxbXsltTransform<T> implements Transform<JAXBElement<T>, String> {
     }
 
     @Override
-    public String transform(final JAXBElement<T> source) {
-        return xsltResourcePool.use(new ResourceContext<Transformer, String>() {
+    public void transform(final JAXBElement source, final T target) {
+        xsltResourcePool.use(new SimpleResourceContext<Transformer>() {
 
             @Override
-            public String perform(Transformer resource) throws ResourceContextException {
-                final StringWriter stringWriter = new StringWriter();
-                final StreamResult resultWriter = new StreamResult(stringWriter);
-
+            public void perform(Transformer resource) throws ResourceContextException {
                 try {
-                    resource.transform(new JAXBSource(jaxbContext, source), resultWriter);
+                    resource.transform(new JAXBSource(jaxbContext, source), new StreamResult(target));
                 } catch (Exception e) {
                     throw new XsltTransformationException("Failed while attempting XSLT transformation;. Reason: "
                             + e.getMessage(), e);
                 }
-
-                return stringWriter.getBuffer().toString();
             }
         });
     }

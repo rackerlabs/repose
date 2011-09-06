@@ -24,15 +24,15 @@ package com.rackspace.auth.v1_1;
  */
 public class Account {
     private final String type;
-    private final String id;
+    private final String username;
 
-    public Account(String type, String id) {
+    public Account(String type, String username) {
         this.type = type;
-        this.id = id;
+        this.username = username;
     }
 
-    public String getId() {
-        return id;
+    public String getUsername() {
+        return username;
     }
 
     public String getType() {

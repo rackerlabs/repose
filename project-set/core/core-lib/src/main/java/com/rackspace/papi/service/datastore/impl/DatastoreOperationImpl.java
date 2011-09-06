@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.datastore.impl;
 
+import com.rackspace.papi.commons.util.ArrayUtilities;
 import java.util.concurrent.TimeUnit;
 
 public class DatastoreOperationImpl implements Operation {
@@ -22,7 +23,7 @@ public class DatastoreOperationImpl implements Operation {
     public DatastoreOperationImpl(Type type, String key, byte[] value, int ttl, TimeUnit timeUnit) {
         this.type = type;
         this.key = key;
-        this.value = value;
+        this.value = ArrayUtilities.nullSafeCopy(value);
         this.ttl = ttl;
         this.timeUnit = timeUnit;
 

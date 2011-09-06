@@ -18,10 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import static org.junit.Assert.fail;
 
-/**
- *
- * 
- */
 public abstract class EarTestSupport {
     private static final Logger LOG = LoggerFactory.getLogger(EarTestSupport.class);
     public static final File TMP_DIR = new File(System.getProperty("java.io.tmpdir"));
@@ -131,7 +127,7 @@ public abstract class EarTestSupport {
     private static File createDeploymentDestination(String target) {
         final File deploymentDestination = new File(TMP_DIR, target);
 
-        if (!deploymentDestination.mkdirs()) {
+        if (!deploymentDestination.exists() && !deploymentDestination.mkdirs()) {
             fail("failed to make directory: {" + TMP_DIR + ",  " + target + "}");
         }
 

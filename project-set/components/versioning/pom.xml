@@ -31,6 +31,12 @@
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>utilities</artifactId>
         </dependency>
+        
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>jetty-container</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>

@@ -13,9 +13,9 @@ import javax.xml.bind.Unmarshaller;
  *
  * 
  */
-public class InputStreamJaxbTransform <T> extends AbstractJaxbTransform implements Transform<InputStream, JAXBElement<T>> {
+public class StreamToJaxbTransform <T> extends AbstractJaxbTransform implements Transform<InputStream, JAXBElement<T>> {
     
-    public InputStreamJaxbTransform(JAXBContext jc) {
+    public StreamToJaxbTransform(JAXBContext jc) {
         super(jc);
     }
 

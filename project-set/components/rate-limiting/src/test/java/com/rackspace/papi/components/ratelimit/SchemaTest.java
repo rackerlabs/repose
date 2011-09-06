@@ -5,7 +5,7 @@ import com.rackspace.papi.components.limits.schema.Limits;
 import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
 import com.rackspace.papi.components.ratelimit.util.LimitsEntityTransformer;
 import com.rackspace.papi.commons.util.transform.Transform;
-import com.rackspace.papi.commons.util.transform.jaxb.InputStreamJaxbTransform;
+import com.rackspace.papi.commons.util.transform.jaxb.StreamToJaxbTransform;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -73,7 +73,7 @@ public class SchemaTest {
         public void output() throws Exception {
             final LimitsEntityTransformer transformer = new LimitsEntityTransformer(jaxbContext);
 
-            final Transform<InputStream, JAXBElement<Limits>> limitsTransformer = new InputStreamJaxbTransform(jaxbContext);
+            final Transform<InputStream, JAXBElement<Limits>> limitsTransformer = new StreamToJaxbTransform(jaxbContext);
             
             final JAXBElement<Limits> limitsElement = 
                     limitsTransformer.transform(SchemaTest.class.getResourceAsStream("/META-INF/schema/examples/limits.xml"));

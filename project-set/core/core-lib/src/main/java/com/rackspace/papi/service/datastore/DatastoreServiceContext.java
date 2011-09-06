@@ -4,7 +4,7 @@ import com.rackspace.papi.service.ServiceContext;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.service.datastore.impl.PowerApiDatastoreService;
 import com.rackspace.papi.service.datastore.impl.ehcache.EHCacheDatastoreManager;
-import com.rackspace.papi.servlet.ServletContextInitException;
+import com.rackspace.papi.servlet.PowerApiContextException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
@@ -53,7 +53,7 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
             final DatastoreNamingContext datastoreNamingContext = new DatastoreNamingContext("default", namingContext.getEnvironment(), new EHCacheDatastoreManager(ehCacheManager));
             namingContext.bind(DATASTORE_NAME + "/local/default", datastoreNamingContext);
         } catch (NamingException ne) {
-            throw new ServletContextInitException(ne.getExplanation(), ne);
+            throw new PowerApiContextException(ne.getExplanation(), ne);
         }
         
         datastoreService = new PowerApiDatastoreService(namingContext, DATASTORE_NAME);

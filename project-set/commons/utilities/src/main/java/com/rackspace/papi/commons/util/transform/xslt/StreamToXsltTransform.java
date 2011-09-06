@@ -15,9 +15,9 @@ import javax.xml.transform.stream.StreamSource;
  *
  * @author zinic
  */
-public class StreamXslTransform extends AbstractXslTransform implements StreamTransform<InputStream, OutputStream> {
+public class StreamToXsltTransform extends AbstractXslTransform implements StreamTransform<InputStream, OutputStream> {
 
-    public StreamXslTransform(Templates transformationTemplates) {
+    public StreamToXsltTransform(Templates transformationTemplates) {
         super(transformationTemplates);
     }
 

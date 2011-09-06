@@ -12,6 +12,10 @@ public class ArchiveEntryDescriptorBuilder {
     private static final Pattern JAR_ENTRY_NAMING_PATTERN = Pattern.compile("(.+?/)?([^/]+?)?(\\.([^.]*$)|$)");
     private static final int RAW_PACKAGE_NAME = 1, SIMPLE_NAME = 2, EXTENSION = 4;
 
+    private ArchiveEntryDescriptorBuilder() {
+        
+    }
+    
     public static ArchiveEntryDescriptor build(String archiveName, String entryName) {
         final Matcher nameMatcher = JAR_ENTRY_NAMING_PATTERN.matcher(entryName);
         ArchiveEntryDescriptor archiveEntryDescriptor = null;

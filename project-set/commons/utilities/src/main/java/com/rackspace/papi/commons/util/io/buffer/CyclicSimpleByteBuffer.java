@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util.io.buffer;
 
+import com.rackspace.papi.commons.util.ArrayUtilities;
 import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -27,7 +28,7 @@ public class CyclicSimpleByteBuffer implements SimpleByteBuffer {
         this.nextWritableIndex = 0;
         this.nextReadableIndex = 0;
         this.hasElements = hasElements;
-        this.buffer = buffer;
+        this.buffer = ArrayUtilities.nullSafeCopy(buffer);
 
         singleByte = new byte[1];
         bufferLock = new ReentrantLock();
@@ -98,7 +99,7 @@ public class CyclicSimpleByteBuffer implements SimpleByteBuffer {
     }
 
     private void unsafeGrow(int minLength) {
-        final int newSize = DEFAULT_BUFFER_SIZE * (minLength / DEFAULT_BUFFER_SIZE + 1);
+        final int newSize = buffer.length + buffer.length * (minLength / buffer.length + 1);
         final byte[] newBuffer = new byte[newSize];
 
         final int read = unsafeGet(newBuffer, 0, newSize);
@@ -110,8 +111,10 @@ public class CyclicSimpleByteBuffer implements SimpleByteBuffer {
     }
 
     private int unsafePut(byte[] b, int off, int len) {
-        if (unsafeRemaining() < len) {
-            unsafeGrow(len);
+        final int remaining = unsafeRemaining();
+        
+        if (remaining < len) {
+            unsafeGrow(len - remaining);
         }
 
         if (nextWritableIndex + len > buffer.length) {
@@ -156,7 +159,7 @@ public class CyclicSimpleByteBuffer implements SimpleByteBuffer {
     private void unsafePut(byte b) {
         singleByte[0] = b;
 
-        unsafePut(singleByte, 0, 1);
+        unsafePut(new byte[]{b}, 0, 1);
     }
 
     private byte unsafeGet() {

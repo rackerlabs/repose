@@ -14,19 +14,21 @@
  *  limitations under the License.
  *  under the License.
  */
-package com.rackspace.papi.servlet;
+package com.rackspace.papi.commons.util;
 
-/**
- *
- * @author jhopper
- */
-public class ServletContextInitException extends RuntimeException {
+import java.util.Arrays;
 
-    public ServletContextInitException(String message, Throwable rootCause) {
-        super(message, rootCause);
+public class ArrayUtilities {
+    
+    private ArrayUtilities() {
+        
     }
-
-    public ServletContextInitException(String message) {
-        super(message);
+    
+    public static <T> T[] nullSafeCopy(T[] array) {
+        return array != null? Arrays.copyOf(array, array.length): null;
+    }
+    
+    public static byte[] nullSafeCopy(byte[] array) {
+        return array != null? Arrays.copyOf(array, array.length): null;
     }
 }

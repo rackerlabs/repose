@@ -8,15 +8,19 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ApplicationClassLoaderImpl implements ApplicationClassLoader, Destroyable {
+public class ApplicationClassLoaderManagerImpl implements ApplicationClassLoaderManager, Destroyable {
 
     private final Map<String, EarClassLoaderContext> classLoaderMap;
 
-    public ApplicationClassLoaderImpl() {
+    public ApplicationClassLoaderManagerImpl() {
         this.classLoaderMap = new HashMap<String, EarClassLoaderContext>();
     }
 
-    public synchronized void putContext(String contextName, EarClassLoaderContext context) {
+    public synchronized void removeApplication(String contextName) {
+        classLoaderMap.remove(contextName);
+    }
+
+    public synchronized void putApplication(String contextName, EarClassLoaderContext context) {
         classLoaderMap.put(contextName, context);
     }
 
@@ -30,16 +34,28 @@ public class ApplicationClassLoaderImpl implements ApplicationClassLoader, Destr
     }
 
     @Override
-    public EarClassLoader getApplication(String contextName) {
+    public boolean hasFilter(String filterName) {
+        for (EarClassLoaderContext ctx : classLoaderMap.values()) {
+            for (String ctxFilterName : ctx.getEarDescriptor().getRegisteredFilters().keySet()) {
+                if (ctxFilterName.equals(filterName)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+
+
+    @Override
+    public synchronized EarClassLoader getApplication(String contextName) {
         final EarClassLoaderContext ctx = classLoaderMap.get(contextName);
 
         return ctx != null ? ctx.getClassLoader() : null;
     }
 
     @Override
-    public Collection<EarClassLoaderContext> getLoadedApplications() {
-        synchronized (classLoaderMap) {
-            return Collections.unmodifiableCollection(classLoaderMap.values());
-        }
+    public synchronized Collection<EarClassLoaderContext> getLoadedApplications() {
+        return Collections.unmodifiableCollection(classLoaderMap.values());
     }
 }

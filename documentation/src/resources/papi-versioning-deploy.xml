@@ -194,7 +194,8 @@
                 </listitem>
                 <listitem>
                 <para>
-                    <code>name</code>: The name of a version mapping is an arbitrary, human-readable identifier that need not maintain uniqueness.
+                    <code>context-path</code>: The context path attribute is used to indicate that the external mapping for this version, i.e. the id attribute, is not the internal mapping.
+                    The versioning component will then use this path to route the request to its intended destination.
                 </para>
                 </listitem>
                 <listitem>
@@ -341,6 +342,14 @@ Accept: application/xml
                     <literallayout class="monospaced">
 GET /root/ HTTP/1.1
 Accept: application/v1.0+xml
+                </literallayout>
+                </example>
+                <example>
+                    <title>Describe Single Version Using Complex Parameterized MIME Type Request: XML</title>
+                    <?dbfo keep-together="always"?>
+                    <literallayout class="monospaced">
+GET /root/ HTTP/1.1
+Accept: application/vnd.vendor.service;f=2.0;e=xml
                 </literallayout>
                 </example>
                 <example>

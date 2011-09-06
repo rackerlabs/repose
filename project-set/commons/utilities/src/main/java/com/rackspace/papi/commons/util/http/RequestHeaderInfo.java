@@ -1,11 +1,10 @@
 package com.rackspace.papi.commons.util.http;
 
-/**
- * Created by IntelliJ IDEA.
- * User: joshualockwood
- * Date: 6/9/11
- * Time: 4:23 PM
- */
+import com.rackspace.papi.commons.util.http.media.MediaRange;
+
 public interface RequestHeaderInfo {
-    String getAcceptHeader();
+
+    MediaRange getPreferedMediaRange();
+
+    boolean hasMediaRange(MediaRange targetRange);
 }

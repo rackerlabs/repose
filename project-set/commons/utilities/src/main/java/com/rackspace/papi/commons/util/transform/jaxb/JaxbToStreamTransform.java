@@ -9,14 +9,14 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
-public class OutputStreamJaxbTransform <T> extends AbstractJaxbTransform implements StreamTransform<JAXBElement<T>, OutputStream> {
+public class JaxbToStreamTransform <T extends OutputStream> extends AbstractJaxbTransform implements StreamTransform<JAXBElement, T> {
 
-    public OutputStreamJaxbTransform(JAXBContext ctx) {
+    public JaxbToStreamTransform(JAXBContext ctx) {
         super(ctx);
     }
 
     @Override
-    public void transform(final JAXBElement<T> source, final OutputStream target) {
+    public void transform(final JAXBElement source, final T target) {
         getMarshallerPool().use(new SimpleResourceContext<Marshaller>() {
 
             @Override

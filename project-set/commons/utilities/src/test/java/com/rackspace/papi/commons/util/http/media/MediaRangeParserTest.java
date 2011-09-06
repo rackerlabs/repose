@@ -1,31 +1,20 @@
 package com.rackspace.papi.commons.util.http.media;
 
-import com.rackspace.papi.commons.util.http.media.MediaRange;
-import com.rackspace.papi.commons.util.http.media.MalformedMediaRangeException;
-import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
-import com.rackspace.papi.commons.util.http.media.MediaType;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-
-import java.util.Set;
-import java.util.HashSet;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-/**
- * Created by IntelliJ IDEA.
- * User: joshualockwood
- * Date: Apr 18, 2011
- * Time: 3:50:18 PM
- */
 @RunWith(Enclosed.class)
 public class MediaRangeParserTest {
+
     public static class WhenCheckingAcceptHeaderPattern {
+
         private static final String BASIC_CONTENT_TYPE = "application/xml";
         private static final String VENDOR_COMPLEX_CONTENT_TYPE = "application/vnd.rackspace.services.a+xml";
         private static final String FULL_COMPLEX_CONTENT_TYPE = "application/vnd.rackspace.services.a-v1.0+xml";
@@ -36,66 +25,47 @@ public class MediaRangeParserTest {
         @Test
         public void should1() {
             assertTrue(
-                    MediaRangeParser.ACCEPTS_HEADER_REGEX
-                            .matcher(BASIC_CONTENT_TYPE)
-                            .matches());
+                    MediaRangeParser.ACCEPTS_HEADER_REGEX.matcher(BASIC_CONTENT_TYPE).matches());
         }
 
         @Test
         public void should1_2() {
             assertFalse(
-                    MediaRangeParser.ACCEPTS_HEADER_REGEX
-                            .matcher("")
-                            .matches());
+                    MediaRangeParser.ACCEPTS_HEADER_REGEX.matcher("").matches());
         }
 
         @Test
         public void should2() {
             assertTrue(
-                    MediaRangeParser.ACCEPTS_HEADER_REGEX
-                            .matcher(FULL_COMPLEX_CONTENT_TYPE)
-                            .matches());
+                    MediaRangeParser.ACCEPTS_HEADER_REGEX.matcher(FULL_COMPLEX_CONTENT_TYPE).matches());
         }
 
         @Test
         public void should3() {
             assertTrue(
-                    MediaRangeParser.ACCEPTS_HEADER_REGEX
-                            .matcher(VENDOR_COMPLEX_CONTENT_TYPE)
-                            .matches());
+                    MediaRangeParser.ACCEPTS_HEADER_REGEX.matcher(VENDOR_COMPLEX_CONTENT_TYPE).matches());
         }
 
         @Test
         public void should4() {
             assertTrue(
-                MediaRangeParser.ACCEPTS_HEADER_REGEX
-                            .matcher(ALL_MEDIA_TYPES)
-                            .matches());
+                    MediaRangeParser.ACCEPTS_HEADER_REGEX.matcher(ALL_MEDIA_TYPES).matches());
         }
 
         @Test
         public void should5() {
             assertTrue(
-                MediaRangeParser.ACCEPTS_HEADER_REGEX
-                            .matcher(ALL_MEDIA_SUBTYPES)
-                            .matches());                    
+                    MediaRangeParser.ACCEPTS_HEADER_REGEX.matcher(ALL_MEDIA_SUBTYPES).matches());
         }
 
         @Test
         public void should6() {
             assertTrue(
-                MediaRangeParser.ACCEPTS_HEADER_REGEX
-                            .matcher(SUPER_COMPLICATED_MEDIA_TYPE)
-                            .matches());
+                    MediaRangeParser.ACCEPTS_HEADER_REGEX.matcher(SUPER_COMPLICATED_MEDIA_TYPE).matches());
         }
     }
 
     public static class WhenGettingMediaRangesFromAcceptHeader {
-
-        @Test(expected= MalformedMediaRangeException.class)
-        public void shouldThrowMalformedExceptionForEmptyAcceptHeader() {
-            MediaRangeParser.getMediaRangesFromAcceptHeader("");
-        }
 
         @Test
         public void shouldParseStandardMediaRangeWithoutParameters() {
@@ -133,17 +103,6 @@ public class MediaRangeParserTest {
             List<MediaRange> mediaRanges = MediaRangeParser.getMediaRangesFromAcceptHeader(acceptHeader);
 
             assertEquals(3, mediaRanges.size());
-        }
-    }
-
-    public static class WhenCheckingIfSetOfParametersContainsType {
-        @Test
-        public void shouldFindReturnTrueIfTypeIsInParameterSet() {
-            Set<String> parameters = new HashSet<String>();
-
-            parameters.add("z=json");
-
-            assertTrue(MediaRangeParser.setContainsType("json", parameters));
         }
     }
 }

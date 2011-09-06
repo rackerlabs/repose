@@ -22,7 +22,6 @@ import javax.servlet.http.HttpServletRequestWrapper;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +35,7 @@ public final class MutableHttpServletRequest extends HttpServletRequestWrapper {
     public static MutableHttpServletRequest wrap(HttpServletRequest request) {
         return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request);
     }
+    
     private final Map<String, List<String>> headers;
     private StringBuffer requestUrl;
     private String requestUri;

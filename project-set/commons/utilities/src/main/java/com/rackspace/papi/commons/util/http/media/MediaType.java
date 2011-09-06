@@ -8,7 +8,8 @@ public enum MediaType {
 
     APPLICATION_XML("application/xml"),
     APPLICATION_JSON("application/json"),
-    UNKNOWN("");
+    UNKNOWN(""),
+    UNSPECIFIED("");
 
     public static MediaType fromMediaTypeString(String mimeType) {
         for (MediaType ct : values()) {

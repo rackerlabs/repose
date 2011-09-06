@@ -1,8 +1,8 @@
 package com.rackspace.papi.components.ratelimit.util;
 
 import com.rackspace.papi.commons.util.transform.StreamTransform;
-import com.rackspace.papi.commons.util.transform.jaxb.OutputStreamJaxbTransform;
-import com.rackspace.papi.commons.util.transform.xslt.StreamXslTransform;
+import com.rackspace.papi.commons.util.transform.jaxb.JaxbToStreamTransform;
+import com.rackspace.papi.commons.util.transform.xslt.StreamToXsltTransform;
 import com.rackspace.papi.components.limits.schema.Limits;
 import com.rackspace.papi.components.limits.schema.ObjectFactory;
 import com.rackspace.papi.components.ratelimit.util.combine.CombinedLimitsTransformer;
@@ -29,7 +29,7 @@ public class LimitsEntityStreamTransformer {
     }
 
     public LimitsEntityStreamTransformer(JAXBContext context) {
-        jsonTransform = new StreamXslTransform(
+        jsonTransform = new StreamToXsltTransform(
                 TransformHelper.getTemplatesFromInputStream(
                 LimitsEntityStreamTransformer.class.getResourceAsStream(JSON_XSL_LOCATION)));
 
@@ -37,7 +37,7 @@ public class LimitsEntityStreamTransformer {
                 TransformHelper.getTemplatesFromInputStream(
                 LimitsEntityStreamTransformer.class.getResourceAsStream(COMBINER_XSL_LOCATION)), context, LIMITS_OBJECT_FACTORY);
 
-        entiyTransform = new OutputStreamJaxbTransform<Limits>(context);
+        entiyTransform = new JaxbToStreamTransform(context);
     }
 
     private static JAXBContext buildJaxbContext() {

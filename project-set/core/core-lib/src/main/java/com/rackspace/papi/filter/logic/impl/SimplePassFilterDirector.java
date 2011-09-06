@@ -24,39 +24,7 @@ public class SimplePassFilterDirector extends AbstractFilterDirector {
     private final HeaderManager emptyHeaderManager;
 
     private SimplePassFilterDirector() {
-        emptyHeaderManager = new HeaderManager() {
-
-            @Override
-            public void putHeader(String key, String... values) {
-            }
-
-            @Override
-            public Map<String, String[]> headersToAdd() {
-                return Collections.EMPTY_MAP;
-            }
-
-            @Override
-            public Set<String> headersToRemove() {
-                return Collections.EMPTY_SET;
-            }
-
-            @Override
-            public void removeHeader(String key) {
-            }
-
-            @Override
-            public boolean hasHeaders() {
-                return false;
-            }
-
-            @Override
-            public void applyTo(MutableHttpServletRequest request) {
-            }
-
-            @Override
-            public void applyTo(HttpServletResponse response) {
-            }
-        };
+        emptyHeaderManager = new EmptyHeaderManager();
     }
 
     @Override
@@ -84,3 +52,37 @@ public class SimplePassFilterDirector extends AbstractFilterDirector {
         return emptyHeaderManager;
     }
 }
+
+class EmptyHeaderManager implements HeaderManager {
+
+    @Override
+    public void putHeader(String key, String... values) {
+    }
+
+    @Override
+    public Map<String, String[]> headersToAdd() {
+        return Collections.EMPTY_MAP;
+    }
+
+    @Override
+    public Set<String> headersToRemove() {
+        return Collections.EMPTY_SET;
+    }
+
+    @Override
+    public void removeHeader(String key) {
+    }
+
+    @Override
+    public boolean hasHeaders() {
+        return false;
+    }
+
+    @Override
+    public void applyTo(MutableHttpServletRequest request) {
+    }
+
+    @Override
+    public void applyTo(HttpServletResponse response) {
+    }
+};

@@ -1,7 +1,5 @@
 package com.rackspace.papi.commons.util.http.media;
 
-import com.rackspace.papi.commons.util.http.media.MediaRange;
-import com.rackspace.papi.commons.util.http.media.MediaType;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -17,8 +15,8 @@ public class MediaRangeTest {
         @Test
         public void shouldReturnTrueIfComparingEqualTypes() {
             MediaType mediaType = MediaType.fromMediaTypeString("application/vnd.rackspace.services.a-v1.0+xml");
-            MediaRange oneMediaRange = new MediaRange(mediaType, null, null);
-            MediaRange twoMediaRange = new MediaRange(mediaType, null, null);
+            MediaRange oneMediaRange = new MediaRange(mediaType);
+            MediaRange twoMediaRange = new MediaRange(mediaType);
 
             assertTrue(oneMediaRange.equals(twoMediaRange));
         }
@@ -26,7 +24,7 @@ public class MediaRangeTest {
         @Test
         public void shouldReturnFalseIfComparingADifferentType() {
             MediaType mediaType = MediaType.fromMediaTypeString("application/vnd.rackspace.services.a-v1.0+xml");
-            MediaRange oneMediaRange = new MediaRange(mediaType, null, null);
+            MediaRange oneMediaRange = new MediaRange(mediaType);
 
             assertFalse(oneMediaRange.equals("another object"));
         }

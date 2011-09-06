@@ -20,7 +20,6 @@
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>distributed-datastore</artifactId>
-            <version>${project.version}</version>
         </dependency>
         
         <dependency>
