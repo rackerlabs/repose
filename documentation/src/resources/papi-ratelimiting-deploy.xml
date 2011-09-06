@@ -117,24 +117,7 @@
                 </tbody>
             </informaltable>
         </section>
-        <section security="writeronly" xml:id="Additional_Resources_REPLACE_WITH_PAPI_CONTENT_-d1e147">
-            <title>Additional Resources (REPLACE WITH PAPI CONTENT)</title>
-            <annotation>
-                <remark>"Additional Resources" is used in other API doc to suggest places to go for
-                    help if this document isn't helping enough: contact Cloud Support, check the
-                    Knowledge Center, visit the retail site, blogs, twitter, wherever people might
-                    be offering help. We don't have any sources like that to offer for Power API
-                    support, so this text is included from Load Balancers as an example &amp;
-                    reminder; build this section correctly when we have something useful to offer." </remark>
-            </annotation>
-            <para>You can download the most current version of this document from the Rackspace Cloud website at <link xlink:href="http://docs.rackspacecloud.com/loadbalancers/api/clb-devguide-latest.pdf">
-                http://docs.rackspacecloud.com/loadbalancers/api/clb-devguide-latest.pdf</link>. </para>
-            <para>For more details about the Rackspace Cloud Load Balancer service, refer to <link xlink:href="http://www.rackspace.com/cloud/cloud_hosting_products/loadbalancers/">http://www.rackspace.com/cloud/cloud_hosting_products/loadbalancers/</link>.
-                This site also offers links to Rackspace's official support channels, including
-                knowledge base articles, forums, phone, chat, and email. </para>
-            <para>You can also follow updates and announcements via twitter at <link xlink:href="http://www.twitter.com/Rackspace">http://www.twitter.com/Rackspace</link>.
-            </para>
-        </section>
+        <xi:include href="chapters/available-doc.xml"/>
     </chapter>
     <chapter xml:id="Msg_Requirements-d1e172">
         <title>HTTP Message Requirements</title>
