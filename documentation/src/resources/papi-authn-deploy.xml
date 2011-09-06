@@ -55,7 +55,7 @@
         <releaseinfo>API v0.9</releaseinfo>
         <productname>Power API</productname>
         <pubdate>2011-08-19</pubdate>
-        <legalnotice role="rs-api">
+        <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
             </annotation>
