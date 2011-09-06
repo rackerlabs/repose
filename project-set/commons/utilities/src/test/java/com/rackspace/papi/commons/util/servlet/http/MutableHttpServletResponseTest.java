@@ -30,7 +30,7 @@ public class MutableHttpServletResponseTest {
     public static class WhenCreatingNewInstances {
         @Test
         public void shouldPassReferenceThroughIfIsWrapperInstance() {
-            MutableHttpServletResponse original = mock(MutableHttpServletResponse.class);
+            MutableHttpServletResponse original = MutableHttpServletResponse.wrap(mock(HttpServletResponse.class));
             MutableHttpServletResponse actual;
 
             actual = MutableHttpServletResponse.wrap(original);

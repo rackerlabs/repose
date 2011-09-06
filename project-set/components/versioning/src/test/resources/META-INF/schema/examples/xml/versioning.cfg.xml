@@ -1,37 +1,35 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<versioning xmlns="http://docs.rackspacecloud.com/power-api/versioning/v1.0">
-    <service-root href="http://service.api.vendor.com/" />
+<versioning xmlns="http://docs.rackspacecloud.com/power-api/versioning/v1.0">    
+    <service-root href="http://localhost:8080/" />
+   
+    <version-mapping id="v1" pp-host-id="service-v1" context-path="/_v1.0" status="DEPRECATED">    
+        <media-types>    
+            <media-type base="application/xml" type="application/vnd.vendor.service-v1+xml" />    
+            <media-type base="application/json" type="application/vnd.vendor.service-v1+json" />    
+            <media-type base="application/xml" type="application/vnd.vendor.service+xml; version=1" />    
+            <media-type base="application/json" type="application/vnd.vendor.service+json; version=1" />    
+            <media-type base="application/xml" type="application/v1+xml" />    
+            <media-type base="application/json" type="application/v1+json" />    
+            <media-type base="application/xml" type="application/vnd.rackspace; x=v1; y=xml" />    
+            <media-type base="application/json" type="application/vnd.rackspace; x=v1; y=json" />    
+            <media-type base="application/json" type="application/vnd.rackspace; rnd=1; x=v1; rnd2=2; y=xml" />    
+            <media-type base="application/json" type="application/vnd.rackspace; rnd=1; x=v1; rnd2=2; y=json" />    
+        </media-types>    
+    </version-mapping>    
 
-    <version-mapping id="v1.0" pp-host-id="service-v1.0" name="Service Version 1.0" status="DEPRECATED">
-        <media-types>
-            <media-type base="application/xml" type="application/vnd.vendor.service-v1.0+xml" />
-            <media-type base="application/json" type="application/vnd.vendor.service-v1.0+json" />
-        </media-types>
-    </version-mapping>
-
-    <version-mapping id="v1.1" pp-host-id="service-v1.1" name="Service Version 1.1" status="CURRENT">
-        <media-types>
-            <media-type base="application/xml" type="application/vnd.vendor.service-v1.1+xml" />
-            <media-type base="application/json" type="application/vnd.vendor.service-v1.1+json" />
-        </media-types>
-    </version-mapping>
-
-    <version-mapping id="v1.2" pp-host-id="service-v1.2" name="Service Version 1.2" status="BETA">
-        <media-types>
-            <media-type base="application/xml" type="application/vnd.vendor.service;f=1.0;e=xml" />
-            <media-type base="application/json" type="application/vnd.vendor.service-v1.2+json" />
-            <media-type base="application/atom" type="application/vnd.vendor.service-v1.2+atom" />
-        </media-types>
-    </version-mapping>
-
-    <version-mapping id="v2.0" pp-host-id="service-v2.0" name="Service Version 2.0" status="ALPHA">
-        <media-types>
-            <media-type base="application/xml" type="application/vnd.vendor.service-v2.0+xml" />
-            <media-type base="application/json" type="application/vnd.vendor.service-v2.0+json" />
-            <media-type base="application/atom" type="application/vnd.vendor.service-v2.0+atom" />
-        </media-types>
-
-        <atom:link rel="self" href="http://service.api.vendor.com/v2.0/" />
+    <version-mapping id="v2" pp-host-id="service-v2" context-path="/_v2.0" status="CURRENT">    
+        <media-types>    
+            <media-type base="application/xml" type="application/vnd.vendor.service-v2+xml" />    
+            <media-type base="application/json" type="application/vnd.vendor.service-v2+json" />    
+            <media-type base="application/xml" type="application/vnd.vendor.service+xml; version=2" />    
+            <media-type base="application/json" type="application/vnd.vendor.service+json; version=2" />    
+            <media-type base="application/xml" type="application/v2+xml" />    
+            <media-type base="application/json" type="application/v2+json" />    
+            <media-type base="application/xml" type="application/vnd.rackspace; x=v2; y=xml" />    
+            <media-type base="application/json" type="application/vnd.rackspace; x=v2; y=json" />    
+            <media-type base="application/json" type="application/vnd.rackspace; rnd=1; x=v2; rnd2=2; y=xml" />    
+            <media-type base="application/json" type="application/vnd.rackspace; rnd=1; x=v2; rnd2=2; y=json" />    
+        </media-types>    
     </version-mapping>
 </versioning>

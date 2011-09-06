@@ -41,8 +41,8 @@ public class HttpLoggingHandler extends AbstractFilterLogicHandler {
     public HttpLoggingHandler() {
         loggers = new LinkedList<HttpLoggerWrapper>();
     }
-    private final UpdateListener<HttpLoggingConfig> httpLoggingConfigurationListener = new UpdateListener<HttpLoggingConfig>() {
-
+    
+    private class ConfigUpdateListener implements UpdateListener<HttpLoggingConfig> {
         @Override
         public void configurationUpdated(HttpLoggingConfig modifiedConfig) {
             //Clean up~
@@ -61,8 +61,10 @@ public class HttpLoggingHandler extends AbstractFilterLogicHandler {
                 loggers.add(loggerWrapper);
             }
         }
-    };
-
+    }
+    
+    private final UpdateListener<HttpLoggingConfig> httpLoggingConfigurationListener = new ConfigUpdateListener();
+    
     public UpdateListener<HttpLoggingConfig> getHttpLoggingConfigurationListener() {
         return httpLoggingConfigurationListener;
     }

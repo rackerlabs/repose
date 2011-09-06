@@ -2,7 +2,7 @@ package com.rackspace.papi.servlet.boot.service.config;
 
 import com.rackspace.papi.service.config.ConfigurationServiceContext;
 import org.junit.Ignore;
-import com.rackspace.papi.servlet.ServletContextInitException;
+import com.rackspace.papi.servlet.PowerApiContextException;
 import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.service.event.EventService;
 import com.rackspace.papi.service.context.jndi.ContextAdapter;
@@ -52,7 +52,7 @@ public class PowerApiConfigurationManagerTest {
             when(context.getInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName())).thenReturn("/etc/powerapi");
         }
 
-        @Test(expected = ServletContextInitException.class)
+        @Test(expected = PowerApiContextException.class)
         public void shouldFailOnMissingConfigurationDirectoryInitParam() {
             final ConfigurationServiceContext configurationManager = new ConfigurationServiceContext();
 

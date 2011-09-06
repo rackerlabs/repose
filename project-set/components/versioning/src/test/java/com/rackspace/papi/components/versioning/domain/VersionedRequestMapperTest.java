@@ -41,8 +41,8 @@ public class VersionedRequestMapperTest {
             mediaRangeList.add(new MediaRange(MediaType.UNKNOWN));
 
             mapping = new ServiceVersionMapping();
-            mapping.setId("_v1.0");
-            mapping.setName("v1.0");
+            mapping.setId("v1.0");
+            mapping.setContextPath("_v1.0");
         }
 
         @Test(expected = IllegalArgumentException.class)
@@ -100,8 +100,8 @@ public class VersionedRequestMapperTest {
             mediaRangeList.add(new MediaRange(MediaType.UNKNOWN));
 
             mapping = new ServiceVersionMapping();
-            mapping.setId("_v1.0");
-            mapping.setName("v1.0");
+            mapping.setId("v1.0");
+            mapping.setContextPath("_v1.0");
         }
 
         @Test
@@ -125,8 +125,8 @@ public class VersionedRequestMapperTest {
             mediaRangeList.add(new MediaRange(MediaType.UNKNOWN));
 
             mapping = new ServiceVersionMapping();
-            mapping.setId("_v1.0");
-            mapping.setName("v1.0");
+            mapping.setId("v1.0");
+            mapping.setContextPath("_v1.0");
         }
 
         @Test

@@ -1,6 +1,7 @@
 package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
+import javax.servlet.ServletException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,10 @@ public class FilterContextManagerImpl implements FilterContextManager {
             LOG.info("Filter: " + newFilterInstance + " successfully created");
             
             return new FilterContext(newFilterInstance, filterClassFactory.getClassLoader());
-        } catch (Throwable e) {
+        } catch (ClassNotFoundException e) {
+            LOG.error("Failed to initialize filter " + filterClassFactory + ".");
+            throw new FilterInitializationException(e.getMessage(), e);
+        } catch (ServletException e) {
             LOG.error("Failed to initialize filter " + filterClassFactory + ".");
             throw new FilterInitializationException(e.getMessage(), e);
         } finally {

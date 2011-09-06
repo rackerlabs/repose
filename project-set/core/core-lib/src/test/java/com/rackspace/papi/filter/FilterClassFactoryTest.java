@@ -4,7 +4,7 @@ import com.rackspace.papi.filter.FilterClassFactory;
 import javax.servlet.*;
 
 import com.rackspace.papi.filter.FilterClassException;
-import com.rackspace.papi.servlet.ServletContextInitException;
+import com.rackspace.papi.servlet.PowerApiContextException;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -68,7 +68,7 @@ public class FilterClassFactoryTest {
             filterClassFactory.validate(Filter.class);
         }
 
-        @Test(expected=ServletContextInitException.class)
+        @Test(expected=PowerApiContextException.class)
         public void shouldThrowServletContextInitExceptionForNullClassOnValidate() throws ClassNotFoundException {
             ClassLoader mockedClassLoader = mock(ClassLoader.class);
             when(mockedClassLoader.loadClass(any(String.class))).thenReturn(null);
@@ -78,7 +78,7 @@ public class FilterClassFactoryTest {
             filterClassFactory.validate(null);
         }
 
-        @Test(expected=ServletContextInitException.class)
+        @Test(expected=PowerApiContextException.class)
         public void shouldThrowServletContextInitExceptionForNonFilterClassOnValidate() throws ClassNotFoundException {
             ClassLoader mockedClassLoader = mock(ClassLoader.class);
             when(mockedClassLoader.loadClass(any(String.class))).thenReturn((Class) Object.class);

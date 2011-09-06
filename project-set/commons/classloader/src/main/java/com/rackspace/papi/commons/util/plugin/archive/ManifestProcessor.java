@@ -6,8 +6,12 @@ import java.util.jar.Manifest;
 /**
  * 
  */
-public class ManifestProcessor {
+public final class ManifestProcessor {
     public static final String MANIFEST_PATH = "META-INF/MANIFEST.MF";
+    
+    private ManifestProcessor() {
+
+    }
 
     public static void processManifest(ArchiveEntryDescriptor archiveEntryDescriptor, JarInputStream inputStream, ArchiveEntryListener listener) {
         final Manifest manifest = inputStream.getManifest();

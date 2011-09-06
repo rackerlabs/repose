@@ -3,6 +3,7 @@ package com.rackspace.papi.service.config;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.Destroyable;
 import com.rackspace.papi.service.event.EventService;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,8 +55,8 @@ public class ConfigurationResourceWatcher implements Runnable, Destroyable {
                     eventManager.newEvent(ConfigurationEvent.UPDATE, resource);
                     LOG.info("Updated " + resource.name());
                 }
-            } catch (Throwable t) {
-//                    LOG.error("Error occurred while attempting configuration update", t);
+            } catch (IOException e) {
+                    LOG.error("Error occurred while attempting configuration update", e);
             }
         }
     }

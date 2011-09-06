@@ -69,13 +69,13 @@ public class SimpleByteBufferInputStream extends InputStream {
     public long skip(long n) throws IOException {
         checkForClosedStream();
         
-        long skipped = 0, skippedTotal = 0;
+        long skipped = 0, skippedTotal = 0, c=n;
         
-        while (n > 0 && skipped > 0) {
-            skipped = sharedBuffer.skip(n > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) n);
+        while (c > 0 && skipped > 0) {
+            skipped = sharedBuffer.skip(c > Integer.MAX_VALUE ? Integer.MAX_VALUE : (int) c);
             
             skippedTotal += skipped;
-            n -= Integer.MAX_VALUE;
+            c -= Integer.MAX_VALUE;
         }
         
         return skippedTotal;
