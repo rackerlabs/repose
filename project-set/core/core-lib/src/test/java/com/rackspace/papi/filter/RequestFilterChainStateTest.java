@@ -1,7 +1,10 @@
 package com.rackspace.papi.filter;
 
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.*;
 
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

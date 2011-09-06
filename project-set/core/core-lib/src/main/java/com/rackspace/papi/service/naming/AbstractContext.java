@@ -1,15 +1,24 @@
 package com.rackspace.papi.service.naming;
 
-import javax.naming.*;
+
+import javax.naming.Context;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
+import javax.naming.Binding;
+import javax.naming.Name;
+import javax.naming.NameClassPair;
+import javax.naming.NameParser;
+import javax.naming.NamingEnumeration;
+import javax.naming.NamingException;
+import javax.naming.OperationNotSupportedException;
 
 @SuppressWarnings("UseOfObsoleteCollectionType")
 public abstract class AbstractContext implements Context {
 
     private final Map<String, Object> environment;
     private final String nameInNamespace;
+    private static final String notSupported = "Not Supported";
 
     public AbstractContext(String contextName, Hashtable environment) {
         this.nameInNamespace = contextName;
@@ -82,86 +91,86 @@ public abstract class AbstractContext implements Context {
 
     @Override
     public void bind(Name name, Object obj) throws NamingException {
-        throw new OperationNotSupportedException("Not supported.");
+        throw new OperationNotSupportedException(notSupported);
     }
 
     @Override
     public Name composeName(Name name, Name prefix) throws NamingException {
-        throw new OperationNotSupportedException("Not supported.");
+        throw new OperationNotSupportedException(notSupported);
     }
 
     @Override
     public String composeName(String name, String prefix) throws NamingException {
-        throw new OperationNotSupportedException("Not supported.");
+        throw new OperationNotSupportedException(notSupported);
     }
 
     @Override
     public Context createSubcontext(Name name) throws NamingException {
-        throw new OperationNotSupportedException("Not supported.");
+        throw new OperationNotSupportedException(notSupported);
     }
 
     @Override
     public void destroySubcontext(Name name) throws NamingException {
-        throw new OperationNotSupportedException("Not supported.");
+        throw new OperationNotSupportedException(notSupported);
     }
 
     @Override
     public NameParser getNameParser(Name name) throws NamingException {
-        throw new OperationNotSupportedException("Not supported.");
+        throw new OperationNotSupportedException(notSupported);
     }
 
     @Override
     public NameParser getNameParser(String name) throws NamingException {
-        throw new OperationNotSupportedException("Not supported.");
+        throw new OperationNotSupportedException(notSupported);
     }
 
     @Override
     public NamingEnumeration<NameClassPair> list(Name name) throws NamingException {
-        throw new OperationNotSupportedException("Not supported.");
+        throw new OperationNotSupportedException(notSupported);
     }
 
     @Override
     public NamingEnumeration<NameClassPair> list(String name) throws NamingException {
-        throw new OperationNotSupportedException("Not supported.");
+        throw new OperationNotSupportedException(notSupported);
     }
 
     @Override
     public NamingEnumeration<Binding> listBindings(Name name) throws NamingException {
-        throw new OperationNotSupportedException("Not supported.");
+        throw new OperationNotSupportedException(notSupported);
     }
 
     @Override
     public NamingEnumeration<Binding> listBindings(String name) throws NamingException {
-        throw new OperationNotSupportedException("Not supported.");
+        throw new OperationNotSupportedException(notSupported);
     }
 
     @Override
     public Object lookup(Name name) throws NamingException {
-        throw new OperationNotSupportedException("Not supported.");
+        throw new OperationNotSupportedException(notSupported);
     }
 
     @Override
     public Object lookupLink(Name name) throws NamingException {
-        throw new OperationNotSupportedException("Not supported.");
+        throw new OperationNotSupportedException(notSupported);
     }
 
     @Override
     public void rebind(Name name, Object obj) throws NamingException {
-        throw new OperationNotSupportedException("Not supported.");
+        throw new OperationNotSupportedException(notSupported);
     }
 
     @Override
     public void rename(Name oldName, Name newName) throws NamingException {
-        throw new OperationNotSupportedException("Not supported.");
+        throw new OperationNotSupportedException(notSupported);
     }
 
     @Override
     public void rename(String oldName, String newName) throws NamingException {
-        throw new OperationNotSupportedException("Not supported.");
+        throw new OperationNotSupportedException(notSupported);
     }
 
     @Override
     public void unbind(Name name) throws NamingException {
-        throw new OperationNotSupportedException("Not supported.");
+        throw new OperationNotSupportedException(notSupported);
     }
 }
