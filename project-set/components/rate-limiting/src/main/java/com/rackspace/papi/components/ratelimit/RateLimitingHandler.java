@@ -41,7 +41,7 @@ public final class RateLimitingHandler extends AbstractFilterLogicHandler {
     private Pattern describeLimitsUriRegex;
     private RateLimitingConfiguration rateLimitingConfig;
 
-    private class RateLimitingConfigListener extends LockedConfigurationUpdater<RateLimitingConfiguration> {
+    private final class RateLimitingConfigListener extends LockedConfigurationUpdater<RateLimitingConfiguration> {
         private RateLimitingConfigListener(KeyedStackLock updateLock, Object updateKey) {
             super(updateLock, updateKey);
         }
