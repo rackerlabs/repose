@@ -14,8 +14,8 @@ import java.util.regex.Pattern;
  * @author fran
  */
 public class AccountUsernameExtractor {
-    final List<AccountMapping> accountMappings;    
-    final Map<AccountMapping, Pattern> compiledAccountMappingRegexes;
+    private final List<AccountMapping> accountMappings;    
+    private final Map<AccountMapping, Pattern> compiledAccountMappingRegexes;
 
     public AccountUsernameExtractor(List<AccountMapping> accountMappings) {
         this.accountMappings = accountMappings;
