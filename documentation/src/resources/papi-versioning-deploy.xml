@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book [
+    <!-- product name is likely to change; parameterize full name and abbreviation -->
+    <!ENTITY PRODNAME "Power API">
+    <!ENTITY PRODABBREV "PAPI">
     <!-- Some useful entities borrowed from HTML -->
     <!ENTITY ndash  "&#x2013;">
     <!ENTITY mdash  "&#x2014;">
@@ -33,10 +36,10 @@
       xmlns:html="http://www.w3.org/1999/xhtml"
       xmlns:db="http://docbook.org/ns/docbook" >
     <?rax pdf.url="../../papi-versioning-deploy.pdf"?>
-    <title>Power API Versioning Component Deployment Handbook</title>
+    <title>&PRODNAME; Versioning Component Deployment Handbook</title>
     <?rax status.bar.text="CONFIDENTIAL"?>
     <?rax title.font.size="35px" subtitle.font.size="16px"?>
-    <titleabbrev>PAPI Versioning Deployment</titleabbrev>
+    <titleabbrev>&PRODABBREV; Versioning Deployment</titleabbrev>
     <info>
         <author>
             <personname>
@@ -53,7 +56,7 @@
             <holder>Rackspace US, Inc.</holder>
         </copyright>
         <releaseinfo>API v0.9</releaseinfo>
-        <productname>Power API</productname>
+        <productname>&PRODNAME;</productname>
         <pubdate>2011-08-19</pubdate>
         <legalnotice role="apache2">
             <annotation>
@@ -71,9 +74,9 @@
         <section xml:id="Purpose-d1e90">
             <title>Purpose</title>
             <para>
-                The purpose of this handbook is to facilitate deployment of Power API's versioning component. 
+                The purpose of this handbook is to facilitate deployment of &PRODNAME;'s versioning component. 
                 This handbook is not a tutorial.
-                It provides basic information that will help you understand and deploy this Power API component, but you must adapt this information to suit your own configuration.
+                It provides basic information that will help you understand and deploy this &PRODNAME; component, but you must adapt this information to suit your own configuration.
             </para>
             <para>
                 Versioning enables ReST services to roll out updates and changes without causing end-client breakage.
@@ -82,8 +85,8 @@
                 each version in the catalog is marked with a status, such as <code>CURRENT</code> or <code>DEPRECATED</code>, which the client can use for guidance in deciding which version to use.
             </para>
             <para>
-                This handbook is focused on one Power API component.
-                Other Power API components are documented in companion handbooks.
+                This handbook is focused on one &PRODNAME; component.
+                Other &PRODNAME; components are documented in companion handbooks.
             </para>
         </section>
         <section xml:id="Document_Change_History-d1e102">
@@ -207,7 +210,7 @@
     </chapter>
     <chapter xml:id="Handling_Requests-d1e431">
         <title>Handling Requests</title>
-        <para> Versioning in Power API operates on requests in two ways: 
+        <para> Versioning in &PRODNAME; operates on requests in two ways: 
             <itemizedlist
                 spacing="compact">
                 <listitem>

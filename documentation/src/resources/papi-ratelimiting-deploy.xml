@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book [
+    <!-- product name is likely to change; parameterize full name and abbreviation -->
+    <!ENTITY PRODNAME "Power API">
+    <!ENTITY PRODABBREV "PAPI">
     <!-- Some useful entities borrowed from HTML -->
     <!ENTITY ndash  "&#x2013;">
     <!ENTITY mdash  "&#x2014;">
@@ -33,10 +36,10 @@
       xmlns:html="http://www.w3.org/1999/xhtml"
       xmlns:db="http://docbook.org/ns/docbook" >
     <?rax pdf.url="../../papi-ratelimiting-deploy.pdf"?>
-    <title>Power API Rate Limiting Component Deployment Handbook</title>
+    <title>&PRODNAME; Rate Limiting Component Deployment Handbook</title>
     <?rax status.bar.text="CONFIDENTIAL"?>
     <?rax title.font.size="35px" subtitle.font.size="16px"?>
-    <titleabbrev>PAPI Rate Limiting Deployment</titleabbrev>
+    <titleabbrev>&PRODABBREV; Rate Limiting Deployment</titleabbrev>
     <info>
         <author>
             <personname>
@@ -53,7 +56,7 @@
             <holder>Rackspace US, Inc.</holder>
         </copyright>
         <releaseinfo>API v0.9</releaseinfo>
-        <productname>Power API</productname>
+        <productname>&PRODNAME;</productname>
         <pubdate>2011-08-19</pubdate>
         <legalnotice role="apache2">
             <annotation>
@@ -71,9 +74,9 @@
         <section xml:id="Purpose-d1e90">
             <title>Purpose</title>
             <para> 
-                The purpose of this handbook is to facilitate deployment of Power API's rate
+                The purpose of this handbook is to facilitate deployment of &PRODNAME;'s rate
                 limiting component. This handbook is not a tutorial. It provides basic information
-                that will help you understand and deploy this Power API component, but you must
+                that will help you understand and deploy this &PRODNAME; component, but you must
                 adapt this information to suit your own configuration. 
             </para>
             <para> 
@@ -88,8 +91,8 @@
                 therefore only provided by the origin service. 
             </para>
             <para>
-                This handbook is focused on one Power API component.
-                Other Power API components are documented in companion handbooks.
+                This handbook is focused on one &PRODNAME; component.
+                Other &PRODNAME; components are documented in companion handbooks.
             </para>
         </section>
         <section xml:id="Document_Change_History-d1e102">
@@ -349,17 +352,17 @@
         </section>
         <section xml:id="Single_Node-d1e447">
             <title>Single-Node Installation</title>
-               <para> The rate limiting component supports a single-node Power API installation in
-                which all cache operations are performed locally. Power API's default local
+            <para> The rate limiting component supports a single-node &PRODNAME; installation in
+                which all cache operations are performed locally. &PRODNAME;'s default local
                 datastore is used when no other nodes are identified in the system model as hosting
                 a rate limiting component. </para>
         </section>
             <section xml:id="Multi-Node-d1e470">
                 <title>Multi-Node Installation</title>
-                <para> The rate limiting component supports multiple-node Power API installations
-                via Power API's datastore service. If a clustered datastore is available, the
+                <para> The rate limiting component supports multiple-node &PRODNAME; installations
+                    via &PRODNAME;'s datastore service. If a clustered datastore is available, the
                 component will make use of it. The rate limiting component only currently supports
-                discovery of Power API's default hash-ring clustered datastore. </para>
+                discovery of &PRODNAME;'s default hash-ring clustered datastore. </para>
             </section>
     </chapter>
     <chapter xml:id="Requesting_Limits-d1e531">

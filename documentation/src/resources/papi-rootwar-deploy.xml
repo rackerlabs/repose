@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book [
+    <!-- product name is likely to change; parameterize full name and abbreviation -->
+    <!ENTITY PRODNAME "Power API">
+    <!ENTITY PRODABBREV "PAPI">
     <!-- Some useful entities borrowed from HTML -->
     <!ENTITY ndash  "&#x2013;">
     <!ENTITY mdash  "&#x2014;">
@@ -33,10 +36,10 @@
       xmlns:html="http://www.w3.org/1999/xhtml"
       xmlns:db="http://docbook.org/ns/docbook" >
     <?rax pdf.url="../../papi-rootwar-deploy.pdf"?>
-    <title>Power API Root.WAR Component Deployment Handbook</title>
+    <title>&PRODNAME; Root.WAR Component Deployment Handbook</title>
     <?rax status.bar.text="CONFIDENTIAL"?>
     <?rax title.font.size="35px" subtitle.font.size="16px"?>
-    <titleabbrev>PAPI Root.WAR Deployment</titleabbrev>
+    <titleabbrev>&PRODABBREV; Root.WAR Deployment</titleabbrev>
     <info>
         <author>
             <personname>
@@ -53,7 +56,7 @@
             <holder>Rackspace US, Inc.</holder>
         </copyright>
         <releaseinfo>API v0.9</releaseinfo>
-        <productname>Power API</productname>
+        <productname>&PRODNAME;</productname>
         <pubdate>2011-08-19</pubdate>
         <legalnotice role="apache2">
             <annotation>
@@ -71,14 +74,14 @@
         <section xml:id="Purpose-d1e90">
             <title>Purpose</title>
             <para>
-                The purpose of this handbook is to facilitate deployment of Power API 
+                The purpose of this handbook is to facilitate deployment of &PRODNAME; 
                 as an application container root web application.
                 This handbook is not a tutorial.
-                It provides basic information that will help you understand and deploy this Power API component, but you must adapt this information to suit your own configuration.
+                It provides basic information that will help you understand and deploy this &PRODNAME; component, but you must adapt this information to suit your own configuration.
             </para>
             <para>
-                This guide is focused on one Power API component.
-                Other Power API components are documented in companion guides.
+                This guide is focused on one &PRODNAME; component.
+                Other &PRODNAME; components are documented in companion guides.
             </para>
         </section>
         <section xml:id="Document_Change_History-d1e102">
@@ -110,7 +113,7 @@
     </chapter>
     <chapter xml:id="Default_Configuration_Model-d1e172">
         <title>Default Configuration Model</title>
-        <para>We recommend that you deploy Power API using the following operating systems, user and
+        <para>We recommend that you deploy &PRODNAME; using the following operating systems, user and
             group configurations, and directories for configuration, artifacts, and deployment. </para>
         <section xml:id="Target_Operating_System_Environments-d1e180">
             <title>Target Operating System Environments</title>
@@ -137,8 +140,8 @@
                 </listitem>
             </itemizedlist>
             </para>
-            <para> Dedicate a user and group to Power API to improve isolation of Power API's
-                permissions. Be sure the Power API user and group can write to the file system as
+            <para> Dedicate a user and group to &PRODNAME; to improve isolation of &PRODNAME;'s
+                permissions. Be sure the &PRODNAME; user and group can write to the file system as
                 well as read configurations stored in the file system. </para>
         </section>
         <section xml:id="Configuration_Directory-d1e237">
@@ -156,8 +159,8 @@
                     </listitem>
                 </itemizedlist>
             </para>
-            <para>Store all of Power API's XML configurations in the configuration directory. 
-                Power API only supports file system configuration locations. </para>
+            <para>Store all of &PRODNAME;'s XML configurations in the configuration directory. 
+                &PRODNAME; only supports file system configuration locations. </para>
         </section>
         <section xml:id="Artifact_Directory-d1e280">
             <title>Artifact Directory</title>
@@ -175,7 +178,7 @@
                     </listitem>
                 </itemizedlist>
             </para>
-            <para>Store all the artifacts that Power API has been configured to use in the
+            <para>Store all the artifacts that &PRODNAME; has been configured to use in the
                 configuration directory.</para>
         </section>
         <section xml:id="Deployment_Directory-d1e322">
@@ -196,27 +199,27 @@
                 </itemizedlist>
             </para>
             <para>Define a deployment directory as a writable location. 
-                Power API uses the deployment directory to copy deployed versions of the artifacts it has been configured to use.</para>
+                &PRODNAME; uses the deployment directory to copy deployed versions of the artifacts it has been configured to use.</para>
         </section>
     </chapter>
     <chapter xml:id="Artifacts-d1e365">
         <title>Artifacts</title>
-        <para>These artifacts are required for installation of Power API.</para>
+        <para>These artifacts are required for installation of &PRODNAME;.</para>
         <section xml:id="WAR_Files-d1e373">
             <title>WAR Files</title>
             <para>
                 The <code>root.war</code> artifact is a Web application ARchive (WAR). 
-                It contains all the components needed to install Power API 
+                It contains all the components needed to install &PRODNAME; 
                 into a running application container. 
-                One of these components is a default <code>web.xml</code> that can start up Power API in the standard configuration model. 
+                One of these components is a default <code>web.xml</code> that can start up &PRODNAME; in the standard configuration model. 
             </para>
          </section>
          <section xml:id="EAR_Files-d1e388">
             <title>EAR Files</title>
             <para>
-                All consumable artifacts meant for deployment through Power API 
+                All consumable artifacts meant for deployment through &PRODNAME; 
                 must conform to the Java Platform, Enterprise Edition (JEE 6) specification for Enterprise ARchive (EAR) files.
-                Components used by Power API include:
+                Components used by &PRODNAME; include:
             </para>
              <para>
                  <itemizedlist spacing="compact">
@@ -238,23 +241,23 @@
     <chapter xml:id="Core_and_Component_Configurations-d1e431">
         <title>Core and Component Configurations</title>
         <para>
-            Customize the XML samples in this section to use Power API's core and component configurations. 
+            Customize the XML samples in this section to use &PRODNAME;'s core and component configurations. 
             The power proxy and container configurations are within the scope of the core.
             The content normalization and versioning configurations are components outside the scope of the core.
         </para>
         <section xml:id="Scope_Core-d1e439">
         <title>Scope = Core</title>
         <para>
-            Power API core configurations outline the deployment layout for the service cluster and tell the system where to look for component artifacts.
+            &PRODNAME; core configurations outline the deployment layout for the service cluster and tell the system where to look for component artifacts.
         </para>
         <section xml:id="Power_Proxy-d1e447">
             <title>Power Proxy</title>
-               <para> The power proxy configuration is considered to be the Power API system mode.
+            <para> The power proxy configuration is considered to be the &PRODNAME; system mode.
                     This configuration outlines the entire deployment layout for the service
-                    cluster. Power API must be aware of this in order to configure itself and
+                    cluster. &PRODNAME; must be aware of this in order to configure itself and
                     correctly coordinate routing if necessary. </para>
-               <para> The system model also lets Power API know where the other Power API nodes
-                    reside. Using this information, Power API can coordinate its own clustering to
+            <para> The system model also lets &PRODNAME; know where the other &PRODNAME; nodes
+                reside. Using this information, &PRODNAME; can coordinate its own clustering to
                     help balance load or share data among nodes that share common filters. </para>
             <example>
                 <title>Power Proxy Configuration: XML</title>
@@ -266,10 +269,10 @@
             <section xml:id="Container-d1e470">
                 <title>Container</title>
                 <para>
-                    The container configuration in Power API is used to tell the system where to look for component artifacts and where to deploy them. 
-                    The deployment directory's configuration element includes an attribute that tells Power API whether or not it should clean up deployed artifacts once they're no longer in use. 
+                    The container configuration in &PRODNAME; is used to tell the system where to look for component artifacts and where to deploy them. 
+                    The deployment directory's configuration element includes an attribute that tells &PRODNAME; whether or not it should clean up deployed artifacts once they're no longer in use. 
                     In addition, the artifact directory's configuration element includes an optional attribute that can be used to tweak the polling interval. 
-                    Based on the polling interval, Power API checks for modified, deleted, or new artifacts.
+                    Based on the polling interval, &PRODNAME; checks for modified, deleted, or new artifacts.
                 </para>
                 <example>
                     <title>Container Configuration: XML</title>
@@ -281,10 +284,10 @@
             </section>
             <section xml:id="Scope_Component-d1e491">
             <title>Scope = Component</title>
-            <para> Power API component configurations support normalization and versioning. </para>
+                <para> &PRODNAME; component configurations support normalization and versioning. </para>
             <section xml:id="Content_Normalization-d1e499">
                 <title>Content Normalization</title>
-                <para> The content normalization filter is the first filter in the chain being provided by Power API. </para>
+                <para> The content normalization filter is the first filter in the chain being provided by &PRODNAME;. </para>
                 <para> Content normalization is only used for HTTP header filtering. 
                     The configuration XML provided demonstrates how to specify whitelist header elements to the content normalization filter. 
                     The filter will then remove all headers that have no whitelist configuration element. </para>
@@ -310,9 +313,9 @@
                 </para>
                 <para>
                     The versioning component can facilitate routing but it does not perform routing. 
-                    Routing in Power API is a two-step process. 
+                    Routing in &PRODNAME; is a two-step process. 
                     The versioning component tags a request with a header (<code>X-PP-OriginDestination</code>) before handing the request to the next component. 
-                    This header may be read by Power API's routing components to then facilitate routing to the correct service origin. 
+                    This header may be read by &PRODNAME;'s routing components to then facilitate routing to the correct service origin. 
                 </para>
                 <example>
                     <title>Versioning Configuration: XML</title>

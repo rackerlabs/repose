@@ -1,10 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+<!-- product name is likely to change; parameterize full name and abbreviation -->
+<!ENTITY PRODNAME "Power API">
+<!ENTITY PRODABBREV "PAPI">
+]>
 <section xmlns="http://docbook.org/ns/docbook"
     xmlns:xi="http://www.w3.org/2001/XInclude"
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0"
     xml:id="Available_Doc-d1e140">
     <title>Available Documentation</title>
-    <para>The following Power API documentation is available as of v0.9:</para>
+    <para>The following &PRODNAME; documentation is available as of v0.9:</para>
     <itemizedlist>
         <listitem>
             <para>
@@ -14,7 +19,7 @@
         <listitem>
             <para>
                 <firstterm role="bold">Deployment Handbooks</firstterm>: Deployment handbooks are
-                non-procedural collections of key facts designed to be helpful in preparing to use specific Power API components. Deployment handbooks are available for: 
+                non-procedural collections of key facts designed to be helpful in preparing to use specific &PRODNAME; components. Deployment handbooks are available for: 
                 <itemizedlist>
                     <listitem>
                         <para>Authentication</para>

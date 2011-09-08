@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book [
+    <!-- product name is likely to change; parameterize full name and abbreviation -->
+    <!ENTITY PRODNAME "Power API">
+    <!ENTITY PRODABBREV "PAPI">
     <!-- Some useful entities borrowed from HTML -->
     <!ENTITY ndash  "&#x2013;">
     <!ENTITY mdash  "&#x2014;">
@@ -33,10 +36,10 @@
       xmlns:html="http://www.w3.org/1999/xhtml"
       xmlns:db="http://docbook.org/ns/docbook" >
     <?rax pdf.url="../../papi-authn-deploy.pdf"?>
-    <title>Power API Authentication Component Deployment Handbook</title>
+    <title>&PRODNAME; Authentication Component Deployment Handbook</title>
     <?rax status.bar.text="CONFIDENTIAL"?>
     <?rax title.font.size="35px" subtitle.font.size="16px"?>
-    <titleabbrev>PAPI Authentication Deployment</titleabbrev>
+    <titleabbrev>&PRODABBREV; Authentication Deployment</titleabbrev>
     <info>
         <author>
             <personname>
@@ -53,7 +56,7 @@
             <holder>Rackspace US, Inc.</holder>
         </copyright>
         <releaseinfo>API v0.9</releaseinfo>
-        <productname>Power API</productname>
+        <productname>&PRODNAME;</productname>
         <pubdate>2011-08-19</pubdate>
         <legalnotice role="apache2">
             <annotation>
@@ -70,17 +73,17 @@
         <title>Overview</title>
         <section xml:id="Purpose-d1e90">
             <title>Purpose</title>
-            <para> The purpose of this handbook is to facilitate deployment of Power API's client
+            <para> The purpose of this handbook is to facilitate deployment of &PRODNAME;'s client
                 authentication component. This handbook is not a tutorial. It provides basic
-                information that will help you understand and deploy this Power API component, but
+                information that will help you understand and deploy this &PRODNAME; component, but
                 you must adapt this information to suit your own configuration. </para>
             <para> The client authentication service filter enables the origin service to
                 communicate with the authentication service implemented in its environment. It
                 accomplishes this by delegating authentication requests to the authentication
                 service and returning the results of those requests to the origin service.</para>
             <para>
-                This handbook is focused on one Power API component.
-                Other Power API components are documented in companion handbooks.
+                This handbook is focused on one &PRODNAME; component.
+                Other &PRODNAME; components are documented in companion handbooks.
             </para>
         </section>
         <section xml:id="Document_Change_History-d1e102">
@@ -114,7 +117,7 @@
         <title>Configuration</title>
         <para> 
             Client Authentication is divided into interchangable modules which represent different authentication schemes. 
-            Depending on the Power API components being deployed, the authentication configuration may change. 
+            Depending on the &PRODNAME; components being deployed, the authentication configuration may change. 
             In the following example, we are configuring the <code>client-auth</code> component to interact with the Rackspace Cloud Authentication Service. 
         </para>
         <example>
@@ -138,7 +141,7 @@
         </para>
         <calloutlist>
             <callout arearefs="papi-authn.xml.delegateable">
-                <para> All Power API authentication modules support authentication
+                <para> All &PRODNAME; authentication modules support authentication
                         <firstterm>delegation</firstterm>. Delegation may be enabled or disabled by
                     setting the <code>rackspace-auth delegatable</code> attribute to <code>true</code> or <code>false</code>. To better
                     protect services, delegation always defaults to <code>false</code>. 
@@ -195,11 +198,11 @@
     <chapter xml:id="Limited-d1e731">
         <title>Authentication Lifecycle</title>
         <para> 
-            Power API's authentication lifecycle is directly derived from the "Authentication in OpenStack" blueprint at 
+            &PRODNAME;'s authentication lifecycle is directly derived from the "Authentication in OpenStack" blueprint at 
             <link xlink:href="http://wiki.openstack.org/openstack-authn">
             http://wiki.openstack.org/openstack-authn</link>, which defines a standard for authentication. 
             Compliance with this standard enables services to support multiple authentication protocols in a pluggable manner. 
-            For further information about Power API's handling of authentication requests, please refer to this blueprint.
+            For further information about &PRODNAME;'s handling of authentication requests, please refer to this blueprint.
         </para> 
     </chapter>
     <xi:include href="chapters/afterword.xml"/>
