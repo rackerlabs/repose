@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletRequest;
  * 6.  If one of the container's filters breaks out of the chain then our chain should unwind correctly
  * 
  */
-public class RequestFilterChainState implements javax.servlet.FilterChain {
+public class RequestFilterChainState implements FilterChain {
 
     private final List<FilterContext> filterChainCopy;
     private final FilterChain containerFilterChain;

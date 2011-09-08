@@ -14,7 +14,7 @@ public final class ServletContextHelper {
         final Object o = ctx.getAttribute(SERVLET_CONTEXT_ATTRIBUTE_NAME);
 
         if (o == null) {
-            throw new NullPointerException("Servlet Context attribute \""
+            throw new IllegalArgumentException("Servlet Context attribute \""
                     + SERVLET_CONTEXT_ATTRIBUTE_NAME
                     + "\" appears to not be set. Has the PowerApiContextManager been set as a servlet context listener");
         }

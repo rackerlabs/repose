@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 
-public class MutableHttpServletResponse extends HttpServletResponseWrapper implements ReadableHttpServletResponse {
+public final class MutableHttpServletResponse extends HttpServletResponseWrapper implements ReadableHttpServletResponse {
 
     public static MutableHttpServletResponse wrap(HttpServletResponse response) {
         return response instanceof MutableHttpServletResponse
