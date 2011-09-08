@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
  *
  * @author jhopper
  */
-public class RateLimitingHandler extends AbstractFilterLogicHandler {
+public final class RateLimitingHandler extends AbstractFilterLogicHandler {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingHandler.class);
     
@@ -41,7 +41,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
     private Pattern describeLimitsUriRegex;
     private RateLimitingConfiguration rateLimitingConfig;
 
-    private class RateLimitingConfigListener extends LockedConfigurationUpdater<RateLimitingConfiguration> {
+    private final class RateLimitingConfigListener extends LockedConfigurationUpdater<RateLimitingConfiguration> {
         private RateLimitingConfigListener(KeyedStackLock updateLock, Object updateKey) {
             super(updateLock, updateKey);
         }

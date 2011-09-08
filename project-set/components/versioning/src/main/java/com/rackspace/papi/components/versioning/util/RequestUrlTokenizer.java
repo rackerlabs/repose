@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
  * Date: 6/14/11
  * Time: 3:01 PM
  */
-public class RequestUrlTokenizer {
+public final class RequestUrlTokenizer {
     private static final String SERVICE_ROOT_HREF_REGEX = "http[s]?://[^/]+/";
     private static final String VERSION_ID_REGEX = "(?:http[s]?://[^/]+/)([^/]+)";
     private static final String RESOURCE_REGEX = "(?:http[s]?://[^/]+/)(?:[^/]+)(/.*$)";
