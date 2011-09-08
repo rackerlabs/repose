@@ -21,12 +21,7 @@ public abstract class SystemModelConfigurationListener extends LockedConfigurati
     @Override
     public final void onConfigurationUpdated(PowerProxy configurationObject) {
         for (Host powerApiHost : configurationObject.getHost()) {
-            final String hostHref = powerApiHost.getHref();
-
-            //Versioning candidates are determined by whether or not they have a href defined
-            if (!StringUtilities.isBlank(hostHref)) {
-                onUpdate(powerApiHost);
-            }
+            onUpdate(powerApiHost);
         }
     }
 
