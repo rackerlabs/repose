@@ -3,6 +3,7 @@ package com.rackspace.papi.filter;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 
+import com.rackspace.papi.filter.logic.DispatchPathBuilder;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -81,21 +82,16 @@ public class RequestFilterChainState implements FilterChain {
         final String routeDestination = ((HttpServletRequest) servletRequest).getHeader(PowerApiHeader.ROUTE_DESTINATION.headerKey());
 
         if (!StringUtilities.isBlank(routeDestination)) {
-            // TODO: Make sure the routeDestination being set matches what is expected based on the Servlet Spec.
             // According to the Java 6 javadocs the routeDestination passed into getContext:
             // "The given path [routeDestination] must begin with /, is interpreted relative to the server's document root
             // and is matched against the context roots of other web applications hosted on this container."
             final ServletContext targetContext = context.getContext(routeDestination);
 
             if (targetContext != null) {
-                // TODO: Make sure we pass in the path to the Servlet running in the origin service's ServletContext
-                // to which we want to route.  We eventually need the ROUTE_DESTINATION to be split into two variables.
-                // In other words we need one variable that represents the context root of the origin service to
-                // which we want to forward.  Then we need another variable that is a path to the actual resource
-                // within the origin service's web application that will handle the request.  This could be a static
-                // resource (like a JSP) or a dynamic resource (like a servlet).  In PAPI's case I think we can
-                // assume that we are forwarding to a Servlet.
-                final RequestDispatcher dispatcher = targetContext.getRequestDispatcher(routeDestination);
+              
+                final RequestDispatcher dispatcher = targetContext.getRequestDispatcher(
+                        new DispatchPathBuilder(servletRequest, routeDestination).build()
+                        );
 
                 if (dispatcher != null) {
                     dispatcher.forward(servletRequest, servletResponse);
