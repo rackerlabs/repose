@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.versioning.listener;
 
-import com.rackspace.papi.components.versioning.listener.SystemModelConfigurationListener;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.thread.KeyedStackLock;
 import com.rackspace.papi.model.Host;
@@ -41,17 +40,14 @@ public class SystemModelConfigurationListenerTest {
 
             host1 = new Host();
             host1.setId("h1");
-            host1.setHref("host1.com");
             configurationObject.getHost().add(host1);
 
             invalidHost = new Host();
             invalidHost.setId("h0");
-            invalidHost.setHref("");
             configurationObject.getHost().add(invalidHost);
 
             host2 = new Host();
             host2.setId("h2");
-            host2.setHref("host2.com");
             configurationObject.getHost().add(host2);
 
             systemModelConfigurationListener
@@ -73,18 +69,9 @@ public class SystemModelConfigurationListenerTest {
 
             systemModelConfigurationListener.configurationUpdated(configurationObject);
 
-            expected = 2;
+            expected = 3;
             actual = configuredHosts.size();
             assertEquals("after", expected, actual);
-        }
-
-        @Test
-        public void shouldMapValidHosts() {
-            systemModelConfigurationListener.configurationUpdated(configurationObject);
-
-            assertEquals("should have first valid host", "host1.com", configuredHosts.get("h1").getHref());
-            assertEquals("should have second valid host", "host2.com", configuredHosts.get("h2").getHref());
-            assertNull("should not have invalid host", configuredHosts.get("h0"));
         }
     }
 }
