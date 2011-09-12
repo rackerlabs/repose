@@ -153,12 +153,11 @@
                 <para> </para>
             </callout>
             <callout arearefs="papi-authn.xml.server">
-                <para>
-                    The <firstterm><code>authentication-server</code></firstterm> configuration element identifies an authentication endpoint.
-                    Tokens are validated agains this endpoint.  
-                    While a password is required in the configuration file, it is important to note that file permissions can be set to make the configuration file 
-                    user-readable only and therefore marginally more secure.
-                </para>
+                <para> The <firstterm><code>authentication-server</code></firstterm> configuration
+                    element identifies an authentication endpoint. Tokens are validated against this
+                    endpoint. While a password is required in the configuration file, it is
+                    important to note that file permissions can be set to make the configuration
+                    file user-readable only and therefore more secure. </para>
                 <para> </para>
             </callout>
             <callout arearefs="papi-authn.xml.uri">
@@ -177,19 +176,23 @@
                 <para> </para>
             </callout>
             <callout arearefs="papi-authn.xml.regex">
-                <para> 
-                    Account mappings in the configuration inform the component of where in client-requested URIs to source the client's identity string from. 
-                    This is achieved via a regular expression (<firstterm>regex</firstterm>). 
-                    In this regular expression, the service implementor is must specify a regular expression capture group which, 
-                    when executed, will capture the requesting client's identity string. 
-                    This string will then be sent to the authentication service. 
-                </para>
+                <para> Account mappings in the configuration inform the component of where to source
+                    the identity string in client-requested URIs. This is achieved via a regular
+                    expression (<firstterm>regex</firstterm>). In this regular expression, the
+                    service implementor must specify a regular expression capture group which, when
+                    executed, will capture the requesting client's identity string. This string will
+                    then be sent to the authentication service. </para>
                 <para> </para>
             </callout>
             <callout arearefs="papi-authn.xml.type">
-                <para> 
-                    The <firstterm><code>type</code></firstterm> attribute identifies the type of account associated with this authentication request.
-                    In this example, the account is of type <code>CLOUD</code>. Valid account types vary depending on the requirements of the authentication service.
+                <para> The <firstterm><code>type</code></firstterm> attribute identifies the type of
+                    account associated with this authentication request. In this example, the
+                    account is of type <code>CLOUD</code>. Valid account types vary depending on the
+                    requirements of the authentication service, so you should refer to the
+                    documentation describing the authentication service that you use. For example, the
+                    Rackspace Cloud Authentication Service is documented at
+                    <link xlink:href="http://docs.rackspace.com/api/">
+                        http://docs.rackspace.com/api/</link>.
                 </para>
                 <para> </para>
             </callout>
