@@ -1,13 +1,13 @@
 package com.rackspace.papi.commons.util.io;
 
-import com.rackspace.papi.commons.util.io.buffer.SimpleByteBuffer;
+import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import java.io.IOException;
 
-public class SimpleByteBufferOutputStream extends OneTimeUseOutputStream {
+public class ByteBufferOutputStream extends OneTimeUseOutputStream {
 
-    private final SimpleByteBuffer sharedBuffer;
+    private final ByteBuffer sharedBuffer;
     
-    public SimpleByteBufferOutputStream(SimpleByteBuffer sharedBuffer) {
+    public ByteBufferOutputStream(ByteBuffer sharedBuffer) {
         this.sharedBuffer = sharedBuffer;
     }
 

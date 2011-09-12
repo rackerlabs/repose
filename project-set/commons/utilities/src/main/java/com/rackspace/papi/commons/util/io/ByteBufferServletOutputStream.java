@@ -1,15 +1,15 @@
 package com.rackspace.papi.commons.util.io;
 
-import com.rackspace.papi.commons.util.io.buffer.SimpleByteBuffer;
+import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import java.io.IOException;
 import javax.servlet.ServletOutputStream;
 
-public class SimpleByteBufferServletOutputStream extends ServletOutputStream {
+public class ByteBufferServletOutputStream extends ServletOutputStream {
 
-    private final SimpleByteBuffer sharedBuffer;
+    private final ByteBuffer sharedBuffer;
     private volatile boolean closed;
     
-    public SimpleByteBufferServletOutputStream(SimpleByteBuffer sharedBuffer) {
+    public ByteBufferServletOutputStream(ByteBuffer sharedBuffer) {
         this.sharedBuffer = sharedBuffer;
         
         closed = false;

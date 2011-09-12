@@ -1,8 +1,8 @@
 package com.rackspace.papi.commons.util.io;
 
-import com.rackspace.papi.commons.util.io.SimpleByteBufferInputStream;
-import com.rackspace.papi.commons.util.io.buffer.CyclicSimpleByteBuffer;
-import com.rackspace.papi.commons.util.io.buffer.SimpleByteBuffer;
+import com.rackspace.papi.commons.util.io.ByteBufferInputStream;
+import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
+import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import java.io.InputStream;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -17,10 +17,10 @@ public class SimpleBufferInputStreamTest {
 
         @Test
         public void shouldReadTillBufferIsEmpty() throws Exception {
-             final SimpleByteBuffer sbb = new CyclicSimpleByteBuffer();
+             final ByteBuffer sbb = new CyclicByteBuffer();
              sbb.put("expected".getBytes());
              
-             final InputStream is = new SimpleByteBufferInputStream(sbb);
+             final InputStream is = new ByteBufferInputStream(sbb);
              
              final byte[] bytes = new byte[1024];
              int b, i;
@@ -34,10 +34,10 @@ public class SimpleBufferInputStreamTest {
 
         @Test
         public void shouldReadTillBufferIsEmptyUsingByteArrayRead() throws Exception {
-             final SimpleByteBuffer sbb = new CyclicSimpleByteBuffer();
+             final ByteBuffer sbb = new CyclicByteBuffer();
              sbb.put("expected".getBytes());
              
-             final InputStream is = new SimpleByteBufferInputStream(sbb);
+             final InputStream is = new ByteBufferInputStream(sbb);
              
              final byte[] bytes = new byte[1024];
              int read = is.read(bytes);
