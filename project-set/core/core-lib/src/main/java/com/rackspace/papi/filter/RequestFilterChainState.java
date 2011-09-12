@@ -14,6 +14,8 @@ import java.util.List;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author fran
@@ -30,6 +32,8 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class RequestFilterChainState implements FilterChain {
 
+    private static final Logger LOG = LoggerFactory.getLogger(RequestFilterChainState.class);
+    
     private final List<FilterContext> filterChainCopy;
     private final FilterChain containerFilterChain;
     private final ClassLoader containerClassLoader;
@@ -42,7 +46,7 @@ public class RequestFilterChainState implements FilterChain {
         this.context = context;
         this.containerClassLoader = Thread.currentThread().getContextClassLoader();
     }
-    
+
     public void startFilterChain(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
         doFilter(servletRequest, servletResponse);
         route(servletRequest, servletResponse);
@@ -61,6 +65,9 @@ public class RequestFilterChainState implements FilterChain {
 
             try {
                 nextFilterContext.getFilter().doFilter(servletRequest, servletResponse, this);
+            } catch (Exception ex) {
+                LOG.error("Failure in filter: " + nextFilterContext.getFilter().getClass().getSimpleName()
+                        + "  -  Reason: " + ex.getMessage(), ex);
             } finally {
                 currentThread.setContextClassLoader(previousClassLoader);
             }
@@ -72,6 +79,8 @@ public class RequestFilterChainState implements FilterChain {
 
             try {
                 containerFilterChain.doFilter(servletRequest, servletResponse);
+            } catch (Exception ex) {
+                LOG.error("Failure in filter within container filter chain. Please debug");
             } finally {
                 currentThread.setContextClassLoader(previousClassLoader);
             }
@@ -88,10 +97,9 @@ public class RequestFilterChainState implements FilterChain {
             final ServletContext targetContext = context.getContext(routeDestination);
 
             if (targetContext != null) {
-              
+
                 final RequestDispatcher dispatcher = targetContext.getRequestDispatcher(
-                        new DispatchPathBuilder(servletRequest, routeDestination).build()
-                        );
+                        new DispatchPathBuilder(servletRequest, routeDestination).build());
 
                 if (dispatcher != null) {
                     dispatcher.forward(servletRequest, servletResponse);
