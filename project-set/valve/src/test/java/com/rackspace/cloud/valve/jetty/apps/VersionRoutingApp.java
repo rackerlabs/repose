@@ -1,10 +1,11 @@
 package com.rackspace.cloud.valve.jetty.apps;
 
-import com.rackspace.cloud.valve.jetty.servlet.VersionOneServilet;
+import com.rackspace.cloud.valve.jetty.servlet.VersionOneServlet;
 import com.rackspace.cloud.valve.jetty.servlet.VersionTwoServlet;
 import com.rackspace.papi.components.versioning.VersioningFilter;
 import com.rackspace.papi.service.context.PowerApiContextManager;
 import com.rackspace.papi.servlet.InitParameter;
+
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +30,7 @@ public class VersionRoutingApp {
 
         rootContext.addFilter(VersioningFilter.class, "/*", dispatchers);
         
-        rootContext.addServlet(VersionOneServilet.class, "/v1/*");
+        rootContext.addServlet(VersionOneServlet.class, "/v1/*");
         rootContext.addServlet(VersionTwoServlet.class, "/*");
     }
 

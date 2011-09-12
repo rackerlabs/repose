@@ -9,14 +9,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.URI;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author zinic
  */
 public class ProxyServlet extends HttpServlet {
-    private static final Logger log = Logger.getLogger(ProxyServlet.class);
+    private static final Logger log = LoggerFactory.getLogger(ProxyServlet.class);
     
     private ProxyService proxyService;
 
@@ -33,7 +34,7 @@ public class ProxyServlet extends HttpServlet {
         try {
             proxyService.proxyRequest(req, resp);
         } catch (Exception ex) {
-            log.fatal(ex.getMessage(), ex);
+            log.error(ex.getMessage(), ex);
         }
     }
 }
