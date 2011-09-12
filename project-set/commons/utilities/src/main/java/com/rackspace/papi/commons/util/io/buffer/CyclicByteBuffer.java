@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class CyclicSimpleByteBuffer implements SimpleByteBuffer {
+public class CyclicByteBuffer implements ByteBuffer {
 
     private final static int DEFAULT_BUFFER_SIZE = 2048; //in bytes
     
@@ -16,15 +16,15 @@ public class CyclicSimpleByteBuffer implements SimpleByteBuffer {
     private boolean hasElements;
     private byte[] buffer;
 
-    public CyclicSimpleByteBuffer() {
+    public CyclicByteBuffer() {
         this(DEFAULT_BUFFER_SIZE);
     }
 
-    public CyclicSimpleByteBuffer(int bufferSize) {
+    public CyclicByteBuffer(int bufferSize) {
         this(new byte[bufferSize], false);
     }
 
-    private CyclicSimpleByteBuffer(byte[] buffer, boolean hasElements) {
+    private CyclicByteBuffer(byte[] buffer, boolean hasElements) {
         this.nextWritableIndex = 0;
         this.nextReadableIndex = 0;
         this.hasElements = hasElements;
@@ -223,7 +223,7 @@ public class CyclicSimpleByteBuffer implements SimpleByteBuffer {
     }
 
     @Override
-    public SimpleByteBuffer copy() {
+    public ByteBuffer copy() {
         bufferLock.lock();
 
         try {
@@ -239,7 +239,7 @@ public class CyclicSimpleByteBuffer implements SimpleByteBuffer {
                 System.arraycopy(buffer, nextReadableIndex, bufferCopy, 0, readableLength);
             }
 
-            return new CyclicSimpleByteBuffer(bufferCopy, true);
+            return new CyclicByteBuffer(bufferCopy, true);
         } finally {
             bufferLock.unlock();
         }

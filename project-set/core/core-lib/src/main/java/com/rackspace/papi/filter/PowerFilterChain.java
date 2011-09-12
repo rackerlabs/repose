@@ -30,9 +30,9 @@ import org.slf4j.LoggerFactory;
  * 6.  If one of the container's filters breaks out of the chain then our chain should unwind correctly
  * 
  */
-public class RequestFilterChainState implements FilterChain {
+public class PowerFilterChain implements FilterChain {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RequestFilterChainState.class);
+    private static final Logger LOG = LoggerFactory.getLogger(PowerFilterChain.class);
     
     private final List<FilterContext> filterChainCopy;
     private final FilterChain containerFilterChain;
@@ -40,7 +40,7 @@ public class RequestFilterChainState implements FilterChain {
     private final ServletContext context;
     private int position;
 
-    public RequestFilterChainState(List<FilterContext> filterChainCopy, FilterChain containerFilterChain, ServletContext context) {
+    public PowerFilterChain(List<FilterContext> filterChainCopy, FilterChain containerFilterChain, ServletContext context) {
         this.filterChainCopy = new LinkedList<FilterContext>(filterChainCopy);
         this.containerFilterChain = containerFilterChain;
         this.context = context;
@@ -49,7 +49,6 @@ public class RequestFilterChainState implements FilterChain {
 
     public void startFilterChain(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
         doFilter(servletRequest, servletResponse);
-        route(servletRequest, servletResponse);
     }
 
     @Override
@@ -79,6 +78,7 @@ public class RequestFilterChainState implements FilterChain {
 
             try {
                 containerFilterChain.doFilter(servletRequest, servletResponse);
+                route(servletRequest, servletResponse);
             } catch (Exception ex) {
                 LOG.error("Failure in filter within container filter chain. Please debug");
             } finally {

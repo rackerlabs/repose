@@ -1,8 +1,8 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
-import com.rackspace.papi.commons.util.io.SimpleByteBufferServletOutputStream;
-import com.rackspace.papi.commons.util.io.buffer.CyclicSimpleByteBuffer;
-import com.rackspace.papi.commons.util.io.buffer.SimpleByteBuffer;
+import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
+import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
+import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -65,7 +65,7 @@ public class MutableHttpServletResponseTest {
 
             actual = MutableHttpServletResponse.wrap(original);
 
-            assertTrue(actual.getOutputStream() instanceof SimpleByteBufferServletOutputStream);
+            assertTrue(actual.getOutputStream() instanceof ByteBufferServletOutputStream);
         }
 
         @Test
@@ -117,8 +117,8 @@ public class MutableHttpServletResponseTest {
 
             HttpServletResponse original = mock(HttpServletResponse.class);
 
-            SimpleByteBuffer byteBuffer = new CyclicSimpleByteBuffer();
-            ServletOutputStream outputStream = new SimpleByteBufferServletOutputStream(byteBuffer);
+            ByteBuffer byteBuffer = new CyclicByteBuffer();
+            ServletOutputStream outputStream = new ByteBufferServletOutputStream(byteBuffer);
             when(original.getOutputStream()).thenReturn(outputStream);
             
             MutableHttpServletResponse response = MutableHttpServletResponse.wrap(original);
