@@ -5,10 +5,10 @@ import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.arrays.ByteArrayComparator;
 import com.rackspace.papi.commons.util.io.MessageDigesterOutputStream;
 import com.rackspace.papi.commons.util.io.OutputStreamSplitter;
-import com.rackspace.papi.commons.util.io.SimpleByteBufferInputStream;
-import com.rackspace.papi.commons.util.io.SimpleByteBufferOutputStream;
-import com.rackspace.papi.commons.util.io.buffer.CyclicSimpleByteBuffer;
-import com.rackspace.papi.commons.util.io.buffer.SimpleByteBuffer;
+import com.rackspace.papi.commons.util.io.ByteBufferInputStream;
+import com.rackspace.papi.commons.util.io.ByteBufferOutputStream;
+import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
+import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,7 +20,7 @@ public class BufferedURLConfigurationResource implements ConfigurationResource<B
 
     private final byte[] internalByteArray;
     private final URL resourceUrl;
-    private SimpleByteBuffer byteBuffer;
+    private ByteBuffer byteBuffer;
     private byte[] digest;
 
     public BufferedURLConfigurationResource(URL resourceUrl) {
@@ -48,8 +48,8 @@ public class BufferedURLConfigurationResource implements ConfigurationResource<B
     }
 
     //TODO: Review - File descriptor management is a concern we have not looked at in depth
-    private byte[] read(SimpleByteBuffer buffer) {
-        final OutputStream bufferOut = new SimpleByteBufferOutputStream(buffer);
+    private byte[] read(ByteBuffer buffer) {
+        final OutputStream bufferOut = new ByteBufferOutputStream(buffer);
         final MessageDigesterOutputStream mdos = newDigesterOutputStream("MD5");
 
         final OutputStreamSplitter splitter = new OutputStreamSplitter(bufferOut, mdos);
@@ -74,7 +74,7 @@ public class BufferedURLConfigurationResource implements ConfigurationResource<B
 
     @Override
     public synchronized boolean updated() throws IOException {
-        final SimpleByteBuffer freshBuffer = new CyclicSimpleByteBuffer();
+        final ByteBuffer freshBuffer = new CyclicByteBuffer();
         final byte[] newDigest = read(freshBuffer);
 
         if (digest == null || !new ByteArrayComparator(digest, newDigest).arraysAreEqual()) {
@@ -93,6 +93,6 @@ public class BufferedURLConfigurationResource implements ConfigurationResource<B
             throw new IOException("Failed to perform initial read");
         }
         
-        return new SimpleByteBufferInputStream(byteBuffer.copy());
+        return new ByteBufferInputStream(byteBuffer.copy());
     }
 }
