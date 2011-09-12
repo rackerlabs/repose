@@ -85,7 +85,7 @@ public class VersioningHelper {
             transformer.transform(versionElement, versionedRequest.getRequestInfo().getPreferedMediaRange(), filterDirector.getResponseOutputStream());
         } else {
             filterDirector.setFilterAction(FilterAction.PASS);
-            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.ROUTE_DESTINATION.headerKey(), targetOriginService.getMapping().getId());
+            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.ROUTE_DESTINATION.headerKey(), targetOriginService.getMapping().getContextPath());
 
             // Set the URI to the correct, internally versioned path and pass it to the origin service
             filterDirector.setRequestUri(versionedRequest.asInternalURI());

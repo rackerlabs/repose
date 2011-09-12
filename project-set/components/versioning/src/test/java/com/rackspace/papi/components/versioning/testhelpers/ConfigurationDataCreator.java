@@ -65,7 +65,6 @@ public abstract class ConfigurationDataCreator {
         for (int i = 0; i < numOfHosts; i++) {
             Host host = new Host();
             host.setId("service-v1." + i);
-            host.setHref("http://rackspacecloud.com/v1." + i);
 
             hosts.put("service-v1." + i, host);
         }

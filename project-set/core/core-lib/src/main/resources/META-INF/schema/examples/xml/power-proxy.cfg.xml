@@ -49,14 +49,14 @@
         not the host really is a service host (i.e. where the
         service is hosted).
     -->
-    <host id="service-v1.1" hostname="service-n04.wc1.dfw1.stabletransit.com" href="http://service.api.rackspacecloud.com/v1.1/" />
+    <host id="service-v1.1" hostname="service-n04.wc1.dfw1.stabletransit.com" />
     
     <!--
         In the case below we have a service host that also hosts
         all of the PowerAPI components locally (same app container
         for example. This will be a common deployment strategy.
     -->
-    <host id="service-v1.2" hostname="service-n05.wc1.dfw1.stabletransit.com" href="http://service.api.rackspacecloud.com/v1.2/">
+    <host id="service-v1.2" hostname="service-n05.wc1.dfw1.stabletransit.com" >
         <filters>
             <filter name="client-auth" />
             <filter name="rate-limiting" />
