@@ -12,7 +12,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author zinic
  */
-public class VersionOneServilet extends HttpServlet {
+public class VersionOneServlet extends HttpServlet {
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
