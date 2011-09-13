@@ -17,6 +17,7 @@
 package com.rackspace.cloud.valve.http.proxy.httpclient;
 
 import com.rackspace.cloud.valve.http.proxy.ProxyService;
+import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.OptionsMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
 import java.io.BufferedInputStream;
@@ -25,13 +26,7 @@ import java.io.OutputStream;
 import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpConnectionManager;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+
 import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.HeadMethod;
@@ -49,8 +44,13 @@ public class HttpClientProxyService implements ProxyService {
     private final HttpClient client;
     private final HostConfiguration proxiedHost;
 
-    public HttpClientProxyService(HostConfiguration hc) {
-        proxiedHost = hc;
+    public HttpClientProxyService(String targetHost) {
+        proxiedHost = new HostConfiguration();
+        try {
+            proxiedHost.setHost(new URI(targetHost, false));
+        } catch (URIException e) {
+            e.printStackTrace();
+        }
 
         manager = new MultiThreadedHttpConnectionManager();
         client = new HttpClient(manager);
@@ -155,7 +155,6 @@ public class HttpClientProxyService implements ProxyService {
         return myHostName.append(httpServletRequest.getContextPath()).toString();
     }
 
-    //Phase rewrite
     private void setProxyRequestHeaders(HttpServletRequest httpServletRequest, HttpMethod httpMethodProxyRequest) {
         final Enumeration headerNameEnumeration = httpServletRequest.getHeaderNames();
 
@@ -182,7 +181,5 @@ public class HttpClientProxyService implements ProxyService {
                 httpMethodProxyRequest.setRequestHeader(new Header(stringHeaderName, stringHeaderValue));
             }
         }
-        
-//        httpMethodProxyRequest.setRequestHeader("Authorization", "Basic dTpw");
     }
 }
