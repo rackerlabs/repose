@@ -276,10 +276,10 @@
                 <title>Power Proxy Configuration: XML</title>
                 <programlistingco>
                     <areaspec>
-                        <area xml:id="powerproxy.xml.hostid" units="linecolumn" coords="3 13"/>
-                        <area xml:id="powerproxy.xml.serviceport" units="linecolumn" coords="3 68"/>
-                        <area xml:id="powerproxy.xml.hostname" units="linecolumn" coords="3 30"/>
-                        <area xml:id="powerproxy.xml.filtername" units="linecolumn" coords="5 20"/>
+                        <area xml:id="powerproxy.xml.hostid" units="linecolumn" coords="5 13"/>
+                        <area xml:id="powerproxy.xml.hostname" units="linecolumn" coords="5 30"/>
+                        <area xml:id="powerproxy.xml.serviceport" units="linecolumn" coords="6 21"/>
+                        <area xml:id="powerproxy.xml.filtername" units="linecolumn" coords="7 18"/>
                     </areaspec>
                 <programlisting language="xml">
 <xi:include href="samples/papi-powerproxy-rootwar.xml" parse="text"/>
@@ -290,13 +290,13 @@
                 <callout arearefs="powerproxy.xml.hostid">
                     <para> This is the unique identifier of this node within this cluster. </para>
                 </callout>
-                <callout arearefs="powerproxy.xml.serviceport">
-                    <para> This is the port on which the service is running. Specification is optional; if unspecified, the value defaults to <code>80</code>. </para>
-                </callout>
                 <callout arearefs="powerproxy.xml.hostname">
                     <para> This is the network identifier of the machine running the &PRODNAME;
-                            service. It can be any valid identifier, such as the hostname (if the
-                            hostname is known to the entire cluster) or the IP address.</para>
+                        service. It can be any valid identifier, such as the hostname (if the
+                        hostname is known to the entire cluster) or the IP address.</para>
+                </callout>
+                <callout arearefs="powerproxy.xml.serviceport">
+                    <para> This is the port on which the service is running. Specification is optional; if unspecified, the value defaults to <code>80</code>. </para>
                 </callout>
                 <callout arearefs="powerproxy.xml.filtername">
                     <para> This is a chain of the filters to be applied in this implementation of &PRODNAME;. 
