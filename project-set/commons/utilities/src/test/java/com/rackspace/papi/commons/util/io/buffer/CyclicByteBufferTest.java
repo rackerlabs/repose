@@ -59,7 +59,7 @@ public class CyclicByteBufferTest {
             buffer.put(new byte[6]);
             buffer.get(new byte[6]);
 
-            assertEquals("Buffer size should should have 8 available after growing", expectedAvailable, buffer.unsafeRemaining());
+            assertEquals("Buffer size should should have 8 available after growing", expectedAvailable, buffer.remaining());
         }
 
         @Test
@@ -73,7 +73,7 @@ public class CyclicByteBufferTest {
             buffer.put((byte) 0x05);
             buffer.get(new byte[5]);
 
-            assertEquals("Buffer size should should have 8 available after growing", expectedAvailable, buffer.unsafeRemaining());
+            assertEquals("Buffer size should should have 8 available after growing", expectedAvailable, buffer.remaining());
         }
 
         @Test
@@ -140,13 +140,13 @@ public class CyclicByteBufferTest {
             final byte[] actual = new byte[expected.length];
 
             buffer.get(actual, 0, 16);
-            assertEquals(48, buffer.unsafeAvailable());
+            assertEquals(48, buffer.available());
 
             buffer.skip(16);
-            assertEquals(32, buffer.unsafeAvailable());
+            assertEquals(32, buffer.available());
 
             buffer.get(actual, 16, 16);
-            assertEquals(16, buffer.unsafeAvailable());
+            assertEquals(16, buffer.available());
 
             assertTrue(new ByteArrayComparator(expected, actual).arraysAreEqual());
         }
