@@ -116,7 +116,10 @@
         <para>We recommend that you deploy &PRODNAME; using the following operating systems, user and
             group configurations, and directories for configuration, artifacts, and deployment. </para>
         <section xml:id="Target_Operating_System_Environments-d1e180">
-            <title>Target Operating System Environments</title>
+            <title>Target Operating System</title>
+            <para>
+            &PRODNAME; is designed for the Linux operating system and has been regression tested against the following Linux distros:
+            </para>
             <para>
                 <itemizedlist spacing="compact">
                     <listitem>
@@ -133,16 +136,20 @@
             <para>
             <itemizedlist spacing="compact">
                 <listitem>
-                    <para> User: <code>powerapi</code> </para>
+                    <para> User: <code>example-powerapi</code>
+                        </para>
                 </listitem>
                 <listitem>
-                    <para> Group: <code>powerapi</code> </para>
+                    <para> Group: <code>example-powerapi</code>
+                        </para>
                 </listitem>
             </itemizedlist>
             </para>
             <para> Dedicate a user and group to &PRODNAME; to improve isolation of &PRODNAME;'s
-                permissions. Be sure the &PRODNAME; user and group can write to the file system as
-                well as read configurations stored in the file system. </para>
+                permissions. This user and group must be non-privileged; they can be assigned any
+                valid name as long as their permissions are consistent. Be sure the &PRODNAME; user
+                and group can write to the file system as well as read configurations stored in the
+                file system. </para>
         </section>
         <section xml:id="Configuration_Directory-d1e237">
             <title>Configuration Directory</title>
@@ -152,10 +159,8 @@
                         <para> Directory: <code>/etc/powerapi</code> </para>
                     </listitem>
                     <listitem>
-                        <para> Owner/Group: <code>root:powerapi</code> </para>
-                    </listitem>
-                    <listitem>
-                        <para> Permissions: <code>540</code> </para>
+                        <para> Permissions: <code>755</code>
+                        </para>
                     </listitem>
                 </itemizedlist>
             </para>
@@ -165,21 +170,21 @@
         <section xml:id="Artifact_Directory-d1e280">
             <title>Artifact Directory</title>
             <para>
+                An artifact may be a bundle of one or more components; an EAR is an example of an artifact.
+            </para>
+            <para>
                 <itemizedlist spacing="compact">
                     <listitem>
                         <para> Directory: <code>/usr/share/powerapi/filters</code>
                         </para>
                     </listitem>
                     <listitem>
-                        <para> Owner/Group: <code>root:powerapi</code> </para>
-                    </listitem>
-                    <listitem>
-                        <para> Permissions: <code>540</code> </para>
+                        <para> Permissions: <code>755</code>
+                        </para>
                     </listitem>
                 </itemizedlist>
             </para>
-            <para>Store all the artifacts that &PRODNAME; has been configured to use in the
-                configuration directory.</para>
+            <para>In the artifact directory, store all the artifacts that &PRODNAME; has been configured to use.</para>
         </section>
         <section xml:id="Deployment_Directory-d1e322">
             <title>Deployment Directory</title>
@@ -190,16 +195,24 @@
                         </para>
                     </listitem>
                     <listitem>
-                        <para> Owner/Group: <code>root:powerapi</code> </para>
-                    </listitem>
-                    <listitem>
-                        <para> Permissions: <code>760</code>
+                        <para> Permissions: <code>765</code>
                         </para>
                     </listitem>
                 </itemizedlist>
             </para>
             <para>Define a deployment directory as a writable location. 
                 &PRODNAME; uses the deployment directory to copy deployed versions of the artifacts it has been configured to use.</para>
+        </section>
+        <section xml:id="Deployment_Tomcat-d1e325">
+            <title>Deployment into Tomcat</title>
+            <para> To use &PRODNAME;with Tomcat, you must add this line to <code>context.xml</code>:
+                    <code>&lt;context crosscontext="true"&gt;</code>.
+            </para>
+            <note>
+                <para>
+                    For Tomcat 7, <code>context.xml</code> is found in <code>/var/lib/tomcat7/config/context.xml</code>.
+                </para>
+            </note>
         </section>
     </chapter>
     <chapter xml:id="Artifacts-d1e365">
@@ -252,10 +265,10 @@
         </para>
         <section xml:id="Power_Proxy-d1e447">
             <title>Power Proxy</title>
-            <para> The power proxy configuration is considered to be the &PRODNAME; system mode.
-                    This configuration outlines the entire deployment layout for the service
-                    cluster. &PRODNAME; must be aware of this in order to configure itself and
-                    correctly coordinate routing if necessary. </para>
+            <para> The power proxy configuration is the &PRODNAME; system model. This configuration
+                    outlines the entire deployment layout for the service cluster. &PRODNAME; must
+                    be aware of this in order to configure itself and correctly coordinate routing
+                    if necessary. </para>
             <para> The system model also lets &PRODNAME; know where the other &PRODNAME; nodes
                 reside. Using this information, &PRODNAME; can coordinate its own clustering to
                     help balance load or share data among nodes that share common filters. </para>
