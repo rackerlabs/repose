@@ -277,9 +277,9 @@
                 <programlistingco>
                     <areaspec>
                         <area xml:id="powerproxy.xml.hostid" units="linecolumn" coords="3 13"/>
-                        <area xml:id="powerproxy.xml.serviceport" units="linecolumn" coords="6 52"/>
+                        <area xml:id="powerproxy.xml.serviceport" units="linecolumn" coords="3 68"/>
                         <area xml:id="powerproxy.xml.hostname" units="linecolumn" coords="3 30"/>
-                        <area xml:id="powerproxy.xml.filtername" units="linecolumn" coords="8 52"/>
+                        <area xml:id="powerproxy.xml.filtername" units="linecolumn" coords="5 20"/>
                     </areaspec>
                 <programlisting language="xml">
 <xi:include href="samples/papi-powerproxy-rootwar.xml" parse="text"/>
@@ -317,10 +317,10 @@
                     <para><code>client-auth</code> should always be first</para>
                 </listitem>
                 <listitem>
-                    <para><code>versioning</code> should precede <code>rate-limiting</code></para>
+                    <para><code>dist-datastore</code> should precede <code>versioning</code></para>
                 </listitem>
                 <listitem>
-                    <para><code>dist-datastore</code> should precede <code>rate-limiting</code></para>
+                    <para><code>versioning</code> should precede <code>rate-limiting</code></para>
                 </listitem>
             </orderedlist>
         </section>
