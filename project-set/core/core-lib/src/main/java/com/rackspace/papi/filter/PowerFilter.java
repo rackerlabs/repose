@@ -79,6 +79,10 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     private synchronized void updateFilterList(List<FilterContext> newFilterChain) {
         this.filterChain = new LinkedList<FilterContext>(newFilterChain);
     }
+    
+    protected PowerProxy getCurrentSystemModel() {
+      return currentSystemModel;
+    }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
