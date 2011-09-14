@@ -202,8 +202,7 @@
         <title>Authentication Lifecycle</title>
         <para> 
             &PRODNAME;'s authentication lifecycle is directly derived from the "Authentication in OpenStack" blueprint at 
-            <link xlink:href="http://wiki.openstack.org/openstack-authn">
-            http://wiki.openstack.org/openstack-authn</link>, which defines a standard for authentication. 
+            <link xlink:href="http://wiki.openstack.org/openstack-authn">http://wiki.openstack.org/openstack-authn</link>, which defines a standard for authentication. 
             Compliance with this standard enables services to support multiple authentication protocols in a pluggable manner. 
             For further information about &PRODNAME;'s handling of authentication requests, please refer to this blueprint.
         </para> 

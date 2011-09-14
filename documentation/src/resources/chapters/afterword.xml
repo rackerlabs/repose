@@ -14,10 +14,77 @@
         Although we have tested the sample code included here, results on your system may be different.
     </para>
     <para>
-        If find errors in this document or have suggestions about how to improve it, please let us know.
-        You can contact the maintainer directly at "john dot hopper at rackspace dot com". 
-    </para>
-    <para>
         We hope you enjoy using &PRODNAME;!
     </para>
+    <section xml:id="Feedback-d1e992">
+        <title>Feedback</title>
+        <para>
+            If find errors in this document or have suggestions about how to improve it, please let us know.
+            You can contact the maintainer directly at "john dot hopper at rackspace dot com". 
+        </para>
+    </section> 
+    <section xml:id="References-d1e994">
+        <title>References</title>
+        <para>
+            These external documents are referenced in one or more &PRODNAME; documents and are relevant to all &PRODNAME; documents.
+            Please <link linkend="Feedback-d1e992">contact us</link> if you discover that any of these links are invalid.
+        </para>
+        <bibliography>
+            <title>Annotated Bibliography</title>
+            <biblioentry xml:id="JEE6">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    Oracle Corporation
+                </orgname>
+                <title>JSR 316: Java™ Platform, Enterprise Edition 6 (Java EE 6) Specification</title>
+                <releaseinfo><link
+                    xlink:href="http://jcp.org/en/jsr/detail?id=316">http://jcp.org/en/jsr/detail?id=316</link></releaseinfo>
+                <abstract>
+                    <para>
+                        All consumable artifacts meant for deployment through &PRODNAME; must conform to this specification.
+                    </para>
+                </abstract>
+            </biblioentry>
+            <biblioentry xml:id="OSAUTH">
+                <author>
+                    <personname>
+                        <firstname>Jorge</firstname>
+                        <surname>Williams</surname>
+                        <othername role="mi">L</othername>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Khaled</firstname>
+                        <surname>Hussein</surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>Ziad</firstname>
+                        <surname>Sawalha</surname>
+                        <othername role="mi">N</othername>
+                    </personname>
+                </author>
+            <orgname>
+                OpenStack
+            </orgname>
+            <title>Authentication in OpenStack</title>
+            <releaseinfo><link
+                xlink:href="http://wiki.openstack.org/openstack-authn">http://wiki.openstack.org/openstack-authn</link></releaseinfo>
+            <abstract>
+                <para>
+                    &PRODNAME;'s Authentication component complies with this specification.
+                </para>
+            </abstract>
+            </biblioentry>
+        </bibliography>  
+    </section>
 </chapter>
