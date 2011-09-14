@@ -66,7 +66,7 @@ public class PowerAPICacheInserter {
         final String myKey = "mykey";
         final int finishTotal = 9700,
                 sleep1 = 500,
-                sleep2 = 750,
+                sleep2 = 1750,
                 sleep3 = 1000,
                 sleep4 = 850;
 
@@ -115,8 +115,8 @@ public class PowerAPICacheInserter {
         reader.start();
         inserter1.start();
         inserter2.start();
-        inserter3.start();
-        inserter4.start();
+//        inserter3.start();
+//        inserter4.start();
 
         Thread.sleep(200000);
 

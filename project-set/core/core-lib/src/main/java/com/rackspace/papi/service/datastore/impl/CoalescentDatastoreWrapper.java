@@ -25,6 +25,8 @@ public class CoalescentDatastoreWrapper implements Datastore, Runnable, Destroya
         nextOperationList = new LinkedList<String>();
 
         threadReference = new Thread(this, "Coalescent Datastore Wrapper Thread");
+        
+        // TODO:Refactor Starting threads belongs in an init method. not testable.
         threadReference.start();
     }
 

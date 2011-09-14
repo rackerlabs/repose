@@ -6,6 +6,7 @@ import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.HashedDatastore;
 import com.rackspace.papi.service.datastore.StoredElement;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
@@ -77,7 +78,11 @@ public abstract class HashRingDatastore extends CoalescentDatastoreWrapper imple
         if (!target.equals(clusterView.local())) {
             LOG.debug(clusterView.local().toString() + ":: Routing datastore get request for, \"" + name + "\" to: " + target.toString());
 
-            return remoteCache.get(name, target);
+            try {
+                return remoteCache.get(name, target);
+            } catch(IOException ioe) {
+                LOG.error(ioe.getMessage(), ioe);
+            }
         }
 
         return super.get(name);
@@ -110,8 +115,12 @@ public abstract class HashRingDatastore extends CoalescentDatastoreWrapper imple
 
         if (!target.equals(clusterView.local())) {
             LOG.debug(clusterView.local().toString() + ":: Routing datastore put request for, \"" + name + "\" to: " + target.toString());
-
-            remoteCache.put(name, value, ttl, timeUnit, target);
+            
+            try {
+                remoteCache.put(name, value, ttl, timeUnit, target);
+            } catch(IOException ioe) {
+                LOG.error(ioe.getMessage(), ioe);
+            }
         } else {
             super.put(name, value, ttl, timeUnit);
         }

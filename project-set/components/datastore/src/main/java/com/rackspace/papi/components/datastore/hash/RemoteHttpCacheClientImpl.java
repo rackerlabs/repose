@@ -44,7 +44,7 @@ public class RemoteHttpCacheClientImpl implements RemoteCacheClient {
     }
 
     @Override
-    public StoredElement get(String key, InetSocketAddress remoteEndpoint) {
+    public StoredElement get(String key, InetSocketAddress remoteEndpoint) throws IOException {
         final String targetUrl = urlFor(remoteEndpoint, key);
 
         final HttpGet cacheObjectGet = new HttpGet(targetUrl);
@@ -65,8 +65,6 @@ public class RemoteHttpCacheClientImpl implements RemoteCacheClient {
             } else if (statusCode != HttpStatusCode.NOT_FOUND.intValue()) {
                 throw new DatastoreOperationException("Remote request failed with: " + statusCode);
             }
-        } catch (Exception ex) {
-            throw new DatastoreOperationException("Get failed for: " + targetUrl + " - reason: " + ex.getMessage(), ex);
         } finally {
             releaseEntity(responseEnttiy);
         }
@@ -75,7 +73,7 @@ public class RemoteHttpCacheClientImpl implements RemoteCacheClient {
     }
 
     @Override
-    public void put(String key, byte[] value, int ttl, TimeUnit timeUnit, InetSocketAddress remoteEndpoint) {
+    public void put(String key, byte[] value, int ttl, TimeUnit timeUnit, InetSocketAddress remoteEndpoint) throws IOException {
         final String targetUrl = urlFor(remoteEndpoint, key);
 
         final HttpPut cacheObjectPut = new HttpPut(targetUrl);
@@ -93,8 +91,6 @@ public class RemoteHttpCacheClientImpl implements RemoteCacheClient {
             if (response.getStatusLine().getStatusCode() != HttpStatusCode.ACCEPTED.intValue()) {
                 throw new DatastoreOperationException("Remote request failed with: " + response.getStatusLine().getStatusCode());
             }
-        } catch (Exception ex) {
-            throw new DatastoreOperationException("Get failed for: " + targetUrl + " - reason: " + ex.getMessage(), ex);
         } finally {
             releaseEntity(responseEnttiy);
         }
