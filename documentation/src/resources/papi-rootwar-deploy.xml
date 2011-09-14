@@ -234,7 +234,7 @@
          </section>
     </chapter>
     <chapter xml:id="Core_and_Component_Configurations-d1e431">
-        <title>Core and Component Configurations</title>
+        <title>Component Configurations</title>
         <para>
             Customize the XML samples in this section to use &PRODNAME;'s core and component configurations. 
             The power proxy and container configurations are within the scope of the core.
@@ -321,49 +321,6 @@
                     </programlisting>
                 </example>
             </section>
-            </section>
-            <section xml:id="Scope_Component-d1e491">
-            <title>Scope = Component</title>
-                <para> &PRODNAME; component configurations support normalization and versioning. </para>
-            <section xml:id="Content_Normalization-d1e499">
-                <title>Content Normalization</title>
-                <para> The content normalization filter is the first filter in the chain being provided by &PRODNAME;. </para>
-                <para> Content normalization is only used for HTTP header filtering. 
-                    The configuration XML provided demonstrates how to specify whitelist header elements to the content normalization filter. 
-                    The filter will then remove all headers that have no whitelist configuration element. </para>
-                <example>
-                    <title>Content Normalization Configuration: XML</title>
-                    <programlisting language="xml">
-<xi:include href="samples/papi-contentnormalization.xml" parse="text"/>
-                    </programlisting>
-                </example>
-            </section>
-            <section xml:id="Versioning-d1e522">
-                <title>Versioning</title>
-                <para>
-                    The versioning configuration defines version mappings. 
-                    Based on those definitions, the versioning component will attempt to bind 
-                    to actual host entries within the power proxy system model.
-                </para>
-                <para>
-                    To facilitate routing, 
-                    the versioning component will first read in all the elements from both the versioning configuration and the power proxy system model configuration. 
-                    Then, based on the power proxy host id attribute (<code>pp-host-id</code>) provided in the versioning configuration,  
-                    the versioning component will link power proxy host entries to each version mapping.  
-                </para>
-                <para>
-                    The versioning component can facilitate routing but it does not perform routing. 
-                    Routing in &PRODNAME; is a two-step process. 
-                    The versioning component tags a request with a header (<code>X-PP-OriginDestination</code>) before handing the request to the next component. 
-                    This header may be read by &PRODNAME;'s routing components to then facilitate routing to the correct service origin. 
-                </para>
-                <example>
-                    <title>Versioning Configuration: XML</title>
-                    <programlisting language="xml">
-<xi:include href="samples/papi-versioning-rootwar.xml" parse="text"/>
-                    </programlisting>
-                </example>
-            </section>                
             </section>
     </chapter>
     <xi:include href="chapters/afterword.xml"/>
