@@ -94,7 +94,7 @@ public class ServletContextWrapper implements ServletContext {
 
   @Override
   public RequestDispatcher getRequestDispatcher(String path) {
-    if (!"".equals(targetContext)) {
+    if (targetContext.matches("^https?://.*")) {
       return new HttpRequestDispatcher(targetContext);
     } else {
       return context.getRequestDispatcher(path);
