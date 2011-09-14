@@ -2,7 +2,7 @@ package com.rackspace.papi.commons.util.io.buffer;
 
 import java.io.IOException;
 
-public interface SimpleByteBuffer extends Cloneable {
+public interface ByteBuffer extends Cloneable {
 
     byte get() throws IOException;
 
@@ -22,5 +22,5 @@ public interface SimpleByteBuffer extends Cloneable {
     
     int available();
     
-    SimpleByteBuffer copy();
+    ByteBuffer copy();
 }

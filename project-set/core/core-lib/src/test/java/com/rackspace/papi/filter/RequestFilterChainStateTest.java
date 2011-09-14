@@ -1,7 +1,10 @@
 package com.rackspace.papi.filter;
 
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.*;
 
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -33,7 +36,7 @@ public class RequestFilterChainStateTest {
             filterContextList.add(mockedFilterContext);
             FilterChain mockedFilterChain = mock(FilterChain.class);
 
-            RequestFilterChainState powerFilterChainState = new RequestFilterChainState(filterContextList, mockedFilterChain, mock(ServletContext.class));
+            PowerFilterChain powerFilterChainState = new PowerFilterChain(filterContextList, mockedFilterChain, mock(ServletContext.class));
 
             HttpServletRequest mockedServletRequest = mock(HttpServletRequest.class);
             HttpServletResponse mockedServletResponse = mock(HttpServletResponse.class);

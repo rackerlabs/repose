@@ -38,25 +38,26 @@ public class ConfigurationResourceWatcher implements Runnable, Destroyable {
         while (shouldContinue) {
             try {
                 processResources();
+                
                 Thread.sleep(15000);
             } catch (InterruptedException ie) {
-                LOG.info("Configuration resource watcher thread has been interrupted. Halting execution.");
-                
+                LOG.info("Configuration resource watcher thread has been interrupted. Halting execution.", ie);
+
                 shouldContinue = false;
                 Thread.currentThread().interrupt();
             }
         }
     }
 
-    private synchronized void processResources() {
+    private synchronized void processResources() throws InterruptedException {
         for (ConfigurationResource resource : watchMap.values()) {
             try {
                 if (resource.updated()) {
                     eventManager.newEvent(ConfigurationEvent.UPDATE, resource);
                     LOG.info("Updated " + resource.name());
                 }
-            } catch (IOException e) {
-                    LOG.error("Error occurred while attempting configuration update", e);
+            } catch (Exception e) {
+                //TODO: Create a logger that is smart enough not to print out errors we don't care about more than once
             }
         }
     }

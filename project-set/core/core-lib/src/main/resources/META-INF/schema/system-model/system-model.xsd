@@ -54,14 +54,6 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        
-        <xs:attribute name="href" type="xs:anyURI" use="optional" default="">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>URI that describes the routable address the host presents to the world</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="FilterList">

@@ -1,9 +1,9 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
-import com.rackspace.papi.commons.util.io.SimpleByteBufferInputStream;
-import com.rackspace.papi.commons.util.io.SimpleByteBufferServletOutputStream;
-import com.rackspace.papi.commons.util.io.buffer.CyclicSimpleByteBuffer;
-import com.rackspace.papi.commons.util.io.buffer.SimpleByteBuffer;
+import com.rackspace.papi.commons.util.io.ByteBufferInputStream;
+import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
+import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
+import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
@@ -20,21 +20,21 @@ public final class MutableHttpServletResponse extends HttpServletResponseWrapper
                 : new MutableHttpServletResponse(response);
     }
     
-    private final SimpleByteBuffer internalBuffer;
+    private final ByteBuffer internalBuffer;
     private final ServletOutputStream outputStream;
     private final PrintWriter outputStreamWriter;
 
     private MutableHttpServletResponse(HttpServletResponse response) {
         super(response);
 
-        internalBuffer = new CyclicSimpleByteBuffer();
-        outputStream = new SimpleByteBufferServletOutputStream(internalBuffer);
+        internalBuffer = new CyclicByteBuffer();
+        outputStream = new ByteBufferServletOutputStream(internalBuffer);
         outputStreamWriter = new PrintWriter(outputStream);
     }
 
     @Override
     public InputStream getBufferedOutputAsInputStream() {
-        return new SimpleByteBufferInputStream(internalBuffer);
+        return new ByteBufferInputStream(internalBuffer);
     }
 
     @Override

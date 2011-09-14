@@ -1,9 +1,9 @@
 package com.rackspace.papi;
 
-import com.rackspace.papi.commons.util.io.SimpleByteBufferInputStream;
-import com.rackspace.papi.commons.util.io.SimpleByteBufferOutputStream;
-import com.rackspace.papi.commons.util.io.buffer.CyclicSimpleByteBuffer;
-import com.rackspace.papi.commons.util.io.buffer.SimpleByteBuffer;
+import com.rackspace.papi.commons.util.io.ByteBufferInputStream;
+import com.rackspace.papi.commons.util.io.ByteBufferOutputStream;
+import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
+import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import com.rackspace.papi.container.config.ObjectFactory;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -17,7 +17,7 @@ import static org.junit.Assert.assertNotNull;
 
 /**
  * I know this might feel like its in an odd place but I needed a schema to test
- * handing the xml unmarshaller a simplebytebuffer backed input stream
+ * handing the xml unmarshaller a bytebuffer backed input stream
  * 
  */
 @RunWith(Enclosed.class)
@@ -26,9 +26,9 @@ public class SchemaReadTest {
     public static class WhenReadingSchemaExamples {
 
         @Test
-        public void shouldReadFromSimpleByteBuffers() throws Exception {
-            final SimpleByteBuffer buffer = new CyclicSimpleByteBuffer();
-            final SimpleByteBufferOutputStream bos = new SimpleByteBufferOutputStream(buffer);
+        public void shouldReadFromByteBuffers() throws Exception {
+            final ByteBuffer buffer = new CyclicByteBuffer();
+            final ByteBufferOutputStream bos = new ByteBufferOutputStream(buffer);
 
             final InputStream xmlInput = SchemaReadTest.class.getResourceAsStream("/META-INF/schema/examples/xml/container.cfg.xml");
 
@@ -45,7 +45,7 @@ public class SchemaReadTest {
             final JAXBContext context = JAXBContext.newInstance(ObjectFactory.class);
             final Unmarshaller unmarshaller = context.createUnmarshaller();
 
-            final SimpleByteBufferInputStream sbbis = new SimpleByteBufferInputStream(buffer);
+            final ByteBufferInputStream sbbis = new ByteBufferInputStream(buffer);
 
             final Object o = unmarshaller.unmarshal(sbbis);
 

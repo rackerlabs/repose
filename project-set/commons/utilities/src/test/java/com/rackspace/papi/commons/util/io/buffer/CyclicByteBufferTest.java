@@ -11,15 +11,15 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
 
 @RunWith(Enclosed.class)
-public class CyclicSimpleByteBufferTest {
+public class CyclicByteBufferTest {
 
     public static class WhenSkipping {
 
-        private CyclicSimpleByteBuffer buffer;
+        private CyclicByteBuffer buffer;
 
         @Before
         public void standUp() {
-            buffer = new CyclicSimpleByteBuffer();
+            buffer = new CyclicByteBuffer();
         }
 
         @Test
@@ -36,11 +36,11 @@ public class CyclicSimpleByteBufferTest {
 
     public static class WhenPutting {
 
-        private CyclicSimpleByteBuffer buffer;
+        private CyclicByteBuffer buffer;
 
         @Before
         public void standUp() {
-            buffer = new CyclicSimpleByteBuffer(4);
+            buffer = new CyclicByteBuffer(4);
         }
 
         @Test
@@ -59,7 +59,7 @@ public class CyclicSimpleByteBufferTest {
             buffer.put(new byte[6]);
             buffer.get(new byte[6]);
 
-            assertEquals("Buffer size should should have 8 available after growing", expectedAvailable, buffer.unsafeRemaining());
+            assertEquals("Buffer size should should have 8 available after growing", expectedAvailable, buffer.remaining());
         }
 
         @Test
@@ -73,7 +73,7 @@ public class CyclicSimpleByteBufferTest {
             buffer.put((byte) 0x05);
             buffer.get(new byte[5]);
 
-            assertEquals("Buffer size should should have 8 available after growing", expectedAvailable, buffer.unsafeRemaining());
+            assertEquals("Buffer size should should have 8 available after growing", expectedAvailable, buffer.remaining());
         }
 
         @Test
@@ -98,11 +98,11 @@ public class CyclicSimpleByteBufferTest {
 
     public static class WhenGetting {
 
-        private CyclicSimpleByteBuffer buffer;
+        private CyclicByteBuffer buffer;
 
         @Before
         public void standUp() {
-            buffer = new CyclicSimpleByteBuffer();
+            buffer = new CyclicByteBuffer();
         }
 
         @Test
@@ -126,7 +126,7 @@ public class CyclicSimpleByteBufferTest {
 
         @Test
         public void shouldHonorOffsets() throws IOException {
-            buffer = new CyclicSimpleByteBuffer();
+            buffer = new CyclicByteBuffer();
 
             final byte[] randomBytes = new byte[64];
             new Random(System.nanoTime()).nextBytes(randomBytes);
@@ -140,20 +140,20 @@ public class CyclicSimpleByteBufferTest {
             final byte[] actual = new byte[expected.length];
 
             buffer.get(actual, 0, 16);
-            assertEquals(48, buffer.unsafeAvailable());
+            assertEquals(48, buffer.available());
 
             buffer.skip(16);
-            assertEquals(32, buffer.unsafeAvailable());
+            assertEquals(32, buffer.available());
 
             buffer.get(actual, 16, 16);
-            assertEquals(16, buffer.unsafeAvailable());
+            assertEquals(16, buffer.available());
 
             assertTrue(new ByteArrayComparator(expected, actual).arraysAreEqual());
         }
         
         @Test
         public void shouldHandleLargeArrayys() throws IOException {
-            buffer = new CyclicSimpleByteBuffer();
+            buffer = new CyclicByteBuffer();
 
             final byte[] randomBytes = new byte[64];
             new Random(System.nanoTime()).nextBytes(randomBytes);
