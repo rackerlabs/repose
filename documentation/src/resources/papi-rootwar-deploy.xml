@@ -64,25 +64,23 @@
             </annotation>
         </legalnotice>
         <abstract>
-            <para>This document is intended for systems administrators interested in configuring their service to use the Root.WAR component of the Rackspace Cloud Power Application Program Interface
-                (<abbrev>API</abbrev>).
-            </para>
+            <para>This document is intended for systems administrators interested in configuring
+                their service to use the Root.WAR of the Rackspace Cloud Power Application Program
+                Interface (<abbrev>API</abbrev>). </para>
         </abstract>
     </info>
     <chapter xml:id="Overview-d1e85">
         <title>Overview</title>
         <section xml:id="Purpose-d1e90">
             <title>Purpose</title>
-            <para>
-                The purpose of this handbook is to facilitate deployment of &PRODNAME; 
-                as an application container root web application.
-                This handbook is not a tutorial.
-                It provides basic information that will help you understand and deploy this &PRODNAME; component, but you must adapt this information to suit your own configuration.
-            </para>
-            <para>
-                This guide is focused on one &PRODNAME; component.
-                Other &PRODNAME; components are documented in companion guides.
-            </para>
+            <para> The purpose of this handbook is to facilitate deployment of &PRODNAME; as the
+                root web application in a JEE container. This handbook is not a tutorial. It
+                provides basic information that will help you understand and deploy this &PRODNAME;
+                component, but you must adapt this information to suit your own configuration. </para>
+            <para> Root.WAR is a default package that makes it easy to load &PRODNAME;'s components.
+                In addition to simplifying deployment, Root.WAR provides centralized authorization
+                and control. This handbook is focused only on the Root.WAR deployment strategy.
+                &PRODNAME; components are documented in companion handbooks. </para>
         </section>
         <section xml:id="Document_Change_History-d1e102">
             <title>Document Change History</title>
@@ -312,7 +310,7 @@
             <para>
             We recommend you specify filters in this order:
             </para>
-            <orderedlist>
+            <orderedlist spacing="compact">
                 <listitem>
                     <para><code>client-auth</code> should always be first</para>
                 </listitem>
