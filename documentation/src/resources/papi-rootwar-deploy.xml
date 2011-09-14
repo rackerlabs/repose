@@ -201,17 +201,6 @@
             <para>Define a deployment directory as a writable location. 
                 &PRODNAME; uses the deployment directory to copy deployed versions of the artifacts it has been configured to use.</para>
         </section>
-        <section xml:id="Deployment_Tomcat-d1e325">
-            <title>Deployment into Tomcat</title>
-            <para> To use &PRODNAME;with Tomcat, you must add this line to <code>context.xml</code>:
-                    <code>&lt;context crosscontext="true"&gt;</code>.
-            </para>
-            <note>
-                <para>
-                    For Tomcat 7, <code>context.xml</code> is found in <code>/var/lib/tomcat7/config/context.xml</code>.
-                </para>
-            </note>
-        </section>
     </chapter>
     <chapter xml:id="Artifacts-d1e365">
         <title>Artifacts</title>
@@ -234,14 +223,16 @@
          </section>
     </chapter>
     <chapter xml:id="Core_and_Component_Configurations-d1e431">
-        <title>Component Configurations</title>
-        <para>
-            Customize the XML samples in this section to use &PRODNAME;'s core and component configurations. 
-            The power proxy and container configurations are within the scope of the core.
-            The content normalization and versioning configurations are components outside the scope of the core.
+        <title>Core Configurations</title>
+        <para> 
+            We have provided XML samples to help explain the ideas in this section, but you must customize them to fit your own operating environment.
         </para>
-        <section xml:id="Scope_Core-d1e439">
-        <title>Scope = Core</title>
+        <para>
+            Configurations included in the WAR are deployed in the core of &PRODNAME;.
+            Configurations included in the EAR are deployed as components.
+            The <firstterm>power proxy</firstterm> and <firstterm>container</firstterm> configurations are within the scope of the
+            core and are controlled by <code>root.WAR</code>. 
+            The <firstterm>versioning</firstterm> configuration is a component, outside the scope of the core and controlled by the EAR. </para>
         <para>
             &PRODNAME; core configurations outline the deployment layout for the service cluster and tell the system where to look for component artifacts.
         </para>
@@ -321,7 +312,17 @@
                     </programlisting>
                 </example>
             </section>
-            </section>
+        <section xml:id="Container_Integration-d1e480">
+            <title>Container Integration</title>
+            <para> To use &PRODNAME;with Apache Tomcat, you must add this line to <code>context.xml</code>:
+                <code>&lt;context crosscontext="true"&gt;</code>.
+            </para>
+            <note>
+                <para>
+                    For Tomcat 7, <code>context.xml</code> is found in <code>/var/lib/tomcat7/config/context.xml</code>.
+                </para>
+            </note>
+        </section>
     </chapter>
     <xi:include href="chapters/afterword.xml"/>
 </book>
