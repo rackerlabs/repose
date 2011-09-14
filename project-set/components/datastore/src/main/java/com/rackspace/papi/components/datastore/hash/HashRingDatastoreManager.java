@@ -7,7 +7,6 @@ import com.rackspace.papi.service.datastore.impl.AbstractMapDatastoreManager;
 
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
-import org.apache.http.client.HttpClient;
 import org.apache.http.conn.scheme.PlainSocketFactory;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
@@ -22,29 +21,30 @@ public class HashRingDatastoreManager extends AbstractMapDatastoreManager<HashRi
     public static final String DATASTORE_MANAGER_NAME = "distributed/hash-ring";
     
     private final Datastore localDatastore;
-    private final String hostKey;
     private final ClusterView clusterView;
-    private final HttpClient httpClientInstance;
+    private final RemoteCacheClient remoteHttpCacheClient;
     
     public HashRingDatastoreManager(String hostKey, ClusterView clusterView, Datastore localDatastore) {
         super(new HashMap<String, HashRingDatastore>());
         
-        this.hostKey = hostKey;
         this.localDatastore = localDatastore;
         this.clusterView = clusterView;
         
         final SchemeRegistry registry = new SchemeRegistry();
         registry.register(new Scheme("http", 80, PlainSocketFactory.getSocketFactory()));
         
-        httpClientInstance = new DefaultHttpClient(new ThreadSafeClientConnManager(registry));
+        final RemoteHttpCacheClientImpl newClient = new RemoteHttpCacheClientImpl();
+        newClient.setHttpClient(new DefaultHttpClient(new ThreadSafeClientConnManager(registry)));
+        newClient.setHostKey(hostKey);
+        
+        remoteHttpCacheClient = newClient;
     }
 
     @Override
     protected HashRingDatastore newDatastore(String key) {
         try {
             final HashRingDatastore datastore = new MD5HashRingDatastore(key, clusterView, localDatastore);
-            datastore.setHttpClient(httpClientInstance);
-            datastore.setHostKey(hostKey);
+            datastore.setRemoteCacheClient(remoteHttpCacheClient);
             
             return datastore;
         } catch(NoSuchAlgorithmException algorithmException) {

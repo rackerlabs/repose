@@ -65,10 +65,10 @@ public class PowerAPICacheInserter {
 
         final String myKey = "mykey";
         final int finishTotal = 9700,
-                sleep1 = 100,
-                sleep2 = 75,
-                sleep3 = 125,
-                sleep4 = 150;
+                sleep1 = 500,
+                sleep2 = 750,
+                sleep3 = 1000,
+                sleep4 = 850;
 
         total = 0;
 

@@ -32,7 +32,7 @@ public class StandAloneDatastoreServer extends JettyTestingContext {
     @Override
     public final void buildServerContext(JettyServerBuilder serverBuilder) throws Exception {
         serverBuilder.addContextListener(PowerApiContextManager.class);
-        serverBuilder.addContextInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), "/home/zinic/installed/etc/powerapi");
+        serverBuilder.addContextInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), "/home/zinic/installed/etc/powerapi/dist-datastore");
         serverBuilder.addFilter(PowerFilter.class, "/*");
         serverBuilder.addFilter(DistributedDatastoreFilter.class, "/*");
         serverBuilder.addServlet(DummyServlet.class, "/*");

@@ -38,13 +38,23 @@ public class HashRingDatastoreTest {
             datastore = new HashRingDatastore("TEST", clusterView, null) {
 
                 @Override
+                protected String hashBytesToSTring(byte[] hash) {
+                    throw new UnsupportedOperationException("Not supported yet.");
+                }
+
+                @Override
+                protected byte[] stringToHashBytes(String hash) {
+                    throw new UnsupportedOperationException("Not supported yet.");
+                }
+                
+                @Override
                 protected BigInteger maxValue() {
                     return BigInteger.valueOf(Integer.MAX_VALUE);
                 }
 
                 @Override
                 protected byte[] hash(String key) {
-                    return null;
+                    throw new UnsupportedOperationException("Not supported yet.");
                 }
             };    
         }
