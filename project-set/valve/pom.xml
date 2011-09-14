@@ -59,6 +59,12 @@
         </dependency>
 
         <dependency>
+            <groupId>args4j</groupId>
+            <artifactId>args4j</artifactId>
+            <version>2.0.16</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>rate-limiting</artifactId>
             <version>${project.version}</version>
@@ -82,6 +88,7 @@
     </dependencies>
 
     <build>
+        <finalName>PowerApiServer</finalName>
         <plugins>
 
             <plugin>
@@ -100,7 +107,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.rackspace.cloud.valve.jetty.ProxyApp</mainClass>
+                                    <mainClass>com.rackspace.cloud.valve.server.ProxyApp</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>
