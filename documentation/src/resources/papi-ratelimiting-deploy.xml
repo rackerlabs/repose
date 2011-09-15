@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book [
+    <!-- product name is likely to change; parameterize full name and abbreviation -->
+    <!ENTITY PRODNAME "Power API">
+    <!ENTITY PRODABBREV "PAPI">
     <!-- Some useful entities borrowed from HTML -->
     <!ENTITY ndash  "&#x2013;">
     <!ENTITY mdash  "&#x2014;">
@@ -32,11 +35,11 @@
       xmlns:m="http://www.w3.org/1998/Math/MathML"
       xmlns:html="http://www.w3.org/1999/xhtml"
       xmlns:db="http://docbook.org/ns/docbook" >
-    <?rax pdf.url="../../papi-versioning-deploy.pdf"?>
-    <title>Rackspace Cloud Power API Rate Limiting Component Deployment Handbook</title>
+    <?rax pdf.url="../../papi-ratelimiting-deploy.pdf"?>
+    <title>&PRODNAME; Rate Limiting Component Deployment Handbook</title>
     <?rax status.bar.text="CONFIDENTIAL"?>
-    <?rax title.font.size="35px" subtitle.font.size="20px"?>
-    <titleabbrev>RAX Cloud PAPI Rate Limiting Deployment</titleabbrev>
+    <?rax title.font.size="35px" subtitle.font.size="16px"?>
+    <titleabbrev>&PRODABBREV; Rate Limiting Deployment</titleabbrev>
     <info>
         <author>
             <personname>
@@ -53,9 +56,9 @@
             <holder>Rackspace US, Inc.</holder>
         </copyright>
         <releaseinfo>API v0.9</releaseinfo>
-        <productname>Rackspace Cloud Power API</productname>
-        <pubdate>2011-06-15</pubdate>
-        <legalnotice role="rs-api">
+        <productname>&PRODNAME;</productname>
+        <pubdate>2011-08-19</pubdate>
+        <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
             </annotation>
@@ -65,21 +68,15 @@
                 their service to use the Rate Limiting component of the Rackspace Cloud Power
                 Application Program Interface (<abbrev>API</abbrev>). </para>
         </abstract>
-        <cover>
-            <para>this is a placeholder for the front cover</para>
-        </cover>
-        <cover>
-            <para>this is a placeholder for the back cover</para>
-        </cover>
     </info>
     <chapter xml:id="Overview-d1e85">
         <title>Overview</title>
         <section xml:id="Purpose-d1e90">
             <title>Purpose</title>
             <para> 
-                The purpose of this handbook is to facilitate deployment of Power API's rate
+                The purpose of this handbook is to facilitate deployment of &PRODNAME;'s rate
                 limiting component. This handbook is not a tutorial. It provides basic information
-                that will help you understand and deploy this Power API component, but you must
+                that will help you understand and deploy this &PRODNAME; component, but you must
                 adapt this information to suit your own configuration. 
             </para>
             <para> 
@@ -94,8 +91,8 @@
                 therefore only provided by the origin service. 
             </para>
             <para>
-                This handbook is focused on one Power API component.
-                Other Power API components are documented in companion handbooks.
+                This handbook is focused on one &PRODNAME; component.
+                Other &PRODNAME; components are documented in companion handbooks.
             </para>
         </section>
         <section xml:id="Document_Change_History-d1e102">
@@ -123,24 +120,7 @@
                 </tbody>
             </informaltable>
         </section>
-        <section security="writeronly" xml:id="Additional_Resources_REPLACE_WITH_PAPI_CONTENT_-d1e147">
-            <title>Additional Resources (REPLACE WITH PAPI CONTENT)</title>
-            <annotation>
-                <remark>"Additional Resources" is used in other API doc to suggest places to go for
-                    help if this document isn't helping enough: contact Cloud Support, check the
-                    Knowledge Center, visit the retail site, blogs, twitter, wherever people might
-                    be offering help. We don't have any sources like that to offer for Power API
-                    support, so this text is included from Load Balancers as an example &amp;
-                    reminder; build this section correctly when we have something useful to offer." </remark>
-            </annotation>
-            <para>You can download the most current version of this document from the Rackspace Cloud website at <link xlink:href="http://docs.rackspacecloud.com/loadbalancers/api/clb-devguide-latest.pdf">
-                http://docs.rackspacecloud.com/loadbalancers/api/clb-devguide-latest.pdf</link>. </para>
-            <para>For more details about the Rackspace Cloud Load Balancer service, refer to <link xlink:href="http://www.rackspace.com/cloud/cloud_hosting_products/loadbalancers/">http://www.rackspace.com/cloud/cloud_hosting_products/loadbalancers/</link>.
-                This site also offers links to Rackspace's official support channels, including
-                knowledge base articles, forums, phone, chat, and email. </para>
-            <para>You can also follow updates and announcements via twitter at <link xlink:href="http://www.twitter.com/Rackspace">http://www.twitter.com/Rackspace</link>.
-            </para>
-        </section>
+        <xi:include href="chapters/available-doc.xml"/>
     </chapter>
     <chapter xml:id="Msg_Requirements-d1e172">
         <title>HTTP Message Requirements</title>
@@ -256,17 +236,18 @@
                                 specifies <code>ALL</code> for the <code>http-methods</code>
                                 attribute, this informs the rate limiting component that rate
                                 limiting should occur on all HTTP requests. </entry>
-                            <entry>GET, DELETE, POST, PUT, HEAD, TRACE, OPTIONS, CONNECT,
-                                ALL</entry>
+                            <entry><code>GET</code>, <code>DELETE</code>, <code>POST</code>, <code>PUT</code>, <code>HEAD</code>, <code>TRACE</code>, <code>OPTIONS</code>, <code>CONNECT</code>,
+                            <code>ALL</code></entry>
                         </row>
                         <row>
                             <entry><code>unit</code></entry>
                             <entry>Every limit must specify a time unit specified by the
                                     <code>unit</code> attribute. The valid values for this attribute
-                                are also enumerated in the OpenStack limits XML schema XSD file at
-                                <link xlink:href="http://docs.openstack.org/common/api/v1.0">http://docs.openstack.org/common/api/v1.0</link>.
-                            </entry>
-                            <entry>SECOND, MINUTE, HOUR, DAY</entry>
+                                are also enumerated in the OpenStack limits XML Schema Definition
+                                (XSD) at <link
+                                    xlink:href="http://docs.openstack.org/common/api/v1.0"
+                                    >http://docs.openstack.org/common/api/v1.0</link>. </entry>
+                            <entry><code>SECOND</code>, <code>MINUTE</code>, <code>HOUR</code>, <code>DAY</code></entry>
                         </row>
                         <row>
                             <entry><code>value</code></entry>
@@ -372,17 +353,17 @@
         </section>
         <section xml:id="Single_Node-d1e447">
             <title>Single-Node Installation</title>
-               <para> The rate limiting component supports a single-node Power API installation in
-                which all cache operations are performed locally. Power API's default local
+            <para> The rate limiting component supports a single-node &PRODNAME; installation in
+                which all cache operations are performed locally. &PRODNAME;'s default local
                 datastore is used when no other nodes are identified in the system model as hosting
                 a rate limiting component. </para>
         </section>
             <section xml:id="Multi-Node-d1e470">
                 <title>Multi-Node Installation</title>
-                <para> The rate limiting component supports multiple-node Power API installations
-                via Power API's datastore service. If a clustered datastore is available, the
+                <para> The rate limiting component supports multiple-node &PRODNAME; installations
+                    via &PRODNAME;'s datastore service. If a clustered datastore is available, the
                 component will make use of it. The rate limiting component only currently supports
-                discovery of Power API's default hash-ring clustered datastore. </para>
+                discovery of &PRODNAME;'s default hash-ring clustered datastore. </para>
             </section>
     </chapter>
     <chapter xml:id="Requesting_Limits-d1e531">
@@ -512,4 +493,5 @@ Retry-After: Thu, 30 Jun 2011 20:24:39 GMT
                 </tgroup>
             </table>
     </chapter>
+    <xi:include href="chapters/afterword.xml"/>
 </book>
