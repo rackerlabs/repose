@@ -191,8 +191,7 @@
                     requirements of the authentication service, so you should refer to the
                     documentation describing the authentication service that you use. For example, the
                     Rackspace Cloud Authentication Service is documented at
-                    <link xlink:href="http://docs.rackspace.com/api/">
-                        http://docs.rackspace.com/api/</link>.
+                    <link xlink:href="http://docs.rackspace.com/auth/api/v1.1/auth-client-devguide-latest.pdf">http://docs.rackspace.com/auth/api/v1.1/auth-client-devguide-latest.pdf/</link>.
                 </para>
                 <para> </para>
             </callout>

@@ -18,10 +18,9 @@
     </para>
     <section xml:id="Feedback-d1e992">
         <title>Feedback</title>
-        <para>
-            If find errors in this document or have suggestions about how to improve it, please let us know.
-            You can contact the maintainer directly at "john dot hopper at rackspace dot com". 
-        </para>
+        <para> If you find errors in this document or have suggestions about how to improve it,
+            please let us know. You can contact the maintainer directly at "john dot hopper at
+            rackspace dot com". </para>
     </section> 
     <section xml:id="References-d1e994">
         <title>References</title>
@@ -117,6 +116,26 @@
                 <abstract>
                     <para>
                         This namespace is reserved for requests that do not vary among OpenStack APIs. Versioning, rate limiting, and extensions are examples of such requests.
+                    </para>
+                </abstract>
+            </biblioentry>
+            <biblioentry xml:id="RAXCAUTH">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    Rackspace Hosting
+                </orgname>
+                <title>Rackspace Cloud Authentication Service Client API Developer Guide</title>
+                <releaseinfo><link
+                    xlink:href="http://docs.rackspace.com/auth/api/v1.1/auth-client-devguide-latest.pdf">http://docs.rackspace.com/auth/api/v1.1/auth-client-devguide-latest.pdf</link></releaseinfo>
+                <abstract>
+                    <para>
+                        This is an example of documentation describing a specific authentication service; consult the equivalent documentation describing the authentication service you use.
                     </para>
                 </abstract>
             </biblioentry>
