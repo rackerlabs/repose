@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.datastore.hash;
 
-import com.rackspace.papi.service.datastore.cluster.ClusterView;
 import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -16,7 +16,7 @@ public class MD5HashRingDatastore extends HashRingDatastore {
         0x7F, 0x7F, 0x7F, 0x7F,};
     private final MessageDigest digestAlgorithm;
 
-    public MD5HashRingDatastore(String datastorePrefix, ClusterView clusterView, Datastore localDatastore) throws NoSuchAlgorithmException {
+    public MD5HashRingDatastore(String datastorePrefix, MutableClusterView clusterView, Datastore localDatastore) throws NoSuchAlgorithmException {
         super(datastorePrefix, clusterView, localDatastore);
 
         digestAlgorithm = MessageDigest.getInstance("MD5");

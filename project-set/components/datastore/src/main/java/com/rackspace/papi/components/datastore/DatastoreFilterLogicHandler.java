@@ -124,7 +124,6 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
             } catch (Exception ex) {
                 LOG.error(ex.getMessage(), ex);
 
-                director.getResponseWriter().write(ex.getMessage() == null ? "" : ex.getMessage());
                 director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
                 director.setFilterAction(FilterAction.RETURN);
             }
@@ -140,7 +139,7 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
 
             final InetSocketAddress localInetSocketAddress = new InetSocketAddress(newLocalAddr, newLocalPort);
 
-            if (!localInetSocketAddress.equals(clusterView.local())) {
+            if (!localInetSocketAddress.equals(clusterView.localMember())) {
                 clusterView.updateLocal(localInetSocketAddress);
             }
         }

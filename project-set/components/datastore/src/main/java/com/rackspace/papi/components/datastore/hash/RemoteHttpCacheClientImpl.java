@@ -16,6 +16,10 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ByteArrayEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +27,19 @@ import org.slf4j.LoggerFactory;
 public class RemoteHttpCacheClientImpl implements RemoteCacheClient {
 
     private static final Logger LOG = LoggerFactory.getLogger(RemoteHttpCacheClientImpl.class);
+    private static final ThreadLocal<HttpClient> threadLocalHttpClient = new ThreadLocal<HttpClient>() {
+
+        @Override
+        protected HttpClient initialValue() {
+            final HttpParams httpParams = new BasicHttpParams();
+            HttpConnectionParams.setConnectionTimeout(httpParams, 500);
+            HttpConnectionParams.setSoTimeout(httpParams, 2000);
+            
+            final HttpClient newClient = new DefaultHttpClient(httpParams);
+
+            return newClient;
+        }
+    };
     
     private HttpClient httpClient;
     private String hostKey;
@@ -47,13 +64,14 @@ public class RemoteHttpCacheClientImpl implements RemoteCacheClient {
     public StoredElement get(String key, InetSocketAddress remoteEndpoint) throws IOException {
         final String targetUrl = urlFor(remoteEndpoint, key);
 
+        final HttpClient client = threadLocalHttpClient.get();
         final HttpGet cacheObjectGet = new HttpGet(targetUrl);
         cacheObjectGet.setHeader(DatastoreRequestHeaders.DATASTORE_HOST_KEY, hostKey);
 
         HttpEntity responseEnttiy = null;
 
         try {
-            final HttpResponse response = httpClient.execute(cacheObjectGet);
+            final HttpResponse response = client.execute(cacheObjectGet);
             final int statusCode = response.getStatusLine().getStatusCode();
 
             responseEnttiy = response.getEntity();

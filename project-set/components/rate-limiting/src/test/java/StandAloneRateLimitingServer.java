@@ -32,7 +32,7 @@ public class StandAloneRateLimitingServer extends JettyTestingContext {
     @Override
     public final void buildServerContext(JettyServerBuilder serverBuilder) throws Exception {
         serverBuilder.addContextListener(PowerApiContextManager.class);
-        serverBuilder.addContextInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), "/home/zinic/installed/etc/powerapi");
+        serverBuilder.addContextInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), "/home/zinic/installed/etc/powerapi/rate-limiting");
         serverBuilder.addFilter(PowerFilter.class, "/*");
         serverBuilder.addFilter(DistributedDatastoreFilter.class, "/*");
         serverBuilder.addFilter(RateLimitingFilter.class, "/*");

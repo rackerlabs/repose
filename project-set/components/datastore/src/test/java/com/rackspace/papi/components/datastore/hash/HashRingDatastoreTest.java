@@ -63,7 +63,7 @@ public class HashRingDatastoreTest {
         public void shouldReturnLocalhostWhenNoClusterMemebersArePresent() {
             clusterView.updateMembers(new InetSocketAddress[0]);
             
-            final InetSocketAddress expectedAddress = clusterView.local();
+            final InetSocketAddress expectedAddress = clusterView.localMember();
             
             assertEquals(datastore.getTarget(BigInteger.valueOf((long) Integer.MAX_VALUE / 2).toByteArray()), expectedAddress);
         }
