@@ -72,27 +72,6 @@ public abstract class HashRingDatastore extends CoalescentDatastoreWrapper imple
         return get(encodedHashString, stringToHashBytes(encodedHashString));
     }
 
-    public StoredElement get(String name, byte[] id) throws DatastoreOperationException {
-        InetSocketAddress target = getTarget(id);
-
-        while (!target.equals(clusterView.localMember())) {
-            LOG.debug(clusterView.localMember().toString() + ":: Routing datastore get request for, \"" + name + "\" to: " + target.toString());
-
-            try {
-                return remoteCache.get(name, target);
-            } catch (IOException ex) {
-                LOG.info(clusterView.localMember().toString() + ":: Dropping member: " + target.getAddress().toString() + ":" + target.getPort() + " - Reason: " + ex.getClass().getName() + ": " + ex.getMessage());
-                
-                clusterView.memberDropoped(target);
-                target = getTarget(id);
-
-//                throw new DatastoreOperationException("Unable to communicate with member " + target.getAddress().toString() + ":" + target.getPort(), ex);
-            }
-        }
-
-        return super.get(name);
-    }
-
     @Override
     public void put(String key, byte[] value) throws DatastoreOperationException {
         put(key, value, 3, TimeUnit.MINUTES);
@@ -115,22 +94,43 @@ public abstract class HashRingDatastore extends CoalescentDatastoreWrapper imple
         put(encodedHashString, stringToHashBytes(encodedHashString), value, ttl, timeUnit);
     }
 
-    public void put(String name, byte[] id, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
-        InetSocketAddress target = getTarget(id);
+    private void dropMember(InetSocketAddress member, RemoteConnectionException ex) {
+        LOG.warn(clusterView.localMember().toString()
+                + ":: Dropping member: "
+                + member.getAddress().toString() 
+                + ":" + member.getPort() 
+                + " - Reason: " + ex.getCause().getClass().getName() + ": " + ex.getCause().getMessage());
 
-        while (!target.equals(clusterView.localMember())) {
+        clusterView.memberDropoped(member);
+    }
+
+    private StoredElement get(String name, byte[] id) throws DatastoreOperationException {
+        InetSocketAddress target;
+
+        while (!(target = getTarget(id)).equals(clusterView.localMember())) {
+            LOG.debug(clusterView.localMember().toString() + ":: Routing datastore get request for, \"" + name + "\" to: " + target.toString());
+
+            try {
+                return remoteCache.get(name, target);
+            } catch (RemoteConnectionException rce) {
+                dropMember(target, rce);
+            }
+        }
+
+        return super.get(name);
+    }
+
+    private void put(String name, byte[] id, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
+        InetSocketAddress target;
+
+        while (!(target = getTarget(id)).equals(clusterView.localMember())) {
             LOG.debug(clusterView.localMember().toString() + ":: Routing datastore get request for, \"" + name + "\" to: " + target.toString());
 
             try {
                 remoteCache.put(name, value, ttl, timeUnit, target);
                 return;
-            } catch (IOException ex) {
-                LOG.info(clusterView.localMember().toString() + ":: Dropping member: " + target.getAddress().toString() + ":" + target.getPort() + " - Reason: " + ex.getClass().getName() + ": " + ex.getMessage());
-                
-                clusterView.memberDropoped(target);
-                target = getTarget(id);
-
-//                throw new DatastoreOperationException("Unable to communicate with member " + target.getAddress().toString() + ":" + target.getPort(), ex);
+            } catch (RemoteConnectionException rce) {
+                dropMember(target, rce);
             }
         }
 

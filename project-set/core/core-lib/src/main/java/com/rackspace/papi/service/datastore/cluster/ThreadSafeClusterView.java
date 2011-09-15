@@ -1,91 +1,58 @@
 package com.rackspace.papi.service.datastore.cluster;
 
-import com.rackspace.papi.service.datastore.cluster.member.DroppedMember;
+import com.rackspace.papi.service.datastore.cluster.member.ClusterMember;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
 
 public class ThreadSafeClusterView implements MutableClusterView {
 
-    private static final Comparator<InetSocketAddress> INET_SOCKET_ADDRESS_COMPARATOR = new Comparator<InetSocketAddress>() {
+    private static final Comparator<ClusterMember> CLUSTER_MEMBER_COMPARATOR = new Comparator<ClusterMember>() {
 
         @Override
-        public int compare(InetSocketAddress o1, InetSocketAddress o2) {
-            final BigInteger o1Address = new BigInteger(o1.getAddress().getAddress());
-            final BigInteger o2Address = new BigInteger(o2.getAddress().getAddress());
+        public int compare(ClusterMember o1, ClusterMember o2) {
+            final BigInteger o1Address = new BigInteger(o1.getMemberAddress().getAddress().getAddress());
+            final BigInteger o2Address = new BigInteger(o2.getMemberAddress().getAddress().getAddress());
 
             return o1Address.compareTo(o2Address);
         }
     };
     
     private static final int DEFAULT_REST_DURATION_IN_MILISECONDS = 25000;
-    
-    private final Set<DroppedMember> droppedMembers;
-    private final List<InetSocketAddress> clusterMembers;
+    private final List<ClusterMember> clusterMembers;
     private InetSocketAddress localAddress;
 
     public ThreadSafeClusterView() {
-        clusterMembers = new LinkedList<InetSocketAddress>();
-        droppedMembers = new HashSet<DroppedMember>();
+        clusterMembers = new LinkedList<ClusterMember>();
     }
 
-    private void normalizeClusterMembers() {
+    private static void normalizeClusterMembers(List<ClusterMember> members) {
         // Normalize the member order
-        Collections.sort(clusterMembers, INET_SOCKET_ADDRESS_COMPARATOR);
-    }
-
-    private void updateDroppedMembers() {
-        final Iterator<DroppedMember> droppedMemberIterator = droppedMembers.iterator();
-        final long now = System.currentTimeMillis();
-
-        while (droppedMemberIterator.hasNext()) {
-            final DroppedMember droppedMember = droppedMemberIterator.next();
-
-            if (droppedMember.shouldRetry(now)) {
-                droppedMemberIterator.remove();
-                clusterMembers.add(droppedMember.getMemberAddress());
-            }
-        }
-
-        normalizeClusterMembers();
-    }
-
-    private boolean hasDropopedMember(InetSocketAddress address) {
-        for (DroppedMember member : droppedMembers) {
-            if (member.getMemberAddress().equals(address)) {
-                return true;
-            }
-        }
-
-        return false;
+        Collections.sort(members, CLUSTER_MEMBER_COMPARATOR);
     }
 
     @Override
     public synchronized void memberDropoped(InetSocketAddress address) {
-        if (!clusterMembers.remove(address)) {
-            if (!hasDropopedMember(address)) {
-                throw new IllegalArgumentException("Member " + address.toString() + " is not part of this cluster view.");
+        for (ClusterMember member : clusterMembers) {
+            if (member.getMemberAddress().equals(address)) {
+                member.setOffline();
+                break;
             }
-        } else {
-            droppedMembers.add(new DroppedMember(address, DEFAULT_REST_DURATION_IN_MILISECONDS));
         }
     }
 
     @Override
     public synchronized void updateMembers(InetSocketAddress[] view) {
-        droppedMembers.clear();
         clusterMembers.clear();
 
-        clusterMembers.addAll(Arrays.asList(view));
+        for (InetSocketAddress memberAddress : view) {
+            clusterMembers.add(new ClusterMember(memberAddress, DEFAULT_REST_DURATION_IN_MILISECONDS));
+        }
 
-        normalizeClusterMembers();
+        normalizeClusterMembers(clusterMembers);
     }
 
     @Override
@@ -95,9 +62,15 @@ public class ThreadSafeClusterView implements MutableClusterView {
 
     @Override
     public synchronized InetSocketAddress[] members() {
-        updateDroppedMembers();
+        final LinkedList<InetSocketAddress> activeClusterMembers = new LinkedList<InetSocketAddress>();
 
-        return clusterMembers.toArray(new InetSocketAddress[clusterMembers.size()]);
+        for (ClusterMember member : clusterMembers) {
+            if (member.isOnline() || member.shouldRetry()) {
+                activeClusterMembers.add(member.getMemberAddress());
+            }
+        }
+
+        return activeClusterMembers.toArray(new InetSocketAddress[activeClusterMembers.size()]);
     }
 
     @Override
