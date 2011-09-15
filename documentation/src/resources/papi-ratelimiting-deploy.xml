@@ -236,17 +236,18 @@
                                 specifies <code>ALL</code> for the <code>http-methods</code>
                                 attribute, this informs the rate limiting component that rate
                                 limiting should occur on all HTTP requests. </entry>
-                            <entry>GET, DELETE, POST, PUT, HEAD, TRACE, OPTIONS, CONNECT,
-                                ALL</entry>
+                            <entry><code>GET</code>, <code>DELETE</code>, <code>POST</code>, <code>PUT</code>, <code>HEAD</code>, <code>TRACE</code>, <code>OPTIONS</code>, <code>CONNECT</code>,
+                            <code>ALL</code></entry>
                         </row>
                         <row>
                             <entry><code>unit</code></entry>
                             <entry>Every limit must specify a time unit specified by the
                                     <code>unit</code> attribute. The valid values for this attribute
-                                are also enumerated in the OpenStack limits XML schema XSD file at
-                                <link xlink:href="http://docs.openstack.org/common/api/v1.0">http://docs.openstack.org/common/api/v1.0</link>.
-                            </entry>
-                            <entry>SECOND, MINUTE, HOUR, DAY</entry>
+                                are also enumerated in the OpenStack limits XML Schema Definition
+                                (XSD) at <link
+                                    xlink:href="http://docs.openstack.org/common/api/v1.0"
+                                    >http://docs.openstack.org/common/api/v1.0</link>. </entry>
+                            <entry><code>SECOND</code>, <code>MINUTE</code>, <code>HOUR</code>, <code>DAY</code></entry>
                         </row>
                         <row>
                             <entry><code>value</code></entry>

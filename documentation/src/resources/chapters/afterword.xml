@@ -31,6 +31,21 @@
         </para>
         <bibliography>
             <title>Annotated Bibliography</title>
+            <biblioentry xml:id="RFC2616">
+                <author>
+                    <personname>
+                        <firstname>R.</firstname>
+                        <surname>Fielding et al</surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    Internet Engineering Task Force, Network Working Group
+                </orgname>
+                <title>Hypertext Transfer Protocol -- HTTP/1.1: Status Code Definitions</title>
+                <releaseinfo><link
+                    xlink:href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html">http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html</link></releaseinfo>
+            </biblioentry>
             <biblioentry xml:id="JEE6">
                 <author>
                     <personname>
@@ -84,6 +99,26 @@
                     &PRODNAME;'s Authentication component complies with this specification.
                 </para>
             </abstract>
+            </biblioentry>
+            <biblioentry xml:id="OSXSD">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    OpenStack
+                </orgname>
+                <title>XML Schema Definition (XSD)</title>
+                <releaseinfo><link
+                    xlink:href="http://docs.openstack.org/common/api/v1.0">http://docs.openstack.org/common/api/v1.0</link></releaseinfo>
+                <abstract>
+                    <para>
+                        This namespace is reserved for requests that do not vary among OpenStack APIs. Versioning, rate limiting, and extensions are examples of such requests.
+                    </para>
+                </abstract>
             </biblioentry>
         </bibliography>  
     </section>
