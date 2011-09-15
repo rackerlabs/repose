@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book [
+    <!-- product name is likely to change; parameterize full name and abbreviation -->
+    <!ENTITY PRODNAME "Power API">
+    <!ENTITY PRODABBREV "PAPI">
     <!-- Some useful entities borrowed from HTML -->
     <!ENTITY ndash  "&#x2013;">
     <!ENTITY mdash  "&#x2014;">
@@ -33,10 +36,10 @@
       xmlns:html="http://www.w3.org/1999/xhtml"
       xmlns:db="http://docbook.org/ns/docbook" >
     <?rax pdf.url="../../papi-versioning-deploy.pdf"?>
-    <title>Rackspace Cloud Power API Versioning Component Deployment Handbook</title>
+    <title>&PRODNAME; Versioning Component Deployment Handbook</title>
     <?rax status.bar.text="CONFIDENTIAL"?>
-    <?rax title.font.size="35px" subtitle.font.size="20px"?>
-    <titleabbrev>RAX Cloud PAPI Versioning Deployment</titleabbrev>
+    <?rax title.font.size="35px" subtitle.font.size="16px"?>
+    <titleabbrev>&PRODABBREV; Versioning Deployment</titleabbrev>
     <info>
         <author>
             <personname>
@@ -53,9 +56,9 @@
             <holder>Rackspace US, Inc.</holder>
         </copyright>
         <releaseinfo>API v0.9</releaseinfo>
-        <productname>Rackspace Cloud Power API</productname>
-        <pubdate>2011-06-15</pubdate>
-        <legalnotice role="rs-api">
+        <productname>&PRODNAME;</productname>
+        <pubdate>2011-08-19</pubdate>
+        <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
             </annotation>
@@ -65,21 +68,15 @@
                 their service to use the Versioning component of the Rackspace Cloud Power
                 Application Program Interface (<abbrev>API</abbrev>). </para>
         </abstract>
-        <cover>
-            <para>this is a placeholder for the front cover</para>
-        </cover>
-        <cover>
-            <para>this is a placeholder for the back cover</para>
-        </cover>
     </info>
     <chapter xml:id="Overview-d1e85">
         <title>Overview</title>
         <section xml:id="Purpose-d1e90">
             <title>Purpose</title>
             <para>
-                The purpose of this handbook is to facilitate deployment of Power API's versioning component. 
+                The purpose of this handbook is to facilitate deployment of &PRODNAME;'s versioning component. 
                 This handbook is not a tutorial.
-                It provides basic information that will help you understand and deploy this Power API component, but you must adapt this information to suit your own configuration.
+                It provides basic information that will help you understand and deploy this &PRODNAME; component, but you must adapt this information to suit your own configuration.
             </para>
             <para>
                 Versioning enables ReST services to roll out updates and changes without causing end-client breakage.
@@ -88,8 +85,8 @@
                 each version in the catalog is marked with a status, such as <code>CURRENT</code> or <code>DEPRECATED</code>, which the client can use for guidance in deciding which version to use.
             </para>
             <para>
-                This handbook is focused on one Power API component.
-                Other Power API components are documented in companion handbooks.
+                This handbook is focused on one &PRODNAME; component.
+                Other &PRODNAME; components are documented in companion handbooks.
             </para>
         </section>
         <section xml:id="Document_Change_History-d1e102">
@@ -117,24 +114,7 @@
                 </tbody>
             </informaltable>
         </section>
-        <section security="writeronly" xml:id="Additional_Resources_REPLACE_WITH_PAPI_CONTENT_-d1e147">
-            <title>Additional Resources (REPLACE WITH PAPI CONTENT)</title>
-            <annotation>
-                <remark>"Additional Resources" is used in other API doc to suggest places to go for
-                    help if this document isn't helping enough: contact Cloud Support, check the
-                    Knowledge Center, visit the retail site, blogs, twitter, wherever people might
-                    be offering help. We don't have any sources like that to offer for Power API
-                    support, so this text is included from Load Balancers as an example &amp;
-                    reminder; build this section correctly when we have something useful to offer." </remark>
-            </annotation>
-            <para>You can download the most current version of this document from the Rackspace Cloud website at <link xlink:href="http://docs.rackspacecloud.com/loadbalancers/api/clb-devguide-latest.pdf">
-                http://docs.rackspacecloud.com/loadbalancers/api/clb-devguide-latest.pdf</link>. </para>
-            <para>For more details about the Rackspace Cloud Load Balancer service, refer to <link xlink:href="http://www.rackspace.com/cloud/cloud_hosting_products/loadbalancers/">http://www.rackspace.com/cloud/cloud_hosting_products/loadbalancers/</link>.
-                This site also offers links to Rackspace's official support channels, including
-                knowledge base articles, forums, phone, chat, and email. </para>
-            <para>You can also follow updates and announcements via twitter at <link xlink:href="http://www.twitter.com/Rackspace">http://www.twitter.com/Rackspace</link>.
-            </para>
-        </section>
+        <xi:include href="chapters/available-doc.xml"/>
     </chapter>
     <chapter xml:id="Msg_Enhancement-d1e172">
         <title>Message Enhancement and Routing</title>
@@ -230,7 +210,7 @@
     </chapter>
     <chapter xml:id="Handling_Requests-d1e431">
         <title>Handling Requests</title>
-        <para> Versioning in Power API operates on requests in two ways: 
+        <para> Versioning in &PRODNAME; operates on requests in two ways: 
             <itemizedlist
                 spacing="compact">
                 <listitem>
@@ -404,4 +384,5 @@ Accept: application/xml
                     </programlisting>
         </example>
     </chapter>
+    <xi:include href="chapters/afterword.xml"/>
 </book>
