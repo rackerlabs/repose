@@ -79,7 +79,7 @@
                             <calloutsExtension>1</calloutsExtension>
                             <textinsertExtension>1</textinsertExtension>
                             <!-- use this .XML as the source for the books to be generated as .PDF & .HTML -->
-                            <includes>papi-rootwar-deploy.xml,papi-versioning-deploy.xml,papi-ratelimiting-deploy.xml</includes>
+                            <includes>papi-rootwar-deploy.xml,papi-versioning-deploy.xml,papi-ratelimiting-deploy.xml,papi-authn-deploy.xml</includes>
                             <postProcess>
                                 <copy todir="target/docbkx/webhelp/papi-rootwar-deploy/content/figures">
                                     <fileset dir="src/resources/figures">
