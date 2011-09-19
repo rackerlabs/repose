@@ -399,13 +399,10 @@
             </section>
     </chapter>
     <chapter xml:id="Requesting_Limits-d1e531">
-        <title>Requesting Active Limits</title>
-        <para>
-            A client may request from the rate limiting component their currently active rate and or absolute limits.
-        </para>
-        <para>
-            Valid accept types are:
-            <itemizedlist spacing="compact">
+        <title>Requesting Current Limits</title>
+        <para> A client may request from the rate limiting component their current limits, which may
+            include absolute limits. </para>
+        <para> Valid content MIME types are: <itemizedlist spacing="compact">
                 <listitem>
                     <para>application/xml</para>
                 </listitem>
