@@ -16,6 +16,8 @@
  */
 package com.rackspace.cloud.valve.http.proxy.httpclient;
 
+import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
+import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import com.rackspace.cloud.valve.http.proxy.ProxyService;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.OptionsMethod;
@@ -59,45 +61,100 @@ public class HttpClientProxyService implements ProxyService {
     @Override
     public int proxyRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String target = proxiedHost.getHostURL() + request.getRequestURI();
-        final HttpMethod method = newMethod(request.getMethod(), target);
+        final RequestProcessor processor = new RequestProcessor(request);
+        final ProcessableRequest method = newMethod(request.getMethod(), target);
 
         if (method != null) {
             //Replicate the meaningful headers           
-            setProxyRequestHeaders(request, method);
+            HttpMethod processedMethod = method.process(processor);
             
-            return executeProxyRequest(method, request, response);
+            setProxyRequestHeaders(request, processedMethod);
+            
+            return executeProxyRequest(processedMethod, request, response);
         }
 
         //Something exploded; return a status code that doesn't exist
         return -1;
     }
 
-    private HttpMethod newMethod(String method, String uri) {
+    private ProcessableRequest newMethod(String method, String uri) {
         if (method.equalsIgnoreCase("GET")) {
-            return new GetMethod(uri);
+            return new HttpMethodBaseWrapper(new GetMethod(uri));
         }
 
         if (method.equalsIgnoreCase("PUT")) {
-            return new PutMethod(uri);
+            return new EntityEnclosingMethodWrapper(new PutMethod(uri));
         }
 
         if (method.equalsIgnoreCase("POST")) {
-            return new PostMethod(uri);
+            return new EntityEnclosingMethodWrapper(new PostMethod(uri));
         }
 
         if (method.equalsIgnoreCase("DELETE")) {
-            return new DeleteMethod(uri);
+            return new HttpMethodBaseWrapper(new DeleteMethod(uri));
         }
 
         if (method.equalsIgnoreCase("HEAD")) {
-            return new HeadMethod(uri);
+            return new HttpMethodBaseWrapper(new HeadMethod(uri));
         }
 
         if (method.equalsIgnoreCase("OPTIONS")) {
-            return new OptionsMethod(uri);
+            return new HttpMethodBaseWrapper(new OptionsMethod(uri));
         }
 
         return null;
+    }
+    
+    private static interface ProcessableRequest {
+      public HttpMethod process(RequestProcessor processor) throws IOException;
+    }
+    
+    /**
+     * Entity Enclosing Requests may send a request body.
+     */
+    private static class EntityEnclosingMethodWrapper implements ProcessableRequest {
+      private final EntityEnclosingMethod method;
+      
+      public EntityEnclosingMethodWrapper(EntityEnclosingMethod method) {
+        this.method = method;
+      }
+
+      @Override
+      public HttpMethod process(RequestProcessor processor) throws IOException {
+        return processor.process(method);
+      }
+    }
+    
+    private static class HttpMethodBaseWrapper implements ProcessableRequest {
+      private final HttpMethodBase method;
+
+      public HttpMethodBaseWrapper(HttpMethodBase method) {
+        this.method = method;
+      }
+      
+      @Override
+      public HttpMethod process(RequestProcessor processor) throws IOException {
+        return processor.process(method);
+      }
+      
+    }
+    
+    private static class RequestProcessor {
+      private final HttpServletRequest request;
+      
+      public RequestProcessor(HttpServletRequest request) {
+        this.request = request;
+      }
+      
+      public HttpMethod process(HttpMethodBase method) {
+        return method;
+        
+      }
+      
+      public HttpMethod process(EntityEnclosingMethod method) throws IOException {
+        method.setRequestEntity(new InputStreamRequestEntity(request.getInputStream()));
+        return method;
+      }
     }
 
     private int executeProxyRequest(HttpMethod httpMethodProxyRequest, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
