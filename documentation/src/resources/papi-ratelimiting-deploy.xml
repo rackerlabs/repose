@@ -79,16 +79,19 @@
                 that will help you understand and deploy this &PRODNAME; component, but you must
                 adapt this information to suit your own configuration. 
             </para>
-            <para> 
-                The rate limiting service filter protects the origin service from being bombarded
-                by client requests. It accomplishes this by specifying limits for the number of
-                times a given client may request a given resource. This provides essential
-                protection to any public-facing API. 
-            </para>
+            <para> The origin service is the source of all data processed by &PRODNAME;. For example, if
+                &PRODNAME; is used to provide rate limiting to a load-balancing service, then the
+                load-balancing service is &PRODNAME;'s origin service.
+             </para>   
+                <para>The rate limiting service filter
+                protects the origin service from being bombarded by client requests. It accomplishes
+                this by specifying limits for the number of times a client may request a given
+                resource. This provides essential protection to any public-facing API. </para>
             <para>
                 A client's current limits may include the
                 client's absolute limits. Absolute limits are specific to a service domain and are
                 therefore only provided by the origin service. 
+                However, &PRODABBREV; will integrate absolute and current limits as they apply to a client.
             </para>
             <para>
                 This handbook is focused on one &PRODNAME; component.
