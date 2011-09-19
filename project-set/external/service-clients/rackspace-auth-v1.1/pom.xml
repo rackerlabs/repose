@@ -5,12 +5,12 @@
     <parent>
         <groupId>com.rackspace.papi.external.clients</groupId>
         <artifactId>service-client-support</artifactId>
-        <version>0.9</version>
+        <version>0.9.1-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.cloud.services.clients</groupId>
     <artifactId>rackspace-auth-v1.1</artifactId>
-    <version>0.9</version>
+    <version>0.9.1-SNAPSHOT</version>
 
     <name>Power API Service Client - Rackspace Auth v1.1</name>
     
