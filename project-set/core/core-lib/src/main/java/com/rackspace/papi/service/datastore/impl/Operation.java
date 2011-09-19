@@ -6,7 +6,7 @@ public interface Operation {
 
     public enum Type {
 
-        PUT, GET, DELETE
+        PUT, PUT_BY_HASH, GET, GET_BY_HASH, DELETE
     }
 
     OperationFuture getFuture();

@@ -12,6 +12,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ManagedRateLimitCache implements RateLimitCache {
 
@@ -44,7 +46,7 @@ public class ManagedRateLimitCache implements RateLimitCache {
             currentLimit = new CachedRateLimit(rateCfg.getUriRegex());
             userRateLimitMap.put(limitKey, currentLimit);
         }
-
+        
         final boolean hasRequests = currentLimit.amount(method) < rateCfg.getValue();
 
         if (hasRequests) {

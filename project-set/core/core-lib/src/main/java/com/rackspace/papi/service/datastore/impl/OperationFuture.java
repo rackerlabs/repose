@@ -5,16 +5,22 @@ import com.rackspace.papi.service.datastore.StoredElement;
 public class OperationFuture {
 
     private StoredElement element;
+    private Exception exception;
     private boolean updated;
 
     public OperationFuture() {
         element = null;
         updated = false;
+        exception = null;
+    }
+
+    public synchronized void throwException(Exception ex) {
+        notifyAll();
     }
 
     public synchronized void update() {
         updated = true;
-        
+
         notifyAll();
     }
 
@@ -24,15 +30,17 @@ public class OperationFuture {
         update();
     }
 
-    public synchronized void join() throws InterruptedException {
+    public synchronized void join() throws Exception {
         while (!updated) {
             wait();
+
+            if (exception != null) {
+                throw exception;
+            }
         }
     }
 
-    public StoredElement get() throws InterruptedException {
-        join();
-
+    public StoredElement get() {
         return element;
     }
 }
