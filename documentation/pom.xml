@@ -74,7 +74,7 @@
                             <sourceDirectory>src/resources</sourceDirectory>
                             <!-- highlightSource bolds some elements of sample code but disables linewrapping -->
                             <highlightSource>true</highlightSource>
-                            <!--- enable callouts to label samples -->
+                            <!-- enable callouts to label samples -->
                             <useExtensions>1</useExtensions>
                             <calloutsExtension>1</calloutsExtension>
                             <textinsertExtension>1</textinsertExtension>
