@@ -389,14 +389,13 @@
             <para> The rate limiting component supports a single-node &PRODNAME; installation in
                 which all cache operations are performed locally. &PRODNAME;'s default local
                 datastore is used when no other nodes are identified in the system model as hosting
-                a rate limiting component. </para>
+                a distributed datastore component. </para>
         </section>
             <section xml:id="Multi-Node-d1e470">
                 <title>Multi-Node Installation</title>
                 <para> The rate limiting component supports multiple-node &PRODNAME; installations
                     via &PRODNAME;'s datastore service. If a clustered datastore is available, the
-                component will make use of it. The rate limiting component only currently supports
-                discovery of &PRODNAME;'s default hash-ring clustered datastore. </para>
+                component will make use of it. </para>
             </section>
     </chapter>
     <chapter xml:id="Requesting_Limits-d1e531">
