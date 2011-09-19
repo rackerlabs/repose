@@ -277,43 +277,92 @@
         </section>
         <section xml:id="Constructing_Cache_Keys-d1e378">
             <title>Constructing Cache Keys</title>
-            <para> 
-                The rate limiting component must be able to track active rate limits per resource. 
-                To effectively facilitate this, the rate limiting component attempts to generate a cache key from the limit's regular expression,
-                as defined in its <code>uri-regex</code> attribute. 
-                Extracting cache keys from the regular expression is performed via regular expression capture groups. 
-            </para>
-            <para>
-                If no capture groups are specified, then the entire request URI is used as a the cache key for the request. 
-                This is considered sub-optimal in most cases, since each unique resource representation will have requests made against it tracked separately.
-            </para>
-            <important>
-                <para>
-                    Keep in mind that query parameters as well as other request URI components ARE included as part of the request URI 
-                    that the rate limiting component operates against and should be considered when constructing your regular expressions.
-                </para>
-            </important>
-            <para>
-                Consider the following regular expression: <code>/service/.*</code>
-            </para>
-            <para>
-                This is a blanket regular expression that will catch any request against a resource that falls under the parent resource, <code>service</code>. 
-                Because the rate limiting component cannot detect whether the service implementer is requesting 
-                that each resource request be tracked separately or as part of a group, the component defaults to tracking limited requests under unique keys.
-            </para>
-            <para>
-                Consider the following regular expression: <code>/service/([^!*'();:@=+$,/?#\\[\\]]*)/.*</code>
-            </para>
-            <para>
-                This regular expression generates cache keys from the second-tier resource in a given request URI. 
-                This is useful for grouping child resources under a shared rate limit.
-            </para>
+            <para> The rate limiting component must be able to track rate limits per resource. To
+                effectively facilitate this, the rate limiting component attempts to generate a
+                cache key from the limit's regular expression, as defined in its
+                    <code>uri-regex</code> attribute. Extracting cache keys from the regular
+                expression is performed via regular expression capture groups. </para>
+            <para> If no capture groups are specified, then the entire request URI is used as a the
+                cache key for the request. This is considered sub-optimal in most cases, since each
+                unique resource representation will have requests made against it tracked
+                separately. </para>
+            <warning>
+                <para> As you construct regular expressions, keep in mind that query parameters as
+                    well as other request URI components ARE included as part of the request URI
+                    that the rate limiting component operates against. You can get an unexpected
+                    result by failing to account for all request URI components.</para>
+            </warning>
+            <para> As you plan your own regular expressions, consider the following examples:  </para>
+            <annotation>
+                <remark> The ampersand character is used in regular expressions but it's also used
+                    in DocBook XML, and not ignored even inside code wrappers, so it's problematic
+                    to include in these examples. RegEx uses so many characters I can't guess any I
+                    could assign as escapes, even if I was sure escaping would work; for now, an
+                    ampersand to be displayed in the RegEx sample is coded as
+                    ampersand+a+m+p+semicolon. Check for similar complications if you add any other
+                    RegEx examples. </remark>
+            </annotation>
+            <table frame="all">
+                <title>Sample Regular Expressions</title>
+                <tgroup cols="2">
+                    <colspec colname="c1" colnum="1" colwidth="1.0*"/>
+                    <colspec colname="c2" colnum="2" colwidth="1.0*"/>
+                    <thead>
+                        <row>
+                            <entry>RegEx</entry>
+                            <entry>Discussion</entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry><code>/service/.*</code>
+                            </entry>
+                            <entry> 
+                                <para>   
+                                    This is a blanket regular expression that recognizes 
+                                    a parent resource, <code>service</code>,
+                                    and catches any request
+                                    against a resource that falls under the parent. 
+                                </para>
+                                <para>
+                                    The rate limiting component cannot
+                                    detect whether the service implementer is requesting that each
+                                    resource request be tracked separately or as part of a group; the
+                                    component defaults to tracking limited requests under unique keys.
+                                </para>
+                            </entry>
+                        </row>
+                        <row>
+
+                            
+                            <entry><code>/service/([^!*'();:@&amp;=+$,/?#\\[\\]]*)/.*</code>
+                            </entry>
+                            <entry>
+                                <para>
+                                    This regular expression generates cache keys from the second-tier
+                                    resource in a given request URI. This is useful for grouping child
+                                    resources under a shared rate limit. 
+                                </para>
+                                <para> A service can require clients to use their account numbers as
+                                    part of the resource tree to their service resources. For a
+                                    client request formed like
+                                        <code>http://demo.com/service/12345-account/resource</code>,
+                                    executing this regular expression against the client request
+                                    extracts, <code>12345-account</code>. The Rate Limiting
+                                    component can use this extracted information as a unique
+                                    identifier to ensure that all of the recorded rate limits belong
+                                    only to this client. </para>
+                            </entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
             <note>
-                <para>
-                    Service implementers should use capture groups in their regular expressions. 
-                    In addition, the performance of the regular expression should be taken into consideration when designing limits. 
-                    This is because a given expression's performance has a direct impact on the rate limiting component's performance and throughput.
-                </para>
+                <para> Service implementers should use capture groups in their regular expressions.
+                    In addition, the performance of the regular expression should be taken into
+                    consideration when designing limits. This is because a given expression's
+                    performance has a direct impact on the rate limiting component's performance and
+                    throughput. </para>
             </note>
         </section>        
     </chapter>
