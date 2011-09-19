@@ -79,16 +79,19 @@
                 that will help you understand and deploy this &PRODNAME; component, but you must
                 adapt this information to suit your own configuration. 
             </para>
-            <para> 
-                The rate limiting service filter protects the origin service from being bombarded
-                by client requests. It accomplishes this by specifying limits for the number of
-                times a given client may request a given resource. This provides essential
-                protection to any public-facing API. 
-            </para>
+            <para> The origin service is the source of all data processed by &PRODNAME;. For example, if
+                &PRODNAME; is used to provide rate limiting to a load-balancing service, then the
+                load-balancing service is &PRODNAME;'s origin service.
+             </para>   
+                <para>The rate limiting service filter
+                protects the origin service from being bombarded by client requests. It accomplishes
+                this by specifying limits for the number of times a client may request a given
+                resource. This provides essential protection to any public-facing API. </para>
             <para>
                 A client's current limits may include the
                 client's absolute limits. Absolute limits are specific to a service domain and are
                 therefore only provided by the origin service. 
+                However, &PRODABBREV; will integrate absolute and current limits as they apply to a client.
             </para>
             <para>
                 This handbook is focused on one &PRODNAME; component.
@@ -277,53 +280,100 @@
         </section>
         <section xml:id="Constructing_Cache_Keys-d1e378">
             <title>Constructing Cache Keys</title>
-            <para> 
-                The rate limiting component must be able to track active rate limits per resource. 
-                To effectively facilitate this, the rate limiting component attempts to generate a cache key from the limit's regular expression,
-                as defined in its <code>uri-regex</code> attribute. 
-                Extracting cache keys from the regular expression is performed via regular expression capture groups. 
-            </para>
-            <para>
-                If no capture groups are specified, then the entire request URI is used as a the cache key for the request. 
-                This is considered sub-optimal in most cases, since each unique resource representation will have requests made against it tracked separately.
-            </para>
-            <important>
-                <para>
-                    Keep in mind that query parameters as well as other request URI components ARE included as part of the request URI 
-                    that the rate limiting component operates against and should be considered when constructing your regular expressions.
-                </para>
-            </important>
-            <para>
-                Consider the following regular expression: <code>/service/.*</code>
-            </para>
-            <para>
-                This is a blanket regular expression that will catch any request against a resource that falls under the parent resource, <code>service</code>. 
-                Because the rate limiting component cannot detect whether the service implementer is requesting 
-                that each resource request be tracked separately or as part of a group, the component defaults to tracking limited requests under unique keys.
-            </para>
-            <para>
-                Consider the following regular expression: <code>/service/([^!*'();:@=+$,/?#\\[\\]]*)/.*</code>
-            </para>
-            <para>
-                This regular expression generates cache keys from the second-tier resource in a given request URI. 
-                This is useful for grouping child resources under a shared rate limit.
-            </para>
+            <para> The rate limiting component must be able to track rate limits per resource. To
+                effectively facilitate this, the rate limiting component attempts to generate a
+                cache key from the limit's regular expression, as defined in its
+                    <code>uri-regex</code> attribute. Extracting cache keys from the regular
+                expression is performed via regular expression capture groups. </para>
+            <para> If no capture groups are specified, then the entire request URI is used as a the
+                cache key for the request. This is considered sub-optimal in most cases, since each
+                unique resource representation will have requests made against it tracked
+                separately. </para>
+            <warning>
+                <para> As you construct regular expressions, keep in mind that query parameters as
+                    well as other request URI components ARE included as part of the request URI
+                    that the rate limiting component operates against. You can get an unexpected
+                    result by failing to account for all request URI components.</para>
+            </warning>
+            <para> As you plan your own regular expressions, consider the following examples:  </para>
+            <annotation>
+                <remark> The ampersand character is used in regular expressions but it's also used
+                    in DocBook XML, and not ignored even inside code wrappers, so it's problematic
+                    to include in these examples. RegEx uses so many characters I can't guess any I
+                    could assign as escapes, even if I was sure escaping would work; for now, an
+                    ampersand to be displayed in the RegEx sample is coded as
+                    ampersand+a+m+p+semicolon. Check for similar complications if you add any other
+                    RegEx examples. </remark>
+            </annotation>
+            <table frame="all">
+                <title>Sample Regular Expressions</title>
+                <tgroup cols="2">
+                    <colspec colname="c1" colnum="1" colwidth="1.0*"/>
+                    <colspec colname="c2" colnum="2" colwidth="1.0*"/>
+                    <thead>
+                        <row>
+                            <entry>RegEx</entry>
+                            <entry>Discussion</entry>
+                        </row>
+                    </thead>
+                    <tbody>
+                        <row>
+                            <entry><code>/service/.*</code>
+                            </entry>
+                            <entry> 
+                                <para>   
+                                    This is a blanket regular expression that recognizes 
+                                    a parent resource, <code>service</code>,
+                                    and catches any request
+                                    against a resource that falls under the parent. 
+                                </para>
+                                <para>
+                                    The rate limiting component cannot
+                                    detect whether the service implementer is requesting that each
+                                    resource request be tracked separately or as part of a group; the
+                                    component defaults to tracking limited requests under unique keys.
+                                </para>
+                            </entry>
+                        </row>
+                        <row>
+
+                            
+                            <entry><code>/service/([^!*'();:@&amp;=+$,/?#\\[\\]]*)/.*</code>
+                            </entry>
+                            <entry>
+                                <para>
+                                    This regular expression generates cache keys from the second-tier
+                                    resource in a given request URI. This is useful for grouping child
+                                    resources under a shared rate limit. 
+                                </para>
+                                <para> A service can require clients to use their account numbers as
+                                    part of the resource tree to their service resources. For a
+                                    client request formed like
+                                        <code>http://demo.com/service/12345-account/resource</code>,
+                                    executing this regular expression against the client request
+                                    extracts <code>12345-account</code>. The Rate Limiting component
+                                    can use this extracted information as a unique identifier to
+                                    ensure that all of the recorded rate limits belong only to this
+                                    client. </para>
+                            </entry>
+                        </row>
+                    </tbody>
+                </tgroup>
+            </table>
             <note>
-                <para>
-                    Service implementers should use capture groups in their regular expressions. 
-                    In addition, the performance of the regular expression should be taken into consideration when designing limits. 
-                    This is because a given expression's performance has a direct impact on the rate limiting component's performance and throughput.
-                </para>
+                <para> Service implementers should use capture groups in their regular expressions.
+                    In addition, the performance of the regular expression should be taken into
+                    consideration when designing limits. This is because a given expression's
+                    performance has a direct impact on the rate limiting component's performance and
+                    throughput. </para>
             </note>
         </section>        
     </chapter>
     <chapter xml:id="Recording_Requests-d1e431">
         <title>Recording Client Requests</title>
-        <para> 
-            The rate limiting component must be able to both record request usage on a per-limit
-            basis and recall all stored limits that belong to a named client.  
-            The <code>X-PP-User</code> is used for this purpose. 
-        </para>
+        <para> The rate limiting component must be able to both record request usage on a per-limit
+            basis and recall all stored limits that belong to a named client. The
+                <code>X-PP-User</code> HTTP header is used for this purpose. </para>
         <section xml:id="Cache_Indexing-d1e439">
         <title>Cache Indexing</title>
         <para> 
@@ -331,49 +381,31 @@
             Because of this, an aggregation index is required to group active rate
             limits to a named client. 
         </para>
-        <para>
-                The rate limiting component indexes stored limit cache
-                keys in a separate cached object for each named client identified the <code>X-PP-User</code> HTTP
-                header. 
-                This data structure is called the user limit key lookaside. 
-                This index is needed to maintain O(1) logic to use a cache key to get cached limits. 
-                Without this index, acquiring a cached limit would require either
-                more complex &GET; logic or caching logic that is not easily scalable.
-        </para>
-        <para>
-            The string value of the X-PP-User HTTP header is treated as the cache key for this index.   
-        </para>
-        <note>
-            <para>
-                This index is not updated for every cache &PUT;. 
-                The index is updated when a new cache object for a limit is inserted.
-                When an existing cache object is updated, the index is not updated.
-            </para>
-        </note>
+        <para> The rate limiting component indexes stored limit cache keys in a separate cached
+                object for each named client identified with the <code>X-PP-User</code> HTTP header.
+                This data structure is called the user limit key map.  </para>
+        <para> The string value of the <code>X-PP-User</code> HTTP header is treated as the cache
+                key for this index. </para>
         </section>
         <section xml:id="Single_Node-d1e447">
             <title>Single-Node Installation</title>
             <para> The rate limiting component supports a single-node &PRODNAME; installation in
                 which all cache operations are performed locally. &PRODNAME;'s default local
                 datastore is used when no other nodes are identified in the system model as hosting
-                a rate limiting component. </para>
+                a distributed datastore component. </para>
         </section>
             <section xml:id="Multi-Node-d1e470">
                 <title>Multi-Node Installation</title>
                 <para> The rate limiting component supports multiple-node &PRODNAME; installations
                     via &PRODNAME;'s datastore service. If a clustered datastore is available, the
-                component will make use of it. The rate limiting component only currently supports
-                discovery of &PRODNAME;'s default hash-ring clustered datastore. </para>
+                component will make use of it. </para>
             </section>
     </chapter>
     <chapter xml:id="Requesting_Limits-d1e531">
-        <title>Requesting Active Limits</title>
-        <para>
-            A client may request from the rate limiting component their currently active rate and or absolute limits.
-        </para>
-        <para>
-            Valid accept types are:
-            <itemizedlist spacing="compact">
+        <title>Requesting Current Limits</title>
+        <para> A client may request from the rate limiting component their current limits, which may
+            include absolute limits. </para>
+        <para> Valid content MIME types are: <itemizedlist spacing="compact">
                 <listitem>
                     <para>application/xml</para>
                 </listitem>
@@ -405,8 +437,8 @@
                             <programlisting>
 GET /service/limits HTTP/1.1 
 Accept: application/vnd.rackspace-v1.0+xml 
-X-PP-User: username 
-X-PP-Groups: customer
+X-PP-User: demo-username 
+X-PP-Groups: demo-customer
                                 </programlisting>
                         </entry>
                         <entry/>
@@ -433,29 +465,26 @@ Content-Length: 538
     </chapter>
     <chapter xml:id="Absolute-d1e631">
         <title>Integrating Absolute Limits</title>
-        <para> 
-            The rate limiting component is designed to integrate with limits that are returned as
-            a response from the origin service. These limits are absolute and are specific to a
-            service domain. 
-        </para>
-        <para>
-            To activate inclusion of absolute limits that are specific to a client's origin service, the optional configuration attribute, `include-absolute-limits`, may be used.
-        </para>
-        <para>
-            When `include-absolute-limits` is set to true, the rate limiting component marks incoming requests that match the the limit request endpoint's `uri-regex` 
-            and then passes them down to the origin service. 
-            After the origin service responds with the client's absolute limits, 
-            the rate limiting component enhances the response with the combined absolute and active rate limits. It then sends the response to the client.
-        </para>
+        <para> The rate limiting component is designed to integrate with limits that are returned as
+            a response from the origin service. These limits are absolute and are specific to the
+            origin service domain. </para>
+        <para> To activate inclusion of absolute limits that are specific to a client's origin
+            service, use the optional configuration attribute, <code>include-absolute-limits</code>. </para>
+        <para> When <code>include-absolute-limits</code> is set to <code>true</code>, the rate
+            limiting component marks incoming requests that match the limit request endpoint's
+                <code>uri-regex</code> and then passes them down to the origin service. After the
+            origin service responds with the client's absolute limits, the rate limiting component
+            enhances the response with the combined absolute and current rate limits. It then sends
+            the response to the client. </para>
     </chapter>
     <chapter xml:id="Limited-d1e731">
         <title>Handling Limited Client Requests</title>
         <para> When a client makes a request that exceeds the client's specified rate limit, the
-            rate limiting component will return the HTTP response code 413 (Request Entity Too
+            rate limiting component will return the HTTP response code <errorcode>413</errorcode> (Request Entity Too
             Large). 
         </para> 
         <para>
-            HTTP Header: Retry-After
+            When this occurs, the response's <code>Retry-After</code> HTTP header contains HTTP-encoded data that the client can use to plan a retry. 
         </para>
             <table frame="all">
                 <title>Sample Request/Response Conversation: Rate Exceeded</title>
