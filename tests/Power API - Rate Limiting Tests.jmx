@@ -88,26 +88,26 @@
         <stringProp name="ThreadGroup.delay"></stringProp>
       </ThreadGroup>
       <hashTree>
-        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="Participating Nodes" enabled="true">
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="Node Information" enabled="true">
           <collectionProp name="Arguments.arguments">
             <elementProp name="node1" elementType="Argument">
               <stringProp name="Argument.name">node1</stringProp>
-              <stringProp name="Argument.value">ws-n01.jpserver.net</stringProp>
+              <stringProp name="Argument.value">localhost</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
             <elementProp name="node2" elementType="Argument">
               <stringProp name="Argument.name">node2</stringProp>
-              <stringProp name="Argument.value">ws-n01.jpserver.net</stringProp>
+              <stringProp name="Argument.value">localhost</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
             <elementProp name="node3" elementType="Argument">
               <stringProp name="Argument.name">node3</stringProp>
-              <stringProp name="Argument.value">ws-n01.jpserver.net</stringProp>
+              <stringProp name="Argument.value">localhost</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
             <elementProp name="node4" elementType="Argument">
               <stringProp name="Argument.name">node4</stringProp>
-              <stringProp name="Argument.value">ws-n01.jpserver.net</stringProp>
+              <stringProp name="Argument.value">localhost</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
           </collectionProp>
@@ -131,33 +131,24 @@
           <boolProp name="CounterConfig.per_user">false</boolProp>
         </CounterConfig>
         <hashTree/>
-        <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Port Counter" enabled="true">
-          <stringProp name="CounterConfig.start">2101</stringProp>
-          <stringProp name="CounterConfig.end">2104</stringProp>
-          <stringProp name="CounterConfig.incr">1</stringProp>
-          <stringProp name="CounterConfig.name">portCounter</stringProp>
-          <stringProp name="CounterConfig.format"></stringProp>
-          <boolProp name="CounterConfig.per_user">false</boolProp>
-        </CounterConfig>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="Port Configuraiton" enabled="true">
+          <collectionProp name="Arguments.arguments">
+            <elementProp name="targetPort" elementType="Argument">
+              <stringProp name="Argument.name">targetPort</stringProp>
+              <stringProp name="Argument.value">65000</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+          </collectionProp>
+        </Arguments>
         <hashTree/>
         <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Rate Limiting Test" enabled="true"/>
         <hashTree>
-          <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="Evaluated Testing Configuration" enabled="true">
-            <collectionProp name="Arguments.arguments">
-              <elementProp name="targetPort" elementType="Argument">
-                <stringProp name="Argument.name">targetPort</stringProp>
-                <stringProp name="Argument.value">65000</stringProp>
-                <stringProp name="Argument.metadata">=</stringProp>
-              </elementProp>
-            </collectionProp>
-          </Arguments>
-          <hashTree/>
           <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
             <stringProp name="HTTPSampler.domain">${__V(node${nodeCounter})}</stringProp>
-            <stringProp name="HTTPSampler.port">${portCounter}</stringProp>
+            <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
             <stringProp name="HTTPSampler.protocol">http</stringProp>
@@ -229,6 +220,10 @@
               </ResponseAssertion>
               <hashTree/>
             </hashTree>
+            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait" enabled="true">
+              <stringProp name="ConstantTimer.delay">1000</stringProp>
+            </ConstantTimer>
+            <hashTree/>
           </hashTree>
           <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If User has No Remaining Requests" enabled="true">
             <stringProp name="IfController.condition">${__javaScript(${remainingRequests} == 0)}</stringProp>
@@ -287,13 +282,9 @@
               <hashTree/>
             </hashTree>
           </hashTree>
-          <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Constant Timer" enabled="true">
-            <stringProp name="ConstantTimer.delay">1000</stringProp>
-          </ConstantTimer>
-          <hashTree/>
         </hashTree>
       </hashTree>
-      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="false">
+      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
         <boolProp name="ResultCollector.error_logging">false</boolProp>
         <objProp>
           <name>saveConfig</name>
@@ -325,7 +316,7 @@
         <stringProp name="filename"></stringProp>
       </ResultCollector>
       <hashTree/>
-      <ResultCollector guiclass="TableVisualizer" testclass="ResultCollector" testname="View Results in Table" enabled="false">
+      <ResultCollector guiclass="TableVisualizer" testclass="ResultCollector" testname="View Results in Table" enabled="true">
         <boolProp name="ResultCollector.error_logging">false</boolProp>
         <objProp>
           <name>saveConfig</name>
