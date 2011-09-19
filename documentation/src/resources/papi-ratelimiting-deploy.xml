@@ -477,11 +477,11 @@ Content-Length: 538
     <chapter xml:id="Limited-d1e731">
         <title>Handling Limited Client Requests</title>
         <para> When a client makes a request that exceeds the client's specified rate limit, the
-            rate limiting component will return the HTTP response code 413 (Request Entity Too
+            rate limiting component will return the HTTP response code <errorcode>413</errorcode> (Request Entity Too
             Large). 
         </para> 
         <para>
-            HTTP Header: Retry-After
+            When this occurs, the response's <code>Retry-After</code> HTTP header contains HTTP-encoded data that the client can use to plan a retry. 
         </para>
             <table frame="all">
                 <title>Sample Request/Response Conversation: Rate Exceeded</title>
