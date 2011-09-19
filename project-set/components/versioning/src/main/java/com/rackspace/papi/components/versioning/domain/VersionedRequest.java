@@ -104,7 +104,7 @@ public class VersionedRequest {
             externalName.insert(0, "/");
         }
 
-        if (externalName.charAt(externalName.length() - 1) == '/' && externalName.length() > 1) {
+        if (externalName.charAt(externalName.length() - 1) == '/') {
             externalName.deleteCharAt(externalName.length() - 1);
         }
 
