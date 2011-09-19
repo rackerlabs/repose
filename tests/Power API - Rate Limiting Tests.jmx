@@ -30,7 +30,7 @@
           <stringProp name="TestPlan.comments">Exports Variables: remainingRequests</stringProp>
         </GenericController>
         <hashTree>
-          <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="Get Limits" enabled="true">
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Get Limits" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
@@ -46,9 +46,11 @@
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
             <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <stringProp name="HTTPSampler.implementation">Java</stringProp>
+            <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
             <boolProp name="HTTPSampler.monitor">false</boolProp>
             <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-          </HTTPSampler>
+          </HTTPSamplerProxy>
           <hashTree>
             <XPathExtractor guiclass="XPathExtractorGui" testclass="XPathExtractor" testname="Extract Remaining Requests" enabled="true">
               <stringProp name="XPathExtractor.default">-1</stringProp>
@@ -78,11 +80,11 @@
           <intProp name="LoopController.loops">-1</intProp>
         </elementProp>
         <stringProp name="ThreadGroup.num_threads">10</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">2</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">20</stringProp>
         <longProp name="ThreadGroup.start_time">1300822554000</longProp>
         <longProp name="ThreadGroup.end_time">1300822554000</longProp>
-        <boolProp name="ThreadGroup.scheduler">true</boolProp>
-        <stringProp name="ThreadGroup.duration">900</stringProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration">300</stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
       </ThreadGroup>
       <hashTree>
@@ -90,22 +92,22 @@
           <collectionProp name="Arguments.arguments">
             <elementProp name="node1" elementType="Argument">
               <stringProp name="Argument.name">node1</stringProp>
-              <stringProp name="Argument.value">50.57.118.4</stringProp>
+              <stringProp name="Argument.value">ws-n01.jpserver.net</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
             <elementProp name="node2" elementType="Argument">
               <stringProp name="Argument.name">node2</stringProp>
-              <stringProp name="Argument.value">50.57.118.5</stringProp>
+              <stringProp name="Argument.value">ws-n01.jpserver.net</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
             <elementProp name="node3" elementType="Argument">
               <stringProp name="Argument.name">node3</stringProp>
-              <stringProp name="Argument.value">50.57.118.8</stringProp>
+              <stringProp name="Argument.value">ws-n01.jpserver.net</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
             <elementProp name="node4" elementType="Argument">
               <stringProp name="Argument.name">node4</stringProp>
-              <stringProp name="Argument.value">50.57.105.71</stringProp>
+              <stringProp name="Argument.value">ws-n01.jpserver.net</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
           </collectionProp>
@@ -129,6 +131,15 @@
           <boolProp name="CounterConfig.per_user">false</boolProp>
         </CounterConfig>
         <hashTree/>
+        <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Port Counter" enabled="true">
+          <stringProp name="CounterConfig.start">2101</stringProp>
+          <stringProp name="CounterConfig.end">2104</stringProp>
+          <stringProp name="CounterConfig.incr">1</stringProp>
+          <stringProp name="CounterConfig.name">portCounter</stringProp>
+          <stringProp name="CounterConfig.format"></stringProp>
+          <boolProp name="CounterConfig.per_user">false</boolProp>
+        </CounterConfig>
+        <hashTree/>
         <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Rate Limiting Test" enabled="true"/>
         <hashTree>
           <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="Evaluated Testing Configuration" enabled="true">
@@ -146,12 +157,13 @@
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
             <stringProp name="HTTPSampler.domain">${__V(node${nodeCounter})}</stringProp>
-            <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
+            <stringProp name="HTTPSampler.port">${portCounter}</stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
             <stringProp name="HTTPSampler.protocol">http</stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
             <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
           </ConfigTestElement>
           <hashTree/>
           <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Headers" enabled="true">
@@ -180,11 +192,12 @@
             </collectionProp>
           </ModuleController>
           <hashTree/>
-          <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="While User has Remaining Requests" enabled="true">
-            <stringProp name="WhileController.condition">${__javaScript(${remainingRequests} &gt; 0)}</stringProp>
-          </WhileController>
+          <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If User has Remaining Requests" enabled="true">
+            <stringProp name="IfController.condition">${__javaScript(${remainingRequests} &gt; 0)}</stringProp>
+            <boolProp name="IfController.evaluateAll">false</boolProp>
+          </IfController>
           <hashTree>
-            <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="Non-Limited Request" enabled="true">
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Non-Limited Request" enabled="true">
               <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
                 <collectionProp name="Arguments.arguments"/>
               </elementProp>
@@ -200,9 +213,11 @@
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
               <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
               <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.implementation">Java</stringProp>
+              <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
               <boolProp name="HTTPSampler.monitor">false</boolProp>
               <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-            </HTTPSampler>
+            </HTTPSamplerProxy>
             <hashTree>
               <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
                 <collectionProp name="Asserion.test_strings">
@@ -214,68 +229,71 @@
               </ResponseAssertion>
               <hashTree/>
             </hashTree>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Get Limits" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
-                <stringProp name="1977155682">Get Limits</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
           </hashTree>
-          <HTTPSampler guiclass="HttpTestSampleGui" testclass="HTTPSampler" testname="Limited Request" enabled="true">
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-              <collectionProp name="Arguments.arguments"/>
-            </elementProp>
-            <stringProp name="HTTPSampler.domain"></stringProp>
-            <stringProp name="HTTPSampler.port"></stringProp>
-            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-            <stringProp name="HTTPSampler.response_timeout"></stringProp>
-            <stringProp name="HTTPSampler.protocol"></stringProp>
-            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-            <stringProp name="HTTPSampler.path">/service/12345-user${userCounter}/</stringProp>
-            <stringProp name="HTTPSampler.method">GET</stringProp>
-            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-            <boolProp name="HTTPSampler.monitor">false</boolProp>
-            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-          </HTTPSampler>
+          <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If User has No Remaining Requests" enabled="true">
+            <stringProp name="IfController.condition">${__javaScript(${remainingRequests} == 0)}</stringProp>
+            <boolProp name="IfController.evaluateAll">false</boolProp>
+          </IfController>
           <hashTree>
-            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
-              <collectionProp name="Asserion.test_strings">
-                <stringProp name="51542">413</stringProp>
-              </collectionProp>
-              <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
-              <boolProp name="Assertion.assume_success">true</boolProp>
-              <intProp name="Assertion.test_type">2</intProp>
-              <stringProp name="Scope.variable">respCode</stringProp>
-            </ResponseAssertion>
-            <hashTree/>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Limited Request" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/service/12345-user${userCounter}/</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.implementation">Java</stringProp>
+              <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="51542">413</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">true</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+                <stringProp name="Scope.variable">respCode</stringProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+            <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="While User has Limited Requests" enabled="true">
+              <stringProp name="WhileController.condition">${__javaScript(${remainingRequests} == 0)}</stringProp>
+            </WhileController>
+            <hashTree>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Get Limits" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
+                  <stringProp name="1977155682">Get Limits</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+              <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait" enabled="true">
+                <stringProp name="ConstantTimer.delay">5000</stringProp>
+              </ConstantTimer>
+              <hashTree/>
+            </hashTree>
           </hashTree>
-          <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="While User has Limited Requests" enabled="true">
-            <stringProp name="WhileController.condition">${__javaScript(${remainingRequests} == 0)}</stringProp>
-          </WhileController>
-          <hashTree>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Get Limits" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
-                <stringProp name="1977155682">Get Limits</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait" enabled="true">
-              <stringProp name="ConstantTimer.delay">5000</stringProp>
-            </ConstantTimer>
-            <hashTree/>
-          </hashTree>
+          <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Constant Timer" enabled="true">
+            <stringProp name="ConstantTimer.delay">1000</stringProp>
+          </ConstantTimer>
+          <hashTree/>
         </hashTree>
       </hashTree>
-      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
+      <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="false">
         <boolProp name="ResultCollector.error_logging">false</boolProp>
         <objProp>
           <name>saveConfig</name>
@@ -307,7 +325,7 @@
         <stringProp name="filename"></stringProp>
       </ResultCollector>
       <hashTree/>
-      <ResultCollector guiclass="TableVisualizer" testclass="ResultCollector" testname="View Results in Table" enabled="true">
+      <ResultCollector guiclass="TableVisualizer" testclass="ResultCollector" testname="View Results in Table" enabled="false">
         <boolProp name="ResultCollector.error_logging">false</boolProp>
         <objProp>
           <name>saveConfig</name>
