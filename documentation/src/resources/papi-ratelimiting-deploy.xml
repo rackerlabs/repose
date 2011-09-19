@@ -348,10 +348,10 @@
                                     client request formed like
                                         <code>http://demo.com/service/12345-account/resource</code>,
                                     executing this regular expression against the client request
-                                    extracts, <code>12345-account</code>. The Rate Limiting
-                                    component can use this extracted information as a unique
-                                    identifier to ensure that all of the recorded rate limits belong
-                                    only to this client. </para>
+                                    extracts <code>12345-account</code>. The Rate Limiting component
+                                    can use this extracted information as a unique identifier to
+                                    ensure that all of the recorded rate limits belong only to this
+                                    client. </para>
                             </entry>
                         </row>
                     </tbody>
@@ -368,11 +368,9 @@
     </chapter>
     <chapter xml:id="Recording_Requests-d1e431">
         <title>Recording Client Requests</title>
-        <para> 
-            The rate limiting component must be able to both record request usage on a per-limit
-            basis and recall all stored limits that belong to a named client.  
-            The <code>X-PP-User</code> is used for this purpose. 
-        </para>
+        <para> The rate limiting component must be able to both record request usage on a per-limit
+            basis and recall all stored limits that belong to a named client. The
+                <code>X-PP-User</code> HTTP header is used for this purpose. </para>
         <section xml:id="Cache_Indexing-d1e439">
         <title>Cache Indexing</title>
         <para> 
@@ -380,25 +378,11 @@
             Because of this, an aggregation index is required to group active rate
             limits to a named client. 
         </para>
-        <para>
-                The rate limiting component indexes stored limit cache
-                keys in a separate cached object for each named client identified the <code>X-PP-User</code> HTTP
-                header. 
-                This data structure is called the user limit key lookaside. 
-                This index is needed to maintain O(1) logic to use a cache key to get cached limits. 
-                Without this index, acquiring a cached limit would require either
-                more complex &GET; logic or caching logic that is not easily scalable.
-        </para>
-        <para>
-            The string value of the X-PP-User HTTP header is treated as the cache key for this index.   
-        </para>
-        <note>
-            <para>
-                This index is not updated for every cache &PUT;. 
-                The index is updated when a new cache object for a limit is inserted.
-                When an existing cache object is updated, the index is not updated.
-            </para>
-        </note>
+        <para> The rate limiting component indexes stored limit cache keys in a separate cached
+                object for each named client identified with the <code>X-PP-User</code> HTTP header.
+                This data structure is called the user limit key map.  </para>
+        <para> The string value of the <code>X-PP-User</code> HTTP header is treated as the cache
+                key for this index. </para>
         </section>
         <section xml:id="Single_Node-d1e447">
             <title>Single-Node Installation</title>
