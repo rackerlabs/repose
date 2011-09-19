@@ -434,8 +434,8 @@
                             <programlisting>
 GET /service/limits HTTP/1.1 
 Accept: application/vnd.rackspace-v1.0+xml 
-X-PP-User: username 
-X-PP-Groups: customer
+X-PP-User: demo-username 
+X-PP-Groups: demo-customer
                                 </programlisting>
                         </entry>
                         <entry/>
@@ -462,20 +462,17 @@ Content-Length: 538
     </chapter>
     <chapter xml:id="Absolute-d1e631">
         <title>Integrating Absolute Limits</title>
-        <para> 
-            The rate limiting component is designed to integrate with limits that are returned as
-            a response from the origin service. These limits are absolute and are specific to a
-            service domain. 
-        </para>
-        <para>
-            To activate inclusion of absolute limits that are specific to a client's origin service, the optional configuration attribute, `include-absolute-limits`, may be used.
-        </para>
-        <para>
-            When `include-absolute-limits` is set to true, the rate limiting component marks incoming requests that match the the limit request endpoint's `uri-regex` 
-            and then passes them down to the origin service. 
-            After the origin service responds with the client's absolute limits, 
-            the rate limiting component enhances the response with the combined absolute and active rate limits. It then sends the response to the client.
-        </para>
+        <para> The rate limiting component is designed to integrate with limits that are returned as
+            a response from the origin service. These limits are absolute and are specific to the
+            origin service domain. </para>
+        <para> To activate inclusion of absolute limits that are specific to a client's origin
+            service, use the optional configuration attribute, <code>include-absolute-limits</code>. </para>
+        <para> When <code>include-absolute-limits</code> is set to <code>true</code>, the rate
+            limiting component marks incoming requests that match the limit request endpoint's
+                <code>uri-regex</code> and then passes them down to the origin service. After the
+            origin service responds with the client's absolute limits, the rate limiting component
+            enhances the response with the combined absolute and current rate limits. It then sends
+            the response to the client. </para>
     </chapter>
     <chapter xml:id="Limited-d1e731">
         <title>Handling Limited Client Requests</title>
