@@ -1,10 +1,12 @@
 package com.rackspace.papi.components.versioning;
 
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpRequestInfo;
 import com.rackspace.papi.commons.util.http.HttpRequestInfoImpl;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.components.versioning.domain.ConfigurationData;
+import com.rackspace.papi.components.versioning.domain.HostWrapper;
 import com.rackspace.papi.components.versioning.domain.VersionedHostNotFoundException;
 import com.rackspace.papi.components.versioning.domain.VersionedOriginService;
 import com.rackspace.papi.components.versioning.domain.VersionedRequest;
@@ -16,6 +18,7 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 
+import java.net.MalformedURLException;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.bind.JAXBElement;
 import org.slf4j.Logger;
@@ -28,9 +31,9 @@ public class VersioningHelper {
     private final ConfigurationData configurationData;
     private final ContentTransformer transformer;
 
-    public VersioningHelper(ConfigurationData configurationData) {
+    public VersioningHelper(ConfigurationData configurationData, ContentTransformer transformer) {
         this.configurationData = configurationData;
-        this.transformer = new ContentTransformer();
+        this.transformer = transformer;
     }
 
     public FilterDirector handleRequest(HttpServletRequest request) {
@@ -53,6 +56,11 @@ public class VersioningHelper {
             filterDirector.setFilterAction(FilterAction.RETURN);
 
             LOG.warn("Configured versioned service mapping refers to a bad pp-host-id", vhnfe);
+        } catch (MalformedURLException murlex) {
+            filterDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
+            filterDirector.setFilterAction(FilterAction.RETURN);
+
+            LOG.warn("Configured versioned service mapping refers to a bad host definition", murlex);
         }
 
         // This is not a version we recognize - tell the client what's up
@@ -73,8 +81,15 @@ public class VersioningHelper {
             transformer.transform(versions, httpRequestInfo.getPreferedMediaRange(), filterDirector.getResponseOutputStream());
         }
     }
+    
+    private String getRouteDestinationPrefix(VersionedOriginService targetOriginService) throws VersionedHostNotFoundException, MalformedURLException {
+        HostWrapper targetHost = new HostWrapper(configurationData.getHostForVersionMapping(targetOriginService.getMapping()));
+        HostWrapper localHost = new HostWrapper(configurationData.getLocalHost());
 
-    private void handleVersionedRequest(VersionedRequest versionedRequest, FilterDirector filterDirector, VersionedOriginService targetOriginService) {
+        return localHost.equals(targetHost)? "": targetHost.getAbsoluteUrl();
+    }
+
+    private void handleVersionedRequest(VersionedRequest versionedRequest, FilterDirector filterDirector, VersionedOriginService targetOriginService) throws VersionedHostNotFoundException, MalformedURLException {
         // Is this a reuest to a version root we are aware of for describing it? (e.g. http://api.service.com/v1.0/)
         if (versionedRequest.isRequestForRoot() || versionedRequest.requestMatchesVersionMapping()) {
             filterDirector.setResponseStatus(HttpStatusCode.OK);
@@ -84,8 +99,11 @@ public class VersioningHelper {
 
             transformer.transform(versionElement, versionedRequest.getRequestInfo().getPreferedMediaRange(), filterDirector.getResponseOutputStream());
         } else {
+            String contextPath = StringUtilities.getValue(targetOriginService.getMapping().getContextPath(), "");
             filterDirector.setFilterAction(FilterAction.PASS);
-            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.ROUTE_DESTINATION.headerKey(), targetOriginService.getMapping().getContextPath());
+            filterDirector.requestHeaderManager().removeHeader(PowerApiHeader.ROUTE_DESTINATION.headerKey());
+            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.ROUTE_DESTINATION.headerKey(), 
+                    getRouteDestinationPrefix(targetOriginService) + contextPath);
 
             // Set the URI to the correct, internally versioned path and pass it to the origin service
             filterDirector.setRequestUri(versionedRequest.asInternalURI());

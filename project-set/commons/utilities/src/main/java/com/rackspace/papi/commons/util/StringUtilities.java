@@ -43,6 +43,14 @@ public final class StringUtilities {
     public static boolean isNotBlank(String s) {
         return !isBlank(s);
     }
+    
+    public static String getValue(String string, String defaultValue) {
+      if (string != null) {
+        return string;
+      }
+      
+      return defaultValue;
+    }
 
     public static boolean nullSafeEqualsIgnoreCase(String one, String two) {
         return one == null ? (two == null) : (two != null) && one.equalsIgnoreCase(two);
