@@ -12,7 +12,7 @@
     <artifactId>rackspace-auth-v1.1</artifactId>
     <version>0.9.1-SNAPSHOT</version>
 
-    <name>Power API Service Client - Rackspace Auth v1.1</name>
+    <name>Power API Service Clients - Rackspace Auth v1.1</name>
     
     <packaging>jar</packaging>
 

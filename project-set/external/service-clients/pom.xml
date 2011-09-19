@@ -12,7 +12,7 @@
     <artifactId>service-client-support</artifactId>
     <version>0.9.1-SNAPSHOT</version>
 
-    <name>Power API - External Service Clients</name>
+    <name>Power API Service Clients - Service Clients Support</name>
     
     <packaging>pom</packaging>
 
