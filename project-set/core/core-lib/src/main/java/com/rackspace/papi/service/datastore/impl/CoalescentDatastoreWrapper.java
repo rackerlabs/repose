@@ -12,7 +12,7 @@ import java.util.TreeMap;
 import java.util.concurrent.TimeUnit;
 
 public class CoalescentDatastoreWrapper implements Datastore, Runnable, Destroyable {
-
+    
     private final Map<String, Queue<Operation>> operationQueues;
     private final Deque<String> nextOperationList;
     private final Datastore datastore;
@@ -25,6 +25,8 @@ public class CoalescentDatastoreWrapper implements Datastore, Runnable, Destroya
         nextOperationList = new LinkedList<String>();
 
         threadReference = new Thread(this, "Coalescent Datastore Wrapper Thread");
+        
+        // TODO:Refactor Starting threads belongs in an init method. not testable.
         threadReference.start();
     }
 
@@ -75,6 +77,8 @@ public class CoalescentDatastoreWrapper implements Datastore, Runnable, Destroya
                 }
             } catch (InterruptedException ie) {
                 destroy();
+                
+                Thread.currentThread().interrupt();
             }
         }
     }
@@ -107,6 +111,8 @@ public class CoalescentDatastoreWrapper implements Datastore, Runnable, Destroya
         try {
             operation.getFuture().join();
         } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            
             throw new DatastoreOperationException("Interrupted while waiting for operation to complete", ie);
         }
     }
@@ -119,6 +125,8 @@ public class CoalescentDatastoreWrapper implements Datastore, Runnable, Destroya
         try {
             operation.getFuture().join();
         } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            
             throw new DatastoreOperationException("Interrupted while waiting for operation to complete", ie);
         }
     }
@@ -131,6 +139,8 @@ public class CoalescentDatastoreWrapper implements Datastore, Runnable, Destroya
         try {
             return operation.getFuture().get();
         } catch (InterruptedException ie) {
+            Thread.currentThread().interrupt();
+            
             throw new DatastoreOperationException("Interrupted while waiting for operation to complete", ie);
         }
     }

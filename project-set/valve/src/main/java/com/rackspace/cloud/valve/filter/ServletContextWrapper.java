@@ -49,7 +49,16 @@ public class ServletContextWrapper implements ServletContext {
 
   @Override
   public ServletContext getContext(String uripath) {
-    return new ServletContextWrapper(context.getContext(uripath), uripath);
+    if (uripath.matches("^https?://.*")) {
+      return new ServletContextWrapper(this, uripath);
+    } else {
+      ServletContext newContext = context.getContext(uripath);
+      if (newContext == null) {
+        return null;
+      }
+
+      return new ServletContextWrapper(newContext, uripath);
+    }
   }
 
   @Override
@@ -94,7 +103,7 @@ public class ServletContextWrapper implements ServletContext {
 
   @Override
   public RequestDispatcher getRequestDispatcher(String path) {
-    if (!"".equals(targetContext)) {
+    if (targetContext.matches("^https?://.*")) {
       return new HttpRequestDispatcher(targetContext);
     } else {
       return context.getRequestDispatcher(path);

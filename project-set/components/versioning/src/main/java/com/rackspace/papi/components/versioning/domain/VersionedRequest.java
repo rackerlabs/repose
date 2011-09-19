@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.versioning.domain;
 
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpRequestInfo;
 import com.rackspace.papi.commons.util.http.UniformResourceInfo;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
@@ -93,13 +94,17 @@ public class VersionedRequest {
      * @return 
      */
     public static String formatUri(String uri) {
+        if (StringUtilities.isBlank(uri)) {
+          return "";
+        }
+        
         final StringBuilder externalName = new StringBuilder(uri);
 
         if (externalName.charAt(0) != '/') {
             externalName.insert(0, "/");
         }
 
-        if (externalName.charAt(externalName.length() - 1) == '/') {
+        if (externalName.charAt(externalName.length() - 1) == '/' && externalName.length() > 1) {
             externalName.deleteCharAt(externalName.length() - 1);
         }
 

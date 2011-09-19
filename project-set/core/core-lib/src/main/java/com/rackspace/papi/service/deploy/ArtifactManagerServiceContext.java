@@ -55,9 +55,11 @@ public class ArtifactManagerServiceContext implements ServiceContext<ArtifactMan
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        final EventService eventManagerReference = ServletContextHelper.getPowerApiContext(sce.getServletContext()).eventService();
-        eventManagerReference.squelch(artifactManager, ApplicationArtifactEvent.class);
-
-        watcherThread.destroy();
+        try {
+            final EventService eventManagerReference = ServletContextHelper.getPowerApiContext(sce.getServletContext()).eventService();
+            eventManagerReference.squelch(artifactManager, ApplicationArtifactEvent.class);
+        } finally {
+            watcherThread.destroy();
+        }
     }
 }

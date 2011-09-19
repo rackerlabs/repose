@@ -5,6 +5,6 @@ import java.net.InetSocketAddress;
 public interface ClusterView {
 
     InetSocketAddress[] members();
-    
-    InetSocketAddress local();
+
+    InetSocketAddress localMember();
 }

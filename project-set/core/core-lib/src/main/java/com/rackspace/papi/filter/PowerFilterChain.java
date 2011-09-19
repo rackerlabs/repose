@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 public class PowerFilterChain implements FilterChain {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilterChain.class);
-    
     private final List<FilterContext> filterChainCopy;
     private final FilterChain containerFilterChain;
     private final ClassLoader containerClassLoader;
@@ -80,7 +79,7 @@ public class PowerFilterChain implements FilterChain {
                 containerFilterChain.doFilter(servletRequest, servletResponse);
                 route(servletRequest, servletResponse);
             } catch (Exception ex) {
-                LOG.error("Failure in filter within container filter chain. Please debug");
+                LOG.error("Failure in filter within container filter chain. Please debug.", ex);
             } finally {
                 currentThread.setContextClassLoader(previousClassLoader);
             }

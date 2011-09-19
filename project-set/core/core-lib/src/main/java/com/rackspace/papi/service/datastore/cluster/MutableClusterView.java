@@ -4,7 +4,9 @@ import java.net.InetSocketAddress;
 
 public interface MutableClusterView extends ClusterView {
 
+    void memberDropoped(InetSocketAddress address);
+
     void updateMembers(InetSocketAddress[] newMembers);
-    
+
     void updateLocal(InetSocketAddress local);
 }
