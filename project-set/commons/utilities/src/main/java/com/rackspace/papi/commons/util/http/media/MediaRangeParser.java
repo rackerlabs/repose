@@ -10,7 +10,8 @@ import java.util.regex.Pattern;
 
 public abstract class MediaRangeParser {
 
-    public static final Pattern ACCEPTS_HEADER_REGEX = Pattern.compile("^((([\\w]+)|(\\*))/(([\\w][ \\w\\+\\.\\-\\;=]*[\\w])|(\\*)),? ?)+$");
+    public static final Pattern ACCEPTS_HEADER_REGEX = Pattern.compile("^((([\\w]+)|(\\*))/(([ \\w\\+\\.\\-;=]*[\\w])|(((\\*)[[;q=][\\d]\\.[\\d]]*))),? ?)+$");
+
     public static final String QUALITIY_PARAMETER_KEY = "q";
 
     private MediaRangeParser() {

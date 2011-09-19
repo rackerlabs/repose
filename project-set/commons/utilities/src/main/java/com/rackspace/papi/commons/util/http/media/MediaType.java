@@ -8,6 +8,11 @@ public enum MediaType {
 
     APPLICATION_XML("application/xml"),
     APPLICATION_JSON("application/json"),
+    APPLICATION_ATOM_XML("application/atom+xml"),
+    APPLICATION_XHTML_XML("application/xhtml+xml"),
+    TEXT_HTML("text/html"),
+    TEXT_PLAIN("text/plain"),
+    WILDCARD("*/*"),
     UNKNOWN(""),
     UNSPECIFIED("");
 
