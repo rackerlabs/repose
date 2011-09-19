@@ -68,7 +68,7 @@
                             <!-- disqusShortname = Disqus account where moderator is collecting this feedback -->
                             <enableDisqus>intranet</enableDisqus>
                             <disqusShortname>rc-integration</disqusShortname>
-                            <!--- open Webhelp at the front matter: copyright page, list of tables, list of figures, list of examples -->
+                            <!-- open Webhelp at the front matter: copyright page, list of tables, list of figures, list of examples -->
                             <htmlhelpDefaultTopic>index.html</htmlhelpDefaultTopic>
                             <!-- look here for the .xml and everything to include such as samples and figures -->
                             <sourceDirectory>src/resources</sourceDirectory>
