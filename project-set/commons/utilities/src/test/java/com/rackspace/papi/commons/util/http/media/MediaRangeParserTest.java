@@ -21,6 +21,7 @@ public class MediaRangeParserTest {
         private static final String ALL_MEDIA_TYPES = "*/*";
         private static final String ALL_MEDIA_SUBTYPES = "application/*";
         private static final String SUPER_COMPLICATED_MEDIA_TYPE = "application/vnd.rackspace.services.a+xml; x=v1.0; q=.8, application/json; q=.5";
+        private static final String DEFAULT_FIRE_FOX_MEDIA_TYPE = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
 
         @Test
         public void should1() {
@@ -29,39 +30,45 @@ public class MediaRangeParserTest {
         }
 
         @Test
-        public void should1_2() {
+        public void should2() {
             assertFalse(
                     MediaRangeParser.ACCEPTS_HEADER_REGEX.matcher("").matches());
         }
 
         @Test
-        public void should2() {
+        public void should3() {
             assertTrue(
                     MediaRangeParser.ACCEPTS_HEADER_REGEX.matcher(FULL_COMPLEX_CONTENT_TYPE).matches());
         }
 
         @Test
-        public void should3() {
+        public void should4() {
             assertTrue(
                     MediaRangeParser.ACCEPTS_HEADER_REGEX.matcher(VENDOR_COMPLEX_CONTENT_TYPE).matches());
         }
 
         @Test
-        public void should4() {
+        public void should5() {
             assertTrue(
                     MediaRangeParser.ACCEPTS_HEADER_REGEX.matcher(ALL_MEDIA_TYPES).matches());
         }
 
         @Test
-        public void should5() {
+        public void should6() {
             assertTrue(
                     MediaRangeParser.ACCEPTS_HEADER_REGEX.matcher(ALL_MEDIA_SUBTYPES).matches());
         }
 
         @Test
-        public void should6() {
+        public void should7() {
             assertTrue(
                     MediaRangeParser.ACCEPTS_HEADER_REGEX.matcher(SUPER_COMPLICATED_MEDIA_TYPE).matches());
+        }
+
+        @Test
+        public void should8() {
+            assertTrue(
+                    MediaRangeParser.ACCEPTS_HEADER_REGEX.matcher(DEFAULT_FIRE_FOX_MEDIA_TYPE).matches());
         }
     }
 
@@ -98,11 +105,11 @@ public class MediaRangeParserTest {
 
         @Test
         public void shouldParseAcceptHeaderWithMultipleMediaRanges() {
-            String acceptHeader = "application/vnd.openstack.compute-v1.1+xml, application/json; q=1.0, application/atom";
+            String acceptHeader = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8";
 
             List<MediaRange> mediaRanges = MediaRangeParser.getMediaRangesFromAcceptHeader(acceptHeader);
 
-            assertEquals(3, mediaRanges.size());
+            assertEquals(4, mediaRanges.size());
         }
     }
 }
