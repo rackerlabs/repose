@@ -73,7 +73,7 @@ public class FilterDirectorImpl implements FilterDirector {
         response.setStatus(delegatedStatus.intValue());
         
         if (responseOutputStream.size() > 0) {
-            RawInputStreamReader.instance().copyTo(new ByteArrayInputStream(getResponseMessageBodyBytes()), responseOutputStream);
+            RawInputStreamReader.instance().copyTo(new ByteArrayInputStream(getResponseMessageBodyBytes()), response.getOutputStream());
         }
     }
 
