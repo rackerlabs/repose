@@ -2,6 +2,7 @@ package com.rackspace.papi.components.datastore;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
 import com.rackspace.papi.components.datastore.hash.HashRingDatastoreManager;
 import com.rackspace.papi.model.Filter;
 import com.rackspace.papi.model.Host;
@@ -10,11 +11,15 @@ import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.service.datastore.HashedDatastore;
+import com.rackspace.papi.service.datastore.hash.HashedDatastore;
 import com.rackspace.papi.service.datastore.StoredElement;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
+import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
+import com.rackspace.papi.service.datastore.hash.HashProvider;
+import com.rackspace.papi.service.datastore.hash.MD5HashProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +29,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
+import java.security.NoSuchAlgorithmException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -37,7 +43,9 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
     private String lastLocalAddr;
     private HashRingDatastoreManager hashRingDatastoreManager;
     private HashedDatastore hashRingDatastore;
+
     private class SystemModelUpdateListener implements UpdateListener<PowerProxy> {
+
         @Override
         public void configurationUpdated(PowerProxy configurationObject) {
             if (configurationObject == null) {
@@ -67,11 +75,17 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
             }
 
             if (hashRingDatastoreManager == null) {
-                hashRingDatastoreManager = new HashRingDatastoreManager("temp-host-key", clusterView, datastoreService.defaultDatastore());
-                hashRingDatastore = hashRingDatastoreManager.getDatastore("default");
-
                 try {
+                    final HashProvider hashProvider = new MD5HashProvider();
+
+                    hashRingDatastoreManager = new HashRingDatastoreManager("temp-host-key", UUIDEncodingProvider.getInstance(), hashProvider, clusterView, datastoreService.defaultDatastore());
+                    hashRingDatastore = hashRingDatastoreManager.newDatastoreServer("default");
+
                     datastoreService.registerDatastoreManager(HashRingDatastoreManager.DATASTORE_MANAGER_NAME, hashRingDatastoreManager);
+                } catch (NoSuchAlgorithmException algorithmException) {
+                    LOG.error("Unable to create hash-ring datastore. Hashing algorithm is missing. Reason: " + algorithmException.getMessage(), algorithmException);
+
+                    throw new DatastoreOperationException("Unable to create hash-ring datastore. Hashing algorithm is missing. Reason: " + algorithmException.getMessage(), algorithmException);
                 } catch (NamingException ne) {
                     LOG.error(ne.getExplanation(), ne);
                 }
@@ -95,10 +109,10 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
         director.setFilterAction(FilterAction.PASS);
 
         updateClusterViewLocalAddress(request.getLocalAddr(), request.getLocalPort());
-        
+
         if (CacheRequest.isCacheRequest(request)) {
             final String requestMethod = request.getMethod();
-            
+
             try {
                 if (requestMethod.equalsIgnoreCase("GET")) {
                     onCacheGet(CacheRequest.marshallCacheGetRequest(request), director);

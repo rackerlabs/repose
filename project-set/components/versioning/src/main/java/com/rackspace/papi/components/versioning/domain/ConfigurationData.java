@@ -22,12 +22,14 @@ public class ConfigurationData {
 
     private final Map<String, ServiceVersionMapping> serviceMappings;
     private final Map<String, Host> configuredHosts;
+    private final Host localHost;
     private final String serviceRootHref;
 
-    public ConfigurationData(String serviceRootHref, Map<String, Host> configuredHosts, Map<String, ServiceVersionMapping> serviceMappings) {
+    public ConfigurationData(String serviceRootHref, Host localHost, Map<String, Host> configuredHosts, Map<String, ServiceVersionMapping> serviceMappings) {
         this.serviceRootHref = serviceRootHref;
         this.configuredHosts = configuredHosts;
         this.serviceMappings = serviceMappings;
+        this.localHost = localHost;
     }
 
     public String getServiceRootHref() {
@@ -124,5 +126,9 @@ public class ConfigurationData {
 
     public boolean isRequestForVersions(UniformResourceInfo uniformResourceInfo) {
         return VersionedRequest.formatUri(uniformResourceInfo.getUri()).isEmpty();
+    }
+
+    public Host getLocalHost() {
+      return localHost;
     }
 }

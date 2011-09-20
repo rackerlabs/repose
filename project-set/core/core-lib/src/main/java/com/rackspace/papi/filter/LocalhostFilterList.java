@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * @author franshua
  */
-public class LocalhostFilterList extends PowerProxy {
+public class LocalhostFilterList {
     private final PowerProxy instance;
 
     public LocalhostFilterList(PowerProxy powerProxy) {
@@ -21,17 +21,26 @@ public class LocalhostFilterList extends PowerProxy {
     }
 
     public List<com.rackspace.papi.model.Filter> getFilters() {
-        final String myHostname = getLocalHostName();
         List<com.rackspace.papi.model.Filter> thisHostsFilters = new ArrayList<Filter>();
-
-        for (Host powerProxyHost : instance.getHost()) {
-            if (powerProxyHost.getHostname().equals(myHostname)) {
-                thisHostsFilters.addAll(powerProxyHost.getFilters().getFilter());
-                break;
-            }
+        
+        Host localHost = getLocalHost();
+        if (localHost != null) {
+            thisHostsFilters.addAll(localHost.getFilters().getFilter());
         }
 
         return thisHostsFilters;
+    }
+    
+    public Host getLocalHost() {
+        final String myHostname = getLocalHostName();
+
+        for (Host powerProxyHost : instance.getHost()) {
+            if (powerProxyHost.getHostname().equals(myHostname)) {
+              return powerProxyHost;
+            }
+        }
+        
+        return null;
     }
 
     public static String getLocalHostName() {

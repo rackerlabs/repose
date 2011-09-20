@@ -36,12 +36,12 @@ public class HeaderManagerImpl implements HeaderManager {
     }
 
     private void applyTo(HeaderApplicationLogic applier) {
-        for (Map.Entry<String, String[]> header : headersToAdd().entrySet()) {
-            applier.addHeader(header.getKey(), header.getValue());
-        }
-
         for (String header : headersToRemove()) {
             applier.removeHeader(header);
+        }
+
+        for (Map.Entry<String, String[]> header : headersToAdd().entrySet()) {
+            applier.addHeader(header.getKey(), header.getValue());
         }
     }
 

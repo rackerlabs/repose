@@ -1,2 +1,0 @@
-Manifest-Version: 1.0
-Class-Path: client-auth-0.9-SNAPSHOT.jar versioning-0.9-SNAPSHOT.jar distributed-datastore-0.9-SNAPSHOT.jar rate-limiting-0.9-SNAPSHOT.jar

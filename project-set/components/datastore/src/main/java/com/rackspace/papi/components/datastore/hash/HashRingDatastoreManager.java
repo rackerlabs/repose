@@ -1,47 +1,58 @@
 package com.rackspace.papi.components.datastore.hash;
 
+import com.rackspace.papi.components.datastore.hash.client.HashRingDatastoreClient;
 import com.rackspace.papi.service.datastore.Datastore;
-import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
+import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
+import com.rackspace.papi.service.datastore.hash.HashProvider;
+import com.rackspace.papi.service.datastore.hash.HashedDatastore;
 import com.rackspace.papi.service.datastore.impl.AbstractMapDatastoreManager;
 
-import java.security.NoSuchAlgorithmException;
+import com.rackspace.papi.service.datastore.impl.CoalescentHashedDatastoreWrapper;
 import java.util.HashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public class HashRingDatastoreManager extends AbstractMapDatastoreManager<HashRingDatastore> {
+public class HashRingDatastoreManager extends AbstractMapDatastoreManager<HashedDatastore> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HashRingDatastoreManager.class);
     public static final String DATASTORE_MANAGER_NAME = "distributed/hash-ring";
+    
     private final Datastore localDatastore;
     private final MutableClusterView clusterView;
-    private final RemoteCacheClient remoteHttpCacheClient;
+    private final RemoteCacheClient datastoreClientRemote, datastoreServerRemote;
+    private final EncodingProvider encodingProvider;
+    private final HashProvider hashProvider;
 
-    public HashRingDatastoreManager(String hostKey, MutableClusterView clusterView, Datastore localDatastore) {
-        super(new HashMap<String, HashRingDatastore>());
+    public HashRingDatastoreManager(String hostKey, EncodingProvider encodingProvider, HashProvider hashProvider, MutableClusterView clusterView, Datastore localDatastore) {
+        super(new HashMap<String, HashedDatastore>());
 
         this.localDatastore = localDatastore;
         this.clusterView = clusterView;
+        this.encodingProvider = encodingProvider;
+        this.hashProvider = hashProvider;
 
-        final RemoteHttpCacheClientImpl newClient = new RemoteHttpCacheClientImpl();
+        RemoteHttpCacheClientImpl newClient = new RemoteHttpCacheClientImpl();
         newClient.setHostKey(hostKey);
 
-        remoteHttpCacheClient = newClient;
+        datastoreServerRemote = newClient;
+        
+        newClient = new RemoteHttpCacheClientImpl(1000, 10000);
+        newClient.setHostKey(hostKey);
+        
+        datastoreClientRemote = newClient;
     }
 
     @Override
-    protected HashRingDatastore newDatastore(String key) {
-        try {
-            final HashRingDatastore datastore = new MD5HashRingDatastore(key, clusterView, localDatastore);
-            datastore.setRemoteCacheClient(remoteHttpCacheClient);
+    protected HashedDatastore newDatastore(String key) {
+        final HashRingDatastore datastore = new HashRingDatastore(clusterView, key, localDatastore, hashProvider, encodingProvider);
+        datastore.setRemoteCacheClient(datastoreClientRemote);
 
-            return datastore;
-        } catch (NoSuchAlgorithmException algorithmException) {
-            LOG.error("Unable to create hash-ring datastore. Hashing algorithm is missing. Reason: " + algorithmException.getMessage(), algorithmException);
+        return new CoalescentHashedDatastoreWrapper(datastore);
+    }
 
-            throw new DatastoreOperationException("Unable to create hash-ring datastore. Hashing algorithm is missing. Reason: " + algorithmException.getMessage(), algorithmException);
-        }
+    public HashedDatastore newDatastoreServer(String key) {
+        final HashRingDatastore datastore = new HashRingDatastore(clusterView, key, localDatastore, hashProvider, encodingProvider);
+        datastore.setRemoteCacheClient(datastoreServerRemote);
+
+        return datastore;
     }
 
     @Override

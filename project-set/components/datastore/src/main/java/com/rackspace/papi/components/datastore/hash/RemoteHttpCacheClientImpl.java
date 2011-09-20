@@ -38,13 +38,17 @@ public class RemoteHttpCacheClientImpl implements RemoteCacheClient {
     private String hostKey;
 
     public RemoteHttpCacheClientImpl() {
+        this(500, 2000);
+    }
+    
+    public RemoteHttpCacheClientImpl(final int connectionTimeout, final int socketTimeout) {
         httpClientPool = new GenericBlockingResourcePool<HttpClient>(new ConstructionStrategy<HttpClient>() {
 
             @Override
             public HttpClient construct() throws ResourceConstructionException {
                 final HttpParams httpParams = new BasicHttpParams();
-                HttpConnectionParams.setConnectionTimeout(httpParams, 500);
-                HttpConnectionParams.setSoTimeout(httpParams, 6000);
+                HttpConnectionParams.setConnectionTimeout(httpParams, connectionTimeout);
+                HttpConnectionParams.setSoTimeout(httpParams, socketTimeout);
 
                 final HttpClient newClient = new DefaultHttpClient(httpParams);
 

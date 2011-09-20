@@ -10,7 +10,8 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList;
 import com.rackspace.papi.components.versioning.domain.ConfigurationData;
-import com.rackspace.papi.components.versioning.listener.SystemModelConfigurationListener;
+import com.rackspace.papi.components.versioning.util.ContentTransformer;
+import com.rackspace.papi.filter.LocalhostFilterList;
 import com.rackspace.papi.model.Host;
 import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
@@ -27,10 +28,14 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
     private final KeyedStackLock updateLock = new KeyedStackLock();
     private final Object updateKey = new Object(), readKey = new Object();
     private final UpdateListener<ServiceVersionMappingList> versioningConfigurationListener;
+    private final UpdateListener<PowerProxy> systemModelConfigurationListener;
+    private final ContentTransformer transformer;
+    private Host localHost;
 
     private ServiceVersionMappingList config;
     
     public VersioningHandler() {
+        transformer = new ContentTransformer();
         versioningConfigurationListener = new LockedConfigurationUpdater<ServiceVersionMappingList>(updateLock, updateKey) {
 
             @Override
@@ -49,18 +54,24 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
                 config = mappings;
             }
         };
+        
+        systemModelConfigurationListener = new LockedConfigurationUpdater<PowerProxy>(updateLock, updateKey) {
+        
+            @Override
+            public final void onConfigurationUpdated(PowerProxy configurationObject) {
+                localHost = new LocalhostFilterList(configurationObject).getLocalHost();
+                
+                for (Host powerApiHost : configurationObject.getHost()) {
+                    configuredHosts.put(powerApiHost.getId(), powerApiHost);
+                }
+            }
+        };
+
     }
 
     public UpdateListener<ServiceVersionMappingList> getVersioningConfigurationListener() {
         return versioningConfigurationListener;
     }
-    private final UpdateListener<PowerProxy> systemModelConfigurationListener = new SystemModelConfigurationListener(updateLock, updateKey) {
-
-        @Override
-        protected void onUpdate(Host powerApiHost) {
-            configuredHosts.put(powerApiHost.getId(), powerApiHost);
-        }
-    };
 
     public UpdateListener<PowerProxy> getSystemModelConfigurationListener() {
         return systemModelConfigurationListener;
@@ -73,9 +84,9 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
             final Map<String, ServiceVersionMapping> copiedVersioningMappings = new HashMap<String, ServiceVersionMapping>(configuredMappings);
             final Map<String, Host> copiedHostDefinitions = new HashMap<String, Host>(configuredHosts);
 
-            final ConfigurationData configData = new ConfigurationData(config.getServiceRoot().getHref(), copiedHostDefinitions, copiedVersioningMappings);
+            final ConfigurationData configData = new ConfigurationData(config.getServiceRoot().getHref(), localHost, copiedHostDefinitions, copiedVersioningMappings);
             
-            return new VersioningHelper(configData);
+            return new VersioningHelper(configData, transformer);
         } finally {
             updateLock.unlock(readKey);
         }

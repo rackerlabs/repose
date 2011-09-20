@@ -17,7 +17,7 @@ public class ClusterMember {
         this.memberAddress = memberAddress;
         this.droppedMemberRestTime = droppedMemberRestTime;
 
-        online = false;
+        online = true;
         validationPass = 0;
     }
 

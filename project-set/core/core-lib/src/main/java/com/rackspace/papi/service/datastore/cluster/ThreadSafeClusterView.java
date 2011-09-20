@@ -21,7 +21,7 @@ public class ThreadSafeClusterView implements MutableClusterView {
         }
     };
     
-    private static final int DEFAULT_REST_DURATION_IN_MILISECONDS = 25000;
+    private static final int DEFAULT_REST_DURATION_IN_MILISECONDS = 10000;
     private final List<ClusterMember> clusterMembers;
     private InetSocketAddress localAddress;
 

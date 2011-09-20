@@ -13,7 +13,6 @@ import java.util.Map;
  * @author jhopper
  */
 public class CachedRateLimit implements Serializable {
-
     private final Map<HttpMethod, LinkedList<LoggedRequest>> usageMap;
     private final int regexHashcode;
 
