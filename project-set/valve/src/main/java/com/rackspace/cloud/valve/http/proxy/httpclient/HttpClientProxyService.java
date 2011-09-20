@@ -16,13 +16,14 @@
  */
 package com.rackspace.cloud.valve.http.proxy.httpclient;
 
+import java.io.InputStream;
+import java.io.BufferedInputStream;
 import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import com.rackspace.cloud.valve.http.proxy.ProxyService;
 import org.apache.commons.httpclient.*;
 import org.apache.commons.httpclient.methods.OptionsMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Enumeration;
@@ -186,17 +187,21 @@ public class HttpClientProxyService implements ProxyService {
             }
 
             // Send the content to the client
-            final BufferedInputStream httpIn = new BufferedInputStream(httpMethodProxyRequest.getResponseBodyAsStream());
-            final OutputStream clientOut = httpServletResponse.getOutputStream();
+            final InputStream source = httpMethodProxyRequest.getResponseBodyAsStream();
+            if (source != null) {
 
-            //Using a buffered stream so this isn't nearly as expensive as it looks
-            int intNextByte;
+              final BufferedInputStream httpIn = new BufferedInputStream(source);
+              final OutputStream clientOut = httpServletResponse.getOutputStream();
 
-            while ((intNextByte = httpIn.read()) != -1) {
-                clientOut.write(intNextByte);
+              //Using a buffered stream so this isn't nearly as expensive as it looks
+              int readData;
+
+              while ((readData = httpIn.read()) != -1) {
+                  clientOut.write(readData);
+              }
+
+              clientOut.flush();
             }
-
-            clientOut.flush();
         }
 
         return proxiedResponseCode;
