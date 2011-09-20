@@ -19,15 +19,11 @@ import java.io.InputStreamReader;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
-/**
- * Created by IntelliJ IDEA.
- * User: joshualockwood
- * Date: May 19, 2011
- * Time: 10:23:47 AM
- */
 @RunWith(Enclosed.class)
 public class MutableHttpServletResponseTest {
+
     public static class WhenCreatingNewInstances {
+
         @Test
         public void shouldPassReferenceThroughIfIsWrapperInstance() {
             MutableHttpServletResponse original = MutableHttpServletResponse.wrap(mock(HttpServletResponse.class));
@@ -37,7 +33,7 @@ public class MutableHttpServletResponseTest {
 
             assertSame(original, actual);
         }
-        
+
         @Test
         public void shouldCreateNewInstanceIfIsNotWrapperInstance() {
             HttpServletResponse original = mock(HttpServletResponse.class);
@@ -81,6 +77,7 @@ public class MutableHttpServletResponseTest {
 
     public static class WhenGettingInputStream {
         //TODO: redo this test, it doesn't really test much (this is Josh being snarky, not Fran)
+
         @Test
         public void shouldAlwaysCreateNewInstance() throws IOException {
             InputStream first, second;
@@ -103,24 +100,25 @@ public class MutableHttpServletResponseTest {
 
     @Ignore
     public static class WhenGettingWriter {
+
         @Test
         public void shouldWriteResponseMessageBody() throws IOException {
-            String responseBody = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>" +
-                    "<versions xmlns:ns2=\"http://www.w3.org/2005/Atom\" xmlns=\"http://docs.openstack.org/common/api/v1.0\" xmlns:ns3=\"http://docs.rackspacecloud.com/power-api/versioning/v1.0\">" +
-                    "<version xsi:type=\"ns3:ServiceVersionMapping\" pp-host-id=\"service-v1\" name=\"Service Version 1\" status=\"DEPRECATED\" id=\"v1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" +
-                    "<ns2:link href=\"http://localhost:65000/v1/\" rel=\"self\"/>" +
-                    "</version>" +
-                    "<version xsi:type=\"ns3:ServiceVersionMapping\" pp-host-id=\"service-v2\" name=\"Service Version 2\" status=\"CURRENT\" id=\"v2\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" +
-                    "<ns2:link href=\"http://localhost:65000/v2/\" rel=\"self\"/>" +
-                    "</version>" +
-                    "</versions>";
+            String responseBody = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+                    + "<versions xmlns:ns2=\"http://www.w3.org/2005/Atom\" xmlns=\"http://docs.openstack.org/common/api/v1.0\" xmlns:ns3=\"http://docs.rackspacecloud.com/power-api/versioning/v1.0\">"
+                    + "<version xsi:type=\"ns3:ServiceVersionMapping\" pp-host-id=\"service-v1\" name=\"Service Version 1\" status=\"DEPRECATED\" id=\"v1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"
+                    + "<ns2:link href=\"http://localhost:65000/v1/\" rel=\"self\"/>"
+                    + "</version>"
+                    + "<version xsi:type=\"ns3:ServiceVersionMapping\" pp-host-id=\"service-v2\" name=\"Service Version 2\" status=\"CURRENT\" id=\"v2\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">"
+                    + "<ns2:link href=\"http://localhost:65000/v2/\" rel=\"self\"/>"
+                    + "</version>"
+                    + "</versions>";
 
             HttpServletResponse original = mock(HttpServletResponse.class);
 
             ByteBuffer byteBuffer = new CyclicByteBuffer();
             ServletOutputStream outputStream = new ByteBufferServletOutputStream(byteBuffer);
             when(original.getOutputStream()).thenReturn(outputStream);
-            
+
             MutableHttpServletResponse response = MutableHttpServletResponse.wrap(original);
 
             response.getWriter().write(responseBody);
