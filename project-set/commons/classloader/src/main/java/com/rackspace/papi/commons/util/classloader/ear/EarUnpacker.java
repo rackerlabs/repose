@@ -38,12 +38,16 @@ public class EarUnpacker {
                 final EntryAction actionToTake = entryDescriptor != null ? entryListener.nextJarEntry(entryDescriptor) : EntryAction.SKIP;
 
                 if (actionToTake.processingAction() != ProcessingAction.SKIP) {
-                    final ArchiveEntryProcessor archiveEntryProcessor = new ArchiveEntryProcessor(entryDescriptor, deploymentDirectory, entryListener);
-                    final ArchiveStackElement newStackElement = archiveEntryProcessor.processEntry(actionToTake, currentStackElement);
+                    try {
+                        final ArchiveEntryProcessor archiveEntryProcessor = new ArchiveEntryProcessor(entryDescriptor, deploymentDirectory, entryListener);
+                        final ArchiveStackElement newStackElement = archiveEntryProcessor.processEntry(actionToTake, currentStackElement);
 
-                    if (!newStackElement.equals(currentStackElement)) {
-                        archiveStack.push(currentStackElement);
-                        currentStackElement = newStackElement;
+                        if (!newStackElement.equals(currentStackElement)) {
+                            archiveStack.push(currentStackElement);
+                            currentStackElement = newStackElement;
+                        }
+                    } catch (IOException iioe) {
+                        throw iioe;
                     }
                 }
 

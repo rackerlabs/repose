@@ -82,7 +82,7 @@
 
                     <configuration>
                         <generateApplicationXml>false</generateApplicationXml>
-                        <manifestFile>src/main/application/META-INF/MANIFEST.MF</manifestFile>
+
                         <modules>
                             <jarModule>
                                 <groupId>com.rackspace.papi.components</groupId>
