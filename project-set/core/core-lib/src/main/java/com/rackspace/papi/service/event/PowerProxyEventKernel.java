@@ -39,7 +39,7 @@ public class PowerProxyEventKernel implements Runnable, Destroyable {
                 }
             }
         } catch (InterruptedException ie) {
-            LOG.warn("Event kernel recieved an interrupted exception - exiting kernel loop", ie);
+            LOG.warn("Event kernel received an interrupted exception - exiting kernel loop", ie);
             shouldContinue = false;
 
             Thread.currentThread().interrupt();
