@@ -241,14 +241,14 @@
                                 human-readable representation of the regular expression used to
                                 match this limit. The URI is useful for client end-user interfaces
                                 as well as for documentation purposes.</entry>
-                            <entry/>
+                            <entry><emphasis>any valid URI</emphasis></entry>
                         </row>
                         <row>
                             <entry><code>uri-regex</code></entry>
                             <entry>The <code>uri-regex</code> attribute must be a regular expression
                                 and should match all request resource representations to which the
                                 given limit should apply.</entry>
-                            <entry/>
+                            <entry><emphasis>any valid regex</emphasis></entry>
                         </row>
                         <row>
                             <entry><code>http-methods</code></entry>
@@ -283,11 +283,17 @@
                                 with the <code>unit</code> attribute, the number of requests within
                                 a slice of time describes the rate for the given limit. The rate is
                                 then used to perform rate limiting.</entry>
-                            <entry/>
+                            <entry><emphasis>any integer</emphasis></entry>
                         </row>
                     </tbody>
                 </tgroup>
             </table>
+            <important>
+                <para>
+                    The <code>unit</code> and <code>value</code> attributes must always be specified as pairs.
+                    For example, <code>UNIT="SECOND" VALUE="1"</code> allows a rate of one request per second.
+                </para>
+            </important>
         </section>
         <section xml:id="Configuring_Limit_Groups-d1e374">
             <title>Configuring Limit Groups</title>
