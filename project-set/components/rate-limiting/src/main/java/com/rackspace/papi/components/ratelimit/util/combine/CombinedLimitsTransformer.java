@@ -41,8 +41,8 @@ public class CombinedLimitsTransformer extends AbstractXslTransform implements S
             public void perform(Transformer resource) throws ResourceContextException {
                 final StreamResult resultWriter = new StreamResult(target);
                 
-                //This XSL requires a parameter to represent the absolute limits.
-                //This implementation cheats and provides the input stream directly.
+                // The XSL requires a parameter to represent the absolute limits.
+                // This harness cheats and provides the input stream directly.
                 resource.setURIResolver(inputStreamUriParameter);
                 resource.setParameter("absoluteURL", inputStreamUriParameter.getHref());
 

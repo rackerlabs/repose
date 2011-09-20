@@ -41,11 +41,9 @@ public class RateLimitingFilter implements Filter {
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
 
         FilterDirector director = handler.handleRequest(mutableHttpRequest);
-
-        if (director.requestHeaderManager().hasHeaders()) {
-            director.requestHeaderManager().applyTo(mutableHttpRequest);
-        }
-
+        
+        director.applyTo(mutableHttpRequest);
+        
         switch (director.getFilterAction()) {
             case PASS:
                 chain.doFilter(request, response);
@@ -56,12 +54,7 @@ public class RateLimitingFilter implements Filter {
                 director = handler.handleResponse(mutableHttpRequest, mutableHttpResponse);
 
             case RETURN:
-                if (director.responseHeaderManager().hasHeaders()) {
-                    director.responseHeaderManager().applyTo(mutableHttpResponse);
-                }
-
-                mutableHttpResponse.setStatus(director.getResponseStatus().intValue());
-                mutableHttpResponse.getWriter().write(director.getResponseMessageBody());
+                director.applyTo(mutableHttpResponse);
                 break;
         }
     }

@@ -2,9 +2,6 @@ package com.rackspace.papi.commons.util.plugin.archive;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 /**
  *
  */
