@@ -130,6 +130,7 @@
         <para> To correctly rate limit a requested resource, the rate limiting component uses one
             required HTTP header precondition and one optional HTTP header precondition. </para>
         <table frame="all">
+            <?dbfo keep-together="always"?>
             <title>HTTP Request Headers</title>
             <tgroup cols="2">
                 <colspec colname="c1" colnum="1" />
@@ -195,11 +196,15 @@
                     regular expression that identifies client requests for the client's current
                     limits.
                 </para>
+                <para> </para>
             </callout>
             <callout arearefs="cfg.xml.uri-regex">
-                <para> The <code>uri-regex</code> attribute must be specified and must be a regular
+                <para> 
+                    The <code>uri-regex</code> attribute must be specified and must be a regular
                     expression. It should matches all representations of the request resource that
-                    the rate limiting component should answer. </para>
+                    the rate limiting component should answer. 
+                </para>
+                <para> </para>
             </callout>
             <callout arearefs="cfg.xml.include-absolute-limits">
                 <para> 
@@ -207,11 +212,16 @@
                     can be used to switch on or off integration with the origin service's
                     absolute limits. 
                 </para>
+                <para> </para>
             </callout>
         </calloutlist>
         <section xml:id="Configuring_Limits-d1e376">
             <title>Configuring Limits</title>
+            <para>
+                To set a rate limit, assign acceptable values to the rate limiting configuration attributes shown in the code sample at <xref linkend="Configuration-d1e365"></xref>
+            </para>
             <table frame="all">
+                <?dbfo keep-together="always"?>
                 <title>Configuring Limits</title>
                 <tgroup cols="3">
                     <colspec colname="c1" colnum="1" />
@@ -235,9 +245,9 @@
                         </row>
                         <row>
                             <entry><code>uri-regex</code></entry>
-                            <entry>The <code>uri-regex</code> attribute should be a regular
-                                expression that matches all request resource representations to
-                                which the given limit should apply.</entry>
+                            <entry>The <code>uri-regex</code> attribute must be a regular expression
+                                and should match all request resource representations to which the
+                                given limit should apply.</entry>
                             <entry/>
                         </row>
                         <row>
@@ -320,6 +330,7 @@
                     RegEx examples. </remark>
             </annotation>
             <table frame="all">
+                <?dbfo keep-together="always"?>
                 <title>Sample Regular Expressions</title>
                 <tgroup cols="2">
                     <colspec colname="c1" colnum="1" colwidth="1.0*"/>
@@ -435,6 +446,7 @@
             </itemizedlist>
         </para>
         <table frame="all">
+            <?dbfo keep-together="always"?>
             <title>Sample Request/Response Conversation: Request Limits</title>
             <tgroup cols="2">
                 <colspec colname="c1" colnum="1" />
@@ -501,6 +513,7 @@ Content-Length: 538
             When this occurs, the response's <code>Retry-After</code> HTTP header contains HTTP-encoded data that the client can use to plan a retry. 
         </para>
             <table frame="all">
+                <?dbfo keep-together="always"?>
                 <title>Sample Request/Response Conversation: Rate Exceeded</title>
                 <tgroup cols="2">
                     <colspec colname="c1" colnum="1" />
