@@ -36,7 +36,7 @@
       xmlns:html="http://www.w3.org/1999/xhtml"
       xmlns:db="http://docbook.org/ns/docbook" >
     <?rax pdf.url="../../papi-rootwar-deploy.pdf"?>
-    <title>&PRODNAME; Root.WAR Component Deployment Handbook</title>
+    <title>&PRODNAME; Root.WAR Deployment Handbook</title>
     <?rax status.bar.text="CONFIDENTIAL"?>
     <?rax title.font.size="35px" subtitle.font.size="16px"?>
     <titleabbrev>&PRODABBREV; Root.WAR Deployment</titleabbrev>
@@ -78,8 +78,8 @@
                 provides basic information that will help you understand and deploy this &PRODNAME;
                 component, but you must adapt this information to suit your own configuration. </para>
             <para> Root.WAR is a default package that makes it easy to load &PRODNAME;'s components.
-                In addition to simplifying deploymentRoot.WAR provides centralized authorization and
-                control. This handbook is focused only on the Root.WAR deployment strategy.
+                In addition to simplifying deployment, Root.WAR provides centralized authorization
+                and control. This handbook is focused only on the Root.WAR deployment strategy.
                 &PRODNAME; components are documented in companion handbooks. </para>
         </section>
         <section xml:id="Document_Change_History-d1e102">

@@ -17,7 +17,6 @@ import com.rackspace.papi.commons.util.plugin.archive.ProcessingAction;
 
 import java.io.File;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
@@ -55,20 +54,18 @@ public class DefaultEarArchiveEntryListener implements EarArchiveEntryListener {
         WEB_FRAGMENT_XML_PARSER = webFragmentXmlParser;
     }
 
-    private final List<String> classPathJars;
     private final SimpleEarClassLoaderContext context;
 
     public DefaultEarArchiveEntryListener(File deploymentRoot) {
-        this(new SimpleEarClassLoaderContext(deploymentRoot), new LinkedList<String>());
+        this(new SimpleEarClassLoaderContext(deploymentRoot));
     }
 
     public DefaultEarArchiveEntryListener(ClassLoader absoluteParent, File deploymentRoot) {
-        this(new SimpleEarClassLoaderContext(absoluteParent, deploymentRoot), new LinkedList<String>());
+        this(new SimpleEarClassLoaderContext(absoluteParent, deploymentRoot));
     }
 
-    private DefaultEarArchiveEntryListener(SimpleEarClassLoaderContext context, List<String> classPathJars) {
+    private DefaultEarArchiveEntryListener(SimpleEarClassLoaderContext context) {
         this.context = context;
-        this.classPathJars = classPathJars;
     }
 
     @Override
@@ -89,21 +86,12 @@ public class DefaultEarArchiveEntryListener implements EarArchiveEntryListener {
         EntryAction entryAction = EntryAction.SKIP;
         
         final String extension = descriptor.getExtension();
+        
         if (!StringUtilities.isBlank(extension)) {
             if (extension.equals("class")) {
                 entryAction = new EntryAction(ProcessingAction.PROCESS_AS_CLASS, deploymentAction);
-            }
-
-            if (extension.equals("jar")) {
+            } else if (extension.equals("jar")) {
                 entryAction = new EntryAction(ProcessingAction.DESCEND_INTO_JAR_FORMAT_ARCHIVE, deploymentAction);
-            }
-
-            if (!isResourceInClassPath(descriptor.getArchiveName())) {
-                for (String resourceExtension : acceptedResourceExtensions()) {
-                    if (extension.equals(resourceExtension)) {
-                        entryAction = new EntryAction(ProcessingAction.PROCESS_AS_RESOURCE, deploymentAction);
-                    }
-                }
             } else {
                 entryAction = new EntryAction(ProcessingAction.PROCESS_AS_RESOURCE, deploymentAction);
             }
@@ -112,34 +100,11 @@ public class DefaultEarArchiveEntryListener implements EarArchiveEntryListener {
         return entryAction;
     }
 
-    private boolean isResourceInClassPath(String resourceName) {
-        for (String classPathJar : classPathJars) {
-            if (resourceName.equalsIgnoreCase(classPathJar)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
     private void markLibrary() {
     }
 
     @Override
     public void newJarManifest(ArchiveEntryDescriptor name, Manifest manifest) {
-        Attributes attributes = manifest.getMainAttributes();
-
-        String earClassPath = attributes.getValue(Attributes.Name.CLASS_PATH);
-
-        if (earClassPath != null) {
-            String[] classPathEntries = earClassPath.trim().split(REGEX_SINGLE_SPACE);
-
-            for (String extension : classPathEntries) {
-                if (extension.endsWith(".jar")) {
-                    classPathJars.add(extension);
-                }
-            }
-        }
     }
 
     @Override

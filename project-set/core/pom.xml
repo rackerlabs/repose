@@ -5,12 +5,12 @@
     <parent>
         <groupId>com.rackspace.papi</groupId>
         <artifactId>profile-support</artifactId>
-        <version>0.9.1-SNAPSHOT</version>
+        <version>0.9.2-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.core</groupId>
     <artifactId>core-support</artifactId>
-    <version>0.9.1-SNAPSHOT</version>
+    <version>0.9.2-SNAPSHOT</version>
 
     <name>Power API Core - Core Support</name>
     
@@ -39,25 +39,25 @@
             <dependency>
                 <groupId>com.rackspace.papi.commons</groupId>
                 <artifactId>configuration</artifactId>
-                <version>0.9.1-SNAPSHOT</version>
+                <version>0.9.2-SNAPSHOT</version>
             </dependency>
 
             <dependency>
                 <groupId>com.rackspace.papi.commons</groupId>
                 <artifactId>utilities</artifactId>
-                <version>0.9.1-SNAPSHOT</version>
+                <version>0.9.2-SNAPSHOT</version>
             </dependency>
             
             <dependency>
                 <groupId>com.rackspace.papi.commons</groupId>
                 <artifactId>jetty-container</artifactId>
-                <version>0.9.1-SNAPSHOT</version>
+                <version>0.9.2-SNAPSHOT</version>
             </dependency>
             
             <dependency>
                 <groupId>com.rackspace.papi.commons</groupId>
                 <artifactId>classloader</artifactId>
-                <version>0.9.1-SNAPSHOT</version>
+                <version>0.9.2-SNAPSHOT</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
