@@ -130,7 +130,7 @@
         <para> To correctly rate limit a requested resource, the rate limiting component uses one
             required HTTP header precondition and one optional HTTP header precondition. </para>
         <table frame="all">
-            <title>HTTP Headers</title>
+            <title>HTTP Request Headers</title>
             <tgroup cols="2">
                 <colspec colname="c1" colnum="1" />
                 <colspec colname="c2" colnum="2" />
@@ -142,20 +142,30 @@
                 </thead>
                 <tbody>
                     <row>
-                        <entry><code>X-PP-User</code></entry>
-                        <entry><code>X-PP-User</code> is a single string value header. This header is used to
+                        <entry>                         
+                             <para>
+                                 <code>X-PP-User</code>
+                             </para>    
+                             <para>
+                                 <emphasis>Required</emphasis>
+                             </para>
+                        </entry>
+                        <entry><code>X-PP-User</code> is a single-value header. This header is used to
                             describe the unique name of the client making the request. This name is
                             used in part to cache and store request hits.</entry>
                     </row>
                     <row>
-                        <entry><code>X-PP-Groups</code></entry>
-                        <entry><code>X-PP-Groups</code> is a string value list header. This header is used to
+                        <entry>
+                            <para>
+                                <code>X-PP-Groups</code>
+                            </para>
+                            <para>
+                                <emphasis>Optional</emphasis>
+                            </para>
+                        </entry>    
+                        <entry><code>X-PP-Groups</code> is a list of string values. This header is used to
                             describe all of the limit groups the client belongs to. A client may
                             belong to multiple limit groups or to none.</entry>
-                    </row>
-                    <row>
-                        <entry/>
-                        <entry/>
                     </row>
                 </tbody>
             </tgroup>
