@@ -59,7 +59,6 @@
     </dependencies>
 
     <build>
-        <pluginManagement>
             <plugins>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -126,7 +125,56 @@
                         </modules>
                     </configuration>
                 </plugin>
+                <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>rpm-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>rpm</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <copyright>N/A</copyright>
+                    <group>Rackspace - Cloud Integration Team</group>
+                    <description>Power API is a stack of reusable, software components that can be leveraged by service developers to perform common API processing tasks.
+            Source code: https://source.admin.stabletransit.com/thesystem/API/api-auth/trunk/</description>
+                    <mappings>
+                        <mapping>
+                            <directory>/usr/share/powerapi/filters</directory>
+                            <username>tomcat7</username>
+                            <groupname>tomcat7</groupname>
+                            <filemode>755</filemode>
+                            <sources>
+                                <source>
+                                  <location>target/filter-bundle-${project.version}.ear</location>
+                                </source>
+                            </sources>
+                        </mapping>
+                        <mapping>
+                            <directory>/etc/powerapi/</directory>
+                            <username>tomcat7</username>
+                            <groupname>tomcat7</groupname>
+                            <filemode>755</filemode>
+                            <sources>
+                                <source>
+                                  <location>../versioning/src/test/resources/META-INF/schema/examples/xml/versioning.cfg.xml</location>
+                                </source>
+                                <source>
+                                  <location>../client-auth/src/test/resources/META-INF/xsd/client-auth-n.cfg.xml</location>
+                                </source>
+                                <source>
+                                  <location>../rate-limiting/src/main/resources/META-INF/schema/examples/rate-limiting.cfg.xml</location>
+                                </source>
+                            </sources>
+                        </mapping>
+                    </mappings>
+                    <requires>
+                        <require>java-1.6.0-openjdk</require>
+                    </requires>
+                </configuration>
+            </plugin>
             </plugins>
-        </pluginManagement>
     </build>
 </project>
