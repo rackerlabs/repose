@@ -173,38 +173,42 @@
     </chapter>
     <chapter xml:id="Configuration-d1e365">
         <title>Configuration</title>
-        <para> The rate limiting component sources its configuration from a file named
-                <code>rate-limiting.xml</code>. </para>
+        <para> The rate limiting component sources its configuration, including its API endpoint,
+            from a file named <code>rate-limiting.cfg.xml</code>. </para>
         <example>
             <title>Rate Limiting Configuration: XML</title>
+            <programlistingco>
+                <areaspec>
+                    <area xml:id="cfg.xml.request-endpoint" units="linecolumn" coords="5 22"/>
+                    <area xml:id="cfg.xml.uri-regex" units="linecolumn" coords="5 32"/>
+                    <area xml:id="cfg.xml.include-absolute-limits" units="linecolumn" coords="6 32"/>
+                </areaspec>        
             <programlisting language="xml">
-<xi:include href="samples/papi-ratelimit.xml" parse="text"/>
-                    </programlisting>
-        </example>        
-        <section xml:id="Setting_Active_Limits-d1e373">
-            <title>Setting Active Limits</title>
-            <para>
-                The API endpoint is specified in <code>rate-limiting.xml</code>.
-            </para>
-                <itemizedlist> 
-                <listitem>
+<xi:include href="samples/&PRODABBREV;-ratelimit.xml" parse="text"/>
+            </programlisting>
+            </programlistingco>
+        </example>
+        <calloutlist>
+            <callout arearefs="cfg.xml.request-endpoint">
+                <para>
+                    The <code>request-endpoint</code> configuration element must specify a
+                    regular expression that identifies client requests for the client's current
+                    limits.
+                </para>
+            </callout>
+            <callout arearefs="cfg.xml.uri-regex">
+                <para> The <code>uri-regex</code> attribute must be specified and must be a regular
+                    expression. It should matches all representations of the request resource that
+                    the rate limiting component should answer. </para>
+            </callout>
+            <callout arearefs="cfg.xml.include-absolute-limits">
                 <para> 
-                    The <code>limits-request-endpoint</code> configuration element must specify a
-                    regex that identifies client requests for the client's currently active limits. 
+                    <code>include-absolute-limits</code> is an optional Boolean attribute that
+                    can be used to switch on or off integration with the origin service's
+                    absolute limits. 
                 </para>
-                </listitem>
-                <listitem>
-                <para>
-                    The <code>uri-regex</code> attribute should be a regular expression that matches all request resource representations that the rate limiting component should answer.
-                </para>
-                </listitem>
-                <listitem>
-                <para>
-                    Optionally, <code>include-absolute-limits</code> is a Boolean attribute that can be used to switch on or off absolute limits integration.
-                </para>
-                </listitem>
-                </itemizedlist>  
-         </section>
+            </callout>
+        </calloutlist>
         <section xml:id="Configuring_Limits-d1e376">
             <title>Configuring Limits</title>
             <table frame="all">
