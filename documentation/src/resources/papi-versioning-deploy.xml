@@ -372,7 +372,7 @@
             The versioning component may, upon request, describe all of the available service versions or one particular version.
         </para>
         <figure xml:id="Description">
-            <title>Version Catalog as Response to Versioning Request</title>
+            <title>Service Version Catalog as Response to Versioning Request</title>
             <mediaobject>
                 <imageobject>
                     <imagedata fileref="figures/papi-versioning-description.png" format="PNG" align="center"/>
@@ -394,7 +394,7 @@ Accept: application/xml
                 </literallayout>
             </example>
             <example>
-                <title>Multiple Choices Response: XML</title>
+                <title>Service Version Catalog Response: XML</title>
                 <programlisting language="xml">
 <xi:include href="samples/papi-allversions-response.xml" parse="text"/>
                     </programlisting>
@@ -402,18 +402,20 @@ Accept: application/xml
         </section>
             <section xml:id="One_Version-d1e547">
                 <title>Describing a Single Version</title>
-                <para> 
-                    A requester may request that the versioning component describe a single service version by requesting the service version's root. 
-                    The service version's root may be requested in two ways:
-                    <itemizedlist
-                        spacing="compact">
-                        <listitem>
-                            <para> via URI variant </para>
-                        </listitem>
-                        <listitem>
-                            <para> via complex MIME Type </para>
-                        </listitem>
-                    </itemizedlist> 
+                <para> A requester may request that the versioning component describe a single
+                service version by requesting the service root with versioning information on the
+                request. The service version's root may be requested in two ways: <itemizedlist
+                    spacing="compact">
+                    <listitem>
+                        <para> via URI variant </para>
+                    </listitem>
+                    <listitem>
+                        <para> via complex MIME type </para>
+                    </listitem>
+                </itemizedlist>
+                </para>
+                <para>
+                    Below, one example of a request using a URI variant is followed by three examples of requests using complex MIME types.
                 </para>
                 <example>
                     <title>Describe Single Version Using URI Variant Request: XML</title>
