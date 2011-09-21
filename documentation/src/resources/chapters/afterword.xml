@@ -51,6 +51,26 @@
                     </para>
                 </abstract>
             </biblioentry>
+            <biblioentry xml:id="RFC2046">
+                <author>
+                    <personname>
+                        <firstname>R.</firstname>
+                        <surname>Fielding et al</surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    Internet Engineering Task Force, Network Working Group
+                </orgname>
+                <title>Multipurpose Internet Mail Extensions (MIME) Part Two: Media Types</title>
+                <releaseinfo><link
+                    xlink:href="http://tools.ietf.org/html/rfc2046/">http://tools.ietf.org/html/rfc2046/</link></releaseinfo>
+                <abstract>
+                    <para>
+                        The Versioning component uses MIME types to describe the media types associated with version mappings.
+                    </para>
+                </abstract>
+            </biblioentry>
             <biblioentry xml:id="RFC4287">
                 <author>
                     <personname>

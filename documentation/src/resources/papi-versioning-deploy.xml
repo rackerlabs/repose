@@ -259,6 +259,9 @@
                         </listitem>
                     </itemizedlist>
                 </para>
+                <para>
+                    MIME types are described in RFC 2046 at <link xlink:href="http://tools.ietf.org/html/rfc2046/">http://tools.ietf.org/html/rfc2046/</link>.
+                </para>
                 <para> </para>
             </callout>
             <callout arearefs="versioning.xml.atom-links">
