@@ -289,9 +289,11 @@
                 </listitem>
             </itemizedlist>
         </para>
-        <para>
-            Introspection of the URI variant always takes precedence.
-        </para>
+        <note>
+            <para>
+                When both the <code>Accept</code> header and the URI variant are specified, introspection of the URI variant always takes precedence.
+            </para>
+        </note>   
         <figure xml:id="Normal">
             <title>Normal Handling of Versioning Request</title>
             <mediaobject>
