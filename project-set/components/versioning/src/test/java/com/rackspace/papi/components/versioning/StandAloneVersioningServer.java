@@ -30,7 +30,6 @@ public class StandAloneVersioningServer extends JettyTestingContext {
         serverBuilder.addContextListener(PowerApiContextManager.class);
         serverBuilder.addContextInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), "/home/zinic/installed/etc/powerapi");
         serverBuilder.addFilter(PowerFilter.class, "/*");
-        serverBuilder.addFilter(VersioningFilter.class, "/*");
         serverBuilder.addServlet(DummyServlet.class, "/*");
         serverBuilder.addServlet(DummyServlet.class, "/_v1.0/*");
         serverBuilder.addServlet(DummyServlet.class, "/_v2.0/*");

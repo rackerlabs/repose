@@ -4,7 +4,6 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.HeaderManager;
@@ -13,6 +12,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import javax.servlet.http.HttpServletResponse;
 
 public class FilterDirectorImpl implements FilterDirector {
 
@@ -44,12 +44,6 @@ public class FilterDirectorImpl implements FilterDirector {
     }
 
     @Override
-    public void applyTo(MutableHttpServletRequest request, MutableHttpServletResponse response) throws IOException {
-        applyTo(request);
-        applyTo(response);
-    }
-
-    @Override
     public synchronized void applyTo(MutableHttpServletRequest request) {
         if (requestHeaderManager().hasHeaders()) {
             requestHeaderManager().applyTo(request);
@@ -65,7 +59,7 @@ public class FilterDirectorImpl implements FilterDirector {
     }
 
     @Override
-    public synchronized void applyTo(MutableHttpServletResponse response) throws IOException {
+    public synchronized void applyTo(HttpServletResponse response) throws IOException {
         if (responseHeaderManager().hasHeaders()) {
             responseHeaderManager().applyTo(response);
         }
@@ -73,7 +67,7 @@ public class FilterDirectorImpl implements FilterDirector {
         response.setStatus(delegatedStatus.intValue());
         
         if (responseOutputStream.size() > 0) {
-            RawInputStreamReader.instance().copyTo(new ByteArrayInputStream(getResponseMessageBodyBytes()), responseOutputStream);
+            RawInputStreamReader.instance().copyTo(new ByteArrayInputStream(getResponseMessageBodyBytes()), response.getOutputStream());
         }
     }
 

@@ -32,7 +32,7 @@ public class DistributedDatastoreFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
 
-        final HttpServletResponse mutableHttpResponse = (HttpServletResponse) response;
+        final HttpServletResponse httpResponse = (HttpServletResponse) response;
         final FilterDirector director = handler.handleRequest((HttpServletRequest) request);
 
         switch (director.getFilterAction()) {
@@ -44,10 +44,7 @@ public class DistributedDatastoreFilter implements Filter {
             case RETURN:
             case PROCESS_RESPONSE:
             case USE_MESSAGE_SERVICE:
-                mutableHttpResponse.setStatus(director.getResponseStatus().intValue());
-                mutableHttpResponse.getOutputStream().write(director.getResponseMessageBodyBytes());
-                mutableHttpResponse.flushBuffer();
-                
+                director.applyTo(httpResponse);     
                 break;
         }
     }
