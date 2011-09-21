@@ -27,8 +27,9 @@
         format="SVG" scale="60"/>
         </imageobject>
         </inlinemediaobject>'>
-]>
-<book version="5.0" status="draft" xmlns="http://docbook.org/ns/docbook"
+        ]>
+<!-- in BOOK below, add status="draft" to set watermark on cover and left margin -->
+<book version="5.0" xmlns="http://docbook.org/ns/docbook"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:svg="http://www.w3.org/2000/svg"
@@ -37,7 +38,9 @@
       xmlns:db="http://docbook.org/ns/docbook" >
     <?rax pdf.url="../../papi-rootwar-deploy.pdf"?>
     <title>&PRODNAME; Root.WAR Deployment Handbook</title>
-    <?rax status.bar.text="CONFIDENTIAL"?>
+    <!-- set watermark on cover and left margin 
+        <?rax status.bar.text="CONFIDENTIAL"?>
+    -->
     <?rax title.font.size="35px" subtitle.font.size="16px"?>
     <titleabbrev>&PRODABBREV; Root.WAR Deployment</titleabbrev>
     <info>
@@ -55,9 +58,9 @@
             <year>2011</year>
             <holder>Rackspace US, Inc.</holder>
         </copyright>
-        <releaseinfo>API v0.9</releaseinfo>
+        <releaseinfo>v0.9</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2011-08-19</pubdate>
+        <pubdate>2011-09-21</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -94,6 +97,19 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <tr align="left">
+                        <td colspan="1" align="center">Sep 21, 2011</td>
+                        <td colspan="4" align="left">
+                            <itemizedlist spacing="compact">
+                                <listitem>
+                                    <para>Initial release for v0.9.</para>
+                                </listitem>
+                                <listitem>
+                                    <para>Revised code samples and formatting to address feedback from early technical reviewers.</para>
+                                </listitem>
+                            </itemizedlist>
+                        </td>
+                    </tr>
                     <tr align="left">
                         <td colspan="1" align="center">Jun 15, 2011</td>
                         <td colspan="4" align="left">
@@ -259,6 +275,7 @@
                 </programlisting>
                </programlistingco>
             </example>
+            <para> Key elements of the preceding example are labeled with callouts and explained below: </para>
             <calloutlist>
                 <callout arearefs="powerproxy.xml.hostid">
                     <para> This is the unique identifier of this node within this cluster. </para>
