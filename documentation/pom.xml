@@ -81,6 +81,7 @@
                             <!-- use this .XML as the source for the books to be generated as .PDF & .HTML -->
                             <!-- if not specified, generate for all -->
                             <!-- <includes>papi-rootwar-deploy.xml,papi-versioning-deploy.xml,papi-ratelimiting-deploy.xml,papi-authn-deploy.xml</includes> -->
+                            <!--  -->
                             <!-- I think the intention of this postProcess is to generate consistent SVGs & PNGs; I don't think it's accomplishing anything now -->
                             <!-- ask David Cramer -->
                             <postProcess>

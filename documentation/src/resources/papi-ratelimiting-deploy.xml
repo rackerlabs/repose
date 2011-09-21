@@ -58,9 +58,9 @@
             <year>2011</year>
             <holder>Rackspace US, Inc.</holder>
         </copyright>
-        <releaseinfo>API v0.9</releaseinfo>
+        <releaseinfo>v0.9</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2011-08-19</pubdate>
+        <pubdate>2011-09-21</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -188,7 +188,7 @@
                     <area xml:id="cfg.xml.include-absolute-limits" units="linecolumn" coords="6 32"/>
                 </areaspec>        
             <programlisting language="xml">
-<xi:include href="samples/&PRODABBREV;-ratelimit.xml" parse="text"/>
+<xi:include href="samples/papi-ratelimit.xml" parse="text"/>
             </programlisting>
             </programlistingco>
         </example>

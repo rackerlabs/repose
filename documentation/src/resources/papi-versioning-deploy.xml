@@ -58,9 +58,9 @@
             <year>2011</year>
             <holder>Rackspace US, Inc.</holder>
         </copyright>
-        <releaseinfo>API v0.9</releaseinfo>
+        <releaseinfo>v0.9</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2011-08-19</pubdate>
+        <pubdate>2011-09-21</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
