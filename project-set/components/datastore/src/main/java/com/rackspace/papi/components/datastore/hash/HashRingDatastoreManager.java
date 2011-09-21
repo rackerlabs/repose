@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.datastore.hash;
 
-import com.rackspace.papi.components.datastore.hash.client.HashRingDatastoreClient;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
@@ -8,7 +7,6 @@ import com.rackspace.papi.service.datastore.hash.HashProvider;
 import com.rackspace.papi.service.datastore.hash.HashedDatastore;
 import com.rackspace.papi.service.datastore.impl.AbstractMapDatastoreManager;
 
-import com.rackspace.papi.service.datastore.impl.CoalescentHashedDatastoreWrapper;
 import java.util.HashMap;
 
 public class HashRingDatastoreManager extends AbstractMapDatastoreManager<HashedDatastore> {
@@ -45,7 +43,7 @@ public class HashRingDatastoreManager extends AbstractMapDatastoreManager<Hashed
         final HashRingDatastore datastore = new HashRingDatastore(clusterView, key, localDatastore, hashProvider, encodingProvider);
         datastore.setRemoteCacheClient(datastoreClientRemote);
 
-        return new CoalescentHashedDatastoreWrapper(datastore);
+        return datastore;
     }
 
     public HashedDatastore newDatastoreServer(String key) {
