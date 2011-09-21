@@ -28,7 +28,8 @@
         </imageobject>
         </inlinemediaobject>'>
 ]>
-<book version="5.0" status="draft" xmlns="http://docbook.org/ns/docbook"
+<!-- in BOOK below, add status="draft" to set watermark on cover and left margin -->
+<book version="5.0" xmlns="http://docbook.org/ns/docbook"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:svg="http://www.w3.org/2000/svg"
@@ -37,7 +38,9 @@
       xmlns:db="http://docbook.org/ns/docbook" >
     <?rax pdf.url="../../papi-authn-deploy.pdf"?>
     <title>&PRODNAME; Authentication Component Deployment Handbook</title>
-    <?rax status.bar.text="CONFIDENTIAL"?>
+    <!-- set watermark on cover and left margin 
+        <?rax status.bar.text="CONFIDENTIAL"?>
+    -->
     <?rax title.font.size="35px" subtitle.font.size="16px"?>
     <titleabbrev>&PRODABBREV; Authentication Deployment</titleabbrev>
     <info>
