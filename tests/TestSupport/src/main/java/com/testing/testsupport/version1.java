@@ -7,7 +7,6 @@ package com.testing.testsupport;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,7 +15,6 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author malconis
  */
-@WebServlet(name = "version1", urlPatterns = {"/version1"})
 public class version1 extends HttpServlet {
 
   /** 
@@ -31,7 +29,6 @@ public class version1 extends HttpServlet {
     response.setContentType("text/html;charset=UTF-8");
     PrintWriter out = response.getWriter();
     try {
-      /* TODO output your page here
       out.println("<html>");
       out.println("<head>");
       out.println("<title>Servlet version1</title>");  
@@ -40,7 +37,7 @@ public class version1 extends HttpServlet {
       out.println("<h1>Servlet version1 at " + request.getContextPath () + "</h1>");
       out.println("</body>");
       out.println("</html>");
-       */
+
     } finally {      
       out.close();
     }
