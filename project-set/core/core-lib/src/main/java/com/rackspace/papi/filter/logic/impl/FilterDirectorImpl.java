@@ -63,9 +63,11 @@ public class FilterDirectorImpl implements FilterDirector {
         if (responseHeaderManager().hasHeaders()) {
             responseHeaderManager().applyTo(response);
         }
-         
-        response.setStatus(delegatedStatus.intValue());
-        
+
+        if (delegatedAction != FilterAction.NOT_SET) {
+            response.setStatus(delegatedStatus.intValue());
+        }
+
         if (directorOutputSTream.size() > 0) {
             RawInputStreamReader.instance().copyTo(new ByteArrayInputStream(getResponseMessageBodyBytes()), response.getOutputStream());
         }
