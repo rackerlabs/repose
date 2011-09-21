@@ -136,6 +136,9 @@
     </chapter>
     <chapter xml:id="Configuration-d1e365">
         <title>Configuration</title>
+        <para>
+            These examples of the system model and the versioning configuration are designed to demonstrate all available and configurable options.
+        </para>
         <example>
             <title>System Model: XML</title>
             <programlisting language="xml">
@@ -186,9 +189,34 @@
                 </listitem>
                 <listitem>
                 <para>
-                    <code>status</code>: A version mapping's status is described as one of four string enumerations (see Appendix A) which describe the status of the version. 
-                    This status may be interpreted by the requester without restriction.
+                        <code>status</code>: A version mapping's status can be either of four
+                        strings: 
+                        <itemizedlist spacing="compact">
+                            <listitem>
+                                <para>
+                                    <code>DEPRECATED</code>
+                                </para>
+                            </listitem>
+                            <listitem>
+                                <para>
+                                    <code>ALPHA</code>
+                                </para>
+                            </listitem>
+                            <listitem>
+                                <para>
+                                    <code>BETA</code>
+                                </para>
+                            </listitem>
+                            <listitem>
+                                <para>
+                                    <code>CURRENT</code>
+                                </para>
+                            </listitem>
+                        </itemizedlist>
                 </para>
+                        <para>
+                        This status may be interpreted by the requester without
+                        restriction. </para>
                 </listitem>
                 <listitem>
                 <para>

@@ -29,7 +29,7 @@
             Please <link linkend="Feedback-d1e992">contact us</link> if you discover that any of these links are invalid.
         </para>
         <bibliography>
-            <title>Annotated Bibliography</title>
+            <title>Bibliography</title>
             <biblioentry xml:id="RFC2616">
                 <author>
                     <personname>
@@ -44,6 +44,21 @@
                 <title>Hypertext Transfer Protocol -- HTTP/1.1: Status Code Definitions</title>
                 <releaseinfo><link
                     xlink:href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html">http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html</link></releaseinfo>
+            </biblioentry>
+            <biblioentry xml:id="RFC4287">
+                <author>
+                    <personname>
+                        <firstname>R.</firstname>
+                        <surname>Fielding et al</surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    Internet Engineering Task Force, Network Working Group
+                </orgname>
+                <title>Hypertext Transfer Protocol -- HTTP/1.1: Status Code Definitions</title>
+                <releaseinfo><link
+                    xlink:href="http://tools.ietf.org/html/rfc4287/">http://tools.ietf.org/html/rfc4287/</link></releaseinfo>
             </biblioentry>
             <biblioentry xml:id="JEE6">
                 <author>
