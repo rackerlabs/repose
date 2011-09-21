@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public class FilterDirectorImpl implements FilterDirector {
 
-    private final ByteArrayOutputStream responseOutputStream;
+    private final ByteArrayOutputStream directorOutputSTream;
     private final PrintWriter responsePrintWriter;
     private HeaderManagerImpl requestHeaderManager, responseHeaderManager;
     private HttpStatusCode delegatedStatus;
@@ -32,8 +32,8 @@ public class FilterDirectorImpl implements FilterDirector {
         this.delegatedStatus = delegatedStatus;
         this.delegatedAction = delegatedAction;
 
-        responseOutputStream = new ByteArrayOutputStream();
-        responsePrintWriter = new PrintWriter(responseOutputStream);
+        directorOutputSTream = new ByteArrayOutputStream();
+        responsePrintWriter = new PrintWriter(directorOutputSTream);
     }
 
     public FilterDirectorImpl(FilterDirector directorToCopy) {
@@ -66,7 +66,7 @@ public class FilterDirectorImpl implements FilterDirector {
          
         response.setStatus(delegatedStatus.intValue());
         
-        if (responseOutputStream.size() > 0) {
+        if (directorOutputSTream.size() > 0) {
             RawInputStreamReader.instance().copyTo(new ByteArrayInputStream(getResponseMessageBodyBytes()), response.getOutputStream());
         }
     }
@@ -85,14 +85,14 @@ public class FilterDirectorImpl implements FilterDirector {
     public byte[] getResponseMessageBodyBytes() {
         responsePrintWriter.flush();
 
-        return responseOutputStream.toByteArray();
+        return directorOutputSTream.toByteArray();
     }
 
     @Override
     public String getResponseMessageBody() {
         responsePrintWriter.flush();
 
-        final byte[] bytesWritten = responseOutputStream.toByteArray();
+        final byte[] bytesWritten = directorOutputSTream.toByteArray();
 
         if (bytesWritten.length > 0) {
             return new String(bytesWritten);
@@ -103,7 +103,7 @@ public class FilterDirectorImpl implements FilterDirector {
 
     @Override
     public OutputStream getResponseOutputStream() {
-        return responseOutputStream;
+        return directorOutputSTream;
     }
 
     @Override
