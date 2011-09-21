@@ -136,9 +136,7 @@
                 </programlisting>
             </programlistingco>     
         </example>
-        <para>
-            Key elements of the example are labeled with callouts and explained below:
-        </para>
+        <para> Key elements of the preceding example are labeled with callouts and explained below: </para>
         <calloutlist>
             <callout arearefs="papi-authn.xml.delegateable">
                 <para> All &PRODNAME; authentication modules support authentication

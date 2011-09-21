@@ -28,6 +28,7 @@
             These external documents are referenced in one or more &PRODNAME; documents and are relevant to all &PRODNAME; documents.
             Please <link linkend="Feedback-d1e992">contact us</link> if you discover that any of these links are invalid.
         </para>
+        <para>The bibliography is alphabetized according to the name of the publishing organization, then by the title of the document.</para>
         <bibliography>
             <title>Bibliography</title>
             <biblioentry xml:id="RFC2616">
@@ -44,39 +45,36 @@
                 <title>Hypertext Transfer Protocol -- HTTP/1.1: Status Code Definitions</title>
                 <releaseinfo><link
                     xlink:href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html">http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html</link></releaseinfo>
+                <abstract>
+                    <para>
+                        HTTP status codes returned by &PRODNAME; are fully documented here.
+                    </para>
+                </abstract>
             </biblioentry>
             <biblioentry xml:id="RFC4287">
                 <author>
                     <personname>
+                        <firstname>M.</firstname>
+                        <surname>Nottingham</surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
                         <firstname>R.</firstname>
-                        <surname>Fielding et al</surname>
+                        <surname>Sayre</surname>
                         <othername role="mi"></othername>
                     </personname>
                 </author>
                 <orgname>
                     Internet Engineering Task Force, Network Working Group
                 </orgname>
-                <title>Hypertext Transfer Protocol -- HTTP/1.1: Status Code Definitions</title>
+                <title>The Atom Syndication Format</title>
                 <releaseinfo><link
                     xlink:href="http://tools.ietf.org/html/rfc4287/">http://tools.ietf.org/html/rfc4287/</link></releaseinfo>
-            </biblioentry>
-            <biblioentry xml:id="JEE6">
-                <author>
-                    <personname>
-                        <firstname></firstname>
-                        <surname></surname>
-                        <othername role="mi"></othername>
-                    </personname>
-                </author>
-                <orgname>
-                    Oracle Corporation
-                </orgname>
-                <title>JSR 316: Java™ Platform, Enterprise Edition 6 (Java EE 6) Specification</title>
-                <releaseinfo><link
-                    xlink:href="http://jcp.org/en/jsr/detail?id=316">http://jcp.org/en/jsr/detail?id=316</link></releaseinfo>
                 <abstract>
                     <para>
-                        All consumable artifacts meant for deployment through &PRODNAME; must conform to this specification.
+                        The Versioning component uses Atom links to richly describe any links that are identified in any returned service version.
                     </para>
                 </abstract>
             </biblioentry>
@@ -131,6 +129,26 @@
                 <abstract>
                     <para>
                         This namespace is reserved for requests that do not vary among OpenStack APIs. Versioning, rate limiting, and extensions are examples of such requests.
+                    </para>
+                </abstract>
+            </biblioentry>
+            <biblioentry xml:id="JEE6">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    Oracle Corporation
+                </orgname>
+                <title>JSR 316: Java™ Platform, Enterprise Edition 6 (Java EE 6) Specification</title>
+                <releaseinfo><link
+                    xlink:href="http://jcp.org/en/jsr/detail?id=316">http://jcp.org/en/jsr/detail?id=316</link></releaseinfo>
+                <abstract>
+                    <para>
+                        All consumable artifacts meant for deployment through &PRODNAME; must conform to this specification.
                     </para>
                 </abstract>
             </biblioentry>

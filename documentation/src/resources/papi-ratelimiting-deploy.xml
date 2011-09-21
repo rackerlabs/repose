@@ -189,6 +189,7 @@
             </programlisting>
             </programlistingco>
         </example>
+        <para> Key elements of the preceding example are labeled with callouts and explained below: </para>
         <calloutlist>
             <callout arearefs="cfg.xml.request-endpoint">
                 <para>
