@@ -3,6 +3,7 @@ package com.rackspace.papi.filter.logic;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
@@ -11,7 +12,7 @@ import java.io.PrintWriter;
  * @author jhopper
  */
 public interface FilterDirector {
-    
+
     void setRequestUri(String newUri);
 
     void setRequestUrl(StringBuffer newUrl);
@@ -36,5 +37,9 @@ public interface FilterDirector {
 
     OutputStream getResponseOutputStream();
 
-    void applyTo(MutableHttpServletRequest request, MutableHttpServletResponse response);
+    void applyTo(MutableHttpServletRequest request);
+
+    void applyTo(MutableHttpServletResponse response) throws IOException;
+
+    void applyTo(MutableHttpServletRequest request, MutableHttpServletResponse response) throws IOException;
 }

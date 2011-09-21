@@ -2,12 +2,15 @@ package com.rackspace.papi.filter.logic.impl;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.HeaderManager;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 
@@ -41,21 +44,36 @@ public class FilterDirectorImpl implements FilterDirector {
     }
 
     @Override
-    public void applyTo(MutableHttpServletRequest request, MutableHttpServletResponse response) {
+    public void applyTo(MutableHttpServletRequest request, MutableHttpServletResponse response) throws IOException {
+        applyTo(request);
+        applyTo(response);
+    }
+
+    @Override
+    public synchronized void applyTo(MutableHttpServletRequest request) {
         if (requestHeaderManager().hasHeaders()) {
             requestHeaderManager().applyTo(request);
         }
-        
-        if (responseHeaderManager().hasHeaders()) {
-            responseHeaderManager().applyTo(response);
-        }
-        
+
         if (requestUri != null && StringUtilities.isNotBlank(requestUri)) {
             request.setRequestUri(requestUri);
         }
-        
+
         if (requestUrl != null && StringUtilities.isNotBlank(requestUrl.toString())) {
             request.setRequestUrl(requestUrl);
+        }
+    }
+
+    @Override
+    public synchronized void applyTo(MutableHttpServletResponse response) throws IOException {
+        if (responseHeaderManager().hasHeaders()) {
+            responseHeaderManager().applyTo(response);
+        }
+         
+        response.setStatus(delegatedStatus.intValue());
+        
+        if (responseOutputStream.size() > 0) {
+            RawInputStreamReader.instance().copyTo(new ByteArrayInputStream(getResponseMessageBodyBytes()), response.getOutputStream());
         }
     }
 

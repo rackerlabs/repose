@@ -16,6 +16,16 @@ public class AbstractFilterDirector implements FilterDirector {
     }
 
     @Override
+    public void applyTo(MutableHttpServletRequest request) {
+        throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
+    }
+
+    @Override
+    public void applyTo(MutableHttpServletResponse response) {
+        throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
+    }
+    
+    @Override
     public void setRequestUri(String newUri) {
         throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
     }
