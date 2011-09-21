@@ -121,10 +121,9 @@
     </chapter>
     <chapter xml:id="Msg_Enhancement-d1e172">
         <title>Message Enhancement and Routing</title>
-        <para>
-            The versioning component does not route requests, nor is it responsible for routing. 
-            The versioning component's purpose is to annotate incoming requests with their intended destination and describe the available versions to the user.
-        </para>
+        <para> The versioning component does not route requests, nor is it responsible for routing.
+            The versioning component's purpose is to annotate incoming requests with their intended
+            destination and to describe the available versions to the user. </para>
         <para> The versioning component enhances the incoming request with an HTTP header named
                 <code>X-PP-Service-Origin</code>. This header can be used by components further down
             the stack to perform routing. </para>
@@ -377,7 +376,7 @@
             The versioning component may, upon request, describe all of the available service versions or one particular version.
         </para>
         <figure xml:id="Description">
-            <title>Service Version Catalog as Response to Versioning Request</title>
+            <title>Service Versions Catalog as Response to Versioning Request</title>
             <mediaobject>
                 <imageobject>
                     <imagedata fileref="figures/papi-versioning-description.png" format="PNG" align="center"/>
