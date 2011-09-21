@@ -36,7 +36,7 @@ Command: git clone <repository-uri>
 Common Errors
 
 access denied: pubkey: This error is most common if the server you're
-talking do does not know who you are. If you encounter this error verify
+talking to does not know who you are. If you encounter this error, verify
 with the owner of the repository or server that you have been added
 correctly.
 
@@ -46,12 +46,12 @@ Step Two: Creating your own sandbox
 
 Git tracks multiple tracks of changes called branches. It is highly
 recommended that you create your own branch. By creating your own branch
-you isolate your changes. This means that you can not damage anyone
+you isolate your changes. This means that you cannot damage anyone
 else's working state. In addition, this also means it's much easier for
 someone to extract the changes you have made.
 
 Note: Your branch name will typically be your username. Branches can be
-named anything however!
+named anything, however!
 
 Command: git branch <branch-name>
 
@@ -89,7 +89,7 @@ When you or anyone else commits changes to the repository they must be
 merged into this master branch so that everyone else can get your
 changes.
 
-Git can pull from any branch however - it's simply most common to pull
+Git can pull from any branch, however - it's simply most common to pull
 from the master branch.
 
 Command: git pull origin master
@@ -109,7 +109,7 @@ Step 1: Staging Changes
 
 Git is aware of most of the changes you make in your repository and will
 attempt to track them to the best of its ability. When it comes time to
-commit your changes however, you must tell Git what exactly to commit
+commit your changes, however, you must tell Git what exactly to commit
 from the things that changed.
 
 The following commands will add all of your changes to 'staging' and
@@ -119,10 +119,9 @@ Command: git add .
 Command: git add -u .
 
 
-Step 2: Commiting Changes
+Step 2: Committing Changes
 
-Now that we've identified what changes we want to make, we must then
-tell Git to commit them and preserve these changes.
+Now that we've identified what changes we want to make, we must tell Git to commit them and preserve these changes.
 
 Note: It's always important to add a meaningful message to your commit
 which is done with the command line option '-m' - Keep in mind that Git
@@ -136,14 +135,14 @@ Pushing Changes
 ===============
 
 Your local copy of the Git repository is now aware of your changes and
-has recorded them. Now it's tiem to send them off so that other users
+has recorded them. Now it's time to send them off so that other users
 can see your changes and pull from your branch.
 
 Step 1: Refresh from Master
 
 It is always important to make sure that you have the latest changes
-from the master branch. By doing this, you garuntee for the owner of the
-master branch that when they pull your changes in, it won't damage the
+from the master branch. By doing this, you guarantee for the owner of the
+master branch that, when they pull your changes in, it won't damage the
 master branch's current state.
 
 
@@ -159,7 +158,7 @@ Command: git push origin <branch-name>
 
 
 
-Furter Reading
+Further Reading
 ==============
 
 http://www.ndpsoftware.com/Git-cheatsheet.html
