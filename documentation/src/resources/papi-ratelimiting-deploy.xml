@@ -28,7 +28,8 @@
         </imageobject>
         </inlinemediaobject>'>
 ]>
-<book version="5.0" status="draft" xmlns="http://docbook.org/ns/docbook"
+<!-- in BOOK below, add status="draft" to set watermark on cover and left margin -->
+<book version="5.0" xmlns="http://docbook.org/ns/docbook"
       xmlns:xlink="http://www.w3.org/1999/xlink"
       xmlns:xi="http://www.w3.org/2001/XInclude"
       xmlns:svg="http://www.w3.org/2000/svg"
@@ -37,7 +38,9 @@
       xmlns:db="http://docbook.org/ns/docbook" >
     <?rax pdf.url="../../papi-ratelimiting-deploy.pdf"?>
     <title>&PRODNAME; Rate Limiting Component Deployment Handbook</title>
-    <?rax status.bar.text="CONFIDENTIAL"?>
+    <!-- set watermark on cover and left margin 
+        <?rax status.bar.text="CONFIDENTIAL"?>
+    -->
     <?rax title.font.size="35px" subtitle.font.size="16px"?>
     <titleabbrev>&PRODABBREV; Rate Limiting Deployment</titleabbrev>
     <info>
@@ -55,9 +58,9 @@
             <year>2011</year>
             <holder>Rackspace US, Inc.</holder>
         </copyright>
-        <releaseinfo>API v0.9</releaseinfo>
+        <releaseinfo>v0.9</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2011-08-19</pubdate>
+        <pubdate>2011-09-21</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -111,6 +114,19 @@
                 </thead>
                 <tbody>
                     <tr align="left">
+                        <td colspan="1" align="center">Sep 21, 2011</td>
+                        <td colspan="4" align="left">
+                            <itemizedlist spacing="compact">
+                                <listitem>
+                                    <para>Initial release for v0.9.</para>
+                                </listitem>
+                                <listitem>
+                                    <para>Revised code samples and formatting to address feedback from early technical reviewers.</para>
+                                </listitem>
+                            </itemizedlist>
+                        </td>
+                    </tr>
+                    <tr align="left">
                         <td colspan="1" align="center">Jul 7, 2011</td>
                         <td colspan="4" align="left">
                             <itemizedlist spacing="compact">
@@ -130,7 +146,8 @@
         <para> To correctly rate limit a requested resource, the rate limiting component uses one
             required HTTP header precondition and one optional HTTP header precondition. </para>
         <table frame="all">
-            <title>HTTP Headers</title>
+            <?dbfo keep-together="always"?>
+            <title>HTTP Request Headers</title>
             <tgroup cols="2">
                 <colspec colname="c1" colnum="1" />
                 <colspec colname="c2" colnum="2" />
@@ -142,20 +159,30 @@
                 </thead>
                 <tbody>
                     <row>
-                        <entry><code>X-PP-User</code></entry>
-                        <entry><code>X-PP-User</code> is a single string value header. This header is used to
+                        <entry>                         
+                             <para>
+                                 <code>X-PP-User</code>
+                             </para>    
+                             <para>
+                                 <emphasis>Required</emphasis>
+                             </para>
+                        </entry>
+                        <entry><code>X-PP-User</code> is a single-value header. This header is used to
                             describe the unique name of the client making the request. This name is
                             used in part to cache and store request hits.</entry>
                     </row>
                     <row>
-                        <entry><code>X-PP-Groups</code></entry>
-                        <entry><code>X-PP-Groups</code> is a string value list header. This header is used to
+                        <entry>
+                            <para>
+                                <code>X-PP-Groups</code>
+                            </para>
+                            <para>
+                                <emphasis>Optional</emphasis>
+                            </para>
+                        </entry>    
+                        <entry><code>X-PP-Groups</code> is a list of string values. This header is used to
                             describe all of the limit groups the client belongs to. A client may
                             belong to multiple limit groups or to none.</entry>
-                    </row>
-                    <row>
-                        <entry/>
-                        <entry/>
                     </row>
                 </tbody>
             </tgroup>
@@ -163,41 +190,55 @@
     </chapter>
     <chapter xml:id="Configuration-d1e365">
         <title>Configuration</title>
-        <para> The rate limiting component sources its configuration from a file named
-                <code>rate-limiting.xml</code>. </para>
+        <para> The rate limiting component sources its configuration, including its API endpoint,
+            from a file named <code>rate-limiting.cfg.xml</code>. </para>
         <example>
             <title>Rate Limiting Configuration: XML</title>
+            <programlistingco>
+                <areaspec>
+                    <area xml:id="cfg.xml.request-endpoint" units="linecolumn" coords="5 22"/>
+                    <area xml:id="cfg.xml.uri-regex" units="linecolumn" coords="5 32"/>
+                    <area xml:id="cfg.xml.include-absolute-limits" units="linecolumn" coords="6 32"/>
+                </areaspec>        
             <programlisting language="xml">
 <xi:include href="samples/papi-ratelimit.xml" parse="text"/>
-                    </programlisting>
-        </example>        
-        <section xml:id="Setting_Active_Limits-d1e373">
-            <title>Setting Active Limits</title>
-            <para>
-                The API endpoint is specified in <code>rate-limiting.xml</code>.
-            </para>
-                <itemizedlist> 
-                <listitem>
+            </programlisting>
+            </programlistingco>
+        </example>
+        <para> Key elements of the preceding example are labeled with callouts and explained below: </para>
+        <calloutlist>
+            <callout arearefs="cfg.xml.request-endpoint">
+                <para>
+                    The <code>request-endpoint</code> configuration element must specify a
+                    regular expression that identifies client requests for the client's current
+                    limits.
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.xml.uri-regex">
                 <para> 
-                    The <code>limits-request-endpoint</code> configuration element must specify a
-                    regex that identifies client requests for the client's currently active limits. 
+                    The <code>uri-regex</code> attribute must be specified and must be a regular
+                    expression. It should matches all representations of the request resource that
+                    the rate limiting component should answer. 
                 </para>
-                </listitem>
-                <listitem>
-                <para>
-                    The <code>uri-regex</code> attribute should be a regular expression that matches all request resource representations that the rate limiting component should answer.
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.xml.include-absolute-limits">
+                <para> 
+                    <code>include-absolute-limits</code> is an optional Boolean attribute that
+                    can be used to switch on or off integration with the origin service's
+                    absolute limits. 
                 </para>
-                </listitem>
-                <listitem>
-                <para>
-                    Optionally, <code>include-absolute-limits</code> is a Boolean attribute that can be used to switch on or off absolute limits integration.
-                </para>
-                </listitem>
-                </itemizedlist>  
-         </section>
+                <para> </para>
+            </callout>
+        </calloutlist>
         <section xml:id="Configuring_Limits-d1e376">
             <title>Configuring Limits</title>
+            <para>
+                To set a rate limit, assign acceptable values to the rate limiting configuration attributes shown in the code sample at <xref linkend="Configuration-d1e365"></xref>
+            </para>
             <table frame="all">
+                <?dbfo keep-together="always"?>
                 <title>Configuring Limits</title>
                 <tgroup cols="3">
                     <colspec colname="c1" colnum="1" />
@@ -217,14 +258,14 @@
                                 human-readable representation of the regular expression used to
                                 match this limit. The URI is useful for client end-user interfaces
                                 as well as for documentation purposes.</entry>
-                            <entry/>
+                            <entry><emphasis>any valid URI</emphasis></entry>
                         </row>
                         <row>
                             <entry><code>uri-regex</code></entry>
-                            <entry>The <code>uri-regex</code> attribute should be a regular
-                                expression that matches all request resource representations to
-                                which the given limit should apply.</entry>
-                            <entry/>
+                            <entry>The <code>uri-regex</code> attribute must be a regular expression
+                                and should match all request resource representations to which the
+                                given limit should apply.</entry>
+                            <entry><emphasis>any valid regex</emphasis></entry>
                         </row>
                         <row>
                             <entry><code>http-methods</code></entry>
@@ -259,11 +300,17 @@
                                 with the <code>unit</code> attribute, the number of requests within
                                 a slice of time describes the rate for the given limit. The rate is
                                 then used to perform rate limiting.</entry>
-                            <entry/>
+                            <entry><emphasis>any integer</emphasis></entry>
                         </row>
                     </tbody>
                 </tgroup>
             </table>
+            <important>
+                <para>
+                    The <code>unit</code> and <code>value</code> attributes must always be specified as pairs.
+                    For example, <code>UNIT="SECOND" VALUE="1"</code> allows a rate of one request per second.
+                </para>
+            </important>
         </section>
         <section xml:id="Configuring_Limit_Groups-d1e374">
             <title>Configuring Limit Groups</title>
@@ -306,6 +353,7 @@
                     RegEx examples. </remark>
             </annotation>
             <table frame="all">
+                <?dbfo keep-together="always"?>
                 <title>Sample Regular Expressions</title>
                 <tgroup cols="2">
                     <colspec colname="c1" colnum="1" colwidth="1.0*"/>
@@ -421,6 +469,7 @@
             </itemizedlist>
         </para>
         <table frame="all">
+            <?dbfo keep-together="always"?>
             <title>Sample Request/Response Conversation: Request Limits</title>
             <tgroup cols="2">
                 <colspec colname="c1" colnum="1" />
@@ -487,6 +536,7 @@ Content-Length: 538
             When this occurs, the response's <code>Retry-After</code> HTTP header contains HTTP-encoded data that the client can use to plan a retry. 
         </para>
             <table frame="all">
+                <?dbfo keep-together="always"?>
                 <title>Sample Request/Response Conversation: Rate Exceeded</title>
                 <tgroup cols="2">
                     <colspec colname="c1" colnum="1" />
