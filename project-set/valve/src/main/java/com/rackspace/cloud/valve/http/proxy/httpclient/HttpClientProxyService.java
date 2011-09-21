@@ -16,6 +16,10 @@
  */
 package com.rackspace.cloud.valve.http.proxy.httpclient;
 
+import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import java.util.List;
+import java.util.ArrayList;
 import java.io.InputStream;
 import java.io.BufferedInputStream;
 import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
@@ -42,6 +46,7 @@ import static com.rackspace.cloud.valve.http.Headers.*;
  * @author John Hopper
  */
 public class HttpClientProxyService implements ProxyService {
+    private static final Logger LOG = LoggerFactory.getLogger(HttpClientProxyService.class);
 
     private final HttpConnectionManager manager;
     private final HttpClient client;
@@ -52,7 +57,7 @@ public class HttpClientProxyService implements ProxyService {
         try {
             proxiedHost.setHost(new URI(targetHost, false));
         } catch (URIException e) {
-            e.printStackTrace();
+            LOG.error("Invalid target host url: " + targetHost, e);
         }
 
         manager = new MultiThreadedHttpConnectionManager();
@@ -62,14 +67,11 @@ public class HttpClientProxyService implements ProxyService {
     @Override
     public int proxyRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
         final String target = proxiedHost.getHostURL() + request.getRequestURI();
-        final RequestProcessor processor = new RequestProcessor(request);
+        final RequestProcessor processor = new RequestProcessor(request, proxiedHost);
         final ProcessableRequest method = newMethod(request.getMethod(), target);
 
         if (method != null) {
-            //Replicate the meaningful headers           
             HttpMethod processedMethod = method.process(processor);
-            
-            setProxyRequestHeaders(request, processedMethod);
             
             return executeProxyRequest(processedMethod, request, response);
         }
@@ -106,57 +108,6 @@ public class HttpClientProxyService implements ProxyService {
         return null;
     }
     
-    private static interface ProcessableRequest {
-      public HttpMethod process(RequestProcessor processor) throws IOException;
-    }
-    
-    /**
-     * Entity Enclosing Requests may send a request body.
-     */
-    private static class EntityEnclosingMethodWrapper implements ProcessableRequest {
-      private final EntityEnclosingMethod method;
-      
-      public EntityEnclosingMethodWrapper(EntityEnclosingMethod method) {
-        this.method = method;
-      }
-
-      @Override
-      public HttpMethod process(RequestProcessor processor) throws IOException {
-        return processor.process(method);
-      }
-    }
-    
-    private static class HttpMethodBaseWrapper implements ProcessableRequest {
-      private final HttpMethodBase method;
-
-      public HttpMethodBaseWrapper(HttpMethodBase method) {
-        this.method = method;
-      }
-      
-      @Override
-      public HttpMethod process(RequestProcessor processor) throws IOException {
-        return processor.process(method);
-      }
-      
-    }
-    
-    private static class RequestProcessor {
-      private final HttpServletRequest request;
-      
-      public RequestProcessor(HttpServletRequest request) {
-        this.request = request;
-      }
-      
-      public HttpMethod process(HttpMethodBase method) {
-        return method;
-        
-      }
-      
-      public HttpMethod process(EntityEnclosingMethod method) throws IOException {
-        method.setRequestEntity(new InputStreamRequestEntity(request.getInputStream()));
-        return method;
-      }
-    }
 
     private int executeProxyRequest(HttpMethod httpMethodProxyRequest, HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws IOException {
         httpMethodProxyRequest.setFollowRedirects(false);
@@ -217,17 +168,80 @@ public class HttpClientProxyService implements ProxyService {
         return myHostName.append(httpServletRequest.getContextPath()).toString();
     }
 
-    private void setProxyRequestHeaders(HttpServletRequest httpServletRequest, HttpMethod httpMethodProxyRequest) {
-        final Enumeration headerNameEnumeration = httpServletRequest.getHeaderNames();
+}
+
+// Utility classes
+interface ProcessableRequest {
+    public HttpMethod process(RequestProcessor processor) throws IOException;
+}
+
+/**
+ * Entity Enclosing Requests may send a request body.
+ */
+class EntityEnclosingMethodWrapper implements ProcessableRequest {
+    private final EntityEnclosingMethod method;
+
+    public EntityEnclosingMethodWrapper(EntityEnclosingMethod method) {
+      this.method = method;
+    }
+
+    @Override
+    public HttpMethod process(RequestProcessor processor) throws IOException {
+      return processor.process(method);
+    }
+}
+
+class HttpMethodBaseWrapper implements ProcessableRequest {
+    private final HttpMethodBase method;
+
+    public HttpMethodBaseWrapper(HttpMethodBase method) {
+      this.method = method;
+    }
+
+    @Override
+    public HttpMethod process(RequestProcessor processor) throws IOException {
+      return processor.process(method);
+    }
+
+}
+
+class RequestProcessor {
+    private final HttpServletRequest request;
+    private final HostConfiguration host;
+
+    public RequestProcessor(HttpServletRequest request, HostConfiguration host) {
+      this.request = request;
+      this.host = host;
+    }
+
+    private void setRequestParameters(HttpMethodBase method) {
+      List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+      Enumeration<String> names = request.getParameterNames();
+
+      while (names.hasMoreElements()) {
+        String name = names.nextElement();
+        String[] values = request.getParameterValues(name);
+        for (String value: values) {
+          pairs.add(new NameValuePair(name, value));
+        }
+      }
+
+      if (!pairs.isEmpty()) {
+        method.setQueryString(pairs.toArray(new NameValuePair[0]));
+      }
+    }
+
+    private void setHeaders(HttpMethod method) {
+        final Enumeration<String> headerNameEnumeration = request.getHeaderNames();
 
         while (headerNameEnumeration.hasMoreElements()) {
-            String stringHeaderName = (String) headerNameEnumeration.nextElement();
+            String stringHeaderName = headerNameEnumeration.nextElement();
 
             if (stringHeaderName.equalsIgnoreCase(CONTENT_LENGTH.toString())) {
                 continue;
             }
 
-            final Enumeration headerValueEnumeration = httpServletRequest.getHeaders(stringHeaderName);
+            final Enumeration headerValueEnumeration = request.getHeaders(stringHeaderName);
 
             while (headerValueEnumeration.hasMoreElements()) {
                 String stringHeaderValue = (String) headerValueEnumeration.nextElement();
@@ -236,12 +250,26 @@ public class HttpClientProxyService implements ProxyService {
                 // rewrite the Host header to ensure that we get content from
                 // the correct virtual server
                 if (stringHeaderName.equalsIgnoreCase(HOST.toString())) {
-                    stringHeaderValue = proxiedHost.getHost() + ":" + proxiedHost.getPort();
+                    stringHeaderValue = host.getHost() + ":" + host.getPort();
                 }
 
                 // Set the same header on the proxy request
-                httpMethodProxyRequest.setRequestHeader(new Header(stringHeaderName, stringHeaderValue));
+                method.setRequestHeader(new Header(stringHeaderName, stringHeaderValue));
             }
         }
+    }
+
+    public HttpMethod process(HttpMethodBase method) {
+      setHeaders(method);
+      setRequestParameters(method);
+      return method;
+
+    }
+
+    public HttpMethod process(EntityEnclosingMethod method) throws IOException {
+      setHeaders(method);
+      setRequestParameters(method);
+      method.setRequestEntity(new InputStreamRequestEntity(request.getInputStream()));
+      return method;
     }
 }
