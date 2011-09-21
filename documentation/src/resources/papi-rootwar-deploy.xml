@@ -98,6 +98,19 @@
                 </thead>
                 <tbody>
                     <tr align="left">
+                        <td colspan="1" align="center">Sep 21, 2011</td>
+                        <td colspan="4" align="left">
+                            <itemizedlist spacing="compact">
+                                <listitem>
+                                    <para>Initial release for v0.9.</para>
+                                </listitem>
+                                <listitem>
+                                    <para>Revised code samples and formatting to address feedback from early technical reviewers.</para>
+                                </listitem>
+                            </itemizedlist>
+                        </td>
+                    </tr>
+                    <tr align="left">
                         <td colspan="1" align="center">Jun 15, 2011</td>
                         <td colspan="4" align="left">
                             <itemizedlist spacing="compact">
