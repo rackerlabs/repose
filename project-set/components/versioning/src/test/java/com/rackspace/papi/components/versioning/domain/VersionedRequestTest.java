@@ -6,6 +6,7 @@ import com.rackspace.papi.commons.util.http.HttpRequestInfo;
 import com.rackspace.papi.commons.util.http.HttpRequestInfoImpl;
 import com.rackspace.papi.commons.util.http.media.MediaRange;
 import com.rackspace.papi.commons.util.http.media.MediaType;
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 import java.util.LinkedList;
 import org.junit.Test;
@@ -21,12 +22,12 @@ public class VersionedRequestTest {
 
         @Test
         public void shouldAddRootReference() {
-            assertEquals("Should add a root reference to a URI", "/a/resource", VersionedRequest.formatUri("a/resource"));
+            assertEquals("Should add a root reference to a URI", "/a/resource", StringUtilities.formatUri("a/resource"));
         }
 
         @Test
         public void shouldRemoveTrailingSlash() {
-            assertEquals("Should remove trailing slashes from a URI", "/a/resource", VersionedRequest.formatUri("/a/resource/"));
+            assertEquals("Should remove trailing slashes from a URI", "/a/resource", StringUtilities.formatUri("/a/resource/"));
         }
     }
 
