@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.rackspacecloud.com/power-api/response-messaging/v1.0"
+           xmlns:rms="http://docs.rackspacecloud.com/power-api/response-messaging/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="response-messaging" type="rms:ResponseMessagingConfiguration" />
+
+    <xs:complexType name="ResponseMessagingConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>List of status-code</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="status-code" type="rms:StatusCodeMatcher" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="StatusCodeMatcher">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Describes a status code that will be handled</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="message" type="rms:Message" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>ID of the status code rewrite</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="code-regex" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines a regular expression that will be used to match status codes against this declaration</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="Message">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines a message that will be used when matching the parent status code</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:simpleContent>
+            <xs:extension base="xs:string">
+                <xs:attribute name="prepend-origin" type="xs:boolean" use="optional" default="false">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Tells the service wether or not to prepend the message
+                                with the origin response body or to completely overwrite
+                                it with its content.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+                
+                <xs:attribute name="media-type" type="xs:string" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Media Type to match against what the client originally requested when
+                                performing status code message decision logic
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="href" type="xs:anyURI" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Specifies a location for getting the message instead
+                                of reading it directly from the config file
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+</xs:schema>

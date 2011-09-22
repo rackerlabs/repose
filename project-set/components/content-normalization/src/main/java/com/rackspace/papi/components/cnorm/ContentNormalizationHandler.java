@@ -4,7 +4,8 @@ import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.components.cnorm.headers.HeaderNormalizer;
-import com.rackspace.papi.components.normalization.config.ContentNormalizationConfiguration;
+import com.rackspace.papi.components.normalization.config.ContentNormalizationConfig;
+import com.rackspace.papi.components.normalization.config.HeaderFilterList;
 import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
@@ -13,17 +14,23 @@ public class ContentNormalizationHandler extends AbstractFilterLogicHandler {
 
     private HeaderNormalizer headerNormalizer;
 
-    private final UpdateListener<ContentNormalizationConfiguration> contentNormalizationConfigurationListener = new UpdateListener<ContentNormalizationConfiguration>() {
+    private final UpdateListener<ContentNormalizationConfig> contentNormalizationConfigurationListener = new UpdateListener<ContentNormalizationConfig>() {
 
         @Override
-        public void configurationUpdated(ContentNormalizationConfiguration config) {
-            final boolean isBlacklist = config.getHttpHeaderBlacklist() != null;
+        public void configurationUpdated(ContentNormalizationConfig config) {
+            final HeaderFilterList headerList = config.getHeaderList();
             
-            updateHeaderNormalizer(new HeaderNormalizer(isBlacklist ? config.getHttpHeaderBlacklist().getHeader() : config.getHttpHeaderWhitelist().getHeader(), isBlacklist));
+            if (headerList != null) {
+                final boolean isBlacklist = headerList.getHttpHeaderBlacklist() != null;
+            
+                updateHeaderNormalizer(new HeaderNormalizer(isBlacklist 
+                        ? headerList.getHttpHeaderBlacklist().getHeader()
+                        : headerList.getHttpHeaderWhitelist().getHeader(), isBlacklist));
+            }
         }
     };
 
-    public UpdateListener<ContentNormalizationConfiguration> getContentNormalizationConfigurationListener() {
+    public UpdateListener<ContentNormalizationConfig> getContentNormalizationConfigurationListener() {
         return contentNormalizationConfigurationListener;
     }
     

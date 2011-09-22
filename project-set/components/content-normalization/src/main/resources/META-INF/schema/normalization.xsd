@@ -8,10 +8,22 @@
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <!-- Content Normalization Configuration -->
-    <xs:element name="content-normalization-config" type="cnorm:ContentNormalizationConfiguration" />
+    <xs:element name="content-normalization" type="cnorm:HeaderFilterList" />
+
+    <xs:complexType name="ContentNormalizationConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:sequence>
+            <xs:element name="header-list" type="cnorm:HeaderFilterList" minOccurs="0" maxOccurs="1" />
+        </xs:sequence>
+    </xs:complexType>
 
     <!-- Types -->
-    <xs:complexType name="ContentNormalizationConfiguration">
+    <xs:complexType name="HeaderFilterList">
         <xs:annotation>
             <xs:documentation>
                 <html:p></html:p>
@@ -32,7 +44,23 @@
         </xs:annotation>
         
         <xs:sequence>
-            <xs:element name="header" type="xs:string" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="header" type="cnorm:HttpHeader" minOccurs="0" maxOccurs="unbounded" />
         </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="HttpHeader">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>            
+        </xs:attribute>
     </xs:complexType>
 </xs:schema>

@@ -6,16 +6,17 @@ import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpRequestInfo;
 import com.rackspace.papi.commons.util.http.HttpRequestInfoImpl;
 import com.rackspace.papi.commons.util.http.media.MediaRange;
+import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
 import com.rackspace.papi.commons.util.io.FileReader;
 import com.rackspace.papi.commons.util.io.FileReaderImpl;
 import com.rackspace.papi.commons.util.logging.apache.HttpLogFormatter;
 import com.rackspace.papi.commons.util.thread.KeyedStackLock;
 
-import com.rackspace.papi.config.cneg.ContentNegotiation;
-import com.rackspace.papi.config.cneg.StatusCode;
-import com.rackspace.papi.config.cneg.StatusCodeMessage;
 import com.rackspace.papi.service.config.ConfigurationService;
 
+import com.rackspace.papi.service.rms.config.Message;
+import com.rackspace.papi.service.rms.config.ResponseMessagingConfiguration;
+import com.rackspace.papi.service.rms.config.StatusCodeMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,39 +33,42 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class StatusCodeResponseMessageService implements ResponseMessageService {
+public class ResponseMessageServiceImpl implements ResponseMessageService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(StatusCodeResponseMessageService.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ResponseMessageServiceImpl.class);
     private static final Pattern URI_PATTERN = Pattern.compile(":\\/\\/");
-    private final List<StatusCode> statusCodes;
+    private final List<StatusCodeMatcher> statusCodeMatcherList;
     private final Map<String, Pattern> statusCodeRegexes;
     private final Map<String, HttpLogFormatter> formatTemplates;
     private final KeyedStackLock configurationLock;
     private final Object read, update;
 
-    public StatusCodeResponseMessageService() {
-        statusCodes = new LinkedList<StatusCode>();
+    public ResponseMessageServiceImpl(ConfigurationService configurationService) {
+        statusCodeMatcherList = new LinkedList<StatusCodeMatcher>();
         statusCodeRegexes = new HashMap<String, Pattern>();
         formatTemplates = new HashMap<String, HttpLogFormatter>();
 
         configurationLock = new KeyedStackLock();
         read = new Object();
         update = new Object();
+
+        configurationService.subscribeTo("response-messaging.cfg.xml", updateMessageConfig, ResponseMessagingConfiguration.class);
     }
     
-    private final UpdateListener<ContentNegotiation> updateMessageConfig = new UpdateListener<ContentNegotiation>() {
+    // Modern java programming. No one ever said it was pretty.
+    private final UpdateListener<ResponseMessagingConfiguration> updateMessageConfig = new UpdateListener<ResponseMessagingConfiguration>() {
 
         @Override
-        public void configurationUpdated(ContentNegotiation configurationObject) {
+        public void configurationUpdated(ResponseMessagingConfiguration configurationObject) {
             configurationLock.lock(update);
 
             try {
-                statusCodes.clear();
-                statusCodes.addAll(configurationObject.getMessaging().getStatusCode());
+                statusCodeMatcherList.clear();
+                statusCodeMatcherList.addAll(configurationObject.getStatusCode());
 
                 formatTemplates.clear();
 
-                for (StatusCode code : statusCodes) {
+                for (StatusCodeMatcher code : statusCodeMatcherList) {
                     statusCodeRegexes.put(code.getId(), Pattern.compile(code.getCodeRegex()));
                 }
             } finally {
@@ -75,11 +79,7 @@ public class StatusCodeResponseMessageService implements ResponseMessageService 
 
     @Override
     public void destroy() {
-        //TODO: Implement
-    }
-
-    public void configure(ConfigurationService configurationService) {
-        configurationService.subscribeTo("messaging.xml", updateMessageConfig, ContentNegotiation.class);
+        //Nothing that a good de-referencing can't clean up.
     }
 
     @Override
@@ -95,12 +95,12 @@ public class StatusCodeResponseMessageService implements ResponseMessageService 
             return;
         }
 
-        final StatusCode matchedCode = getMatchingStatusCode(String.valueOf(response.getStatus()));
+        final StatusCodeMatcher matchedCode = getMatchingStatusCode(String.valueOf(response.getStatus()));
 
         if (matchedCode != null) {
             final HttpRequestInfo requestInfo = new HttpRequestInfoImpl(request);
             final MediaRange preferedMediaRange = requestInfo.getPreferedMediaRange();
-            final StatusCodeMessage statusCodeMessage = getMatchingStatusCodeMessage(matchedCode, preferedMediaRange.getMediaType().toString());
+            final Message statusCodeMessage = getMatchingStatusCodeMessage(matchedCode, preferedMediaRange);
 
             if (!statusCodeMessage.isPrependOrigin()) {
                 response.resetBuffer();
@@ -111,20 +111,19 @@ public class StatusCodeResponseMessageService implements ResponseMessageService 
             if (formatter != null) {
                 //Write the content type header and then write out our content
                 response.setHeader(CommonHttpHeader.CONTENT_TYPE.headerKey(), preferedMediaRange.getMediaType().toString());
-                response.getWriter().append(formatter.format(message, request, response));
-                
-            }
-            // else{} TODO: This is an error case
+                response.getWriter().append(formatter.format(message, request, response).trim());
+
+            } // else{} TODO:Implement This is an error case. Formatters should never be null if they are configured.
         }
     }
 
-    private StatusCode getMatchingStatusCode(String statusCode) {
-        StatusCode matchedCode = null;
+    private StatusCodeMatcher getMatchingStatusCode(String statusCode) {
+        StatusCodeMatcher matchedCode = null;
 
         configurationLock.lock(read);
 
         try {
-            for (StatusCode code : statusCodes) {
+            for (StatusCodeMatcher code : statusCodeMatcherList) {
                 if (statusCodeRegexes.get(code.getId()).matcher(statusCode).matches()) {
                     matchedCode = code;
                     break;
@@ -137,7 +136,7 @@ public class StatusCodeResponseMessageService implements ResponseMessageService 
         return matchedCode;
     }
 
-    private HttpLogFormatter getFormatter(StatusCode code, StatusCodeMessage message) {
+    private HttpLogFormatter getFormatter(StatusCodeMatcher code, Message message) {
         HttpLogFormatter formatter = null;
 
         configurationLock.lock(update);
@@ -159,8 +158,8 @@ public class StatusCodeResponseMessageService implements ResponseMessageService 
         return formatter;
     }
 
-    //TODO: Update the service to use a uri resolver
-    private String readHref(String href, StatusCode code) {
+    //TODO:Enhancement Update the service to use a uri resolver
+    private String readHref(String href, StatusCodeMatcher code) {
         String stringMessage = "";
 
         final File f = getFileFromHref(href, code);
@@ -178,7 +177,7 @@ public class StatusCodeResponseMessageService implements ResponseMessageService 
         return stringMessage;
     }
 
-    private File getFileFromHref(String messageHref, StatusCode code) {
+    private File getFileFromHref(String messageHref, StatusCodeMatcher code) {
         File f = null;
 
         final Matcher m = URI_PATTERN.matcher(messageHref);
@@ -194,16 +193,15 @@ public class StatusCodeResponseMessageService implements ResponseMessageService 
         return f;
     }
 
-    private StatusCodeMessage getMatchingStatusCodeMessage(StatusCode code, String acceptType) {
-        StatusCodeMessage matchedMessage = null;
+    private Message getMatchingStatusCodeMessage(StatusCodeMatcher code, MediaRange requestedMediaType) {
+        for (Message message : code.getMessage()) {
+            final List<MediaRange> configurationRanges = MediaRangeParser.getMediaRangesFromAcceptHeader(message.getMediaType());
 
-        for (StatusCodeMessage message : code.getMessage()) {
-            if (message.getType().equalsIgnoreCase(acceptType)) {
-                matchedMessage = message;
-                break;
+            if (configurationRanges.contains(requestedMediaType)) {
+                return message;
             }
         }
 
-        return matchedMessage;
+        return null;
     }
 }

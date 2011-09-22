@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.cnorm.headers;
 
 import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.components.normalization.config.HttpHeader;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import java.util.List;
@@ -12,10 +13,10 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class HeaderNormalizer {
 
-    private final List<String> headers;
+    private final List<HttpHeader> headers;
     private final boolean isBlacklist;
 
-    public HeaderNormalizer(List<String> headers, boolean isBlacklist) {
+    public HeaderNormalizer(List<HttpHeader> headers, boolean isBlacklist) {
         this.headers = headers;
         this.isBlacklist = isBlacklist;
     }
@@ -58,15 +59,15 @@ public class HeaderNormalizer {
     }
 
     private void filterHeaders(HttpServletRequest request, FilterDirector myDirector) {
-        for (String headerName : headers) {
-            final String headerValue = request.getHeader(headerName);
+        for (HttpHeader header : headers) {
+            final String headerValue = request.getHeader(header.getId());
 
             if (!StringUtilities.isBlank(headerValue)) {
                 if (isBlacklist) {
-                    myDirector.requestHeaderManager().removeHeader(headerName);
+                    myDirector.requestHeaderManager().removeHeader(header.getId());
                 }
             } else if (!isBlacklist) {
-                myDirector.requestHeaderManager().removeHeader(headerName);
+                myDirector.requestHeaderManager().removeHeader(header.getId());
             }
         }
     }
