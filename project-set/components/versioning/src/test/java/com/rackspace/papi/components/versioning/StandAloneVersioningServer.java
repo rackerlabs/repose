@@ -28,7 +28,7 @@ public class StandAloneVersioningServer extends JettyTestingContext {
     @Override
     public final void buildServerContext(JettyServerBuilder serverBuilder) throws Exception {
         serverBuilder.addContextListener(PowerApiContextManager.class);
-        serverBuilder.addContextInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), "/home/zinic/installed/etc/powerapi");
+        serverBuilder.addContextInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), "/home/zinic/installed/etc/powerapi/content-normalization");
         serverBuilder.addFilter(PowerFilter.class, "/*");
         serverBuilder.addServlet(DummyServlet.class, "/*");
         serverBuilder.addServlet(DummyServlet.class, "/_v1.0/*");

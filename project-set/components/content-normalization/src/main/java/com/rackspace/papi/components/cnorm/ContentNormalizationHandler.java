@@ -11,6 +11,7 @@ import com.rackspace.papi.components.normalization.config.ContentNormalizationCo
 import com.rackspace.papi.components.normalization.config.HeaderFilterList;
 import com.rackspace.papi.components.normalization.config.MediaTypeList;
 import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
+import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 
@@ -49,6 +50,7 @@ public class ContentNormalizationHandler extends AbstractFilterLogicHandler {
 
     public FilterDirector handleRequest(MutableHttpServletRequest request, MutableHttpServletResponse response) {
         final FilterDirector myDirector = new FilterDirectorImpl();
+        myDirector.setFilterAction(FilterAction.PASS);
         
         configurationLock.lock(readKey);
         

@@ -98,11 +98,11 @@ public class HeaderManagerImpl implements HeaderManager {
 
     @Override
     public void putHeader(String key, String... values) {
-        headersToAdd.put(key, values);
+        headersToAdd.put(key.toLowerCase(), values);
     }
 
     @Override
     public void removeHeader(String key) {
-        headersToRemove.add(key);
+        headersToRemove.add(key.toLowerCase());
     }
 }
