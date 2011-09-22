@@ -55,6 +55,6 @@ public class ContentNormalizationFilter implements Filter {
         final ConfigurationService manager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
         handler = new ContentNormalizationHandler();
 
-        manager.subscribeTo("content-normalization.xml", handler.getContentNormalizationConfigurationListener(), ContentNormalizationConfig.class);
+        manager.subscribeTo("content-normalization.xml", handler.contentNormalizationConfigurationListener, ContentNormalizationConfig.class);
     }
 }

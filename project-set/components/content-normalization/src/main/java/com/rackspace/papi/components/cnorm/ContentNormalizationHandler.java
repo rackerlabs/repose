@@ -1,52 +1,64 @@
 package com.rackspace.papi.components.cnorm;
 
+import com.rackspace.papi.commons.config.manager.LockedConfigurationUpdater;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
-import com.rackspace.papi.components.cnorm.headers.HeaderNormalizer;
+import com.rackspace.papi.commons.util.thread.KeyedStackLock;
+import com.rackspace.papi.components.cnorm.normalizer.HeaderNormalizer;
+import com.rackspace.papi.components.cnorm.normalizer.MediaTypeNormalizer;
 import com.rackspace.papi.components.normalization.config.ContentNormalizationConfig;
 import com.rackspace.papi.components.normalization.config.HeaderFilterList;
+import com.rackspace.papi.components.normalization.config.MediaTypeList;
 import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 
 public class ContentNormalizationHandler extends AbstractFilterLogicHandler {
 
+    public final UpdateListener<ContentNormalizationConfig> contentNormalizationConfigurationListener;
+    private final KeyedStackLock configurationLock;
+    private final Object readKey, updateKey;
     private HeaderNormalizer headerNormalizer;
+    private MediaTypeNormalizer mediaTypeNormalizer;
 
-    private final UpdateListener<ContentNormalizationConfig> contentNormalizationConfigurationListener = new UpdateListener<ContentNormalizationConfig>() {
+    public ContentNormalizationHandler() {
+        configurationLock = new KeyedStackLock();
 
-        @Override
-        public void configurationUpdated(ContentNormalizationConfig config) {
-            final HeaderFilterList headerList = config.getHeaderList();
-            
-            if (headerList != null) {
-                final boolean isBlacklist = headerList.getHttpHeaderBlacklist() != null;
-            
-                updateHeaderNormalizer(new HeaderNormalizer(isBlacklist 
-                        ? headerList.getHttpHeaderBlacklist().getHeader()
-                        : headerList.getHttpHeaderWhitelist().getHeader(), isBlacklist));
+        readKey = new Object();
+        updateKey = new Object();
+        
+        contentNormalizationConfigurationListener = new LockedConfigurationUpdater<ContentNormalizationConfig>(configurationLock, updateKey) {
+
+            @Override
+            protected void onConfigurationUpdated(ContentNormalizationConfig configurationObject) {
+                final HeaderFilterList headerList = configurationObject.getHeaderFilters();
+                final MediaTypeList mediaTypeList = configurationObject.getMediaTypes();
+                
+                if (headerList != null) {
+                    final boolean isBlacklist = headerList.getBlacklist() != null;
+                    headerNormalizer = new HeaderNormalizer(headerList, isBlacklist);
+                }
+                
+                if (mediaTypeList != null) {
+                    mediaTypeNormalizer = new MediaTypeNormalizer(mediaTypeList.getMediaType());
+                }
             }
-        }
-    };
-
-    public UpdateListener<ContentNormalizationConfig> getContentNormalizationConfigurationListener() {
-        return contentNormalizationConfigurationListener;
-    }
-    
-    private synchronized void updateHeaderNormalizer(HeaderNormalizer newNormalizer) {
-        headerNormalizer = newNormalizer;
+        };
     }
 
-    private synchronized FilterDirector normalizeHeaders(MutableHttpServletRequest request) {
-        final FilterDirector myDirector = new FilterDirectorImpl();
-
-        headerNormalizer.normalizeHeaders(request, myDirector);
-
-        return myDirector;
-    }
-    
     public FilterDirector handleRequest(MutableHttpServletRequest request, MutableHttpServletResponse response) {
-        return normalizeHeaders(request);
+        final FilterDirector myDirector = new FilterDirectorImpl();
+        
+        configurationLock.lock(readKey);
+        
+        try {
+            headerNormalizer.normalizeHeaders(request, myDirector);
+            mediaTypeNormalizer.normalizeContentMediaType(request, myDirector);
+        } finally {
+            configurationLock.unlock(readKey);
+        }
+        
+        return myDirector;
     }
 }

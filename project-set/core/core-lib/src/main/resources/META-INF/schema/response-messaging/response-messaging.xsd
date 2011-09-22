@@ -16,7 +16,7 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="status-code" type="rms:StatusCodeMatcher" minOccurs="1" maxOccurs="unbounded" />
+            <xs:element name="status-code" type="rms:StatusCodeMatcher" minOccurs="0" maxOccurs="unbounded" />
         </xs:sequence>
     </xs:complexType>
 
