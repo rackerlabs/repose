@@ -30,19 +30,19 @@ public class VersionedRequest {
     }
 
     public boolean isRequestForRoot() {
-        return formatUri(requestInfo.getUri()).isEmpty();
+        return StringUtilities.formatUri(requestInfo.getUri()).isEmpty();
     }
 
     public boolean requestBelongsToVersionMapping() {
-        final String requestedUri = formatUri(requestInfo.getUri());
+        final String requestedUri = StringUtilities.formatUri(requestInfo.getUri());
 
-        return requestedUri.startsWith(formatUri(mapping.getId()));
+        return requestedUri.startsWith(StringUtilities.formatUri(mapping.getId()));
     }
 
     public boolean requestMatchesVersionMapping() {
-        final String requestedUri = formatUri(requestInfo.getUri());
+        final String requestedUri = StringUtilities.formatUri(requestInfo.getUri());
 
-        return requestedUri.equals(formatUri(mapping.getId()));
+        return requestedUri.equals(StringUtilities.formatUri(mapping.getId()));
     }
 
     public String asExternalURL() {
@@ -62,12 +62,12 @@ public class VersionedRequest {
     }
 
     public boolean uriRequiresRewrite() {
-        final String formattedUri = formatUri(requestInfo.getUri());
-        final String formattedReplacement = formatUri(mapping.getContextPath());
+        final String formattedUri = StringUtilities.formatUri(requestInfo.getUri());
+        final String formattedReplacement = StringUtilities.formatUri(mapping.getContextPath());
 
         final int replacementIndex = formattedUri.indexOf(formattedReplacement + "/");
 
-        return replacementIndex > 0;
+        return replacementIndex < 0;
     }
 
     private String updateURI(UniformResourceInfo requestInfo, String original, String replacement) {
@@ -75,9 +75,9 @@ public class VersionedRequest {
             throw new IllegalArgumentException("Request URI must be a URI with a root reference - i.e. the URI must start with '/'");
         }
 
-        final StringBuilder uriBuilder = new StringBuilder(formatUri(requestInfo.getUri()));
-        final String formattedReplacement = formatUri(replacement);
-        final String formattedOriginal = formatUri(original);
+        final StringBuilder uriBuilder = new StringBuilder(StringUtilities.formatUri(requestInfo.getUri()));
+        final String formattedReplacement = StringUtilities.formatUri(replacement);
+        final String formattedOriginal = StringUtilities.formatUri(original);
 
         final int originalIndex = uriBuilder.indexOf(formattedOriginal + "/");
         final int replacementIndex = uriBuilder.indexOf(formattedReplacement + "/");
@@ -94,32 +94,4 @@ public class VersionedRequest {
         return uriBuilder.toString();
     }
 
-    /**
-     * Formats a URI by adding a forward slash and removing the last forward
-     * slash from the URI.
-     * 
-     * e.g. some/random/uri/    -> /some/random/uri
-     * e.g. some/random/uri     -> /some/random/uri
-     * e.g. /some/random/uri/   -> /some/random/uri
-     * 
-     * @param uri
-     * @return 
-     */
-    public static String formatUri(String uri) {
-        if (StringUtilities.isBlank(uri)) {
-            return "";
-        }
-
-        final StringBuilder externalName = new StringBuilder(uri);
-
-        if (externalName.charAt(0) != '/') {
-            externalName.insert(0, "/");
-        }
-
-        if (externalName.charAt(externalName.length() - 1) == '/') {
-            externalName.deleteCharAt(externalName.length() - 1);
-        }
-
-        return externalName.toString();
-    }
 }
