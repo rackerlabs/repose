@@ -25,12 +25,13 @@
         <url-pattern>/users/cmarin1/groups/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>limits</servlet-name>
-        <url-pattern>/limits/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
         <servlet-name>landingServlet</servlet-name>
         <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>limits</servlet-name>
+        <url-pattern>/cmarin1/limits/*</url-pattern>
+        <url-pattern>/limits/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
