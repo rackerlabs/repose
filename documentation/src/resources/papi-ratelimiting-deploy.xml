@@ -342,7 +342,7 @@
                     that the rate limiting component operates against. You can get an unexpected
                     result by failing to account for all request URI components.</para>
             </warning>
-            <para> As you plan your own regular expressions, consider the following examples:  </para>
+            <para>As you plan your own regular expressions, consider the following examples: </para>
             <annotation>
                 <remark> The ampersand character is used in regular expressions but it's also used
                     in DocBook XML, and not ignored even inside code wrappers, so it's problematic
@@ -353,11 +353,12 @@
                     RegEx examples. </remark>
             </annotation>
             <table frame="all">
-                <?dbfo keep-together="always"?>
+                <?dbhtml table-width="85%" ?>
+                <?dbfo table-width="100%" ?>
                 <title>Sample Regular Expressions</title>
                 <tgroup cols="2">
                     <colspec colname="c1" colnum="1" colwidth="1.0*"/>
-                    <colspec colname="c2" colnum="2" colwidth="1.0*"/>
+                    <colspec colname="c2" colnum="2" colwidth="1.48*"/>
                     <thead>
                         <row>
                             <entry>RegEx</entry>
@@ -366,43 +367,35 @@
                     </thead>
                     <tbody>
                         <row>
-                            <entry><code>/service/.*</code>
+                            <entry>
+                                <code>/service/.*</code>
                             </entry>
-                            <entry> 
-                                <para>   
-                                    This is a blanket regular expression that recognizes 
-                                    a parent resource, <code>service</code>,
-                                    and catches any request
-                                    against a resource that falls under the parent. 
-                                </para>
-                                <para>
-                                    The rate limiting component cannot
-                                    detect whether the service implementer is requesting that each
-                                    resource request be tracked separately or as part of a group; the
-                                    component defaults to tracking limited requests under unique keys.
-                                </para>
+                            <entry>
+                                <para> This is a blanket regular expression that recognizes a parent
+                                    resource, <code>service</code>, and catches any request against a
+                                    resource that falls under the parent. </para>
+                                <para> The rate limiting component cannot detect whether the service
+                                    implementer is requesting that each resource request be tracked
+                                    separately or as part of a group; the component defaults to tracking
+                                    limited requests under unique keys. </para>
                             </entry>
                         </row>
                         <row>
-
-                            
-                            <entry><code>/service/([^!*'();:@&amp;=+$,/?#\\[\\]]*)/.*</code>
-                            </entry>
                             <entry>
-                                <para>
-                                    This regular expression generates cache keys from the second-tier
+                                <code>/service/([^!*'();:@&amp;=+$,/?#\\[\\]]*)/.*</code>
+                             </entry>
+                            <entry>
+                                <para> This regular expression generates cache keys from the second-tier
                                     resource in a given request URI. This is useful for grouping child
-                                    resources under a shared rate limit. 
-                                </para>
+                                    resources under a shared rate limit. </para>
                                 <para> A service can require clients to use their account numbers as
-                                    part of the resource tree to their service resources. For a
-                                    client request formed like
-                                        <code>http://demo.com/service/12345-account/resource</code>,
+                                    part of the resource tree to their service resources. For a client
+                                    request formed like
+                                    <code>http://demo.com/service/12345-account/resource</code>,
                                     executing this regular expression against the client request
-                                    extracts <code>12345-account</code>. The Rate Limiting component
-                                    can use this extracted information as a unique identifier to
-                                    ensure that all of the recorded rate limits belong only to this
-                                    client. </para>
+                                    extracts <code>12345-account</code>. The Rate Limiting component can
+                                    use this extracted information as a unique identifier to ensure that
+                                    all of the recorded rate limits belong only to this client. </para>
                             </entry>
                         </row>
                     </tbody>
