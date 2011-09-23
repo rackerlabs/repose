@@ -14,7 +14,8 @@
             <media-type base="application/xml" type="application/vnd.rackspace; x=v1; y=xml" />            
             <media-type base="application/json" type="application/vnd.rackspace; x=v1; y=json" />            
             <media-type base="application/json" type="application/vnd.rackspace; rnd=1; x=v1; rnd2=2; y=xml" />            
-            <media-type base="application/json" type="application/vnd.rackspace; rnd=1; x=v1; rnd2=2; y=json" />        
+            <media-type base="application/json" type="application/vnd.rackspace; rnd=1; x=v1; rnd2=2; y=json" />
+	    <media-type base="application/json" type="application/xml;q=0.9,*/*;q=0.8" />          
         </media-types>    
     </version-mapping>        
 
@@ -29,7 +30,8 @@
             <media-type base="application/xml" type="application/vnd.rackspace; x=v2; y=xml" />            
             <media-type base="application/json" type="application/vnd.rackspace; x=v2; y=json" />            
             <media-type base="application/json" type="application/vnd.rackspace; rnd=1; x=v2; rnd2=2; y=xml" />            
-            <media-type base="application/json" type="application/vnd.rackspace; rnd=1; x=v2; rnd2=2; y=json" />        
+            <media-type base="application/json" type="application/vnd.rackspace; rnd=1; x=v2; rnd2=2; y=json" />
+	    <media-type base="application/json" type="application/xml;q=0.9,*/*;q=0.8" />          
         </media-types>    
     </version-mapping>
 </versioning>
