@@ -88,7 +88,7 @@
     </dependencies>
 
     <build>
-        <finalName>PowerApiServer</finalName>
+        <finalName>papi</finalName>
         <plugins>
 
             <plugin>
