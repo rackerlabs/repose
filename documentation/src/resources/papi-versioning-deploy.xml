@@ -309,11 +309,13 @@
             <para> The versioning component supports two methods of requesting a service version in
                 the HTTP request. </para>
             <table frame="all">
+                <?dbhtml table-width="85%" ?>
+                <?dbfo table-width="100%" ?>
                 <title>Request Methods</title>
                 <?dbfo keep-together="always"?>
                 <tgroup cols="2">
                     <colspec colname="c1" colnum="1" colwidth="1.0*"/>
-                    <colspec colname="c2" colnum="2" colwidth="1.0*"/>
+                    <colspec colname="c2" colnum="2" colwidth="1.48*"/>
                     <thead>
                         <row>
                             <entry>Request Method</entry>
