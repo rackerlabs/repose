@@ -10,6 +10,8 @@ import com.rackspace.papi.service.event.EventManagerServiceContext;
 import com.rackspace.papi.service.naming.InitialServiceContextFactory;
 import com.rackspace.papi.service.thread.ThreadingServiceContext;
 import com.rackspace.papi.servlet.PowerApiContextException;
+
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import org.slf4j.Logger;
@@ -105,8 +107,11 @@ public class PowerApiContextManager implements ServletContextListener {
     
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        for (String ctxName : boundServiceContextNames) {
-            try {
+        Iterator<String> iterator = ((LinkedList<String>)boundServiceContextNames).descendingIterator();
+        while (iterator.hasNext()) {
+            final String ctxName = iterator.next();
+
+            try {                
                 final ServiceContext ctx = (ServiceContext) initialContext.lookup(ctxName);
                 initialContext.unbind(ctxName);
                 

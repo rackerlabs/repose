@@ -2,18 +2,21 @@ package com.rackspace.papi.filter.logic.impl;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.HeaderManager;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import javax.servlet.http.HttpServletResponse;
 
 public class FilterDirectorImpl implements FilterDirector {
 
-    private final ByteArrayOutputStream responseOutputStream;
+    private final ByteArrayOutputStream directorOutputSTream;
     private final PrintWriter responsePrintWriter;
     private HeaderManagerImpl requestHeaderManager, responseHeaderManager;
     private HttpStatusCode delegatedStatus;
@@ -29,8 +32,8 @@ public class FilterDirectorImpl implements FilterDirector {
         this.delegatedStatus = delegatedStatus;
         this.delegatedAction = delegatedAction;
 
-        responseOutputStream = new ByteArrayOutputStream();
-        responsePrintWriter = new PrintWriter(responseOutputStream);
+        directorOutputSTream = new ByteArrayOutputStream();
+        responsePrintWriter = new PrintWriter(directorOutputSTream);
     }
 
     public FilterDirectorImpl(FilterDirector directorToCopy) {
@@ -41,21 +44,32 @@ public class FilterDirectorImpl implements FilterDirector {
     }
 
     @Override
-    public void applyTo(MutableHttpServletRequest request, MutableHttpServletResponse response) {
+    public synchronized void applyTo(MutableHttpServletRequest request) {
         if (requestHeaderManager().hasHeaders()) {
             requestHeaderManager().applyTo(request);
         }
-        
-        if (responseHeaderManager().hasHeaders()) {
-            responseHeaderManager().applyTo(response);
-        }
-        
+
         if (requestUri != null && StringUtilities.isNotBlank(requestUri)) {
             request.setRequestUri(requestUri);
         }
-        
+
         if (requestUrl != null && StringUtilities.isNotBlank(requestUrl.toString())) {
             request.setRequestUrl(requestUrl);
+        }
+    }
+
+    @Override
+    public synchronized void applyTo(HttpServletResponse response) throws IOException {
+        if (responseHeaderManager().hasHeaders()) {
+            responseHeaderManager().applyTo(response);
+        }
+
+        if (delegatedAction != FilterAction.NOT_SET) {
+            response.setStatus(delegatedStatus.intValue());
+        }
+
+        if (directorOutputSTream.size() > 0) {
+            RawInputStreamReader.instance().copyTo(new ByteArrayInputStream(getResponseMessageBodyBytes()), response.getOutputStream());
         }
     }
 
@@ -73,14 +87,14 @@ public class FilterDirectorImpl implements FilterDirector {
     public byte[] getResponseMessageBodyBytes() {
         responsePrintWriter.flush();
 
-        return responseOutputStream.toByteArray();
+        return directorOutputSTream.toByteArray();
     }
 
     @Override
     public String getResponseMessageBody() {
         responsePrintWriter.flush();
 
-        final byte[] bytesWritten = responseOutputStream.toByteArray();
+        final byte[] bytesWritten = directorOutputSTream.toByteArray();
 
         if (bytesWritten.length > 0) {
             return new String(bytesWritten);
@@ -91,7 +105,7 @@ public class FilterDirectorImpl implements FilterDirector {
 
     @Override
     public OutputStream getResponseOutputStream() {
-        return responseOutputStream;
+        return directorOutputSTream;
     }
 
     @Override

@@ -37,7 +37,7 @@ public abstract class AbstractHashRingDatastore extends AbstractHashedDatastore 
         final InetSocketAddress[] ringMembers = clusterView.members();
 
         if (ringMembers.length <= 0) {
-            LOG.warn("Wraning! No members to route to in datastore cluster. Returning local node.");
+            LOG.debug("No members to route to in datastore cluster. Returning local node.");
             
             return clusterView.localMember();
         }
@@ -49,16 +49,6 @@ public abstract class AbstractHashRingDatastore extends AbstractHashedDatastore 
             throw new UnaddressableKeyException("Unable to address given key");
         }
 
-//        final StringBuilder builder = new StringBuilder("[");
-//        
-//        for (InetSocketAddress addr : ringMembers) {
-//            builder.append(addr.toString()).append(":").append(addr.getPort()).append(",");
-//        }
-        
-//        builder.deleteCharAt(builder.length() - 1).append("] - Selected: ").append(memberAddress).append(" - Local: ").append(clusterView.localMember().toString()).append(":").append(clusterView.localMember().getPort());
-        
-//        LOG.info(builder.toString());
-        
         return ringMembers[memberAddress];
     }
 

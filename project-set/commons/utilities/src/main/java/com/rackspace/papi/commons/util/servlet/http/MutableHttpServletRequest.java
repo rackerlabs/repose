@@ -31,6 +31,25 @@ public final class MutableHttpServletRequest extends HttpServletRequestWrapper {
         requestUri = request.getRequestURI();
 
         headers = new HashMap<String, List<String>>();
+        
+        copyHeaders(request);
+    }
+    
+    private void copyHeaders(HttpServletRequest request) {
+        final Enumeration<String> headerNames = request.getHeaderNames();
+        
+        while (headerNames.hasMoreElements()) {
+            final String headerName = headerNames.nextElement().toLowerCase();  //Normalize to lowercase
+            
+            final Enumeration<String> headerValues = request.getHeaders(headerName);
+            final List<String> copiedHeaderValues = new LinkedList<String>();
+            
+            while (headerValues.hasMoreElements()) {
+                copiedHeaderValues.add(headerValues.nextElement());
+            }
+            
+            headers.put(headerName, copiedHeaderValues);
+        }
     }
 
     @Override
@@ -79,35 +98,19 @@ public final class MutableHttpServletRequest extends HttpServletRequestWrapper {
 
     @Override
     public String getHeader(String name) {
-        final String header = fromMap(headers, name.toLowerCase());
-
-        return header != null ? header : super.getHeader(name);
+        return fromMap(headers, name.toLowerCase());
     }
 
     @Override
     public Enumeration<String> getHeaderNames() {
-        return combine(super.getHeaderNames(), headers.keySet());
+        return Collections.enumeration(headers.keySet());
     }
 
     @Override
     public Enumeration<String> getHeaders(String name) {
-        return combine(super.getHeaders(name), headers.get(name));
-    }
-
-    public <T> Enumeration<T> combine(Enumeration<T> enumeration, Collection<T>... extraElements) {
-        final List<T> combinedValues = new LinkedList<T>();
-
-        while (enumeration.hasMoreElements()) {
-            combinedValues.add(enumeration.nextElement());
-        }
+        final List<String> headerValues = headers.get(name.toLowerCase());
         
-        for (Collection<T> collection : extraElements) {
-            if (collection != null && !collection.isEmpty()) {
-                combinedValues.addAll(collection);
-            }
-        }
-        
-        return Collections.enumeration(combinedValues);
+        return Collections.enumeration(headerValues != null ? headerValues : Collections.EMPTY_SET);
     }
 
     static String fromMap(Map<String, List<String>> headers, String headerName) {

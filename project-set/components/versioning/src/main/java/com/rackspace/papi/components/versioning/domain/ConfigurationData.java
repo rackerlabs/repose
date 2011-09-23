@@ -4,6 +4,7 @@ import com.rackspace.papi.commons.util.http.HttpRequestInfo;
 import com.rackspace.papi.commons.util.http.UniformResourceInfo;
 import com.rackspace.papi.commons.util.http.media.MediaRange;
 import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
+import com.rackspace.papi.commons.util.StringUtilities;
 
 import com.rackspace.papi.components.versioning.config.MediaType;
 import com.rackspace.papi.components.versioning.config.MediaTypeList;
@@ -125,7 +126,7 @@ public class ConfigurationData {
     }
 
     public boolean isRequestForVersions(UniformResourceInfo uniformResourceInfo) {
-        return VersionedRequest.formatUri(uniformResourceInfo.getUri()).isEmpty();
+        return StringUtilities.formatUri(uniformResourceInfo.getUri()).isEmpty();
     }
 
     public Host getLocalHost() {

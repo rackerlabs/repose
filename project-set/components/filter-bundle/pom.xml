@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.rackspace.papi.components</groupId>
         <artifactId>components-support</artifactId>
-        <version>0.9-SNAPSHOT</version>
+        <version>0.9.2-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.components</groupId>
@@ -59,74 +59,153 @@
     </dependencies>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-ear-plugin</artifactId>
-                    <version>2.5</version>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-ear-plugin</artifactId>
+                <version>2.5</version>
 
-                    <extensions>true</extensions>                    
+                <extensions>true</extensions>                    
 
-                    <executions>
-                        <execution>                           
-                            <id>Package Ear Contents</id>
+                <executions>
+                    <execution>                           
+                        <id>Package Ear Contents</id>
 
-                            <phase>package</phase>
+                        <phase>package</phase>
 
-                            <goals>
-                                <goal>ear</goal>
-                            </goals>
-                        </execution>
-                    </executions>                   
+                        <goals>
+                            <goal>ear</goal>
+                        </goals>
+                    </execution>
+                </executions>                   
 
-                    <configuration>
-                        <generateApplicationXml>false</generateApplicationXml>
-                        <manifestFile>src/main/application/META-INF/MANIFEST.MF</manifestFile>
-                        <modules>
-                            <jarModule>
-                                <groupId>com.rackspace.papi.components</groupId>
-                                <artifactId>versioning</artifactId>
-                            </jarModule>
+                <configuration>
+                    <generateApplicationXml>false</generateApplicationXml>
 
-                            <jarModule>
-                                <groupId>com.rackspace.papi.components</groupId>
-                                <artifactId>client-auth</artifactId>
-                            </jarModule>
+                    <modules>
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components</groupId>
+                            <artifactId>versioning</artifactId>
+                        </jarModule>
 
-                            <jarModule>
-                                <groupId>com.rackspace.papi.components</groupId>
-                                <artifactId>content-negotiation</artifactId>
-                            </jarModule>
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components</groupId>
+                            <artifactId>client-auth</artifactId>
+                        </jarModule>
 
-                            <jarModule>
-                                <groupId>com.rackspace.papi.components</groupId>
-                                <artifactId>content-normalization</artifactId>
-                            </jarModule>
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components</groupId>
+                            <artifactId>content-negotiation</artifactId>
+                        </jarModule>
 
-                            <jarModule>
-                                <groupId>com.rackspace.papi.components</groupId>
-                                <artifactId>http-logging</artifactId>
-                            </jarModule>                            
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components</groupId>
+                            <artifactId>content-normalization</artifactId>
+                        </jarModule>
 
-                            <jarModule>
-                                <groupId>com.rackspace.papi.components</groupId>
-                                <artifactId>rate-limiting</artifactId>
-                            </jarModule>
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components</groupId>
+                            <artifactId>http-logging</artifactId>
+                        </jarModule>                            
 
-                            <jarModule>
-                                <groupId>com.rackspace.papi.components</groupId>
-                                <artifactId>service-auth</artifactId>
-                            </jarModule>
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components</groupId>
+                            <artifactId>rate-limiting</artifactId>
+                        </jarModule>
+
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components</groupId>
+                            <artifactId>service-auth</artifactId>
+                        </jarModule>
                             
-                            <jarModule>
-                                <groupId>com.rackspace.papi.components</groupId>
-                                <artifactId>distributed-datastore</artifactId>
-                            </jarModule>             
-                        </modules>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components</groupId>
+                            <artifactId>distributed-datastore</artifactId>
+                        </jarModule>             
+                    </modules>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
+    
+    <profiles>
+        <profile>
+            <id>build-rpm</id>
+            
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>rpm-maven-plugin</artifactId>
+                        <version>2.1-alpha-1</version>
+                
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>rpm</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                
+                        <configuration>
+                            <group>Rackspace - Cloud Integration Team</group>
+                    
+                            <description>
+                                Power API is a stack of reusable, software components 
+                                that can be leveraged by service developers to perform 
+                                common API processing tasks.
+
+                                Source code: https://source.admin.stabletransit.com/thesystem/API/api-auth/trunk/
+                            </description>
+                    
+                            <copyright>Apache License, Version 2.0</copyright>
+                    
+                            <mappings>
+                                <mapping>
+                                    <directory>/usr/share/powerapi/filters</directory>
+                                    <username>tomcat7</username>
+                                    <groupname>tomcat7</groupname>
+                                    <filemode>755</filemode>
+                                    
+                                    <sources>
+                                        <source>
+                                            <location>target/filter-bundle-${project.version}.ear</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+                                
+                                <mapping>
+                                    <directory>/etc/powerapi/</directory>
+                                    <username>tomcat7</username>
+                                    <groupname>tomcat7</groupname>
+                                    <filemode>755</filemode>
+                                    
+                                    <!-- TODO: One of these days we should standardize on where to put sane example configurations -->
+                                    <sources>
+                                        <source>
+                                            <location>../versioning/src/test/resources/META-INF/schema/examples/xml/versioning.cfg.xml</location>
+                                        </source>
+                                        <source>
+                                            <location>../client-auth/src/test/resources/META-INF/xsd/client-auth-n.cfg.xml</location>
+                                        </source>
+                                        <source>
+                                            <location>../rate-limiting/src/main/resources/META-INF/schema/examples/rate-limiting.cfg.xml</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+                            </mappings>
+                            
+                            <requires>
+                                <require>java-1.6.0-openjdk</require>
+                            </requires>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

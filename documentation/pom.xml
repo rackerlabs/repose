@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.rackspace.papi</groupId>
         <artifactId>papi</artifactId>
-        <version>0.9-SNAPSHOT</version>
+        <version>0.9.2-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.documentation</groupId>
@@ -79,19 +79,28 @@
                             <calloutsExtension>1</calloutsExtension>
                             <textinsertExtension>1</textinsertExtension>
                             <!-- use this .XML as the source for the books to be generated as .PDF & .HTML -->
-                            <includes>papi-rootwar-deploy.xml,papi-versioning-deploy.xml,papi-ratelimiting-deploy.xml,papi-authn-deploy.xml</includes>
+                            <!-- if not specified, generate for all -->
+                            <!-- <includes>papi-rootwar-deploy.xml,papi-versioning-deploy.xml,papi-ratelimiting-deploy.xml,papi-authn-deploy.xml</includes> -->
+                            <!--  -->
+                            <!-- I think the intention of this postProcess is to generate consistent SVGs & PNGs; I don't think it's accomplishing anything now -->
+                            <!-- ask David Cramer -->
                             <postProcess>
+                                <copy todir="target/docbkx/webhelp/papi-authn-deploy/content/figures">
+                                    <fileset dir="src/resources/figures">
+                                        <include name="**/*.png" />
+                                    </fileset>
+                                </copy>
+                                <copy todir="target/docbkx/webhelp/papi-ratelimiting-deploy/content/figures">
+                                    <fileset dir="src/resources/figures">
+                                        <include name="**/*.png" />
+                                    </fileset>
+                                </copy>
                                 <copy todir="target/docbkx/webhelp/papi-rootwar-deploy/content/figures">
                                     <fileset dir="src/resources/figures">
                                         <include name="**/*.png" />
                                     </fileset>
                                 </copy>
                                 <copy todir="target/docbkx/webhelp/papi-versioning-deploy/content/figures">
-                                    <fileset dir="src/resources/figures">
-                                        <include name="**/*.png" />
-                                    </fileset>
-                                </copy>
-                                <copy todir="target/docbkx/webhelp/papi-ratelimiting-deploy/content/figures">
                                     <fileset dir="src/resources/figures">
                                         <include name="**/*.png" />
                                     </fileset>

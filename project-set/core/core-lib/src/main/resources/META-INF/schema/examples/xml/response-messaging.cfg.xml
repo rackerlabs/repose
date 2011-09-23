@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<response-messaging xmlns="http://docs.rackspacecloud.com/power-api/response-messaging/v1.0">
+    <status-code id="401" code-regex="401">
+        <message prepend-origin="false" media-type="application/xml" href="file:///some/file/location.xml" />
+        
+        <message prepend-origin="false" media-type="application/text">
+            You are not authorized.
+        </message>
+    </status-code>
+    
+    <status-code id="5xx" code-regex="5\d\d">
+        <message prepend-origin="false" media-type="*/*">
+            An error has occured. Please contact support... the printer may be on fire.
+        </message>
+    </status-code>
+</response-messaging>

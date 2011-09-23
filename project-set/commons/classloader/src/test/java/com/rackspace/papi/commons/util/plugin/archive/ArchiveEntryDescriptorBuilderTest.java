@@ -33,6 +33,14 @@ public class ArchiveEntryDescriptorBuilderTest {
         }
 
         @Test
+        public void shouldParseComplexDirectoryNames() {
+            final JarEntry e = new JarEntry("META-INF/maven/com.rackspace.papi.components/filter-bundle");
+            final ArchiveEntryDescriptor desc = ArchiveEntryDescriptorBuilder.build("ROOT", e.getName());
+
+            assertEquals("META-INF/maven/com.rackspace.papi.components/", desc.getPrefix());
+        }
+
+        @Test
         public void shouldParseArchivePath() {
             final JarEntry e = new JarEntry("com/rackspace/papi/util/test.class");
             final ArchiveEntryDescriptor desc = ArchiveEntryDescriptorBuilder.build("ROOT", e.getName());

@@ -94,16 +94,6 @@ public class MutableHttpServletRequestTest {
         }
 
         @Test
-        public void shouldPassReferenceThroughIfIsWrapperInstance() {
-            MutableHttpServletRequest original = MutableHttpServletRequest.wrap(originalRequest);
-            MutableHttpServletRequest actual;
-
-            actual = MutableHttpServletRequest.wrap(original);
-
-            assertSame(original, actual);
-        }
-
-        @Test
         public void shouldCreateNewInstanceIfIsNotWrapperInstance() {
             HttpServletRequest original = originalRequest;
             MutableHttpServletRequest actual;

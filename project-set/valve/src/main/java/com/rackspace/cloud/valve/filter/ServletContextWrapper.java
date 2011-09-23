@@ -3,11 +3,15 @@ package com.rackspace.cloud.valve.filter;
 import com.rackspace.cloud.valve.http.proxy.HttpRequestDispatcher;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.EventListener;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+import java.util.logging.Level;
 import javax.servlet.Filter;
 import javax.servlet.FilterRegistration;
 import javax.servlet.RequestDispatcher;
@@ -31,15 +35,32 @@ public class ServletContextWrapper implements ServletContext {
   
   private final ServletContext context;
   private final String targetContext;
+  private static final Map<String, RequestDispatcher> dispatchers = new HashMap<String, RequestDispatcher>();
+  private final String target;
+
+  public static ServletContext getContext(ServletContext context) {
+    return new ServletContextWrapper(context);
+  }
   
   public ServletContextWrapper(ServletContext context) {
     targetContext = "";
     this.context = context;
+    this.target = null;
   }
   
   public ServletContextWrapper(ServletContext context, String contextName) {
     this.targetContext = contextName;
     this.context = context;
+
+    URI uri = null;
+    String targetHostPort = null;
+    try {
+      uri = new URI(targetContext);
+      targetHostPort = uri.getHost() + ":" + uri.getPort();
+    } catch (URISyntaxException ex) {
+    }
+    
+    this.target = targetHostPort;
   }
   
   @Override
@@ -59,6 +80,7 @@ public class ServletContextWrapper implements ServletContext {
 
       return new ServletContextWrapper(newContext, uripath);
     }
+    
   }
 
   @Override
@@ -100,14 +122,37 @@ public class ServletContextWrapper implements ServletContext {
   public InputStream getResourceAsStream(String path) {
     return context.getResourceAsStream(path);
   }
+  
+  private RequestDispatcher getDispatcher() {
+    RequestDispatcher dispatcher = null;
+    
+    if (target != null) {
+      synchronized(dispatchers) {
+        dispatcher = dispatchers.get(target);
+        if (dispatcher == null) {
+          dispatcher = new HttpRequestDispatcher(targetContext);
+          dispatchers.put(target, dispatcher);
+        }
+      }
+    } 
+      
+    return dispatcher;
+  }
 
   @Override
   public RequestDispatcher getRequestDispatcher(String path) {
+    RequestDispatcher dispatcher;
+    
     if (targetContext.matches("^https?://.*")) {
-      return new HttpRequestDispatcher(targetContext);
+      dispatcher = getDispatcher();
+      if (dispatcher == null) {
+        dispatcher = new HttpRequestDispatcher(targetContext);
+      }
     } else {
-      return context.getRequestDispatcher(path);
+      dispatcher = context.getRequestDispatcher(path);
     }
+    
+    return dispatcher;
   }
 
   @Override

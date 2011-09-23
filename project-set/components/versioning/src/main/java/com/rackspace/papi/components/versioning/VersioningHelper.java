@@ -6,7 +6,6 @@ import com.rackspace.papi.commons.util.http.HttpRequestInfoImpl;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.components.versioning.domain.ConfigurationData;
-import com.rackspace.papi.components.versioning.domain.HostWrapper;
 import com.rackspace.papi.components.versioning.domain.VersionedHostNotFoundException;
 import com.rackspace.papi.components.versioning.domain.VersionedOriginService;
 import com.rackspace.papi.components.versioning.domain.VersionedRequest;
@@ -14,6 +13,8 @@ import com.rackspace.papi.components.versioning.schema.ObjectFactory;
 import com.rackspace.papi.components.versioning.schema.VersionChoiceList;
 import com.rackspace.papi.components.versioning.util.ContentTransformer;
 import com.rackspace.papi.components.versioning.util.VersionChoiceFactory;
+import com.rackspace.papi.domain.HostComparator;
+import com.rackspace.papi.domain.HostUtilities;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
@@ -82,33 +83,36 @@ public class VersioningHelper {
         }
     }
     
-    private String getRouteDestinationPrefix(VersionedOriginService targetOriginService) throws VersionedHostNotFoundException, MalformedURLException {
-        HostWrapper targetHost = new HostWrapper(configurationData.getHostForVersionMapping(targetOriginService.getMapping()));
-        HostWrapper localHost = new HostWrapper(configurationData.getLocalHost());
-
-        return localHost.equals(targetHost)? "": targetHost.getAbsoluteUrl();
-    }
-
     private void handleVersionedRequest(VersionedRequest versionedRequest, FilterDirector filterDirector, VersionedOriginService targetOriginService) throws VersionedHostNotFoundException, MalformedURLException {
         // Is this a reuest to a version root we are aware of for describing it? (e.g. http://api.service.com/v1.0/)
         if (versionedRequest.isRequestForRoot() || versionedRequest.requestMatchesVersionMapping()) {
-            filterDirector.setResponseStatus(HttpStatusCode.OK);
-            filterDirector.setFilterAction(FilterAction.RETURN);
-
             final JAXBElement versionElement = VERSIONING_OBJECT_FACTORY.createVersion(new VersionChoiceFactory(targetOriginService.getMapping()).create());
 
             transformer.transform(versionElement, versionedRequest.getRequestInfo().getPreferedMediaRange(), filterDirector.getResponseOutputStream());
+            
+            filterDirector.setResponseStatus(HttpStatusCode.OK);
+            filterDirector.setFilterAction(FilterAction.RETURN);
         } else {
-            String contextPath = StringUtilities.getValue(targetOriginService.getMapping().getContextPath(), "");
+            final boolean isExternalRoute = HostComparator.getInstance().compare(configurationData.getLocalHost(), targetOriginService.getOriginServiceHost()) != 0;
+            
+            if (versionedRequest.uriRequiresRewrite() || isExternalRoute) {
+                writeRoutingInformation(isExternalRoute, targetOriginService, filterDirector, versionedRequest);
+            }
+            
             filterDirector.setFilterAction(FilterAction.PASS);
-            filterDirector.requestHeaderManager().removeHeader(PowerApiHeader.ROUTE_DESTINATION.headerKey());
-            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.ROUTE_DESTINATION.headerKey(), 
-                    getRouteDestinationPrefix(targetOriginService) + contextPath);
-
-            // Set the URI to the correct, internally versioned path and pass it to the origin service
-            filterDirector.setRequestUri(versionedRequest.asInternalURI());
-            filterDirector.setRequestUrl(new StringBuffer(versionedRequest.asInternalURL()));
         }
+    }
+
+    private void writeRoutingInformation(final boolean isExternalRoute, VersionedOriginService targetOriginService, FilterDirector filterDirector, VersionedRequest versionedRequest) throws MalformedURLException {
+        final String routeDestinationPrefix = isExternalRoute ? HostUtilities.asUrl(targetOriginService.getOriginServiceHost()) : "";
+        final String contextPath = StringUtilities.getValue(targetOriginService.getMapping().getContextPath(), "");
+        
+        filterDirector.requestHeaderManager().removeHeader(PowerApiHeader.ROUTE_DESTINATION.headerKey());
+        filterDirector.requestHeaderManager().putHeader(PowerApiHeader.ROUTE_DESTINATION.headerKey(), routeDestinationPrefix + contextPath);
+
+        // Set the URI to the correct, internally versioned path and pass it to the origin service
+        filterDirector.setRequestUri(versionedRequest.asInternalURI());
+        filterDirector.setRequestUrl(new StringBuffer(versionedRequest.asInternalURL()));
     }
 
     private void writeMultipleChoices(FilterDirector filterDirector, HttpRequestInfo httpRequestInfo) {
