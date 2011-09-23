@@ -213,29 +213,32 @@
                     regular expression that identifies client requests for the client's current
                     limits.
                 </para>
+                <para>This element is <emphasis>required</emphasis>.</para>
                 <para> </para>
             </callout>
             <callout arearefs="cfg.xml.uri-regex">
-                <para> 
-                    The <code>uri-regex</code> attribute must be specified and must be a regular
-                    expression. It should matches all representations of the request resource that
-                    the rate limiting component should answer. 
-                </para>
+                <para> The <code>uri-regex</code> attribute of the <code>request-endpoint</code>
+                    configuration element must be a regular expression. It should match all
+                    representations of the request resource that the rate limiting component should
+                    answer. </para>
+                <para>This attribute is <emphasis>required</emphasis>.</para>
                 <para> </para>
             </callout>
             <callout arearefs="cfg.xml.include-absolute-limits">
-                <para> 
-                    <code>include-absolute-limits</code> is an optional Boolean attribute that
-                    can be used to switch on or off integration with the origin service's
-                    absolute limits. 
-                </para>
+                <para> The <code>include-absolute-limits</code> attribute of the
+                        <code>request-endpoint</code> configuration element is a Boolean attribute
+                    that can be used to switch on or off integration with the origin service's
+                    absolute limits. </para>
+                <para>This attribute is <emphasis>optional</emphasis>.</para>
+                <para>Acceptable values are <code>TRUE</code>, <code>FALSE</code>.</para>
                 <para> </para>
             </callout>
         </calloutlist>
         <section xml:id="Configuring_Limits-d1e376">
             <title>Configuring Limits</title>
-            <para>
-                To set a rate limit, assign acceptable values to the rate limiting configuration attributes shown in the code sample at <xref linkend="Configuration-d1e365"></xref>
+            <para> To set a rate limit, assign acceptable values to the rate limiting configuration
+                attributes shown in the code sample introducing <xref linkend="Configuration-d1e365"
+                />
             </para>
             <table frame="all">
                 <?dbfo keep-together="always"?>
