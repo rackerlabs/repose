@@ -210,8 +210,86 @@
             </remark>
         </annotation>
         <para>
-            bla
+            A good way to understand &PRODNAME; is to think of it as a platform that can be used to implement integration patterns. 
+            For example, existing &PRODABBREV; components implement the following Enterprise Integration Patterns:
         </para>
+        <itemizedlist>
+            <listitem>
+                <para>
+                    <link linkend="Pattern_Pipes-d1e667">pipes and filters</link>
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    <link linkend="Pattern_Message-d1e669">message router</link>
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    <link linkend="Pattern_Normalizer-d1e663">normalizer</link>       
+                </para>
+            </listitem>
+        </itemizedlist>
+        <para> To learn more about these and other integration patterns, visit Enterprise
+            Integration Patterns at <link xlink:href="http://www.eaipatterns.com/toc.html"
+                >http://www.eaipatterns.com/toc.html</link>. </para>
+        <section xml:id="Pattern_Pipes-d1e667">
+            <title>Pattern: Pipes and Filters</title>
+            <para>  
+                The <firstterm>pipes and filters</firstterm> pattern describes a way of constructing a route by
+                creating a chain of filters. Requests are passed through the chain so that one filter's output becomes the next filter's input.
+                This pipeline structure is analogous to the UNIX <code>pipe</code> command. 
+                The advantage
+                of the pipeline approach is that it enables you to combine services, some of which
+                can be external to the application, to create more complex
+                forms of message processing. 
+            </para>
+            <para>
+                &PRODNAME; components each provide their own filter; by assembling your choice of components into a filtered pipeline, 
+                you create your custom implementation of &PRODNAME;.
+            </para>
+            <para>
+                The <firstterm>content normalization filter</firstterm> is the first filter in the &PRODNAME; filter chain.
+                Content normalization is used only for HTTP header filtering.
+            </para>
+            <para>
+                The <firstterm>rate limiting service filter</firstterm> protects the origin service from being bombarded by client requests. 
+                It accomplishes this by specifying limits for the number of times a given client may request a given resource. 
+                This provides essential protection to any public-facing API. A client's current limits may include the client's absolute limits. 
+                Absolute limits are specific to a service domain and are therefore only provided by the origin service.
+            </para>
+        </section>
+        <section xml:id="Pattern_Message-d1e669">
+            <title>Pattern: Message Router</title>
+            <para>
+                A <firstterm>message router</firstterm> is a type of filter that consumes messages from a single consumer endpoint 
+                and then redirects them to the appropriate target endpoint, based on a specific decision criterion. 
+                A message router is concerned only with redirecting messages; it does not modify the message content.
+            </para>
+            <para>
+                Routing in &PRODNAME; is a two-step process. 
+                For example, the versioning component tags a request with a header (<code>X-PP-OriginDestination</code>) before handing the request to the next component. 
+                This header may be read by &PRODNAME;'s routing components to then facilitate routing to the correct origin service .
+            </para>
+            <para>
+                By using a message router filter, the versioning component can facilitate routing but it does not perform routing.
+                The versioning configuration defines version mappings;  
+                based on those definitions, the versioning component attempts to bind to actual host entries within the power proxy system model.
+            </para>
+            <para>
+                To facilitate routing, the versioning component will first read in all the elements from both the versioning configuration 
+                and the power proxy system model configuration. 
+                Then, based on the power proxy host id attribute (<code>pp-host-id</code>) provided in the versioning configuration, 
+                the versioning component will link power proxy host entries to each version mapping.
+             </para>
+        </section>
+        <section xml:id="Pattern_Normalizer-d1e663">
+            <title>Pattern: Normalizer</title>
+            <para>
+                The <firstterm>normalizer</firstterm> pattern is used to process messages that are semantically equivalent but arrive in different formats. 
+                The normalizer transforms the incoming messages into a common format.
+            </para>
+        </section>
     </chapter>
     <chapter xml:id="Try-d1e731">
         <title>How Can I Try &PRODNAME;?</title>
