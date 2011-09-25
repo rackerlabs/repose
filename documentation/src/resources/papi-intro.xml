@@ -295,6 +295,152 @@
                 The normalizer transforms the incoming messages into a common format.
             </para>
         </section>
+        <section xml:id="Vocabulary-d1e100">
+            <title>&PRODNAME; Vocabulary</title>
+            <para>
+                To use &PRODNAME; effectively, you should understand several key concepts:
+            </para>
+            <glossary>
+                <title>&PRODNAME; Components</title>
+                <glossentry xml:id="Endpoint-d1e27">
+                    <glossterm><emphasis role="bold"> Service Auth </emphasis></glossterm>
+                    <glossdef>
+                        <para>  - Allows Power API to authenticate against a service - Works with a
+                            service side auth component that selects the authentication scheme
+                        </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Internal_URL-d1e46">
+                    <glossterm><emphasis role="bold"> Basic Auth </emphasis></glossterm>
+                    <glossdef>
+                        <para> Service side auth component supporting auth 1.1 / manages caches,
+                            tokens  </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Public_URL-d1e37">
+                    <glossterm><emphasis role="bold"> Auth 1.1 (N) </emphasis></glossterm>
+                    <glossdef>
+                        <para>  - Client side auth component supporting auth 1.1 / manages caches,
+                            tokens </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Service_Catalog-d1e18">
+                    <glossterm><emphasis role="bold"> Auth 1.1 (Z) </emphasis></glossterm>
+                    <glossdef>
+                        <para>  - Client side authorization component supporting auth 1.1 - Simply
+                            checks that this endpoint is in the endpoint. </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Token-d1e9">
+                    <glossterm><emphasis role="bold"> Rate Limiting </emphasis></glossterm>
+                    <glossdef>
+                        <para> - Rate limits according to limit group - Allows the backend to define
+                            absolute limits - Handles backoff errors, which are queryable </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Token-d1e9">
+                    <glossterm><emphasis role="bold">  Versioning  </emphasis></glossterm>
+                    <glossdef>
+                        <para> - Describes the current version and any available versions  - Allows
+                            choosing versions by URI or mimetype - Supports permalinks, multiple
+                            choices </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Token-d1e9">
+                    <glossterm><emphasis role="bold">  Translation I </emphasis></glossterm>
+                    <glossdef>
+                        <para>  - Allows conversion of mimetypes. - Phase 1 supports by simply doing
+                            enough translation for other components </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Token-d1e9">
+                    <glossterm><emphasis role="bold">   Normalization I </emphasis></glossterm>
+                    <glossdef>
+                        <para>  - Normalizes requests, reduces redundant headers, XML - Accepts
+                            application/xml - Phase 1 doesn’t handle content compression </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Token-d1e9">
+                    <glossterm><emphasis role="bold">  Contract Scope  </emphasis></glossterm>
+                    <glossdef>
+                        <para> - Given a WADL, ensures that all requests adhere to the WADL. </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Token-d1e9">
+                    <glossterm><emphasis role="bold">  IdM (N)  </emphasis></glossterm>
+                    <glossdef>
+                        <para> - Basic groups - Like Auth 1.1 (N) but integrates directly with IdM
+                            (Auth 1.1.1) </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Token-d1e9">
+                    <glossterm><emphasis role="bold">  Translation II </emphasis></glossterm>
+                    <glossdef>
+                        <para> - Allows translation of mime types as a service inputs XSLTs and E4X
+                        </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Token-d1e9">
+                    <glossterm><emphasis role="bold">  Normalization II </emphasis></glossterm>
+                    <glossdef>
+                        <para> - Adds gzip support  </para>
+                    </glossdef>
+                </glossentry>
+            </glossary>
+            <glossary>
+                <title>Other Key Ideas</title>
+                <glossentry xml:id="Endpoint-d1e27">
+                    <glossterm><emphasis role="bold">Endpoint</emphasis></glossterm>
+                    <glossdef>
+                        <para>
+                            An endpoint is an entry point to an API. The endpoint is defined
+                            as a set of base URLs. API operations are defined relative to these URLs. An API may
+                            offer several regional endpoints for a single API.
+                        </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Internal_URL-d1e46">
+                    <glossterm><emphasis role="bold">Internal URL</emphasis></glossterm>
+                    <glossdef>
+                        <para>
+                            An internal URL is a URL that is accessible only from within the Rackspace Cloud
+                            network. Access to an internal URL is always free of charge. </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Public_URL-d1e37">
+                    <glossterm><emphasis role="bold">Public URL</emphasis></glossterm>
+                    <glossdef>
+                        <para>
+                            A public URL is a URL that is accessible from anywhere. Access to a public URL
+                            usually incurs traffic charges.
+                        </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Service_Catalog-d1e18">
+                    <glossterm><emphasis role="bold">Service Catalog</emphasis></glossterm>
+                    <glossdef>
+                        <para>
+                            The service catalog is a library of endpoints that a token is authorized to
+                            access. The service catalog defines the scope of a token.
+                        </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Token-d1e9">
+                    <glossterm><emphasis role="bold">Token</emphasis></glossterm>
+                    <glossdef>
+                        <para>
+                            A token is an opaque string that represents an authorization to access cloud
+                            resources. Tokens may be revoked at any time and are valid for a finite duration.
+                        </para>
+                    </glossdef>
+                </glossentry>
+            </glossary>
+            <note>
+                <para> Terms not defined here are used in industry-standard ways. Many such terms
+                    are defined in the sources listed in <xref linkend="References-d1e994"></xref>.
+                </para>
+            </note>
+        </section>
     </chapter>
     <chapter xml:id="Try-d1e731">
         <title>How Can I Try &PRODNAME;?</title>
