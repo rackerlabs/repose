@@ -79,22 +79,22 @@
             <itemizedlist spacing="normal">
                 <listitem>
                     <para>
-                        What is &PRODNAME;?
+                        <link linkend="Define-d1e365">What is &PRODNAME;?</link>
                     </para>
                 </listitem>
                 <listitem>
                     <para>
-                        How does &PRODNAME; work?
+                        <link linkend="Design-d1e665">How does &PRODNAME; work?</link>
                     </para>
                 </listitem>
                 <listitem>
                     <para>
-                        How can I try &PRODNAME;?
+                        <link linkend="Try-d1e731">How can I try &PRODNAME;?</link>
                     </para>
                 </listitem>
                 <listitem>
                     <para>
-                        Where can I learn more about &PRODNAME;?
+                        <link linkend="Available_Doc-d1e140">Where can I learn more about &PRODNAME;?</link>
                     </para>
                 </listitem>
             </itemizedlist>   
@@ -201,6 +201,17 @@
                 </para>
             </listitem>
         </itemizedlist>
+    </chapter>
+    <chapter xml:id="Design-d1e665">
+        <title>How Does &PRODNAME; Work?</title>
+        <annotation>
+            <remark>
+                Source for this chapter is https://wiki.mosso.com/display/CT/PAPI+Components+and+Enterprise+Integration+Patterns
+            </remark>
+        </annotation>
+        <para>
+            bla
+        </para>
     </chapter>
     <chapter xml:id="Try-d1e731">
         <title>How Can I Try &PRODNAME;?</title>
