@@ -37,7 +37,7 @@
       xmlns:html="http://www.w3.org/1999/xhtml"
       xmlns:db="http://docbook.org/ns/docbook" >
     <?rax pdf.url="../../papi-authn-deploy.pdf"?>
-    <title>&PRODNAME; Authentication Component Deployment Handbook</title>
+    <title>&PRODNAME; Introduction</title>
     <!-- set watermark on cover and left margin 
         <?rax status.bar.text="CONFIDENTIAL"?>
     -->
@@ -201,6 +201,11 @@
                 </para>
             </listitem>
         </itemizedlist>
+        <note>
+            <para>
+                See <xref linkend="Available_Doc-d1e140"></xref> for a list of documentation about these components.
+            </para>
+        </note>
     </chapter>
     <chapter xml:id="Design-d1e665">
         <title>How Does &PRODNAME; Work?</title>
