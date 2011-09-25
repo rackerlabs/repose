@@ -9,16 +9,12 @@
         <servlet-class>com.testing.testsupport.mockGetGroupsServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>version1</servlet-name>
-        <servlet-class>com.testing.testsupport.version1</servlet-class>
-    </servlet>
-    <servlet>
-        <servlet-name>version2</servlet-name>
-        <servlet-class>com.testing.testsupport.version2</servlet-class>
-    </servlet>
-    <servlet>
         <servlet-name>limits</servlet-name>
         <servlet-class>com.testing.testsupport.limits</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>landingServlet</servlet-name>
+        <servlet-class>com.testing.testsupport.landingServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>mockTokenServlet</servlet-name>
@@ -29,15 +25,12 @@
         <url-pattern>/users/cmarin1/groups/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>version2</servlet-name>
-        <url-pattern>/version2/*</url-pattern>
-    </servlet-mapping>
-    <servlet-mapping>
-        <servlet-name>version1</servlet-name>
-        <url-pattern>/version1/*</url-pattern>
+        <servlet-name>landingServlet</servlet-name>
+        <url-pattern>/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>limits</servlet-name>
+        <url-pattern>/cmarin1/limits/*</url-pattern>
         <url-pattern>/limits/*</url-pattern>
     </servlet-mapping>
     <session-config>

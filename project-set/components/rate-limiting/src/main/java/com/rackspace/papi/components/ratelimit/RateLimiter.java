@@ -57,6 +57,7 @@ public class RateLimiter extends RateLimitingOperation {
                 final Matcher uriMatcher = p.matcher(requestUri);
 
                 // Did we find a limit that matches the current request?
+
                 if (uriMatcher.matches() && rateLimit.getHttpMethods().contains(requestInfo.getRequestMethod())) {
                     handleRateLimit(requestInfo, uriMatcher, rateLimit, filterDirector);
                     return;

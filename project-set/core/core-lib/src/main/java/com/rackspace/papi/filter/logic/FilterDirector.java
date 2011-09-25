@@ -2,10 +2,10 @@ package com.rackspace.papi.filter.logic;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  *
@@ -39,7 +39,5 @@ public interface FilterDirector {
 
     void applyTo(MutableHttpServletRequest request);
 
-    void applyTo(MutableHttpServletResponse response) throws IOException;
-
-    void applyTo(MutableHttpServletRequest request, MutableHttpServletResponse response) throws IOException;
+    void applyTo(HttpServletResponse response) throws IOException;
 }

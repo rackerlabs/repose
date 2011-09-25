@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class MediaRangeParser {
+public final class MediaRangeParser {
 
     public static final Pattern ACCEPTS_HEADER_REGEX = Pattern.compile("^((([\\w]+)|(\\*))/(([ \\w\\+\\.\\-;=]*[\\w])|(((\\*)[[;q=][\\d]\\.[\\d]]*))),? ?)+$");
 

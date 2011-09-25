@@ -6,6 +6,7 @@ import com.rackspace.papi.commons.util.http.HttpRequestInfo;
 import com.rackspace.papi.commons.util.http.HttpRequestInfoImpl;
 import com.rackspace.papi.commons.util.http.media.MediaRange;
 import com.rackspace.papi.commons.util.http.media.MediaType;
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 import java.util.LinkedList;
 import org.junit.Test;
@@ -15,18 +16,18 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
 
 @RunWith(Enclosed.class)
-public class VersionedRequestMapperTest {
+public class VersionedRequestTest {
 
     public static class WhenFormattingURIs {
 
         @Test
         public void shouldAddRootReference() {
-            assertEquals("Should add a root reference to a URI", "/a/resource", VersionedRequest.formatUri("a/resource"));
+            assertEquals("Should add a root reference to a URI", "/a/resource", StringUtilities.formatUri("a/resource"));
         }
 
         @Test
         public void shouldRemoveTrailingSlash() {
-            assertEquals("Should remove trailing slashes from a URI", "/a/resource", VersionedRequest.formatUri("/a/resource/"));
+            assertEquals("Should remove trailing slashes from a URI", "/a/resource", StringUtilities.formatUri("/a/resource/"));
         }
     }
 
@@ -53,6 +54,15 @@ public class VersionedRequestMapperTest {
         }
 
         @Test
+        public void shouldHandleFuzzedRequests() {
+            final HttpRequestInfo requestInfo = new HttpRequestInfoImpl(mediaRangeList, "/v1.0a/requested/resource", "http://localhost/v1.0a/requested/resource");
+
+            final String expected = "/_v1.0/v1.0a/requested/resource";
+
+            assertEquals("Formatting internal URI must match " + expected, expected, new VersionedRequest(requestInfo, mapping, "http://localhost/").asInternalURI());
+        }
+
+        @Test
         public void shouldHandleNonVersionedRequests() {
             final HttpRequestInfo requestInfo = new HttpRequestInfoImpl(mediaRangeList, "/a/requested/resource", "http://localhost/a/requested/resource");
 
@@ -63,11 +73,22 @@ public class VersionedRequestMapperTest {
 
         @Test
         public void shouldHandleVersionedRequestsWithContextRoot() {
-            final HttpRequestInfo requestInfo = new HttpRequestInfoImpl(mediaRangeList, "/context/v1.0/a/requested/resource", "http://localhost/v1.0/context/a/requested/resource");
+            final HttpRequestInfo requestInfo = new HttpRequestInfoImpl(mediaRangeList, "/context/v1.0/a/requested/resource", "http://localhost/context/v1.0/a/requested/resource");
 
             final String expected = "/context/_v1.0/a/requested/resource";
 
             assertEquals("Formatting internal URI must match " + expected, expected, new VersionedRequest(requestInfo, mapping, "http://localhost/context/").asInternalURI());
+        }
+
+        @Test
+        public void shouldNotRewriteVersionedUri() {
+            final String expected = "/_v1.0/a/requested/resource";
+            final HttpRequestInfo requestInfo = new HttpRequestInfoImpl(mediaRangeList, expected, "http://localhost/v1.0/a/requested/resource");
+
+            final VersionedRequest request = new VersionedRequest(requestInfo, mapping, "http://localhost/context/");
+            
+            assertFalse(request.uriRequiresRewrite());
+            assertEquals("Formatting internal URI must match " + expected, expected, request.asInternalURI());
         }
 
         @Test

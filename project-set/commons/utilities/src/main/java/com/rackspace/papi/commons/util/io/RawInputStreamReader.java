@@ -27,9 +27,7 @@ public final class RawInputStreamReader {
             os.write(internalBuffer, 0, read);
             total += read;
         }
-        
-        os.close();
-        
+                
         return total;
     }
 

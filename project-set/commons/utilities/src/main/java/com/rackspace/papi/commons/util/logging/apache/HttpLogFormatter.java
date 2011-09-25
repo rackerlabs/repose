@@ -66,7 +66,7 @@ public class HttpLogFormatter {
         }
     }
 
-    private void handleStringContent(int previousTokenEnd, Matcher m, final List<FormatArgumentHandler> argHandlerList) {
+    private void handleStringContent(int previousTokenEnd, Matcher m, List<FormatArgumentHandler> argHandlerList) {
         final String betweenElements = formatTemplate.substring(previousTokenEnd, m.start());
 
         if (!isEmpty(betweenElements)) {
@@ -77,9 +77,7 @@ public class HttpLogFormatter {
         }
     }
 
-    private void handleApacheArgument(final String statusCodeModifiers,
-                                      final LogArgumentFormatter argFormatter,
-                                      final String lastEntity) throws NumberFormatException {
+    private void handleApacheArgument(String statusCodeModifiers, LogArgumentFormatter argFormatter, String lastEntity) {
         if (!isBlank(statusCodeModifiers)) {
             final String prunedModifiers = !statusCodeModifiers.startsWith("!") ? statusCodeModifiers : statusCodeModifiers.substring(1);
             final StatusCodeConstraint constraint = new StatusCodeConstraint(prunedModifiers.equals(statusCodeModifiers));
@@ -136,7 +134,6 @@ public class HttpLogFormatter {
         return new LinkedList<FormatArgumentHandler>(handlerList);
     }
 
-    //Delicious
     public String format(HttpServletRequest request, HttpServletResponse response) {
         return format("", request, response);
     }

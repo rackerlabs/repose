@@ -3,7 +3,7 @@ package com.rackspace.papi.components.cnorm;
 import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
-import com.rackspace.papi.components.normalization.config.ContentNormalizationConfiguration;
+import com.rackspace.papi.components.normalization.config.ContentNormalizationConfig;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -33,7 +33,7 @@ public class ContentNormalizationFilter implements Filter {
 
         final FilterDirector director = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
 
-        director.requestHeaderManager().applyTo(mutableHttpRequest);
+        director.applyTo(mutableHttpRequest);
 
         switch (director.getFilterAction()) {
             case RETURN:
@@ -48,7 +48,6 @@ public class ContentNormalizationFilter implements Filter {
 
     @Override
     public void destroy() {
-        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
@@ -56,6 +55,6 @@ public class ContentNormalizationFilter implements Filter {
         final ConfigurationService manager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
         handler = new ContentNormalizationHandler();
 
-        manager.subscribeTo("content-normalization.xml", handler.getContentNormalizationConfigurationListener(), ContentNormalizationConfiguration.class);
+        manager.subscribeTo("content-normalization.cfg.xml", handler.contentNormalizationConfigurationListener, ContentNormalizationConfig.class);
     }
 }

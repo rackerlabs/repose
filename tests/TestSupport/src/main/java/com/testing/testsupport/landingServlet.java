@@ -7,7 +7,6 @@ package com.testing.testsupport;
 import java.io.IOException;
 import java.io.PrintWriter;
 import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -16,8 +15,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author malconis
  */
-@WebServlet(name = "version2", urlPatterns = {"/version2"})
-public class version2 extends HttpServlet {
+public class landingServlet extends HttpServlet {
 
   /** 
    * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -31,17 +29,15 @@ public class version2 extends HttpServlet {
     response.setContentType("text/html;charset=UTF-8");
     PrintWriter out = response.getWriter();
     try {
-      /* TODO output your page here
       out.println("<html>");
       out.println("<head>");
-      out.println("<title>Servlet version2</title>");  
+      out.println("<title>Servlet version</title>");  
       out.println("</head>");
       out.println("<body>");
-      out.println("<h1>Servlet version2 at " + request.getContextPath () + "</h1>");
+      out.println("<h1>Servlet version at " + request.getRequestURI() + "</h1>");
       out.println("</body>");
       out.println("</html>");
-       */
-    } finally {      
+    }finally {      
       out.close();
     }
   }

@@ -2,18 +2,13 @@ package com.rackspace.papi.filter.logic;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import javax.servlet.http.HttpServletResponse;
 
 public class AbstractFilterDirector implements FilterDirector {
 
     private static final String NOT_SUPPORTED_MESSAGE = "This FilterDirector method is not supported";
-
-    @Override
-    public void applyTo(MutableHttpServletRequest request, MutableHttpServletResponse response) {
-        throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
-    }
 
     @Override
     public void applyTo(MutableHttpServletRequest request) {
@@ -21,7 +16,7 @@ public class AbstractFilterDirector implements FilterDirector {
     }
 
     @Override
-    public void applyTo(MutableHttpServletResponse response) {
+    public void applyTo(HttpServletResponse response) {
         throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
     }
     
