@@ -60,7 +60,7 @@
         </copyright>
         <releaseinfo>v0.9</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2011-09-21</pubdate>
+        <pubdate>2011-09-23</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -113,6 +113,16 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <tr align="left">
+                        <td colspan="1" align="center">Sep 23, 2011</td>
+                        <td colspan="4" align="left">
+                            <itemizedlist spacing="compact">
+                                <listitem>
+                                    <para>Expanded explanatory notes supporting sample code in <xref linkend="Configuration-d1e365"></xref>.</para>
+                                </listitem>
+                            </itemizedlist>
+                        </td>
+                    </tr>
                     <tr align="left">
                         <td colspan="1" align="center">Sep 21, 2011</td>
                         <td colspan="4" align="left">
@@ -199,6 +209,11 @@
                     <area xml:id="cfg.xml.request-endpoint" units="linecolumn" coords="5 22"/>
                     <area xml:id="cfg.xml.uri-regex" units="linecolumn" coords="5 32"/>
                     <area xml:id="cfg.xml.include-absolute-limits" units="linecolumn" coords="6 32"/>
+                    <area xml:id="cfg.xml.limit-group" units="linecolumn" coords="8 17"/>
+                    <area xml:id="cfg.xml.id" units="linecolumn" coords="8 37"/>
+                    <area xml:id="cfg.xml.groups" units="linecolumn" coords="9 15"/>
+                    <area xml:id="cfg.xml.default" units="linecolumn" coords="9 34"/>
+                    <area xml:id="cfg.xml.limit" units="linecolumn" coords="10 15"/>
                 </areaspec>        
             <programlisting language="xml">
 <xi:include href="samples/papi-ratelimit.xml" parse="text"/>
@@ -231,6 +246,39 @@
                     absolute limits. </para>
                 <para>This attribute is <emphasis>optional</emphasis>.</para>
                 <para>Acceptable values are <code>TRUE</code>, <code>FALSE</code>.</para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.xml.limit-group">
+                <para> One or more specifications of <code>limit-group</code> may be associated with
+                    a single specification of <code>request-endpoint</code>. </para>
+                <para> 
+                    Limit groups identify a group of related rate limits and bind them to a series of
+                    names. The names can be used to limit incoming requests using the
+                    <code>X-PP-Groups</code> header. 
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.xml.id">
+                <para> An <code>id</code> uniquely identifies each <code>limit-group</code>.</para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.xml.groups">
+                <para> Specifying <code>groups</code> for a <code>limit-group</code> associates it with recognizable workloads. 
+                    In this example, one <code>limit-group</code> relates to customers and another relates to administrators.
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.xml.default">
+                <para> A single <code>limit-group</code> may be identified as the
+                    <code>default</code> group. 
+                    The <code>default</code> group will handle any requests that cannot be matched
+                    on the basis of a group name to any of the groups identified in the <code>X-PP-Groups</code> header.
+                    In this example, the limits defined for <code>groups="customer"</code> will be applied to requests that cannot be explicitly matched to a group.
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.xml.limit">
+                <para> <code>limit</code> and its attributes are discussed in <xref linkend="Configuring_Limits-d1e376"></xref>. </para>
                 <para> </para>
             </callout>
         </calloutlist>
@@ -314,19 +362,6 @@
                     For example, <code>UNIT="SECOND" VALUE="1"</code> allows a rate of one request per second.
                 </para>
             </important>
-        </section>
-        <section xml:id="Configuring_Limit_Groups-d1e374">
-            <title>Configuring Limit Groups</title>
-            <para> 
-                Limit groups identify a group of related rate limits and bind them to a series of
-                names. The names can be used to limit incoming requests using the
-                <code>X-PP-Groups</code> header. 
-            </para>
-            <para>
-                A single limit group may be defined as the default. This default
-                will handle any requests that cannot be matched on the basis of a group name to any of the groups
-                identified in the <code>X-PP-Groups</code> header.
-            </para>
         </section>
         <section xml:id="Constructing_Cache_Keys-d1e378">
             <title>Constructing Cache Keys</title>

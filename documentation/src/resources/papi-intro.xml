@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+    <!-- product name is likely to change; parameterize full name and abbreviation -->
+    <!ENTITY PRODNAME "Power API">
+    <!ENTITY PRODABBREV "PAPI">
+    <!-- Some useful entities borrowed from HTML -->
+    <!ENTITY ndash  "&#x2013;">
+    <!ENTITY mdash  "&#x2014;">
+    <!ENTITY hellip "&#x2026;">
+
+    <!-- Useful for describing APIs -->
+    <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
+    <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
+    <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
+    <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
+
+    <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Check_mark_23x20_02.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+
+    <!ENTITY ARROW  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Arrow_east.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+]>
+<!-- in BOOK below, add status="draft" to set watermark on cover and left margin -->
+<book version="5.0" xmlns="http://docbook.org/ns/docbook"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:svg="http://www.w3.org/2000/svg"
+      xmlns:m="http://www.w3.org/1998/Math/MathML"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      xmlns:db="http://docbook.org/ns/docbook" >
+    <?rax pdf.url="../../papi-authn-deploy.pdf"?>
+    <title>&PRODNAME; Authentication Component Deployment Handbook</title>
+    <!-- set watermark on cover and left margin 
+        <?rax status.bar.text="CONFIDENTIAL"?>
+    -->
+    <?rax title.font.size="35px" subtitle.font.size="16px"?>
+    <titleabbrev>&PRODABBREV; Introduction</titleabbrev>
+    <info>
+        <author>
+            <personname>
+                <firstname/>
+                <surname/>
+            </personname>
+            <affiliation>
+                <orgname>Rackspace Cloud</orgname>
+            </affiliation>
+        </author>
+        <copyright>
+            <year>2010</year>
+            <year>2011</year>
+            <holder>Rackspace US, Inc.</holder>
+        </copyright>
+        <releaseinfo>v0.9</releaseinfo>
+        <productname>&PRODNAME;</productname>
+        <pubdate>2011-09-24</pubdate>
+        <legalnotice role="apache2">
+            <annotation>
+                <remark>Copyright details are filled in by the template.</remark>
+            </annotation>
+        </legalnotice>
+        <abstract>
+            <para>This document is intended for anyone seeking basic information about &PRODNAME;. </para>
+        </abstract>
+    </info>
+    <chapter xml:id="Overview-d1e85">
+        <title>Overview</title>
+        <section xml:id="Purpose-d1e90">
+            <title>Purpose of This Document</title>
+            <para> The purpose of this Introduction is to help anyone interested in &PRODNAME; to
+                answer several basic questions about it: </para>
+            <orderedlist spacing="normal">
+                <listitem>
+                    <para>
+                        What is &PRODNAME;?
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        How can I try &PRODNAME;?
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        Where can I get more details about &PRODNAME;?
+                    </para>
+                </listitem>
+            </orderedlist>   
+        </section>
+        <section xml:id="Document_Change_History-d1e102">
+            <title>Document Change History</title>
+            <para>This version of the Introduction replaces and obsoletes all previous versions. The
+                most recent changes are described in the table below: </para>
+            <informaltable rules="all">
+                <thead>
+                    <tr align="center">
+                        <td colspan="1">Revision Date</td>
+                        <td colspan="4">Summary of Changes</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr align="left">
+                        <td colspan="1" align="center">Sep 26, 2011</td>
+                        <td colspan="4" align="left">
+                            <itemizedlist spacing="compact">
+                                <listitem>
+                                    <para>Initial release.</para>
+                                </listitem>
+                            </itemizedlist>
+                        </td>
+                    </tr>
+                </tbody>
+            </informaltable>
+        </section>
+        <xi:include href="chapters/available-doc.xml"/>
+    </chapter>
+    <chapter xml:id="Define-d1e365">
+        <title>What is &PRODNAME;?</title>
+        <para> 
+            bla
+        </para>
+    </chapter>
+    <chapter xml:id="Try-d1e731">
+        <title>How Can I Try &PRODNAME;?</title>
+        <annotation>
+            <remark>
+                Source for this chapter is https://wiki.mosso.com/display/CT/Deployment
+            </remark>
+        </annotation>
+        <para>
+            &PRODNAME; is distributed as a filter bundle, containing all available components. 
+            You can choose which components to implement in your configuration.            
+        </para>
+        <figure xml:id="Filter-Bundle">
+            <title>Multiple &PRODNAME; Components in Filter Bundle</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="figures/papi-intro-filterBundle.png" format="PNG" align="center"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>
+            You can edit your <code>power-proxy.xml</code> to identify &PRODNAME; components to be loaded into the Power Proxy filter.
+            You can configure the Power Proxy to use one or multiple &PRODNAME; components as additional filters, as shown below.
+        </para>
+        <figure xml:id="Power-Proxy">
+            <title>Loading Multiple &PRODNAME; Components into Power Proxy</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="figures/papi-intro-powerproxy.png" format="PNG" align="center"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>
+            &PRODNAME;'s components may be integrated with other services in several ways, including:
+        </para> 
+        <itemizedlist spacing="compact">
+            <listitem>
+                <para>
+                    Embedded
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Root.WAR
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Valve
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Proxy Server
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Proxy Server
+                </para>
+            </listitem>
+        </itemizedlist>    
+    </chapter>
+    <xi:include href="chapters/afterword.xml"/>
+</book>

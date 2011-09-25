@@ -128,7 +128,7 @@
                 <code>X-PP-Service-Origin</code>. This header can be used by components further down
             the stack to perform routing. </para>
         <figure xml:id="Overview">
-            <title>Overview of PAPI Versioning</title>
+            <title>Overview of &PRODNAME; Versioning</title>
             <mediaobject>
                 <imageobject>
                     <imagedata fileref="figures/papi-versioning-overview.png" format="PNG" align="center"/>
