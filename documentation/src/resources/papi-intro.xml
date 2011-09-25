@@ -74,8 +74,8 @@
         <title>Overview</title>
         <section xml:id="Purpose-d1e90">
             <title>Purpose of This Document</title>
-            <para> The purpose of this Introduction is to help anyone interested in &PRODNAME; to
-                answer several basic questions about it: </para>
+            <para> The purpose of this Introduction is to answer several basic questions about
+                &PRODNAME;: </para>
             <orderedlist spacing="normal">
                 <listitem>
                     <para>
@@ -170,7 +170,6 @@
             <listitem>
                 <para>
                     <link linkend="Root-d1e222">Root.WAR</link>
-                    Root.WAR
                 </para>
             </listitem>
             <listitem>
@@ -192,9 +191,37 @@
         </itemizedlist>   
         <section xml:id="Embedded-d1e111">
             <title>Deployment Method: Embedded</title>
+            <warning>
+                <para> 
+                    Early adopters of &PRODNAME; used this method. 
+                    If you are developing a new service, do not use Embedded deployment.
+                    This method will be deprecated soon.
+                </para>
+            </warning>
             <para>
-                bla
+                <firstterm>Embedded</firstterm> deployment means that the Power Filter is embedded in a service's WAR. 
+                The service's host must also host all of the &PRODNAME; components in the same app container.
+                Artifacts are loaded from the &PRODABBREV; filter bundle into the Power Filter.
+                Requests pass through the Power Filter before continuing to the service-specific filters.
+                The servlet container may be Tomcat, Jetty, GlassFish, or similar products.
             </para>
+            <figure xml:id="Power-Proxy-d1e111">
+                <title>Loading Multiple &PRODNAME; Components into Power Proxy</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="figures/papi-intro-powerproxy.png" format="PNG" align="center"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>
+                To use this deployment method, configure <code>power-proxy.xml</code> as follows:
+            </para>
+            <example>
+                <title>Configuring power-proxy.xml for Embedded Deployment</title>
+                <programlisting language="xml">
+<xi:include href="samples/papi-deploy-embedded.xml" parse="text"/>
+                    </programlisting>
+            </example>
         </section>
         <section xml:id="Root-d1e222">
             <title>Deployment Method: Root.WAR</title>
@@ -204,6 +231,12 @@
             <para>
                 <emphasis>This deployment method is discussed in more detail in the Root.WAR Deployment Handbook.</emphasis>
             </para>
+            <example>
+                <title>Configuring power-proxy.xml for Root.WAR Deployment</title>
+                <programlisting language="xml">
+<xi:include href="samples/papi-deploy-root.xml" parse="text"/>
+                    </programlisting>
+            </example>
         </section>
         <section xml:id="Valve-d1e3333">
             <title>Deployment Method: Valve</title>
@@ -216,12 +249,24 @@
             <para>
                 bla
             </para>
+            <example>
+                <title>Configuring power-proxy.xml for Proxy Server Deployment</title>
+                <programlisting language="xml">
+<xi:include href="samples/papi-deploy-proxyServer.xml" parse="text"/>
+                    </programlisting>
+            </example>
         </section>
         <section xml:id="ProxyCluster-d1e555">
             <title>Deployment Method: Proxy Cluster</title>
             <para>
                 bla
             </para>
+            <example>
+                <title>Configuring power-proxy.xml for Proxy Cluster Deployment</title>
+                <programlisting language="xml">
+<xi:include href="samples/papi-deploy-proxyCluster.xml" parse="text"/>
+                    </programlisting>
+            </example>
         </section>
     </chapter>
     <xi:include href="chapters/afterword.xml"/>
