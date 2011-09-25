@@ -164,30 +164,65 @@
         <itemizedlist spacing="compact">
             <listitem>
                 <para>
-                    Embedded
+                    <link linkend="Embedded-d1e111">Embedded</link>
                 </para>
             </listitem>
             <listitem>
                 <para>
+                    <link linkend="Root-d1e222">Root.WAR</link>
                     Root.WAR
                 </para>
             </listitem>
             <listitem>
                 <para>
+                    <link linkend="Valve-d1e3333">Valve</link>
                     Valve
                 </para>
             </listitem>
             <listitem>
                 <para>
-                    Proxy Server
+                    <link linkend="ProxyServer-d1e444">Proxy Server</link>
                 </para>
             </listitem>
             <listitem>
                 <para>
-                    Proxy Server
+                    <link linkend="ProxyCluster-d1e555">Proxy Cluster</link>
                 </para>
             </listitem>
-        </itemizedlist>    
+        </itemizedlist>   
+        <section xml:id="Embedded-d1e111">
+            <title>Deployment Method: Embedded</title>
+            <para>
+                bla
+            </para>
+        </section>
+        <section xml:id="Root-d1e222">
+            <title>Deployment Method: Root.WAR</title>
+            <para>
+                bla
+            </para>
+            <para>
+                <emphasis>This deployment method is discussed in more detail in the Root.WAR Deployment Handbook.</emphasis>
+            </para>
+        </section>
+        <section xml:id="Valve-d1e3333">
+            <title>Deployment Method: Valve</title>
+            <para>
+                bla
+            </para>
+        </section>
+        <section xml:id="ProxyServer-d1e444">
+            <title>Deployment Method: Proxy Server</title>
+            <para>
+                bla
+            </para>
+        </section>
+        <section xml:id="ProxyCluster-d1e555">
+            <title>Deployment Method: Proxy Cluster</title>
+            <para>
+                bla
+            </para>
+        </section>
     </chapter>
     <xi:include href="chapters/afterword.xml"/>
 </book>
