@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<power-proxy xmlns="http://docs.rackspacecloud.com/power-api/system-model/v1.0">
+    
+    <!--
+        In this Embedded deployment, a service host also hosts
+        all components locally. 
+        For example, all components are in the same app container
+        as the service.
+    -->
+    <host id="service-v1.2" hostname="service-n05.wc1.dfw1.stabletransit.com"
+        href="http://service.api.rackspacecloud.com/v1.2/">
+        <filters>
+            <filter name="client-auth" />
+            <filter name="rate-limiting" />
+        </filters>
+    </host>
+</power-proxy>

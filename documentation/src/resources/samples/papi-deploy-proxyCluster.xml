@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<power-proxy xmlns="http://docs.rackspacecloud.com/power-api/system-model/v1.0">
+    <!--
+        In this Proxy Cluster deployment, two hosts are defined.
+        The hosts are considered to be equal and the load is automatically 
+        balanced between them, both resource-wise and request-wise.
+    -->
+    <host id="proxy-n02" hostname="power-proxy-n02.wc1.dfw1.stabletransit.com">
+        <filters>
+            <filter name="rate-limiting" />
+            <filter name="versioning" />
+        </filters>
+    </host>
+    
+    <host id="proxy-n03" hostname="power-proxy-n03.wc1.dfw1.stabletransit.com">
+        <filters>
+            <filter name="rate-limiting" />
+            <filter name="versioning" />
+        </filters>
+    </host>
+</power-proxy>
