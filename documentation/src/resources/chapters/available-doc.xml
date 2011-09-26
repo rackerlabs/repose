@@ -13,25 +13,39 @@
     <itemizedlist>
         <listitem>
             <para>
-                <firstterm role="bold">Introduction</firstterm>: The introduction provides an architectural overview, a glossary of key concepts, and a step-by-step walkthrough of one sample deployment.
-            </para>
+                <firstterm role="bold">Introduction</firstterm>: The introduction provides an
+                architectural overview and a glossary of key concepts. It also summarizes several
+                deployment methods. </para>
         </listitem>
         <listitem>
             <para>
                 <firstterm role="bold">Deployment Handbooks</firstterm>: Deployment handbooks are
-                non-procedural collections of key facts designed to be helpful in preparing to use specific &PRODNAME; components. Deployment handbooks are available for: 
+                non-procedural collections of key facts designed to be helpful in preparing to use &PRODNAME; or specific &PRODNAME; components. 
+                Deployment handbooks are available to assist with: 
                 <itemizedlist>
                     <listitem>
-                        <para>Authentication</para>
+                        <para><firstterm>&PRODNAME; Deployment Methods</firstterm></para>
+                        <itemizedlist>
+                            <listitem>
+                                <para>
+                                    Root.WAR
+                                </para>
+                            </listitem>
+                        </itemizedlist>
                     </listitem>
                     <listitem>
-                        <para>Rate Limiting</para>
-                    </listitem>
-                    <listitem>
-                        <para>Root.WAR</para>
-                    </listitem>
-                    <listitem>
-                        <para>Versioning</para>
+                        <para><firstterm>&PRODNAME; Component Deployments</firstterm></para>
+                        <itemizedlist>
+                            <listitem>
+                                <para>Authentication</para>
+                            </listitem>
+                            <listitem>
+                                <para>Rate Limiting</para>
+                            </listitem>
+                            <listitem>
+                                <para>Versioning</para>
+                            </listitem>
+                        </itemizedlist>
                     </listitem>
                 </itemizedlist>
             </para>
