@@ -36,7 +36,7 @@
       xmlns:m="http://www.w3.org/1998/Math/MathML"
       xmlns:html="http://www.w3.org/1999/xhtml"
       xmlns:db="http://docbook.org/ns/docbook" >
-    <?rax pdf.url="../../papi-authn-deploy.pdf"?>
+    <?rax pdf.url="../../papi-intro.pdf"?>
     <title>&PRODNAME; Introduction</title>
     <!-- set watermark on cover and left margin 
         <?rax status.bar.text="CONFIDENTIAL"?>
@@ -297,149 +297,201 @@
         </section>
         <section xml:id="Vocabulary-d1e100">
             <title>&PRODNAME; Vocabulary</title>
-            <para>
-                To use &PRODNAME; effectively, you should understand several key concepts:
-            </para>
+            <remark>
+                Source for this chapter is https://wiki.mosso.com/display/CT/PAPI+Glossary
+            </remark>
+            <note>
+                <para> Below, we have explained what we mean when we use some basic &PRODNAME;
+                    terms. 
+                    Terms not defined in this section are not unique to &PRODNAME; 
+                    and are used in
+                    industry-standard ways. 
+                    Many such terms are defined in the sources listed in
+                        <xref linkend="References-d1e994"/>. 
+                </para>
+            </note>
             <glossary>
                 <title>&PRODNAME; Components</title>
-                <glossentry xml:id="Endpoint-d1e27">
-                    <glossterm><emphasis role="bold"> Service Auth </emphasis></glossterm>
+                <para>
+                    <emphasis>
+                        Components described here may not yet be available; 
+                        familiarity with their basic ideas will help you plan for future
+                        uses of &PRODNAME;.
+                    </emphasis>
+                </para>
+                <glossentry xml:id="Auth11N-d1e015">
+                    <glossterm><emphasis role="bold">Auth 1.1 (N)</emphasis></glossterm>
                     <glossdef>
-                        <para>  - Allows Power API to authenticate against a service - Works with a
-                            service side auth component that selects the authentication scheme
-                        </para>
+                        <para> Auth 1.1 (N) is a client-side authentication component supporting Auth 1.1. It
+                            manages caches and tokens.</para>
                     </glossdef>
                 </glossentry>
-                <glossentry xml:id="Internal_URL-d1e46">
-                    <glossterm><emphasis role="bold"> Basic Auth </emphasis></glossterm>
+                <glossentry xml:id="Auth11Z-d1e020">
+                    <glossterm><emphasis role="bold">Auth 1.1 (Z)</emphasis></glossterm>
                     <glossdef>
-                        <para> Service side auth component supporting auth 1.1 / manages caches,
-                            tokens  </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Public_URL-d1e37">
-                    <glossterm><emphasis role="bold"> Auth 1.1 (N) </emphasis></glossterm>
-                    <glossdef>
-                        <para>  - Client side auth component supporting auth 1.1 / manages caches,
-                            tokens </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Service_Catalog-d1e18">
-                    <glossterm><emphasis role="bold"> Auth 1.1 (Z) </emphasis></glossterm>
-                    <glossdef>
-                        <para>  - Client side authorization component supporting auth 1.1 - Simply
+                        <para> Auth 1.1 (Z) is a client-side authorization component supporting Auth 1.1.  It simply
                             checks that this endpoint is in the endpoint. </para>
                     </glossdef>
                 </glossentry>
-                <glossentry xml:id="Token-d1e9">
-                    <glossterm><emphasis role="bold"> Rate Limiting </emphasis></glossterm>
+                <glossentry xml:id="Basic_Auth-d1e010">
+                    <glossterm><emphasis role="bold">Basic Auth</emphasis></glossterm>
                     <glossdef>
-                        <para> - Rate limits according to limit group - Allows the backend to define
-                            absolute limits - Handles backoff errors, which are queryable </para>
+                        <para> The basic auth component is a service-side authentication component supporting Auth 1.1. It manages
+                            caches and tokens. </para>
                     </glossdef>
                 </glossentry>
-                <glossentry xml:id="Token-d1e9">
-                    <glossterm><emphasis role="bold">  Versioning  </emphasis></glossterm>
+                <glossentry xml:id="Contract_Scope-d1e045">
+                    <glossterm><emphasis role="bold">Contract Scope</emphasis></glossterm>
                     <glossdef>
-                        <para> - Describes the current version and any available versions  - Allows
-                            choosing versions by URI or mimetype - Supports permalinks, multiple
-                            choices </para>
+                        <para> Given a WADL, the contract scope conponent ensures that all requests
+                            adhere to the WADL. </para>
                     </glossdef>
                 </glossentry>
-                <glossentry xml:id="Token-d1e9">
-                    <glossterm><emphasis role="bold">  Translation I </emphasis></glossterm>
+                <glossentry xml:id="IdMN-d1e050">
+                    <glossterm><emphasis role="bold">IdM (N)</emphasis></glossterm>
                     <glossdef>
-                        <para>  - Allows conversion of mimetypes. - Phase 1 supports by simply doing
-                            enough translation for other components </para>
+                        <para> The IdM (N) component is like the Auth 1.1 (N) component but
+                            integrates directly with IdM (Auth 1.1.1).</para>
                     </glossdef>
                 </glossentry>
-                <glossentry xml:id="Token-d1e9">
-                    <glossterm><emphasis role="bold">   Normalization I </emphasis></glossterm>
+                <glossentry xml:id="Normalization1-d1e040">
+                    <glossterm><emphasis role="bold">Normalization</emphasis></glossterm>
                     <glossdef>
-                        <para>  - Normalizes requests, reduces redundant headers, XML - Accepts
-                            application/xml - Phase 1 doesn’t handle content compression </para>
+                        <para> The normalization component normalizes requests so that requests with
+                            similar meaning are formatted consistently. Phase 1 reduces redundancy
+                            in headers and XML but doesn’t handle content compression. Phase 2 adds
+                            gzip support. </para>
                     </glossdef>
                 </glossentry>
-                <glossentry xml:id="Token-d1e9">
-                    <glossterm><emphasis role="bold">  Contract Scope  </emphasis></glossterm>
+                <glossentry xml:id="Rate_Limiting-d1e025">
+                    <glossterm><emphasis role="bold">Rate Limiting</emphasis></glossterm>
                     <glossdef>
-                        <para> - Given a WADL, ensures that all requests adhere to the WADL. </para>
+                        <para> The rate limiting component manages rate limits according to limit group. It allows the backend to define
+                            absolute limits. It also handles backoff errors, which are queryable. </para>
                     </glossdef>
                 </glossentry>
-                <glossentry xml:id="Token-d1e9">
-                    <glossterm><emphasis role="bold">  IdM (N)  </emphasis></glossterm>
+                <glossentry xml:id="Service_Auth-d1e005">
+                    <glossterm><emphasis role="bold">Service Auth</emphasis></glossterm>
                     <glossdef>
-                        <para> - Basic groups - Like Auth 1.1 (N) but integrates directly with IdM
-                            (Auth 1.1.1) </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Token-d1e9">
-                    <glossterm><emphasis role="bold">  Translation II </emphasis></glossterm>
-                    <glossdef>
-                        <para> - Allows translation of mime types as a service inputs XSLTs and E4X
+                        <para>
+                            The service authentication component allows &PRODNAME; to authenticate against a service.
+                            It works with a
+                            service-side authentication component that selects the authentication scheme.
                         </para>
                     </glossdef>
                 </glossentry>
-                <glossentry xml:id="Token-d1e9">
-                    <glossterm><emphasis role="bold">  Normalization II </emphasis></glossterm>
+                <glossentry xml:id="Translation1-d1e035">
+                    <glossterm><emphasis role="bold">Translation</emphasis></glossterm>
                     <glossdef>
-                        <para> - Adds gzip support  </para>
+                        <para> The translation component allows conversion of MIME types. Phase 1
+                            supports conversion by simply doing enough translation for other
+                            components. Phase 2 allows translation of MIME types as service inputs,
+                            XSLTs, and E4X.</para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Versioning-d1e030">
+                    <glossterm><emphasis role="bold">Versioning</emphasis></glossterm>
+                    <glossdef>
+                        <para> The versioning component describes the current version and any
+                            available versions. It allows choosing versions by URI or MIME type; it
+                            supports permalinks and multiple choices.</para>
+                    </glossdef>
+                </glossentry>
+            </glossary>
+            <glossary>
+                <title>&PRODNAME; Internals</title>
+                <para>
+                    <emphasis>
+                        These are not &PRODNAME; components but
+                        are essential to the structure of &PRODNAME;.
+                    </emphasis>
+                </para>
+                <glossentry xml:id="Message_Service-d1e065">
+                    <glossterm><emphasis role="bold">Message Service</emphasis></glossterm>
+                    <glossdef>
+                        <para> The message service allows customization of messages and error
+                            conditions so that &PRODNAME; never violates a service contract. </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Power_Filter-d1e070">
+                    <glossterm><emphasis role="bold">Power Filter</emphasis></glossterm>
+                    <glossdef>
+                        <para>
+                            The power filter is responsible for loading all other components.
+                            Phase 1 understands config files, component EARs, and more.
+                            Phase 2 adds PAIGE support, 
+                            support for components moving between containers,
+                            and support for components adding containers dynamically.
+                        </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Root-d1e080">
+                    <glossterm><emphasis role="bold">Root.WAR</emphasis></glossterm>
+                    <glossdef>
+                        <para>
+                            Root.WAR is a deployment artifact that launches &PRODNAME; in an application
+                            server without requiring direct integration with source code.
+                        </para>
+                    </glossdef>
+                    <glossdef>
+                        <para> </para>
                     </glossdef>
                 </glossentry>
             </glossary>
             <glossary>
                 <title>Other Key Ideas</title>
-                <glossentry xml:id="Endpoint-d1e27">
-                    <glossterm><emphasis role="bold">Endpoint</emphasis></glossterm>
-                    <glossdef>
-                        <para>
-                            An endpoint is an entry point to an API. The endpoint is defined
-                            as a set of base URLs. API operations are defined relative to these URLs. An API may
-                            offer several regional endpoints for a single API.
-                        </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Internal_URL-d1e46">
-                    <glossterm><emphasis role="bold">Internal URL</emphasis></glossterm>
-                    <glossdef>
-                        <para>
-                            An internal URL is a URL that is accessible only from within the Rackspace Cloud
-                            network. Access to an internal URL is always free of charge. </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Public_URL-d1e37">
-                    <glossterm><emphasis role="bold">Public URL</emphasis></glossterm>
-                    <glossdef>
-                        <para>
-                            A public URL is a URL that is accessible from anywhere. Access to a public URL
-                            usually incurs traffic charges.
-                        </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Service_Catalog-d1e18">
-                    <glossterm><emphasis role="bold">Service Catalog</emphasis></glossterm>
-                    <glossdef>
-                        <para>
-                            The service catalog is a library of endpoints that a token is authorized to
-                            access. The service catalog defines the scope of a token.
-                        </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Token-d1e9">
-                    <glossterm><emphasis role="bold">Token</emphasis></glossterm>
-                    <glossdef>
-                        <para>
-                            A token is an opaque string that represents an authorization to access cloud
-                            resources. Tokens may be revoked at any time and are valid for a finite duration.
-                        </para>
-                    </glossdef>
-                </glossentry>
-            </glossary>
-            <note>
-                <para> Terms not defined here are used in industry-standard ways. Many such terms
-                    are defined in the sources listed in <xref linkend="References-d1e994"></xref>.
+                <para>
+                    <emphasis>
+                        Understanding these ideas will help you follow the explanations and examples in &PRODNAME; documentation and more fully appreciate the possibilities of &PRODNAME;.
+                    </emphasis>
                 </para>
-            </note>
+                <glossentry xml:id="Artifact-d1e085">
+                    <glossterm><emphasis role="bold">Artifact</emphasis></glossterm>
+                    <glossdef>
+                        <para>An artifact may be a bundle of one or more components.</para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Filter-d1e090">
+                    <glossterm><emphasis role="bold">Filter</emphasis></glossterm>
+                    <glossdef>
+                        <para> A filter accepts incoming data, applies a specific kind of
+                            processing, and passes the data along. A chain of filters can be
+                            assembled into a pipeline. </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Router-d1e095">
+                    <glossterm><emphasis role="bold">Message Router</emphasis></glossterm>
+                    <glossdef>
+                        <para>  A message router is a type of filter that consumes messages from a
+                            single consumer endpoint and then redirects them to the appropriate
+                            target endpoint, based on a specific decision criterion.  </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Origin-d1e100">
+                    <glossterm><emphasis role="bold">Origin Service</emphasis></glossterm>
+                    <glossdef>
+                        <para>  The origin service is the source of all data processed by &PRODNAME;.  </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Pluggable-d1e105">
+                    <glossterm><emphasis role="bold">Pluggable</emphasis></glossterm>
+                    <glossdef>
+                        <para>  A pluggable component can be installed or deinstalled without affecting the remaining components.  </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Service_Versions-d1e110">
+                    <glossterm><emphasis role="bold">Service Versions Catalog</emphasis></glossterm>
+                    <glossdef>
+                        <para>  The service versions catalog lists all available versions.  </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="System_Model-d1e115">
+                    <glossterm><emphasis role="bold">System Model</emphasis></glossterm>
+                    <glossdef>
+                        <para>  The system model defines the entire cluster.  </para>
+                    </glossdef>
+                </glossentry>
+            </glossary>    
         </section>
     </chapter>
     <chapter xml:id="Try-d1e731">
