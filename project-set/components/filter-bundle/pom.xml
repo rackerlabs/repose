@@ -173,7 +173,7 @@
                                     
                                     <sources>
                                         <source>
-                                            <location>target/filter-bundle-${project.version}.ear</location>
+                                          <location>./target/filter-bundle-${project.version}.ear</location>
                                         </source>
                                     </sources>
                                 </mapping>
