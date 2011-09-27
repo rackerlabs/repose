@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book [
-<!-- product name is likely to change; parameterize full name and abbreviation -->
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
 <!ENTITY PRODNAME "Power API">
 <!ENTITY PRODABBREV "PAPI">
+<!ENTITY PRODEXPAND "Rackspace Cloud Power Application Program Interface (API)">
 ]>
 <section xmlns="http://docbook.org/ns/docbook"
     xmlns:xi="http://www.w3.org/2001/XInclude"
