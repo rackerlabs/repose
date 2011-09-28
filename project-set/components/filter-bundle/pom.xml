@@ -134,7 +134,7 @@
             
             <activation>
                 <property>
-                    <name>build-rpm</name>
+                    <name>build-system-packages</name>
                 </property>
             </activation>
             
