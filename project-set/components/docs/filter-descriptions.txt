@@ -1,5 +1,0 @@
-Following are brief descriptions of the filters currently developed...
-
-* versioning: This filter handles serving up
-
-* rate-limiting:
