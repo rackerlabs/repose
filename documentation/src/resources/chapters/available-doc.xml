@@ -55,4 +55,8 @@
             </para>
         </listitem> 
     </itemizedlist> 
+    <para>
+        &PRODNAME; is an open-source project. Visit our GitHub repository at <link xlink:href="https://github.com/rackspace/power-api/">https://github.com/rackspace/power-api/</link>
+        for access to our source code and documentation.
+    </para>
 </section>
