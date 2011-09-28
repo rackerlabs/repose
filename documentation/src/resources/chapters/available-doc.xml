@@ -14,18 +14,21 @@
     <itemizedlist>
         <listitem>
             <para>
-                <firstterm role="bold">Introduction</firstterm>: The introduction provides an
-                architectural overview and a glossary of key concepts. It also summarizes several
-                deployment methods. </para>
+                <emphasis role="bold">Getting Started</emphasis>: This high-level introduction
+                provides an architectural overview and summarizes several deployment methods. </para>
         </listitem>
         <listitem>
             <para>
-                <firstterm role="bold">Deployment Handbooks</firstterm>: Deployment handbooks are
+                <emphasis role="bold">Glossary</emphasis>: The &PRODNAME; glossary defines key terms as they are used in the context of &PRODABBREV; documentation. </para>
+        </listitem>
+        <listitem>
+            <para>
+                <emphasis role="bold">Deployment Handbooks</emphasis>: Deployment handbooks are
                 non-procedural collections of key facts designed to be helpful in preparing to use &PRODNAME; or specific &PRODNAME; components. 
                 Deployment handbooks are available to assist with: 
                 <itemizedlist>
                     <listitem>
-                        <para><firstterm>&PRODNAME; Deployment Methods</firstterm></para>
+                        <para><emphasis>&PRODNAME; Deployment Methods</emphasis></para>
                         <itemizedlist>
                             <listitem>
                                 <para>
@@ -35,7 +38,7 @@
                         </itemizedlist>
                     </listitem>
                     <listitem>
-                        <para><firstterm>&PRODNAME; Component Deployments</firstterm></para>
+                        <para><emphasis>&PRODNAME; Component Deployments</emphasis></para>
                         <itemizedlist>
                             <listitem>
                                 <para>Authentication</para>
