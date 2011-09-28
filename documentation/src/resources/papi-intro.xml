@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book [
-    <!-- product name is likely to change; parameterize full name and abbreviation -->
-    <!ENTITY PRODNAME "Power API">
-    <!ENTITY PRODABBREV "PAPI">
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+<!ENTITY PRODNAME "Power API">
+<!ENTITY PRODABBREV "PAPI">
+<!ENTITY PRODEXPAND "Rackspace Cloud Power Application Program Interface (API)">
     <!-- Some useful entities borrowed from HTML -->
     <!ENTITY ndash  "&#x2013;">
     <!ENTITY mdash  "&#x2014;">
@@ -37,12 +38,12 @@
       xmlns:html="http://www.w3.org/1999/xhtml"
       xmlns:db="http://docbook.org/ns/docbook" >
     <?rax pdf.url="../../papi-intro.pdf"?>
-    <title>&PRODNAME; Introduction</title>
+    <title>&PRODNAME; Getting Started</title>
     <!-- set watermark on cover and left margin 
         <?rax status.bar.text="CONFIDENTIAL"?>
     -->
-    <?rax title.font.size="35px" subtitle.font.size="16px"?>
-    <titleabbrev>&PRODABBREV; Introduction</titleabbrev>
+    <?rax title.font.size="35px" subtitle.font.size="24px"?>
+    <titleabbrev>&PRODABBREV; Getting Started</titleabbrev>
     <info>
         <author>
             <personname>
@@ -74,8 +75,8 @@
         <title>Overview</title>
         <section xml:id="Purpose-d1e90">
             <title>Purpose of This Document</title>
-            <para> The purpose of this Introduction is to answer several basic questions about
-                &PRODNAME;: </para>
+            <para> The purpose of this introductory Getting Started document is to answer several
+                basic questions about &PRODNAME;: </para>
             <itemizedlist spacing="normal">
                 <listitem>
                     <para>
@@ -101,7 +102,7 @@
         </section>
         <section xml:id="Document_Change_History-d1e102">
             <title>Document Change History</title>
-            <para>This version of the Introduction replaces and obsoletes all previous versions. The
+            <para>This version of Getting Started replaces and obsoletes all previous versions. The
                 most recent changes are described in the table below: </para>
             <informaltable rules="all">
                 <thead>
@@ -133,13 +134,15 @@
                 Source for this chapter is https://wiki.mosso.com/display/CT/Cloud+Service+Bus
             </remark>
         </annotation>
-        <para> 
-            &PRODNAME; is a stack of reusable software components that can be leveraged by service developers to perform common API processing tasks.
-            By using &PRODNAME;'s components rather than creating their own, service developers can focus on the unique features of their services.
-        </para>
+        <para> &PRODNAME; is an open-source platform that you can use to build stacks of reusable
+            software components. These components can be leveraged by service developers to perform
+            common API processing tasks. By using &PRODNAME;'s components rather than creating their
+            own, service developers can focus on the unique features of their services. </para>
         <para> 
             &PRODNAME; can be used inside a service to perform API operations.
             It can also run on one or more separate servers as a proxy to one or more services.
+            At its core, &PRODNAME; is a proxy that allows services to use             
+            <link linkend="Design-d1e665">Enterprise Integration Patterns</link> (EIP).
         </para>
         <para> 
             Available &PRODNAME; components include:
@@ -148,16 +151,6 @@
             <listitem>
                 <para>
                     Client Authentication
-                </para>
-            </listitem>
-            <listitem>
-                <para>
-                    Client Authorization
-                </para>
-            </listitem>
-            <listitem>
-                <para>
-                    HTTP Logging
                 </para>
             </listitem>
             <listitem>
@@ -177,6 +170,11 @@
         <itemizedlist spacing="compact">
             <listitem>
                 <para>
+                    Client Authorization
+                </para>
+            </listitem>
+            <listitem>
+                <para>
                     Content Negotiation
                 </para>
             </listitem>
@@ -187,7 +185,12 @@
             </listitem>
             <listitem>
                 <para>
-                    Contract Scope Filter
+                    Contract Scope Filtering
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    HTTP Logging
                 </para>
             </listitem>
             <listitem>
@@ -214,10 +217,8 @@
                 Source for this chapter is https://wiki.mosso.com/display/CT/PAPI+Components+and+Enterprise+Integration+Patterns
             </remark>
         </annotation>
-        <para>
-            A good way to understand &PRODNAME; is to think of it as a platform that can be used to implement integration patterns. 
-            For example, existing &PRODABBREV; components implement the following Enterprise Integration Patterns:
-        </para>
+        <para> A good way to understand &PRODNAME; is to think of it as a platform that can be used
+            to implement integration patterns. &PRODABBREV;'s two core patterns are: </para>
         <itemizedlist>
             <listitem>
                 <para>
@@ -229,11 +230,6 @@
                     <link linkend="Pattern_Message-d1e669">message router</link>
                 </para>
             </listitem>
-            <listitem>
-                <para>
-                    <link linkend="Pattern_Normalizer-d1e663">normalizer</link>       
-                </para>
-            </listitem>
         </itemizedlist>
         <para> To learn more about these and other integration patterns, visit Enterprise
             Integration Patterns at <link xlink:href="http://www.eaipatterns.com/toc.html"
@@ -241,7 +237,7 @@
         <section xml:id="Pattern_Pipes-d1e667">
             <title>Pattern: Pipes and Filters</title>
             <para>  
-                The <firstterm>pipes and filters</firstterm> pattern describes a way of constructing a route by
+                &PRODNAME; implements the <firstterm>pipes and filters</firstterm> pattern by providing a way of constructing a route by
                 creating a chain of filters. Requests are passed through the chain so that one filter's output becomes the next filter's input.
                 This pipeline structure is analogous to the UNIX <code>pipe</code> command. 
                 The advantage
@@ -253,245 +249,17 @@
                 &PRODNAME; components each provide their own filter; by assembling your choice of components into a filtered pipeline, 
                 you create your custom implementation of &PRODNAME;.
             </para>
-            <para>
-                The <firstterm>content normalization filter</firstterm> is the first filter in the &PRODNAME; filter chain.
-                Content normalization is used only for HTTP header filtering.
-            </para>
-            <para>
-                The <firstterm>rate limiting service filter</firstterm> protects the origin service from being bombarded by client requests. 
-                It accomplishes this by specifying limits for the number of times a given client may request a given resource. 
-                This provides essential protection to any public-facing API. A client's current limits may include the client's absolute limits. 
-                Absolute limits are specific to a service domain and are therefore only provided by the origin service.
-            </para>
         </section>
         <section xml:id="Pattern_Message-d1e669">
             <title>Pattern: Message Router</title>
             <para>
-                A <firstterm>message router</firstterm> is a type of filter that consumes messages from a single consumer endpoint 
+                &PRODNAME; implements the <firstterm>message router</firstterm> pattern as a filter that consumes messages from a single consumer endpoint 
                 and then redirects them to the appropriate target endpoint, based on a specific decision criterion. 
                 A message router is concerned only with redirecting messages; it does not modify the message content.
             </para>
             <para>
-                Routing in &PRODNAME; is a two-step process. 
-                For example, the versioning component tags a request with a header (<code>X-PP-OriginDestination</code>) before handing the request to the next component. 
-                This header may be read by &PRODNAME;'s routing components to then facilitate routing to the correct origin service .
+                &PRODNAME; acts as an intermediate proxy and routes accordingly. Any component can make &PRODNAME; route.  
             </para>
-            <para>
-                By using a message router filter, the versioning component can facilitate routing but it does not perform routing.
-                The versioning configuration defines version mappings;  
-                based on those definitions, the versioning component attempts to bind to actual host entries within the power proxy system model.
-            </para>
-            <para>
-                To facilitate routing, the versioning component will first read in all the elements from both the versioning configuration 
-                and the power proxy system model configuration. 
-                Then, based on the power proxy host id attribute (<code>pp-host-id</code>) provided in the versioning configuration, 
-                the versioning component will link power proxy host entries to each version mapping.
-             </para>
-        </section>
-        <section xml:id="Pattern_Normalizer-d1e663">
-            <title>Pattern: Normalizer</title>
-            <para>
-                The <firstterm>normalizer</firstterm> pattern is used to process messages that are semantically equivalent but arrive in different formats. 
-                The normalizer transforms the incoming messages into a common format.
-            </para>
-        </section>
-        <section xml:id="Vocabulary-d1e100">
-            <title>&PRODNAME; Vocabulary</title>
-            <remark>
-                Source for this chapter is https://wiki.mosso.com/display/CT/PAPI+Glossary
-            </remark>
-            <note>
-                <para> Below, we have explained what we mean when we use some basic &PRODNAME;
-                    terms. 
-                    Terms not defined in this section are not unique to &PRODNAME; 
-                    and are used in
-                    industry-standard ways. 
-                    Many such terms are defined in the sources listed in
-                        <xref linkend="References-d1e994"/>. 
-                </para>
-            </note>
-            <glossary>
-                <title>&PRODNAME; Components</title>
-                <para>
-                    <emphasis>
-                        Components described here may not yet be available; 
-                        familiarity with their basic ideas will help you plan for future
-                        uses of &PRODNAME;.
-                    </emphasis>
-                </para>
-                <glossentry xml:id="Auth11N-d1e015">
-                    <glossterm><emphasis role="bold">Auth 1.1 (N)</emphasis></glossterm>
-                    <glossdef>
-                        <para> Auth 1.1 (N) is a client-side authentication component supporting Auth 1.1. It
-                            manages caches and tokens.</para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Auth11Z-d1e020">
-                    <glossterm><emphasis role="bold">Auth 1.1 (Z)</emphasis></glossterm>
-                    <glossdef>
-                        <para> Auth 1.1 (Z) is a client-side authorization component supporting Auth 1.1.  It simply
-                            checks that this endpoint is in the endpoint. </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Basic_Auth-d1e010">
-                    <glossterm><emphasis role="bold">Basic Auth</emphasis></glossterm>
-                    <glossdef>
-                        <para> The basic auth component is a service-side authentication component supporting Auth 1.1. It manages
-                            caches and tokens. </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Contract_Scope-d1e045">
-                    <glossterm><emphasis role="bold">Contract Scope</emphasis></glossterm>
-                    <glossdef>
-                        <para> Given a WADL, the contract scope conponent ensures that all requests
-                            adhere to the WADL. </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="IdMN-d1e050">
-                    <glossterm><emphasis role="bold">IdM (N)</emphasis></glossterm>
-                    <glossdef>
-                        <para> The IdM (N) component is like the Auth 1.1 (N) component but
-                            integrates directly with IdM (Auth 1.1.1).</para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Normalization1-d1e040">
-                    <glossterm><emphasis role="bold">Normalization</emphasis></glossterm>
-                    <glossdef>
-                        <para> The normalization component normalizes requests so that requests with
-                            similar meaning are formatted consistently. Phase 1 reduces redundancy
-                            in headers and XML but doesn’t handle content compression. Phase 2 adds
-                            gzip support. </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Rate_Limiting-d1e025">
-                    <glossterm><emphasis role="bold">Rate Limiting</emphasis></glossterm>
-                    <glossdef>
-                        <para> The rate limiting component manages rate limits according to limit group. It allows the backend to define
-                            absolute limits. It also handles backoff errors, which are queryable. </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Service_Auth-d1e005">
-                    <glossterm><emphasis role="bold">Service Auth</emphasis></glossterm>
-                    <glossdef>
-                        <para>
-                            The service authentication component allows &PRODNAME; to authenticate against a service.
-                            It works with a
-                            service-side authentication component that selects the authentication scheme.
-                        </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Translation1-d1e035">
-                    <glossterm><emphasis role="bold">Translation</emphasis></glossterm>
-                    <glossdef>
-                        <para> The translation component allows conversion of MIME types. Phase 1
-                            supports conversion by simply doing enough translation for other
-                            components. Phase 2 allows translation of MIME types as service inputs,
-                            XSLTs, and E4X.</para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Versioning-d1e030">
-                    <glossterm><emphasis role="bold">Versioning</emphasis></glossterm>
-                    <glossdef>
-                        <para> The versioning component describes the current version and any
-                            available versions. It allows choosing versions by URI or MIME type; it
-                            supports permalinks and multiple choices.</para>
-                    </glossdef>
-                </glossentry>
-            </glossary>
-            <glossary>
-                <title>&PRODNAME; Internals</title>
-                <para>
-                    <emphasis>
-                        These are not &PRODNAME; components but
-                        are essential to the structure of &PRODNAME;.
-                    </emphasis>
-                </para>
-                <glossentry xml:id="Message_Service-d1e065">
-                    <glossterm><emphasis role="bold">Message Service</emphasis></glossterm>
-                    <glossdef>
-                        <para> The message service allows customization of messages and error
-                            conditions so that &PRODNAME; never violates a service contract. </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Power_Filter-d1e070">
-                    <glossterm><emphasis role="bold">Power Filter</emphasis></glossterm>
-                    <glossdef>
-                        <para>
-                            The power filter is responsible for loading all other components.
-                            Phase 1 understands config files, component EARs, and more.
-                            Phase 2 adds PAIGE support, 
-                            support for components moving between containers,
-                            and support for components adding containers dynamically.
-                        </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Root-d1e080">
-                    <glossterm><emphasis role="bold">Root.WAR</emphasis></glossterm>
-                    <glossdef>
-                        <para>
-                            Root.WAR is a deployment artifact that launches &PRODNAME; in an application
-                            server without requiring direct integration with source code.
-                        </para>
-                    </glossdef>
-                    <glossdef>
-                        <para> </para>
-                    </glossdef>
-                </glossentry>
-            </glossary>
-            <glossary>
-                <title>Other Key Ideas</title>
-                <para>
-                    <emphasis>
-                        Understanding these ideas will help you follow the explanations and examples in &PRODNAME; documentation and more fully appreciate the possibilities of &PRODNAME;.
-                    </emphasis>
-                </para>
-                <glossentry xml:id="Artifact-d1e085">
-                    <glossterm><emphasis role="bold">Artifact</emphasis></glossterm>
-                    <glossdef>
-                        <para>An artifact may be a bundle of one or more components.</para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Filter-d1e090">
-                    <glossterm><emphasis role="bold">Filter</emphasis></glossterm>
-                    <glossdef>
-                        <para> A filter accepts incoming data, applies a specific kind of
-                            processing, and passes the data along. A chain of filters can be
-                            assembled into a pipeline. </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Router-d1e095">
-                    <glossterm><emphasis role="bold">Message Router</emphasis></glossterm>
-                    <glossdef>
-                        <para>  A message router is a type of filter that consumes messages from a
-                            single consumer endpoint and then redirects them to the appropriate
-                            target endpoint, based on a specific decision criterion.  </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Origin-d1e100">
-                    <glossterm><emphasis role="bold">Origin Service</emphasis></glossterm>
-                    <glossdef>
-                        <para>  The origin service is the source of all data processed by &PRODNAME;.  </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Pluggable-d1e105">
-                    <glossterm><emphasis role="bold">Pluggable</emphasis></glossterm>
-                    <glossdef>
-                        <para>  A pluggable component can be installed or deinstalled without affecting the remaining components.  </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Service_Versions-d1e110">
-                    <glossterm><emphasis role="bold">Service Versions Catalog</emphasis></glossterm>
-                    <glossdef>
-                        <para>  The service versions catalog lists all available versions.  </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="System_Model-d1e115">
-                    <glossterm><emphasis role="bold">System Model</emphasis></glossterm>
-                    <glossdef>
-                        <para>  The system model defines the entire cluster.  </para>
-                    </glossdef>
-                </glossentry>
-            </glossary>    
         </section>
     </chapter>
     <chapter xml:id="Try-d1e731">
