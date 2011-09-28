@@ -125,8 +125,10 @@
                 <glossentry xml:id="Rate_Limiting-d1e025">
                     <glossterm><emphasis role="bold">Rate Limiting</emphasis></glossterm>
                     <glossdef>
-                        <para> The rate limiting component manages rate limits according to limit group. It allows the backend to define
-                            absolute limits. It also handles backoff errors, which are queryable. </para>
+                        <para> The rate limiting component protects the origin service from being
+                        bombarded by client requests. It accomplishes this by specifying limits for
+                        the number of times a client may request a given resource. This provides
+                        essential protection to any public-facing API.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry xml:id="Service_Authentication-d1e005">
