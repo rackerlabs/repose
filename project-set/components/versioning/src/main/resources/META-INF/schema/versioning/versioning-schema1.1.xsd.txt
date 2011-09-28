@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+<!-- This is the schema we want to eventually move to for versioning.  It uses XSD 1.1.  However, the current
+     parser we use does not support the extensions used in this schema.  At some point we will upgrade.  -->
 <xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
            targetNamespace="http://docs.openstack.org/common/api/v1.0"
            xmlns:vers="http://docs.openstack.org/common/api/v1.0"

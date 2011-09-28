@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.rackspacecloud.com/power-api/http-logging/v1.0"
+           xmlns:htlog="http://docs.rackspacecloud.com/power-api/http-logging/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="http-logging" type="htlog:http-logging-config" />
+
+    <xs:complexType name="http-logging-config">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>This is the type definition for http logging configuration</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="http-log" type="htlog:http-log" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="http-log">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>This is the type def for a simple http log</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+
+        <xs:sequence>
+            <xs:element name="targets" type="htlog:targets" minOccurs="1" maxOccurs="1" />
+        </xs:sequence>
+
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="format" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="targets">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:all>
+            <xs:element name="file" type="htlog:file-target" minOccurs="1" maxOccurs="1" />
+            <xs:element name="syslog" type="htlog:syslog-target" minOccurs="1" maxOccurs="1" />
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="file-target">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="location">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="syslog-target">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="host" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="port" type="xs:int" use="optional" default="514">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+</xs:schema>
