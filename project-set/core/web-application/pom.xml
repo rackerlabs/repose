@@ -51,10 +51,12 @@
 
     <profiles>
         <profile>
-            <id>build-rpm</id>
+            <id>web-application-rpm</id>
             
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>build-rpm</name>
+                </property>
             </activation>
             
             <build>
