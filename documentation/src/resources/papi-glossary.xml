@@ -80,13 +80,9 @@
         </annotation>
             <note>
                 <para> Below, we have explained what we mean when we use some basic &PRODNAME;
-                    terms. 
-                    Terms not defined in this section are not unique to &PRODNAME; 
-                    and are used in
-                    industry-standard ways. 
-                    Many such terms are defined in the sources listed in
-                        <xref linkend="References-d1e994"/>. 
-                </para>
+                terms. Terms not defined here are not unique to &PRODNAME; and are used in
+                industry-standard ways. Many such terms are defined in the sources listed in <xref
+                    linkend="References-d1e994"/>. </para>
             </note>
             <glossary>
                 <title>&PRODNAME; Components</title>
@@ -97,49 +93,34 @@
                         uses of &PRODNAME;.
                     </emphasis>
                 </para>
-                <glossentry xml:id="Auth11N-d1e015">
-                    <glossterm><emphasis role="bold">Auth 1.1 (N)</emphasis></glossterm>
-                    <glossdef>
-                        <para> Auth 1.1 (N) is a client-side authentication component supporting Auth 1.1. It
-                            manages caches and tokens.</para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Auth11Z-d1e020">
-                    <glossterm><emphasis role="bold">Auth 1.1 (Z)</emphasis></glossterm>
-                    <glossdef>
-                        <para> Auth 1.1 (Z) is a client-side authorization component supporting Auth 1.1.  It simply
-                            checks that this endpoint is in the endpoint. </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Basic_Auth-d1e010">
-                    <glossterm><emphasis role="bold">Basic Auth</emphasis></glossterm>
-                    <glossdef>
-                        <para> The basic auth component is a service-side authentication component supporting Auth 1.1. It manages
-                            caches and tokens. </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Contract_Scope-d1e045">
-                    <glossterm><emphasis role="bold">Contract Scope</emphasis></glossterm>
-                    <glossdef>
-                        <para> Given a WADL, the contract scope conponent ensures that all requests
-                            adhere to the WADL. </para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="IdMN-d1e050">
-                    <glossterm><emphasis role="bold">IdM (N)</emphasis></glossterm>
-                    <glossdef>
-                        <para> The IdM (N) component is like the Auth 1.1 (N) component but
-                            integrates directly with IdM (Auth 1.1.1).</para>
-                    </glossdef>
-                </glossentry>
-                <glossentry xml:id="Normalization1-d1e040">
-                    <glossterm><emphasis role="bold">Normalization</emphasis></glossterm>
+                <glossentry xml:id="Client-AuthN-d1e015">
+                <glossterm><emphasis role="bold">Client Authentication</emphasis></glossterm>
+                <glossdef>
+                    <para> The client authentication component is a client-side authentication component supporting
+                        Rackspace Authentication Service v1.1. It manages caches and tokens.</para>
+                </glossdef>
+            </glossentry>
+                <glossentry xml:id="Client-AuthZ-d1e020">
+                <glossterm><emphasis role="bold">Client Authorization</emphasis></glossterm>
+                <glossdef>
+                    <para> The client Authorization component is a client-side authorization component supporting
+                        Rackspace Authentication Service v1.1. It simply checks that this endpoint
+                        is in the endpoint. </para>
+                </glossdef>
+            </glossentry>
+                <glossentry xml:id="Content_Normalization1-d1e040">
+                    <glossterm><emphasis role="bold">Content Normalization</emphasis></glossterm>
                     <glossdef>
                         <para> The normalization component normalizes requests so that requests with
-                            similar meaning are formatted consistently. Phase 1 reduces redundancy
-                            in headers and XML but doesn’t handle content compression. Phase 2 adds
-                            gzip support. </para>
+                            similar meaning are formatted consistently. </para>
                     </glossdef>
+                </glossentry>
+                <glossentry xml:id="Contract_Scope_Filtering-d1e045">
+                <glossterm><emphasis role="bold">Contract Scope Filtering</emphasis></glossterm>
+                <glossdef>
+                    <para> Given a WADL, the contract scope filtering component ensures that all requests
+                        adhere to the WADL. </para>
+                </glossdef>
                 </glossentry>
                 <glossentry xml:id="Rate_Limiting-d1e025">
                     <glossterm><emphasis role="bold">Rate Limiting</emphasis></glossterm>
@@ -148,23 +129,20 @@
                             absolute limits. It also handles backoff errors, which are queryable. </para>
                     </glossdef>
                 </glossentry>
-                <glossentry xml:id="Service_Auth-d1e005">
-                    <glossterm><emphasis role="bold">Service Auth</emphasis></glossterm>
+                <glossentry xml:id="Service_Authentication-d1e005">
+                    <glossterm><emphasis role="bold">Service Authentication</emphasis></glossterm>
                     <glossdef>
                         <para>
                             The service authentication component allows &PRODNAME; to authenticate against a service.
                             It works with a
-                            service-side authentication component that selects the authentication scheme.
+                            service-side authentication component that selects the authentication plan.
                         </para>
                     </glossdef>
                 </glossentry>
                 <glossentry xml:id="Translation1-d1e035">
                     <glossterm><emphasis role="bold">Translation</emphasis></glossterm>
                     <glossdef>
-                        <para> The translation component allows conversion of MIME types. Phase 1
-                            supports conversion by simply doing enough translation for other
-                            components. Phase 2 allows translation of MIME types as service inputs,
-                            XSLTs, and E4X.</para>
+                        <para> The translation component allows conversion between MIME types. </para>
                     </glossdef>
                 </glossentry>
                 <glossentry xml:id="Versioning-d1e030">
@@ -184,6 +162,13 @@
                         are essential to the structure of &PRODNAME;.
                     </emphasis>
                 </para>
+                <glossentry xml:id="Basic_Auth-d1e010">
+                    <glossterm><emphasis role="bold">Basic Authentication</emphasis></glossterm>
+                    <glossdef>
+                        <para> The basic authentication method is HTTP's standard service-side authentication. It manages
+                            caches and tokens and supports Rackspace Authentication Service v1.1. </para>
+                    </glossdef>
+                </glossentry>
                 <glossentry xml:id="Message_Service-d1e065">
                     <glossterm><emphasis role="bold">Message Service</emphasis></glossterm>
                     <glossdef>
@@ -195,11 +180,8 @@
                     <glossterm><emphasis role="bold">Power Filter</emphasis></glossterm>
                     <glossdef>
                         <para>
-                            The power filter is responsible for loading all other components.
-                            Phase 1 understands config files, component EARs, and more.
-                            Phase 2 adds PAIGE support, 
-                            support for components moving between containers,
-                            and support for components adding containers dynamically.
+                            The power filter is responsible for loading all other components
+                            and handling the request-and-response lifecycle.
                         </para>
                     </glossdef>
                 </glossentry>
@@ -208,7 +190,7 @@
                     <glossdef>
                         <para>
                             Root.WAR is a deployment artifact that launches &PRODNAME; in an application
-                            server without requiring direct integration with source code.
+                            server without requiring direct integration with the underlying service.
                         </para>
                     </glossdef>
                     <glossdef>
@@ -227,6 +209,12 @@
                     <glossterm><emphasis role="bold">Artifact</emphasis></glossterm>
                     <glossdef>
                         <para>An artifact may be a bundle of one or more components.</para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Contract_Scope-d1e087">
+                    <glossterm><emphasis role="bold">Contract Scope</emphasis></glossterm>
+                    <glossdef>
+                        <para>The contract scope is the portion of a contract that an authorized user can see and use.</para>
                     </glossdef>
                 </glossentry>
                 <glossentry xml:id="Filter-d1e090">
@@ -248,19 +236,19 @@
                 <glossentry xml:id="Origin-d1e100">
                     <glossterm><emphasis role="bold">Origin Service</emphasis></glossterm>
                     <glossdef>
-                        <para>  The origin service is the source of all data processed by &PRODNAME;.  </para>
+                        <para>  The origin service is the service that is enhanced by &PRODNAME;.  </para>
                     </glossdef>
                 </glossentry>
-                <glossentry xml:id="Pluggable-d1e105">
-                    <glossterm><emphasis role="bold">Pluggable</emphasis></glossterm>
+                <glossentry xml:id="Pluggable_Compoment-d1e105">
+                    <glossterm><emphasis role="bold">Pluggable Component</emphasis></glossterm>
                     <glossdef>
-                        <para>  A pluggable component can be installed or deinstalled without affecting the remaining components.  </para>
+                        <para>  A pluggable component can be installed or deinstalled without affecting the system state.  </para>
                     </glossdef>
                 </glossentry>
                 <glossentry xml:id="Service_Versions-d1e110">
                     <glossterm><emphasis role="bold">Service Versions Catalog</emphasis></glossterm>
                     <glossdef>
-                        <para>  The service versions catalog lists all available versions.  </para>
+                        <para>  The service versions catalog lists all available service versions.  </para>
                     </glossdef>
                 </glossentry>
                 <glossentry xml:id="System_Model-d1e115">
