@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.rackspacecloud.com/power-api/client-auth/v1.0"
+           xmlns:auth="http://docs.rackspacecloud.com/power-api/client-auth/v1.0"
+           xmlns:auth-1.1="http://docs.rackspacecloud.com/power-api/client-auth/rs-auth-1.1/v1.0"
+           xmlns:auth-http-basic="http://docs.rackspacecloud.com/power-api/client-auth/http-basic/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    
+    <!-- Rackspace Cloud Auth v1.1 -->
+    <xs:import namespace="http://docs.rackspacecloud.com/power-api/client-auth/rs-auth-1.1/v1.0" schemaLocation="./rackspace-auth-v1.1/rackspace-auth-v1.1.xsd" />
+    
+    <!-- HTTP Basic Authentication -->
+    <xs:import namespace="http://docs.rackspacecloud.com/power-api/client-auth/http-basic/v1.0" schemaLocation="./http-basic/http-basic.xsd" />
+    
+    <!-- Configuration -->
+    <xs:element name="client-auth" type="auth:clientAuthConfig" />
+
+    <xs:complexType name="clientAuthConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Describes a collection of filter modules that should be loaded and configured at runtime start-up</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:choice>
+                <xs:element ref="auth-1.1:rackspace-auth" />
+                <xs:element ref="auth-http-basic:http-basic-auth" />
+            </xs:choice>
+        </xs:sequence>
+    </xs:complexType>
+</xs:schema>

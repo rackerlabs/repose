@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.rackspacecloud.com/power-api/service-auth/v1.0"
+           xmlns:service-auth="http://docs.rackspacecloud.com/power-api/service-auth/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    
+    <!-- Configuration -->
+    <xs:element name="service-auth" type="service-auth:service-auth-config" />
+
+    <xs:complexType name="service-auth-config">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Describes a collection of filter modules that should be loaded and configured at runtime start-up</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="http-basic" type="service-auth:http-basic-auth" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="http-basic-auth">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>TODO</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="credentials" type="service-auth:credentials" minOccurs="1" maxOccurs="1" />
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="credentials">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>TODO</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="username" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Username to use (Basic Auth Only)</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="password" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Password to use (Basic Auth Only)</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+</xs:schema>

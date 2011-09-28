@@ -30,7 +30,7 @@ public class SchemaReadTest {
             final ByteBuffer buffer = new CyclicByteBuffer();
             final ByteBufferOutputStream bos = new ByteBufferOutputStream(buffer);
 
-            final InputStream xmlInput = SchemaReadTest.class.getResourceAsStream("/META-INF/schema/examples/xml/container.cfg.xml");
+            final InputStream xmlInput = SchemaReadTest.class.getResourceAsStream("/META-INF/schema/examples/container.cfg.xml");
 
             final byte[] bytes = new byte[1024];
             int read;

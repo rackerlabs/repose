@@ -36,7 +36,7 @@ public class SchemaTest {
 
             jaxbUnmarshaller.setSchema(SCHEMA_FACTORY.newSchema(
                     new StreamSource[]{
-                        new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/service-auth/service-auth-configuration.xsd"))
+                        new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/config/service-auth-configuration.xsd"))
                     }));
         }
 
