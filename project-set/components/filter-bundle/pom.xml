@@ -137,14 +137,12 @@
                             <username>tomcat7</username>
                             <groupname>tomcat7</groupname>
                             <filemode>755</filemode>
-                                    
-                            <sources>
-                                <source>
-                                    <location>target/filter-bundle-${project.version}.ear</location>
-                                </source>
-                            </sources>
+                             <sources>
+                                 <source>
+                                     <location>./target/filter-bundle-${project.version}.ear</location>
+                                 </source>
+                             </sources>
                         </mapping>
-                                
                         <mapping>
                             <directory>/etc/powerapi/</directory>
                             <username>tomcat7</username>
