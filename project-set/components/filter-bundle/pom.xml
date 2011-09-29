@@ -125,67 +125,51 @@
                     </modules>
                 </configuration>
             </plugin>
+            
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>rpm-maven-plugin</artifactId>
+                
+                <configuration>                   
+                    <mappings>
+                        <mapping>
+                            <directory>/usr/share/powerapi/filters</directory>
+                            <username>tomcat7</username>
+                            <groupname>tomcat7</groupname>
+                            <filemode>755</filemode>
+                                    
+                            <sources>
+                                <source>
+                                    <location>target/filter-bundle-${project.version}.ear</location>
+                                </source>
+                            </sources>
+                        </mapping>
+                                
+                        <mapping>
+                            <directory>/etc/powerapi/</directory>
+                            <username>tomcat7</username>
+                            <groupname>tomcat7</groupname>
+                            <filemode>755</filemode>
+                                    
+                            <sources>
+                                <source>
+                                    <location>../versioning/src/main/resources/META-INF/schema/examples/versioning.cfg.xml</location>
+                                </source>
+                                <source>
+                                    <location>../client-auth/src/main/resources/META-INF/schema/examples/client-auth-n.cfg.xml</location>
+                                </source>
+                                <source>
+                                    <location>../rate-limiting/src/main/resources/META-INF/schema/examples/rate-limiting.cfg.xml</location>
+                                </source>
+                            </sources>
+                        </mapping>
+                    </mappings>
+                            
+                    <requires>
+                        <require>java-1.6.0-openjdk</require>
+                    </requires>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-    
-    <profiles>
-        <profile>
-            <id>component-bundle-rpm</id>
-            
-            <activation>
-                <property>
-                    <name>build-system-packages</name>
-                </property>
-            </activation>
-            
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.codehaus.mojo</groupId>
-                        <artifactId>rpm-maven-plugin</artifactId>
-                
-                        <configuration>                   
-                            <mappings>
-                                <mapping>
-                                    <directory>/usr/share/powerapi/filters</directory>
-                                    <username>tomcat7</username>
-                                    <groupname>tomcat7</groupname>
-                                    <filemode>755</filemode>
-                                    
-                                    <sources>
-                                        <source>
-                                            <location>target/filter-bundle-${project.version}.ear</location>
-                                        </source>
-                                    </sources>
-                                </mapping>
-                                
-                                <mapping>
-                                    <directory>/etc/powerapi/</directory>
-                                    <username>tomcat7</username>
-                                    <groupname>tomcat7</groupname>
-                                    <filemode>755</filemode>
-                                    
-                                    <sources>
-                                        <source>
-                                            <location>../versioning/src/main/resources/META-INF/schema/examples/versioning.cfg.xml</location>
-                                        </source>
-                                        <source>
-                                            <location>../client-auth/src/main/resources/META-INF/schema/examples/client-auth-n.cfg.xml</location>
-                                        </source>
-                                        <source>
-                                            <location>../rate-limiting/src/main/resources/META-INF/schema/examples/rate-limiting.cfg.xml</location>
-                                        </source>
-                                    </sources>
-                                </mapping>
-                            </mappings>
-                            
-                            <requires>
-                                <require>java-1.6.0-openjdk</require>
-                            </requires>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
-    </profiles>
 </project>
