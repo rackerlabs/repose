@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.testing.testsupport;
+package com.rackspace.tests.testSupport;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author malconis
  */
-public class limits extends HttpServlet {
+public class mockGetGroupsServlet extends HttpServlet {
 
   /** 
    * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -28,14 +28,20 @@ public class limits extends HttpServlet {
           throws ServletException, IOException {
     response.setContentType("text/html;charset=UTF-8");
     PrintWriter out = response.getWriter();
-
-      out.println(" <limits xmlns=\"http://docs.openstack.org/common/api/v1.0\">");
-      out.println("\t<absolute>");
-      out.println("\t\t<limit name=\"" + request.getRequestURL() + "\" value=\"" + request.getContextPath() +"\" />");
-      out.println("\t\t<limit name=\"domain_value\" value=\"3\" />");
-      out.println("\t</absolute>");
-      out.println("</limits>");
-    
+    try {
+      
+      String resp = "<groups xmlns=\"http://docs.rackspacecloud.com/auth/api/v1.1\"> "
+              + "<group id=\"Admin\"> "
+              + "<description>A Description of the group...</description> "
+              + "</group> "
+              + "<group id=\"Technical\"> "
+              + "<description>Another description...</description> "
+              + "</group> "
+              + "</groups>";
+      out.println(resp);
+    } finally {      
+      out.close();
+    }
   }
 
   // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">

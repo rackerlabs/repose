@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.testing.testsupport;
+package com.rackspace.tests.testSupport;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -42,6 +42,8 @@ public class landingServlet extends HttpServlet {
                 headerName = headers.nextElement();
                 out.println("\t\t<h2>" + headerName + " : " + request.getHeader(headerName) + "</h2>");
             }
+            //TODO: DISPLAY Query parameters
+            out.println("\t\t<h3>PUT QUERY PARAMETERS HERE</h3>");
             out.println("\t</body>");
             out.println("</html>");
         } finally {
