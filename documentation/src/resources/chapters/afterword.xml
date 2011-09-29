@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book [
-<!-- product name is likely to change; parameterize full name and abbreviation -->
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
 <!ENTITY PRODNAME "Power API">
 <!ENTITY PRODABBREV "PAPI">
+<!ENTITY PRODEXPAND "Rackspace Cloud Power Application Program Interface (API)">
 ]>
 <chapter xmlns="http://docbook.org/ns/docbook"
     xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -19,8 +20,9 @@
     <section xml:id="Feedback-d1e992">
         <title>Feedback</title>
         <para> If you find errors in this document or have suggestions about how to improve it,
-            please let us know. You can contact the maintainer directly at "john dot hopper at
-            rackspace dot com". </para>
+            please let us know. You can contact the maintainer directly at
+            <emphasis>john.hopper@rackspace.com</emphasis>. 
+        </para>
     </section> 
     <section xml:id="References-d1e994">
         <title>References</title>
