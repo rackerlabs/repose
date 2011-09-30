@@ -47,63 +47,77 @@
 
     <build>
         <finalName>ROOT</finalName>
-        
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>rpm-maven-plugin</artifactId>
-                
-                <configuration>                    
-                    <mappings>
-                        <mapping>
-                            <directory>/var/lib/tomcat7/webapps</directory>
-                            <username>tomcat7</username>
-                            <groupname>tomcat7</groupname>
-                            <filemode>755</filemode>
-                            
-                            <sources>
-                                <source>
-                                    <location>./target/ROOT.war</location>
-                                </source>
-                            </sources>
-                        </mapping>
-                        
-                        <mapping>
-                            <directory>/etc/powerapi/</directory>
-                            <username>tomcat7</username>
-                            <groupname>tomcat7</groupname>
-                            <filemode>755</filemode>
-                            
-                            <sources>
-                                <source>
-                                    <location>../core-lib/src/main/resources/META-INF/schema/examples/container.cfg.xml</location>
-                                </source>
-                                <source>
-                                    <location>../core-lib/src/main/resources/META-INF/schema/examples/power-proxy.cfg.xml</location>
-                                </source>
-                            </sources>
-                        </mapping>
-                    </mappings>
-                    
-                    <postinstallScriptlet>
-                        <script>
-                            mkdir "/var/powerapi/logs/" -p -m 765;
-                            mkdir "/usr/share/powerapi/filters" -p -m 755;
-                            chown tomcat7:tomcat7 /var/powerapi /usr/share/powerapi -R;
-                        </script>
-                    </postinstallScriptlet>
-                    
-                    <postremoveScriptlet>
-                        <script>
-                            rm -rf /var/powerapi /usr/share/powerapi/;
-                        </script>
-                    </postremoveScriptlet>
-                    
-                    <requires>
-                        <require>java-1.6.0-openjdk</require>
-                    </requires>
-                </configuration>
-            </plugin>
-        </plugins>
     </build>
+    
+    <profiles>
+        <profile>
+            <id>Build ROOT Web Application RPM</id>
+                        
+            <activation>
+                <property>
+                    <name>build-system-packages</name>
+                </property>
+            </activation>
+        
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>rpm-maven-plugin</artifactId>
+                
+                        <configuration>                    
+                            <mappings>
+                                <mapping>
+                                    <directory>/var/lib/tomcat7/webapps</directory>
+                                    <username>tomcat7</username>
+                                    <groupname>tomcat7</groupname>
+                                    <filemode>755</filemode>
+                            
+                                    <sources>
+                                        <source>
+                                            <location>./target/ROOT.war</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+                        
+                                <mapping>
+                                    <directory>/etc/powerapi/</directory>
+                                    <username>tomcat7</username>
+                                    <groupname>tomcat7</groupname>
+                                    <filemode>755</filemode>
+                            
+                                    <sources>
+                                        <source>
+                                            <location>../core-lib/src/main/resources/META-INF/schema/examples/container.cfg.xml</location>
+                                        </source>
+                                        <source>
+                                            <location>../core-lib/src/main/resources/META-INF/schema/examples/power-proxy.cfg.xml</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+                            </mappings>
+                    
+                            <postinstallScriptlet>
+                                <script>
+                                    mkdir "/var/powerapi/logs/" -p -m 765;
+                                    mkdir "/usr/share/powerapi/filters" -p -m 755;
+                                    chown tomcat7:tomcat7 /var/powerapi /usr/share/powerapi -R;
+                                </script>
+                            </postinstallScriptlet>
+                    
+                            <postremoveScriptlet>
+                                <script>
+                                    rm -rf /var/powerapi /usr/share/powerapi/;
+                                </script>
+                            </postremoveScriptlet>
+                    
+                            <requires>
+                                <require>java-1.6.0-openjdk</require>
+                            </requires>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>        
+    </profiles>
 </project>

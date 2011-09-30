@@ -74,6 +74,10 @@
                 <html:p>Defines a filter that can be used to process and route requests</html:p>
             </xs:documentation>
         </xs:annotation>
+        
+        <xs:sequence>
+            <xs:element name="init-param" type="mod:FilterInitParameter" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
 
         <xs:attribute name="name" type="xs:string" use="required">
             <xs:annotation>
@@ -82,9 +86,37 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-    </xs:complexType>
 
-<!--
-    TODO: Revisit forwarding at the host level
--->
+        <xs:attribute name="configuration" type="xs:string" use="optional" default="">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The system context specific name of the filter's configuration</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+    
+    <xs:complexType name="FilterInitParameter">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Initialization parameter for a given filter</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The init-parameter name</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="value" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The value of the init-parameter to pass to the filter</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
 </xs:schema>
