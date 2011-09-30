@@ -48,12 +48,22 @@ public final class RateLimitingHandler extends AbstractFilterLogicHandler {
 
         @Override
         protected void onConfigurationUpdated(RateLimitingConfiguration configurationObject) {
-            rateLimitingConfig = configurationObject;
-
+            
+            boolean defaultSet=false;
+            
             regexCache.clear();
 
-            for (ConfiguredLimitGroup limitGroup : rateLimitingConfig.getLimitGroup()) {
+            for (ConfiguredLimitGroup limitGroup : configurationObject.getLimitGroup()) {
                 final Map<String, Pattern> compiledRegexMap = new HashMap<String, Pattern>();
+                
+                // Makes sure that only the first limit group set to default is the only default group
+                if(limitGroup.isDefault() && defaultSet==true){
+                    limitGroup.setDefault(false);
+                    LOG.warn("Rate-limiting Configuration has more than one default group set. Limit Group '"
+                            + limitGroup.getId() + "' will not be set as a default limit group. Please update your configuration file.");
+                }else if (limitGroup.isDefault()){
+                    defaultSet = true;
+                }
 
                 for (ConfiguredRatelimit configuredLimitGroup : limitGroup.getLimit()) {
                     compiledRegexMap.put(configuredLimitGroup.getUri(), Pattern.compile(configuredLimitGroup.getUriRegex()));
@@ -62,7 +72,9 @@ public final class RateLimitingHandler extends AbstractFilterLogicHandler {
                 regexCache.put(limitGroup.getId(), compiledRegexMap);
             }
 
-            describeLimitsUriRegex = Pattern.compile(rateLimitingConfig.getRequestEndpoint().getUriRegex());
+            describeLimitsUriRegex = Pattern.compile(configurationObject.getRequestEndpoint().getUriRegex());
+            rateLimitingConfig = configurationObject;
+
         }
     };
 

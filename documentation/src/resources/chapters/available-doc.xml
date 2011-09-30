@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book [
-<!-- product name is likely to change; parameterize full name and abbreviation -->
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
 <!ENTITY PRODNAME "Power API">
 <!ENTITY PRODABBREV "PAPI">
+<!ENTITY PRODEXPAND "Rackspace Cloud Power Application Program Interface (API)">
 ]>
 <section xmlns="http://docbook.org/ns/docbook"
     xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -13,28 +14,49 @@
     <itemizedlist>
         <listitem>
             <para>
-                <firstterm role="bold">Introduction</firstterm>: The introduction provides an architectural overview, a glossary of key concepts, and a step-by-step walkthrough of one sample deployment.
-            </para>
+                <emphasis role="bold">Getting Started</emphasis>: This high-level introduction
+                provides an architectural overview and summarizes several deployment methods. </para>
         </listitem>
         <listitem>
             <para>
-                <firstterm role="bold">Deployment Handbooks</firstterm>: Deployment handbooks are
-                non-procedural collections of key facts designed to be helpful in preparing to use specific &PRODNAME; components. Deployment handbooks are available for: 
+                <emphasis role="bold">Glossary</emphasis>: The &PRODNAME; glossary defines key terms as they are used in the context of &PRODABBREV; documentation. </para>
+        </listitem>
+        <listitem>
+            <para>
+                <emphasis role="bold">Deployment Handbooks</emphasis>: Deployment handbooks are
+                non-procedural collections of key facts designed to be helpful in preparing to use &PRODNAME; or specific &PRODNAME; components. 
+                Deployment handbooks are available to assist with: 
                 <itemizedlist>
                     <listitem>
-                        <para>Authentication</para>
+                        <para><emphasis>&PRODNAME; Deployment Methods</emphasis></para>
+                        <itemizedlist>
+                            <listitem>
+                                <para>
+                                    Root.WAR
+                                </para>
+                            </listitem>
+                        </itemizedlist>
                     </listitem>
                     <listitem>
-                        <para>Rate Limiting</para>
-                    </listitem>
-                    <listitem>
-                        <para>Root.WAR</para>
-                    </listitem>
-                    <listitem>
-                        <para>Versioning</para>
+                        <para><emphasis>&PRODNAME; Component Deployments</emphasis></para>
+                        <itemizedlist>
+                            <listitem>
+                                <para>Authentication</para>
+                            </listitem>
+                            <listitem>
+                                <para>Rate Limiting</para>
+                            </listitem>
+                            <listitem>
+                                <para>Versioning</para>
+                            </listitem>
+                        </itemizedlist>
                     </listitem>
                 </itemizedlist>
             </para>
         </listitem> 
     </itemizedlist> 
+    <para>
+        &PRODNAME; is an open-source project. Visit our GitHub repository at <link xlink:href="https://github.com/rackspace/power-api/">https://github.com/rackspace/power-api/</link>
+        for access to our source code and documentation.
+    </para>
 </section>

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book [
-    <!-- product name is likely to change; parameterize full name and abbreviation -->
-    <!ENTITY PRODNAME "Power API">
-    <!ENTITY PRODABBREV "PAPI">
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+<!ENTITY PRODNAME "Power API">
+<!ENTITY PRODABBREV "PAPI">
+<!ENTITY PRODEXPAND "Rackspace Cloud Power Application Program Interface (API)">
     <!-- Some useful entities borrowed from HTML -->
     <!ENTITY ndash  "&#x2013;">
     <!ENTITY mdash  "&#x2014;">
@@ -60,7 +61,7 @@
         </copyright>
         <releaseinfo>v0.9</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2011-09-21</pubdate>
+        <pubdate>2011-09-23</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -68,8 +69,7 @@
         </legalnotice>
         <abstract>
             <para>This document is intended for systems administrators interested in configuring
-                their service to use the Rate Limiting component of the Rackspace Cloud Power
-                Application Program Interface (<abbrev>API</abbrev>). </para>
+                their service to use the Rate Limiting component of the &PRODEXPAND;. </para>
         </abstract>
     </info>
     <chapter xml:id="Overview-d1e85">
@@ -113,6 +113,16 @@
                     </tr>
                 </thead>
                 <tbody>
+                    <tr align="left">
+                        <td colspan="1" align="center">Sep 23, 2011</td>
+                        <td colspan="4" align="left">
+                            <itemizedlist spacing="compact">
+                                <listitem>
+                                    <para>Expanded explanatory notes supporting sample code in <xref linkend="Configuration-d1e365"></xref>.</para>
+                                </listitem>
+                            </itemizedlist>
+                        </td>
+                    </tr>
                     <tr align="left">
                         <td colspan="1" align="center">Sep 21, 2011</td>
                         <td colspan="4" align="left">
@@ -199,6 +209,11 @@
                     <area xml:id="cfg.xml.request-endpoint" units="linecolumn" coords="5 22"/>
                     <area xml:id="cfg.xml.uri-regex" units="linecolumn" coords="5 32"/>
                     <area xml:id="cfg.xml.include-absolute-limits" units="linecolumn" coords="6 32"/>
+                    <area xml:id="cfg.xml.limit-group" units="linecolumn" coords="8 17"/>
+                    <area xml:id="cfg.xml.id" units="linecolumn" coords="8 37"/>
+                    <area xml:id="cfg.xml.groups" units="linecolumn" coords="9 15"/>
+                    <area xml:id="cfg.xml.default" units="linecolumn" coords="9 34"/>
+                    <area xml:id="cfg.xml.limit" units="linecolumn" coords="10 15"/>
                 </areaspec>        
             <programlisting language="xml">
 <xi:include href="samples/papi-ratelimit.xml" parse="text"/>
@@ -213,29 +228,65 @@
                     regular expression that identifies client requests for the client's current
                     limits.
                 </para>
+                <para>This element is <emphasis>required</emphasis>.</para>
                 <para> </para>
             </callout>
             <callout arearefs="cfg.xml.uri-regex">
-                <para> 
-                    The <code>uri-regex</code> attribute must be specified and must be a regular
-                    expression. It should matches all representations of the request resource that
-                    the rate limiting component should answer. 
-                </para>
+                <para> The <code>uri-regex</code> attribute of the <code>request-endpoint</code>
+                    configuration element must be a regular expression. It should match all
+                    representations of the request resource that the rate limiting component should
+                    answer. </para>
+                <para>This attribute is <emphasis>required</emphasis>.</para>
                 <para> </para>
             </callout>
             <callout arearefs="cfg.xml.include-absolute-limits">
+                <para> The <code>include-absolute-limits</code> attribute of the
+                        <code>request-endpoint</code> configuration element is a Boolean attribute
+                    that can be used to switch on or off integration with the origin service's
+                    absolute limits. </para>
+                <para>This attribute is <emphasis>optional</emphasis>.</para>
+                <para>Acceptable values are <code>TRUE</code>, <code>FALSE</code>.</para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.xml.limit-group">
+                <para> One or more specifications of <code>limit-group</code> may be associated with
+                    a single specification of <code>request-endpoint</code>. </para>
                 <para> 
-                    <code>include-absolute-limits</code> is an optional Boolean attribute that
-                    can be used to switch on or off integration with the origin service's
-                    absolute limits. 
+                    Limit groups identify a group of related rate limits and bind them to a series of
+                    names. The names can be used to limit incoming requests using the
+                    <code>X-PP-Groups</code> header. 
                 </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.xml.id">
+                <para> An <code>id</code> uniquely identifies each <code>limit-group</code>.</para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.xml.groups">
+                <para> Specifying <code>groups</code> for a <code>limit-group</code> associates it with recognizable workloads. 
+                    In this example, one <code>limit-group</code> relates to customers and another relates to administrators.
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.xml.default">
+                <para> A single <code>limit-group</code> may be identified as the
+                    <code>default</code> group. 
+                    The <code>default</code> group will handle any requests that cannot be matched
+                    on the basis of a group name to any of the groups identified in the <code>X-PP-Groups</code> header.
+                    In this example, the limits defined for <code>groups="customer"</code> will be applied to requests that cannot be explicitly matched to a group.
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.xml.limit">
+                <para> <code>limit</code> and its attributes are discussed in <xref linkend="Configuring_Limits-d1e376"></xref>. </para>
                 <para> </para>
             </callout>
         </calloutlist>
         <section xml:id="Configuring_Limits-d1e376">
             <title>Configuring Limits</title>
-            <para>
-                To set a rate limit, assign acceptable values to the rate limiting configuration attributes shown in the code sample at <xref linkend="Configuration-d1e365"></xref>
+            <para> To set a rate limit, assign acceptable values to the rate limiting configuration
+                attributes shown in the code sample introducing <xref linkend="Configuration-d1e365"
+                />
             </para>
             <table frame="all">
                 <?dbfo keep-together="always"?>
@@ -312,19 +363,6 @@
                 </para>
             </important>
         </section>
-        <section xml:id="Configuring_Limit_Groups-d1e374">
-            <title>Configuring Limit Groups</title>
-            <para> 
-                Limit groups identify a group of related rate limits and bind them to a series of
-                names. The names can be used to limit incoming requests using the
-                <code>X-PP-Groups</code> header. 
-            </para>
-            <para>
-                A single limit group may be defined as the default. This default
-                will handle any requests that cannot be matched on the basis of a group name to any of the groups
-                identified in the <code>X-PP-Groups</code> header.
-            </para>
-        </section>
         <section xml:id="Constructing_Cache_Keys-d1e378">
             <title>Constructing Cache Keys</title>
             <para> The rate limiting component must be able to track rate limits per resource. To
@@ -342,7 +380,7 @@
                     that the rate limiting component operates against. You can get an unexpected
                     result by failing to account for all request URI components.</para>
             </warning>
-            <para> As you plan your own regular expressions, consider the following examples:  </para>
+            <para>As you plan your own regular expressions, consider the following examples: </para>
             <annotation>
                 <remark> The ampersand character is used in regular expressions but it's also used
                     in DocBook XML, and not ignored even inside code wrappers, so it's problematic
@@ -353,11 +391,12 @@
                     RegEx examples. </remark>
             </annotation>
             <table frame="all">
-                <?dbfo keep-together="always"?>
+                <?dbhtml table-width="85%" ?>
+                <?dbfo table-width="100%" ?>
                 <title>Sample Regular Expressions</title>
                 <tgroup cols="2">
                     <colspec colname="c1" colnum="1" colwidth="1.0*"/>
-                    <colspec colname="c2" colnum="2" colwidth="1.0*"/>
+                    <colspec colname="c2" colnum="2" colwidth="1.48*"/>
                     <thead>
                         <row>
                             <entry>RegEx</entry>
@@ -366,43 +405,35 @@
                     </thead>
                     <tbody>
                         <row>
-                            <entry><code>/service/.*</code>
+                            <entry>
+                                <code>/service/.*</code>
                             </entry>
-                            <entry> 
-                                <para>   
-                                    This is a blanket regular expression that recognizes 
-                                    a parent resource, <code>service</code>,
-                                    and catches any request
-                                    against a resource that falls under the parent. 
-                                </para>
-                                <para>
-                                    The rate limiting component cannot
-                                    detect whether the service implementer is requesting that each
-                                    resource request be tracked separately or as part of a group; the
-                                    component defaults to tracking limited requests under unique keys.
-                                </para>
+                            <entry>
+                                <para> This is a blanket regular expression that recognizes a parent
+                                    resource, <code>service</code>, and catches any request against a
+                                    resource that falls under the parent. </para>
+                                <para> The rate limiting component cannot detect whether the service
+                                    implementer is requesting that each resource request be tracked
+                                    separately or as part of a group; the component defaults to tracking
+                                    limited requests under unique keys. </para>
                             </entry>
                         </row>
                         <row>
-
-                            
-                            <entry><code>/service/([^!*'();:@&amp;=+$,/?#\\[\\]]*)/.*</code>
-                            </entry>
                             <entry>
-                                <para>
-                                    This regular expression generates cache keys from the second-tier
+                                <code>/service/([^!*'();:@&amp;=+$,/?#\\[\\]]*)/.*</code>
+                             </entry>
+                            <entry>
+                                <para> This regular expression generates cache keys from the second-tier
                                     resource in a given request URI. This is useful for grouping child
-                                    resources under a shared rate limit. 
-                                </para>
+                                    resources under a shared rate limit. </para>
                                 <para> A service can require clients to use their account numbers as
-                                    part of the resource tree to their service resources. For a
-                                    client request formed like
-                                        <code>http://demo.com/service/12345-account/resource</code>,
+                                    part of the resource tree to their service resources. For a client
+                                    request formed like
+                                    <code>http://demo.com/service/12345-account/resource</code>,
                                     executing this regular expression against the client request
-                                    extracts <code>12345-account</code>. The Rate Limiting component
-                                    can use this extracted information as a unique identifier to
-                                    ensure that all of the recorded rate limits belong only to this
-                                    client. </para>
+                                    extracts <code>12345-account</code>. The Rate Limiting component can
+                                    use this extracted information as a unique identifier to ensure that
+                                    all of the recorded rate limits belong only to this client. </para>
                             </entry>
                         </row>
                     </tbody>

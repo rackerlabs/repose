@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
+<!-- TODO: I think we can delete this config file.  The rpm maven generates pulls this file from
+  versioning/src/main/resources/META-INF/schema/examples/versioning.cfg.xml.  Since we will use the rpm
+  for setting up the automated test environment I think we can delete this file and then we will only have
+  the versioning.cfg.xml file in one location.  -->
 <versioning xmlns="http://docs.rackspacecloud.com/power-api/versioning/v1.0">    
     <service-root href="http://localhost:8080/" />
    

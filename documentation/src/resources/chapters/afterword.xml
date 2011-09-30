@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book [
-<!-- product name is likely to change; parameterize full name and abbreviation -->
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
 <!ENTITY PRODNAME "Power API">
 <!ENTITY PRODABBREV "PAPI">
+<!ENTITY PRODEXPAND "Rackspace Cloud Power Application Program Interface (API)">
 ]>
 <chapter xmlns="http://docbook.org/ns/docbook"
     xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -19,8 +20,9 @@
     <section xml:id="Feedback-d1e992">
         <title>Feedback</title>
         <para> If you find errors in this document or have suggestions about how to improve it,
-            please let us know. You can contact the maintainer directly at "john dot hopper at
-            rackspace dot com". </para>
+            please let us know. You can contact the maintainer directly at
+            <emphasis>john.hopper@rackspace.com</emphasis>. 
+        </para>
     </section> 
     <section xml:id="References-d1e994">
         <title>References</title>
@@ -28,51 +30,10 @@
             These external documents are referenced in one or more &PRODNAME; documents and are relevant to all &PRODNAME; documents.
             Please <link linkend="Feedback-d1e992">contact us</link> if you discover that any of these links are invalid.
         </para>
-        <para>Because the individual authors and editors of this material are likely to be unnamed,
-            the bibliography is alphabetized according to the name of the publishing organization
-            and then by the title of the document.</para>
+        <para>Because the individual authors and editors of this material are sometimes unnamed, the
+            bibliography is alphabetized according to the title of the document.</para>
         <bibliography>
             <title>Bibliography</title>
-            <biblioentry xml:id="RFC2616">
-                <author>
-                    <personname>
-                        <firstname>R.</firstname>
-                        <surname>Fielding et al</surname>
-                        <othername role="mi"></othername>
-                    </personname>
-                </author>
-                <orgname>
-                    Internet Engineering Task Force, Network Working Group
-                </orgname>
-                <title>Hypertext Transfer Protocol -- HTTP/1.1: Status Code Definitions 
-                    <link xlink:href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html">http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html</link>
-                </title>
-                <abstract>
-                    <para>
-                        HTTP status codes returned by &PRODNAME; are fully documented here.
-                    </para>
-                </abstract>
-            </biblioentry>
-            <biblioentry xml:id="RFC2046">
-                <author>
-                    <personname>
-                        <firstname>R.</firstname>
-                        <surname>Fielding et al</surname>
-                        <othername role="mi"></othername>
-                    </personname>
-                </author>
-                <orgname>
-                    Internet Engineering Task Force, Network Working Group
-                </orgname>
-                <title>Multipurpose Internet Mail Extensions (MIME) Part Two: Media Types 
-                    <link xlink:href="http://tools.ietf.org/html/rfc2046/">http://tools.ietf.org/html/rfc2046/</link>
-                </title>
-                <abstract>
-                    <para>
-                        The Versioning component uses MIME types to describe the media types associated with version mappings.
-                    </para>
-                </abstract>
-            </biblioentry>
             <biblioentry xml:id="RFC4287">
                 <author>
                     <personname>
@@ -91,8 +52,9 @@
                 <orgname>
                     Internet Engineering Task Force, Network Working Group
                 </orgname>
-                <title>The Atom Syndication Format
-                    <link xlink:href="http://tools.ietf.org/html/rfc4287/">http://tools.ietf.org/html/rfc4287/</link>
+                <title>Atom Syndication Format, The <link
+                    xlink:href="http://tools.ietf.org/html/rfc4287/"
+                    >http://tools.ietf.org/html/rfc4287/</link>
                 </title>   
                 <abstract>
                     <para>
@@ -122,35 +84,54 @@
                         <othername role="mi">N</othername>
                     </personname>
                 </author>
-            <orgname>
-                OpenStack
-            </orgname>
-            <title>Authentication in OpenStack
-                <link xlink:href="http://wiki.openstack.org/openstack-authn">http://wiki.openstack.org/openstack-authn</link>
-            </title>   
-            <abstract>
-                <para>
-                    &PRODNAME;'s Authentication component complies with this specification.
-                </para>
-            </abstract>
+                <orgname>
+                    OpenStack
+                </orgname>
+                <title>Authentication in OpenStack
+                    <link xlink:href="http://wiki.openstack.org/openstack-authn">http://wiki.openstack.org/openstack-authn</link>
+                </title>   
+                <abstract>
+                    <para>
+                        &PRODNAME;'s Authentication component complies with this specification.
+                    </para>
+                </abstract>
             </biblioentry>
-            <biblioentry xml:id="OSXSD">
+            <biblioentry xml:id="EAIPATTERNS">
                 <author>
                     <personname>
-                        <firstname></firstname>
-                        <surname></surname>
+                        <firstname>Gregor</firstname>
+                        <surname>Hohpe</surname>
                         <othername role="mi"></othername>
                     </personname>
                 </author>
                 <orgname>
-                    OpenStack
                 </orgname>
-                <title>XML Schema Definition (XSD)
-                    <link xlink:href="http://docs.openstack.org/common/api/v1.0">http://docs.openstack.org/common/api/v1.0</link>
-                </title>    
+                <title>Enterprise Integration Patterns 
+                    <link xlink:href="http://www.eaipatterns.com/toc.html">http://www.eaipatterns.com/toc.html</link>
+                </title>
                 <abstract>
                     <para>
-                        This namespace is reserved for requests that do not vary among OpenStack APIs. Versioning, rate limiting, and extensions are examples of such requests.
+                        &PRODNAME; uses integration patterns defined here.
+                    </para>
+                </abstract>
+            </biblioentry>
+            <biblioentry xml:id="RFC2616">
+                <author>
+                    <personname>
+                        <firstname>R.</firstname>
+                        <surname>Fielding et al</surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    Internet Engineering Task Force, Network Working Group
+                </orgname>
+                <title>Hypertext Transfer Protocol -- HTTP/1.1: Status Code Definitions 
+                    <link xlink:href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html">http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html</link>
+                </title>
+                <abstract>
+                    <para>
+                        HTTP status codes returned by &PRODNAME; are fully documented here.
                     </para>
                 </abstract>
             </biblioentry>
@@ -174,6 +155,26 @@
                     </para>
                 </abstract>
             </biblioentry>
+            <biblioentry xml:id="RFC2046">
+                <author>
+                    <personname>
+                        <firstname>R.</firstname>
+                        <surname>Fielding et al</surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    Internet Engineering Task Force, Network Working Group
+                </orgname>
+                <title>Multipurpose Internet Mail Extensions (MIME) Part Two: Media Types 
+                    <link xlink:href="http://tools.ietf.org/html/rfc2046/">http://tools.ietf.org/html/rfc2046/</link>
+                </title>
+                <abstract>
+                    <para>
+                        The Versioning component uses MIME types to describe the media types associated with version mappings.
+                    </para>
+                </abstract>
+            </biblioentry>
             <biblioentry xml:id="RAXCAUTH">
                 <author>
                     <personname>
@@ -191,6 +192,26 @@
                     <abstract>
                     <para>
                         This is an example of documentation describing a specific authentication service; consult the equivalent documentation describing the authentication service you use.
+                    </para>
+                </abstract>
+            </biblioentry>
+            <biblioentry xml:id="OSXSD">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    OpenStack
+                </orgname>
+                <title>XML Schema Definition (XSD)
+                    <link xlink:href="http://docs.openstack.org/common/api/v1.0">http://docs.openstack.org/common/api/v1.0</link>
+                </title>    
+                <abstract>
+                    <para>
+                        This namespace is reserved for requests that do not vary among OpenStack APIs. Versioning, rate limiting, and extensions are examples of such requests.
                     </para>
                 </abstract>
             </biblioentry>

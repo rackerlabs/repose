@@ -56,6 +56,8 @@ public class HeaderManagerImpl implements HeaderManager {
 
             @Override
             public void addHeader(String key, String[] values) {
+                request.removeHeader(key);
+                
                 for (String value : values) {
                     request.addHeader(key, value);
                 }

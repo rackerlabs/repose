@@ -130,40 +130,21 @@
     
     <profiles>
         <profile>
-            <id>build-rpm</id>
-            
+            <id>Build Filter Bundle RPM</id>
+                        
             <activation>
-                <activeByDefault>false</activeByDefault>
+                <property>
+                    <name>build-system-packages</name>
+                </property>
             </activation>
-            
+        
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
-                        <version>2.1-alpha-1</version>
-                
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>rpm</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                
-                        <configuration>
-                            <group>Rackspace - Cloud Integration Team</group>
-                    
-                            <description>
-                                Power API is a stack of reusable, software components 
-                                that can be leveraged by service developers to perform 
-                                common API processing tasks.
-
-                                Source code: https://source.admin.stabletransit.com/thesystem/API/api-auth/trunk/
-                            </description>
-                    
-                            <copyright>Apache License, Version 2.0</copyright>
-                    
+            
+                        <configuration>                   
                             <mappings>
                                 <mapping>
                                     <directory>/usr/share/powerapi/filters</directory>
@@ -184,13 +165,12 @@
                                     <groupname>tomcat7</groupname>
                                     <filemode>755</filemode>
                                     
-                                    <!-- TODO: One of these days we should standardize on where to put sane example configurations -->
                                     <sources>
                                         <source>
-                                            <location>../versioning/src/test/resources/META-INF/schema/examples/xml/versioning.cfg.xml</location>
+                                            <location>../versioning/src/main/resources/META-INF/schema/examples/versioning.cfg.xml</location>
                                         </source>
                                         <source>
-                                            <location>../client-auth/src/test/resources/META-INF/xsd/client-auth-n.cfg.xml</location>
+                                            <location>../client-auth/src/main/resources/META-INF/schema/examples/client-auth-n.cfg.xml</location>
                                         </source>
                                         <source>
                                             <location>../rate-limiting/src/main/resources/META-INF/schema/examples/rate-limiting.cfg.xml</location>
@@ -206,6 +186,6 @@
                     </plugin>
                 </plugins>
             </build>
-        </profile>
+        </profile>        
     </profiles>
 </project>

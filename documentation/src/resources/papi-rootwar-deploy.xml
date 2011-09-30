@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book [
-    <!-- product name is likely to change; parameterize full name and abbreviation -->
-    <!ENTITY PRODNAME "Power API">
-    <!ENTITY PRODABBREV "PAPI">
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+<!ENTITY PRODNAME "Power API">
+<!ENTITY PRODABBREV "PAPI">
+<!ENTITY PRODEXPAND "Rackspace Cloud Power Application Program Interface (API)">
     <!-- Some useful entities borrowed from HTML -->
     <!ENTITY ndash  "&#x2013;">
     <!ENTITY mdash  "&#x2014;">
@@ -68,8 +69,7 @@
         </legalnotice>
         <abstract>
             <para>This document is intended for systems administrators interested in configuring
-                their service to use the Root.WAR of the Rackspace Cloud Power Application Program
-                Interface (<abbrev>API</abbrev>). </para>
+                their service to use the Root.WAR of the &PRODEXPAND;. </para>
         </abstract>
     </info>
     <chapter xml:id="Overview-d1e85">

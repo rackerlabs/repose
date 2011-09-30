@@ -4,7 +4,8 @@
     <request-endpoint uri-regex="/service/limits/" 
         include-absolute-limits="true" />
     
-    <limit-group id="customer-limits" groups="customer" default="true">
+    <limit-group id="customer-limits" 
+        groups="customer" default="true">
         <limit uri="/service/*" uri-regex="/service/([\d^/]*)/.*" 
             http-methods="GET" unit="SECOND" value="1" />
         <limit uri="/service/*" uri-regex="/service/([\d^/]*)/.*" 
@@ -15,7 +16,8 @@
             http-methods="POST" unit="DAY" value="2" />
     </limit-group>
     
-    <limit-group id="admin-limits" roles="admin">
+    <limit-group id="admin-limits" 
+        groups="admin">
         <limit uri="/service/admin/*" uri-regex="/service/admin/(.*)" 
             http-methods="GET POST PUT DELETE" unit="SECOND" value="1" />
     </limit-group>
