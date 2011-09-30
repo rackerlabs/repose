@@ -51,7 +51,7 @@
     
     <profiles>
         <profile>
-            <id>RPM Build Support</id>
+            <id>Build ROOT Web Application RPM</id>
                         
             <activation>
                 <property>

@@ -2,19 +2,19 @@
 <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
     <servlet>
         <servlet-name>mockTokenServlet</servlet-name>
-        <servlet-class>com.testing.testsupport.mockTokenServlet</servlet-class>
+        <servlet-class>com.rackspace.tests.testSupport.mockTokenServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>mockGetGroupsServlet</servlet-name>
-        <servlet-class>com.testing.testsupport.mockGetGroupsServlet</servlet-class>
+        <servlet-class>com.rackspace.tests.testSupport.mockGetGroupsServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>limits</servlet-name>
-        <servlet-class>com.testing.testsupport.limits</servlet-class>
+        <servlet-class>com.rackspace.tests.testSupport.limits</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>landingServlet</servlet-name>
-        <servlet-class>com.testing.testsupport.landingServlet</servlet-class>
+        <servlet-class>com.rackspace.tests.testSupport.landingServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>mockTokenServlet</servlet-name>
