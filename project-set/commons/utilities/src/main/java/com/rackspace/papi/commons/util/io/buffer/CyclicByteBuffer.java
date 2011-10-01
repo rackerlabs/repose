@@ -26,6 +26,13 @@ public class CyclicByteBuffer implements ByteBuffer {
     }
 
     @Override
+    public void clear() {
+        nextReadableIndex = 0;
+        nextWritableIndex = 0;
+        hasElements = false;
+    }
+
+    @Override
     public int skip(int len) {
         int bytesSkipped = len;
 
@@ -34,11 +41,14 @@ public class CyclicByteBuffer implements ByteBuffer {
 
             nextReadableIndex = 0;
             nextWritableIndex = 0;
-            hasElements = false;
         } else {
             nextReadableIndex = nextReadableIndex + len < buffer.length
                     ? nextReadableIndex + len
                     : len - (buffer.length - nextReadableIndex);
+        }
+        
+        if (nextReadableIndex == nextWritableIndex) {
+            hasElements = false;
         }
 
         return bytesSkipped;

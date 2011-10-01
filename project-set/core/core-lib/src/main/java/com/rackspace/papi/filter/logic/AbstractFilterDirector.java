@@ -11,6 +11,16 @@ public class AbstractFilterDirector implements FilterDirector {
     private static final String NOT_SUPPORTED_MESSAGE = "This FilterDirector method is not supported";
 
     @Override
+    public String getRequestUri() {
+        throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
+    }
+
+    @Override
+    public StringBuffer getRequestUrl() {
+        throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
+    }
+
+    @Override
     public void applyTo(MutableHttpServletRequest request) {
         throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
     }

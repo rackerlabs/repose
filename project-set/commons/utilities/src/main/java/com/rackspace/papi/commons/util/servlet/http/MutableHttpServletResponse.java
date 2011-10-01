@@ -55,6 +55,13 @@ public final class MutableHttpServletResponse extends HttpServletResponseWrapper
     }
 
     @Override
+    public void resetBuffer() {
+        internalBuffer.clear();
+        
+        super.resetBuffer();
+    }
+    
+    @Override
     public int getBufferSize() {
         return internalBuffer.available() + internalBuffer.remaining();
     }

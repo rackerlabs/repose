@@ -11,6 +11,11 @@ public class SynchronizedByteBuffer implements ByteBuffer {
     }
 
     @Override
+    public synchronized void clear() {
+        internalBuffer.clear();
+    }
+
+    @Override
     public synchronized int skip(int bytes) {
         return internalBuffer.skip(bytes);
     }
