@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.versioning.domain;
 
-import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.commons.util.StringUriUtilities;
 import com.rackspace.papi.commons.util.http.HttpRequestInfo;
 import com.rackspace.papi.commons.util.http.UniformResourceInfo;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
@@ -30,20 +30,20 @@ public class VersionedRequest {
     }
 
     public boolean isRequestForRoot() {
-        return StringUtilities.formatUri(requestInfo.getUri()).isEmpty();
+        return StringUriUtilities.formatUri(requestInfo.getUri()).isEmpty();
     }
 
     public boolean requestBelongsToVersionMapping() {
-        final String requestedUri = StringUtilities.formatUri(requestInfo.getUri());
-        final String versionUri = StringUtilities.formatUri(mapping.getId());
+        final String requestedUri = StringUriUtilities.formatUri(requestInfo.getUri());
+        final String versionUri = StringUriUtilities.formatUri(mapping.getId());
         
         return indexOfUriFragment(requestedUri, versionUri) == 0;
     }
 
     public boolean requestMatchesVersionMapping() {
-        final String requestedUri = StringUtilities.formatUri(requestInfo.getUri());
+        final String requestedUri = StringUriUtilities.formatUri(requestInfo.getUri());
 
-        return requestedUri.equals(StringUtilities.formatUri(mapping.getId()));
+        return requestedUri.equals(StringUriUtilities.formatUri(mapping.getId()));
     }
 
     public String asExternalURL() {
@@ -63,8 +63,8 @@ public class VersionedRequest {
     }
 
     public boolean uriRequiresRewrite() {
-        final String formattedUri = StringUtilities.formatUri(requestInfo.getUri());
-        final String formattedReplacement = StringUtilities.formatUri(mapping.getContextPath());
+        final String formattedUri = StringUriUtilities.formatUri(requestInfo.getUri());
+        final String formattedReplacement = StringUriUtilities.formatUri(mapping.getContextPath());
 
         final int replacementIndex = formattedUri.indexOf(formattedReplacement + "/");
 
@@ -96,9 +96,9 @@ public class VersionedRequest {
             throw new IllegalArgumentException("Request URI must be a URI with a root reference - i.e. the URI must start with '/'");
         }
 
-        final StringBuilder uriBuilder = new StringBuilder(StringUtilities.formatUri(requestInfo.getUri()));
-        final String formattedReplacement = StringUtilities.formatUri(replacement);
-        final String formattedOriginal = StringUtilities.formatUri(original);
+        final StringBuilder uriBuilder = new StringBuilder(StringUriUtilities.formatUri(requestInfo.getUri()));
+        final String formattedReplacement = StringUriUtilities.formatUri(replacement);
+        final String formattedOriginal = StringUriUtilities.formatUri(original);
 
         final int originalIndex = indexOfUriFragment(uriBuilder, formattedOriginal);
         final int replacementIndex = indexOfUriFragment(uriBuilder, formattedReplacement);

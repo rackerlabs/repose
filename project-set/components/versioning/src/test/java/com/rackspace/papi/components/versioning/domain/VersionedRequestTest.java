@@ -35,34 +35,6 @@ public class VersionedRequestTest {
         }
     }
     
-    public static class WhenIdentifyingUriFragments {
-        @Test
-        public void shouldIdentifyRootFragments() {
-            assertEquals(0, VersionedRequest.indexOfUriFragment("/v1", "/v1"));
-            assertEquals(0, VersionedRequest.indexOfUriFragment("/v1/", "/v1"));
-        }
-        
-        @Test
-        public void shouldIdentifyPrependedFragments() {
-            assertEquals(0, VersionedRequest.indexOfUriFragment("/v1/requested/uri", "/v1"));
-        }
-        
-        @Test
-        public void shouldIdentifyEmbeddedFragments() {
-            assertEquals(10, VersionedRequest.indexOfUriFragment("/versioned/v1/requested/uri", "/v1"));
-        }
-        
-        @Test
-        public void shouldIdentifyAppendedFragments() {
-            assertEquals(24, VersionedRequest.indexOfUriFragment("/requested/uri/versioned/v1", "/v1"));
-        }
-        
-        @Test
-        public void shouldNotIdentifyPartiallyMatchingEmbeddedFragments() {
-            assertEquals(-1, VersionedRequest.indexOfUriFragment("/versioned/v12/requested/uri", "/v1"));
-        }
-    }
-
     public static class WhenIdentifyingVersionsInRequestUris extends TestParent {
         @Test
         public void shouldIdentifyVersion() {

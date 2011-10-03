@@ -13,19 +13,6 @@ import static org.junit.Assert.*;
 @RunWith(Enclosed.class)
 public class StringUtilitiesTest {
 
-    public static class WhenFormattingURIs {
-
-        @Test
-        public void shouldAddRootReference() {
-            assertEquals("Should add a root reference to a URI", "/a/resource", StringUtilities.formatUri("a/resource"));
-        }
-
-        @Test
-        public void shouldRemoveTrailingSlash() {
-            assertEquals("Should remove trailing slashes from a URI", "/a/resource", StringUtilities.formatUri("/a/resource/"));
-        }
-    }
-
     public static class WhenJoiningStrings {
 
         @Test

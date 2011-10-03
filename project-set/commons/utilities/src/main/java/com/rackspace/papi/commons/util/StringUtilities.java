@@ -55,33 +55,4 @@ public final class StringUtilities {
     public static boolean nullSafeEqualsIgnoreCase(String one, String two) {
         return one == null ? (two == null) : (two != null) && one.equalsIgnoreCase(two);
     }
-    
-    /**
-     * Formats a URI by adding a forward slash and removing the last forward
-     * slash from the URI.
-     * 
-     * e.g. some/random/uri/    -> /some/random/uri
-     * e.g. some/random/uri     -> /some/random/uri
-     * e.g. /some/random/uri/   -> /some/random/uri
-     * 
-     * @param uri
-     * @return 
-     */
-    public static String formatUri(String uri) {
-        if (StringUtilities.isBlank(uri)) {
-            return "";
-        }
-
-        final StringBuilder externalName = new StringBuilder(uri);
-
-        if (externalName.charAt(0) != '/') {
-            externalName.insert(0, "/");
-        }
-
-        if (externalName.charAt(externalName.length() - 1) == '/') {
-            externalName.deleteCharAt(externalName.length() - 1);
-        }
-
-        return externalName.toString();
-    }
 }
