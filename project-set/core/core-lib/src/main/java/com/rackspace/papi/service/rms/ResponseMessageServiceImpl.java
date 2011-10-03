@@ -37,6 +37,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
 
     private static final Logger LOG = LoggerFactory.getLogger(ResponseMessageServiceImpl.class);
     private static final Pattern URI_PATTERN = Pattern.compile(":\\/\\/");
+    private final UpdateListener<ResponseMessagingConfiguration> updateMessageConfig;
     private final List<StatusCodeMatcher> statusCodeMatcherList;
     private final Map<String, Pattern> statusCodeRegexes;
     private final Map<String, HttpLogFormatter> formatTemplates;
@@ -52,33 +53,34 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         read = new Object();
         update = new Object();
 
+        // Modern java programming. No one ever said it was pretty.
+        updateMessageConfig = new UpdateListener<ResponseMessagingConfiguration>() {
+
+            @Override
+            public void configurationUpdated(ResponseMessagingConfiguration configurationObject) {
+                configurationLock.lock(update);
+
+                try {
+                    statusCodeMatcherList.clear();
+                    statusCodeMatcherList.addAll(configurationObject.getStatusCode());
+
+                    formatTemplates.clear();
+
+                    for (StatusCodeMatcher code : statusCodeMatcherList) {
+                        statusCodeRegexes.put(code.getId(), Pattern.compile(code.getCodeRegex()));
+                    }
+                } finally {
+                    configurationLock.unlock(update);
+                }
+            }
+        };
+
         configurationService.subscribeTo("response-messaging.cfg.xml", updateMessageConfig, ResponseMessagingConfiguration.class);
     }
-    // Modern java programming. No one ever said it was pretty.
-    private final UpdateListener<ResponseMessagingConfiguration> updateMessageConfig = new UpdateListener<ResponseMessagingConfiguration>() {
-
-        @Override
-        public void configurationUpdated(ResponseMessagingConfiguration configurationObject) {
-            configurationLock.lock(update);
-
-            try {
-                statusCodeMatcherList.clear();
-                statusCodeMatcherList.addAll(configurationObject.getStatusCode());
-
-                formatTemplates.clear();
-
-                for (StatusCodeMatcher code : statusCodeMatcherList) {
-                    statusCodeRegexes.put(code.getId(), Pattern.compile(code.getCodeRegex()));
-                }
-            } finally {
-                configurationLock.unlock(update);
-            }
-        }
-    };
 
     @Override
     public void destroy() {
-        //Nothing that a good de-referencing can't clean up.
+        // Nothing that a good de-referencing can't clean up.
     }
 
     @Override
@@ -102,7 +104,6 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
             final Message statusCodeMessage = getMatchingStatusCodeMessage(matchedCode, preferedMediaRange);
 
             if (statusCodeMessage != null) {
-
                 if (!statusCodeMessage.isPrependOrigin()) {
                     response.resetBuffer();
                 }

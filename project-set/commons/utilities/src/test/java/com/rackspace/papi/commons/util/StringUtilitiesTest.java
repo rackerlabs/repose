@@ -1,6 +1,5 @@
 package com.rackspace.papi.commons.util;
 
-import com.rackspace.papi.commons.util.StringUtilities;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -13,7 +12,9 @@ import static org.junit.Assert.*;
  */
 @RunWith(Enclosed.class)
 public class StringUtilitiesTest {
+
     public static class WhenJoiningStrings {
+
         @Test
         public void shouldJoinTwoStrings() {
             String expected, actual;
@@ -162,6 +163,7 @@ public class StringUtilitiesTest {
     }
 
     public static class WhenPerformingNullSafeEquals {
+
         @Test
         public void shouldReturnFalseIfFirstStringIsNull() {
             String one = null;
