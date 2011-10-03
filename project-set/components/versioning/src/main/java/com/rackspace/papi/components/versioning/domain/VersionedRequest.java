@@ -35,8 +35,9 @@ public class VersionedRequest {
 
     public boolean requestBelongsToVersionMapping() {
         final String requestedUri = StringUtilities.formatUri(requestInfo.getUri());
-
-        return requestedUri.startsWith(StringUtilities.formatUri(mapping.getId()));
+        final String versionUri = StringUtilities.formatUri(mapping.getId());
+        
+        return indexOfUriFragment(requestedUri, versionUri) == 0;
     }
 
     public boolean requestMatchesVersionMapping() {
@@ -69,7 +70,27 @@ public class VersionedRequest {
 
         return replacementIndex < 0;
     }
-
+    
+    public static int indexOfUriFragment(String uri, String uriFragment) {
+        final int index = uri.indexOf(uriFragment);
+        
+        if (uri.length() > uriFragment.length() + index) {
+            return uri.charAt(index + uriFragment.length()) == '/' ? index : -1;
+        }
+        
+        return index;
+    }    
+    
+    public static int indexOfUriFragment(StringBuilder uri, String uriFragment) {
+        final int index = uri.indexOf(uriFragment);
+        
+        if (uri.length() > uriFragment.length() + index) {
+            return uri.charAt(index + uriFragment.length()) == '/' ? index : -1;
+        }
+        
+        return index;
+    }
+    
     private String updateURI(UniformResourceInfo requestInfo, String original, String replacement) {
         if (requestInfo.getUri().charAt(0) != '/') {
             throw new IllegalArgumentException("Request URI must be a URI with a root reference - i.e. the URI must start with '/'");
@@ -79,8 +100,8 @@ public class VersionedRequest {
         final String formattedReplacement = StringUtilities.formatUri(replacement);
         final String formattedOriginal = StringUtilities.formatUri(original);
 
-        final int originalIndex = uriBuilder.indexOf(formattedOriginal + "/");
-        final int replacementIndex = uriBuilder.indexOf(formattedReplacement + "/");
+        final int originalIndex = indexOfUriFragment(uriBuilder, formattedOriginal);
+        final int replacementIndex = indexOfUriFragment(uriBuilder, formattedReplacement);
 
         if (replacementIndex < 0) {
             if (originalIndex < 0) {
@@ -93,5 +114,4 @@ public class VersionedRequest {
 
         return uriBuilder.toString();
     }
-
 }

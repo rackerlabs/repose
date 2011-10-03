@@ -32,6 +32,14 @@ public class CyclicByteBufferTest {
             buffer.skip(256);
             assertEquals("Trailing byte after skipping must match expected", 100, buffer.get());
         }
+
+        @Test
+        public void shouldAllBytes() throws IOException {
+            buffer.put(new byte[256]);
+
+            buffer.skip(256);
+            assertEquals("Trailing byte after skipping must match expected", 100, buffer.get());
+        }
     }
 
     public static class WhenPutting {
