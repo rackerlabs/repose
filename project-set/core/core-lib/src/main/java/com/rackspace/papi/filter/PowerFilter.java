@@ -29,10 +29,9 @@ import java.util.List;
 public class PowerFilter extends ApplicationContextAwareFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
-    
     private final EventListener<ApplicationDeploymentEvent, String> applicationDeploymentListener;
     private final UpdateListener<PowerProxy> systemModelConfigurationListener;
-    
+    private boolean firstInitialization;
     private List<FilterContext> filterChain;
     private ContextAdapter papiContext;
     private PowerProxy currentSystemModel;
@@ -41,9 +40,13 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     public PowerFilter() {
         KeyedStackLock updateLock = new KeyedStackLock();
         Object updateKey = new Object();
+        firstInitialization = true;
+
         filterChain = new LinkedList<FilterContext>();
 
         systemModelConfigurationListener = new LockedConfigurationUpdater<PowerProxy>(updateLock, updateKey) {
+
+            final Object internalLock = new Object();
 
             @Override
             public void onConfigurationUpdated(PowerProxy configurationObject) {
@@ -52,7 +55,15 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                 // This event must be fired only after we have finished configuring the system.
                 // This prevents a race condition illustrated below where the application
                 // deployment event is caught but does nothing due to a null configuration
-                papiContext.eventService().newEvent(PowerFilterEvent.POWER_FILTER_INITIALIZED, System.currentTimeMillis());
+                synchronized (internalLock) {
+                    if (firstInitialization) {
+                        firstInitialization = false;
+                        papiContext.eventService().newEvent(PowerFilterEvent.POWER_FILTER_INITIALIZED, System.currentTimeMillis());
+                    } else {
+                        final List<FilterContext> newFilterChain = new PowerFilterChainBuilder(filterConfig).build(papiContext.classLoader(), currentSystemModel);
+                        updateFilterList(newFilterChain);
+                    }
+                }
             }
         };
 
@@ -69,9 +80,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                 }
             }
         };
-    }
-    
-    // This is written like this in case requests are already processing against the
+    } // This is written like this in case requests are already processing against the
     // existing filterChain.  If that is the case we create a new one for the deployment
     // update but the old list stays in memory as the garbage collector won't clean
     // it up until all RequestFilterChainState objects are no longer referencing it.
@@ -79,9 +88,9 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     private synchronized void updateFilterList(List<FilterContext> newFilterChain) {
         this.filterChain = new LinkedList<FilterContext>(newFilterChain);
     }
-    
+
     protected PowerProxy getCurrentSystemModel() {
-      return currentSystemModel;
+        return currentSystemModel;
     }
 
     @Override
@@ -119,7 +128,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
             mutableHttpResponse.setStatus(HttpStatusCode.BAD_GATEWAY.intValue());
 
             LOG.error("Exception encountered while processing filter chain", t);
-        }finally {
+        } finally {
             papiContext.responseMessageService().handle(mutableHttpRequest, mutableHttpResponse);
 
             mutableHttpResponse.flushBuffer();

@@ -3,6 +3,7 @@ package com.rackspace.papi.components.cnorm.normalizer;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.components.normalization.config.MediaType;
+import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -38,7 +39,7 @@ public class MediaTypeNormalizer {
         // The preferred media type should only be null if there were no media types specified
         if (preferredMediaType != null) {
             final boolean requestHasAcceptHeader = request.getHeader(CommonHttpHeader.ACCEPT.headerKey()) != null;
-            final MediaType requestedVariantMediaType = getMediaTypeForVariant(request);
+            final MediaType requestedVariantMediaType = getMediaTypeForVariant(request, director);
             
             if (requestedVariantMediaType != null) {
                 director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.headerKey(), requestedVariantMediaType.getName());
@@ -48,7 +49,7 @@ public class MediaTypeNormalizer {
         }
     }
 
-    public MediaType getMediaTypeForVariant(HttpServletRequest request) {
+    public MediaType getMediaTypeForVariant(HttpServletRequest request, FilterDirector director) {
         final Matcher variantMatcher = VARIANT_EXTRACTOR_REGEX.matcher(request.getRequestURI());
 
         if (variantMatcher.find()) {
@@ -58,6 +59,16 @@ public class MediaTypeNormalizer {
                 final String variantExtension = formatVariant(mediaType.getVariantExtension());
 
                 if (StringUtilities.isNotBlank(variantExtension) && requestedVariant.equalsIgnoreCase(variantExtension)) {
+                    final int uriExtensionIndex = request.getRequestURI().lastIndexOf(requestedVariant);
+                    final int urlExtensionIndex = request.getRequestURL().lastIndexOf(requestedVariant);
+                    
+                    if (uriExtensionIndex > 0 && urlExtensionIndex >0) {
+                        final StringBuilder uriBuilder = new StringBuilder(request.getRequestURI());
+                        
+                        director.setRequestUri(uriBuilder.delete(uriExtensionIndex, uriExtensionIndex + requestedVariant.length()).toString());
+                        director.setRequestUrl(request.getRequestURL().delete(urlExtensionIndex, urlExtensionIndex + requestedVariant.length()));
+                    }
+                    
                     return mediaType;
                 }
             }

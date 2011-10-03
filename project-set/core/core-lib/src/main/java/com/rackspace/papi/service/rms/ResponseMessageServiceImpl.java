@@ -54,7 +54,6 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
 
         configurationService.subscribeTo("response-messaging.cfg.xml", updateMessageConfig, ResponseMessagingConfiguration.class);
     }
-    
     // Modern java programming. No one ever said it was pretty.
     private final UpdateListener<ResponseMessagingConfiguration> updateMessageConfig = new UpdateListener<ResponseMessagingConfiguration>() {
 
@@ -102,18 +101,21 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
             final MediaRange preferedMediaRange = requestInfo.getPreferedMediaRange();
             final Message statusCodeMessage = getMatchingStatusCodeMessage(matchedCode, preferedMediaRange);
 
-            if (!statusCodeMessage.isPrependOrigin()) {
-                response.resetBuffer();
+            if (statusCodeMessage != null) {
+
+                if (!statusCodeMessage.isPrependOrigin()) {
+                    response.resetBuffer();
+                }
+
+                final HttpLogFormatter formatter = getFormatter(matchedCode, statusCodeMessage);
+
+                if (formatter != null) {
+                    //Write the content type header and then write out our content
+                    response.setHeader(CommonHttpHeader.CONTENT_TYPE.headerKey(), preferedMediaRange.getMediaType().toString());
+                    response.getWriter().append(formatter.format(message, request, response).trim());
+
+                } // else{} TODO:Implement This is an error case. Formatters should never be null if they are configured.
             }
-
-            final HttpLogFormatter formatter = getFormatter(matchedCode, statusCodeMessage);
-
-            if (formatter != null) {
-                //Write the content type header and then write out our content
-                response.setHeader(CommonHttpHeader.CONTENT_TYPE.headerKey(), preferedMediaRange.getMediaType().toString());
-                response.getWriter().append(formatter.format(message, request, response).trim());
-
-            } // else{} TODO:Implement This is an error case. Formatters should never be null if they are configured.
         }
     }
 
