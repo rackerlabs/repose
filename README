@@ -1,0 +1,9 @@
+Power API is an open-source platform that you can use to build stacks of reusable software
+components. These components can be leveraged by service developers to perform
+common API processing tasks. By using Power API's components rather than creating their
+own, service developers can focus on the unique features of their services.
+
+Power API can be used inside a service to perform API operations. It can also run on one or
+more separate servers as a proxy to one or more services. At its core, Power API is a proxy
+that allows services to use Enterprise Integration Patterns (EIP).
+
