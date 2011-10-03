@@ -6,6 +6,7 @@ import com.rackspace.papi.service.event.Event;
 import com.rackspace.papi.service.event.listener.EventListener;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -30,7 +31,7 @@ public class PowerApiUpdateManagerEventListener implements EventListener<Configu
     }
 
     public synchronized Map<Integer, ParserListenerPair> getListenerMap(String resourceName) {
-        final Map<Integer, ParserListenerPair> mapReference = listenerMap.get(resourceName);
+        final Map<Integer, ParserListenerPair> mapReference = new HashMap<Integer, ParserListenerPair>(listenerMap.get(resourceName));
 
         return Collections.unmodifiableMap(mapReference != null ? mapReference : Collections.EMPTY_MAP);
     }

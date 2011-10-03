@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.versioning;
 
 import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpRequestInfo;
 import com.rackspace.papi.commons.util.http.HttpRequestInfoImpl;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
@@ -42,7 +43,7 @@ public class VersioningHelper {
         final HttpRequestInfo httpRequestInfo = new HttpRequestInfoImpl(request);
         
         try {
-            final VersionedOriginService targetOriginService = configurationData.getOriginServiceForRequest(httpRequestInfo);
+            final VersionedOriginService targetOriginService = configurationData.getOriginServiceForRequest(httpRequestInfo, filterDirector);
 
             if (targetOriginService != null) {
                 final VersionedRequest versionedRequest = new VersionedRequest(

@@ -17,6 +17,10 @@ public interface FilterDirector {
 
     void setRequestUrl(StringBuffer newUrl);
 
+    String getRequestUri();
+
+    StringBuffer getRequestUrl();
+
     HeaderManager requestHeaderManager();
 
     HeaderManager responseHeaderManager();

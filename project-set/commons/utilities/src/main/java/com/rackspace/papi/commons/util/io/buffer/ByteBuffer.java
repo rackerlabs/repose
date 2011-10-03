@@ -22,5 +22,7 @@ public interface ByteBuffer extends Cloneable {
     
     int available();
     
+    void clear();
+    
     ByteBuffer copy();
 }

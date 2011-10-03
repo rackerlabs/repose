@@ -6,12 +6,14 @@ import com.rackspace.papi.commons.util.http.media.MediaRange;
 import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
 import com.rackspace.papi.commons.util.StringUtilities;
 
+import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.components.versioning.config.MediaType;
 import com.rackspace.papi.components.versioning.config.MediaTypeList;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 import com.rackspace.papi.components.versioning.schema.VersionChoice;
 import com.rackspace.papi.components.versioning.schema.VersionChoiceList;
 import com.rackspace.papi.components.versioning.util.VersionChoiceFactory;
+import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.model.Host;
 
 import java.util.Collection;
@@ -55,15 +57,17 @@ public class ConfigurationData {
         return host;
     }
 
-    public VersionedOriginService getOriginServiceForRequest(HttpRequestInfo requestInfo) throws VersionedHostNotFoundException {
+    public VersionedOriginService getOriginServiceForRequest(HttpRequestInfo requestInfo, FilterDirector director) throws VersionedHostNotFoundException {
         // Check URI first to see if it matches configured host href
         VersionedOriginService destination = findOriginServiceByUri(requestInfo);
 
         // If version info not in URI look in accept header
         if (destination == null) {
-            final ServiceVersionMapping currentServiceVersion = getServiceVersionForMediaRange(requestInfo.getPreferedMediaRange());
+            final MediaRange range = requestInfo.getPreferedMediaRange();
+            final ServiceVersionMapping currentServiceVersion = getServiceVersionForMediaRange(range);
 
             if (currentServiceVersion != null) {
+                director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.headerKey(), range.getMediaType().toString());
                 destination = new VersionedOriginService(currentServiceVersion, getHostForVersionMapping(currentServiceVersion));
             }
         }

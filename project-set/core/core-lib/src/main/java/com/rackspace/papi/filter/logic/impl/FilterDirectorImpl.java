@@ -74,6 +74,16 @@ public class FilterDirectorImpl implements FilterDirector {
     }
 
     @Override
+    public String getRequestUri() {
+        return requestUri;
+    }
+
+    @Override
+    public StringBuffer getRequestUrl() {
+        return requestUrl;
+    }
+    
+    @Override
     public void setRequestUri(String newUri) {
         this.requestUri = newUri;
     }
