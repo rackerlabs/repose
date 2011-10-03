@@ -40,7 +40,7 @@
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
             <stringProp name="HTTPSampler.protocol"></stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-            <stringProp name="HTTPSampler.path">/service/limits</stringProp>
+            <stringProp name="HTTPSampler.path">/${version}/${username}/limits</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -73,22 +73,74 @@
           </hashTree>
         </hashTree>
       </hashTree>
+      <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="User Parameters" enabled="true">
+        <collectionProp name="UserParameters.names">
+          <stringProp name="-265713450">username</stringProp>
+          <stringProp name="-1423461112">accept</stringProp>
+          <stringProp name="351608024">version</stringProp>
+          <stringProp name="906743188">auth-token</stringProp>
+          <stringProp name="98629247">group</stringProp>
+        </collectionProp>
+        <collectionProp name="UserParameters.thread_values">
+          <collectionProp name="-1420596446">
+            <stringProp name="503843165">user-test1</stringProp>
+            <stringProp name="-1248326952">application/xml</stringProp>
+            <stringProp name="3707">v1</stringProp>
+            <stringProp name="-925926243">asdasdasd-adsasdads-asdasdasd-adsadsasd</stringProp>
+            <stringProp name="606175198">customer</stringProp>
+          </collectionProp>
+          <collectionProp name="-1935018116">
+            <stringProp name="503843166">user-test2</stringProp>
+            <stringProp name="-1248326952">application/xml</stringProp>
+            <stringProp name="3708">v2</stringProp>
+            <stringProp name="-503241867">now-is-the-time</stringProp>
+            <stringProp name="606175198">customer</stringProp>
+          </collectionProp>
+          <collectionProp name="1659408822">
+            <stringProp name="503843167">user-test3</stringProp>
+            <stringProp name="-43840953">application/json</stringProp>
+            <stringProp name="3707">v1</stringProp>
+            <stringProp name="76684575">my-third-test-user</stringProp>
+            <stringProp name="606175198">customer</stringProp>
+          </collectionProp>
+          <collectionProp name="-123889075">
+            <stringProp name="503843168">user-test4</stringProp>
+            <stringProp name="-43840953">application/json</stringProp>
+            <stringProp name="3708">v2</stringProp>
+            <stringProp name="-1442861776">dkshk-fdjke3-fdfjdk-21342</stringProp>
+            <stringProp name="1127932692">custome</stringProp>
+          </collectionProp>
+        </collectionProp>
+        <boolProp name="UserParameters.per_iteration">true</boolProp>
+      </UserParameters>
+      <hashTree/>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Rate Limiting" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <intProp name="LoopController.loops">-1</intProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">10</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">20</stringProp>
+        <stringProp name="ThreadGroup.num_threads">4</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">2</stringProp>
         <longProp name="ThreadGroup.start_time">1300822554000</longProp>
         <longProp name="ThreadGroup.end_time">1300822554000</longProp>
-        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <boolProp name="ThreadGroup.scheduler">true</boolProp>
         <stringProp name="ThreadGroup.duration">300</stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
       </ThreadGroup>
       <hashTree>
-        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="Node Information" enabled="true">
+        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="hosts info" enabled="true">
+          <stringProp name="filename">tmp/hosts.csv</stringProp>
+          <stringProp name="fileEncoding"></stringProp>
+          <stringProp name="variableNames">endpoint</stringProp>
+          <stringProp name="delimiter"></stringProp>
+          <boolProp name="quotedData">true</boolProp>
+          <boolProp name="recycle">true</boolProp>
+          <boolProp name="stopThread">false</boolProp>
+          <stringProp name="shareMode">All threads</stringProp>
+        </CSVDataSet>
+        <hashTree/>
+        <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="Node Information" enabled="false">
           <collectionProp name="Arguments.arguments">
             <elementProp name="node1" elementType="Argument">
               <stringProp name="Argument.name">node1</stringProp>
@@ -122,7 +174,7 @@
           <boolProp name="CounterConfig.per_user">false</boolProp>
         </CounterConfig>
         <hashTree/>
-        <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Node Counter" enabled="true">
+        <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Node Counter" enabled="false">
           <stringProp name="CounterConfig.start">1</stringProp>
           <stringProp name="CounterConfig.end">4</stringProp>
           <stringProp name="CounterConfig.incr">1</stringProp>
@@ -135,7 +187,7 @@
           <collectionProp name="Arguments.arguments">
             <elementProp name="targetPort" elementType="Argument">
               <stringProp name="Argument.name">targetPort</stringProp>
-              <stringProp name="Argument.value">65000</stringProp>
+              <stringProp name="Argument.value">8080</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
           </collectionProp>
@@ -147,7 +199,7 @@
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
-            <stringProp name="HTTPSampler.domain">${__V(node${nodeCounter})}</stringProp>
+            <stringProp name="HTTPSampler.domain">${endpoint}</stringProp>
             <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
@@ -161,15 +213,19 @@
             <collectionProp name="HeaderManager.headers">
               <elementProp name="" elementType="Header">
                 <stringProp name="Header.name">X-PP-User</stringProp>
-                <stringProp name="Header.value">user${userCounter}</stringProp>
+                <stringProp name="Header.value">${username}</stringProp>
               </elementProp>
               <elementProp name="" elementType="Header">
                 <stringProp name="Header.name">X-PP-Groups</stringProp>
-                <stringProp name="Header.value">customer</stringProp>
+                <stringProp name="Header.value">${group}</stringProp>
               </elementProp>
               <elementProp name="" elementType="Header">
                 <stringProp name="Header.name">Accept</stringProp>
                 <stringProp name="Header.value">application/xml</stringProp>
+              </elementProp>
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-Auth-Token</stringProp>
+                <stringProp name="Header.value">${auth-token}</stringProp>
               </elementProp>
             </collectionProp>
           </HeaderManager>
@@ -188,6 +244,27 @@
             <boolProp name="IfController.evaluateAll">false</boolProp>
           </IfController>
           <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Headers" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">X-PP-User</stringProp>
+                  <stringProp name="Header.value">${username}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">X-PP-Groups</stringProp>
+                  <stringProp name="Header.value">${group}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">${accept}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">X-Auth-Token</stringProp>
+                  <stringProp name="Header.value">${auth-token}</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Non-Limited Request" enabled="true">
               <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
                 <collectionProp name="Arguments.arguments"/>
@@ -198,11 +275,11 @@
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
               <stringProp name="HTTPSampler.protocol"></stringProp>
               <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-              <stringProp name="HTTPSampler.path">/service/12345-user${userCounter}/</stringProp>
+              <stringProp name="HTTPSampler.path">/${version}/${username}</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
               <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
               <stringProp name="HTTPSampler.implementation">Java</stringProp>
               <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
@@ -230,6 +307,27 @@
             <boolProp name="IfController.evaluateAll">false</boolProp>
           </IfController>
           <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Headers" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">X-PP-User</stringProp>
+                  <stringProp name="Header.value">${username}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">X-PP-Groups</stringProp>
+                  <stringProp name="Header.value">${group}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">${accept}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">X-Auth-Token</stringProp>
+                  <stringProp name="Header.value">${auth-token}</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Limited Request" enabled="true">
               <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
                 <collectionProp name="Arguments.arguments"/>
@@ -240,11 +338,11 @@
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
               <stringProp name="HTTPSampler.protocol"></stringProp>
               <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-              <stringProp name="HTTPSampler.path">/service/12345-user${userCounter}/</stringProp>
+              <stringProp name="HTTPSampler.path">/${version}/${username}</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
               <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
               <stringProp name="HTTPSampler.implementation">Java</stringProp>
               <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
@@ -267,6 +365,27 @@
               <stringProp name="WhileController.condition">${__javaScript(${remainingRequests} == 0)}</stringProp>
             </WhileController>
             <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Headers" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${username}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/xml</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-Auth-Token</stringProp>
+                    <stringProp name="Header.value">${auth-token}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
               <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Get Limits" enabled="true">
                 <collectionProp name="ModuleController.node_path">
                   <stringProp name="-1227702913">WorkBench</stringProp>
