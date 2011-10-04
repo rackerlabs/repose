@@ -1,0 +1,9 @@
+Package: [[name]]
+Version: [[version]]
+Section: misc
+Priority: optional
+Architecture: all
+Depends: sun-java6-jre
+Maintainer: REPOSE <reposedev@something.com>
+Description: REPOSE Jetty
+Distribution: development
