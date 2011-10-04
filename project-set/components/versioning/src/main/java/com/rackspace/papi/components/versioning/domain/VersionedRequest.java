@@ -3,7 +3,10 @@ package com.rackspace.papi.components.versioning.domain;
 import com.rackspace.papi.commons.util.StringUriUtilities;
 import com.rackspace.papi.commons.util.http.HttpRequestInfo;
 import com.rackspace.papi.commons.util.http.UniformResourceInfo;
+import com.rackspace.papi.commons.util.string.JCharSequenceFactory;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
+
+import static com.rackspace.papi.commons.util.StringUriUtilities.*;
 
 public class VersionedRequest {
 
@@ -37,7 +40,7 @@ public class VersionedRequest {
         final String requestedUri = StringUriUtilities.formatUri(requestInfo.getUri());
         final String versionUri = StringUriUtilities.formatUri(mapping.getId());
         
-        return indexOfUriFragment(requestedUri, versionUri) == 0;
+        return indexOfUriFragment(JCharSequenceFactory.jchars(requestedUri), versionUri) == 0;
     }
 
     public boolean requestMatchesVersionMapping() {
@@ -66,29 +69,9 @@ public class VersionedRequest {
         final String formattedUri = StringUriUtilities.formatUri(requestInfo.getUri());
         final String formattedReplacement = StringUriUtilities.formatUri(mapping.getContextPath());
 
-        final int replacementIndex = formattedUri.indexOf(formattedReplacement + "/");
+        final int replacementIndex = indexOfUriFragment(JCharSequenceFactory.jchars(formattedUri), formattedReplacement);
 
         return replacementIndex < 0;
-    }
-    
-    public static int indexOfUriFragment(String uri, String uriFragment) {
-        final int index = uri.indexOf(uriFragment);
-        
-        if (uri.length() > uriFragment.length() + index) {
-            return uri.charAt(index + uriFragment.length()) == '/' ? index : -1;
-        }
-        
-        return index;
-    }    
-    
-    public static int indexOfUriFragment(StringBuilder uri, String uriFragment) {
-        final int index = uri.indexOf(uriFragment);
-        
-        if (uri.length() > uriFragment.length() + index) {
-            return uri.charAt(index + uriFragment.length()) == '/' ? index : -1;
-        }
-        
-        return index;
     }
     
     private String updateURI(UniformResourceInfo requestInfo, String original, String replacement) {
@@ -100,8 +83,8 @@ public class VersionedRequest {
         final String formattedReplacement = StringUriUtilities.formatUri(replacement);
         final String formattedOriginal = StringUriUtilities.formatUri(original);
 
-        final int originalIndex = indexOfUriFragment(uriBuilder, formattedOriginal);
-        final int replacementIndex = indexOfUriFragment(uriBuilder, formattedReplacement);
+        final int originalIndex = indexOfUriFragment(JCharSequenceFactory.jchars(uriBuilder), formattedOriginal);
+        final int replacementIndex = indexOfUriFragment(JCharSequenceFactory.jchars(uriBuilder), formattedReplacement);
 
         if (replacementIndex < 0) {
             if (originalIndex < 0) {

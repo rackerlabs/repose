@@ -1,5 +1,7 @@
 package com.rackspace.papi.commons.util;
 
+import com.rackspace.papi.commons.util.string.JCharSequence;
+import static com.rackspace.papi.commons.util.string.JCharSequenceFactory.*;
 /**
  * This is a simple helper class that can be used to generalize URI related
  * string processing.
@@ -8,21 +10,11 @@ package com.rackspace.papi.commons.util;
  */
 public final class StringUriUtilities {
 
-    private StringUriUtilities() {
-        // Empty constructor for utility class.
+    public static int indexOfUriFragment(String st, String uriFragment) {
+        return indexOfUriFragment(jchars(st), uriFragment);
     }
-
-    public static int indexOfUriFragment(String uri, String uriFragment) {
-        final int index = uri.indexOf(uriFragment);
-
-        if (uri.length() > uriFragment.length() + index) {
-            return uri.charAt(index + uriFragment.length()) == '/' ? index : -1;
-        }
-
-        return index;
-    }
-
-    public static int indexOfUriFragment(StringBuilder uri, String uriFragment) {
+    
+    public static int indexOfUriFragment(JCharSequence uri, String uriFragment) {
         final int index = uri.indexOf(uriFragment);
 
         if (uri.length() > uriFragment.length() + index) {
@@ -59,5 +51,9 @@ public final class StringUriUtilities {
         }
 
         return externalName.toString();
+    }
+
+    private StringUriUtilities() {
+        // Empty constructor for utility class.
     }
 }
