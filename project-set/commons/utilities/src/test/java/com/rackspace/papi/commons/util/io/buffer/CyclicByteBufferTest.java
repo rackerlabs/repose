@@ -40,7 +40,7 @@ public class CyclicByteBufferTest {
 
         @Before
         public void standUp() {
-            buffer = new CyclicByteBuffer(4);
+            buffer = new CyclicByteBuffer(HeapspaceByteArrayProvider.getInstance());
         }
 
         @Test
@@ -54,17 +54,17 @@ public class CyclicByteBufferTest {
 
         @Test
         public void shouldGrowBuffer() throws IOException {
-            final int expectedAvailable = 8;
+            final int expectedAvailable = 2048;
 
             buffer.put(new byte[6]);
             buffer.get(new byte[6]);
 
-            assertEquals("Buffer size should should have 8 available after growing", expectedAvailable, buffer.remaining());
+            assertEquals("Buffer size should should have 2048 available after growing", expectedAvailable, buffer.remaining());
         }
 
         @Test
         public void shouldGrowBufferWhenExactlyFull() throws IOException {
-            final int expectedAvailable = 8;
+            final int expectedAvailable = 2048;
 
             buffer.put((byte) 0x01);
             buffer.put((byte) 0x02);
@@ -73,7 +73,7 @@ public class CyclicByteBufferTest {
             buffer.put((byte) 0x05);
             buffer.get(new byte[5]);
 
-            assertEquals("Buffer size should should have 8 available after growing", expectedAvailable, buffer.remaining());
+            assertEquals("Buffer size should should have 2048 available after growing", expectedAvailable, buffer.remaining());
         }
 
         @Test
