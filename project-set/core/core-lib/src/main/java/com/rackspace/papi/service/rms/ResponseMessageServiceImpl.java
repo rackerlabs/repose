@@ -111,9 +111,14 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
                 final HttpLogFormatter formatter = getFormatter(matchedCode, statusCodeMessage);
 
                 if (formatter != null) {
+                    final String formattedOutput = formatter.format(message, request, response).trim();
+                    
                     //Write the content type header and then write out our content
                     response.setHeader(CommonHttpHeader.CONTENT_TYPE.headerKey(), preferedMediaRange.getMediaType().toString());
-                    response.getWriter().append(formatter.format(message, request, response).trim());
+                    
+                    // TODO:Enhancement - Update formatter logic for streaming
+                    // TODO:Enhancement - Update getBytes(...) to use requested content encoding
+                    response.getOutputStream().write(formattedOutput.getBytes());
 
                 } // else{} TODO:Implement This is an error case. Formatters should never be null if they are configured.
             }
