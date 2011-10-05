@@ -31,11 +31,11 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>mockGetGroupsServlet</servlet-name>
-        <url-pattern>/users/user-test4/groups/*</url-pattern>
-        <url-pattern>/users/user-test1/groups/*</url-pattern>
-        <url-pattern>/users/user-test2/groups/*</url-pattern>
+        <url-pattern>/users/usertest4/groups/*</url-pattern>
+        <url-pattern>/users/usertest1/groups/*</url-pattern>
+        <url-pattern>/users/usertest2/groups/*</url-pattern>
         <url-pattern>/users/cmarin1/groups/*</url-pattern>
-        <url-pattern>/users/user-test3/groups/*</url-pattern>
+        <url-pattern>/users/usertest3/groups/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

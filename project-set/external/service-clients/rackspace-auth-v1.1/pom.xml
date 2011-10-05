@@ -26,6 +26,11 @@
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
         </dependency>
+        
+        <dependency>
+          <groupId>com.rackspace.papi.commons</groupId>
+          <artifactId>utilities</artifactId>
+        </dependency>
     </dependencies>
     
     <build>
