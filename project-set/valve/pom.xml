@@ -125,6 +125,7 @@
                                 <goal>jdeb</goal>
                             </goals>
                             <configuration>
+                                <deb>repose-valve.deb</deb>
                                 <dataSet>
                                     <!-- The jar file -->
                                     <data>
