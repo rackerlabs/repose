@@ -322,7 +322,6 @@ public class JMeterMojo extends AbstractMojo {
         }
     }
 
-
     /**
      * Create temporary property files and set necessary System Properties.
      *
@@ -355,7 +354,7 @@ public class JMeterMojo extends AbstractMojo {
             }
         }
     }
-    
+
     /**
      * Executes a single JMeter test by building up a list of command line
      * parameters to pass to Jmeter
@@ -451,82 +450,7 @@ public class JMeterMojo extends AbstractMojo {
             System.out.println(line);
         }
     }
-    /* For Meynard - jacked from RPM buil maven plugin
-    
-    final File workarea = mojo.getWorkarea();
-    final File f = new File( workarea, "SPECS" );
-    
-    final Commandline cl = new Commandline();
-    cl.setExecutable( "rpmbuild" );
-    cl.setWorkingDirectory( f.getAbsolutePath() );
-    cl.createArg().setValue( "-bb" );
-    cl.createArg().setValue( "--buildroot" );
-    cl.createArg().setValue( mojo.getRPMBuildroot().getAbsolutePath() );
-    cl.createArg().setValue( "--define" );
-    cl.createArg().setValue( "_topdir " + workarea.getAbsolutePath() );
-    cl.createArg().setValue( "--target" );
-    cl.createArg().setValue( mojo.getTargetArch() + '-' + mojo.getTargetVendor() + '-' + mojo.getTargetOS() );
-    
-    // maintain passive behavior for keyPassphrase not being present
-    final String keyname = mojo.getKeyname();
-    final Passphrase keyPassphrase = mojo.getKeyPassphrase();
-    if ( keyname != null && keyPassphrase == null )
-    {
-    cl.createArg().setValue( "--define" );
-    cl.createArg().setValue( "_gpg_name " + keyname );
-    cl.createArg().setValue( "--sign" );
-    }
-    
-    cl.createArg().setValue( mojo.getName() + ".spec" );
-    
-    final Log log = mojo.getLog();
-    
-    final StreamConsumer stdout = new LogStreamConsumer( LogStreamConsumer.INFO, log );
-    final StreamConsumer stderr = new LogStreamConsumer( LogStreamConsumer.WARN, log );
-    try
-    {
-    if ( log.isDebugEnabled() )
-    {
-    log.debug( "About to execute \'" + cl.toString() + "\'" );
-    }
-    
-    int result = CommandLineUtils.executeCommandLine( cl, stdout, stderr );
-    if ( result != 0 )
-    {
-    throw new MojoExecutionException( "RPM build execution returned: \'" + result + "\' executing \'"
-    + cl.toString() + "\'" );
-    }
-    }
-    catch ( CommandLineException e )
-    {
-    throw new MojoExecutionException( "Unable to build the RPM", e );
-    }
-    
-    // now if the passphrase has been provided and we want to try and sign automatically
-    if ( keyname != null && keyPassphrase != null )
-    {
-    RPMSigner signer = new RPMSigner( keyname, keyPassphrase.getPassphrase(), log );
-    
-    try
-    {
-    signer.sign( mojo.getRPMFile() );
-    }
-    catch ( Exception e )
-    {
-    throw new MojoExecutionException( "Unable to sign RPM", e );
-    }
-    } 
-     */
 
-    /**
-     * Check JMeter logfile (provided as a BufferedReader) for End message.
-     *
-     * @param in JMeter logfile
-     *
-     * @return true if test ended
-     *
-     * @throws MojoExecutionException exception
-     */
     private boolean checkForEndOfTest(BufferedReader in) throws MojoExecutionException {
         boolean testEnded = false;
         try {
