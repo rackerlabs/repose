@@ -142,7 +142,8 @@
             <plugin>
                 <artifactId>jdeb</artifactId>
                 <groupId>org.vafer</groupId>
-                <version>0.9.jhop-SNAPSHOT</version>
+                <version>0.9.papi</version>
+                
                 <executions>
                         <execution>
                             <phase>package</phase>

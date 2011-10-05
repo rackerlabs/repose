@@ -25,5 +25,6 @@
         <module>jee6-schemas</module>
         <module>service-clients</module>
         <module>maven-plugins/jdeb</module>
+        <module>maven-plugins/jmeter-maven-plugin</module>
     </modules>
 </project>
