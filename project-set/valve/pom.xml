@@ -166,7 +166,7 @@
                                     <data>
                                         <src>${project.basedir}/src/deb/</src>
                                         <type>directory</type>
-                                        <includes>info</includes>
+                                        <includes>tmp</includes>
 
                                         <mapper>
                                             <type>perm</type>
