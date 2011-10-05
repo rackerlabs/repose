@@ -117,7 +117,7 @@
             <plugin>
                 <artifactId>jdeb</artifactId>
                 <groupId>org.vafer</groupId>
-                <version>0.8</version>
+                <version>0.9.jhop-SNAPSHOT</version>
                 <executions>
                         <execution>
                             <phase>package</phase>
@@ -164,12 +164,10 @@
 
                                     <!-- The log directory with info file as placeholder for plugin -->
                                     <data>
-                                        <src>${project.basedir}/src/deb/</src>
-                                        <type>directory</type>
-                                        <includes>tmp</includes>
+                                        <type>make-directory</type>
 
                                         <mapper>
-                                            <type>perm</type>
+                                            <type>dir</type>
                                             <prefix>/var/powerapi/logs</prefix>
                                             <filemode>765</filemode>
                                         </mapper>
