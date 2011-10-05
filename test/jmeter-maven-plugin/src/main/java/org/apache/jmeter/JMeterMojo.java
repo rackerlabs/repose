@@ -1,5 +1,6 @@
 package org.apache.jmeter;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
@@ -9,6 +10,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.security.Permission;
 import java.text.DateFormat;
@@ -23,6 +25,7 @@ import java.util.Set;
 import javax.xml.transform.TransformerException;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.logging.Log;
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.DefaultArtifact;
 import org.apache.maven.artifact.handler.DefaultArtifactHandler;
@@ -38,6 +41,10 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 import org.apache.tools.ant.DirectoryScanner;
+import org.codehaus.plexus.util.cli.CommandLineException;
+import org.codehaus.plexus.util.cli.CommandLineUtils;
+import org.codehaus.plexus.util.cli.Commandline;
+import org.codehaus.plexus.util.cli.StreamConsumer;
 
 /**
  * JMeter Maven plugin.
@@ -56,7 +63,6 @@ public class JMeterMojo extends AbstractMojo {
      * @parameter
      */
     private File jmeterTestFile;
-
     /**
      * Sets the list of include patterns to use in directory scan for JMeter Test XML files.
      * Relative to srcDir.
@@ -66,7 +72,6 @@ public class JMeterMojo extends AbstractMojo {
      * @parameter
      */
     private List<String> includes;
-
     /**
      * Sets the list of exclude patterns to use in directory scan for Test files.
      * Relative to srcDir.
@@ -75,7 +80,6 @@ public class JMeterMojo extends AbstractMojo {
      * @parameter
      */
     private List<String> excludes;
-
     /**
      * Path under which JMeter test XML files are stored.
      *
@@ -83,7 +87,6 @@ public class JMeterMojo extends AbstractMojo {
      *          default-value="${basedir}/src/test/jmeter"
      */
     private File srcDir;
-
     /**
      * Directory in which the reports are stored.
      *
@@ -91,21 +94,18 @@ public class JMeterMojo extends AbstractMojo {
      *          default-value="${basedir}/target/jmeter-report"
      */
     private File reportDir;
-
     /**
      * Whether or not to generate reports after measurement.
      *
      * @parameter default-value="true"
      */
     private boolean enableReports;
-
     /**
      * Custom Xslt which is used to create the report.
      *
      * @parameter
      */
     private File reportXslt;
-
     /**
      * Absolute path to JMeter default properties file.
      * The default properties file is part of a JMeter installation and sets basic properties needed for running JMeter.
@@ -115,7 +115,6 @@ public class JMeterMojo extends AbstractMojo {
      * @required
      */
     private File jmeterDefaultPropertiesFile;
-
     /**
      * Absolute path to JMeter custom (test dependent) properties file.
      *
@@ -129,84 +128,77 @@ public class JMeterMojo extends AbstractMojo {
      */
     @SuppressWarnings("rawtypes")
     private Map jmeterUserProperties;
-
     /**
      * Use remote JMeter installation to run tests
      *
      * @parameter default-value=false
      */
     private boolean remote;
-
     /**
      * Sets whether ErrorScanner should ignore failures in JMeter result file.
      *
      * @parameter expression="${jmeter.ignore.failure}" default-value=false
      */
     private boolean jmeterIgnoreFailure;
-
     /**
      * Sets whether ErrorScanner should ignore errors in JMeter result file.
      *
      * @parameter expression="${jmeter.ignore.error}" default-value=false
      */
     private boolean jmeterIgnoreError;
-
     /**
      * @parameter expression="${project}"
      * @required
      */
     @SuppressWarnings("unused")
     private MavenProject mavenProject;
-
     /**
      * @parameter expression="${component.org.apache.maven.artifact.resolver.ArtifactResolver}"
      * @required
      */
     private ArtifactResolver artifactResolver;
-
     /**
      * @parameter expression="${localRepository}"
      */
     private ArtifactRepository localRepository;
-
     /**
      * HTTP proxy host name.
      * @parameter
      */
     private String proxyHost;
-
     /**
      * HTTP proxy port.
      * @parameter expression="80"
      */
     private Integer proxyPort;
-
     /**
      * HTTP proxy username.
      * @parameter
      */
     private String proxyUsername;
-
     /**
      * HTTP proxy user password.
      * @parameter
      */
     private String proxyPassword;
-
     /**
      * Postfix to add to report file.
      *
      * @parameter default-value="-report.html"
      */
     private String reportPostfix;
-
     /**
      * Sets whether the test execution shall preserve the order of patterns in include clauses.
      *
      * @parameter expression="${jmeter.preserve.includeOrder}" default-value=false
      */
+    private String jmeterhome;
+    /**
+     * Sets the Jmeter home directory. Allows changing of different jmeter version
+     * 
+     * @parameter
+     */
     private boolean jmeterPreserveIncludeOrder;
-
     private File workDir;
     private File jmeterLog;
     private DateFormat fmt = new SimpleDateFormat("yyMMdd");
@@ -321,7 +313,6 @@ public class JMeterMojo extends AbstractMojo {
         workDir = new File("target" + File.separator + "jmeter");
         workDir.mkdirs();
         createTemporaryProperties();
-        resolveJmeterArtifact();
 
         jmeterLog = new File(workDir, "jmeter.log");
         try {
@@ -331,51 +322,6 @@ public class JMeterMojo extends AbstractMojo {
         }
     }
 
-    /**
-     * Resolve JMeter artifact, set necessary System Property.
-     *
-     * This mess is necessary because JMeter must load this info from a file.
-     * Loading resources from classpath won't work.
-     *
-     * @throws org.apache.maven.plugin.MojoExecutionException exception
-     */
-    private void resolveJmeterArtifact() throws MojoExecutionException {
-        try {
-
-            String searchPath = "";
-
-            for (Object oDep : mavenProject.getDependencyArtifacts()) {
-                if (oDep instanceof Dependency) {
-                    Dependency dep = (Dependency) oDep;
-                    if (JMETER_ARTIFACT_GROUPID.equals(dep.getGroupId())) {
-                        //VersionRange needed for Maven 2.x compatibility.
-                        VersionRange versionRange = VersionRange.createFromVersionSpec(dep.getVersion());
-                        Artifact jmeterArtifact = new DefaultArtifact(JMETER_ARTIFACT_GROUPID, dep.getArtifactId(), versionRange, "", "jar", "", new DefaultArtifactHandler());
-                        List remoteArtifactRepositories = mavenProject.getRemoteArtifactRepositories();
-                        artifactResolver.resolve(jmeterArtifact, remoteArtifactRepositories, localRepository);
-                        searchPath += jmeterArtifact.getFile().getAbsolutePath() + ";";
-                    }
-                }
-                if (oDep instanceof Artifact) {
-                    Artifact jmeterArtifact = (Artifact) oDep;
-                    if (JMETER_ARTIFACT_GROUPID.equals(jmeterArtifact.getGroupId())) {
-                        List remoteArtifactRepositories = mavenProject.getRemoteArtifactRepositories();
-                        artifactResolver.resolve(jmeterArtifact, remoteArtifactRepositories, localRepository);
-                        searchPath += jmeterArtifact.getFile().getAbsolutePath() + ";";
-                    }
-                }
-            }
-
-            System.setProperty("search_paths", searchPath);
-
-        } catch (ArtifactResolutionException e) {
-            throw new MojoExecutionException("Could not resolve JMeter artifact. ", e);
-        } catch (ArtifactNotFoundException e) {
-            throw new MojoExecutionException("Could not find JMeter artifact. ", e);
-        } catch (InvalidVersionSpecificationException e) {
-            throw new MojoExecutionException("Invalid version declaration. ", e);
-        }
-    }
 
     /**
      * Create temporary property files and set necessary System Properties.
@@ -409,186 +355,169 @@ public class JMeterMojo extends AbstractMojo {
             }
         }
     }
-
+    
     /**
      * Executes a single JMeter test by building up a list of command line
-     * parameters to pass to JMeter.start().
-     *
-     * @param test JMeter test XML
-     *
+     * parameters to pass to Jmeter
+     * 
+     * Re-implementation to not use the Security Manager to halt Jmeter from exiting.
+     * 
+     * @param test JMeter test JMX
      * @return the report file names.
-     *
-     * @throws org.apache.maven.plugin.MojoExecutionException
-     *          Exception
+     * @throws MojoExecutionException 
      */
     private String executeTest(File test) throws MojoExecutionException {
 
+        Runtime rt = Runtime.getRuntime();
+        String resultFileName = reportDir.toString() + File.separator + test.getName().substring(0, test.getName().lastIndexOf(".")) + "-" + fmt.format(new Date()) + ".xml";
+        //delete file if it already exists
+        new File(resultFileName).delete();
+        ArrayList<String> commandlist = new ArrayList<String>();
+        getLog().info(String.valueOf(test.exists()));
+        String jmeterCmd = jmeterhome + "/bin/jmeter", arg1 = "-n", arg2 = "-t", arg3 = test.getAbsolutePath();
+        String arg4 = "-l", arg5 = resultFileName, arg6 = "-j", arg7 = jmeterLog.getAbsolutePath();
+
+        commandlist.add(jmeterCmd);
+        commandlist.add(arg1);
+        commandlist.add(arg2);
+        commandlist.add(arg3);
+        commandlist.add(arg4);
+        commandlist.add(arg5);
+        commandlist.add(arg6);
+        commandlist.add(arg7);
+
+
+        if (jmeterCustomPropertiesFile != null) {
+            commandlist.add("-q");
+            commandlist.add(jmeterCustomPropertiesFile.toString());
+        }
+        if (remote) {
+            commandlist.add("-r");
+        }
+
+        if (proxyHost != null && !proxyHost.equals("")) {
+            commandlist.add("-H");
+            commandlist.add(proxyHost);
+            commandlist.add("-P");
+            commandlist.add(proxyPort.toString());
+            getLog().info("Setting HTTP proxy to " + proxyHost + ":" + proxyPort);
+        }
+
+        if (proxyUsername != null && !proxyUsername.equals("")) {
+
+            commandlist.add("-u");
+            commandlist.add(proxyUsername);
+            commandlist.add("-a");
+            commandlist.add(proxyPassword);
+            getLog().info("Logging with " + proxyUsername + ":" + proxyPassword);
+
+        }
+
+        if (getLog().isDebugEnabled()) {
+            getLog().debug("JMeter is called with the following command line arguments: " + commandlist.toString());
+        }
+
+
+
+        String[] cmd = commandlist.toArray(new String[commandlist.size()]);
         try {
-            getLog().info("Executing test: " + test.getCanonicalPath());
+            Process jm = rt.exec(cmd);
+            jm.waitFor();
+            getLog().info(String.valueOf(jm.exitValue()));
 
-            String resultFileName = reportDir.toString() + File.separator + test.getName().substring(0, test.getName().lastIndexOf(".")) + "-" + fmt.format(new Date()) + ".xml";
-            //delete file if it already exists
-            new File(resultFileName).delete();
-            List<String> argsTmp = Arrays.asList("-n", "-t",
-                    test.getCanonicalPath(),
-                    "-l", resultFileName,
-                    "-p", jmeterDefaultPropertiesFile.toString(),
-                    "-d", System.getProperty("user.dir"));
 
-            List<String> args = new ArrayList<String>();
-            args.addAll(argsTmp);
-            args.addAll(getUserProperties());
-            if (jmeterCustomPropertiesFile != null) {
-                args.add("-q");
-                args.add(jmeterCustomPropertiesFile.toString());
+            writeProcessOutput(jm);
+
+        } catch (IOException io) {
+            getLog().info("could not execute! " + io.getMessage());
+        } catch (Exception e) {
+            getLog().info("Exception occured with command" + cmd.toString() + "with message" + e.getMessage());
+        }
+
+        return resultFileName;
+
+    }
+
+    static void writeProcessOutput(Process process) throws Exception {
+        InputStreamReader tempReader = new InputStreamReader(
+                new BufferedInputStream(process.getInputStream()));
+        BufferedReader reader = new BufferedReader(tempReader);
+        while (true) {
+            String line = reader.readLine();
+
+            if (line == null) {
+                break;
             }
-            if (remote) {
-                args.add("-r");
-            }
-
-            if (proxyHost != null && !proxyHost.equals("")) {
-                args.add("-H");
-                args.add(proxyHost);
-                args.add("-P");
-                args.add(proxyPort.toString());
-                getLog().info("Setting HTTP proxy to " + proxyHost + ":" + proxyPort);
-            }
-
-            if (proxyUsername != null && !proxyUsername.equals("")) {
-                args.add("-u");
-                args.add(proxyUsername);
-                args.add("-a");
-                args.add(proxyPassword);
-                getLog().info("Logging with " + proxyUsername + ":" + proxyPassword);
-            }
-
-            if (getLog().isDebugEnabled()) {
-                getLog().debug("JMeter is called with the following command line arguments: " + args.toString());
-            }
-
-            // This mess is necessary because JMeter likes to use System.exit.
-            // We need to trap the exit call.
-            SecurityManager oldManager = System.getSecurityManager();
-            System.setSecurityManager(new SecurityManager() {
-
-                @Override
-                public void checkExit(int status) {
-                    throw new ExitException(status);
-                }
-
-                @Override
-                public void checkPermission(Permission perm, Object context) {
-                }
-
-                @Override
-                public void checkPermission(Permission perm) {
-                }
-            });
-            UncaughtExceptionHandler oldHandler = Thread.getDefaultUncaughtExceptionHandler();
-            Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionHandler() {
-
-                public void uncaughtException(Thread t, Throwable e) {
-                    if (e instanceof ExitException && ((ExitException) e).getCode() == 0) {
-                        return; // Ignore
-                    }
-                    getLog().error("Error in thread " + t.getName());
-                }
-            });
-            try {
-                // This mess is necessary because the only way to know when
-                // JMeter
-                // is done is to wait for its test end message!
-                new JMeter().start(args.toArray(new String[]{}));
-                BufferedReader in = new BufferedReader(new FileReader(jmeterLog));
-                while (!checkForEndOfTest(in)) {
-                    try {
-                        Thread.sleep(1000);
-                    } catch (InterruptedException e) {
-                        break;
-                    }
-                }
-            } catch (ExitException e) {
-                if (e.getCode() != 0) {
-                    throw new MojoExecutionException("Test failed", e);
-                }
-            } finally {
-                System.setSecurityManager(oldManager);
-                Thread.setDefaultUncaughtExceptionHandler(oldHandler);
-            }
-
-            return resultFileName;
-        } catch (IOException e) {
-            throw new MojoExecutionException("Can't execute test", e);
+            System.out.println(line);
         }
     }
-    
     /* For Meynard - jacked from RPM buil maven plugin
-
-        final File workarea = mojo.getWorkarea();
-        final File f = new File( workarea, "SPECS" );
-
-        final Commandline cl = new Commandline();
-        cl.setExecutable( "rpmbuild" );
-        cl.setWorkingDirectory( f.getAbsolutePath() );
-        cl.createArg().setValue( "-bb" );
-        cl.createArg().setValue( "--buildroot" );
-        cl.createArg().setValue( mojo.getRPMBuildroot().getAbsolutePath() );
-        cl.createArg().setValue( "--define" );
-        cl.createArg().setValue( "_topdir " + workarea.getAbsolutePath() );
-        cl.createArg().setValue( "--target" );
-        cl.createArg().setValue( mojo.getTargetArch() + '-' + mojo.getTargetVendor() + '-' + mojo.getTargetOS() );
-
-        // maintain passive behavior for keyPassphrase not being present
-        final String keyname = mojo.getKeyname();
-        final Passphrase keyPassphrase = mojo.getKeyPassphrase();
-        if ( keyname != null && keyPassphrase == null )
-        {
-            cl.createArg().setValue( "--define" );
-            cl.createArg().setValue( "_gpg_name " + keyname );
-            cl.createArg().setValue( "--sign" );
-        }
-
-        cl.createArg().setValue( mojo.getName() + ".spec" );
-
-        final Log log = mojo.getLog();
-
-        final StreamConsumer stdout = new LogStreamConsumer( LogStreamConsumer.INFO, log );
-        final StreamConsumer stderr = new LogStreamConsumer( LogStreamConsumer.WARN, log );
-        try
-        {
-            if ( log.isDebugEnabled() )
-            {
-                log.debug( "About to execute \'" + cl.toString() + "\'" );
-            }
-
-            int result = CommandLineUtils.executeCommandLine( cl, stdout, stderr );
-            if ( result != 0 )
-            {
-                throw new MojoExecutionException( "RPM build execution returned: \'" + result + "\' executing \'"
-                    + cl.toString() + "\'" );
-            }
-        }
-        catch ( CommandLineException e )
-        {
-            throw new MojoExecutionException( "Unable to build the RPM", e );
-        }
-
-        // now if the passphrase has been provided and we want to try and sign automatically
-        if ( keyname != null && keyPassphrase != null )
-        {
-            RPMSigner signer = new RPMSigner( keyname, keyPassphrase.getPassphrase(), log );
-
-            try
-            {
-                signer.sign( mojo.getRPMFile() );
-            }
-            catch ( Exception e )
-            {
-                throw new MojoExecutionException( "Unable to sign RPM", e );
-            }
-        } 
-     */
     
+    final File workarea = mojo.getWorkarea();
+    final File f = new File( workarea, "SPECS" );
+    
+    final Commandline cl = new Commandline();
+    cl.setExecutable( "rpmbuild" );
+    cl.setWorkingDirectory( f.getAbsolutePath() );
+    cl.createArg().setValue( "-bb" );
+    cl.createArg().setValue( "--buildroot" );
+    cl.createArg().setValue( mojo.getRPMBuildroot().getAbsolutePath() );
+    cl.createArg().setValue( "--define" );
+    cl.createArg().setValue( "_topdir " + workarea.getAbsolutePath() );
+    cl.createArg().setValue( "--target" );
+    cl.createArg().setValue( mojo.getTargetArch() + '-' + mojo.getTargetVendor() + '-' + mojo.getTargetOS() );
+    
+    // maintain passive behavior for keyPassphrase not being present
+    final String keyname = mojo.getKeyname();
+    final Passphrase keyPassphrase = mojo.getKeyPassphrase();
+    if ( keyname != null && keyPassphrase == null )
+    {
+    cl.createArg().setValue( "--define" );
+    cl.createArg().setValue( "_gpg_name " + keyname );
+    cl.createArg().setValue( "--sign" );
+    }
+    
+    cl.createArg().setValue( mojo.getName() + ".spec" );
+    
+    final Log log = mojo.getLog();
+    
+    final StreamConsumer stdout = new LogStreamConsumer( LogStreamConsumer.INFO, log );
+    final StreamConsumer stderr = new LogStreamConsumer( LogStreamConsumer.WARN, log );
+    try
+    {
+    if ( log.isDebugEnabled() )
+    {
+    log.debug( "About to execute \'" + cl.toString() + "\'" );
+    }
+    
+    int result = CommandLineUtils.executeCommandLine( cl, stdout, stderr );
+    if ( result != 0 )
+    {
+    throw new MojoExecutionException( "RPM build execution returned: \'" + result + "\' executing \'"
+    + cl.toString() + "\'" );
+    }
+    }
+    catch ( CommandLineException e )
+    {
+    throw new MojoExecutionException( "Unable to build the RPM", e );
+    }
+    
+    // now if the passphrase has been provided and we want to try and sign automatically
+    if ( keyname != null && keyPassphrase != null )
+    {
+    RPMSigner signer = new RPMSigner( keyname, keyPassphrase.getPassphrase(), log );
+    
+    try
+    {
+    signer.sign( mojo.getRPMFile() );
+    }
+    catch ( Exception e )
+    {
+    throw new MojoExecutionException( "Unable to sign RPM", e );
+    }
+    } 
+     */
+
     /**
      * Check JMeter logfile (provided as a BufferedReader) for End message.
      *
