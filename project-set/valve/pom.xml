@@ -53,10 +53,35 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.1.2</version>
+        </dependency>
+        <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
             <version>3.1</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>1.9.1</version>
+        </dependency>
+
+        <dependency> 
+          <groupId>com.sun.jersey.contribs</groupId> 
+          <artifactId>jersey-apache-client4</artifactId> 
+          <version>1.9.1</version> 
+        </dependency> 
+
+        <!--
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>apache-client</artifactId>
+            <version>1.9.1</version>
+        </dependency>
+        -->
 
         <dependency>
             <groupId>args4j</groupId>
