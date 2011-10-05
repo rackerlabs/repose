@@ -12,7 +12,7 @@
     <groupId>com.rackspace.cloud.commons</groupId>
     <artifactId>valve</artifactId>
     <packaging>jar</packaging>
-    <name>valve</name>
+    <name>repose-valve</name>
 
     <properties>
         <project.license>apache20</project.license>
@@ -120,7 +120,7 @@
                 <version>0.8</version>
                 <executions>
                         <execution>
-                            <!--<phase>package</phase>-->
+                            <phase>package</phase>
                             <goals>
                                 <goal>jdeb</goal>
                             </goals>
