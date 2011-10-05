@@ -13,3 +13,4 @@ target
 *.DS_Store
 *.swp
 *.out
+jmeter.log
