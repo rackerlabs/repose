@@ -36,6 +36,9 @@
     <modules>
         <module>documentation</module>
         <module>project-set</module>
+        <module>test/jmeter-maven-plugin</module>
+        <module>test/test-support</module>
+
     </modules>
 
     <scm>
