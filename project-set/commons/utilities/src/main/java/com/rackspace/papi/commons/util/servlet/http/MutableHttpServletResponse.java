@@ -19,7 +19,6 @@ public final class MutableHttpServletResponse extends HttpServletResponseWrapper
                 ? (MutableHttpServletResponse) response
                 : new MutableHttpServletResponse(response);
     }
-    
     private final ByteBuffer internalBuffer;
     private final ServletOutputStream outputStream;
     private final PrintWriter outputStreamWriter;
@@ -39,28 +38,32 @@ public final class MutableHttpServletResponse extends HttpServletResponseWrapper
 
     @Override
     public void flushBuffer() throws IOException {
+        commitBufferToServletOutputStream();
+
+        super.flushBuffer();
+    }
+
+    public void commitBufferToServletOutputStream() throws IOException {
         // The writer has its own buffer
         // TODO: Replace the writer with a writer that does not require flushing and instead writed directly to the shared buffer
         outputStreamWriter.flush();
-        
+
         final byte[] bytes = new byte[2048];
         final ServletOutputStream realOutputStream = super.getOutputStream();
-        
+
         while (internalBuffer.available() > 0) {
             final int read = internalBuffer.get(bytes);
             realOutputStream.write(bytes, 0, read);
         }
-        
-        super.flushBuffer();
     }
 
     @Override
     public void resetBuffer() {
         internalBuffer.clear();
-        
+
         super.resetBuffer();
     }
-    
+
     @Override
     public int getBufferSize() {
         return internalBuffer.available() + internalBuffer.remaining();

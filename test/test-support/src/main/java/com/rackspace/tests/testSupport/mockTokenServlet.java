@@ -21,11 +21,11 @@ import javax.servlet.http.HttpServletResponse;
 public class mockTokenServlet extends HttpServlet {
 
     // Need to move these somewhere else where they won't be re-initialized everytime we auth
-    MockUser user1 = new MockUser("user-test1", "CLOUD", "/asdasdasd-adsasdads-asdasdasd-adsadsasd");
-    MockUser user2 = new MockUser("user-test2", "CLOUD", "/now-is-the-time");
-    MockUser user3 = new MockUser("user-test3", "CLOUD", "/my-third-test-user");
-    MockUser user4 = new MockUser("user-test4", "CLOUD", "/dkshk-fdjke3-fdfjdk-21342");
-    List<MockUser> testUsers = new ArrayList<MockUser>();
+    MockUser user1 = new MockUser("usertest1", "CLOUD", "/asdasdasd-adsasdads-asdasdasd-adsadsasd");
+    MockUser user2 = new MockUser("usertest2", "CLOUD", "/now-is-the-time");
+    MockUser user3 = new MockUser("usertest3", "CLOUD", "/my-third-test-user");
+    MockUser user4 = new MockUser("usertest4", "CLOUD", "/dkshk-fdjke3-fdfjdk-21342");
+    MockUser[] testUsers = {user1, user2, user3, user4}; // new ArrayList<MockUser>();
 
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.

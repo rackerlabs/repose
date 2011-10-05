@@ -8,18 +8,23 @@ import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.GetMethod;
 
 import java.io.IOException;
+import org.apache.commons.httpclient.HttpConnectionManager;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 
 /**
  * @author fran
  */
 public class ServiceClient {
     private final HttpClient client;
+    private final HttpConnectionManager manager;
 
     public ServiceClient(String username, String password) {
-        this.client = new HttpClient();
+        manager = new MultiThreadedHttpConnectionManager();
+        this.client = new HttpClient(manager);
         
         final Credentials defaultCredentials = new UsernamePasswordCredentials(username, password);
         client.getState().setCredentials(AuthScope.ANY, defaultCredentials);
+        client.getParams().setAuthenticationPreemptive(true);
     }
 
     public GetMethod get(String uri, NameValuePair[] queryParameters) throws AuthServiceException {

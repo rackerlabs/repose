@@ -18,13 +18,17 @@ import com.rackspace.papi.service.event.listener.EventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 
 public class PowerFilter extends ApplicationContextAwareFilter {
 
@@ -48,6 +52,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
             final Object internalLock = new Object();
 
+            // TODO:Review - There's got to be a better way of initializing PowerFilter. Maybe the app management service could be queryable.
             @Override
             public void onConfigurationUpdated(PowerProxy configurationObject) {
                 currentSystemModel = configurationObject;
@@ -131,7 +136,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         } finally {
             papiContext.responseMessageService().handle(mutableHttpRequest, mutableHttpResponse);
 
-            mutableHttpResponse.flushBuffer();
+            mutableHttpResponse.commitBufferToServletOutputStream();
         }
     }
 }
