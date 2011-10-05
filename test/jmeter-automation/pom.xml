@@ -1,19 +1,10 @@
-<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.rackspace.papi</groupId>
-    <artifactId>papi</artifactId>
-    <version>0.9.2-SNAPSHOT</version>
-
-    <name>Power API</name>
-
-    <description>
-        Master POM file to provide deployment and other useful information to
-        child projects. Should not enforce version control outside of plugin
-        profiles.
-    </description>
-
+    <groupId>com.rackspace.papi.tests</groupId>
+    <artifactId>TestMaster</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <name>TestMaster</name>
     <packaging>pom</packaging>
 
     <organization>
@@ -33,19 +24,13 @@
         </license>
     </licenses>
 
-    <modules>
-        <module>documentation</module>
-        <module>project-set</module>
-    </modules>
-
     <scm>
         <connection>scm:git:ssh://git@github.com/rackspace/power-api.git</connection>
     </scm>
-    
+
     <repositories>
         <repository>
             <id>public.maven.research.rackspace.com</id>
-            
             <name>Rackspace Research</name>
             <url>http://maven.research.rackspacecloud.com/content/groups/aggregate</url>
         </repository>
@@ -54,32 +39,45 @@
     <distributionManagement>
         <repository>
             <id>releases.maven.research.rackspace.com</id>
- 
             <name>Rackspace Research Releases</name>
             <url>http://maven.research.rackspacecloud.com/content/repositories/releases</url>
         </repository>
-        
         <snapshotRepository>
             <id>snapshots.maven.research.rackspace.com</id>
-
             <name>Rackspace Research Snapshots</name>
             <url>http://maven.research.rackspacecloud.com/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
-    
+    <!--
+    <modules>
+        <module>TestSupport</module>
+    </modules>
+    -->
     <build>
-        <pluginManagement>
             <plugins>
+
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-release-plugin</artifactId>
-                    <version>2.1</version>
-                    
+                    <groupId>org.apache.jmeter</groupId>
+                    <artifactId>maven-jmeter-plugin</artifactId>
+                    <version>1.2</version>
+                    <executions>
+                        <execution>
+                            <id>jmeter-tests</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>jmeter</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                     <configuration>
-                        <preparationGoals>clean install</preparationGoals>
+                        <reportDir>${project.build.directory}/jmeter-reports</reportDir>
+                        <include>PowerAPI_Valve test.jmx</include>
+                        <jmeterUserProperties></jmeterUserProperties>
                     </configuration>
                 </plugin>
+
             </plugins>
-        </pluginManagement>
     </build>
+    
 </project>
+

@@ -1,0 +1,37 @@
+Repose: The Why and How
+
+
+Service Integration in a Service Oriented Architecture
+
+There are a number of hurdles to overcome in services integration of a service oriented architecture. To make things more difficult, service oriented architecture often have deployed service components in different network or geographical locations. This makes access control, service call latency and bandwidth consumption painful integration topics. Further complicating integration is the fact that many of these services will be developed in different programming languages and for different operating environments.
+
+Many project teams will architect common solutions to these problems but due to above concerns, the developed solutions are not always portable, scalable or reusable. This leads to code and feature redundancy, making services brittle and hard to test.
+
+
+Solving the Service Model Problem
+
+The vast majority of integration concerns appear when services do not use the same protocol, speak the same contract or use the same data bindings. While there exist systems today to mitigate these concerns, they do not solve the underlying problem - service discongruence.
+
+ReST as a service model focuses on service predictability and simplicity by using HTTP as its underlying and only protocol. ReST solves the problem of service discongruence by enforcing uniformity. This lets clients build upon a contract that is portable regardless of deployment platform, service development language and service end-point locality.
+
+Solving service discongruence, however, does not solve the problem of service integration; it merely makes solving these problems easier by narrowing integration concerns. Service oriented architectures built upon the ReSTful model still require integration patterns.
+
+Without having to deal with service discongruence, many enterprise integration solutions may no longer be suitable for a ReSTful service oriented architecture. These solutions have strongly defined idioms rooted in multi-protocol support, centralized control and business logic consolidation.
+
+
+ReST as the Common Interface
+
+Implementing ReST in a service oriented architecture grants service engineers a low barrier of entry and a high degree of reuse while maintaining a painless client integration experience.
+
+The ReST ideology has a strong concept of uniform interfaces. This concept provides a common contract for any number of resources a service wants to make available to consumers. In addition, ReST supports the idea of multiple data-binding representations through HTTP's content negotiation features; when interacting with a ReSTful service, a client may tell the service what it expects to get back.
+
+The abstractions and features that ReST provides can also be used for potent orchestration. A service may have an intermediate layer which performs work in a distributed manner without the client or service ever having to realize this. This pipeline of integration layers is seamless because all of the integration points governed by a common protocol and a common interface.
+
+
+The Repose Proxy Model
+
+Expanding upon seamless orchestration, Repose treats the entire intermediate layer as a collection of reusable services that operate on the ReSTful messages in a pipelined fashion. Furthermore, repose operates without either consumer, both server and client, ever knowing it's there.
+
+By utilizing internal routing that's HTTP aware, Repose is able to achieve a unique distribution model which turns the traditional intermediate proxy into an intermediate proxy layer. This allows service engineers the ability to scale individual, reusable service components horizontally without having to make either the client or service aware of the changes.
+
+This demo introduces Rackspace’s Restful Proxy Service Engine, or REPOSE. Repose is like a traditional ESB, except that the interface is REST, the protocol is HTTP and the scale is cloud. Repose addresses the need for a cloud-scale service bus as well as the architectural limitations that prevent ESBs from scaling to the cloud.

@@ -3,7 +3,8 @@
  */
 package com.rackspace.papi.filter.logic;
 
-import com.rackspace.papi.commons.util.StringUtilities;
+
+import com.rackspace.papi.commons.util.StringUriUtilities;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.http.HttpServletRequest;
@@ -28,7 +29,7 @@ public class DispatchPathBuilder {
     }
     
     if(!dispatchPath.startsWith("/")){
-        dispatchPath = StringUtilities.formatUri(dispatchPath);
+        dispatchPath = StringUriUtilities.formatUri(dispatchPath);
     }
     
     return dispatchPath;

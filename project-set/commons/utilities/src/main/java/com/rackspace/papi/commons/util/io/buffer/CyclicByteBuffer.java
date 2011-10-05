@@ -1,28 +1,51 @@
 package com.rackspace.papi.commons.util.io.buffer;
 
-import com.rackspace.papi.commons.util.ArrayUtilities;
 import java.io.IOException;
 
 public class CyclicByteBuffer implements ByteBuffer {
 
+    private final static ByteArrayProvider DEFAULT_BYTE_ARRAY_PROVIDER = HeapspaceByteArrayProvider.getInstance();
     private final static int DEFAULT_BUFFER_SIZE = 2048; //in bytes
+    private final ByteArrayProvider byteArrayProvider;
     private int nextWritableIndex, nextReadableIndex;
     private boolean hasElements;
     private byte[] buffer;
 
     public CyclicByteBuffer() {
-        this(DEFAULT_BUFFER_SIZE);
+        this(DEFAULT_BYTE_ARRAY_PROVIDER, 0, 0, false);
     }
-
-    public CyclicByteBuffer(int bufferSize) {
-        this(new byte[bufferSize], false);
+    
+    public CyclicByteBuffer(ByteArrayProvider byteArrayProvider) {
+        this(byteArrayProvider, 0, 0, false);
     }
-
-    private CyclicByteBuffer(byte[] buffer, boolean hasElements) {
-        this.nextWritableIndex = 0;
-        this.nextReadableIndex = 0;
+    
+    protected CyclicByteBuffer(ByteArrayProvider byteArrayProvider, int nextWritableIndex, int nextReadableIndex, boolean hasElements) {
+        this.byteArrayProvider = byteArrayProvider;
+        this.nextWritableIndex = nextWritableIndex;
+        this.nextReadableIndex = nextReadableIndex;
         this.hasElements = hasElements;
-        this.buffer = ArrayUtilities.nullSafeCopy(buffer);
+
+        buffer = byteArrayProvider.allocate(DEFAULT_BUFFER_SIZE);
+    }
+
+    public CyclicByteBuffer(ByteArrayProvider byteArrayProvider, CyclicByteBuffer byteBuffer) {
+        this.byteArrayProvider = byteArrayProvider;
+
+        final int readableLength = byteBuffer.available();
+        buffer = byteArrayProvider.allocate(readableLength);   // TODO:Review - Should this be more than the original readable size?
+
+        if (byteBuffer.nextReadableIndex + readableLength > byteBuffer.buffer.length) {
+            final int trimmedLength = byteBuffer.buffer.length - byteBuffer.nextReadableIndex;
+
+            System.arraycopy(byteBuffer.buffer, byteBuffer.nextReadableIndex, buffer, 0, trimmedLength);
+            System.arraycopy(byteBuffer.buffer, 0, buffer, trimmedLength, readableLength - trimmedLength);
+        } else {
+            System.arraycopy(byteBuffer.buffer, byteBuffer.nextReadableIndex, buffer, 0, readableLength);
+        }
+
+        this.nextReadableIndex = 0;
+        this.nextWritableIndex = 0;
+        this.hasElements = true;
     }
 
     @Override
@@ -46,7 +69,7 @@ public class CyclicByteBuffer implements ByteBuffer {
                     ? nextReadableIndex + len
                     : len - (buffer.length - nextReadableIndex);
         }
-        
+
         if (nextReadableIndex == nextWritableIndex) {
             hasElements = false;
         }
@@ -74,7 +97,7 @@ public class CyclicByteBuffer implements ByteBuffer {
 
     private void grow(int minLength) {
         final int newSize = buffer.length + buffer.length * (minLength / buffer.length + 1);
-        final byte[] newBuffer = new byte[newSize];
+        final byte[] newBuffer = byteArrayProvider.allocate(newSize);
 
         final int read = get(newBuffer, 0, newSize);
         buffer = newBuffer;
@@ -140,11 +163,11 @@ public class CyclicByteBuffer implements ByteBuffer {
     @Override
     public byte get() {
         final byte[] singleByte = new byte[]{-1};
-        
+
         if (available() > 0) {
             get(singleByte, 0, 1);
         }
-        
+
         return singleByte[0];
     }
 
@@ -160,19 +183,7 @@ public class CyclicByteBuffer implements ByteBuffer {
 
     @Override
     public ByteBuffer copy() {
-        final int readableLength = available();
-        final byte[] bufferCopy = new byte[readableLength];
-
-        if (nextReadableIndex + readableLength > buffer.length) {
-            final int trimmedLength = buffer.length - nextReadableIndex;
-
-            System.arraycopy(buffer, nextReadableIndex, bufferCopy, 0, trimmedLength);
-            System.arraycopy(buffer, 0, bufferCopy, trimmedLength, readableLength - trimmedLength);
-        } else {
-            System.arraycopy(buffer, nextReadableIndex, bufferCopy, 0, readableLength);
-        }
-
-        return new CyclicByteBuffer(bufferCopy, true);
+        return new CyclicByteBuffer(byteArrayProvider, this);
     }
 
     @Override
