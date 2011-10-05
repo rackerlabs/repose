@@ -39,6 +39,12 @@
                 <artifactId>ehcache-core</artifactId>
                 <version>2.4.3</version>
             </dependency>
+            <dependency>
+                <groupId>com.rackspace.papi.commons</groupId>
+                <artifactId>utilities</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            
         </dependencies>
     </dependencyManagement>
 </project>

@@ -1,7 +1,8 @@
 package com.rackspace.cloud.valve.http.proxy;
 
 import com.rackspace.cloud.valve.http.proxy.httpclient.HttpClientProxyService;
-
+import com.rackspace.cloud.valve.http.proxy.httpcomponent.HttpComponentProxyService;
+import com.rackspace.cloud.valve.http.proxy.jerseyclient.JerseyClientProxyService;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -18,7 +19,9 @@ public class HttpRequestDispatcher implements RequestDispatcher {
     private final ProxyService proxyService;
 
     public HttpRequestDispatcher(String targetHost) {
-        proxyService = new HttpClientProxyService(targetHost);
+        //proxyService = new HttpClientProxyService(targetHost);    // Http Client 3.1
+        //proxyService = new HttpComponentProxyService(targetHost); // Http Client 4.1
+        proxyService = new JerseyClientProxyService(targetHost);
     }
 
     @Override
@@ -28,6 +31,6 @@ public class HttpRequestDispatcher implements RequestDispatcher {
 
     @Override
     public void include(ServletRequest request, ServletResponse response) throws ServletException, IOException {
-        // TODO: See if we have to implement this as for now our code just cares about calling the forward
+        throw new UnsupportedOperationException("REPOSE does not support include.");
     }
 }
