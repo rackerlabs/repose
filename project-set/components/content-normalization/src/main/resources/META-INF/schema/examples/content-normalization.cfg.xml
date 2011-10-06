@@ -5,7 +5,10 @@
    xsi:schemaLocation='http://docs.api.rackspacecloud.com/powerapi/content-normalization/v1.0 ../config/normalization-configuration.xsd'>
 
     <header-filters>
-        <whitelist><header id=""/>
+        <whitelist>
+            <header id="Accept"/>
+            <header id="X-PP-User" />
+            <header id="X-Auth-Token" />            
         </whitelist>
     </header-filters>
     
