@@ -7,13 +7,13 @@ import com.rackspace.papi.commons.util.pooling.ResourceContextException;
 import com.rackspacecloud.docs.auth.api.v1.FullToken;
 import com.rackspace.papi.commons.util.pooling.Pool;
 import com.rackspace.papi.commons.util.pooling.ResourceContext;
-import org.apache.commons.httpclient.methods.GetMethod;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
-import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.StringReader;
 
 /**
@@ -45,6 +45,7 @@ public class ResponseUnmarshaller {
       }
    }
 
+   /*
    public <T> T unmarshall(final GetMethod method, final Class<T> expectedType) {
       return pool.use(new ResourceContext<Unmarshaller, T>() {
 
@@ -63,6 +64,56 @@ public class ResponseUnmarshaller {
                }
             } catch (IOException ioe) {
                throw new AuthServiceException("Failed to get response body from response.", ioe);
+            } catch (JAXBException jaxbe) {
+               throw new AuthServiceException("Failed to unmarshall response body. Body output is in debug. Reason: "
+                       + jaxbe.getMessage(), jaxbe);
+            }
+         }
+      });
+   }
+    * 
+    */
+   
+   public <T> T unmarshall(final String data, final Class<T> expectedType) {
+      return pool.use(new ResourceContext<Unmarshaller, T>() {
+
+         @Override
+         public T perform(Unmarshaller resource) throws ResourceContextException {
+            try {
+               final Object o = resource.unmarshal(new StringReader(data));
+
+               if (o instanceof JAXBElement && ((JAXBElement) o).getDeclaredType().equals(expectedType)) {
+                  return ((JAXBElement<T>) o).getValue();
+               } else if (o instanceof FullToken) {
+                  return expectedType.cast(o);
+               } else {
+                  throw new AuthServiceException("Failed to unmarshall response body. Unexpected element encountered. Body output is in debug.");
+
+               }
+            } catch (JAXBException jaxbe) {
+               throw new AuthServiceException("Failed to unmarshall response body. Body output is in debug. Reason: "
+                       + jaxbe.getMessage(), jaxbe);
+            }
+         }
+      });
+   }
+   
+   public <T> T unmarshall(final InputStream data, final Class<T> expectedType) {
+      return pool.use(new ResourceContext<Unmarshaller, T>() {
+
+         @Override
+         public T perform(Unmarshaller resource) throws ResourceContextException {
+            try {
+               final Object o = resource.unmarshal(new InputStreamReader(data));
+
+               if (o instanceof JAXBElement && ((JAXBElement) o).getDeclaredType().equals(expectedType)) {
+                  return ((JAXBElement<T>) o).getValue();
+               } else if (o instanceof FullToken) {
+                  return expectedType.cast(o);
+               } else {
+                  throw new AuthServiceException("Failed to unmarshall response body. Unexpected element encountered. Body output is in debug.");
+
+               }
             } catch (JAXBException jaxbe) {
                throw new AuthServiceException("Failed to unmarshall response body. Body output is in debug. Reason: "
                        + jaxbe.getMessage(), jaxbe);

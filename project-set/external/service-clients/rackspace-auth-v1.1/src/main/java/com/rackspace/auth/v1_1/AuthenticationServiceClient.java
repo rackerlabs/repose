@@ -3,8 +3,6 @@ package com.rackspace.auth.v1_1;
 import com.rackspacecloud.docs.auth.api.v1.FullToken;
 import com.rackspacecloud.docs.auth.api.v1.GroupsList;
 import net.sf.ehcache.CacheManager;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.GetMethod;
 
 import java.util.Calendar;
 
@@ -31,16 +29,14 @@ public class AuthenticationServiceClient {
         boolean validated = authenticationCache.tokenIsCached(account.getUsername(), token);
 
         if (!validated) {
-            final NameValuePair[] queryParameters = new NameValuePair[2];
-            queryParameters[0] = new NameValuePair("belongsTo", account.getUsername());
-            queryParameters[1] = new NameValuePair("type", account.getType());
 
-            final GetMethod validateTokenMethod = serviceClient.get(targetHostUri + "/token/" + token, queryParameters);
+            final ServiceClientResponse<FullToken> validateTokenMethod = serviceClient.get(targetHostUri + "/token/" + token, 
+                    "belongsTo", account.getUsername(),
+                    "type", account.getType());
             final int response = validateTokenMethod.getStatusCode();
-
             switch (response) {
                 case 200:
-                    final FullToken tokenResponse = responseUnmarshaller.unmarshall(validateTokenMethod, FullToken.class);
+                    final FullToken tokenResponse = responseUnmarshaller.unmarshall(validateTokenMethod.getData(), FullToken.class);
                     final Long expireTtl = tokenResponse.getExpires().toGregorianCalendar().getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
 
                     authenticationCache.cacheUserAuthToken(account.getUsername(), expireTtl.intValue(), tokenResponse.getId());
@@ -52,13 +48,13 @@ public class AuthenticationServiceClient {
     }
 
     public GroupsList getGroups(String userId) {
-        final GetMethod groupsMethod = serviceClient.get(targetHostUri + "/users/" + userId + "/groups", null);
-        final int response = groupsMethod.getStatusCode();
+        final ServiceClientResponse<GroupsList> serviceResponse = serviceClient.get(targetHostUri + "/users/" + userId + "/groups");
+        final int response = serviceResponse.getStatusCode();
         GroupsList groups = null;
 
         switch (response) {
             case 200:
-                groups = responseUnmarshaller.unmarshall(groupsMethod, GroupsList.class);
+                groups = responseUnmarshaller.unmarshall(serviceResponse.getData(), GroupsList.class);
         }
 
         return groups;

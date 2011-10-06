@@ -3,7 +3,6 @@ package com.rackspace.auth.v1_1;
 import com.rackspacecloud.docs.auth.api.v1.Endpoint;
 import com.rackspacecloud.docs.auth.api.v1.Service;
 import com.rackspacecloud.docs.auth.api.v1.ServiceCatalog;
-import org.apache.commons.httpclient.methods.GetMethod;
 
 /**
  * @author fran
@@ -20,26 +19,26 @@ public class AuthorizationServiceClient {
     }
     
     public ServiceCatalog getServiceCatalogForUser(String user) throws AuthServiceException {
-        final GetMethod getServiceCatalogMethod = serviceClient.get(targetHostUri + "/users/" + user + "/serviceCatalog", null);
+        final ServiceClientResponse getServiceCatalogMethod = serviceClient.get(targetHostUri + "/users/" + user + "/serviceCatalog");
         final int response = getServiceCatalogMethod.getStatusCode();
         ServiceCatalog catalog = null;
 
         switch (response) {
             case 200:
-                catalog = responseUnmarshaller.unmarshall(getServiceCatalogMethod, ServiceCatalog.class);
+                catalog = responseUnmarshaller.unmarshall(getServiceCatalogMethod.getData(), ServiceCatalog.class);
         }
 
         return catalog;
     }
 
     public AuthorizationResponse authorizeUser(String user, String requestedUri) throws AuthServiceException {
-        final GetMethod getServiceCatalogMethod = serviceClient.get(targetHostUri + "/users/" + user + "/serviceCatalog", null);
+        final ServiceClientResponse getServiceCatalogMethod = serviceClient.get(targetHostUri + "/users/" + user + "/serviceCatalog", null);
         final int response = getServiceCatalogMethod.getStatusCode();
         AuthorizationResponse authorizationResponse = null;
 
         switch (response) {
             case 200:
-                final ServiceCatalog catalog = responseUnmarshaller.unmarshall(getServiceCatalogMethod, ServiceCatalog.class);
+                final ServiceCatalog catalog = responseUnmarshaller.unmarshall(getServiceCatalogMethod.getData(), ServiceCatalog.class);
 
                 if (catalog != null) {
                     for (Service service : catalog.getService()) {
