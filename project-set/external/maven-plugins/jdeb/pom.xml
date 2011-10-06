@@ -11,7 +11,7 @@
     
     <groupId>org.vafer</groupId>
     <artifactId>jdeb</artifactId>
-    <version>0.9.papi</version>
+    <version>0.10.papi-SNAPSHOT</version>
     
     <name>jdeb</name>
     <packaging>maven-plugin</packaging>
