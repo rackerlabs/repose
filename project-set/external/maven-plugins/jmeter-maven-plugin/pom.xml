@@ -3,6 +3,13 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     
+    <parent>
+        <groupId>com.rackspace.papi.external</groupId>
+        <artifactId>external-lib-support</artifactId>
+        <version>0.9.2-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    
     <groupId>org.apache.jmeter</groupId>
     <artifactId>maven-jmeter-plugin</artifactId>
     <version>4.2</version>
@@ -16,118 +23,50 @@
     
     <url>http://jakarta.apache.org/jmeter</url>
 
-    <repositories>
-        <repository>
-            <id>Java maven repo</id>
-            <url>http://download.java.net/maven/2</url>
-        </repository>
-        
-        <repository>
-            <id>Maven JMeter Repo</id>
-            <url>http://yciabaud.github.com/jmeter-maven-plugin/repository</url>
-        </repository>
-    </repositories>
-
     <dependencies>
         <dependency>
             <groupId>org.apache.ant</groupId>
             <artifactId>ant</artifactId>
             <version>1.8.1</version>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-plugin-api</artifactId>
             <version>3.0.2</version>
             <type>jar</type>
         </dependency>
+        
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.8.1</version>
             <scope>test</scope>
         </dependency>
+        
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
             <version>1.2.16</version>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-artifact</artifactId>
             <version>2.0.9</version>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-model</artifactId>
             <version>2.0.9</version>
         </dependency>
+        
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-project</artifactId>
             <version>2.2.1</version>
         </dependency>
-		
-	<!-- JMeter dependencies -->
-        <dependency>
-            <groupId>org.apache.jmeter</groupId>
-            <artifactId>ApacheJMeter_core</artifactId>
-            <version>2.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jmeter</groupId>
-            <artifactId>ApacheJMeter_components</artifactId>
-            <version>2.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jmeter</groupId>
-            <artifactId>ApacheJMeter_functions</artifactId>
-            <version>2.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jmeter</groupId>
-            <artifactId>ApacheJMeter_http</artifactId>
-            <version>2.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jmeter</groupId>
-            <artifactId>ApacheJMeter_java</artifactId>
-            <version>2.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jmeter</groupId>
-            <artifactId>ApacheJMeter_reports</artifactId>
-            <version>2.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jmeter</groupId>
-            <artifactId>ApacheJMeter_tcp</artifactId>
-            <version>2.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jmeter</groupId>
-            <artifactId>ApacheJMeter_ftp</artifactId>
-            <version>2.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jmeter</groupId>
-            <artifactId>ApacheJMeter_jdbc</artifactId>
-            <version>2.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jmeter</groupId>
-            <artifactId>ApacheJMeter_jms</artifactId>
-            <version>2.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jmeter</groupId>
-            <artifactId>ApacheJMeter_ldap</artifactId>
-            <version>2.4</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.jmeter</groupId>
-            <artifactId>ApacheJMeter_mail</artifactId>
-            <version>2.4</version>
-        </dependency>
+
         <dependency>
             <groupId>com.nhncorp.ntaf</groupId>
             <artifactId>ntaf-maven-plugin</artifactId>
@@ -135,19 +74,4 @@
             <type>maven-plugin</type>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
-                
-                <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>

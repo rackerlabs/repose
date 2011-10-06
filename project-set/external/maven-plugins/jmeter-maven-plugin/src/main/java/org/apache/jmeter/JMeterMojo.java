@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -21,7 +22,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.xml.transform.TransformerException;
 
-import org.apache.commons.io.IOUtils;
 import org.apache.maven.artifact.repository.ArtifactRepository;
 import org.apache.maven.artifact.resolver.ArtifactResolver;
 import org.apache.maven.plugin.AbstractMojo;
@@ -259,8 +259,10 @@ public class JMeterMojo extends AbstractMojo {
     private InputStream getXslt() throws IOException {
         if (this.reportXslt == null) {
             //if we are using the default report, also copy the images out.
-            IOUtils.copy(Thread.currentThread().getContextClassLoader().getResourceAsStream("reports/collapse.jpg"), new FileOutputStream(this.reportDir.getPath() + File.separator + "collapse.jpg"));
-            IOUtils.copy(Thread.currentThread().getContextClassLoader().getResourceAsStream("reports/expand.jpg"), new FileOutputStream(this.reportDir.getPath() + File.separator + "expand.jpg"));
+            
+            // TODO:Reimplement - Reimplement this without IOUtils
+//            IOUtils.copy(Thread.currentThread().getContextClassLoader().getResourceAsStream("reports/collapse.jpg"), new FileOutputStream(this.reportDir.getPath() + File.separator + "collapse.jpg"));
+//            IOUtils.copy(Thread.currentThread().getContextClassLoader().getResourceAsStream("reports/expand.jpg"), new FileOutputStream(this.reportDir.getPath() + File.separator + "expand.jpg"));
             return Thread.currentThread().getContextClassLoader().getResourceAsStream("reports/jmeter-results-detail-report_21.xsl");
         } else {
             return new FileInputStream(this.reportXslt);
@@ -329,10 +331,16 @@ public class JMeterMojo extends AbstractMojo {
 
         for (File propertyFile : temporaryPropertyFiles) {
             try {
-                FileWriter out = new FileWriter(propertyFile);
-                IOUtils.copy(Thread.currentThread().getContextClassLoader().getResourceAsStream(propertyFile.getName()), out);
-                out.flush();
+                final OutputStream out = new FileOutputStream(propertyFile);
+                final InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(propertyFile.getName());
+                int value = -1;
+                
+                while ((value = in.read()) != -1) {
+                    out.write(value);
+                }
+                
                 out.close();
+                in.close();
             } catch (IOException e) {
                 throw new MojoExecutionException("Could not create temporary property file " + propertyFile.getName() + " in directory " + jmeterTargetDir, e);
             }
