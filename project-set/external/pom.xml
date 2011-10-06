@@ -26,5 +26,6 @@
         <module>service-clients</module>
         <module>maven-plugins/jdeb</module>
         <module>maven-plugins/jmeter-maven-plugin</module>
+        <module>testing/test-support</module>
     </modules>
 </project>

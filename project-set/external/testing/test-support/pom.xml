@@ -1,32 +1,34 @@
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.testing</groupId>
-    <artifactId>TestSupport</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <parent>
+        <groupId>com.rackspace.papi.external</groupId>
+        <artifactId>external-lib-support</artifactId>
+        <version>0.9.2-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <groupId>com.rackspace.papi.external.testing</groupId>
+    <artifactId>test-service-mock</artifactId>
     <packaging>war</packaging>
 
-    <name>TestSupport</name>
+    <name>Power API Test - Testing Service and Mocks</name>
 
     <properties>
         <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>javax</groupId>
             <artifactId>javaee-web-api</artifactId>
-            <version>6.0</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.8.2</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -44,6 +46,7 @@
                     </compilerArguments>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
@@ -52,6 +55,7 @@
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -79,5 +83,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>
