@@ -12,7 +12,7 @@
     
     <groupId>org.apache.jmeter</groupId>
     <artifactId>maven-jmeter-plugin</artifactId>
-    <version>4.2</version>
+    <version>4.2-SNAPSHOT</version>
     
     <name>Maven JMeter Plugin</name>
     <packaging>maven-plugin</packaging>
