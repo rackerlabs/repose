@@ -17,6 +17,14 @@
     <packaging>jar</packaging>
     
     <dependencies>
+        <!-- This dependency will pull in an implementation of necessary javaee-api
+             classes used during testing -->
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <scope>test</scope>
+        </dependency>
+                    
         <dependency>
             <groupId>com.rackspace.cloud.services.clients</groupId>
             <artifactId>rackspace-auth-v1.1</artifactId>

@@ -28,9 +28,6 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.client.apache4.ApacheHttpClient4;
-import com.sun.jersey.client.apache4.ApacheHttpClient4Handler;
-import com.sun.jersey.client.urlconnection.URLConnectionClientHandler;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -39,9 +36,6 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
-import org.apache.http.impl.client.BasicCookieStore;
 
 
 
@@ -58,7 +52,6 @@ public class JerseyClientProxyService implements ProxyService {
     private final Client client;
     private final URI proxiedHost;
     private final String proxiedHostUrl;
-    //private final ThreadSafeClientConnManager manager;
 
     public JerseyClientProxyService(String targetHost) {
         URI targetUri = null;
@@ -76,17 +69,6 @@ public class JerseyClientProxyService implements ProxyService {
         cc.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, false);
         cc.getProperties().put(ClientConfig.PROPERTY_THREADPOOL_SIZE, new Integer(20));
         client = Client.create(cc);
-        
-        /*
-        DefaultClientConfig config = new DefaultClientConfig();
-        config.getProperties().put(URLConnectionClientHandler.PROPERTY_HTTP_URL_CONNECTION_SET_METHOD_WORKAROUND, true);
-        Client c = Client.create(config);
-        
-        manager = new ThreadSafeClientConnManager();
-        ApacheHttpClient4Handler apacheHandler = new ApacheHttpClient4Handler(new DefaultHttpClient(manager), new BasicCookieStore(), false);
-        client = new ApacheHttpClient4(apacheHandler, cc);
-         * 
-         */
     }
     
     private String asUri(URI host) {
@@ -117,8 +99,6 @@ public class JerseyClientProxyService implements ProxyService {
         
         JerseyRequestProcessor processor = new JerseyRequestProcessor(request, proxiedHost);
         WebResource resource = client.resource(target);
-        //WebResource resource = client.resource(proxiedHostUrl).path(request.getRequestURI());
-        //WebResource resource = getResource(processor, target);
         Builder builder = processor.process(resource);
         try {
           return executeProxyRequest(builder, request, response);
