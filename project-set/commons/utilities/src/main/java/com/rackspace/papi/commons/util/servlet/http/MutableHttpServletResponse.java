@@ -45,7 +45,6 @@ public final class MutableHttpServletResponse extends HttpServletResponseWrapper
 
     public void commitBufferToServletOutputStream() throws IOException {
         // The writer has its own buffer
-        // TODO: Replace the writer with a writer that does not require flushing and instead writed directly to the shared buffer
         outputStreamWriter.flush();
 
         final byte[] bytes = new byte[2048];
