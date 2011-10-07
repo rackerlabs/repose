@@ -1263,7 +1263,7 @@
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
               <stringProp name="HTTPSampler.protocol">http</stringProp>
               <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
-              <stringProp name="HTTPSampler.path">${version}xyz/${resourcepath}</stringProp>
+              <stringProp name="HTTPSampler.path">${version}xyz${resourcepath}</stringProp>
               <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
             </ConfigTestElement>
             <hashTree/>
@@ -1310,7 +1310,7 @@
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
               <stringProp name="HTTPSampler.protocol">http</stringProp>
               <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
-              <stringProp name="HTTPSampler.path">${version}xyz/${resourcepath}</stringProp>
+              <stringProp name="HTTPSampler.path">${version}xyz${resourcepath}</stringProp>
               <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
             </ConfigTestElement>
             <hashTree/>
