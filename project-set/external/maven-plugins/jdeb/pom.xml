@@ -10,8 +10,7 @@
     </parent>
     
     <groupId>org.vafer</groupId>
-    <artifactId>jdeb</artifactId>
-    <version>0.10.papi-SNAPSHOT</version>
+    <artifactId>papi-jdeb</artifactId>
     
     <name>jdeb</name>
     <packaging>maven-plugin</packaging>

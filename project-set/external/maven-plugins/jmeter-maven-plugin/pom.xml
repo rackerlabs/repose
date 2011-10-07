@@ -11,8 +11,7 @@
     </parent>
     
     <groupId>org.apache.jmeter</groupId>
-    <artifactId>maven-jmeter-plugin</artifactId>
-    <version>4.2-SNAPSHOT</version>
+    <artifactId>papi-maven-jmeter-plugin</artifactId>
     
     <name>Maven JMeter Plugin</name>
     <packaging>maven-plugin</packaging>

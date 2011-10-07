@@ -39,7 +39,7 @@
     </modules>
 
     <scm>
-        <connection>scm:git:ssh://git@github.com/rackspace/power-api.git</connection>
+        <connection>scm:git:ssh://git@github.com/rackspace/repose.git</connection>
     </scm>
     
     <repositories>
