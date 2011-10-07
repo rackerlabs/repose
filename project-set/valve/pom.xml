@@ -12,7 +12,7 @@
     <groupId>com.rackspace.cloud.commons</groupId>
     <artifactId>valve</artifactId>
     <packaging>jar</packaging>
-    <name>Rackspace Cloud Valve (Proxy Host Prototype)</name>
+    <name>repose-valve</name>
 
     <properties>
         <project.license>apache20</project.license>
@@ -53,9 +53,21 @@
         </dependency>
 
         <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.1.2</version>
+        </dependency>
+        
+        <dependency>
             <groupId>commons-httpclient</groupId>
             <artifactId>commons-httpclient</artifactId>
             <version>3.1</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>1.9.1</version>
         </dependency>
 
         <dependency>
@@ -84,7 +96,6 @@
             <version>${project.version}</version>
             <scope>test</scope>            
         </dependency>
-
     </dependencies>
 
     <build>
@@ -115,7 +126,71 @@
                 </executions>
             </plugin>
             
+            <plugin>
+                <artifactId>jdeb</artifactId>
+                <groupId>org.vafer</groupId>
+                <version>0.9.papi</version>
+                
+                <executions>
+                        <execution>
+                            <phase>package</phase>
+                            <goals>
+                                <goal>jdeb</goal>
+                            </goals>
+                            <configuration>
+                                <deb>repose-valve.deb</deb>
+                                <dataSet>
+                                    <!-- The jar file -->
+                                    <data>
+                                        <src>${project.build.directory}/${project.build.finalName}.jar</src>
+                                        <type>file</type>
+                                        <mapper>
+                                          <type>perm</type>
+                                          <prefix>/usr/share/lib</prefix>
+                                        </mapper>
+                                    </data>
+
+                                    <!-- The config directory and files -->
+                                    <data>
+                                        <src>../core/core-lib/src/main/resources/META-INF/schema/examples/</src>
+                                        <type>directory</type>
+                                        <includes>*.cfg.xml</includes>
+
+                                        <mapper>
+                                            <type>perm</type>
+                                            <prefix>/etc/powerapi</prefix>                                            
+                                            <filemode>755</filemode>                                            
+                                        </mapper>
+                                    </data>
+                                    
+                                    <!-- The filter components directory and EAR file -->
+                                    <data>
+                                        <src>../components/filter-bundle/target</src>
+                                        <type>directory</type>
+                                        <includes>*.ear</includes>
+
+                                        <mapper>
+                                            <type>perm</type>
+                                            <prefix>/usr/share/powerapi/filters</prefix>
+                                            <filemode>755</filemode>
+                                        </mapper>
+                                    </data>
+
+                                    <!-- The log directory with info file as placeholder for plugin -->
+                                    <data>
+                                        <type>make-directory</type>
+
+                                        <mapper>
+                                            <type>dir</type>
+                                            <prefix>/var/powerapi/logs</prefix>
+                                            <filemode>765</filemode>
+                                        </mapper>
+                                    </data>                                  
+                                </dataSet>
+                            </configuration>
+                        </execution>
+                    </executions>                
+            </plugin>            
         </plugins>
     </build>
 </project>
-

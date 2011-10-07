@@ -1,42 +1,57 @@
 package com.rackspace.auth.v1_1;
 
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
+import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.config.ClientConfig;
+import com.sun.jersey.api.client.config.DefaultClientConfig;
+import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 
-import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * @author fran
  */
 public class ServiceClient {
-    private final HttpClient client;
+    private final Client client;
 
     public ServiceClient(String username, String password) {
-        this.client = new HttpClient();
+        DefaultClientConfig cc = new DefaultClientConfig();
+        cc.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, false);
+        client = Client.create(cc);
         
-        final Credentials defaultCredentials = new UsernamePasswordCredentials(username, password);
-        client.getState().setCredentials(AuthScope.ANY, defaultCredentials);
+        HTTPBasicAuthFilter authFilter = new HTTPBasicAuthFilter(username, password);
+        client.addFilter(authFilter);
     }
 
-    public GetMethod get(String uri, NameValuePair[] queryParameters) throws AuthServiceException {
-        final GetMethod getMethod = new GetMethod(uri);
-        getMethod.addRequestHeader("Accept", "application/xml");
-
-        if (queryParameters != null) {
-            getMethod.setQueryString(queryParameters);
+    public <T> ServiceClientResponse<T> get(String uri, Class<T> entityClass, String... queryParameters) throws AuthServiceException {
+        WebResource resource = client.resource(uri);
+        
+        if (queryParameters.length % 2 != 0) {
+           throw new IllegalArgumentException("Query parameters must be in pairs.");
         }
-
-        try {
-            client.executeMethod(getMethod);
-        } catch (IOException ioe) {
-            throw new AuthServiceException("Failed to successfully communicate with Auth v1.1 Service (" + uri + "): "
-                    + ioe.getMessage(), ioe);
+        
+        for (int index = 0; index < queryParameters.length; index = index + 2) {
+           resource = resource.queryParam(queryParameters[index], queryParameters[index + 1]);
         }
-
-        return getMethod;
+        
+        ClientResponse response = resource.header("Accept", "application/xml").get(ClientResponse.class);
+        return new ServiceClientResponse(response.getStatus(), response.getEntity(entityClass));
     }
+
+    public ServiceClientResponse get(String uri, String... queryParameters) throws AuthServiceException {
+        WebResource resource = client.resource(uri);
+        
+        if (queryParameters.length % 2 != 0) {
+           throw new IllegalArgumentException("Query parameters must be in pairs.");
+        }
+        
+        for (int index = 0; index < queryParameters.length; index = index + 2) {
+           resource = resource.queryParam(queryParameters[index], queryParameters[index + 1]);
+        }
+        
+        ClientResponse response = resource.header("Accept", "application/xml").get(ClientResponse.class);
+        return new ServiceClientResponse(response.getStatus(), response.getEntity(InputStream.class));
+    }
+
 }

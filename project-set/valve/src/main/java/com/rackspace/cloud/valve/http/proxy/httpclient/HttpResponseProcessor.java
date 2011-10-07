@@ -47,7 +47,7 @@ public class HttpResponseProcessor {
     }
     
     private String getResponseHeaderValue(String headerName) throws HttpException {
-        final Header locationHeader = httpMethodResponse.getResponseHeader(LOCATION.toString());
+        final Header locationHeader = httpMethodResponse.getResponseHeader(headerName);
         if (locationHeader == null) {
             throw new HttpException("Expected header was not found in response: " + headerName + " (Response Code: " + responseCode + ")");
         }
