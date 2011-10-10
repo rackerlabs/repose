@@ -3,36 +3,44 @@ package com.rackspace.papi.components.cnorm.normalizer;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.components.normalization.config.MediaType;
-import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 public class MediaTypeNormalizer {
-
-    private static final Pattern VARIANT_EXTRACTOR_REGEX = Pattern.compile("/([^/.]+)?(\\.[^/?#]+)");
-    private static final int VARIANT_EXTENSION_GROUP = 2;
+    private static final Logger LOG = LoggerFactory.getLogger(MediaTypeNormalizer.class);
+    private static final Pattern VARIANT_EXTRACTOR_REGEX = Pattern.compile("((\\.)[^\\d][\\w]*)");
+    private static final int VARIANT_EXTENSION_GROUP = 1;
     
-    private final List<MediaType> knownMediaTypes;
+    private final List<MediaType> configuredMediaTypes;
     private final MediaType preferredMediaType;
 
-    public MediaTypeNormalizer(List<MediaType> knownMediaTypes) {
-        this.knownMediaTypes = knownMediaTypes;
+    public MediaTypeNormalizer(List<MediaType> configuredMediaTypes) {
+        this.configuredMediaTypes = configuredMediaTypes;
 
-        preferredMediaType = getPreferredMediaType(knownMediaTypes);
+        preferredMediaType = getPreferredMediaType(configuredMediaTypes);
     }
 
     private MediaType getPreferredMediaType(List<MediaType> mediaTypes) {
-        for (MediaType mediaType : knownMediaTypes) {
+        MediaType preferredMediaType = mediaTypes.size() > 0 ? mediaTypes.get(0) : null;
+
+        for (MediaType mediaType : configuredMediaTypes) {
             if (mediaType.isPreferred()) {
-                return mediaType;
+                preferredMediaType = mediaType;
+                break;
             }
         }
 
-        //TODO:Log let the user know that the preferred media type will be the first element in the media type list        
-        return mediaTypes.size() > 0 ? mediaTypes.get(0) : null;
+        if (preferredMediaType != null && !preferredMediaType.isPreferred()) {
+            LOG.info("No preferred media type specified in the content normalization configuration.  Using the first in the list.");
+        }
+
+        return preferredMediaType;
     }
 
     public void normalizeContentMediaType(HttpServletRequest request, FilterDirector director) {
@@ -55,7 +63,7 @@ public class MediaTypeNormalizer {
         if (variantMatcher.find()) {
             final String requestedVariant = variantMatcher.group(VARIANT_EXTENSION_GROUP);
             
-            for (MediaType mediaType : knownMediaTypes) {
+            for (MediaType mediaType : configuredMediaTypes) {
                 final String variantExtension = formatVariant(mediaType.getVariantExtension());
 
                 if (StringUtilities.isNotBlank(variantExtension) && requestedVariant.equalsIgnoreCase(variantExtension)) {

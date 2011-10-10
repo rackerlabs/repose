@@ -5,6 +5,8 @@ import com.rackspace.papi.components.normalization.config.MediaType;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
@@ -114,6 +116,19 @@ public class MediaTypeNormalizerTest {
             assertEquals("xml", identifiedMediaType.getVariantExtension());
             assertEquals("/a/request/uri/", director.getRequestUri());
             assertEquals("http://localhost/a/request/uri/", director.getRequestUrl().toString());
+        }
+
+        @Test
+        public void should() {
+            Pattern VARIANT_EXTRACTOR_REGEX = Pattern.compile("((\\.)[^\\d][\\w]*)");
+
+            Matcher variantMatcher = VARIANT_EXTRACTOR_REGEX.matcher("http://localhost:8080/v1/test-service-mock-0.9.2-SNAPSHOT/whatever.xml");
+
+            if (variantMatcher.find()) {
+                for (int i = 1; i <=  variantMatcher.groupCount(); i++) {
+                    System.out.println(variantMatcher.group(i));
+                }
+            }
         }
     }
 }
