@@ -79,7 +79,7 @@
                     <configuration>
                         <reportDir>${project.build.directory}/jmeter-reports</reportDir>
                         <include>PowerAPI_Valve test.jmx</include>
-                        <jmeterhome>/home/malconis/jakarta-jmeter-2.5</jmeterhome>
+                        <jmeterhome>/usr/share/jmeter</jmeterhome>
                         <jmeterPreserveIncludeOrder>true</jmeterPreserveIncludeOrder>
                     </configuration>
                 </plugin>
