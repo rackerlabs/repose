@@ -34,7 +34,7 @@ public class VersioningFilter implements Filter {
     @Override
     public void destroy() {
         configurationManager.unsubscribeFrom("power-proxy.cfg.xml", handler.getSystemModelConfigurationListener());
-        configurationManager.unsubscribeFrom("versioning.cfg.xml", handler.getVersioningConfigurationListener());
+        configurationManager.unsubscribeFrom("versioning.cfg.xml", handler.getConfigurationListener());
     }
 
     @Override
@@ -66,6 +66,6 @@ public class VersioningFilter implements Filter {
         configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
                 
         configurationManager.subscribeTo("power-proxy.cfg.xml", handler.getSystemModelConfigurationListener(), PowerProxy.class);
-        configurationManager.subscribeTo("versioning.cfg.xml", handler.getVersioningConfigurationListener(), ServiceVersionMappingList.class);
+        configurationManager.subscribeTo("versioning.cfg.xml", handler.getConfigurationListener(), ServiceVersionMappingList.class);
     }
 }

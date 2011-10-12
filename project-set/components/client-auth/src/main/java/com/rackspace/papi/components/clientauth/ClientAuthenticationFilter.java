@@ -32,7 +32,7 @@ public class ClientAuthenticationFilter implements Filter {
 
     @Override
     public void destroy() {
-        configurationManager.unsubscribeFrom("client-auth-n.cfg.xml", handler.getClientAuthenticationConfigurationListener());
+        configurationManager.unsubscribeFrom("client-auth-n.cfg.xml", handler.getConfigurationListener());
     }
 
     @Override
@@ -70,6 +70,6 @@ public class ClientAuthenticationFilter implements Filter {
         ServletContext servletContext = filterConfig.getServletContext();
         configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
 
-        configurationManager.subscribeTo("client-auth-n.cfg.xml", handler.getClientAuthenticationConfigurationListener(), ClientAuthConfig.class);
+        configurationManager.subscribeTo("client-auth-n.cfg.xml", handler.getConfigurationListener(), ClientAuthConfig.class);
     }
 }

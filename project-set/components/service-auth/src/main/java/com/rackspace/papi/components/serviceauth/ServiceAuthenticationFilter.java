@@ -50,6 +50,6 @@ public class ServiceAuthenticationFilter implements Filter {
         handler = new ServiceAuthenticationHandler();
         final ConfigurationService manager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
 
-        manager.subscribeTo("service-auth.cfg.xml", handler.getServiceAuthorizationConfigurationListener(), ServiceAuthConfig.class);
+        manager.subscribeTo("service-auth.cfg.xml", handler.getConfigurationListener(), ServiceAuthConfig.class);
     }
 }
