@@ -80,7 +80,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             when(datastoreMock.get(anyString())).thenReturn(new StoredElementImpl("key", null));
 
             handler = new RateLimitingHandler(datastoreMock);
-            handler.getRateLimitingConfigurationListener().configurationUpdated(defaultRateLimitingConfiguration());
+            handler.getConfigurationListener().configurationUpdated(defaultRateLimitingConfiguration());
 
             requestMock = mock(HttpServletRequest.class);
         }
