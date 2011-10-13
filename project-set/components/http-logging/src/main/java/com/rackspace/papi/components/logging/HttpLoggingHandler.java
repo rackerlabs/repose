@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.logging;
 
-import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.logging.apache.HttpLogFormatter;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
@@ -10,6 +9,7 @@ import com.rackspace.papi.components.logging.config.HttpLog;
 import com.rackspace.papi.components.logging.config.HttpLoggingConfig;
 import com.rackspace.papi.components.logging.config.Targets;
 import com.rackspace.papi.components.logging.util.FileLogger;
+import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandler;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,55 +18,47 @@ import java.util.List;
  *
  * @author jhopper
  */
-public class HttpLoggingHandler extends AbstractFilterLogicHandler {
+public class HttpLoggingHandler extends AbstractConfiguredFilterHandler<HttpLoggingConfig> {
 
-    private final List<HttpLoggerWrapper> loggers;
+   private final List<HttpLoggerWrapper> loggers;
 
-    public HttpLoggingHandler() {
-        loggers = new LinkedList<HttpLoggerWrapper>();
-    }
-    
-    private class ConfigUpdateListener implements UpdateListener<HttpLoggingConfig> {
-        @Override
-        public void configurationUpdated(HttpLoggingConfig modifiedConfig) {
-            //Clean up~
-            destroy();
+   public HttpLoggingHandler() {
+      loggers = new LinkedList<HttpLoggerWrapper>();
+   }
 
-            for (HttpLog log : modifiedConfig.getHttpLog()) {
-                final HttpLoggerWrapper loggerWrapper = new HttpLoggerWrapper(new HttpLogFormatter(log.getFormat()));
-                final Targets targets = log.getTargets();
+   @Override
+   public void configurationUpdated(HttpLoggingConfig modifiedConfig) {
+      //Clean up~
+      destroy();
 
-                if (targets.getFile() != null) {
-                    final FileTarget fTarget = targets.getFile();
+      for (HttpLog log : modifiedConfig.getHttpLog()) {
+         final HttpLoggerWrapper loggerWrapper = new HttpLoggerWrapper(new HttpLogFormatter(log.getFormat()));
+         final Targets targets = log.getTargets();
 
-                    loggerWrapper.addLogger(new FileLogger(new File(fTarget.getLocation())));
-                }
+         if (targets.getFile() != null) {
+            final FileTarget fTarget = targets.getFile();
 
-                loggers.add(loggerWrapper);
-            }
-        }
-    }
-    
-    private final UpdateListener<HttpLoggingConfig> httpLoggingConfigurationListener = new ConfigUpdateListener();
-    
-    public UpdateListener<HttpLoggingConfig> getHttpLoggingConfigurationListener() {
-        return httpLoggingConfigurationListener;
-    }
+            loggerWrapper.addLogger(new FileLogger(new File(fTarget.getLocation())));
+         }
 
-    /**
+         loggers.add(loggerWrapper);
+      }
+   }
+
+   /**
      * NOT THREAD SAFE!
      */
-    private void destroy() {
-        for (HttpLoggerWrapper loggerWrapper : loggers) {
-            loggerWrapper.destroy();
-        }
+   private void destroy() {
+      for (HttpLoggerWrapper loggerWrapper : loggers) {
+         loggerWrapper.destroy();
+      }
 
-        loggers.clear();
-    }
+      loggers.clear();
+   }
 
-    public void handleResponse(MutableHttpServletRequest request, MutableHttpServletResponse response) {
-        for (HttpLoggerWrapper loggerWrapper : loggers) {
-            loggerWrapper.handle(request, response);
-        }
-    }
+   public void handleResponse(MutableHttpServletRequest request, MutableHttpServletResponse response) {
+      for (HttpLoggerWrapper loggerWrapper : loggers) {
+         loggerWrapper.handle(request, response);
+      }
+   }
 }

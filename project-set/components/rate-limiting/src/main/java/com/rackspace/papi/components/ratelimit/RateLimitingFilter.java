@@ -79,6 +79,6 @@ public class RateLimitingFilter implements Filter {
 
         handler = new RateLimitingHandler(getDatastore(ctx.datastoreService()));
 
-        ctx.configurationService().subscribeTo("rate-limiting.cfg.xml", handler.getRateLimitingConfigurationListener(), RateLimitingConfiguration.class);
+        ctx.configurationService().subscribeTo("rate-limiting.cfg.xml", handler.getConfigurationListener(), RateLimitingConfiguration.class);
     }
 }

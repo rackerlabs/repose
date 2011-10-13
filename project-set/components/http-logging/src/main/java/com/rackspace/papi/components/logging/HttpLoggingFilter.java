@@ -49,6 +49,6 @@ public class HttpLoggingFilter implements Filter {
         handler = new HttpLoggingHandler();
         final ConfigurationService manager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
 
-        manager.subscribeTo("http-logging.xml", handler.getHttpLoggingConfigurationListener(), HttpLoggingConfig.class);
+        manager.subscribeTo("http-logging.xml", handler.getConfigurationListener(), HttpLoggingConfig.class);
     }
 }
