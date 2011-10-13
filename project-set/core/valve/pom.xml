@@ -6,25 +6,13 @@
     <parent>
         <groupId>com.rackspace.papi.core</groupId>
         <artifactId>core-support</artifactId>
-        <version>0.9.2-SNAPSHOT</version>
+        <version>1.0.1-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.cloud.commons</groupId>
+    <groupId>com.rackspace.papi.core</groupId>
     <artifactId>valve</artifactId>
     <packaging>jar</packaging>
-    <name>repose-valve</name>
-
-    <properties>
-        <project.license>apache20</project.license>
-        <org.springframework.version>3.0.3.RELEASE</org.springframework.version>
-    </properties>
-
-    <licenses>
-        <license>
-            <name>Apache License, Version 2.0</name>
-            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-        </license>
-    </licenses>
+    <name>Repose Valve - Integration Proxy Container</name>
 
     <dependencies>
         <dependency>
@@ -75,7 +63,7 @@
             <artifactId>args4j</artifactId>
             <version>2.0.16</version>
         </dependency>
-
+        
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>rate-limiting</artifactId>
@@ -99,9 +87,9 @@
     </dependencies>
 
     <build>
-        <finalName>papi</finalName>
+        <finalName>repose-valve</finalName>
+        
         <plugins>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -127,69 +115,63 @@
             </plugin>
             
             <plugin>
-                <artifactId>jdeb</artifactId>
                 <groupId>org.vafer</groupId>
-                <version>0.9.papi</version>
+                <artifactId>papi-jdeb</artifactId>
+                <version>${project.version}</version>
                 
                 <executions>
-                        <execution>
-                            <phase>package</phase>
-                            <goals>
-                                <goal>jdeb</goal>
-                            </goals>
-                            <configuration>
-                                <deb>repose-valve.deb</deb>
-                                <dataSet>
+                    <execution>
+                        <phase>package</phase>
+                        
+                        <goals>
+                            <goal>jdeb</goal>
+                        </goals>
+                        
+                        <configuration>
+                            <dataSet>
                                     <!-- The jar file -->
-                                    <data>
-                                        <src>${project.build.directory}/${project.build.finalName}.jar</src>
-                                        <type>file</type>
-                                        <mapper>
-                                          <type>perm</type>
-                                          <prefix>/usr/share/lib</prefix>
-                                        </mapper>
-                                    </data>
+                                <data>
+                                    <src>${project.build.directory}/${project.build.finalName}.jar</src>
+                                    <type>file</type>
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>/usr/share/lib</prefix>
+                                    </mapper>
+                                </data>
 
                                     <!-- The config directory and files -->
-                                    <data>
-                                        <src>../core/core-lib/src/main/resources/META-INF/schema/examples/</src>
-                                        <type>directory</type>
-                                        <includes>*.cfg.xml</includes>
+                                <data>
+                                    <src>../core-lib/src/main/resources/META-INF/schema/examples/</src>
+                                    <type>directory</type>
+                                    <includes>*.cfg.xml</includes>
 
-                                        <mapper>
-                                            <type>perm</type>
-                                            <prefix>/etc/powerapi</prefix>                                            
-                                            <filemode>755</filemode>                                            
-                                        </mapper>
-                                    </data>
-                                    
-                                    <!-- The filter components directory and EAR file -->
-                                    <data>
-                                        <src>../components/filter-bundle/target</src>
-                                        <type>directory</type>
-                                        <includes>*.ear</includes>
-
-                                        <mapper>
-                                            <type>perm</type>
-                                            <prefix>/usr/share/powerapi/filters</prefix>
-                                            <filemode>755</filemode>
-                                        </mapper>
-                                    </data>
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>/etc/powerapi</prefix>                                            
+                                        <filemode>755</filemode>                                            
+                                    </mapper>
+                                </data>
 
                                     <!-- The log directory with info file as placeholder for plugin -->
-                                    <data>
-                                        <type>make-directory</type>
+                                <data>
+                                    <type>make-directory</type>
 
-                                        <mapper>
-                                            <type>dir</type>
-                                            <prefix>/var/powerapi/logs</prefix>
-                                            <filemode>765</filemode>
-                                        </mapper>
-                                    </data>                                  
-                                </dataSet>
-                            </configuration>
-                        </execution>
-                    </executions>                
+                                    <mapper>
+                                        <type>dir</type>
+                                        <prefix>/var/powerapi/logs</prefix>
+                                        <filemode>765</filemode>
+                                    </mapper>
+                                    
+                                    <mapper>
+                                        <type>dir</type>
+                                        <prefix>/usr/share/powerapi/filters</prefix>
+                                        <filemode>755</filemode>
+                                    </mapper>
+                                </data>                                  
+                            </dataSet>
+                        </configuration>
+                    </execution>
+                </executions>                
             </plugin>            
         </plugins>
     </build>

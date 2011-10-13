@@ -20,6 +20,7 @@
         <module>core-lib</module>
         <module>web-application</module>
         <module>test-application</module>
+        <module>valve</module>
     </modules>
     
     <dependencyManagement>
