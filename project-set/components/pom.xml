@@ -27,6 +27,7 @@
         <module>rate-limiting</module>
         <module>versioning</module>
         <module>exceptionator</module>
+        <module>translation</module>
     </modules>
     
     <dependencyManagement>
@@ -143,7 +144,13 @@
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>distributed-datastore</artifactId>
                 <version>${project.version}</version>
-            </dependency>      
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>translation</artifactId>
+                <version>${project.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>
