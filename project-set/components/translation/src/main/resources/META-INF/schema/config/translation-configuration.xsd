@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.rackspacecloud.com/power-api/translation/v1.0"
+           xmlns:trans-config="http://docs.rackspacecloud.com/power-api/translation/v1.0"
+           xmlns:p="http://www.w3.org/ns/xproc"
+           xmlns:c="http://www.w3.org/ns/xproc-step"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Configuration -->
+    <xs:element name="translation" type="trans-config:TranslationConfig" />
+
+    <xs:complexType name="TranslationConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>        
+    </xs:complexType>
+</xs:schema>
