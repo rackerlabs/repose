@@ -113,7 +113,7 @@ public class PowerFilterChainBuilderTest {
             filterListClass.addFilter(mockedFilter);
 
             Host host = new Host();
-            host.setHostname(LocalhostFilterList.getLocalHostName());
+            host.setHostname(SystemModelInterrogator.getLocalHostName());
             host.setFilters(filterListClass);
 
             hostList.add(host);

@@ -85,7 +85,9 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                 }
             }
         };
-    } // This is written like this in case requests are already processing against the
+    }
+    
+    // This is written like this in case requests are already processing against the
     // existing filterChain.  If that is the case we create a new one for the deployment
     // update but the old list stays in memory as the garbage collector won't clean
     // it up until all RequestFilterChainState objects are no longer referencing it.

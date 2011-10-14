@@ -7,7 +7,7 @@ import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList;
 import com.rackspace.papi.components.versioning.domain.ConfigurationData;
 import com.rackspace.papi.components.versioning.util.ContentTransformer;
-import com.rackspace.papi.filter.LocalhostFilterList;
+import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.model.Host;
 import com.rackspace.papi.model.PowerProxy;
@@ -41,7 +41,7 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
       @Override
       public void configurationUpdated(PowerProxy configurationObject) {
-         localHost = new LocalhostFilterList(configurationObject).getLocalHost();
+         localHost = new SystemModelInterrogator(configurationObject).getLocalHost();
 
          for (Host powerApiHost : configurationObject.getHost()) {
             configuredHosts.put(powerApiHost.getId(), powerApiHost);

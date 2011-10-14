@@ -1,7 +1,5 @@
 package com.rackspace.cloud.valve.http.proxy;
 
-import com.rackspace.cloud.valve.http.proxy.httpclient.HttpClientProxyService;
-import com.rackspace.cloud.valve.http.proxy.httpcomponent.HttpComponentProxyService;
 import com.rackspace.cloud.valve.http.proxy.jerseyclient.JerseyClientProxyService;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;

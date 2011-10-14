@@ -10,4 +10,8 @@ public class HostUtilities {
     public static String asUrl(Host host) throws MalformedURLException {
         return new URL(HTTP_PREFIX, host.getHostname(), host.getServicePort(), "").toExternalForm();
     }
+    
+    public static String asUrl(Host host, String uri) throws MalformedURLException {
+        return new URL(HTTP_PREFIX, host.getHostname(), host.getServicePort(), uri).toExternalForm();
+    }
 }
