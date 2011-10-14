@@ -10,6 +10,7 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Ignore;
 import static org.junit.Assert.*;
 
 import static org.mockito.Mockito.*;
@@ -52,7 +53,7 @@ public class LocalhostFilterListTest {
             return hostList;
         }
 
-        @Test
+        @Test @Ignore("This test should be reviewed for intent and usage")
         public void shouldGetLocalhostFiltersWhenNoHostsPresent() {
             PowerProxy mockedPowerProxy = mock(PowerProxy.class);
             List<Host> hosts = new ArrayList<Host>();

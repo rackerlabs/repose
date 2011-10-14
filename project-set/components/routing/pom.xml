@@ -32,26 +32,4 @@
             <artifactId>utilities</artifactId>
         </dependency>
     </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>com.sun.tools.xjc.maven2</groupId>
-                <artifactId>maven-jaxb-plugin</artifactId>
-                
-                <configuration>                    
-                    <includeSchemas>
-                        <includeSchema>**/*.xsd</includeSchema>
-                    </includeSchemas>
-                    
-                    <includeBindings>
-                        <includeBinding>**/*.xjb</includeBinding>
-                    </includeBindings>
-                    
-                    <strict>true</strict>
-                    <verbose>false</verbose>
-                </configuration>
-            </plugin>            
-        </plugins>
-    </build>
 </project>

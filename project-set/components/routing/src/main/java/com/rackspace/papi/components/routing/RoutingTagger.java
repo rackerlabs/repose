@@ -70,7 +70,7 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
             try {
                 myDirector.requestHeaderManager().putHeader(PowerApiHeader.ROUTE_DESTINATION.headerKey(), HostUtilities.asUrl(nextRoutableHost, request.getRequestURI()));
             } catch (MalformedURLException murle) {
-                // TODO: Malformed URL Expcetions are unexpected and should return as a 502
+                // Malformed URL Expcetions are unexpected and should return as a 502
                 LOG.error(murle.getMessage(), murle);
                 
                 myDirector.setFilterAction(FilterAction.RETURN);
