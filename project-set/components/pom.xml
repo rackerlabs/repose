@@ -26,8 +26,8 @@
         <module>content-normalization</module>
         <module>rate-limiting</module>
         <module>versioning</module>
-        <module>exceptionator</module>
         <module>translation</module>
+        <module>routing</module>
     </modules>
     
     <dependencyManagement>

@@ -96,7 +96,6 @@ public class PowerFilterChain implements FilterChain {
             final ServletContext targetContext = context.getContext(routeDestination);
 
             if (targetContext != null) {
-
                 final RequestDispatcher dispatcher = targetContext.getRequestDispatcher(
                         new DispatchPathBuilder(servletRequest, routeDestination).build());
 

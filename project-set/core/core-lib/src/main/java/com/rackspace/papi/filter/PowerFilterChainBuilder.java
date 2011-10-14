@@ -2,6 +2,7 @@ package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.model.Filter;
+import com.rackspace.papi.model.Host;
 import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.service.classloader.ApplicationClassLoaderManager;
 import org.slf4j.Logger;
@@ -25,8 +26,9 @@ public class PowerFilterChainBuilder {
 
     public List<FilterContext> build(ApplicationClassLoaderManager classLoaderContextManager, PowerProxy powerProxy) {
         final List<FilterContext> filterContexts = new LinkedList<FilterContext>();
-
-        for (com.rackspace.papi.model.Filter papiFilter : new LocalhostFilterList(powerProxy).getFilters()) {
+        final Host localHost = new SystemModelInterrogator(powerProxy).getLocalHost();
+        
+        for (com.rackspace.papi.model.Filter papiFilter : localHost.getFilters().getFilter()) {
             if (StringUtilities.isBlank(papiFilter.getName())) {
                 LOG.error("Filter declaration has a null or empty name value - please check your system model configuration");
                 continue;

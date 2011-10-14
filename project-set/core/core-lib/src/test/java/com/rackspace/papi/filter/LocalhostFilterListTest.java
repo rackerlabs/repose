@@ -1,6 +1,5 @@
 package com.rackspace.papi.filter;
 
-import com.rackspace.papi.filter.LocalhostFilterList;
 import com.rackspace.papi.model.FilterList;
 import com.rackspace.papi.model.Host;
 import com.rackspace.papi.model.PowerProxy;
@@ -24,7 +23,7 @@ public class LocalhostFilterListTest {
         @Test
         public void shouldInstantiate() {
             PowerProxy powerProxy = new PowerProxy();
-            LocalhostFilterList localhostFilterList = new LocalhostFilterList(powerProxy);
+            SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(powerProxy);
 
             assertNotNull(localhostFilterList);
         }
@@ -35,8 +34,8 @@ public class LocalhostFilterListTest {
             List<Host> hosts = createTestHosts();
             when(mockedPowerProxy.getHost()).thenReturn(hosts);
 
-            LocalhostFilterList localhostFilterList = new LocalhostFilterList(mockedPowerProxy);
-            List<com.rackspace.papi.model.Filter> filters = localhostFilterList.getFilters();
+            SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(mockedPowerProxy);
+            List<com.rackspace.papi.model.Filter> filters = localhostFilterList.getLocalHost().getFilters().getFilter();
 
             assertNotNull(filters);
         }
@@ -45,7 +44,7 @@ public class LocalhostFilterListTest {
             List<Host> hostList = new ArrayList<Host>();
 
             Host host = new Host();
-            host.setHostname(LocalhostFilterList.getLocalHostName());
+            host.setHostname(SystemModelInterrogator.getLocalHostName());
             host.setFilters(mock(FilterList.class));
 
             hostList.add(host);
@@ -59,8 +58,8 @@ public class LocalhostFilterListTest {
             List<Host> hosts = new ArrayList<Host>();
             when(mockedPowerProxy.getHost()).thenReturn(hosts);
 
-            LocalhostFilterList localhostFilterList = new LocalhostFilterList(mockedPowerProxy);
-            List<com.rackspace.papi.model.Filter> filters = localhostFilterList.getFilters();
+            SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(mockedPowerProxy);
+            List<com.rackspace.papi.model.Filter> filters = localhostFilterList.getLocalHost().getFilters().getFilter();
 
             assertNotNull(filters);
         }                               
