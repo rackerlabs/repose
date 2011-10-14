@@ -34,7 +34,7 @@
     </licenses>
 
     <modules>
-        <module>documentation</module>
+        <module>documentation/docbook</module>
         <module>project-set</module>
     </modules>
 
