@@ -17,12 +17,12 @@ import java.io.IOException;
 
 public class TranslationFilter implements Filter {
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(TranslationFilter.class);
-    private TranslationHandler handler;
+    private TranslationHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;
 
     @Override
     public void destroy() {
-        configurationManager.unsubscribeFrom("translation.cfg.xml", handler.getConfigurationListener());
+        configurationManager.unsubscribeFrom("translation.cfg.xml", handlerFactory);
     }
 
     @Override
@@ -32,7 +32,7 @@ public class TranslationFilter implements Filter {
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
 
-        final FilterDirector director = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
+        final FilterDirector director = handlerFactory.newHandler().handleRequest(mutableHttpRequest, mutableHttpResponse);
 
         director.applyTo(mutableHttpRequest);
 
@@ -49,10 +49,10 @@ public class TranslationFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        handler = new TranslationHandler();
+        handlerFactory = new TranslationHandlerFactory();
         ServletContext servletContext = filterConfig.getServletContext();
         configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
 
-        configurationManager.subscribeTo("translation.cfg.xml", handler.getConfigurationListener(), TranslationConfig.class);
+        configurationManager.subscribeTo("translation.cfg.xml", handlerFactory, TranslationConfig.class);
     }
 }

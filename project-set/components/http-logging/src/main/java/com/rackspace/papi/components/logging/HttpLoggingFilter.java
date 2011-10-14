@@ -25,11 +25,12 @@ import java.io.IOException;
 public class HttpLoggingFilter implements Filter {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(HttpLoggingFilter.class);
-    private HttpLoggingHandler handler;
+    private ConfigurationService manager;
+    private HttpLoggingHandlerFactory handler;
 
     @Override
     public void destroy() {
-        
+        manager.unsubscribeFrom("http-logging.xml", handler);
     }
 
     @Override
@@ -41,14 +42,14 @@ public class HttpLoggingFilter implements Filter {
 
         chain.doFilter(request, response);
 
-        handler.handleResponse(mutableHttpRequest, mutableHttpResponse);
+        handler.newHandler().handleResponse(mutableHttpRequest, mutableHttpResponse);
     }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        handler = new HttpLoggingHandler();
-        final ConfigurationService manager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
+        handler = new HttpLoggingHandlerFactory();
+        manager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
 
-        manager.subscribeTo("http-logging.xml", handler.getConfigurationListener(), HttpLoggingConfig.class);
+        manager.subscribeTo("http-logging.xml", handler, HttpLoggingConfig.class);
     }
 }

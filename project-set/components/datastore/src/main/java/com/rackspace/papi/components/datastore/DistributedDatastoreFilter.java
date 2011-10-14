@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.datastore;
 
 import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -21,7 +22,7 @@ public class DistributedDatastoreFilter implements Filter {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(DistributedDatastoreFilter.class);
     
-    private DatastoreFilterLogicHandler handler;
+    private DatastoreFilterLogicHandlerFactory handler;
 
     @Override
     public void destroy() {
@@ -33,7 +34,9 @@ public class DistributedDatastoreFilter implements Filter {
         HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
 
         final HttpServletResponse httpResponse = (HttpServletResponse) response;
-        final FilterDirector director = handler.handleRequest((HttpServletRequest) request);
+        final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
+        
+        final FilterDirector director = handler.newHandler().handleRequest((HttpServletRequest) request, mutableHttpResponse);
 
         switch (director.getFilterAction()) {
             case PASS:
@@ -53,7 +56,7 @@ public class DistributedDatastoreFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         final ContextAdapter contextAdapter = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext());
         
-        handler = new DatastoreFilterLogicHandler(contextAdapter.datastoreService());
-        contextAdapter.configurationService().subscribeTo("power-proxy.cfg.xml", handler.getSystemModelUpdateListener(), PowerProxy.class);
+        handler = new DatastoreFilterLogicHandlerFactory(contextAdapter.datastoreService());
+        contextAdapter.configurationService().subscribeTo("power-proxy.cfg.xml", handler, PowerProxy.class);
     }
 }

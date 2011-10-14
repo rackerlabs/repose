@@ -28,13 +28,13 @@ import java.io.IOException;
 public class VersioningFilter implements Filter {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(VersioningFilter.class);
-    private VersioningHandler handler;
+    private VersioningHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;
 
     @Override
     public void destroy() {
-        configurationManager.unsubscribeFrom("power-proxy.cfg.xml", handler.getSystemModelConfigurationListener());
-        configurationManager.unsubscribeFrom("versioning.cfg.xml", handler.getConfigurationListener());
+        configurationManager.unsubscribeFrom("power-proxy.cfg.xml", handlerFactory);
+        configurationManager.unsubscribeFrom("versioning.cfg.xml", handlerFactory);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class VersioningFilter implements Filter {
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
 
-        final FilterDirector director = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
+        final FilterDirector director = handlerFactory.newHandler().handleRequest(mutableHttpRequest, mutableHttpResponse);
 
         director.applyTo(mutableHttpRequest);
 
@@ -61,11 +61,11 @@ public class VersioningFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        handler = new VersioningHandler();
+        handlerFactory = new VersioningHandlerFactory();
         ServletContext servletContext = filterConfig.getServletContext();
         configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
                 
-        configurationManager.subscribeTo("power-proxy.cfg.xml", handler.getSystemModelConfigurationListener(), PowerProxy.class);
-        configurationManager.subscribeTo("versioning.cfg.xml", handler.getConfigurationListener(), ServiceVersionMappingList.class);
+        configurationManager.subscribeTo("power-proxy.cfg.xml", handlerFactory, PowerProxy.class);
+        configurationManager.subscribeTo("versioning.cfg.xml", handlerFactory, ServiceVersionMappingList.class);
     }
 }

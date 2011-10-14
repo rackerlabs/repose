@@ -24,7 +24,7 @@ import java.io.IOException;
 public class RateLimitingFilter implements Filter {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingFilter.class);
-    private RateLimitingHandler handler;
+    private RateLimitingHandlerFactory handlerFactory;
 
     @Override
     public void destroy() {
@@ -40,7 +40,7 @@ public class RateLimitingFilter implements Filter {
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
 
-        FilterDirector director = handler.handleRequest(mutableHttpRequest);
+        FilterDirector director = handlerFactory.newHandler().handleRequest(mutableHttpRequest, mutableHttpResponse);
         
         director.applyTo(mutableHttpRequest);
         
@@ -51,7 +51,7 @@ public class RateLimitingFilter implements Filter {
 
             case PROCESS_RESPONSE:
                 chain.doFilter(request, response);
-                director = handler.handleResponse(mutableHttpRequest, mutableHttpResponse);
+                director = handlerFactory.newHandler().handleResponse(mutableHttpRequest, mutableHttpResponse);
 
             case RETURN:
                 director.applyTo(mutableHttpResponse);
@@ -77,8 +77,8 @@ public class RateLimitingFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         final ContextAdapter ctx = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext());
 
-        handler = new RateLimitingHandler(getDatastore(ctx.datastoreService()));
+        handlerFactory = new RateLimitingHandlerFactory(getDatastore(ctx.datastoreService()));
 
-        ctx.configurationService().subscribeTo("rate-limiting.cfg.xml", handler.getConfigurationListener(), RateLimitingConfiguration.class);
+        ctx.configurationService().subscribeTo("rate-limiting.cfg.xml", handlerFactory, RateLimitingConfiguration.class);
     }
 }

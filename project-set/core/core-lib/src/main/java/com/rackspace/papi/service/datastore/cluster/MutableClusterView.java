@@ -9,4 +9,6 @@ public interface MutableClusterView extends ClusterView {
     void updateMembers(InetSocketAddress[] newMembers);
 
     void updateLocal(InetSocketAddress local);
+    
+    MutableClusterView copy();
 }
