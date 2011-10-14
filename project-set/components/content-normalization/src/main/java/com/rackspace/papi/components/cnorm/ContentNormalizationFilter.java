@@ -22,7 +22,8 @@ import java.io.IOException;
 public class ContentNormalizationFilter implements Filter {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ContentNormalizationFilter.class);
-    private ContentNormalizationHandler handler;
+    private ContentNormalizationHandlerFactory handlerFactory;
+    private ConfigurationService configurationManager;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -31,7 +32,7 @@ public class ContentNormalizationFilter implements Filter {
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
 
-        final FilterDirector director = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
+        final FilterDirector director = handlerFactory.newHandler().handleRequest(mutableHttpRequest, mutableHttpResponse);
 
         director.applyTo(mutableHttpRequest);
 
@@ -48,13 +49,14 @@ public class ContentNormalizationFilter implements Filter {
 
     @Override
     public void destroy() {
+        configurationManager.unsubscribeFrom("content-normalization.cfg.xml", handlerFactory);
     }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        final ConfigurationService manager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
-        handler = new ContentNormalizationHandler();
+        configurationManager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
+        handlerFactory = new ContentNormalizationHandlerFactory();
 
-        manager.subscribeTo("content-normalization.cfg.xml", handler.getConfigurationListener(), ContentNormalizationConfig.class);
+        configurationManager.subscribeTo("content-normalization.cfg.xml", handlerFactory, ContentNormalizationConfig.class);
     }
 }

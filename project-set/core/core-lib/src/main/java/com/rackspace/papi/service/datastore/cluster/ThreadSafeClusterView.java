@@ -28,6 +28,15 @@ public class ThreadSafeClusterView implements MutableClusterView {
     public ThreadSafeClusterView() {
         clusterMembers = new LinkedList<ClusterMember>();
     }
+    
+    public ThreadSafeClusterView(InetSocketAddress localAddress, List<ClusterMember> clusterMembers) {
+        this.clusterMembers = new LinkedList<ClusterMember>(clusterMembers);
+        this.localAddress = localAddress;
+    }
+    
+    public ThreadSafeClusterView copy() {
+       return new ThreadSafeClusterView(localAddress, clusterMembers);
+    }
 
     private static void normalizeClusterMembers(List<ClusterMember> members) {
         // Normalize the member order
