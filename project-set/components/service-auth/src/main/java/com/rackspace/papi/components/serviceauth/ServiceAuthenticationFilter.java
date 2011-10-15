@@ -25,7 +25,7 @@ import java.io.IOException;
 public class ServiceAuthenticationFilter implements Filter {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ServiceAuthenticationFilter.class);
-    private ServiceAuthenticationHandler handler;
+    private ServiceAuthenticationHandlerFactory handlerFactory;
 
     @Override
     public void destroy() {
@@ -38,18 +38,18 @@ public class ServiceAuthenticationFilter implements Filter {
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
         
-        handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
+        handlerFactory.newHandler().handleRequest(mutableHttpRequest, mutableHttpResponse);
 
         //Continue on
         chain.doFilter(mutableHttpRequest, mutableHttpResponse);
-        handler.handleResponse(mutableHttpRequest, mutableHttpResponse);
+        handlerFactory.newHandler().handleResponse(mutableHttpRequest, mutableHttpResponse);
     }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        handler = new ServiceAuthenticationHandler();
+        handlerFactory = new ServiceAuthenticationHandlerFactory();
         final ConfigurationService manager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
 
-        manager.subscribeTo("service-auth.cfg.xml", handler.getConfigurationListener(), ServiceAuthConfig.class);
+        manager.subscribeTo("service-auth.cfg.xml", handlerFactory, ServiceAuthConfig.class);
     }
 }

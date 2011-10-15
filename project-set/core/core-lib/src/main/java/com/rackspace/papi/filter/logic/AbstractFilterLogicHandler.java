@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 public class AbstractFilterLogicHandler implements FilterLogicHandler {
 
     @Override
-    public FilterDirector handleRequest(HttpServletRequest request) {
+    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
         return SimplePassFilterDirector.getInstance();
     }
 

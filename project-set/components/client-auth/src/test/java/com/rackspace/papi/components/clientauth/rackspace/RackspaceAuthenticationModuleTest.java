@@ -38,7 +38,7 @@ public class RackspaceAuthenticationModuleTest {
 
             authConfiguration.setAuthenticationServer(authenticationServer);
 
-            RackspaceAuthenticationModule rackspaceAuthenticationModule = new RackspaceAuthenticationModule(authConfiguration);
+            RackspaceAuthenticationHandler rackspaceAuthenticationModule = new RackspaceAuthenticationHandler(authConfiguration);
 
             String actual = rackspaceAuthenticationModule.getWWWAuthenticateHeaderContents();
 

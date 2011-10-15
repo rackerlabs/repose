@@ -27,12 +27,12 @@ import java.io.IOException;
 public class ClientAuthenticationFilter implements Filter {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ClientAuthenticationFilter.class);
-    private ClientAuthenticationHandler handler;
+    private ClientAuthenticationHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;
 
     @Override
     public void destroy() {
-        configurationManager.unsubscribeFrom("client-auth-n.cfg.xml", handler.getConfigurationListener());
+        configurationManager.unsubscribeFrom("client-auth-n.cfg.xml", handlerFactory);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class ClientAuthenticationFilter implements Filter {
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
 
-        final FilterDirector director = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
+        final FilterDirector director = handlerFactory.newHandler().handleRequest(mutableHttpRequest, mutableHttpResponse);
 
         if (director.requestHeaderManager().hasHeaders()) {
             director.requestHeaderManager().applyTo(mutableHttpRequest);
@@ -55,7 +55,7 @@ public class ClientAuthenticationFilter implements Filter {
         switch (director.getFilterAction()) {
             case PASS:
                 chain.doFilter(mutableHttpRequest, mutableHttpResponse);
-                handler.handleResponse(mutableHttpRequest, mutableHttpResponse);
+                handlerFactory.newHandler().handleResponse(mutableHttpRequest, mutableHttpResponse);
                 break;
 
             default:
@@ -66,10 +66,10 @@ public class ClientAuthenticationFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        handler = new ClientAuthenticationHandler();
+        handlerFactory = new ClientAuthenticationHandlerFactory();
         ServletContext servletContext = filterConfig.getServletContext();
         configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
 
-        configurationManager.subscribeTo("client-auth-n.cfg.xml", handler.getConfigurationListener(), ClientAuthConfig.class);
+        configurationManager.subscribeTo("client-auth-n.cfg.xml", handlerFactory, ClientAuthConfig.class);
     }
 }

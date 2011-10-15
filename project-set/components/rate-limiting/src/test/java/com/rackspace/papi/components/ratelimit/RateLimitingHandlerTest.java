@@ -24,7 +24,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
 
         @Test
         public void shouldReturnUnauthorizedWhenUserInformationIsMissing() {
-            final FilterDirector director = handler.handleRequest(requestMock);
+            final FilterDirector director = handler.newHandler().handleRequest(requestMock, null);
 
             assertEquals("FilterDirectory must return on rate limiting failure", FilterAction.RETURN, director.getFilterAction());
             assertEquals("Must return 401 if the user has not been identified", HttpStatusCode.UNAUTHORIZED, director.getResponseStatus());
@@ -45,7 +45,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             when(requestMock.getRequestURI()).thenReturn("/v1.0/12345/resource");
             when(requestMock.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/12345/resource"));
 
-            final FilterDirector director = handler.handleRequest(requestMock);
+            final FilterDirector director = handler.newHandler().handleRequest(requestMock, null);
 
             assertEquals("Filter must pass valid, non-limited requests", FilterAction.PASS, director.getFilterAction());
         }
@@ -62,7 +62,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             when(requestMock.getRequestURI()).thenReturn("/v1.0/limits");
             when(requestMock.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/limits"));
 
-            final FilterDirector director = handler.handleRequest(requestMock);
+            final FilterDirector director = handler.newHandler().handleRequest(requestMock, null);
 
             assertEquals("On successful pass, filter must process response", FilterAction.PROCESS_RESPONSE, director.getFilterAction());
         }
@@ -71,7 +71,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
     @Ignore
     public static class DefaultTestCase {
 
-        protected RateLimitingHandler handler;
+        protected RateLimitingHandlerFactory handler;
         protected HttpServletRequest requestMock;
 
         @Before
@@ -79,8 +79,8 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             final Datastore datastoreMock = mock(Datastore.class);
             when(datastoreMock.get(anyString())).thenReturn(new StoredElementImpl("key", null));
 
-            handler = new RateLimitingHandler(datastoreMock);
-            handler.getConfigurationListener().configurationUpdated(defaultRateLimitingConfiguration());
+            handler = new RateLimitingHandlerFactory(datastoreMock);
+            handler.configurationUpdated(defaultRateLimitingConfiguration());
 
             requestMock = mock(HttpServletRequest.class);
         }
