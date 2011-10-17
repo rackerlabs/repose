@@ -8,6 +8,7 @@ import java.util.Map;
 
 
 public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<TranslationHandler>  {
+    private TranslationConfig config;
    
     public TranslationHandlerFactory() {
     }
@@ -23,14 +24,13 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
    @Override
    protected TranslationHandler buildHandler() {
-      return new TranslationHandler();
+      return new TranslationHandler(config);
    }
     
     private class TranslationConfigurationListener implements UpdateListener<TranslationConfig> {
        @Override
        public void configurationUpdated(TranslationConfig configurationObject) {
-           // TODO: Process configu updates
+           config = configurationObject;
        }
     }
-
 }
