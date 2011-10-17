@@ -5,7 +5,6 @@ import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.components.translation.config.TranslationConfig;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import org.slf4j.Logger;
