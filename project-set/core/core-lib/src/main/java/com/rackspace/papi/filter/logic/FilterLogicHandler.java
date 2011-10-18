@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 public interface FilterLogicHandler {
 
-    FilterDirector handleRequest(HttpServletRequest request);
+    FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response);
 
     FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response);
 }

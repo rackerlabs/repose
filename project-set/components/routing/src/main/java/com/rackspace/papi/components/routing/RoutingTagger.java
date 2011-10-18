@@ -1,11 +1,8 @@
 package com.rackspace.papi.components.routing;
 
-import com.rackspace.papi.commons.config.manager.LockedConfigurationUpdater;
-import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.commons.util.thread.KeyedStackLock;
 import com.rackspace.papi.domain.HostUtilities;
 import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
@@ -22,49 +19,21 @@ import org.slf4j.LoggerFactory;
 public class RoutingTagger extends AbstractFilterLogicHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(RoutingTagger.class);
-    private final UpdateListener<PowerProxy> systemModelUpdateListener;
-    private final KeyedStackLock configurationLock;
-    private final Object updateKey, readKey;
     private PowerProxy systemModel;
 
-    public RoutingTagger() {
-        updateKey = new Object();
-        readKey = new Object();
-
-        configurationLock = new KeyedStackLock();
-
-        systemModelUpdateListener = new LockedConfigurationUpdater<PowerProxy>(configurationLock, updateKey) {
-
-            @Override
-            protected void onConfigurationUpdated(PowerProxy configurationObject) {
-                systemModel = configurationObject;
-            }
-        };
-    }
-
-    public UpdateListener<PowerProxy> getSystemModelUpdateListener() {
-        return systemModelUpdateListener;
-    }
-
-    private PowerProxy getSystemModel() {
-        configurationLock.lock(readKey);
-
-        try {
-            return systemModel;
-        } finally {
-            configurationLock.unlock(readKey);
-        }
+    public RoutingTagger(PowerProxy systemModel) {
+       this.systemModel = systemModel;
     }
 
     @Override
-    public FilterDirector handleRequest(HttpServletRequest request) {
+    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
         final FilterDirector myDirector = new FilterDirectorImpl();
         myDirector.setFilterAction(FilterAction.PASS);
 
         final String firstRoutingDestination = request.getHeader(PowerApiHeader.ROUTE_DESTINATION.headerKey());
 
         if (firstRoutingDestination == null) {
-            final SystemModelInterrogator interrogator = new SystemModelInterrogator(getSystemModel());
+            final SystemModelInterrogator interrogator = new SystemModelInterrogator(systemModel);
             final Host nextRoutableHost = interrogator.getNextRoutableHost();
 
             try {

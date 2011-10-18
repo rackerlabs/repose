@@ -1,13 +1,14 @@
 package com.rackspace.papi.auth;
 
 import com.rackspace.papi.filter.logic.FilterDirector;
+import com.rackspace.papi.filter.logic.FilterLogicHandler;
 import javax.servlet.http.HttpServletRequest;
 
 /**
  *
  * @author jhopper
  */
-public interface AuthModule {
+public interface AuthModule extends FilterLogicHandler {
 
     FilterDirector authenticate(HttpServletRequest request);
 

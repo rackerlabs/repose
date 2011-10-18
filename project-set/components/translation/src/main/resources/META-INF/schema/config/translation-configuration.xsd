@@ -16,6 +16,79 @@
             <xs:documentation>
                 <html:p></html:p>
             </xs:documentation>
-        </xs:annotation>        
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="translation-process" type="trans-config:TranslationProcess" maxOccurs="unbounded"/>
+        </xs:sequence>
     </xs:complexType>
+
+    <xs:complexType name="TranslationProcess">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Describes the translation process of the request-response chains for the http-method and uri.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="http-method" type="xs:string"/>
+            <xs:element name="uri-matching-pattern" type="xs:string"/>
+            <xs:element name="request-translation-process" type="trans-config:RequestTranslationProcess"/>
+            <xs:element name="response-translation-process" type="trans-config:ResponseTranslationProcess"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="RequestTranslationProcess">
+        <xs:sequence>
+            <xs:element name="http-element-processing" type="trans-config:HttpElementProcessing" default="All" maxOccurs="2" />
+            <xs:element name="transformer-type" type="trans-config:TransformerType"/>
+            <xs:element name="translation-file" type="trans-config:TranslationFile"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="ResponseTranslationProcess">
+        <xs:sequence>
+            <xs:element name="http-element-processing" type="trans-config:HttpElementProcessing" default="All" maxOccurs="2" />
+            <xs:element name="transformer-type" type="trans-config:TransformerType"/>
+            <xs:element name="translation-file" type="trans-config:TranslationFile"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="HttpElementProcessing">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Http elements to translate during the process.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="URI" />
+            <xs:enumeration value="Envelope" />
+            <xs:enumeration value="Body" />
+            <xs:enumeration value="All" />
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="TranslationFile">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The file containing the translation instructions for the request or response (e.g. .xsl or .stx).</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string"></xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="TransformerType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Transformer used to perform the translation (e.g. SAXON or STX).</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="net.sf.saxon.TransformerFactoryImpl" />
+            <xs:enumeration value="net.sf.joost.trax.TransformerFactoryImpl" />
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>

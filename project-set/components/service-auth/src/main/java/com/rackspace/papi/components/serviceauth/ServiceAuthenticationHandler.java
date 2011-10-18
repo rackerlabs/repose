@@ -1,44 +1,24 @@
 package com.rackspace.papi.components.serviceauth;
 
 import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import org.slf4j.Logger;
-import com.rackspace.papi.commons.util.http.CommonHttpHeader;
-import com.rackspace.papi.components.serviceauth.config.Credentials;
-import com.rackspace.papi.components.serviceauth.config.ServiceAuthConfig;
-import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandler;
-
-import java.io.UnsupportedEncodingException;
-import org.apache.commons.codec.binary.Base64;
 
 /**
  *
- * @author jhopper
+ * @author Dan Daley
  */
-public class ServiceAuthenticationHandler extends AbstractConfiguredFilterHandler<ServiceAuthConfig> {
-
-   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ServiceAuthenticationHandler.class);
+public class ServiceAuthenticationHandler extends AbstractFilterLogicHandler {
    private String base64EncodedCredentials;
-
-   @Override
-   public void configurationUpdated(ServiceAuthConfig modifiedConfig) {
-      if (modifiedConfig.getHttpBasic() != null) {
-         final Credentials creds = modifiedConfig.getHttpBasic().getCredentials();
-         final String combinedCredentials = creds.getUsername() + ":" + creds.getPassword();
-
-         try {
-            base64EncodedCredentials = "Basic " + new String(Base64.encodeBase64(combinedCredentials.getBytes("UTF-8")), "UTF-8");
-         } catch (UnsupportedEncodingException uee) {
-            LOG.error("Failed to update basic credentials. Reason: " + uee.getMessage(), uee);
-         }
-      } else {
-         LOG.error("Please check your configuration for service authentication. It appears to be malformed.");
-      }
+   
+   public ServiceAuthenticationHandler(String base64EncodedCredentials) {
+      this.base64EncodedCredentials = base64EncodedCredentials;
    }
-
+   
    public FilterDirector handleRequest(MutableHttpServletRequest request, MutableHttpServletResponse response) {
       request.addHeader(CommonHttpHeader.AUTHORIZATION.headerKey(), base64EncodedCredentials);
 
@@ -71,4 +51,5 @@ public class ServiceAuthenticationHandler extends AbstractConfiguredFilterHandle
             break;
       }
    }
+   
 }

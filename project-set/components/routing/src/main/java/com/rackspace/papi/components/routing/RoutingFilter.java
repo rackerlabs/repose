@@ -2,6 +2,7 @@ package com.rackspace.papi.components.routing;
 
 import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -16,19 +17,21 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import javax.servlet.http.HttpServletResponse;
 
 public class RoutingFilter implements Filter {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RoutingFilter.class);
-    private RoutingTagger handler;
+    private RoutingHandlerFactory handlerFactory;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
 
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
+        final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
 
-        final FilterDirector director = handler.handleRequest(mutableHttpRequest);
+        final FilterDirector director = handlerFactory.newHandler().handleRequest(mutableHttpRequest, mutableHttpResponse);
 
         director.applyTo(mutableHttpRequest);
 
@@ -50,8 +53,8 @@ public class RoutingFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         final ConfigurationService manager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
-        handler = new RoutingTagger();
+        handlerFactory = new RoutingHandlerFactory();
 
-        manager.subscribeTo("power-proxy.cfg.xml", handler.getSystemModelUpdateListener(), PowerProxy.class);
+        manager.subscribeTo("power-proxy.cfg.xml", handlerFactory, PowerProxy.class);
     }
 }

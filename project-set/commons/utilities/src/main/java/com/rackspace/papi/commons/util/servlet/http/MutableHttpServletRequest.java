@@ -1,5 +1,8 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Collection;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -117,5 +120,23 @@ public final class MutableHttpServletRequest extends HttpServletRequestWrapper {
         final List<String> headerValues = headers.get(headerName);
 
         return (headerValues != null && headerValues.size() > 0) ? headerValues.get(0) : null;
+    }
+
+    // TODO: This is just a stub.  Implement real stuff
+    public InputStream bodyToXml() {
+        InputStream inputStream = null;
+
+        try {
+            inputStream = new FileInputStream("/META-INF/schema/examples/post_server_req_v1.0.xml");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        return inputStream;
+    }
+
+    // TODO: This is just a stub.  Implement real stuff
+    public InputStream envelopeToXml() {
+        return null;
     }
 }
