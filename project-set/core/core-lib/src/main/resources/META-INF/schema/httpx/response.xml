@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<httpx xmlns='http://docs.rackspace.com/httpx/v1.0' 
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xsi:schemaLocation='http://docs.rackspace.com/httpx/v1.0 ./httpx.xsd'
+    fidelity="HEAD BODY">
+
+    <response version="HTTP/1.1" status-code="413" reason="Request Entity Too Large">
+        <head fidelity="HEADERS">
+            <headers fidelity="*">
+                <header name="Retry-After">
+                    <value>This is a valid date.</value>
+                </header>
+            </headers>
+        </head>
+        
+        <body>
+            This is a response body.
+        </body>
+    </response>
+</httpx>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<httpx xmlns='http://docs.rackspace.com/httpx/v1.0' 
+    xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+    xsi:schemaLocation='http://docs.rackspace.com/httpx/v1.0 ./httpx.xsd'
+    fidelity="HEAD BODY">
+
+    <request method="PUT" uri="/request" version="HTTP/1.1">
+        <head fidelity="URI_DETAIL HEADERS">
+            <uri-detail fragment="12345">
+                <query-parameter name="A">
+                    <value>1</value>
+                    <value>2</value>
+                    <value>3</value>
+                </query-parameter>
+                
+                <query-parameter name="B">
+                    <value>4</value>
+                    <value>5</value>
+                    <value>6</value>
+                </query-parameter>
+            </uri-detail>
+            
+            <headers fidelity="* ACCEPT">
+                <accept>
+                    <media-range type="application" subtype="xml">
+                        <parameter name="q" value="0.8" />
+                        <parameter name="version" value="1.1" />
+                    </media-range>
+
+                    <media-range type="application" subtype="atom+xml">
+                        <parameter name="q" value="0.9" />
+                        <parameter name="version" value="1.1" />
+                    </media-range>
+
+                    <media-range type="application" subtype="json">
+                        <parameter name="q" value="1.0" />
+                        <parameter name="version" value="1.1" />
+                    </media-range>
+                </accept>
+            
+                <header name="X-Auth-Token">
+                    <value>9a7c527f80b92e5ee397cf865a</value>
+                </header>     
+            </headers>
+        </head>
+        
+        <body>
+            This is a put request body.
+        </body>
+    </request>
+</httpx>
