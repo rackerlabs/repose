@@ -55,7 +55,12 @@
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>distributed-datastore</artifactId>
-        </dependency>                    
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>translation</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -121,7 +126,12 @@
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>distributed-datastore</artifactId>
-                        </jarModule>             
+                        </jarModule>
+
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components</groupId>
+                            <artifactId>translation</artifactId>
+                        </jarModule>
                     </modules>
                 </configuration>
             </plugin>
