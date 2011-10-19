@@ -1,13 +1,13 @@
-<?xml translation="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 
 <translation xmlns="http://docs.rackspacecloud.com/power-api/translation/v1.0">
     <translation-process>
         <http-method>POST</http-method>
-        <uri-matching-pattern>./servers/.</uri-matching-pattern>
+        <uri-matching-pattern>.*/servers/.*</uri-matching-pattern>
         <request-translation-process>
             <http-element-processing>BODY</http-element-processing>
             <transformer-type>net.sf.saxon.TransformerFactoryImpl</transformer-type>
-            <translation-file>/META-INF/transform/xslt/server_v1.1.xsl</translation-file>
+            <translation-file>/etc/powerapi/server_v1.1.xsl</translation-file>
         </request-translation-process>
         <response-translation-process>
             <http-element-processing>BODY</http-element-processing>
