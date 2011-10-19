@@ -3,10 +3,10 @@
  */
 package com.rackspace.papi.components.translation;
 
+import com.rackspace.papi.commons.config.resource.ConfigurationResourceResolver;
+import com.rackspace.papi.commons.config.resource.impl.DirectoryResourceResolver;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
-import com.rackspace.papi.commons.util.transform.Transformer;
-import com.rackspace.papi.commons.util.transform.TransformerImpl;
 import com.rackspace.papi.components.translation.config.HttpElementProcessing;
 import com.rackspace.papi.components.translation.config.RequestTranslationProcess;
 import com.rackspace.papi.components.translation.config.TranslationProcess;
@@ -17,7 +17,11 @@ import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 
 import com.rackspace.papi.components.translation.config.TranslationConfig;
 
+import javax.xml.transform.TransformerFactory;
+import java.io.IOException;
 import java.io.InputStream;
+import java.util.Map;
+import java.io.FileInputStream;
 
 /**
  *
@@ -25,9 +29,13 @@ import java.io.InputStream;
  */
 public class TranslationHandler extends AbstractFilterLogicHandler {
     private final TranslationConfig config;
+    private final Map<String, Transformer> transformers;
+    private final String configDirectory;
 
-    public TranslationHandler(TranslationConfig translationConfig) {
-        config = translationConfig;        
+    public TranslationHandler(TranslationConfig translationConfig, Map<String, Transformer> transformers, String configDirectory) {
+        this.config = translationConfig;
+        this.transformers = transformers;
+        this.configDirectory = configDirectory;
     }
 
     public FilterDirector handleRequest(MutableHttpServletRequest request, MutableHttpServletResponse response) {
@@ -37,8 +45,7 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
 
         if (translationProcess != null) {
             final RequestTranslationProcess requestProcess = translationProcess.getRequestTranslationProcess();
-            Transformer transformer = new TransformerImpl(requestProcess.getTransformerType().value());
-
+            
             // TODO:
             // 1. Do json conversion if needed (not sure where we plan to do that)
             // 2. Get the xml that needs translation from the request
@@ -49,7 +56,8 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
                     case URI :
                     case ENVELOPE :
                     case BODY :
-                        transformer.transform(bodyToXml(), requestProcess.getTranslationFile(), System.out);
+                        transformers.get(requestProcess.getTransformerType().value()).transform(bodyToXml(),
+                                         readTranslationFile(requestProcess.getTranslationFile()), System.out);
                         break;
                     case ALL :
                 }
@@ -76,11 +84,25 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
         return translationProcess;
     }
 
+
+    // TODO: Remove this once real config reading code is in place
+    private InputStream readTranslationFile(String translationFile) {
+        ConfigurationResourceResolver resourceResolver = new DirectoryResourceResolver(configDirectory);
+
+        try {
+            return resourceResolver.resolve(translationFile).newInputStream();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
     // TODO: Remove this once request xml is in place.
     private InputStream bodyToXml() {
         InputStream inputStream = TranslationHandler.class.getResourceAsStream("/META-INF/schema/examples/post_server_req_v1.0.xml");
          
         return inputStream;
-    }
+    }   
     
 }

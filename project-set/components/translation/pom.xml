@@ -37,7 +37,13 @@
             <groupId>net.sf.saxon</groupId>
             <artifactId>saxon</artifactId>
             <version>9.3</version>
-        </dependency>        
+        </dependency>
+
+        <dependency>
+          <groupId>net.sf.joost</groupId>
+          <artifactId>joost</artifactId>
+          <version>0.9.1</version>
+        </dependency>
     </dependencies>
 
     <build>

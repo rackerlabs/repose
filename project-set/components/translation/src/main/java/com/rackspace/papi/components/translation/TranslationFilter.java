@@ -7,6 +7,7 @@ import com.rackspace.papi.components.translation.config.TranslationConfig;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.servlet.InitParameter;
 import org.slf4j.Logger;
 
 import javax.servlet.*;
@@ -48,8 +49,9 @@ public class TranslationFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        handlerFactory = new TranslationHandlerFactory();
         ServletContext servletContext = filterConfig.getServletContext();
+        final String configDirectory = servletContext.getInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName());
+        handlerFactory = new TranslationHandlerFactory(configDirectory);
         configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
 
         configurationManager.subscribeTo("translation.cfg.xml", handlerFactory, TranslationConfig.class);
