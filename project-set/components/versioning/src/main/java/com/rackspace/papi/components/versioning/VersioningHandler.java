@@ -1,8 +1,8 @@
 package com.rackspace.papi.components.versioning;
 
 import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.http.HttpRequestInfo;
-import com.rackspace.papi.commons.util.http.HttpRequestInfoImpl;
+import com.rackspace.papi.components.versioning.util.http.HttpRequestInfo;
+import com.rackspace.papi.components.versioning.util.http.HttpRequestInfoImpl;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
@@ -48,9 +48,7 @@ public class VersioningHandler extends AbstractFilterLogicHandler  {
             final VersionedOriginService targetOriginService = configurationData.getOriginServiceForRequest(httpRequestInfo, filterDirector);
 
             if (targetOriginService != null) {
-                final VersionedRequest versionedRequest = new VersionedRequest(
-                        httpRequestInfo, targetOriginService.getMapping(), configurationData.getServiceRootHref());
-
+                final VersionedRequest versionedRequest = new VersionedRequest(httpRequestInfo, targetOriginService.getMapping());
                 handleVersionedRequest(versionedRequest, filterDirector, targetOriginService);
             } else {
                 handleUnversionedRequest(httpRequestInfo, filterDirector);

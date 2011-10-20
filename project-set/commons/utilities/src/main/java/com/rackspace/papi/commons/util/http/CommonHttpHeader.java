@@ -9,7 +9,7 @@ public enum CommonHttpHeader implements HttpHeader {
     //Auth specific
     AUTH_TOKEN("X-Auth-Token"),
     AUTHORIZATION("Authorization"),
-    
+
     /**
      * This header allows the underlying service to identify who authenticated
      * the request in question.

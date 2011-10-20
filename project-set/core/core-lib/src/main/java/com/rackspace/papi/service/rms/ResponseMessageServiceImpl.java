@@ -3,8 +3,6 @@ package com.rackspace.papi.service.rms;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
-import com.rackspace.papi.commons.util.http.HttpRequestInfo;
-import com.rackspace.papi.commons.util.http.HttpRequestInfoImpl;
 import com.rackspace.papi.commons.util.http.media.MediaRange;
 import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
 import com.rackspace.papi.commons.util.io.FileReader;
@@ -99,8 +97,9 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         final StatusCodeMatcher matchedCode = getMatchingStatusCode(String.valueOf(response.getStatus()));
 
         if (matchedCode != null) {
-            final HttpRequestInfo requestInfo = new HttpRequestInfoImpl(request);
-            final MediaRange preferedMediaRange = requestInfo.getPreferedMediaRange();
+            final List<MediaRange> mediaRanges = MediaRangeParser.getMediaRangesFromAcceptHeader(request.getHeader(CommonHttpHeader.ACCEPT.headerKey()));
+            final MediaRange preferedMediaRange = MediaRangeParser.getPerferedMediaRange(mediaRanges);
+            
             final Message statusCodeMessage = getMatchingStatusCodeMessage(matchedCode, preferedMediaRange);
 
             if (statusCodeMessage != null) {
