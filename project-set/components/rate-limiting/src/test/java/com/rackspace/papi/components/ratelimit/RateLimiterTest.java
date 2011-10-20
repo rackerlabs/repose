@@ -10,6 +10,7 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import java.util.Calendar;
+import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -37,11 +38,13 @@ public class RateLimiterTest extends RateLimitingTestSupport {
         @Test
         public void shouldPassWhenRequestRemain() {
             final RateLimitingRequestInfo requestInfo = mock(RateLimitingRequestInfo.class);
+            final HttpServletRequest servletRequest = mock(HttpServletRequest.class);
             
             when(requestInfo.getUserName()).thenReturn("user");
             when(requestInfo.getFirstUserGroup()).thenReturn("group");
             when(requestInfo.getRequestMethod()).thenReturn(HttpMethod.GET);
-            when(requestInfo.getUri()).thenReturn("/v1.0/12345/resource");
+            when(requestInfo.getRequest()).thenReturn(servletRequest);
+            when(servletRequest.getRequestURI()).thenReturn("/v1.0/12345/resource");
             
             final FilterDirector director = new FilterDirectorImpl();
             rateLimiter.recordLimitedRequest(requestInfo, director);

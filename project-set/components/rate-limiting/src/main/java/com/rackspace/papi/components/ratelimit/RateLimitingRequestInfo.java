@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.ratelimit;
 
-import com.rackspace.papi.commons.util.http.HttpRequestInfoImpl;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.components.limits.schema.HttpMethod;
 import java.util.Collection;
@@ -9,15 +8,16 @@ import java.util.Enumeration;
 import java.util.LinkedList;
 import javax.servlet.http.HttpServletRequest;
 
-public class RateLimitingRequestInfo extends HttpRequestInfoImpl {
+public class RateLimitingRequestInfo {
 
     private final Deque<String> allUserGroups;
     private final HttpMethod requestMethod;
     private final String userName;
+    private final HttpServletRequest request;
 
     public RateLimitingRequestInfo(HttpServletRequest request) {
-        super(request);
-
+        this.request = request;
+        
         allUserGroups = new LinkedList<String>();
 
         for (Enumeration<String> groupHeaders = request.getHeaders(PowerApiHeader.GROUPS.headerKey()); groupHeaders.hasMoreElements();) {
@@ -43,5 +43,9 @@ public class RateLimitingRequestInfo extends HttpRequestInfoImpl {
 
     public HttpMethod getRequestMethod() {
         return requestMethod;
+    }
+    
+    public HttpServletRequest getRequest() {
+        return request;
     }
 }

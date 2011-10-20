@@ -1,6 +1,8 @@
 package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.commons.util.http.*;
+import com.rackspace.papi.commons.util.http.media.MediaRange;
+import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.limits.schema.Limits;
@@ -17,7 +19,9 @@ import java.io.ByteArrayOutputStream;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
 
 public class RateLimiterResponse extends RateLimitingOperation {
 
@@ -43,7 +47,7 @@ public class RateLimiterResponse extends RateLimitingOperation {
             final ByteArrayOutputStream bos = new ByteArrayOutputStream();
             RESPONSE_TRANSFORMER.entityAsXml(limits, bos);
 
-            writeLimitsResponse(bos.toByteArray(), requestInfo, filterDirector);
+            writeLimitsResponse(bos.toByteArray(), requestInfo.getRequest(), filterDirector);
         } catch (Exception ex) {
             consumeException(ex, filterDirector);
         }
@@ -60,7 +64,7 @@ public class RateLimiterResponse extends RateLimitingOperation {
             final ByteArrayOutputStream bos = new ByteArrayOutputStream();
             RESPONSE_TRANSFORMER.combine(transformPair, bos);
 
-            writeLimitsResponse(bos.toByteArray(), requestInfo, filterDirector);
+            writeLimitsResponse(bos.toByteArray(), requestInfo.getRequest(), filterDirector);
         } catch (Exception ex) {
             consumeException(ex, filterDirector);
         }
@@ -77,10 +81,15 @@ public class RateLimiterResponse extends RateLimitingOperation {
         return cache.getUserRateLimits(powerProxyUserId);
     }
 
-    private void writeLimitsResponse(byte[] readableContents, HttpRequestInfo request, FilterDirector filterDirector) throws IOException {
+    private void writeLimitsResponse(byte[] readableContents, HttpServletRequest request, FilterDirector filterDirector) throws IOException {
         filterDirector.setResponseStatus(HttpStatusCode.OK);
         
-        switch (request.getPreferedMediaRange().getMediaType()) {
+        final List<MediaRange> mediaRanges = MediaRangeParser.getMediaRangesFromAcceptHeader(request.getHeader(CommonHttpHeader.ACCEPT.headerKey()));
+        final MediaRange preferredMediaRange = MediaRangeParser.getPerferedMediaRange(mediaRanges);
+        
+        // TODO:Review - Possible null guard required for preferredMediaRange
+        
+        switch (preferredMediaRange.getMediaType()) {
             case APPLICATION_XML:
                 filterDirector.getResponseOutputStream().write(readableContents);
                 filterDirector.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.headerKey(), MediaType.APPLICATION_XML.toString());

@@ -73,7 +73,7 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
       final Map<String, ServiceVersionMapping> copiedVersioningMappings = new HashMap<String, ServiceVersionMapping>(configuredMappings);
       final Map<String, Host> copiedHostDefinitions = new HashMap<String, Host>(configuredHosts);
 
-      final ConfigurationData configData = new ConfigurationData(config.getServiceRoot().getHref(), localHost, copiedHostDefinitions, copiedVersioningMappings);
+      final ConfigurationData configData = new ConfigurationData(localHost, copiedHostDefinitions, copiedVersioningMappings);
 
       return new VersioningHandler(configData, transformer);
    }

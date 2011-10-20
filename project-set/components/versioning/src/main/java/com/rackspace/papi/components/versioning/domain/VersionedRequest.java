@@ -1,23 +1,25 @@
 package com.rackspace.papi.components.versioning.domain;
 
 import com.rackspace.papi.commons.util.StringUriUtilities;
-import com.rackspace.papi.commons.util.http.HttpRequestInfo;
-import com.rackspace.papi.commons.util.http.UniformResourceInfo;
+import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.components.versioning.util.http.HttpRequestInfo;
+import com.rackspace.papi.components.versioning.util.http.UniformResourceInfo;
 import com.rackspace.papi.commons.util.string.JCharSequenceFactory;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 
 import static com.rackspace.papi.commons.util.StringUriUtilities.*;
 
 public class VersionedRequest {
-
+    private static final String HTTP_SCHEME = "http://";
+    
     private final HttpRequestInfo requestInfo;
     private final ServiceVersionMapping mapping;
-    private final String serviceRootUrl;
+    private final String clientAddressedHost;
 
-    public VersionedRequest(HttpRequestInfo requestInfo, ServiceVersionMapping mapping, String serviceRootUrl) {
+    public VersionedRequest(HttpRequestInfo requestInfo, ServiceVersionMapping mapping) {
         this.requestInfo = requestInfo;
         this.mapping = mapping;
-        this.serviceRootUrl = serviceRootUrl.endsWith("/") ? serviceRootUrl.substring(0, serviceRootUrl.length() - 1) : serviceRootUrl;
+        this.clientAddressedHost = requestInfo.getHost();
     }
 
     public ServiceVersionMapping getMapping() {
@@ -28,8 +30,8 @@ public class VersionedRequest {
         return requestInfo;
     }
 
-    public String getServiceRootUrl() {
-        return serviceRootUrl;
+    public String getHost() {
+        return clientAddressedHost;
     }
 
     public boolean isRequestForRoot() {
@@ -50,7 +52,7 @@ public class VersionedRequest {
     }
 
     public String asExternalURL() {
-        return serviceRootUrl + asExternalURI();
+        return StringUtilities.join(HTTP_SCHEME, clientAddressedHost, asExternalURI());
     }
 
     public String asExternalURI() {
@@ -58,7 +60,7 @@ public class VersionedRequest {
     }
 
     public String asInternalURL() {
-        return serviceRootUrl + asInternalURI();
+        return StringUtilities.join(HTTP_SCHEME, clientAddressedHost, asInternalURI());
     }
 
     public String asInternalURI() {

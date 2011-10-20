@@ -46,7 +46,7 @@ public class RateLimiter extends RateLimitingOperation {
     }
 
     public void recordLimitedRequest(RateLimitingRequestInfo requestInfo, FilterDirector filterDirector) {
-        final String requestUri = requestInfo.getUri();
+        final String requestUri = requestInfo.getRequest().getRequestURI();
         final List<ConfiguredLimitGroup> availableLimitGroups = getRatelimitsForRole(requestInfo.getFirstUserGroup());
 
         for (ConfiguredLimitGroup currentLimitGroup : availableLimitGroups) {
@@ -99,7 +99,7 @@ public class RateLimiter extends RateLimitingOperation {
         } else {
             // We default to the whole URI in the case where no regex group info was provided
             LOG.warn("Using regex caputure groups is recommended to help Power API build replicable, meaningful cache IDs for rate limits. Please update your config.");
-            cacheIdBuffer.append(requestInfo.getUri());
+            cacheIdBuffer.append(requestInfo.getRequest().getRequestURI());
         }
 
         // Get the next, shortest available time that a user has to wait for

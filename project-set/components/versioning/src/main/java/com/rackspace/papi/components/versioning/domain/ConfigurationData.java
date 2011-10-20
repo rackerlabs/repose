@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.versioning.domain;
 
-import com.rackspace.papi.commons.util.http.HttpRequestInfo;
-import com.rackspace.papi.commons.util.http.UniformResourceInfo;
+import com.rackspace.papi.components.versioning.util.http.HttpRequestInfo;
+import com.rackspace.papi.components.versioning.util.http.UniformResourceInfo;
 import com.rackspace.papi.commons.util.http.media.MediaRange;
 import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
 import com.rackspace.papi.commons.util.StringUriUtilities;
@@ -26,17 +26,11 @@ public class ConfigurationData {
     private final Map<String, ServiceVersionMapping> serviceMappings;
     private final Map<String, Host> configuredHosts;
     private final Host localHost;
-    private final String serviceRootHref;
 
-    public ConfigurationData(String serviceRootHref, Host localHost, Map<String, Host> configuredHosts, Map<String, ServiceVersionMapping> serviceMappings) {
-        this.serviceRootHref = serviceRootHref;
+    public ConfigurationData(Host localHost, Map<String, Host> configuredHosts, Map<String, ServiceVersionMapping> serviceMappings) {
         this.configuredHosts = configuredHosts;
         this.serviceMappings = serviceMappings;
         this.localHost = localHost;
-    }
-
-    public String getServiceRootHref() {
-        return serviceRootHref;
     }
 
     public Collection<ServiceVersionMapping> getServiceMappings() {
@@ -77,7 +71,7 @@ public class ConfigurationData {
 
     public VersionedOriginService findOriginServiceByUri(HttpRequestInfo requestResourceInfo) throws VersionedHostNotFoundException {
         for (Map.Entry<String, ServiceVersionMapping> entry : serviceMappings.entrySet()) {
-            final VersionedRequest versionedRequest = new VersionedRequest(requestResourceInfo, entry.getValue(), serviceRootHref);
+            final VersionedRequest versionedRequest = new VersionedRequest(requestResourceInfo, entry.getValue());
 
             if (versionedRequest.requestBelongsToVersionMapping()) {
                 return new VersionedOriginService(entry.getValue(), getHostForVersionMapping(entry.getValue()));
@@ -91,7 +85,7 @@ public class ConfigurationData {
         final VersionChoiceList versionChoices = new VersionChoiceList();
 
         for (ServiceVersionMapping mapping : getServiceMappings()) {
-            final VersionedRequest versionedRequest = new VersionedRequest(requestResourceInfo, mapping, serviceRootHref);
+            final VersionedRequest versionedRequest = new VersionedRequest(requestResourceInfo, mapping);
             final VersionChoice choice = new VersionChoiceFactory(mapping).create();
             final Link selfReference = new Link();
 
