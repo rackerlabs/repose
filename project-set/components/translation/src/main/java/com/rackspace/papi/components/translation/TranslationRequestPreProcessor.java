@@ -2,7 +2,7 @@ package com.rackspace.papi.components.translation;
 
 import com.rackspace.papi.commons.util.io.InputStreamMerger;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import com.rackspace.papi.components.translation.config.HttpElementProcessing;
+import com.rackspace.papi.components.translation.config.HttpElement;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.regex.Pattern;
@@ -79,7 +79,7 @@ public class TranslationRequestPreProcessor {
       return result;
    }
 
-   public InputStream getSourceStream(HttpElementProcessing httpElement) throws IOException {
+   public InputStream getSourceStream(HttpElement httpElement) throws IOException {
 
       switch (httpElement) {
          case ENVELOPE:

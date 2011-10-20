@@ -7,7 +7,6 @@ import com.rackspace.papi.commons.config.resource.ConfigurationResourceResolver;
 import com.rackspace.papi.commons.config.resource.impl.DirectoryResourceResolver;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
-import com.rackspace.papi.components.translation.config.HttpElementProcessing;
 import com.rackspace.papi.components.translation.config.RequestTranslationProcess;
 import com.rackspace.papi.components.translation.config.TranslationProcess;
 import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
@@ -51,16 +50,13 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
             // 2. Get the xml that needs translation from the request
             // 3. Solidify the logic for translating the different elements of the http request
             // 4. Update the request with the translated values
-            for (HttpElementProcessing httpElement : requestProcess.getHttpElementProcessing()) {
-                switch (httpElement) {
-                    case URI :
-                    case ENVELOPE :
-                    case BODY :
-                        transformers.get(requestProcess.getTransformerType().value()).transform(bodyToXml(),
-                                         readTranslationFile(requestProcess.getTranslationFile()), System.out);
-                        break;
-                    case ALL :
-                }
+            switch (requestProcess.getHttpElement()) {
+                case ENVELOPE :
+                case BODY :
+//                    transformers.get(requestProcess.getTransformerType().value()).transform(bodyToXml(),
+//                                     readTranslationFile(requestProcess.getTranslationFile()), System.out);
+                    break;
+                case ALL :
             }
 
             filterDirector.setFilterAction(FilterAction.PASS);
