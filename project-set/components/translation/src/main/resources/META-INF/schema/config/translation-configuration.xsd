@@ -4,9 +4,10 @@
            targetNamespace="http://docs.rackspacecloud.com/power-api/translation/v1.0"
            xmlns:trans-config="http://docs.rackspacecloud.com/power-api/translation/v1.0"
            xmlns:p="http://www.w3.org/ns/xproc"
-           xmlns:c="http://www.w3.org/ns/xproc-step"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:import namespace="http://www.w3.org/ns/xproc" schemaLocation="xproc/xproc-papi.xsd" />
 
     <!-- Configuration -->
     <xs:element name="translation" type="trans-config:TranslationConfig" />
@@ -19,7 +20,7 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="translation-process" type="trans-config:TranslationProcess" maxOccurs="unbounded"/>
+            <xs:element name="translation-process" type="trans-config:TranslationProcess" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -31,30 +32,80 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="http-method" type="xs:string"/>
-            <xs:element name="uri-matching-pattern" type="xs:string"/>
-            <xs:element name="request-translation-process" type="trans-config:RequestTranslationProcess"/>
-            <xs:element name="response-translation-process" type="trans-config:ResponseTranslationProcess"/>
+            <xs:element name="request-translation-process" type="trans-config:RequestTranslationProcess" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="response-translation-process" type="trans-config:ResponseTranslationProcess" minOccurs="1" maxOccurs="1"/>
         </xs:sequence>
+
+        <xs:attribute name="http-method" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The http method for which this translation process should be executed.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="uri-matching-pattern" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The uri for which this translation process should be executed.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="RequestTranslationProcess">
         <xs:sequence>
-            <xs:element name="http-element-processing" type="trans-config:HttpElementProcessing" default="All" maxOccurs="2" />
-            <xs:element name="transformer-type" type="trans-config:TransformerType"/>
-            <xs:element name="translation-file" type="trans-config:TranslationFile"/>
+            <xs:element name="request-pipeline" type="p:pipeline" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
+        
+        <xs:attribute name="content-type" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The incoming content type of the request.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="http-element" type="trans-config:HttpElement" default="ALL">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The part of the http request that needs translation.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="ResponseTranslationProcess">
         <xs:sequence>
-            <xs:element name="http-element-processing" type="trans-config:HttpElementProcessing" default="All" maxOccurs="2" />
-            <xs:element name="transformer-type" type="trans-config:TransformerType"/>
-            <xs:element name="translation-file" type="trans-config:TranslationFile"/>
+            <xs:element name="response-pipeline" type="p:pipeline" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
+
+        <xs:attribute name="accept" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The format requested by the HTTP client.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="content-type" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The content type returned by the origin service.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="http-element" type="trans-config:HttpElement" default="ALL">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The part of the http response that needs translation.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
-    <xs:simpleType name="HttpElementProcessing">
+    <xs:simpleType name="HttpElement">
         <xs:annotation>
             <xs:documentation>
                 <html:p>Http elements to translate during the process.</html:p>
@@ -62,33 +113,10 @@
         </xs:annotation>
 
         <xs:restriction base="xs:string">
-            <xs:enumeration value="URI" />
-            <xs:enumeration value="Envelope" />
-            <xs:enumeration value="Body" />
-            <xs:enumeration value="All" />
+            <xs:enumeration value="ENVELOPE" />
+            <xs:enumeration value="BODY" />
+            <xs:enumeration value="ALL" />
         </xs:restriction>
     </xs:simpleType>
 
-    <xs:simpleType name="TranslationFile">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>The file containing the translation instructions for the request or response (e.g. .xsl or .stx).</html:p>
-            </xs:documentation>
-        </xs:annotation>
-
-        <xs:restriction base="xs:string"></xs:restriction>
-    </xs:simpleType>
-
-    <xs:simpleType name="TransformerType">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>Transformer used to perform the translation (e.g. SAXON or STX).</html:p>
-            </xs:documentation>
-        </xs:annotation>
-
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="net.sf.saxon.TransformerFactoryImpl" />
-            <xs:enumeration value="net.sf.joost.trax.TransformerFactoryImpl" />
-        </xs:restriction>
-    </xs:simpleType>
 </xs:schema>
