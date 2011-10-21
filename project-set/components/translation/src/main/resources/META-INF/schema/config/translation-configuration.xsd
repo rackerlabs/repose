@@ -7,7 +7,7 @@
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-    <xs:import namespace="http://www.w3.org/ns/xproc" schemaLocation="xproc/xproc-papi.xsd" />
+    <xs:import namespace="http://www.w3.org/ns/xproc" schemaLocation="xproc/xproc.xsd" />
 
     <!-- Configuration -->
     <xs:element name="translation" type="trans-config:TranslationConfig" />
@@ -55,16 +55,11 @@
 
     <xs:complexType name="RequestTranslationProcess">
         <xs:sequence>
-            <xs:element name="request-pipeline" type="p:pipeline" minOccurs="0" maxOccurs="1"/>
+            <!-- Since the xprc.xsd uses anonymous complexTypes for the pipeline we have to use ref instead of type
+                 here and when we do that XJC doesn't create the proper attributes of the Pipeline class.
+                 Compile the translation component and take a look at the Pipeline class in generated-sources/xjc -->
+            <xs:element ref="p:pipeline" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
-        
-        <xs:attribute name="content-type" type="xs:string">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>The incoming content type of the request.</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
 
         <xs:attribute name="http-element" type="trans-config:HttpElement" default="ALL">
             <xs:annotation>
@@ -77,24 +72,8 @@
 
     <xs:complexType name="ResponseTranslationProcess">
         <xs:sequence>
-            <xs:element name="response-pipeline" type="p:pipeline" minOccurs="0" maxOccurs="1"/>
-        </xs:sequence>
-
-        <xs:attribute name="accept" type="xs:string">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>The format requested by the HTTP client.</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="content-type" type="xs:string">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>The content type returned by the origin service.</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
+            <xs:element ref="p:pipeline" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>        
 
         <xs:attribute name="http-element" type="trans-config:HttpElement" default="ALL">
             <xs:annotation>

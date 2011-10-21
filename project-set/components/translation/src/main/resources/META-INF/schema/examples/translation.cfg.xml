@@ -4,7 +4,7 @@
 
     <translation-process http-method="POST" uri-matching-pattern=".*/servers/.*">
 
-        <request-translation-process content-type="application/json" http-element="BODY" >
+        <request-translation-process http-element="BODY" >
             <p:pipeline name="request-pipeline" xmlns:p="http://www.w3.org/ns/xproc">
                 <p:input port="source"/>
 
@@ -22,7 +22,7 @@
             </p:pipeline>
         </request-translation-process>
 
-        <response-translation-process accept="application/json" content-type="application/json" http-element="BODY">
+        <response-translation-process http-element="BODY">
             <p:pipeline name="response-pipeline" xmlns:p="http://www.w3.org/ns/xproc">
                 <p:input port="source"/>
 
