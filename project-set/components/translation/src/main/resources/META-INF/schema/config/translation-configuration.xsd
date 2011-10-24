@@ -15,7 +15,7 @@
     <xs:complexType name="TranslationConfig">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>The entire translation configuration for a single power api node.</html:p>
             </xs:documentation>
         </xs:annotation>
 
@@ -54,6 +54,11 @@
     </xs:complexType>
 
     <xs:complexType name="RequestTranslationProcess">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The translation process for the request.</html:p>
+            </xs:documentation>
+        </xs:annotation>
         <xs:sequence>
             <xs:element ref="p:pipeline" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
@@ -68,6 +73,11 @@
     </xs:complexType>
 
     <xs:complexType name="ResponseTranslationProcess">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The translation process for the response.</html:p>
+            </xs:documentation>
+        </xs:annotation>
         <xs:sequence>
             <xs:element ref="p:pipeline" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>        

@@ -2,9 +2,20 @@
 
 <translation xmlns="http://docs.rackspacecloud.com/power-api/translation/v1.0">
 
+    <!--
+       Describes the translation process of the request-response chains for the http-method and uri.
+    -->
     <translation-process http-method="POST" uri-matching-pattern=".*/servers/.*">
 
+        <!--
+            The translation process for the request.  The http-element specifies the part of the http request
+            that needs translation: ENVELOPE, BODY, ALL.
+        -->
         <request-translation-process http-element="BODY" >
+            <!--
+                An XPROC (http://www.w3.org/TR/xproc/) pipeline with a list of the translations
+                needed for the request.
+            -->
             <p:pipeline name="request-pipeline" xmlns:p="http://www.w3.org/ns/xproc">
                 <p:input port="source"/>
 
@@ -22,7 +33,15 @@
             </p:pipeline>
         </request-translation-process>
 
+        <!--
+            The translation process for the response.  The http-element specifies the part of the http response
+            that needs translation: ENVELOPE, BODY, ALL.
+        -->
         <response-translation-process http-element="BODY">
+            <!--
+                An XPROC (http://www.w3.org/TR/xproc/) pipeline with a list of the translations
+                needed for the response.
+            -->
             <p:pipeline name="response-pipeline" xmlns:p="http://www.w3.org/ns/xproc">
                 <p:input port="source"/>
 
