@@ -2,7 +2,7 @@ package org.openrepose.rnxp.http;
 
 import javax.servlet.ServletException;
 import org.openrepose.rnxp.PowerProxy;
-import org.openrepose.rnxp.servlet.http.LiveHttpServletRequest;
+import org.openrepose.rnxp.servlet.http.UpdatableHttpRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +23,7 @@ public class SimpleRequestContext implements RequestContext {
     }
 
     @Override
-    public synchronized void startRequest(final LiveHttpServletRequest request) {
+    public synchronized void startRequest(final UpdatableHttpRequest request) {
         workerThread = new Thread(new Runnable() {
 
             @Override

@@ -1,6 +1,6 @@
 package org.openrepose.rnxp.http;
 
-import org.openrepose.rnxp.servlet.http.LiveHttpServletRequest;
+import org.openrepose.rnxp.servlet.http.UpdatableHttpRequest;
 
 /**
  *
@@ -8,7 +8,7 @@ import org.openrepose.rnxp.servlet.http.LiveHttpServletRequest;
  */
 public interface RequestContext {
 
-    void startRequest(LiveHttpServletRequest request);
+    void startRequest(UpdatableHttpRequest request);
     
     boolean started();
 }

@@ -9,9 +9,9 @@
     </parent>
 
     <groupId>com.rackspace.papi.components</groupId>
-    <artifactId>routing</artifactId>
+    <artifactId>default-router</artifactId>
 
-    <name>Power API Components - Request Routing</name>
+    <name>Power API Components - Default Request Routing Component</name>
     <description>TODO</description>
 
     <packaging>jar</packaging>

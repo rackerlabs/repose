@@ -54,6 +54,12 @@ public class PowerApiContextManager implements ServletContextListener {
     
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        final String showMePapi = sce.getServletContext().getInitParameter("show-me-papi");
+        
+        if (showMePapi != null && showMePapi.equalsIgnoreCase("true")) {
+            PapiBanner.print(LOG);
+        }
+        
         try {
             //TODO:Enhancement load the initial context from a class defined as a context listener init parameter
             this.initialContext = new InitialServiceContextFactory().getInitialContext();

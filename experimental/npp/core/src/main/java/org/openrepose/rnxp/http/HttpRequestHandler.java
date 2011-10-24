@@ -39,10 +39,12 @@ public class HttpRequestHandler extends SimpleChannelUpstreamHandler {
     public void messageReceived(ChannelHandlerContext ctx, MessageEvent e) throws Exception {
         final HttpPartial partial = (HttpPartial) e.getMessage();
 
-        if (partial.messageComponent() == HttpMessageComponent.HTTP_VERSION)
-        
         if (partial.messageComponent() != HttpMessageComponent.CONTENT_START && partial.messageComponent() != HttpMessageComponent.CONTENT_END) {
             request.applyPartial(partial);
+        }
+        
+        if (partial.messageComponent() == HttpMessageComponent.HTTP_VERSION && !requestContext.started()) {
+            requestContext.startRequest(request);
         }
     }
 

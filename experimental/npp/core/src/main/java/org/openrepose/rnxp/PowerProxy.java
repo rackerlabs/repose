@@ -10,10 +10,10 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import org.openrepose.rnxp.servlet.context.NXPServletContext;
 import org.openrepose.rnxp.servlet.context.filter.NXPFilterConfig;
 import org.openrepose.rnxp.servlet.filter.EmptyFilterChain;
-import org.openrepose.rnxp.servlet.http.LiveHttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,10 +38,11 @@ public class PowerProxy {
     public void init() {
         final ServletContext sc = new NXPServletContext(containerAttributes);
         sc.setInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), "/etc/powerapi");
-
+        
+        // Show me Papi!
+        sc.setInitParameter("show-me-papi", "true");
+        
         final Map<String, String> powerFilterParams = new HashMap<String, String>();
-        powerFilterParams.put("show-me-papi", "true");
-
         final FilterConfig fc = new NXPFilterConfig("power-filter", sc, powerFilterParams);
 
         try {
@@ -52,7 +53,7 @@ public class PowerProxy {
         }
     }
 
-    public void handleRequest(LiveHttpServletRequest request) throws ServletException {
+    public void handleRequest(HttpServletRequest request) throws ServletException {
         try {
             powerFilterInstance.doFilter(request, null, EmptyFilterChain.getInstance());
         } catch (IOException ioe) {

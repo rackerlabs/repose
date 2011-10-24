@@ -27,7 +27,7 @@
         <module>rate-limiting</module>
         <module>versioning</module>
         <module>translation</module>
-        <module>routing</module>
+        <module>default-router</module>
     </modules>
     
     <dependencyManagement>
@@ -92,6 +92,12 @@
                 <version>2.4.3</version>
             </dependency>
             
+             <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>default-router</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>rate-limiting</artifactId>
