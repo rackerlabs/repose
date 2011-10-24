@@ -55,9 +55,6 @@
 
     <xs:complexType name="RequestTranslationProcess">
         <xs:sequence>
-            <!-- Since the xprc.xsd uses anonymous complexTypes for the pipeline we have to use ref instead of type
-                 here and when we do that XJC doesn't create the proper attributes of the Pipeline class.
-                 Compile the translation component and take a look at the Pipeline class in generated-sources/xjc -->
             <xs:element ref="p:pipeline" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
 
