@@ -1,18 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <translation xmlns="http://docs.rackspacecloud.com/power-api/translation/v1.0">
-    <translation-process>
-        <http-method>POST</http-method>
-        <uri-matching-pattern>.*/servers/.*</uri-matching-pattern>
-        <request-translation-process>
-            <http-element-processing>BODY</http-element-processing>
-            <transformer-type>net.sf.saxon.TransformerFactoryImpl</transformer-type>
-            <translation-file>/etc/powerapi/server_v1.1.xsl</translation-file>
+
+    <translation-process http-method="POST" uri-matching-pattern=".*/servers/.*">
+
+        <request-translation-process http-element="BODY" >
+            <p:pipeline name="request-pipeline" xmlns:p="http://www.w3.org/ns/xproc">
+                <p:input port="source"/>
+
+                <p:xslt name="transform-request-from-jsonx-to-xml">
+                    <p:input port="stylesheet">
+                        <p:document href="/etc/powerapi/translation/post_server_req_jsonx_v1.1.xsl"/>
+                    </p:input>
+                </p:xslt>
+
+                <p:xslt name="transform-request">
+                    <p:input port="stylesheet">
+                        <p:document href="/etc/powerapi/translation/post_server_req_v1.1.xsl"/>
+                    </p:input>
+                </p:xslt>
+            </p:pipeline>
         </request-translation-process>
-        <response-translation-process>
-            <http-element-processing>BODY</http-element-processing>
-            <transformer-type>net.sf.saxon.TransformerFactoryImpl</transformer-type>
-            <translation-file></translation-file>    
+
+        <response-translation-process http-element="BODY">
+            <p:pipeline name="response-pipeline" xmlns:p="http://www.w3.org/ns/xproc">
+                <p:input port="source"/>
+
+                <p:xslt name="transform-response">
+                    <p:input port="stylesheet">
+                        <p:document href="/etc/powerapi/translation/post_server_res_v1.1.xsl"/>
+                    </p:input>
+                </p:xslt>
+
+                <p:xslt name="transform-response-from-xml-to-jsonx">
+                    <p:input port="stylesheet">
+                        <p:document href="/etc/powerapi/translation/post_server_res_xml_jsonx_v1.1.xsl"/>
+                    </p:input>
+                </p:xslt>
+            </p:pipeline>
         </response-translation-process>
+
     </translation-process>
+
 </translation>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.openrepose.rnpx</groupId>
+    <artifactId>project</artifactId>
+    <version>0.1.1-SNAPSHOT</version>
+
+    <name>RNxP - Repose Netty eXperimental Proxy</name>
+    <url>http://openrepose.org/projects/rnp</url>
+
+    <packaging>pom</packaging>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.license>apache license v2.0</project.license>
+    </properties>
+
+    <licenses>
+        <!-- The majority of this project is licensed under the Apache License v2.0 -->
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+        
+        <!-- The Servlet API library is licensed under the GPL v2.0 -->
+        <license>
+            <name>GNU General Public License, version 2</name>
+            <url>http://www.gnu.org/licenses/gpl-2.0.html</url>
+        </license>
+    </licenses>
+    
+    <modules>
+        <module>servlet-api</module>
+        <module>core</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.openrepose.rnpx</groupId>
+                <artifactId>servlet-api</artifactId>
+                <version>6.0</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.rackspace.papi.core</groupId>
+                <artifactId>core-lib</artifactId>
+                <version>1.0.2-SNAPSHOT</version>
+            </dependency>
+        
+            <dependency>
+                <groupId>com.rackspace.papi.commons</groupId>
+                <artifactId>utilities</artifactId>
+                <version>1.0.2-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.external</groupId>
+                <artifactId>jee6-schemas</artifactId>
+                <version>1.0.2-SNAPSHOT</version>
+            </dependency>
+        
+            <dependency>
+                <groupId>org.jboss.netty</groupId>
+                <artifactId>netty</artifactId>
+                <version>3.2.5.Final</version>
+            </dependency>
+        
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.6.2</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-jdk14</artifactId>
+                <version>1.6.2</version>
+            </dependency>
+        
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.9</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
+    <repositories>
+        <repository>
+            <id>repository.jboss.org</id>
+            <url>https://repository.jboss.org/nexus/content/repositories/releases/</url>
+            
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>    
+    </repositories>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>2.3.2</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>
+

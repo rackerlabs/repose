@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.translation;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.components.translation.config.TransformerType;
+//import com.rackspace.papi.components.translation.config.TransformerType;
 import com.rackspace.papi.components.translation.config.TranslationConfig;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 
@@ -18,12 +18,6 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
     public TranslationHandlerFactory(String configDirectory) {
         this.configDirectory = configDirectory;
         transformers = new HashMap<String, Transformer>();
-
-        Transformer saxonTransformer = new TransformerImpl(TransformerType.NET_SF_SAXON_TRANSFORMER_FACTORY_IMPL.value(), null);
-        Transformer stxTransformer = new TransformerImpl(TransformerType.NET_SF_JOOST_TRAX_TRANSFORMER_FACTORY_IMPL.value(), null);
-
-        transformers.put(TransformerType.NET_SF_SAXON_TRANSFORMER_FACTORY_IMPL.value(), saxonTransformer);
-        transformers.put(TransformerType.NET_SF_JOOST_TRAX_TRANSFORMER_FACTORY_IMPL.value(), stxTransformer);
     }
 
    @Override
@@ -44,6 +38,10 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
        @Override
        public void configurationUpdated(TranslationConfig configurationObject) {
            config = configurationObject;
+           // TODO: For the first version of translation update translation templates at this point.
+           // We can pull a list of the translation files from the TranslationConfig object and
+           // create the new Templates from there.
        }
     }
+
 }
