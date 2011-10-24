@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.context;
 
+import com.rackspace.papi.service.context.banner.PapiBanner;
 import com.rackspace.papi.service.ServiceContext;
 import com.rackspace.papi.service.classloader.ClassLoaderServiceContext;
 import com.rackspace.papi.service.config.ConfigurationServiceContext;

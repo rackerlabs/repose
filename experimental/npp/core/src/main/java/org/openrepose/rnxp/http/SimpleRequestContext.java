@@ -2,7 +2,8 @@ package org.openrepose.rnxp.http;
 
 import javax.servlet.ServletException;
 import org.openrepose.rnxp.PowerProxy;
-import org.openrepose.rnxp.servlet.http.UpdatableHttpRequest;
+import org.openrepose.rnxp.servlet.http.UpdatableHttpServletRequest;
+import org.openrepose.rnxp.servlet.http.UpdatableHttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,13 +24,13 @@ public class SimpleRequestContext implements RequestContext {
     }
 
     @Override
-    public synchronized void startRequest(final UpdatableHttpRequest request) {
+    public synchronized void startRequest(final UpdatableHttpServletRequest request, final UpdatableHttpServletResponse response) {
         workerThread = new Thread(new Runnable() {
 
             @Override
             public void run() {
                 try {
-                    powerProxyInstance.handleRequest(request);
+                    powerProxyInstance.handleRequest(request, response);
                 } catch (ServletException se) {
                     LOG.error(se.getMessage(), se);
                 }

@@ -7,6 +7,9 @@ target
 */target
 */*/target
 
+## Build helper scripts
+*.bhs
+
 ## Netbeans
 catalog.xml
 

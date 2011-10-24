@@ -26,7 +26,7 @@ import javax.servlet.http.Part;
  *
  * @author zinic
  */
-public class AbstractHttpServletRequest implements HttpServletRequest {
+public abstract class AbstractHttpServletRequest extends AbstractUpdatableHttpMessage implements HttpServletRequest {
 
     @Override
     public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {

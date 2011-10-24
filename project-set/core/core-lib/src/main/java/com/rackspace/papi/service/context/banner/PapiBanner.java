@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.context;
+package com.rackspace.papi.service.context.banner;
 
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import java.io.IOException;
@@ -15,7 +15,7 @@ public final class PapiBanner {
 
     public static void print(Logger log) {
         try {
-            final InputStream bannerInputStream = PapiBanner.class.getResourceAsStream("/com/rackspace/papi/service/context/papi.banner");
+            final InputStream bannerInputStream = PapiBanner.class.getResourceAsStream("papi.banner");
 
             if (bannerInputStream != null) {
                 final String bannerString = new String(RawInputStreamReader.instance().readFully(bannerInputStream));

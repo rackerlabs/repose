@@ -86,7 +86,7 @@ public class HttpDecoder extends FrameDecoder {
         return null;
     }
 
-    private boolean readUntilControlCharacter(ChannelBuffer buffer, AsciiCharacterConstant controlCharacter) {
+    private boolean readUntilControlCharacter(ChannelBuffer buffer, AsciiCharacterConstant controlCharacter, StringBuilder stringBuffer) {
         while (buffer.readableBytes() > 0) {
             final char nextCharacter = (char) buffer.readByte();
 
@@ -94,14 +94,14 @@ public class HttpDecoder extends FrameDecoder {
                 return true;
             }
 
-            stringBuilder.append(nextCharacter);
+            stringBuffer.append(nextCharacter);
         }
 
         return false;
     }
 
     private HttpPartial readRequestURI(ChannelBuffer buffer) {
-        if (readUntilControlCharacter(buffer, SPACE)) {
+        if (readUntilControlCharacter(buffer, SPACE, stringBuilder)) {
             final HttpPartial uriPartial = new HttpPartial(HttpMessageComponent.REQUEST_URI);
             uriPartial.setPartial(flushInternalBufferToString());
 
@@ -150,7 +150,7 @@ public class HttpDecoder extends FrameDecoder {
                     }
                     break;
             }
-        } else if (readUntilControlCharacter(buffer, CARRIAGE_RETURN)) {
+        } else if (readUntilControlCharacter(buffer, CARRIAGE_RETURN, stringBuilder)) {
             final HttpPartial httpVersionPartial = new HttpPartial(HttpMessageComponent.HTTP_VERSION);
             httpVersionPartial.setPartial(flushInternalBufferToString());
 
@@ -165,9 +165,9 @@ public class HttpDecoder extends FrameDecoder {
     }
 
     private HttpPartial readHeader(ChannelBuffer buffer) {
-        if (readUntilControlCharacter(buffer, CARRIAGE_RETURN)) {
-            // Encountered a CR without actually reading anything - This signifies the head of the headers
+        if (readUntilControlCharacter(buffer, CARRIAGE_RETURN, stringBuilder)) {
             if (stringBuilder.length() > 0) {
+                // The string buffer has data - this is probably a header                
                 final HttpPartial headerPartial = new HttpPartial(HttpMessageComponent.HEADER);
                 headerPartial.setPartial(flushInternalBufferToString());
 
@@ -176,6 +176,7 @@ public class HttpDecoder extends FrameDecoder {
 
                 return headerPartial;
             } else {
+                // Encountered a CR without actually reading anything - This signifies the head of the headers
                 HttpPartial messagePartial;
 
                 // Skip the expected LF and the content

@@ -47,6 +47,18 @@ public class HttpPartial {
     }
 
     public void setPartial(String partial) {
+        switch (componentType) {
+            case HEADER:
+                final String[] splitPartial = partial.split(":", 2);
+
+                if (splitPartial.length == 2) {
+                    headerKey = splitPartial[0];
+                    headerValue = splitPartial[1];
+                } else {
+                    // TODO: Error
+                }
+        }
+
         this.partial = partial;
     }
 }
