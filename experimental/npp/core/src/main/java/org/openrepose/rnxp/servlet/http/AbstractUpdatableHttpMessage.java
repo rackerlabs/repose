@@ -1,6 +1,7 @@
 package org.openrepose.rnxp.servlet.http;
 
 import org.openrepose.rnxp.http.domain.HttpMessageComponent;
+import org.openrepose.rnxp.http.domain.HttpMessageComponentOrder;
 import org.openrepose.rnxp.http.domain.HttpPartial;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,14 +13,13 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractUpdatableHttpMessage implements UpdatableHttpMessage {
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractUpdatableHttpMessage.class);
-    
     private HttpMessageUpdateController updateController;
     private HttpMessageComponent lastReadComponent;
 
     @Override
     public final void setUpdateController(HttpMessageUpdateController updateController) {
         this.updateController = updateController;
-        
+
         lastReadComponent = HttpMessageComponent.MESSAGE_START;
     }
 
@@ -36,6 +36,14 @@ public abstract class AbstractUpdatableHttpMessage implements UpdatableHttpMessa
             updateController.holdForUpdate(this);
         } catch (InterruptedException ie) {
             LOG.error(ie.getMessage(), ie);
+        }
+    }
+
+    protected synchronized void loadComponent(HttpMessageComponent component, HttpMessageComponentOrder order) {
+        while (order.isEqualOrAfter(component, lastReadComponent())) {
+            LOG.info("Requesting more HTTP request data up to " + component + ". Current position: " + lastReadComponent());
+            
+            requestUpdate();
         }
     }
 

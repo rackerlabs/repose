@@ -52,8 +52,8 @@ public class HttpPartial {
                 final String[] splitPartial = partial.split(":", 2);
 
                 if (splitPartial.length == 2) {
-                    headerKey = splitPartial[0];
-                    headerValue = splitPartial[1];
+                    headerKey = splitPartial[0].trim().toLowerCase();
+                    headerValue = splitPartial[1].trim().toLowerCase();
                 } else {
                     // TODO: Error
                 }

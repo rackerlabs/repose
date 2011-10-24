@@ -12,6 +12,4 @@ public class LiveHttpServletResponse extends AbstractHttpServletResponse impleme
     protected void mergeWithPartial(HttpPartial partial) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
-
-    
 }

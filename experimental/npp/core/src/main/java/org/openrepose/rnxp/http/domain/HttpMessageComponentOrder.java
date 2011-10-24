@@ -13,7 +13,6 @@ public class HttpMessageComponentOrder {
         HttpMessageComponent.HTTP_VERSION,
         HttpMessageComponent.HEADER,
         HttpMessageComponent.CONTENT_START,
-        HttpMessageComponent.CONTENT_END,
         HttpMessageComponent.MESSAGE_END
     });
     
@@ -31,8 +30,8 @@ public class HttpMessageComponentOrder {
         return indexOf(first) < indexOf(second);
     }
 
-    public boolean isAfter(HttpMessageComponent first, HttpMessageComponent second) {
-        return indexOf(first) > indexOf(second);
+    public boolean isEqualOrAfter(HttpMessageComponent first, HttpMessageComponent second) {
+        return indexOf(first) >= indexOf(second);
     }
     
     public int indexOf(HttpMessageComponent component) {

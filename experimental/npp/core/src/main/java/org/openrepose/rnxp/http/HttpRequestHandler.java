@@ -60,23 +60,6 @@ public class HttpRequestHandler extends SimpleChannelUpstreamHandler {
         // Apply the partial
         updateController.applyPartial(partial);
 
-        switch (partial.messageComponent()) {
-            case HTTP_VERSION:
-                // Done reading the first line of the request
-
-                if (inboundReadValve.isOpen()) {
-                    // If the read valve is open, close it so we don't process more of the request
-                    inboundReadValve.shut();
-                }
-                break;
-
-            case CONTENT_START:
-                if (inboundReadValve.isOpen()) {
-                    // We've read everything up to the content. We should stop here
-                    inboundReadValve.shut();
-                }
-                break;
-        }
     }
 
     @Override

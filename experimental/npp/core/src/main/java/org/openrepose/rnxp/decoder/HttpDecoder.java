@@ -46,12 +46,10 @@ public class HttpDecoder extends FrameDecoder {
                     return readHeader(buffer);
 
                 case READ_CONTENT:
-                    setSkip(contentLength);
-                    updateState(CONTENT_END);
-                    break;
+                    return new HttpPartial(HttpMessageComponent.CONTENT_START);
 
                 case CONTENT_END:
-                    return new HttpPartial(HttpMessageComponent.CONTENT_END);
+                    // ?
             }
         }
 
@@ -186,7 +184,7 @@ public class HttpDecoder extends FrameDecoder {
                     messagePartial = new HttpPartial(HttpMessageComponent.CONTENT_START);
                     updateState(READ_CONTENT);
                 } else {
-                    messagePartial = new HttpPartial(HttpMessageComponent.CONTENT_END);
+                    messagePartial = new HttpPartial(HttpMessageComponent.MESSAGE_END);
                     updateState(CONTENT_END);
                 }
 

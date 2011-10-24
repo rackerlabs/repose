@@ -19,7 +19,6 @@ public enum HttpMessageComponent {
     HTTP_VERSION,
     HEADER,
     CONTENT_START,
-    CONTENT_END,
     
     // Request
     REQUEST_METHOD,
