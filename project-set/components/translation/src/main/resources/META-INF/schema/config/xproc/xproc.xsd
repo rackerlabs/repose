@@ -201,8 +201,6 @@
   </sequence>
  </group>
 
-    <!-- They use an anonymous complexType for the pipeline.  This doesn't gives us the class hierarchy we
-         need in XJC to easily work with the pipeline information.  -->
  <element name="pipeline">
   <complexType>
    <complexContent>
