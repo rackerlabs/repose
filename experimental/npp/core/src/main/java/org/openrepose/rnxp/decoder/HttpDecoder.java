@@ -44,8 +44,10 @@ public class HttpDecoder extends FrameDecoder {
                     return readVersion(buffer);
 
                 case READ_HEADER_KEY:
+                    return readHeaderKey(buffer);
+
                 case READ_HEADER_VALUE:
-                    return readHeader(buffer);
+                    return readHeaderValue(buffer);
 
                 case STREAM_REMAINING:
                     return buffer.readByte();
@@ -108,12 +110,11 @@ public class HttpDecoder extends FrameDecoder {
         // TODO: Failcase
         return null;
     }
-
     private final boolean CASE_SENSITIVE = Boolean.TRUE, CASE_INSENSITIVE = Boolean.FALSE;
-    
+
     private ControlCharacter readUntil(ChannelBuffer buffer, ChannelBuffer charBuffer, boolean caseSensitive, AsciiCharacterConstant... controlCharacterSet) {
         while (buffer.readableBytes() > 0) {
-            final char nextCharacter = caseSensitive ? Character.toLowerCase((char) buffer.readByte()) : (char) buffer.readByte();
+            final char nextCharacter = (char) buffer.readByte();
 
             for (AsciiCharacterConstant controlCharacter : controlCharacterSet) {
                 if (controlCharacter.matches(nextCharacter)) {
@@ -123,7 +124,7 @@ public class HttpDecoder extends FrameDecoder {
 
             try {
                 charBuffer.ensureWritableBytes(1);
-                charBuffer.writeByte(nextCharacter);
+                charBuffer.writeByte(caseSensitive ? nextCharacter : Character.toLowerCase(nextCharacter));
             } catch (IndexOutOfBoundsException boundsException) {
                 // TODO: Failcase
             }
@@ -200,10 +201,10 @@ public class HttpDecoder extends FrameDecoder {
         return null;
     }
 
-    private HttpPartial readHeader(ChannelBuffer buffer) {
+    private HttpPartial readHeaderKey(ChannelBuffer buffer) {
         final ControlCharacter controlCharacter = readUntil(buffer, charBuffer, CASE_INSENSITIVE, COLON, CARRIAGE_RETURN);
         HttpPartial messagePartial = null;
-        
+
         if (controlCharacter != null) {
             switch (controlCharacter.getCharacterConstant()) {
                 case COLON:
@@ -215,35 +216,44 @@ public class HttpDecoder extends FrameDecoder {
                     // Pointer swap
                     final ChannelBuffer temp = headerKey;
                     headerKey = charBuffer;
-                    charBuffer = temp;
-                    
+                    charBuffer = temp != null ? temp : buffer(8192);
+
                     updateState(READ_HEADER_VALUE);
-                    
+
                     break;
 
                 case CARRIAGE_RETURN:
                     // Skip the expected LF
                     setSkip(1);
 
-                    if (headerKey.readable()) {
-                        // The header key buffer has data - this is probably a header                
-                        messagePartial = new HttpPartial(HttpMessageComponent.HEADER);
-                        messagePartial.setHeaderKey(flushBufferToString(headerKey));
-                        messagePartial.setHeaderValue(flushBufferToString(charBuffer));
-                        
-                        updateState(READ_HEADER_KEY);
+                    if (contentLength > 0) {
+                        messagePartial = new HttpPartial(HttpMessageComponent.CONTENT_START);
+                        updateState(STREAM_REMAINING);
                     } else {
-                        if (contentLength > 0) {
-                            messagePartial = new HttpPartial(HttpMessageComponent.CONTENT_START);
-                            updateState(STREAM_REMAINING);
-                        } else {
-                            messagePartial = new HttpPartial(HttpMessageComponent.MESSAGE_END);
-                            updateState(READ_END);
-                        }
+                        messagePartial = new HttpPartial(HttpMessageComponent.MESSAGE_END);
+                        updateState(READ_END);
                     }
             }
         }
-        
+
+        return messagePartial;
+    }
+
+    private HttpPartial readHeaderValue(ChannelBuffer buffer) {
+        HttpPartial messagePartial = null;
+
+        if (readUntil(buffer, charBuffer, CASE_SENSITIVE, CARRIAGE_RETURN) != null) {
+            // Skip the expected LF
+            setSkip(1);
+
+            // The header key buffer has data - this is probably a header                
+            messagePartial = new HttpPartial(HttpMessageComponent.HEADER);
+            messagePartial.setHeaderKey(flushBufferToString(headerKey));
+            messagePartial.setHeaderValue(flushBufferToString(charBuffer));
+
+            updateState(READ_HEADER_KEY);
+        }
+
         return messagePartial;
     }
 
@@ -267,7 +277,7 @@ public class HttpDecoder extends FrameDecoder {
         return currentState;
     }
 
-    private void updateState(DecoderState state) {
+    public void updateState(DecoderState state) {
         switch (state) {
             case READ_VERSION:
                 stateCounter = 0;

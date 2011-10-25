@@ -44,26 +44,8 @@ public class HttpDecoderTest {
             throw new HttpDecoderTestException("Reads for partial exceeded expected");
         }
 
-        public void stepDecoder(String content, int steps) throws Exception {
-            final byte[] contentBytes = content.getBytes();
-
-            for (int read = 0; read < steps; read++) {
-                decoder.decode(null, null, copiedBuffer(contentBytes));
-            }
-        }
-
-        public void stepOverMethod() throws Exception {
-            final ChannelBuffer methodBuffer = copiedBuffer("GET ".getBytes());
-            
-            nextPartial(methodBuffer, 1);
-            stepDecoder(" ", 3);
-        }
-        
-        public void stepOverUri() throws Exception {
-            final ChannelBuffer methodBuffer = copiedBuffer("/ ".getBytes());
-            
-            nextPartial(methodBuffer, 1);
-            stepDecoder(" ", 1);
+        public void stepDecoderTo(DecoderState state) {
+            decoder.updateState(state);
         }
     }
 
@@ -138,7 +120,7 @@ public class HttpDecoderTest {
         public void standUp() throws Exception {
             super.standUp();
 
-            stepOverMethod();
+            stepDecoderTo(DecoderState.READ_URI);
         }
 
         @Test
@@ -158,8 +140,7 @@ public class HttpDecoderTest {
         public void standUp() throws Exception {
             super.standUp();
 
-            stepOverMethod();
-            stepOverUri();
+            stepDecoderTo(DecoderState.READ_VERSION);
         }
 
         @Test
@@ -170,6 +151,28 @@ public class HttpDecoderTest {
             final HttpPartial versionPartial = nextPartial(buffer, 6);
 
             assertEquals("Decoder must decode valid request HTTP versions", expectedVersion, versionPartial.getPartial());
+        }
+    }
+    
+    public static class WhenDecodingRequestHeader extends HttpDecoderTestPart {
+
+        @Override
+        public void standUp() throws Exception {
+            super.standUp();
+
+            stepDecoderTo(DecoderState.READ_HEADER_KEY);
+        }
+
+        @Test
+        public void shouldDecodeValidHeader() throws Exception {
+            final String expectedHeaderKey = "host";
+            final String expectedHeaderValue = "tHiSiSaHoSt.CoM";
+            final ChannelBuffer buffer = copiedBuffer((expectedHeaderKey.toUpperCase() + ":" + expectedHeaderValue + "\r\n").getBytes());
+
+            final HttpPartial headerPartial = nextPartial(buffer, 2);
+
+            assertEquals("Decoder must decode valid request HTTP header keys", expectedHeaderKey, headerPartial.getHeaderKey());
+            assertEquals("Decoder must decode valid request HTTP header values", expectedHeaderValue, headerPartial.getHeaderValue());
         }
     }
 }
