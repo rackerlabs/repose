@@ -44,7 +44,8 @@ public class HttpDecoder extends FrameDecoder {
                     return readVersion(buffer);
 
                 case READ_HEADER_KEY:
-                    return readHeaderKey(buffer);
+                case READ_HEADER_VALUE:
+                    return readHeader(buffer);
 
                 case STREAM_REMAINING:
                     return buffer.readByte();
@@ -199,7 +200,7 @@ public class HttpDecoder extends FrameDecoder {
         return null;
     }
 
-    private HttpPartial readHeaderKey(ChannelBuffer buffer) {
+    private HttpPartial readHeader(ChannelBuffer buffer) {
         final ControlCharacter controlCharacter = readUntil(buffer, charBuffer, CASE_INSENSITIVE, COLON, CARRIAGE_RETURN);
         HttpPartial messagePartial = null;
         
@@ -216,6 +217,8 @@ public class HttpDecoder extends FrameDecoder {
                     headerKey = charBuffer;
                     charBuffer = temp;
                     
+                    updateState(READ_HEADER_VALUE);
+                    
                     break;
 
                 case CARRIAGE_RETURN:
@@ -227,6 +230,8 @@ public class HttpDecoder extends FrameDecoder {
                         messagePartial = new HttpPartial(HttpMessageComponent.HEADER);
                         messagePartial.setHeaderKey(flushBufferToString(headerKey));
                         messagePartial.setHeaderValue(flushBufferToString(charBuffer));
+                        
+                        updateState(READ_HEADER_KEY);
                     } else {
                         if (contentLength > 0) {
                             messagePartial = new HttpPartial(HttpMessageComponent.CONTENT_START);
