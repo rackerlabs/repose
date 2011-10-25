@@ -151,6 +151,7 @@
                                 </data>
 
                                  <!-- The filter components directory and EAR file -->
+                                 <!--
                                   <data>
                                       <src>../../components/filter-bundle/target</src>
                                       <type>directory</type>
@@ -162,6 +163,7 @@
                                           <filemode>755</filemode>
                                       </mapper>
                                   </data>
+                                  -->
 
                                     <!-- The log directory with info file as placeholder for plugin -->
                                 <data>
