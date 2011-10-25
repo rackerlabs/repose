@@ -16,7 +16,7 @@ public enum HttpMethod {
     CONNECT(new char[]{'C'});
     
     // Class contents
-    public static final HttpMethod[] SC_PARSE_METHODS = new HttpMethod[]{GET, DELETE, CONNECT, HEAD, TRACE};
+    public static final HttpMethod[] SC_PARSE_METHODS = new HttpMethod[]{GET, DELETE, OPTIONS, CONNECT, HEAD, TRACE};
     public static final HttpMethod[] MC_PARSE_METHODS = new HttpMethod[]{POST, PUT};
     
     private final char[] matcherFragment;
@@ -31,7 +31,7 @@ public enum HttpMethod {
         return matcherFragment;
     }
 
-    public int getMethodLength() {
+    public int getSkipLength() {
         return methodLength;
     }
 }

@@ -6,6 +6,7 @@ package org.openrepose.rnxp.decoder;
  */
 public enum AsciiCharacterConstant {
     CARRIAGE_RETURN('\r'),
+    COLON(':'),
     LINE_FEED('\n'),
     SPACE(' ');
     

@@ -15,12 +15,13 @@ public enum DecoderState {
     READ_REQUEST_LINE_LF,
     
     // Header line states
-    READ_HEADER,
+    READ_HEADER_KEY,
+    READ_HEADER_VALUE,
     READ_HEADER_CR,
     READ_HEADER_LF,
     READ_HEADER_FINAL_LF,
     
     // Body states
-    READ_CONTENT,
-    CONTENT_END
+    STREAM_REMAINING,
+    READ_END
 }

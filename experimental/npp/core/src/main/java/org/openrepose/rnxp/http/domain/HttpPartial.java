@@ -1,5 +1,7 @@
 package org.openrepose.rnxp.http.domain;
 
+import java.io.InputStream;
+
 /**
  *
  * @author zinic
@@ -8,6 +10,7 @@ public class HttpPartial {
 
     private final HttpMessageComponent componentType;
     private String partial, headerKey, headerValue;
+    private InputStream inputStream, outputStream;
     private HttpMethod method;
 
     public HttpPartial(HttpMessageComponent componentType) {
@@ -16,6 +19,22 @@ public class HttpPartial {
 
     public HttpMessageComponent messageComponent() {
         return componentType;
+    }
+
+    public InputStream getInputStream() {
+        return inputStream;
+    }
+
+    public void setInputStream(InputStream inputStream) {
+        this.inputStream = inputStream;
+    }
+
+    public InputStream getOutputStream() {
+        return outputStream;
+    }
+
+    public void setOutputStream(InputStream outputStream) {
+        this.outputStream = outputStream;
     }
 
     public HttpMethod getMethod() {
@@ -57,6 +76,8 @@ public class HttpPartial {
                 } else {
                     // TODO: Error
                 }
+
+                break;
         }
 
         this.partial = partial;
