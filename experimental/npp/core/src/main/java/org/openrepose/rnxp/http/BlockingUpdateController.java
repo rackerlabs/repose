@@ -8,6 +8,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * This controller assumes that the channel is blocked for the duration of logic
+ * execution of a message.
  *
  * @author zinic
  */
