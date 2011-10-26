@@ -34,7 +34,7 @@
             <xs:sequence>
                 <xs:element name="authentication-server" type="auth-1.1:authenticationServer" minOccurs="1" maxOccurs="1" />
                 <xs:element name="account-mapping" type="auth-1.1:accountMapping" minOccurs="1" maxOccurs="unbounded" />
-                <xs:element name="roles" type="auth-1.1:roles" minOccurs="0" maxOccurs="1"/>
+                <xs:element name="user-roles" type="auth-1.1:user-roles" minOccurs="0" maxOccurs="1"/>
             </xs:sequence>
             
             <xs:attribute name="delegatable" type="xs:boolean" use="optional" default="false">
@@ -110,15 +110,28 @@
         </xs:attribute>
     </xs:complexType>
 
-    <xs:complexType name="roles">
+    <xs:complexType name="user-roles">
         <xs:annotation>
             <xs:documentation>
-                <html:p>A list of users and their associated roles.</html:p>
+                <html:p>A list of default roles for all users and a list of specific users and their associated roles.</html:p>
             </xs:documentation>
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="user" type="auth-1.1:user" minOccurs="1" maxOccurs="unbounded"/>    
+            <xs:element name="default" type="auth-1.1:default" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="user" type="auth-1.1:user" minOccurs="0" maxOccurs="unbounded"/>    
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="default">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The default roles all users should have.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="roles" type="auth-1.1:roles" minOccurs="1" maxOccurs="1"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -130,7 +143,7 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="role" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>    
+            <xs:element name="roles" type="auth-1.1:roles" minOccurs="1" maxOccurs="1"/>
         </xs:sequence>
 
         <xs:attribute name="name" type="xs:string" use="required">
@@ -140,5 +153,17 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="roles">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>A list of roles.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="role" type="xs:string" minOccurs="1" maxOccurs="unbounded"/>
+        </xs:sequence>
     </xs:complexType>
 </xs:schema>

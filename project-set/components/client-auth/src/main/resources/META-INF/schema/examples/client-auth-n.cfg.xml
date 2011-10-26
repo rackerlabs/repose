@@ -7,14 +7,25 @@
         <account-mapping id-regex=".*/v1/(\w*)/.*" type="CLOUD"/>
         <account-mapping id-regex=".*.com/service/(\d*)/" type="MOSSO"/>
 
-        <roles>
-            <user name="user1">
-                <role>admin</role>
-                <role>test</role>
+        <user-roles>
+            <default>
+                <roles>
+                    <role>sysadmin</role>
+                    <role>netadmin</role>
+                    <role>developer</role>
+                </roles>
+            </default>
+            <user name="cmarin1">
+                <roles>
+                    <role>cloudadmin</role>
+                    <role>itsec</role>
+                </roles>
             </user>
-            <user name="user2">
-                <role>read</role>
+            <user name="username2">
+                <roles>
+                    <role>cloudadmin</role>
+                </roles>
             </user>
-        </roles>        
+        </user-roles>
     </rackspace-auth>
 </client-auth>
