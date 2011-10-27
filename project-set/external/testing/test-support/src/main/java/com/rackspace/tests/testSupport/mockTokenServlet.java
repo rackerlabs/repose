@@ -26,6 +26,7 @@ public class mockTokenServlet extends HttpServlet {
     MockUser user3 = new MockUser("usertest3", "CLOUD", "/my-third-test-user");
     MockUser user4 = new MockUser("usertest4", "CLOUD", "/dkshk-fdjke3-fdfjdk-21342");
     MockUser[] testUsers = {user1, user2, user3, user4}; // new ArrayList<MockUser>();
+    MockUser passedUser;
 
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -38,13 +39,16 @@ public class mockTokenServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
+        
 
 
         String queryParams = request.getQueryString();
         String token = request.getPathInfo();
         boolean valid = false;
+        passedUser = new MockUser(queryParams, token);
         try {
-            MockUser passedUser = new MockUser(queryParams, token);
+        
+            
             for (MockUser u : testUsers) {
                 if (u.equals(passedUser)) {
                     valid = true;
