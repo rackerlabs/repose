@@ -33,14 +33,14 @@ public class HttpRequestHandler extends SimpleChannelUpstreamHandler {
         requestContext = new SimpleRequestContext(powerProxyInstance);
     }
 
-//        final Channel inboundChannel = e.getChannel();
-//        inboundChannel.setReadable(false);
-//
-//        ClientBootstrap cb = new ClientBootstrap(cf);
-//        cb.getPipeline().addLast("handler", new OutboundHandler(e.getChannel()));
-//        ChannelFuture f = cb.connect(new InetSocketAddress(remoteHost, remotePort));    
-// e.getChannel().write(ChannelBuffers.copiedBuffer(
-// "HTTP/1.1 200 OK\r\nX-NXP-HW: Hello world!\r\nContent-Length: 0\r\n\r\n", CharsetUtil.UTF_8)).addListener(ChannelFutureListener.CLOSE);
+    //        final Channel inboundChannel = e.getChannel();
+    //        inboundChannel.setReadable(false);
+    //
+    //        ClientBootstrap cb = new ClientBootstrap(cf);
+    //        cb.getPipeline().addLast("handler", new OutboundHandler(e.getChannel()));
+    //        ChannelFuture f = cb.connect(new InetSocketAddress(remoteHost, remotePort));    
+    //        e.getChannel().write(ChannelBuffers.copiedBuffer("HTTP/1.1 200 OK\r\nX-NXP-HW: Hello world!\r\nContent-Length: 0\r\n\r\n", CharsetUtil.UTF_8)).addListener(ChannelFutureListener.CLOSE);
+    
     @Override
     public void channelOpen(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
         // Set up the read valve and shut the channel for now

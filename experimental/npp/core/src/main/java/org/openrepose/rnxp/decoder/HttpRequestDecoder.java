@@ -1,5 +1,6 @@
 package org.openrepose.rnxp.decoder;
 
+import org.openrepose.rnxp.decoder.processor.HeaderProcessor;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
 import java.io.StringWriter;
 import org.openrepose.rnxp.http.HttpMessageComponent;
@@ -12,6 +13,7 @@ import org.jboss.netty.handler.codec.frame.FrameDecoder;
 import org.openrepose.rnxp.decoder.partial.EmptyHttpMessagePartial;
 import org.openrepose.rnxp.decoder.partial.ContentMessagePartial;
 import org.openrepose.rnxp.decoder.partial.impl.HeaderPartial;
+import org.openrepose.rnxp.decoder.partial.impl.HttpErrorPartial;
 import org.openrepose.rnxp.decoder.partial.impl.HttpVersionPartial;
 import org.openrepose.rnxp.decoder.partial.impl.RequestMethodPartial;
 import org.openrepose.rnxp.decoder.partial.impl.RequestUriPartial;
@@ -23,17 +25,40 @@ public class HttpRequestDecoder extends FrameDecoder {
 
     private final char[] HTTP_VERSION_HEAD = new char[]{'H', 'T', 'T', 'P', '/'};
     private final boolean CASE_SENSITIVE = Boolean.TRUE, CASE_INSENSITIVE = Boolean.FALSE;
-    private ChannelBuffer headerKey, charBuffer;
+    private final HeaderProcessor fHeadHeaderProcessor;
+    private HeaderProcessor currentHeaderProcessor;
+    private ChannelBuffer headerKeyBuffer, characterBuffer;
     private DecoderState currentState;
-    private int skipCount, stateCounter;
-    private long contentLength;
-    private boolean chunked;
+    private int skipLength, stateCounter;
+    private long contentLength, chunkLength;
+    private boolean readChunkedContent;
 
     public HttpRequestDecoder() {
         currentState = READ_SC_PARSE_METHOD;
         contentLength = -1;
-        chunked = false;
-        charBuffer = buffer(8192);
+        readChunkedContent = false;
+        characterBuffer = buffer(8192);
+
+        currentHeaderProcessor = fHeadHeaderProcessor = new HeaderProcessor() {
+
+            @Override
+            public HttpErrorPartial processHeader(String key, String value) {
+                HttpErrorPartial messagePartial = null;
+
+                if (key.equals("content-length") && !readChunkedContent) {
+                    try {
+                        contentLength = Long.parseLong(value);
+                    } catch (NumberFormatException nfe) {
+                        messagePartial = HttpErrors.malformedContentLength();
+                    }
+                } else if (key.equals("transfer-encoding") && value.equalsIgnoreCase("chunked")) {
+                    contentLength = -1;
+                    readChunkedContent = true;
+                }
+
+                return messagePartial;
+            }
+        };
     }
 
     @Override
@@ -59,10 +84,16 @@ public class HttpRequestDecoder extends FrameDecoder {
                         return readHeaderKey(buffer);
 
                     case READ_HEADER_VALUE:
-                        return readHeaderValue(buffer);
+                        return readHeaderValue(buffer, currentHeaderProcessor);
 
                     case READ_CONTENT:
                         return readContent(buffer);
+
+                    case READ_CHUNK_LENGTH:
+                        return readContentChunkLength(buffer);
+
+                    case READ_CONTENT_CHUNKED:
+                        return readContentChunked(buffer);
 
                     case STREAM_REMAINING:
                     case READ_END:
@@ -85,14 +116,6 @@ public class HttpRequestDecoder extends FrameDecoder {
         }
 
         return stringWriter.toString();
-    }
-
-    private void processHeader(final String headerKeyString, final String headerKeyValue) throws NumberFormatException {
-        if (contentLength == -1 && headerKeyString.equals("content-length")) {
-            contentLength = Long.parseLong(headerKeyValue);
-        } else if (!chunked && headerKeyString.equals("transfer-encoding") && headerKeyValue.equalsIgnoreCase("chunked")) {
-            chunked = true;
-        }
     }
 
     private HttpMessagePartial readSingleCharacterParsableMethod(ChannelBuffer buffer) {
@@ -150,11 +173,11 @@ public class HttpRequestDecoder extends FrameDecoder {
     }
 
     private HttpMessagePartial readRequestURI(ChannelBuffer socketBuffer) {
-        final ControlCharacter readChar = readUntil(socketBuffer, charBuffer, CASE_SENSITIVE, SPACE);
+        final ControlCharacter readChar = readUntil(socketBuffer, characterBuffer, CASE_SENSITIVE, SPACE);
 
         if (readChar != null) {
             // TODO: Validate
-            final RequestUriPartial uriPartial = new RequestUriPartial(HttpMessageComponent.REQUEST_URI, flushBuffer(charBuffer));
+            final RequestUriPartial uriPartial = new RequestUriPartial(HttpMessageComponent.REQUEST_URI, flushBuffer(characterBuffer));
 
             // Skip the next bit of whitespace
             setSkip(1);
@@ -180,11 +203,14 @@ public class HttpRequestDecoder extends FrameDecoder {
                 messagePartial = HttpErrors.badVersion();
             }
         } else {
-            if (readUntil(socketBuffer, charBuffer, CASE_SENSITIVE, CARRIAGE_RETURN) != null) {
-                messagePartial = new HttpVersionPartial(HttpMessageComponent.HTTP_VERSION, flushBuffer(charBuffer));
+            if (readUntil(socketBuffer, characterBuffer, CASE_SENSITIVE, CARRIAGE_RETURN) != null) {
+                messagePartial = new HttpVersionPartial(HttpMessageComponent.HTTP_VERSION, flushBuffer(characterBuffer));
 
                 // Skip the next bit of whitespace
                 setSkip(1);
+
+                // Set ourselves up to process head headers
+                currentHeaderProcessor = fHeadHeaderProcessor;
                 updateState(READ_HEADER_KEY);
             }
         }
@@ -193,18 +219,18 @@ public class HttpRequestDecoder extends FrameDecoder {
     }
 
     private HttpMessagePartial readHeaderKey(ChannelBuffer buffer) {
-        final ControlCharacter controlCharacter = readUntil(buffer, charBuffer, CASE_INSENSITIVE, COLON, CARRIAGE_RETURN);
+        final ControlCharacter controlCharacter = readUntil(buffer, characterBuffer, CASE_INSENSITIVE, COLON, CARRIAGE_RETURN);
         HttpMessagePartial messagePartial = null;
 
         if (controlCharacter != null) {
             switch (controlCharacter.getCharacterConstant()) {
                 case COLON:
                     // The header key must have data
-                    if (charBuffer.readable()) {
+                    if (characterBuffer.readable()) {
                         // Buffer pointer swap
-                        final ChannelBuffer temp = headerKey;
-                        headerKey = charBuffer;
-                        charBuffer = temp != null ? temp : buffer(8192);
+                        final ChannelBuffer temp = headerKeyBuffer;
+                        headerKeyBuffer = characterBuffer;
+                        characterBuffer = temp != null ? temp : buffer(8192);
 
                         updateState(READ_HEADER_VALUE);
                     } else {
@@ -220,8 +246,11 @@ public class HttpRequestDecoder extends FrameDecoder {
                     if (contentLength > 0) {
                         messagePartial = new EmptyHttpMessagePartial(HttpMessageComponent.CONTENT_START);
                         updateState(READ_CONTENT);
+                    } else if (readChunkedContent) {
+                        messagePartial = new EmptyHttpMessagePartial(HttpMessageComponent.CONTENT_START);
+                        updateState(READ_CHUNK_LENGTH);
                     } else {
-                        messagePartial = new EmptyHttpMessagePartial(HttpMessageComponent.MESSAGE_END);
+                        messagePartial = new EmptyHttpMessagePartial(HttpMessageComponent.MESSAGE_END_NO_CONTENT);
                         updateState(READ_END);
                     }
             }
@@ -230,24 +259,25 @@ public class HttpRequestDecoder extends FrameDecoder {
         return messagePartial;
     }
 
-    private HttpMessagePartial readHeaderValue(ChannelBuffer buffer) {
+    private HttpMessagePartial readHeaderValue(ChannelBuffer buffer, HeaderProcessor headerProcessor) {
         HttpMessagePartial messagePartial = null;
 
-        if (readUntil(buffer, charBuffer, CASE_SENSITIVE, CARRIAGE_RETURN) != null) {
+        if (readUntil(buffer, characterBuffer, CASE_SENSITIVE, CARRIAGE_RETURN) != null) {
             // Skip the expected LF
             setSkip(1);
 
-            try {
-                // Dump the buffers to encoded strings
-                final String headerKeyString = flushBuffer(headerKey);
-                final String headerKeyValue = flushBuffer(charBuffer);
+            // Dump the buffers to encoded strings
+            final String headerKey = flushBuffer(headerKeyBuffer);
+            final String headerValue = flushBuffer(characterBuffer);
 
-                processHeader(headerKeyString, headerKeyValue);
+            if (headerProcessor != null) {
+                messagePartial = headerProcessor.processHeader(headerKey, headerValue);
+            }
 
-                messagePartial = new HeaderPartial(HttpMessageComponent.HEADER, headerKeyString, headerKeyValue);
-                updateState(READ_HEADER_KEY);
-            } catch (NumberFormatException nfe) {
-                messagePartial = HttpErrors.malformedContentLength();
+            updateState(READ_HEADER_KEY);
+
+            if (messagePartial == null) {
+                messagePartial = new HeaderPartial(HttpMessageComponent.ENTITY_HEADER, headerKey, headerValue);
             }
         }
 
@@ -257,31 +287,88 @@ public class HttpRequestDecoder extends FrameDecoder {
     private HttpMessagePartial readContent(ChannelBuffer buffer) {
         HttpMessagePartial messagePartial = null;
 
+        final byte readByte = buffer.readByte();
+        contentLength--;
+
         if (contentLength > 0) {
-            contentLength--;
-            messagePartial = new ContentMessagePartial(HttpMessageComponent.HEADER, buffer.readByte());
+            messagePartial = new ContentMessagePartial(readByte);
         } else {
+            messagePartial = new ContentMessagePartial(HttpMessageComponent.MESSAGE_END_WITH_CONTENT, readByte);
             updateState(READ_END);
-            messagePartial = new EmptyHttpMessagePartial(HttpMessageComponent.MESSAGE_END);
+        }
+
+        return messagePartial;
+    }
+
+    private HttpMessagePartial readContentChunkLength(ChannelBuffer buffer) {
+        HttpMessagePartial messagePartial = null;
+
+        if (readUntil(buffer, characterBuffer, CASE_INSENSITIVE, CARRIAGE_RETURN) != null) {
+            // Skip the expected LF
+            setSkip(1);
+
+            parseChunkLength(flushBuffer(characterBuffer));
+        }
+
+        return messagePartial;
+    }
+
+    private HttpMessagePartial parseChunkLength(String hexEncodedChunkLength) {
+        HttpMessagePartial messagePartial = null;
+
+        try {
+            updateChunkLength(Long.parseLong(hexEncodedChunkLength, 16));
+        } catch (NumberFormatException nfe) {
+            messagePartial = HttpErrors.malformedChunkLength();
+        }
+
+        return messagePartial;
+    }
+
+    private void updateChunkLength(long newChunkLength) {
+        if (newChunkLength < 0) {
+            //TODO: Errorcase
+        } else if (newChunkLength == 0) {
+            currentHeaderProcessor = null;
+            readChunkedContent = false;
+
+            // We're done reading content
+            updateState(READ_HEADER_KEY);
+        } else {
+            chunkLength = newChunkLength;
+            updateState(READ_CONTENT_CHUNKED);
+        }
+    }
+
+    private HttpMessagePartial readContentChunked(ChannelBuffer buffer) {
+        HttpMessagePartial messagePartial = null;
+
+        final byte nextByte = buffer.readByte();
+        chunkLength--;
+
+        if (CARRIAGE_RETURN.matches((char) nextByte)) {
+            // Skip expected LF
+            setSkip(1);
+
+            updateState(READ_CHUNK_LENGTH);
+        } else {
+            messagePartial = new ContentMessagePartial(nextByte);
         }
 
         return messagePartial;
     }
 
     private void setSkip(int newSkipCount) {
-        skipCount = newSkipCount;
+        skipLength = newSkipCount;
     }
 
     private void skipBytes(ChannelBuffer b) {
-        final int readableBytes = b.readableBytes();
-        final int byesAvailableToSkip = readableBytes > skipCount ? skipCount : readableBytes;
-
-        b.skipBytes(byesAvailableToSkip);
-        skipCount -= readableBytes;
+        b.skipBytes(1);
+        skipLength--;
     }
 
     private boolean shouldSkipByte() {
-        return skipCount > 0;
+        return skipLength > 0;
     }
 
     private DecoderState state() {

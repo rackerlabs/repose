@@ -13,10 +13,11 @@ public class HttpErrors {
 
     // Error Constants
     private static final HttpErrorPartial METHOD_NOT_IMPLEMENTED = new HttpErrorPartial(HttpMessageComponent.REQUEST_METHOD, HttpStatusCode.NOT_IMPLEMENTED, "Method not supported");
-    private static final HttpErrorPartial HTTP_VERSION_BAD = new HttpErrorPartial(HttpMessageComponent.HEADER, HttpStatusCode.BAD_REQUEST, "HTTP version malformed");
-    private static final HttpErrorPartial HTTP_VERSION_UNSUPPORTED = new HttpErrorPartial(HttpMessageComponent.HEADER, HttpStatusCode.HTTP_VERSION_NOT_SUPPORTED, "HTTP version unsupported");
-    private static final HttpErrorPartial BAD_HEADER_KEY = new HttpErrorPartial(HttpMessageComponent.HEADER, HttpStatusCode.BAD_REQUEST, "Headers keys must have at least one valid character");
-    private static final HttpErrorPartial MALFORMED_CONTENT_LENGTH = new HttpErrorPartial(HttpMessageComponent.HEADER, HttpStatusCode.BAD_REQUEST, "Content length must be a valid, positive long");
+    private static final HttpErrorPartial HTTP_VERSION_BAD = new HttpErrorPartial(HttpMessageComponent.ENTITY_HEADER, HttpStatusCode.BAD_REQUEST, "HTTP version malformed");
+    private static final HttpErrorPartial HTTP_VERSION_UNSUPPORTED = new HttpErrorPartial(HttpMessageComponent.ENTITY_HEADER, HttpStatusCode.HTTP_VERSION_NOT_SUPPORTED, "HTTP version unsupported");
+    private static final HttpErrorPartial BAD_HEADER_KEY = new HttpErrorPartial(HttpMessageComponent.ENTITY_HEADER, HttpStatusCode.BAD_REQUEST, "Headers keys must have at least one valid character");
+    private static final HttpErrorPartial MALFORMED_CONTENT_LENGTH = new HttpErrorPartial(HttpMessageComponent.ENTITY_HEADER, HttpStatusCode.BAD_REQUEST, "Content length must be a valid, positive long");
+    private static final HttpErrorPartial MALFORMED_CHUNK_LENGTH = new HttpErrorPartial(HttpMessageComponent.ENTITY_HEADER, HttpStatusCode.BAD_REQUEST, "Chunk length must be a valid, hex coded positive long");
     
     // String Constants
     private static final String BUFFER_OVERFLOW_MESSAGE = "Your message has an element that is too large to process.";
@@ -35,13 +36,13 @@ public class HttpErrors {
 
             case READ_HEADER_KEY:
             case READ_HEADER_VALUE:
-                return new HttpErrorPartial(HttpMessageComponent.HEADER, HttpStatusCode.BAD_REQUEST, BUFFER_OVERFLOW_MESSAGE);
+                return new HttpErrorPartial(HttpMessageComponent.ENTITY_HEADER, HttpStatusCode.BAD_REQUEST, BUFFER_OVERFLOW_MESSAGE);
 
             case STREAM_REMAINING:
                 return new HttpErrorPartial(HttpMessageComponent.CONTENT, HttpStatusCode.BAD_REQUEST, BUFFER_OVERFLOW_MESSAGE);
 
             case READ_END:
-                return new HttpErrorPartial(HttpMessageComponent.MESSAGE_END, HttpStatusCode.BAD_REQUEST, BUFFER_OVERFLOW_MESSAGE);
+                return new HttpErrorPartial(HttpMessageComponent.MESSAGE_END_NO_CONTENT, HttpStatusCode.BAD_REQUEST, BUFFER_OVERFLOW_MESSAGE);
 
             default:
                 return new HttpErrorPartial(null, HttpStatusCode.BAD_REQUEST, BUFFER_OVERFLOW_MESSAGE);
@@ -50,6 +51,10 @@ public class HttpErrors {
     
     public static HttpErrorPartial malformedContentLength() {
         return MALFORMED_CONTENT_LENGTH;
+    }
+    
+    public static HttpErrorPartial malformedChunkLength() {
+        return MALFORMED_CHUNK_LENGTH;
     }
 
     public static HttpErrorPartial badVersion() {

@@ -80,7 +80,7 @@ public class BlockingUpdateController implements HttpMessageUpdateController {
 
             // We update for content start and message to let the request know that header parsing is done
             case CONTENT_START:
-            case MESSAGE_END:
+            case MESSAGE_END_NO_CONTENT:
                 shutInboundValve();
                 notifyUpdateWait();
                 break;

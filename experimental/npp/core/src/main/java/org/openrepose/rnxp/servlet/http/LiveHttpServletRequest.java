@@ -52,7 +52,7 @@ public class LiveHttpServletRequest extends AbstractHttpServletRequest implement
                 httpVersion = ((HttpVersionPartial) partial).getHttpVersion();
                 break;
 
-            case HEADER:
+            case ENTITY_HEADER:
                 addHeader(((HeaderPartial)partial).getHeaderKey(), ((HeaderPartial)partial).getHeaderValue());
                 break;
 
@@ -83,7 +83,7 @@ public class LiveHttpServletRequest extends AbstractHttpServletRequest implement
 
     @Override
     public String getHeader(String name) {
-        loadComponent(HttpMessageComponent.HEADER, HttpMessageComponentOrder.getRequestOrder());
+        loadComponent(HttpMessageComponent.ENTITY_HEADER, HttpMessageComponentOrder.getRequestOrder());
 
         final List<String> headerValues = headerMap.get(name);
         return headerValues != null && headerValues.size() > 0 ? headerValues.get(0) : null;
@@ -91,14 +91,14 @@ public class LiveHttpServletRequest extends AbstractHttpServletRequest implement
 
     @Override
     public Enumeration<String> getHeaderNames() {
-        loadComponent(HttpMessageComponent.HEADER, HttpMessageComponentOrder.getRequestOrder());
+        loadComponent(HttpMessageComponent.ENTITY_HEADER, HttpMessageComponentOrder.getRequestOrder());
 
         return Collections.enumeration(headerMap.keySet());
     }
 
     @Override
     public Enumeration<String> getHeaders(String name) {
-        loadComponent(HttpMessageComponent.HEADER, HttpMessageComponentOrder.getRequestOrder());
+        loadComponent(HttpMessageComponent.ENTITY_HEADER, HttpMessageComponentOrder.getRequestOrder());
 
         final List<String> headerValues = headerMap.get(name);
         return headerValues != null && headerValues.size() > 0 ? Collections.enumeration(headerValues) : null;

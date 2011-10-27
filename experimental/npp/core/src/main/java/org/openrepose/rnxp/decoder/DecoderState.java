@@ -19,6 +19,9 @@ public enum DecoderState {
     // Body states
     START_CONTENT,
     READ_CONTENT,
+    READ_CHUNK_LENGTH,
+    READ_CONTENT_CHUNKED,
+    READ_CHUNK_FOOTER,
     
     // Control States
     STREAM_REMAINING,
