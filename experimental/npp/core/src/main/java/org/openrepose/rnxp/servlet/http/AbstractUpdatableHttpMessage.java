@@ -1,8 +1,10 @@
 package org.openrepose.rnxp.servlet.http;
 
-import org.openrepose.rnxp.http.domain.HttpMessageComponent;
-import org.openrepose.rnxp.http.domain.HttpMessageComponentOrder;
-import org.openrepose.rnxp.http.domain.HttpPartial;
+import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
+import org.openrepose.rnxp.http.io.control.UpdatableHttpMessage;
+import org.openrepose.rnxp.http.io.control.HttpMessageUpdateController;
+import org.openrepose.rnxp.http.HttpMessageComponent;
+import org.openrepose.rnxp.http.HttpMessageComponentOrder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +26,8 @@ public abstract class AbstractUpdatableHttpMessage implements UpdatableHttpMessa
     }
 
     @Override
-    public final void applyPartial(HttpPartial partial) {
-        lastReadComponent = partial.messageComponent();
+    public final void applyPartial(HttpMessagePartial partial) {
+        lastReadComponent = partial.getHttpMessageComponent();
 
         mergeWithPartial(partial);
     }
@@ -33,7 +35,7 @@ public abstract class AbstractUpdatableHttpMessage implements UpdatableHttpMessa
     @Override
     public final void requestUpdate() {
         try {
-            updateController.holdForUpdate(this);
+            updateController.blockingRequestUpdate(this);
         } catch (InterruptedException ie) {
             LOG.error(ie.getMessage(), ie);
         }
@@ -51,5 +53,5 @@ public abstract class AbstractUpdatableHttpMessage implements UpdatableHttpMessa
         return lastReadComponent;
     }
 
-    protected abstract void mergeWithPartial(HttpPartial partial);
+    protected abstract void mergeWithPartial(HttpMessagePartial partial);
 }

@@ -1,13 +1,6 @@
-package org.openrepose.rnxp.http.domain;
+package org.openrepose.rnxp.http;
 
 /**
- * Mesage Start:    -1
- * Request Line:    0-100
- * Status Line:     101-200
- * Header:          300-400
- * Content:         400-500
- * 
- * @author zinic
  */
 public enum HttpMessageComponent {
     
@@ -19,6 +12,7 @@ public enum HttpMessageComponent {
     HTTP_VERSION,
     HEADER,
     CONTENT_START,
+    CONTENT,
     
     // Request
     REQUEST_METHOD,

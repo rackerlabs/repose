@@ -1,11 +1,11 @@
 package org.openrepose.rnxp.http.proxy;
 
-import org.openrepose.rnxp.http.domain.HttpPartial;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.ChannelHandlerContext;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
+import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +41,7 @@ public class OutboundChannel extends SimpleChannelUpstreamHandler {
             final ChannelBuffer buffer = (ChannelBuffer) e.getMessage();
             
             coordinator.writeInbound(buffer);
-        } else if (e.getMessage() instanceof HttpPartial) {
+        } else if (e.getMessage() instanceof HttpMessagePartial) {
             
         } else {
             LOG.error("Proxy Outbound Handler unable to process message of type: " + e.getMessage().getClass());

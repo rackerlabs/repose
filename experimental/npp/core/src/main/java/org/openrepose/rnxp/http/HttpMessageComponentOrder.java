@@ -1,4 +1,4 @@
-package org.openrepose.rnxp.http.domain;
+package org.openrepose.rnxp.http;
 
 /**
  *
@@ -12,7 +12,7 @@ public class HttpMessageComponentOrder {
         HttpMessageComponent.REQUEST_URI,
         HttpMessageComponent.HTTP_VERSION,
         HttpMessageComponent.HEADER,
-        HttpMessageComponent.CONTENT_START,
+        HttpMessageComponent.CONTENT,
         HttpMessageComponent.MESSAGE_END
     });
     

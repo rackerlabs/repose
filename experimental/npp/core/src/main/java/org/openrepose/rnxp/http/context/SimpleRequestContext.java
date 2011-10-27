@@ -1,4 +1,4 @@
-package org.openrepose.rnxp.http;
+package org.openrepose.rnxp.http.context;
 
 import javax.servlet.ServletException;
 import org.openrepose.rnxp.PowerProxy;

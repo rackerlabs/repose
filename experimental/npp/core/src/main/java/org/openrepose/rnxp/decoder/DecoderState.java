@@ -17,6 +17,10 @@ public enum DecoderState {
     READ_HEADER_VALUE,
     
     // Body states
+    START_CONTENT,
+    READ_CONTENT,
+    
+    // Control States
     STREAM_REMAINING,
     READ_END
 }

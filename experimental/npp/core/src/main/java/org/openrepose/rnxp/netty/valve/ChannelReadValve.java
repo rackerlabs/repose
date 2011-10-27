@@ -1,4 +1,4 @@
-package org.openrepose.rnxp.valve;
+package org.openrepose.rnxp.netty.valve;
 
 import org.jboss.netty.channel.Channel;
 
