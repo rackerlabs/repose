@@ -1,64 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <translation xmlns="http://docs.rackspacecloud.com/power-api/translation/v1.0">
+    <!--
+        The translation process for the request.  The href references a file with an XPROC
+        (http://www.w3.org/TR/xproc/) pipeline containing the translations needed for the request.
+    -->
+    <request-translation-process href="/etc/powerapi/translation/request-pipeline.xpl" >
+
+        <!--
+            The fidelity describes the level of parsing required to translate the request.  For example, if the
+            message fidelity is HEAD, the body will not be parsed for translation.
+        -->
+        <request-fidelity message="HEAD BODY" head="URI_DETAIL HEADERS" headers="* ACCEPT"/>
+
+    </request-translation-process>
 
     <!--
-       Describes the translation process of the request-response chains for the http-method and uri.
+        The translation process for the response.  The href references a file with an XPROC
+        (http://www.w3.org/TR/xproc/) pipeline containing the translations needed for the response.
     -->
-    <translation-process http-method="POST" uri-matching-pattern=".*/servers/.*">
+    <response-translation-process href="/etc/powerapi/translation/response-pipeline.xpl">
 
         <!--
-            The translation process for the request.  The http-element specifies the part of the http request
-            that needs translation: ENVELOPE, BODY, ALL.
+            The fidelity describes the level of parsing required to translate the response.  For example, if the
+            message fidelity is HEAD, the body will not be parsed for translation.
         -->
-        <request-translation-process http-element="BODY" >
-            <!--
-                An XPROC (http://www.w3.org/TR/xproc/) pipeline with a list of the translations
-                needed for the request.
-            -->
-            <p:pipeline name="request-pipeline" xmlns:p="http://www.w3.org/ns/xproc">
-                <p:input port="source"/>
+        <response-fidelity message="HEAD BODY" head="HEADERS" headers="*"/>
 
-                <p:xslt name="transform-request-from-jsonx-to-xml">
-                    <p:input port="stylesheet">
-                        <p:document href="/etc/powerapi/translation/post_server_req_jsonx_v1.1.xsl"/>
-                    </p:input>
-                </p:xslt>
-
-                <p:xslt name="transform-request">
-                    <p:input port="stylesheet">
-                        <p:document href="/etc/powerapi/translation/post_server_req_v1.1.xsl"/>
-                    </p:input>
-                </p:xslt>
-            </p:pipeline>
-        </request-translation-process>
-
-        <!--
-            The translation process for the response.  The http-element specifies the part of the http response
-            that needs translation: ENVELOPE, BODY, ALL.
-        -->
-        <response-translation-process http-element="BODY">
-            <!--
-                An XPROC (http://www.w3.org/TR/xproc/) pipeline with a list of the translations
-                needed for the response.
-            -->
-            <p:pipeline name="response-pipeline" xmlns:p="http://www.w3.org/ns/xproc">
-                <p:input port="source"/>
-
-                <p:xslt name="transform-response">
-                    <p:input port="stylesheet">
-                        <p:document href="/etc/powerapi/translation/post_server_res_v1.1.xsl"/>
-                    </p:input>
-                </p:xslt>
-
-                <p:xslt name="transform-response-from-xml-to-jsonx">
-                    <p:input port="stylesheet">
-                        <p:document href="/etc/powerapi/translation/post_server_res_xml_jsonx_v1.1.xsl"/>
-                    </p:input>
-                </p:xslt>
-            </p:pipeline>
-        </response-translation-process>
-
-    </translation-process>
-
+    </response-translation-process>
 </translation>
