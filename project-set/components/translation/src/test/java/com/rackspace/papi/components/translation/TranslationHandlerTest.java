@@ -20,21 +20,21 @@ public class TranslationHandlerTest {
 
         @Before
         public void setup() {
-            List<TranslationProcess> processes = new ArrayList<TranslationProcess>();
-
-            TranslationProcess process = new TranslationProcess();
-            process.setHttpMethod("POST");
-            process.setUriMatchingPattern(".*/servers/.*");
-
-            RequestTranslationProcess reqTranslationProcess = new RequestTranslationProcess();
-//            reqTranslationProcess.setTransformerType(TransformerType.NET_SF_SAXON_TRANSFORMER_FACTORY_IMPL);
-//            reqTranslationProcess.setTranslationFile("/META-INF/transform/xslt/post_server_req_v1.1.xsl");
-//            reqTranslationProcess.setHttpElementProcessing(HttpElementProcessing.BODY);
-            process.setRequestTranslationProcess(reqTranslationProcess);
-
-            processes.add(process);
-
-            config.getTranslationProcess().addAll(processes);
+//            List<TranslationProcess> processes = new ArrayList<TranslationProcess>();
+//
+//            TranslationProcess process = new TranslationProcess();
+////            process.setHttpMethod("POST");
+////            process.setUriMatchingPattern(".*/servers/.*");
+//
+//            RequestTranslationProcess reqTranslationProcess = new RequestTranslationProcess();
+////            reqTranslationProcess.setTransformerType(TransformerType.NET_SF_SAXON_TRANSFORMER_FACTORY_IMPL);
+////            reqTranslationProcess.setTranslationFile("/META-INF/transform/xslt/post_server_req_v1.1.xsl");
+////            reqTranslationProcess.setHttpElementProcessing(HttpElementProcessing.BODY);
+//            process.setRequestTranslationProcess(reqTranslationProcess);
+//
+//            processes.add(process);
+//
+//            config.getTranslationProcess().addAll(processes);
 
         }
 
