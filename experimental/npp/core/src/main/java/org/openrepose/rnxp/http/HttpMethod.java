@@ -1,4 +1,4 @@
-package org.openrepose.rnxp.http.domain;
+package org.openrepose.rnxp.http;
 
 /**
  *

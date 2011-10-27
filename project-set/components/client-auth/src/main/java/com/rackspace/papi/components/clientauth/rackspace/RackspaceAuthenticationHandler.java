@@ -3,6 +3,8 @@ package com.rackspace.papi.components.clientauth.rackspace;
 import com.rackspace.auth.v1_1.Account;
 import com.rackspace.auth.v1_1.AuthenticationServiceClient;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.components.clientauth.rackspace.config.User;
+import com.rackspace.papi.components.clientauth.rackspace.config.UserRoles;
 import com.rackspacecloud.docs.auth.api.v1.GroupsList;
 import org.slf4j.Logger;
 import com.rackspace.papi.commons.util.StringUtilities;
@@ -19,6 +21,8 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -67,12 +71,14 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
          }
       }
 
-      setFilterDirectorValues(validToken, cfg.isDelegatable(), filterDirector, acct == null ? "" : acct.getUsername());
+      setFilterDirectorValues(validToken, cfg.isDelegatable(), cfg.isKeystoneActive(), cfg.getUserRoles(), filterDirector, acct == null ? "" : acct.getUsername());
 
       return filterDirector;
    }
 
-   private void setFilterDirectorValues(boolean validToken, boolean isDelegatable, FilterDirector filterDirector, String accountUsername) {
+    // TODO: This hold the "business rules" on how we should populate the headers.  May want to move this to some
+    // sort of business rules class just to make it a little neater.
+   private void setFilterDirectorValues(boolean validToken, boolean isDelegatable, boolean keystone, UserRoles userRoles, FilterDirector filterDirector, String accountUsername) {
       filterDirector.requestHeaderManager().putHeader(CommonHttpHeader.EXTENDED_AUTHORIZATION.headerKey(), "proxy " + accountUsername);
 
       if (validToken || isDelegatable) {
@@ -82,6 +88,31 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
       if (validToken) {
          filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.headerKey(), getGroupsListIds(accountUsername));
          filterDirector.requestHeaderManager().putHeader(PowerApiHeader.USER.headerKey(), accountUsername);
+
+         // This is temporary to support roles until we integrate with Auth 2.0
+         if (keystone) {
+            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.TENANT.headerKey(), accountUsername);
+            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.TENANT_ID.headerKey(), accountUsername);
+
+            List<String> roleList = new ArrayList<String>();
+
+            for (String r : userRoles.getDefault().getRoles().getRole()) {
+               roleList.add(r);
+            }
+
+            for (User user : userRoles.getUser()) {
+               if (user.getName().equalsIgnoreCase(accountUsername)) {
+                  for (String r : user.getRoles().getRole()) {
+                     roleList.add(r);
+                  }
+               }
+            }
+
+            if (roleList.size() > 0) {
+               filterDirector.requestHeaderManager().putHeader(PowerApiHeader.ROLES.headerKey(), roleList.toArray(new String[0]));
+            }
+         }
+         //  end temporary keystone support
       }
 
       if (isDelegatable) {
@@ -93,6 +124,8 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
 
          filterDirector.requestHeaderManager().putHeader(CommonHttpHeader.IDENTITY_STATUS.headerKey(), identityStatus.name());
       }
+
+
    }
 
    private String[] getGroupsListIds(String accountUsername) {

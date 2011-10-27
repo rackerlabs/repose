@@ -8,7 +8,10 @@ public enum PowerApiHeader implements HttpHeader {
 
     ROUTE_DESTINATION("X-PP-RouteDestination"),
     USER("X-PP-User"),
-    GROUPS("X-PP-Groups");
+    GROUPS("X-PP-Groups"),
+    TENANT("X-TENANT"),
+    TENANT_ID("X-TENANT-ID"),
+    ROLES("X-ROLE");
 
     private final String headerName;
 

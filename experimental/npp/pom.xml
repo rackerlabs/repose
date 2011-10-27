@@ -4,7 +4,7 @@
 
     <groupId>org.openrepose.rnpx</groupId>
     <artifactId>project</artifactId>
-    <version>0.1.1-SNAPSHOT</version>
+    <version>0.1.2-SNAPSHOT</version>
 
     <name>RNxP - Repose Netty eXperimental Proxy</name>
     <url>http://openrepose.org/projects/rnp</url>

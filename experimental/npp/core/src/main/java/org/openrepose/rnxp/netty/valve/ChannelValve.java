@@ -1,4 +1,4 @@
-package org.openrepose.rnxp.valve;
+package org.openrepose.rnxp.netty.valve;
 
 /**
  *

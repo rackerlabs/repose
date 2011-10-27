@@ -1,4 +1,4 @@
-package org.openrepose.rnxp.http;
+package org.openrepose.rnxp.http.context;
 
 import org.openrepose.rnxp.servlet.http.UpdatableHttpServletRequest;
 import org.openrepose.rnxp.servlet.http.UpdatableHttpServletResponse;
