@@ -51,7 +51,7 @@ public class ServiceClient {
         }
         
         ClientResponse response = resource.header("Accept", "application/xml").get(ClientResponse.class);
-        return new ServiceClientResponse(response.getStatus(), response.getEntity(InputStream.class));
+        return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
     }
 
 }
