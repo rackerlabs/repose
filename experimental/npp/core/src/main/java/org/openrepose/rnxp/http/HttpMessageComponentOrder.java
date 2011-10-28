@@ -12,11 +12,11 @@ public class HttpMessageComponentOrder {
         HttpMessageComponent.REQUEST_URI,
         HttpMessageComponent.HTTP_VERSION,
         HttpMessageComponent.ENTITY_HEADER,
+        HttpMessageComponent.CONTENT_START,
         HttpMessageComponent.CONTENT,
-        HttpMessageComponent.MESSAGE_END_NO_CONTENT
     });
     
-    public static HttpMessageComponentOrder getRequestOrder() {
+    public static HttpMessageComponentOrder requestOrderInstance() {
         return REQUEST_COMP_ORDER;
     }
     
