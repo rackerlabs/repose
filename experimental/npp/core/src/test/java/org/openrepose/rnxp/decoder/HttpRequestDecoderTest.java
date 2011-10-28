@@ -53,7 +53,7 @@ public class HttpRequestDecoderTest {
         }
 
         public void stepDecoderTo(DecoderState state) {
-            decoder.updateState(state);
+            decoder.setDecoderState(state);
         }
     }
 
