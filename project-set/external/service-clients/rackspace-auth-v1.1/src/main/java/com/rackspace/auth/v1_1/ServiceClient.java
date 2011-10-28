@@ -7,12 +7,18 @@ import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 
-import java.io.InputStream;
+import com.sun.ws.rs.ext.RuntimeDelegateImpl;
+import javax.ws.rs.ext.RuntimeDelegate;
 
 /**
  * @author fran
  */
 public class ServiceClient {
+    static {
+        // If this works we need to figure out why and make sure it's part of our init
+        RuntimeDelegate.setInstance(new RuntimeDelegateImpl());
+    }
+    
     private final Client client;
 
     public ServiceClient(String username, String password) {
