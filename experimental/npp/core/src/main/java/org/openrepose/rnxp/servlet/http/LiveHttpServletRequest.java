@@ -7,9 +7,14 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.openrepose.rnxp.http.domain.HttpMessageComponent;
-import org.openrepose.rnxp.http.domain.HttpMessageComponentOrder;
-import org.openrepose.rnxp.http.domain.HttpPartial;
+import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
+import org.openrepose.rnxp.decoder.partial.impl.HeaderPartial;
+import org.openrepose.rnxp.decoder.partial.impl.HttpVersionPartial;
+import org.openrepose.rnxp.http.HttpMessageComponent;
+import org.openrepose.rnxp.http.HttpMessageComponentOrder;
+import org.openrepose.rnxp.decoder.partial.impl.RequestMethodPartial;
+import org.openrepose.rnxp.decoder.partial.impl.RequestUriPartial;
+import org.openrepose.rnxp.http.HttpMethod;
 
 /**
  *
@@ -19,8 +24,8 @@ public class LiveHttpServletRequest extends AbstractHttpServletRequest implement
 
     private final Map<String, List<String>> headerMap;
     private final StringBuffer requestUrl;
+    private HttpMethod requestMethod;
     private String requestUri;
-    private String requestMethod;
     private String httpVersion;
 
     public LiveHttpServletRequest() {
@@ -29,26 +34,26 @@ public class LiveHttpServletRequest extends AbstractHttpServletRequest implement
     }
 
     @Override
-    public void mergeWithPartial(HttpPartial partial) {
-        switch (partial.messageComponent()) {
+    public void mergeWithPartial(HttpMessagePartial partial) {
+        switch (partial.getHttpMessageComponent()) {
             case REQUEST_METHOD:
-                requestMethod = partial.getPartial();
+                requestMethod = ((RequestMethodPartial) partial).getHttpMethod();
                 break;
 
             case REQUEST_URI:
-                requestUri = partial.getPartial();
-                
+                requestUri = ((RequestUriPartial) partial).getRequestUri();
+
                 final int indexOfQueryDelim = requestUri.indexOf("?");
                 requestUrl.append(indexOfQueryDelim > 0 ? requestUri.substring(0, indexOfQueryDelim) : requestUri);
-                
+
                 break;
 
             case HTTP_VERSION:
-                httpVersion = partial.getPartial();
+                httpVersion = ((HttpVersionPartial) partial).getHttpVersion();
                 break;
 
-            case HEADER:
-                addHeader(partial.getHeaderKey(), partial.getHeaderValue());
+            case ENTITY_HEADER:
+                addHeader(((HeaderPartial)partial).getHeaderKey(), ((HeaderPartial)partial).getHeaderValue());
                 break;
 
             default:
@@ -58,43 +63,43 @@ public class LiveHttpServletRequest extends AbstractHttpServletRequest implement
     @Override
     public String getMethod() {
         loadComponent(HttpMessageComponent.REQUEST_METHOD, HttpMessageComponentOrder.getRequestOrder());
-        
-        return requestMethod;
+
+        return requestMethod.name();
     }
-    
+
     @Override
     public String getRequestURI() {
         loadComponent(HttpMessageComponent.REQUEST_URI, HttpMessageComponentOrder.getRequestOrder());
-        
+
         return requestUri;
     }
 
     @Override
     public StringBuffer getRequestURL() {
         loadComponent(HttpMessageComponent.REQUEST_URI, HttpMessageComponentOrder.getRequestOrder());
-        
+
         return requestUrl;
     }
 
     @Override
     public String getHeader(String name) {
-        loadComponent(HttpMessageComponent.HEADER, HttpMessageComponentOrder.getRequestOrder());
-        
+        loadComponent(HttpMessageComponent.ENTITY_HEADER, HttpMessageComponentOrder.getRequestOrder());
+
         final List<String> headerValues = headerMap.get(name);
         return headerValues != null && headerValues.size() > 0 ? headerValues.get(0) : null;
     }
 
     @Override
     public Enumeration<String> getHeaderNames() {
-        loadComponent(HttpMessageComponent.HEADER, HttpMessageComponentOrder.getRequestOrder());
-        
+        loadComponent(HttpMessageComponent.ENTITY_HEADER, HttpMessageComponentOrder.getRequestOrder());
+
         return Collections.enumeration(headerMap.keySet());
     }
 
     @Override
     public Enumeration<String> getHeaders(String name) {
-        loadComponent(HttpMessageComponent.HEADER, HttpMessageComponentOrder.getRequestOrder());
-        
+        loadComponent(HttpMessageComponent.ENTITY_HEADER, HttpMessageComponentOrder.getRequestOrder());
+
         final List<String> headerValues = headerMap.get(name);
         return headerValues != null && headerValues.size() > 0 ? Collections.enumeration(headerValues) : null;
     }

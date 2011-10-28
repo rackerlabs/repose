@@ -50,8 +50,7 @@ public class TranslationFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         ServletContext servletContext = filterConfig.getServletContext();
-        final String configDirectory = servletContext.getInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName());
-        handlerFactory = new TranslationHandlerFactory(configDirectory);
+        handlerFactory = new TranslationHandlerFactory();
         configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
 
         configurationManager.subscribeTo("translation.cfg.xml", handlerFactory, TranslationConfig.class);

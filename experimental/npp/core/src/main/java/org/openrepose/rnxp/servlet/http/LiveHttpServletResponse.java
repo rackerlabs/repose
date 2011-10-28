@@ -1,6 +1,6 @@
 package org.openrepose.rnxp.servlet.http;
 
-import org.openrepose.rnxp.http.domain.HttpPartial;
+import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
 
 /**
  *
@@ -9,7 +9,7 @@ import org.openrepose.rnxp.http.domain.HttpPartial;
 public class LiveHttpServletResponse extends AbstractHttpServletResponse implements UpdatableHttpServletResponse {
 
     @Override
-    protected void mergeWithPartial(HttpPartial partial) {
+    protected void mergeWithPartial(HttpMessagePartial partial) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

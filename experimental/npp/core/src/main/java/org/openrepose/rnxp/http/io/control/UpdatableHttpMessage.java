@@ -1,6 +1,6 @@
-package org.openrepose.rnxp.servlet.http;
+package org.openrepose.rnxp.http.io.control;
 
-import org.openrepose.rnxp.http.domain.HttpPartial;
+import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
 
 /**
  *
@@ -8,7 +8,7 @@ import org.openrepose.rnxp.http.domain.HttpPartial;
  */
 public interface UpdatableHttpMessage {
 
-    void applyPartial(HttpPartial partial);
+    void applyPartial(HttpMessagePartial partial);
 
     void requestUpdate();
 

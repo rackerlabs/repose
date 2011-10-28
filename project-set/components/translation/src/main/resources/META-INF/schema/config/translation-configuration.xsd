@@ -3,11 +3,11 @@
 <xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
            targetNamespace="http://docs.rackspacecloud.com/power-api/translation/v1.0"
            xmlns:trans-config="http://docs.rackspacecloud.com/power-api/translation/v1.0"
-           xmlns:p="http://www.w3.org/ns/xproc"
+           xmlns:httpx="http://docs.rackspace.com/httpx/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-    <xs:import namespace="http://www.w3.org/ns/xproc" schemaLocation="xproc/xproc.xsd" />
+    <xs:import namespace="http://docs.rackspace.com/httpx/v1.0" schemaLocation="../../../../../../../../core/core-lib/src/main/resources/META-INF/schema/httpx/httpx-common.xsd" />
 
     <!-- Configuration -->
     <xs:element name="translation" type="trans-config:TranslationConfig" />
@@ -20,37 +20,9 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="translation-process" type="trans-config:TranslationProcess" minOccurs="1" maxOccurs="unbounded"/>
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="TranslationProcess">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>Describes the translation process of the request-response chains for the http-method and uri.</html:p>
-            </xs:documentation>
-        </xs:annotation>
-
-        <xs:sequence>
             <xs:element name="request-translation-process" type="trans-config:RequestTranslationProcess" minOccurs="1" maxOccurs="1"/>
             <xs:element name="response-translation-process" type="trans-config:ResponseTranslationProcess" minOccurs="1" maxOccurs="1"/>
         </xs:sequence>
-
-        <xs:attribute name="http-method" type="xs:string">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>The http method for which this translation process should be executed.</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="uri-matching-pattern" type="xs:string">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>The uri for which this translation process should be executed.</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="RequestTranslationProcess">
@@ -59,14 +31,17 @@
                 <html:p>The translation process for the request.</html:p>
             </xs:documentation>
         </xs:annotation>
+
         <xs:sequence>
-            <xs:element ref="p:pipeline" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="message" type="httpx:MessageFidelity" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="head" type="httpx:RequestHeadFidelity" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="headers" type="httpx:RequestHeaderFidelity" minOccurs="1" maxOccurs="1"/>
         </xs:sequence>
 
-        <xs:attribute name="http-element" type="trans-config:HttpElement" default="ALL">
+        <xs:attribute name="href" type="xs:anyURI">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>The part of the http request that needs translation.</html:p>
+                    <html:p>The href references a file with an XPROC (http://www.w3.org/TR/xproc/) pipeline containing the translations needed for the request.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -78,31 +53,84 @@
                 <html:p>The translation process for the response.</html:p>
             </xs:documentation>
         </xs:annotation>
-        <xs:sequence>
-            <xs:element ref="p:pipeline" minOccurs="0" maxOccurs="1"/>
-        </xs:sequence>        
 
-        <xs:attribute name="http-element" type="trans-config:HttpElement" default="ALL">
+        <xs:sequence>
+            <xs:element name="message" type="httpx:MessageFidelity" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="head" type="httpx:ResponseHeadFidelity" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="headers" type="httpx:ResponseHeaderFidelity" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+
+        <xs:attribute name="href" type="xs:anyURI">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>The part of the http response that needs translation.</html:p>
+                    <html:p>The href references a file with an XPROC (http://www.w3.org/TR/xproc/) pipeline containing the translations needed for the request.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
 
-    <xs:simpleType name="HttpElement">
+    <xs:complexType name="RequestFidelity">
         <xs:annotation>
             <xs:documentation>
-                <html:p>Http elements to translate during the process.</html:p>
+                <html:p>The fidelity describes the level of parsing required to translate the request.  For example, if the message fidelity is HEAD, the body will not be parsed for translation.</html:p>
             </xs:documentation>
         </xs:annotation>
 
-        <xs:restriction base="xs:string">
-            <xs:enumeration value="ENVELOPE" />
-            <xs:enumeration value="BODY" />
-            <xs:enumeration value="ALL" />
-        </xs:restriction>
-    </xs:simpleType>
+        <xs:attribute name="message" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The level of fidelity to be used when parsing the message.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="head" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The level of fidelity to be used when parsing the head.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="headers" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The level of fidelity to be used when parsing the headers.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="ResponseFidelity">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The fidelity describes the level of parsing required to translate the response.  For example, if the message fidelity is HEAD, the body will not be parsed for translation.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="message" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The level of fidelity to be used when parsing the message.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="head" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The level of fidelity to be used when parsing the head.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="headers" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The level of fidelity to be used when parsing the headers.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
 
 </xs:schema>

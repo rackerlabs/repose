@@ -3,7 +3,7 @@ package org.openrepose.rnxp;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 import org.openrepose.rnxp.http.HttpRequestHandler;
-import org.openrepose.rnxp.decoder.HttpDecoder;
+import org.openrepose.rnxp.decoder.HttpRequestDecoder;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.ChannelPipeline;
@@ -34,7 +34,7 @@ public class NXPDaemon {
             @Override
             public ChannelPipeline getPipeline() {
                 return Channels.pipeline(
-                        new HttpDecoder(),
+                        new HttpRequestDecoder(),
                         new HttpRequestHandler(powerProxyInstance));
             }
         });

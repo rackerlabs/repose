@@ -2,7 +2,6 @@ package com.rackspace.papi.components.translation;
 
 import com.rackspace.papi.commons.util.io.InputStreamMerger;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import com.rackspace.papi.components.translation.config.HttpElement;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.regex.Pattern;
@@ -79,21 +78,22 @@ public class TranslationRequestPreProcessor {
       return result;
    }
 
-   public InputStream getSourceStream(HttpElement httpElement) throws IOException {
-
-      switch (httpElement) {
-         case ENVELOPE:
-            return getHeaderStream();
-         case BODY:
-            return getBodyStream();
-         case ALL:
-            return InputStreamMerger.merge(
-                    InputStreamMerger.wrap(REQUEST_PREFIX),
-                    getHeaderStream(),
-                    getBodyStream(),
-                    InputStreamMerger.wrap(REQUEST_SUFFIX));
-      }
-
-      return null;
-   }
+    // TODO: Need to rework this now that the config changed
+//   public InputStream getSourceStream(HttpElement httpElement) throws IOException {
+//
+////      switch (httpElement) {
+////         case ENVELOPE:
+////            return getHeaderStream();
+////         case BODY:
+////            return getBodyStream();
+////         case ALL:
+////            return InputStreamMerger.merge(
+////                    InputStreamMerger.wrap(REQUEST_PREFIX),
+////                    getHeaderStream(),
+////                    getBodyStream(),
+////                    InputStreamMerger.wrap(REQUEST_SUFFIX));
+////      }
+//
+//      return null;
+//   }
 }
