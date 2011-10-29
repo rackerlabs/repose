@@ -1,36 +1,30 @@
 package org.openrepose.rnxp.decoder;
 
-import org.openrepose.rnxp.decoder.processor.HeaderProcessor;
-import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
-import org.openrepose.rnxp.http.HttpMessageComponent;
-import org.openrepose.rnxp.http.HttpMethod;
+
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 
-import org.openrepose.rnxp.decoder.partial.EmptyHttpMessagePartial;
 import org.openrepose.rnxp.decoder.partial.ContentMessagePartial;
+import org.openrepose.rnxp.decoder.partial.EmptyHttpMessagePartial;
+import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
 import org.openrepose.rnxp.decoder.partial.impl.HeaderPartial;
 import org.openrepose.rnxp.decoder.partial.impl.HttpErrorPartial;
-import org.openrepose.rnxp.decoder.partial.impl.HttpVersionPartial;
 import org.openrepose.rnxp.decoder.partial.impl.RequestMethodPartial;
 import org.openrepose.rnxp.decoder.partial.impl.RequestUriPartial;
+import org.openrepose.rnxp.decoder.processor.HeaderProcessor;
+import org.openrepose.rnxp.http.HttpMessageComponent;
+import org.openrepose.rnxp.http.HttpMethod;
+
 import static org.openrepose.rnxp.decoder.DecoderState.*;
 import static org.openrepose.rnxp.decoder.AsciiCharacterConstant.*;
-import static org.jboss.netty.buffer.ChannelBuffers.*;
 
 public class HttpRequestDecoder extends AbstractHttpMessageDecoder {
 
-    private final char[] HTTP_VERSION_HEAD = new char[]{'H', 'T', 'T', 'P', '/'};
-    private final boolean CASE_SENSITIVE = Boolean.TRUE, CASE_INSENSITIVE = Boolean.FALSE;
     private final HeaderProcessor fHeadHeaderProcessor;
     private HeaderProcessor currentHeaderProcessor;
-    private ChannelBuffer headerKeyBuffer, characterBuffer;
-    private int stateCounter;
 
     public HttpRequestDecoder() {
-        characterBuffer = buffer(8192);
-
         currentHeaderProcessor = fHeadHeaderProcessor = new HeaderProcessor() {
 
             @Override
@@ -73,7 +67,7 @@ public class HttpRequestDecoder extends AbstractHttpMessageDecoder {
                     return readRequestURI(buffer);
 
                 case READ_VERSION:
-                    return readVersion(buffer);
+                    return readRequestVersion(buffer);
 
                 case READ_HEADER_KEY:
                     return readHeaderKey(buffer);
@@ -142,17 +136,14 @@ public class HttpRequestDecoder extends AbstractHttpMessageDecoder {
     }
 
     private HttpMessagePartial readRequestURI(ChannelBuffer socketBuffer) {
-        final ControlCharacter readChar = readUntil(socketBuffer, characterBuffer, CASE_SENSITIVE, SPACE);
+        final ControlCharacter readChar = readUntilCaseSensitive(socketBuffer, SPACE);
 
         if (readChar != null) {
             // TODO: Validate
-            final RequestUriPartial uriPartial = new RequestUriPartial(HttpMessageComponent.REQUEST_URI, flushToString(characterBuffer));
+            final RequestUriPartial uriPartial = new RequestUriPartial(HttpMessageComponent.REQUEST_URI, flushCharacterBuffer());
 
             // Skip the next bit of whitespace
             skipFollowingBytes(1);
-
-            // Set counter to zero - it's used in parsing the HTTP Version
-            stateCounter = 0;
 
             setDecoderState(READ_VERSION);
 
@@ -162,44 +153,28 @@ public class HttpRequestDecoder extends AbstractHttpMessageDecoder {
         return null;
     }
 
-    private HttpMessagePartial readVersion(ChannelBuffer socketBuffer) {
-        HttpMessagePartial messagePartial = null;
+    private HttpMessagePartial readRequestVersion(ChannelBuffer socketBuffer) {
+        HttpMessagePartial messagePartial = readHttpVersion(socketBuffer, CARRIAGE_RETURN);
 
-        if (stateCounter < 5) {
-            final char nextCharacter = (char) socketBuffer.readByte();
-
-            if (Character.toUpperCase(nextCharacter) != HTTP_VERSION_HEAD[stateCounter++]) {
-                messagePartial = HttpErrors.badVersion();
-            }
-        } else {
-            if (readUntil(socketBuffer, characterBuffer, CASE_SENSITIVE, CARRIAGE_RETURN) != null) {
-                messagePartial = new HttpVersionPartial(HttpMessageComponent.HTTP_VERSION, flushToString(characterBuffer));
-
-                // Skip the next bit of whitespace
-                skipFollowingBytes(1);
-
-                // Set ourselves up to process head headers
-                currentHeaderProcessor = fHeadHeaderProcessor;
-                setDecoderState(READ_HEADER_KEY);
-            }
+        if (messagePartial != null) {
+            // Set ourselves up to process head headers
+            currentHeaderProcessor = fHeadHeaderProcessor;
+            setDecoderState(READ_HEADER_KEY);
         }
 
         return messagePartial;
     }
 
     private HttpMessagePartial readHeaderKey(ChannelBuffer buffer) {
-        final ControlCharacter controlCharacter = readUntil(buffer, characterBuffer, CASE_INSENSITIVE, COLON, CARRIAGE_RETURN);
+        final ControlCharacter controlCharacter = readUntilCaseInsensitive(buffer, COLON, CARRIAGE_RETURN);
         HttpMessagePartial messagePartial = null;
 
         if (controlCharacter != null) {
             switch (controlCharacter.getCharacterConstant()) {
                 case COLON:
                     // The header key must have data
-                    if (characterBuffer.readable()) {
-                        // Buffer pointer swap
-                        final ChannelBuffer temp = headerKeyBuffer;
-                        headerKeyBuffer = characterBuffer;
-                        characterBuffer = temp != null ? temp : buffer(8192);
+                    if (characterBufferReadable()) {
+                        flipBuffers();
 
                         setDecoderState(READ_HEADER_VALUE);
                     } else {
@@ -237,13 +212,15 @@ public class HttpRequestDecoder extends AbstractHttpMessageDecoder {
     private HttpMessagePartial readHeaderValue(ChannelBuffer buffer, HeaderProcessor headerProcessor) {
         HttpMessagePartial messagePartial = null;
 
-        if (readUntil(buffer, characterBuffer, CASE_SENSITIVE, CARRIAGE_RETURN) != null) {
+        if (readUntilCaseSensitive(buffer, CARRIAGE_RETURN) != null) {
             // Skip the expected LF
             skipFollowingBytes(1);
 
             // Dump the buffers to encoded strings
-            final String headerKey = flushToString(headerKeyBuffer);
-            final String headerValue = flushToString(characterBuffer);
+            final String headerValue = flushCharacterBuffer();
+            flipBuffers();            
+            
+            final String headerKey = flushCharacterBuffer();
 
             if (headerProcessor != null) {
                 messagePartial = headerProcessor.processHeader(headerKey, headerValue);
@@ -278,11 +255,11 @@ public class HttpRequestDecoder extends AbstractHttpMessageDecoder {
     private HttpMessagePartial readContentChunkLength(ChannelBuffer buffer) {
         HttpMessagePartial messagePartial = null;
 
-        if (readUntil(buffer, characterBuffer, CASE_INSENSITIVE, CARRIAGE_RETURN) != null) {
+        if (readUntilCaseInsensitive(buffer, CARRIAGE_RETURN) != null) {
             // Skip the expected LF
             skipFollowingBytes(1);
 
-            parseChunkLength(flushToString(characterBuffer));
+            parseChunkLength(flushCharacterBuffer());
         }
 
         return messagePartial;
