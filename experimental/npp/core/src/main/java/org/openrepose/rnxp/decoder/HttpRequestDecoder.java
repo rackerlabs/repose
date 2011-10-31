@@ -1,14 +1,10 @@
 package org.openrepose.rnxp.decoder;
 
-
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelHandlerContext;
 
-import org.openrepose.rnxp.decoder.partial.ContentMessagePartial;
-import org.openrepose.rnxp.decoder.partial.EmptyHttpMessagePartial;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
-import org.openrepose.rnxp.decoder.partial.impl.HeaderPartial;
 import org.openrepose.rnxp.decoder.partial.impl.HttpErrorPartial;
 import org.openrepose.rnxp.decoder.partial.impl.RequestMethodPartial;
 import org.openrepose.rnxp.decoder.partial.impl.RequestUriPartial;
@@ -25,7 +21,7 @@ public class HttpRequestDecoder extends AbstractHttpMessageDecoder {
     private HeaderProcessor currentHeaderProcessor;
 
     public HttpRequestDecoder() {
-        currentHeaderProcessor = fHeadHeaderProcessor = new HeaderProcessor() {
+        fHeadHeaderProcessor = new HeaderProcessor() {
 
             @Override
             public HttpErrorPartial processHeader(String key, String value) {
@@ -45,7 +41,14 @@ public class HttpRequestDecoder extends AbstractHttpMessageDecoder {
 
                 return messagePartial;
             }
+
+            @Override
+            public void finishedReadingHeaders() {
+                currentHeaderProcessor = null;
+            }
         };
+
+        currentHeaderProcessor = fHeadHeaderProcessor;
     }
 
     @Override
@@ -54,38 +57,36 @@ public class HttpRequestDecoder extends AbstractHttpMessageDecoder {
     }
 
     @Override
-    protected Object httpDecode(ChannelHandlerContext chc, Channel chnl, ChannelBuffer buffer) throws Exception {
+    protected Object httpDecode(ChannelHandlerContext chc, Channel chnl, ChannelBuffer socketBuffer) throws Exception {
         try {
             switch (getDecoderState()) {
                 case READ_SC_PARSE_METHOD:
-                    return readSingleCharacterParsableMethod(buffer);
+                    return readSingleCharacterParsableMethod(socketBuffer);
 
                 case READ_MC_PARSE_METHOD:
-                    return readMultiCharacterParsableMethod(buffer);
+                    return readMultiCharacterParsableMethod(socketBuffer);
 
                 case READ_URI:
-                    return readRequestURI(buffer);
+                    return readRequestURI(socketBuffer);
 
                 case READ_VERSION:
-                    return readRequestVersion(buffer);
+                    return readRequestVersion(socketBuffer);
 
                 case READ_HEADER_KEY:
-                    return readHeaderKey(buffer);
+                    return readHeaderKey(socketBuffer, currentHeaderProcessor);
 
                 case READ_HEADER_VALUE:
-                    return readHeaderValue(buffer, currentHeaderProcessor);
+                    return readHeaderValue(socketBuffer, currentHeaderProcessor);
 
                 case READ_CONTENT:
-                    return readContent(buffer);
+                    return readContent(socketBuffer);
 
                 case READ_CHUNK_LENGTH:
-                    return readContentChunkLength(buffer);
+                    return readContentChunkLength(socketBuffer);
 
                 case READ_CONTENT_CHUNKED:
-                    return readContentChunked(buffer);
-
-                case STREAM_REMAINING:
-                case READ_END:
+                    return readContentChunked(socketBuffer);
+                case STOP:
             }
         } catch (IndexOutOfBoundsException boundsException) {
             // TODO:Review - Log this?
@@ -160,151 +161,6 @@ public class HttpRequestDecoder extends AbstractHttpMessageDecoder {
             // Set ourselves up to process head headers
             currentHeaderProcessor = fHeadHeaderProcessor;
             setDecoderState(READ_HEADER_KEY);
-        }
-
-        return messagePartial;
-    }
-
-    private HttpMessagePartial readHeaderKey(ChannelBuffer buffer) {
-        final ControlCharacter controlCharacter = readUntilCaseInsensitive(buffer, COLON, CARRIAGE_RETURN);
-        HttpMessagePartial messagePartial = null;
-
-        if (controlCharacter != null) {
-            switch (controlCharacter.getCharacterConstant()) {
-                case COLON:
-                    // The header key must have data
-                    if (characterBufferReadable()) {
-                        flipBuffers();
-
-                        setDecoderState(READ_HEADER_VALUE);
-                    } else {
-                        messagePartial = HttpErrors.badHeaderKey();
-                    }
-
-                    break;
-
-                case CARRIAGE_RETURN:
-                    // Skip the expected LF
-                    skipFollowingBytes(1);
-
-                    switch (getContentPresence()) {
-                        case CHUNKED:
-                            messagePartial = new EmptyHttpMessagePartial(HttpMessageComponent.CONTENT_START);
-                            setDecoderState(READ_CHUNK_LENGTH);
-                            break;
-
-                        case STATIC_LENGTH:
-                            messagePartial = new EmptyHttpMessagePartial(HttpMessageComponent.CONTENT_START);
-                            setDecoderState(READ_CONTENT);
-                            break;
-
-                        default:
-                            messagePartial = new EmptyHttpMessagePartial(HttpMessageComponent.MESSAGE_END_NO_CONTENT);
-                            setDecoderState(READ_END);
-                    }
-            }
-        }
-
-        return messagePartial;
-
-    }
-
-    private HttpMessagePartial readHeaderValue(ChannelBuffer buffer, HeaderProcessor headerProcessor) {
-        HttpMessagePartial messagePartial = null;
-
-        if (readUntilCaseSensitive(buffer, CARRIAGE_RETURN) != null) {
-            // Skip the expected LF
-            skipFollowingBytes(1);
-
-            // Dump the buffers to encoded strings
-            final String headerValue = flushCharacterBuffer();
-            flipBuffers();            
-            
-            final String headerKey = flushCharacterBuffer();
-
-            if (headerProcessor != null) {
-                messagePartial = headerProcessor.processHeader(headerKey, headerValue);
-            }
-
-            setDecoderState(READ_HEADER_KEY);
-
-            if (messagePartial == null) {
-                messagePartial = new HeaderPartial(HttpMessageComponent.ENTITY_HEADER, headerKey, headerValue);
-            }
-        }
-
-        return messagePartial;
-    }
-
-    private HttpMessagePartial readContent(ChannelBuffer buffer) {
-        HttpMessagePartial messagePartial = null;
-
-        final byte readByte = buffer.readByte();
-        contentRead();
-
-        if (getContentLength() > 0) {
-            messagePartial = new ContentMessagePartial(readByte);
-        } else {
-            messagePartial = new ContentMessagePartial(HttpMessageComponent.MESSAGE_END_WITH_CONTENT, readByte);
-            setDecoderState(READ_END);
-        }
-
-        return messagePartial;
-    }
-
-    private HttpMessagePartial readContentChunkLength(ChannelBuffer buffer) {
-        HttpMessagePartial messagePartial = null;
-
-        if (readUntilCaseInsensitive(buffer, CARRIAGE_RETURN) != null) {
-            // Skip the expected LF
-            skipFollowingBytes(1);
-
-            parseChunkLength(flushCharacterBuffer());
-        }
-
-        return messagePartial;
-    }
-
-    private HttpMessagePartial parseChunkLength(String hexEncodedChunkLength) {
-        HttpMessagePartial messagePartial = null;
-
-        try {
-            updateChunkLength(Long.parseLong(hexEncodedChunkLength, 16));
-        } catch (NumberFormatException nfe) {
-            messagePartial = HttpErrors.malformedChunkLength();
-        }
-
-        return messagePartial;
-    }
-
-    private void updateChunkLength(long newChunkLength) {
-        if (newChunkLength < 0) {
-            //TODO: Errorcase
-        } else if (newChunkLength == 0) {
-            currentHeaderProcessor = null;
-            setContentPresence(ContentPresence.NO_CONTENT);
-
-            // We're done reading content
-            setDecoderState(READ_HEADER_KEY);
-        } else {
-            setContentLength(newChunkLength);
-            setDecoderState(READ_CONTENT_CHUNKED);
-        }
-    }
-
-    private HttpMessagePartial readContentChunked(ChannelBuffer buffer) {
-        HttpMessagePartial messagePartial = null;
-
-        final byte nextByte = buffer.readByte();
-        contentRead(1);
-
-        if (CARRIAGE_RETURN.matches((char) nextByte)) {
-            // Skip expected LF
-            skipFollowingBytes(1);
-
-            setDecoderState(READ_CHUNK_LENGTH);
-        } else {
-            messagePartial = new ContentMessagePartial(nextByte);
         }
 
         return messagePartial;

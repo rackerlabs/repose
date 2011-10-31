@@ -29,7 +29,6 @@ public enum DecoderState {
     READ_CONTENT_CHUNKED,
     READ_CHUNK_FOOTER,
     
-    // Control States
-    STREAM_REMAINING,
-    READ_END
+    // Control
+    STOP
 }

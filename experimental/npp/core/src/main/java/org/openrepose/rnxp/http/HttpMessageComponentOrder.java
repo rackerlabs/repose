@@ -11,7 +11,7 @@ public class HttpMessageComponentOrder {
         HttpMessageComponent.REQUEST_METHOD,
         HttpMessageComponent.REQUEST_URI,
         HttpMessageComponent.HTTP_VERSION,
-        HttpMessageComponent.ENTITY_HEADER,
+        HttpMessageComponent.HEADER,
         HttpMessageComponent.CONTENT_START,
         HttpMessageComponent.CONTENT,
     });

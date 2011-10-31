@@ -11,5 +11,7 @@ public interface RequestContext {
 
     void startRequest(UpdatableHttpServletRequest request, UpdatableHttpServletResponse response);
     
+    void responseConnected(UpdatableHttpServletResponse response);
+    
     boolean started();
 }
