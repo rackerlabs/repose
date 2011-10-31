@@ -7,7 +7,7 @@ import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
-import org.openrepose.rnxp.http.context.SimpleRequestContext;
+import org.openrepose.rnxp.http.context.RequestContext;
 import org.openrepose.rnxp.http.io.control.BlockingUpdateController;
 import org.openrepose.rnxp.http.io.control.HttpMessageUpdateController;
 import org.openrepose.rnxp.http.proxy.ConnectionFuture;
@@ -24,13 +24,12 @@ import org.slf4j.LoggerFactory;
 public class HttpResponseHandler extends SimpleChannelUpstreamHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(HttpResponseHandler.class);
-    
-    private final SimpleRequestContext requestContext;
+    private final RequestContext requestContext;
     private final ConnectionFuture proxyConnectionFuture;
     private HttpMessageUpdateController updateController;
     private ChannelValve readValve;
 
-    public HttpResponseHandler(SimpleRequestContext requestContext, ConnectionFuture proxyConnectionFuture) {
+    public HttpResponseHandler(RequestContext requestContext, ConnectionFuture proxyConnectionFuture) {
         this.requestContext = requestContext;
         this.proxyConnectionFuture = proxyConnectionFuture;
     }
@@ -49,8 +48,7 @@ public class HttpResponseHandler extends SimpleChannelUpstreamHandler {
         updateController = new BlockingUpdateController(readValve);
 
         // Build the request object and make it aware of the update controller
-        final LiveHttpServletResponse liveHttpServletResponse = new LiveHttpServletResponse();
-        liveHttpServletResponse.setUpdateController(updateController);
+        final LiveHttpServletResponse liveHttpServletResponse = new LiveHttpServletResponse(updateController);
 
         // Let's kick off the worker
         requestContext.responseConnected(liveHttpServletResponse);
@@ -68,10 +66,11 @@ public class HttpResponseHandler extends SimpleChannelUpstreamHandler {
             updateController.applyPartial(partial);
         }
     }
+
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
         final Throwable cause = e.getCause();
-        
+
         LOG.error(cause.getMessage(), cause);
         e.getChannel().close();
     }

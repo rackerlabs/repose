@@ -2,6 +2,7 @@ package org.openrepose.rnxp.servlet.context;
 
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
@@ -29,8 +30,10 @@ public class ExternalRoutableRequestDispatcher implements RequestDispatcher {
             // TODO:Implement - Use quality parameter for routing
             final URL destination = asURL(possibleRoutes.nextElement());
             
+            final InetSocketAddress address = new InetSocketAddress(destination.getHost(), httpPort(destination));
+            
             final StreamController streamController = httpRequest.getStreamController();
-            streamController.engageRemote(destination.getHost(), httpPort(destination));
+            streamController.engageRemote(address);
             streamController.commitRequest(httpRequest);
         }
         

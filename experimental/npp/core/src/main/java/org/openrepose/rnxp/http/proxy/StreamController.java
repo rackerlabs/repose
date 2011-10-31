@@ -1,5 +1,6 @@
 package org.openrepose.rnxp.http.proxy;
 
+import java.net.InetSocketAddress;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -9,7 +10,7 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface StreamController {
 
-    void engageRemote(String host, int port);
+    void engageRemote(InetSocketAddress addr);
     
     void commitRequest(HttpServletRequest request);
     

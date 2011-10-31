@@ -18,8 +18,8 @@ public abstract class AbstractUpdatableHttpMessage implements UpdatableHttpMessa
     private HttpMessageUpdateController updateController;
     private HttpMessageComponent lastReadComponent;
 
-    @Override
-    public final void setUpdateController(HttpMessageUpdateController updateController) {
+    // TODO:Review - Visibility
+    protected void setUpdateController(HttpMessageUpdateController updateController) {
         this.updateController = updateController;
 
         lastReadComponent = HttpMessageComponent.MESSAGE_START;

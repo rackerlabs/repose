@@ -39,10 +39,10 @@ public class PowerProxy {
     public void init() {
         final ServletContext sc = new NXPServletContext(containerAttributes);
         sc.setInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), "/etc/powerapi");
-        
+
         // Show me Papi!
         sc.setInitParameter("show-me-papi", "true");
-        
+
         final Map<String, String> powerFilterParams = new HashMap<String, String>();
         final FilterConfig fc = new NXPFilterConfig("power-filter", sc, powerFilterParams);
 

@@ -5,14 +5,14 @@ import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 import org.jboss.netty.handler.codec.http.HttpResponseDecoder;
 import org.openrepose.rnxp.http.HttpResponseHandler;
-import org.openrepose.rnxp.http.context.SimpleRequestContext;
+import org.openrepose.rnxp.http.context.RequestContext;
 
 public class ClientPipelineFactory implements ChannelPipelineFactory {
 
-    private final SimpleRequestContext requestContext;
-    private final ProxyConnectionFuture proxyConnectionFuture;
+    private final RequestContext requestContext;
+    private final ConnectionFuture proxyConnectionFuture;
 
-    public ClientPipelineFactory(SimpleRequestContext requestContext, ProxyConnectionFuture proxyConnectionFuture) {
+    public ClientPipelineFactory(RequestContext requestContext, ConnectionFuture proxyConnectionFuture) {
         this.requestContext = requestContext;
         this.proxyConnectionFuture = proxyConnectionFuture;
     }

@@ -13,9 +13,12 @@ import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
 import org.openrepose.rnxp.http.io.control.HttpMessageUpdateController;
+import org.openrepose.rnxp.http.proxy.ClientPipelineFactory;
 import org.openrepose.rnxp.http.proxy.ConnectionFuture;
+import org.openrepose.rnxp.http.proxy.DirectStreamController;
 import org.openrepose.rnxp.http.proxy.InboundOutboundCoordinator;
 import org.openrepose.rnxp.http.proxy.OriginChannelFactory;
+import org.openrepose.rnxp.http.proxy.StreamController;
 import org.openrepose.rnxp.servlet.http.LiveHttpServletResponse;
 import org.openrepose.rnxp.netty.valve.ChannelReadValve;
 import org.openrepose.rnxp.netty.valve.ChannelValve;
@@ -30,16 +33,14 @@ public class HttpRequestHandler extends SimpleChannelUpstreamHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(HttpRequestHandler.class);
     
-    private final RequestContext requestContext;
     private final OriginChannelFactory proxyChannelFactory;
-    private ConnectionFuture proxyConnectionFuture;
+    private RequestContext requestContext;
     private InboundOutboundCoordinator coordinator;
     private ChannelValve inboundReadValve;
     private HttpMessageUpdateController updateController;
 
     public HttpRequestHandler(PowerProxy powerProxyInstance, OriginChannelFactory proxyChannelFactory) {
         this.proxyChannelFactory = proxyChannelFactory;
-        requestContext = new SimpleRequestContext(powerProxyInstance);
     }
 
     @Override
@@ -52,8 +53,8 @@ public class HttpRequestHandler extends SimpleChannelUpstreamHandler {
 
         coordinator = new InboundOutboundCoordinator();
         coordinator.setInboundChannel(channel);
-
-        proxyConnectionFuture = new ConnectionFuture() {
+        
+        final ConnectionFuture proxyConnectionFuture = new ConnectionFuture() {
 
             @Override
             public void connected(Channel channel) {
@@ -61,15 +62,14 @@ public class HttpRequestHandler extends SimpleChannelUpstreamHandler {
             }
         };
 
+        final StreamController streamController = new DirectStreamController(
+                new ClientPipelineFactory(requestContext, proxyConnectionFuture), proxyChannelFactory);
+
         // Set up our update controller for Request < -- > Channel communication
         updateController = new BlockingUpdateController(inboundReadValve);
 
-        // Build the request object and make it aware of the update controller
-        final LiveHttpServletRequest liveHttpServletRequest = new LiveHttpServletRequest();
-        liveHttpServletRequest.setUpdateController(updateController);
-
         // Let's kick off the worker thread
-        requestContext.startRequest(liveHttpServletRequest, new LiveHttpServletResponse());
+        requestContext.startRequest(updateController, streamController);
     }
 
     @Override

@@ -12,8 +12,6 @@ public interface UpdatableHttpMessage {
     void applyPartial(HttpMessagePartial partial);
 
     void requestUpdate();
-
-    void setUpdateController(HttpMessageUpdateController updateController);
         
     StreamController getStreamController();
 }
