@@ -82,29 +82,29 @@
           <stringProp name="98629247">group</stringProp>
         </collectionProp>
         <collectionProp name="UserParameters.thread_values">
-          <collectionProp name="-1420596446">
-            <stringProp name="503843165">user-test1</stringProp>
+          <collectionProp name="482847873">
+            <stringProp name="358484212">usertest1</stringProp>
             <stringProp name="-1248326952">application/xml</stringProp>
             <stringProp name="3707">v1</stringProp>
             <stringProp name="-925926243">asdasdasd-adsasdads-asdasdasd-adsadsasd</stringProp>
             <stringProp name="606175198">customer</stringProp>
           </collectionProp>
-          <collectionProp name="-1935018116">
-            <stringProp name="503843166">user-test2</stringProp>
+          <collectionProp name="-31573797">
+            <stringProp name="358484213">usertest2</stringProp>
             <stringProp name="-1248326952">application/xml</stringProp>
             <stringProp name="3708">v2</stringProp>
             <stringProp name="-503241867">now-is-the-time</stringProp>
             <stringProp name="606175198">customer</stringProp>
           </collectionProp>
-          <collectionProp name="1659408822">
-            <stringProp name="503843167">user-test3</stringProp>
+          <collectionProp name="-732114155">
+            <stringProp name="358484214">usertest3</stringProp>
             <stringProp name="-43840953">application/json</stringProp>
             <stringProp name="3707">v1</stringProp>
             <stringProp name="76684575">my-third-test-user</stringProp>
             <stringProp name="606175198">customer</stringProp>
           </collectionProp>
-          <collectionProp name="-123889075">
-            <stringProp name="503843168">user-test4</stringProp>
+          <collectionProp name="1779555244">
+            <stringProp name="358484215">usertest4</stringProp>
             <stringProp name="-43840953">application/json</stringProp>
             <stringProp name="3708">v2</stringProp>
             <stringProp name="-1442861776">dkshk-fdjke3-fdfjdk-21342</stringProp>
@@ -130,7 +130,7 @@
       </ThreadGroup>
       <hashTree>
         <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="hosts info" enabled="true">
-          <stringProp name="filename">tmp/hosts.csv</stringProp>
+          <stringProp name="filename">../../../tmp/hosts.csv</stringProp>
           <stringProp name="fileEncoding"></stringProp>
           <stringProp name="variableNames">endpoint</stringProp>
           <stringProp name="delimiter"></stringProp>
