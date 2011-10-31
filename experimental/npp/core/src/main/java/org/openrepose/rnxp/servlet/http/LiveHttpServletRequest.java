@@ -15,6 +15,7 @@ import org.openrepose.rnxp.http.HttpMessageComponentOrder;
 import org.openrepose.rnxp.decoder.partial.impl.RequestMethodPartial;
 import org.openrepose.rnxp.decoder.partial.impl.RequestUriPartial;
 import org.openrepose.rnxp.http.HttpMethod;
+import org.openrepose.rnxp.http.proxy.StreamController;
 
 /**
  *
@@ -22,15 +23,23 @@ import org.openrepose.rnxp.http.HttpMethod;
  */
 public class LiveHttpServletRequest extends AbstractHttpServletRequest implements UpdatableHttpServletRequest {
 
+    private final StreamController streamController;
     private final Map<String, List<String>> headerMap;
     private final StringBuffer requestUrl;
     private HttpMethod requestMethod;
     private String requestUri;
     private String httpVersion;
 
-    public LiveHttpServletRequest() {
+    public LiveHttpServletRequest(StreamController streamController) {
+        this.streamController = streamController;
+
         headerMap = new HashMap<String, List<String>>();
         requestUrl = new StringBuffer("http://localhost:8080");
+    }
+
+    @Override
+    public StreamController getStreamController() {
+        return streamController;
     }
 
     @Override
@@ -53,7 +62,7 @@ public class LiveHttpServletRequest extends AbstractHttpServletRequest implement
                 break;
 
             case HEADER:
-                addHeader(((HeaderPartial)partial).getHeaderKey(), ((HeaderPartial)partial).getHeaderValue());
+                addHeader(((HeaderPartial) partial).getHeaderKey(), ((HeaderPartial) partial).getHeaderValue());
                 break;
 
             default:

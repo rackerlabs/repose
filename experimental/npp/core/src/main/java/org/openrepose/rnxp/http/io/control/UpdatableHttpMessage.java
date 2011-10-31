@@ -1,6 +1,7 @@
 package org.openrepose.rnxp.http.io.control;
 
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
+import org.openrepose.rnxp.http.proxy.StreamController;
 
 /**
  *
@@ -13,4 +14,6 @@ public interface UpdatableHttpMessage {
     void requestUpdate();
 
     void setUpdateController(HttpMessageUpdateController updateController);
+        
+    StreamController getStreamController();
 }
