@@ -123,10 +123,13 @@ Documentation is included with the source files and may be built...
 
 Notes Regarding Licensing
 
-All files contained with this distribution of Repose are licenced 
-under the Apache License v2.0 (http://www.apache.org/licenses/LICENSE-2.0).
-You must agree to the terms of this license and abide by them before
-viewing, utilizing or distributing the source code contained within this distribution.
+
+All files contained with this distribution of Repose are licenced either
+under the Apache License v2.0 (http://www.apache.org/licenses/LICENSE-2.0) or
+the GNU General Public License v2.0 (http://www.gnu.org/licenses/gpl-2.0.html).
+You must agree to the terms of these licenses and abide by them before
+viewing, utilizing, modifying, or distributing the source code contained
+within this distribution.
 
 
 

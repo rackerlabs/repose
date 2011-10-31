@@ -150,7 +150,7 @@
                                     </mapper>
                                 </data>
 
-                                    <!-- The log directory with info file as placeholder for plugin -->
+                                <!-- The log directory with info file as placeholder for plugin -->
                                 <data>
                                     <type>make-directory</type>
 

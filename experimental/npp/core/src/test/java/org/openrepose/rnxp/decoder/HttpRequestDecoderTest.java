@@ -64,7 +64,7 @@ public class HttpRequestDecoderTest {
             assertEquals("Decoder must decode " + method.name() + " methods after reading one byte", HttpMessageComponent.REQUEST_METHOD, decodedPartial.getHttpMessageComponent());
             assertEquals("Decoder must decode " + method.name() + " methods after reading one byte", method, decodedPartial.getHttpMethod());
         }
-
+        
         @Test
         public void shouldDecodeGET() throws Exception {
             final ChannelBuffer buffer = copiedBuffer("G".getBytes(CharsetUtil.US_ASCII));
@@ -265,6 +265,8 @@ public class HttpRequestDecoderTest {
         }
 
         private void readAndValidateContent(final byte[] expectedContent, final ChannelBuffer buffer) throws Exception {
+            assertEquals("Next partial must be CONTENT_START", nextPartial(buffer, 2).getHttpMessageComponent(), HttpMessageComponent.CONTENT_START);
+            
             for (int i = 0; i < expectedContent.length;) {
                 final HttpMessagePartial rawHttpMessagePartial = (HttpMessagePartial) decoder.decode(null, null, buffer);
 
@@ -291,8 +293,7 @@ public class HttpRequestDecoderTest {
 
             // Read the headers
             nextPartial(buffer, 26);
-
-            assertEquals("Next partial must be CONTENT_START", HttpMessageComponent.CONTENT_START, nextPartial(buffer, 2).getHttpMessageComponent());
+            
             readAndValidateContent(expectedContent, buffer);
 
             assertEquals("Decoder must end chunked content", HttpMessageComponent.MESSAGE_END_NO_CONTENT, nextPartial(buffer, 6).getHttpMessageComponent());
@@ -315,7 +316,6 @@ public class HttpRequestDecoderTest {
             nextPartial(buffer, 18);
             nextPartial(buffer, 27);
 
-            assertEquals("Next partial must be CONTENT_START", nextPartial(buffer, 2).getHttpMessageComponent(), HttpMessageComponent.CONTENT_START);
             readAndValidateContent(expectedContent, buffer);
 
             assertEquals("Decoder must end chunked content", HttpMessageComponent.MESSAGE_END_NO_CONTENT, nextPartial(buffer, 6).getHttpMessageComponent());
@@ -338,10 +338,32 @@ public class HttpRequestDecoderTest {
             nextPartial(buffer, 26);
             nextPartial(buffer, 19);
 
-            assertEquals("Next partial must be CONTENT_START", nextPartial(buffer, 2).getHttpMessageComponent(), HttpMessageComponent.CONTENT_START);
             readAndValidateContent(expectedContent, buffer);
 
             assertEquals("Decoder must end chunked content", HttpMessageComponent.MESSAGE_END_NO_CONTENT, nextPartial(buffer, 6).getHttpMessageComponent());
+        }
+
+        @Test
+        public void shouldDecodeChunkedContentWithFooter() throws Exception {
+            final String transferEncoding = "transfer-encoding:chunked";
+
+            final String actualContent = "12345678123456781234567812345678";
+            final byte[] expectedContent = actualContent.getBytes(CharsetUtil.US_ASCII);
+
+            final String chunkedContent = "8\r\n12345678\r\n8\r\n12345678\r\n10\r\n1234567812345678\r\n0\r\ntransfer-encoding:chunked\r\n\r\n";
+
+            final String fullRequestFragment = transferEncoding + "\r\n\r\n" + chunkedContent;
+            final ChannelBuffer buffer = copiedBuffer(fullRequestFragment.getBytes(CharsetUtil.US_ASCII));
+
+            // Read the headers
+            nextPartial(buffer, 26);
+
+            readAndValidateContent(expectedContent, buffer);
+            
+            final HeaderPartial partial = (HeaderPartial) nextPartial(buffer, 31);
+            
+            assertEquals("Decoder must support chunked encoding footers", HttpMessageComponent.HEADER, partial.getHttpMessageComponent());
+            assertEquals("Decoder must end chunked content", HttpMessageComponent.MESSAGE_END_NO_CONTENT, nextPartial(buffer, 2).getHttpMessageComponent());
         }
     }
 }

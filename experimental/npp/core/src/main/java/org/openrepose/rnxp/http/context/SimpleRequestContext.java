@@ -15,7 +15,6 @@ public class SimpleRequestContext implements RequestContext {
 
     private final Logger LOG = LoggerFactory.getLogger(SimpleRequestContext.class);
     private final PowerProxy powerProxyInstance;
-    
     private Thread workerThread;
     private boolean requestStarted;
 
@@ -39,6 +38,10 @@ public class SimpleRequestContext implements RequestContext {
 
         workerThread.start();
         requestStarted = true;
+    }
+
+    @Override
+    public void responseConnected(UpdatableHttpServletResponse response) {
     }
 
     @Override

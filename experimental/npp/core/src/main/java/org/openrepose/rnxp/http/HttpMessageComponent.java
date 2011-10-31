@@ -11,7 +11,7 @@ public enum HttpMessageComponent {
     
     // HTTP Message
     HTTP_VERSION,
-    ENTITY_HEADER,
+    HEADER,
     CONTENT_START,
     CONTENT,
     
