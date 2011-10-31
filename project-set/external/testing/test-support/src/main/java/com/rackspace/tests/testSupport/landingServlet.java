@@ -30,7 +30,8 @@ public class landingServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
         Enumeration<String> headers = request.getHeaderNames();
-        String headerName;
+        String headerName, value, queryString, queryParam;
+        queryString = request.getQueryString();
         try {
             out.println("<html>");
             out.println("\t<head>");
@@ -38,12 +39,29 @@ public class landingServlet extends HttpServlet {
             out.println("\t</head>");
             out.println("\t<body>");
             out.println("\t\t<h1>Servlet version at " + request.getRequestURI() + "</h1>");
+            out.println("\t\t<h2>HEADERS</h2>");
             while (headers.hasMoreElements()) {
                 headerName = headers.nextElement();
-                out.println("\t\t<h2>" + headerName + " : " + request.getHeader(headerName) + "</h2>");
+                Enumeration<String> headerValues = request.getHeaders(headerName);
+                while(headerValues.hasMoreElements()){
+                    value = headerValues.nextElement();
+                    out.println("\t\t<h2>" + headerName + " : " + value  +"</h2>");
+                }
+                
             }
             //TODO: DISPLAY Query parameters
-            out.println("\t\t<h3>PUT QUERY PARAMETERS HERE</h3>");
+            
+            if(queryString != null){
+                out.println("\t\t<h3>QUERY PARAMETERS</h3>");
+                String[] query = queryString.split("&");
+                String[] params;
+                //for(int i=0;i<query.length/2;i=i+2){
+                for(String q: query){
+                    params = q.split("=");
+                    out.println("\t\t<h3>"+params[0]+" : "+params[1]+"</h3>");
+                }
+            }
+            //out.println("\t\t<h3>"+request.getQueryString()+"</h3>");
             out.println("\t</body>");
             out.println("</html>");
         } finally {
