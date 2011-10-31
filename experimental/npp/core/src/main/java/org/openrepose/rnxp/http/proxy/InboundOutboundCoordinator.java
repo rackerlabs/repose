@@ -1,6 +1,8 @@
 package org.openrepose.rnxp.http.proxy;
 
 import org.jboss.netty.channel.Channel;
+import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
 import org.jboss.netty.channel.ChannelStateEvent;
 
 /**
@@ -9,33 +11,40 @@ import org.jboss.netty.channel.ChannelStateEvent;
  */
 public class InboundOutboundCoordinator {
 
-    private Channel inboundChannel;
-    private Channel outboundChannel;
+    private ChannelUpdater inboundUpdate, outboundUpdate;
+    private Channel inboundChannel, outboundChannel;
 
     public InboundOutboundCoordinator() {
     }
+    
+    public synchronized boolean streamable() {
+        return inboundChannel != null && outboundChannel != null;
+    }
 
-    public void setInboundChannel(Channel inboundChannel) {
+    public synchronized void setInboundChannel(Channel inboundChannel) {
         this.inboundChannel = inboundChannel;
+        outboundUpdate = new ChannelUpdater(inboundChannel);
     }
 
-    public void setOutboundChannel(Channel outboundChannel) {
+    public synchronized void setOutboundChannel(Channel outboundChannel) {
         this.outboundChannel = outboundChannel;
-    }
-    
-    public void inboundChannelInterestChanged(ChannelStateEvent e) {
-        
-    }
-    
-    public void outboundChannelInterestChanged(ChannelStateEvent e) {
-        
+        inboundUpdate = new ChannelUpdater(outboundChannel);
     }
 
     public void writeOutbound(Object o) {
-        outboundChannel.write(o);
+        write(outboundChannel, inboundChannel, outboundUpdate, o);
     }
 
     public void writeInbound(Object o) {
-        inboundChannel.write(o);
+        write(inboundChannel, outboundChannel, inboundUpdate, o);
+    }
+
+    private void write(Channel destination, Channel source, ChannelUpdater updateMe, Object o) {
+        final ChannelFuture future = destination.write(o);
+
+        if (destination.isWritable()) {
+            source.setReadable(false);
+            future.addListener(updateMe);
+        }
     }
 }

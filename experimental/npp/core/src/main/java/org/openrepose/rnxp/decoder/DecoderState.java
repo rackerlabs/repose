@@ -6,11 +6,17 @@ package org.openrepose.rnxp.decoder;
  */
 public enum DecoderState {
 
+    // Shared head states
+    READ_VERSION,
+    
+    // Status line states
+    READ_STATUS_CODE,
+    READ_REASON_PHRASE,
+    
     // Request line states
     READ_SC_PARSE_METHOD,
     READ_MC_PARSE_METHOD,
     READ_URI,
-    READ_VERSION,
     
     // Header line states
     READ_HEADER_KEY,
@@ -19,8 +25,10 @@ public enum DecoderState {
     // Body states
     START_CONTENT,
     READ_CONTENT,
+    READ_CHUNK_LENGTH,
+    READ_CONTENT_CHUNKED,
+    READ_CHUNK_FOOTER,
     
-    // Control States
-    STREAM_REMAINING,
-    READ_END
+    // Control
+    STOP
 }

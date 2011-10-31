@@ -6,7 +6,8 @@ public enum HttpMessageComponent {
     
     // Connection Envlope
     MESSAGE_START,
-    MESSAGE_END,
+    MESSAGE_END_WITH_CONTENT,
+    MESSAGE_END_NO_CONTENT,
     
     // HTTP Message
     HTTP_VERSION,

@@ -10,10 +10,8 @@
 
     <groupId>com.rackspace.papi.components</groupId>
     <artifactId>components-support</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
 
     <name>Power API Components - Components Support</name>
-
     <packaging>pom</packaging>
 
     <modules>
@@ -28,44 +26,51 @@
         <module>versioning</module>
         <module>translation</module>
         <module>default-router</module>
+        <module>echo</module>
     </modules>
     
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>echo</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            
+            <dependency>
                 <groupId>com.rackspace.papi.core</groupId>
                 <artifactId>core-lib</artifactId>
-                <version>1.0.2-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.rackspace.papi.commons</groupId>
                 <artifactId>configuration</artifactId>
-                <version>1.0.2-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.rackspace.papi.commons</groupId>
                 <artifactId>utilities</artifactId>
-                <version>1.0.2-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
             
             <dependency>
                 <groupId>com.rackspace.papi.commons</groupId>
                 <artifactId>jetty-container</artifactId>
-                <version>1.0.2-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
             
             <dependency>
                 <groupId>com.rackspace.papi.commons</groupId>
                 <artifactId>classloader</artifactId>
-                <version>1.0.2-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
             
             <dependency>
                 <groupId>com.rackspace.cloud.services.clients</groupId>
                 <artifactId>rackspace-auth-v1.1</artifactId>
-                <version>1.0.2-SNAPSHOT</version>
+                <version>${project.version}</version>
             </dependency>
             
             <dependency>
@@ -92,7 +97,7 @@
                 <version>2.4.3</version>
             </dependency>
             
-             <dependency>
+            <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>default-router</artifactId>
                 <version>${project.version}</version>

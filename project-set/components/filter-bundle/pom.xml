@@ -66,6 +66,11 @@
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>translation</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>echo</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -141,6 +146,11 @@
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>translation</artifactId>
+                        </jarModule>
+
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components</groupId>
+                            <artifactId>echo</artifactId>
                         </jarModule>
                     </modules>
                 </configuration>

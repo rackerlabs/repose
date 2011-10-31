@@ -62,28 +62,28 @@ public class LiveHttpServletRequest extends AbstractHttpServletRequest implement
 
     @Override
     public String getMethod() {
-        loadComponent(HttpMessageComponent.REQUEST_METHOD, HttpMessageComponentOrder.getRequestOrder());
+        loadComponent(HttpMessageComponent.REQUEST_METHOD, HttpMessageComponentOrder.requestOrderInstance());
 
         return requestMethod.name();
     }
 
     @Override
     public String getRequestURI() {
-        loadComponent(HttpMessageComponent.REQUEST_URI, HttpMessageComponentOrder.getRequestOrder());
+        loadComponent(HttpMessageComponent.REQUEST_URI, HttpMessageComponentOrder.requestOrderInstance());
 
         return requestUri;
     }
 
     @Override
     public StringBuffer getRequestURL() {
-        loadComponent(HttpMessageComponent.REQUEST_URI, HttpMessageComponentOrder.getRequestOrder());
+        loadComponent(HttpMessageComponent.REQUEST_URI, HttpMessageComponentOrder.requestOrderInstance());
 
         return requestUrl;
     }
 
     @Override
     public String getHeader(String name) {
-        loadComponent(HttpMessageComponent.HEADER, HttpMessageComponentOrder.getRequestOrder());
+        loadComponent(HttpMessageComponent.HEADER, HttpMessageComponentOrder.requestOrderInstance());
 
         final List<String> headerValues = headerMap.get(name);
         return headerValues != null && headerValues.size() > 0 ? headerValues.get(0) : null;
@@ -91,14 +91,14 @@ public class LiveHttpServletRequest extends AbstractHttpServletRequest implement
 
     @Override
     public Enumeration<String> getHeaderNames() {
-        loadComponent(HttpMessageComponent.HEADER, HttpMessageComponentOrder.getRequestOrder());
+        loadComponent(HttpMessageComponent.HEADER, HttpMessageComponentOrder.requestOrderInstance());
 
         return Collections.enumeration(headerMap.keySet());
     }
 
     @Override
     public Enumeration<String> getHeaders(String name) {
-        loadComponent(HttpMessageComponent.HEADER, HttpMessageComponentOrder.getRequestOrder());
+        loadComponent(HttpMessageComponent.HEADER, HttpMessageComponentOrder.requestOrderInstance());
 
         final List<String> headerValues = headerMap.get(name);
         return headerValues != null && headerValues.size() > 0 ? Collections.enumeration(headerValues) : null;
