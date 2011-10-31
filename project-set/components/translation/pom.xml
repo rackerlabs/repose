@@ -34,15 +34,24 @@
         </dependency>
 
         <dependency>
+           <groupId>com.xmlcalabash</groupId>
+           <artifactId>calabash</artifactId>
+           <version>0.9.38</version>
+        </dependency>
+        <dependency>
             <groupId>net.sf.saxon</groupId>
             <artifactId>saxon</artifactId>
             <version>9.3</version>
         </dependency>
-
         <dependency>
           <groupId>net.sf.joost</groupId>
           <artifactId>joost</artifactId>
           <version>0.9.1</version>
+        </dependency>
+        <dependency>
+           <groupId>org.codehaus.jackson</groupId>
+           <artifactId>jackson-core-lgpl</artifactId>
+           <version>1.6.4</version>
         </dependency>
     </dependencies>
 

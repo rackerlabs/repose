@@ -1,19 +1,18 @@
 package com.rackspace.papi.components.translation;
 
-import com.rackspace.papi.commons.util.io.InputStreamMerger;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
+import com.rackspace.papi.components.translation.preprocessor.InputStreamProcessor;
+import com.rackspace.papi.components.translation.preprocessor.cdata.UnknownContentStreamProcessor;
+import com.rackspace.papi.components.translation.preprocessor.json.JsonxStreamProcessor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.regex.Pattern;
+import javax.xml.transform.sax.SAXTransformerFactory;
+import org.codehaus.jackson.JsonFactory;
 
 public class TranslationRequestPreProcessor {
 
-   private static final String JSON_PREFIX = "<json><![CDATA[";
-   private static final String JSON_SUFFIX = "]]></json>";
-   private static final String UNKNOWN_PREFIX = "<xml><![CDATA[";
-   private static final String UNKNOWN_SUFFIX = "]]></xml>";
-   private static final String REQUEST_PREFIX = "<request>";
-   private static final String REQUEST_SUFFIX = "</request>";
+   private static final SAXTransformerFactory handlerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
    private final MutableHttpServletRequest request;
 
    public TranslationRequestPreProcessor(MutableHttpServletRequest request) {
@@ -63,21 +62,23 @@ public class TranslationRequestPreProcessor {
             result = request.getInputStream();
             break;
          case JSON:
-            result = InputStreamMerger.merge(
-                       InputStreamMerger.wrap(JSON_PREFIX), 
-                       request.getInputStream(), 
-                       InputStreamMerger.wrap(JSON_SUFFIX));
+            result = getJsonProcessor().process(request.getInputStream());
             break;
          default:
-            result = InputStreamMerger.merge(
-                       InputStreamMerger.wrap(UNKNOWN_PREFIX), 
-                       request.getInputStream(), 
-                       InputStreamMerger.wrap(UNKNOWN_SUFFIX));
+            result = getUnknownContentProcessor().process(request.getInputStream());
       }
 
       return result;
    }
 
+   public InputStreamProcessor getJsonProcessor() {
+      return new JsonxStreamProcessor(new JsonFactory(), handlerFactory);
+   }
+   
+   public InputStreamProcessor getUnknownContentProcessor() {
+      return new UnknownContentStreamProcessor();
+   }
+   
     // TODO: Need to rework this now that the config changed
 //   public InputStream getSourceStream(HttpElement httpElement) throws IOException {
 //

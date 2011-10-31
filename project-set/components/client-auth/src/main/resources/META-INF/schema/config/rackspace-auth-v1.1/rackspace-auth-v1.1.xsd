@@ -44,7 +44,7 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
-            <xs:attribute name="keystone-active" type="xs:boolean" use="optional" default="true">
+            <xs:attribute name="keystone-active" type="xs:boolean" use="optional" default="false">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>Tells power api to set request headers required by keystone.</html:p>
