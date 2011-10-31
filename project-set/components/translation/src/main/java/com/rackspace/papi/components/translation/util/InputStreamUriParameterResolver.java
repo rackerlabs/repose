@@ -24,6 +24,11 @@ public class InputStreamUriParameterResolver implements URIResolver {
        return key;
     }
     
+    public void removeStream(InputStream inputStreamReference) {
+       String key = getHref(inputStreamReference);
+       streams.remove(key);
+    }
+    
     public String getHref(InputStream inputStreamReference) {
         return PREFIX + inputStreamReference.toString();
     }

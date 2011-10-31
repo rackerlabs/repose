@@ -32,7 +32,7 @@ public class TranslationFilter implements Filter {
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
 
-        final FilterDirector director = handlerFactory.newHandler().handleRequest(mutableHttpRequest, mutableHttpResponse);
+        FilterDirector director = handlerFactory.newHandler().handleRequest(mutableHttpRequest, mutableHttpResponse);
 
         director.applyTo(mutableHttpRequest);
 
@@ -40,11 +40,16 @@ public class TranslationFilter implements Filter {
             case RETURN:
                 director.applyTo(mutableHttpResponse);
                 break;
+               
+            case PROCESS_RESPONSE:
+                director = handlerFactory.newHandler().handleResponse(mutableHttpRequest, mutableHttpResponse);
+                break;
 
             case PASS:
                 chain.doFilter(mutableHttpRequest, response);
                 break;
         }
+        
     }
 
     @Override

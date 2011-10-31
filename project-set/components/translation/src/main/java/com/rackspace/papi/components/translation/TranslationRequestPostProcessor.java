@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.translation;
 
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.components.translation.preprocessor.InputStreamProcessor;
 import com.rackspace.papi.components.translation.preprocessor.cdata.UnknownContentStreamProcessor;
 import com.rackspace.papi.components.translation.preprocessor.json.JsonxStreamProcessor;
@@ -11,32 +11,33 @@ import java.io.InputStream;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import org.codehaus.jackson.JsonFactory;
 
-public class TranslationRequestPreProcessor {
+public class TranslationRequestPostProcessor {
 
    private static final SAXTransformerFactory handlerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
-   private final MutableHttpServletRequest request;
+   private final MutableHttpServletResponse response;
 
-   public TranslationRequestPreProcessor(MutableHttpServletRequest request) {
-      this.request = request;
+   public TranslationRequestPostProcessor(MutableHttpServletResponse response) {
+      this.response = response;
    }
 
+
    public InputStream getHeaderStream() throws IOException {
-      return new ByteArrayInputStream(request.toXml().getBytes());
+      return new ByteArrayInputStream(response.toXml().getBytes());
    }
 
    public InputStream getBodyStream() throws IOException {
-      final String contentType = request.getContentType();
+      final String contentType = response.getContentType();
       final InputStream result;
 
       switch (BodyContentMediaType.getMediaType(contentType)) {
          case XML:
-            result = request.getInputStream();
+            result = response.getBufferedOutputAsInputStream();
             break;
          case JSON:
-            result = getJsonProcessor().process(request.getInputStream());
+            result = getJsonProcessor().process(response.getBufferedOutputAsInputStream());
             break;
          default:
-            result = getUnknownContentProcessor().process(request.getInputStream());
+            result = getUnknownContentProcessor().process(response.getBufferedOutputAsInputStream());
       }
 
       return result;
