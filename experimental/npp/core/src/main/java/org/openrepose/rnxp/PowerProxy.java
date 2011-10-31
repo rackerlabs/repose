@@ -10,11 +10,11 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.openrepose.rnxp.servlet.context.NXPServletContext;
 import org.openrepose.rnxp.servlet.context.filter.NXPFilterConfig;
 import org.openrepose.rnxp.servlet.filter.EmptyFilterChain;
-import org.openrepose.rnxp.servlet.http.UpdatableHttpServletRequest;
-import org.openrepose.rnxp.servlet.http.UpdatableHttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +54,7 @@ public class PowerProxy {
         }
     }
 
-    public void handleRequest(UpdatableHttpServletRequest request, UpdatableHttpServletResponse response) throws ServletException {
+    public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException {
         try {
             powerFilterInstance.doFilter(request, response, EmptyFilterChain.getInstance());
         } catch (IOException ioe) {

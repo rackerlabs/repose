@@ -13,7 +13,6 @@ import javax.servlet.DispatcherType;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.Cookie;
@@ -210,11 +209,6 @@ public abstract class AbstractHttpServletRequest extends AbstractUpdatableHttpMe
 
     @Override
     public DispatcherType getDispatcherType() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public ServletInputStream getInputStream() throws IOException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

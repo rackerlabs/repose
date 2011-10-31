@@ -2,8 +2,6 @@ package org.openrepose.rnxp.http.proxy;
 
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
-import org.jboss.netty.channel.ChannelFutureListener;
-import org.jboss.netty.channel.ChannelStateEvent;
 
 /**
  *

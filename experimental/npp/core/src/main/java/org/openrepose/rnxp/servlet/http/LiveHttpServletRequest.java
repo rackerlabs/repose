@@ -1,5 +1,6 @@
 package org.openrepose.rnxp.servlet.http;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -7,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.ServletInputStream;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
 import org.openrepose.rnxp.decoder.partial.impl.HeaderPartial;
 import org.openrepose.rnxp.decoder.partial.impl.HttpVersionPartial;
@@ -15,8 +17,9 @@ import org.openrepose.rnxp.http.HttpMessageComponentOrder;
 import org.openrepose.rnxp.decoder.partial.impl.RequestMethodPartial;
 import org.openrepose.rnxp.decoder.partial.impl.RequestUriPartial;
 import org.openrepose.rnxp.http.HttpMethod;
+import org.openrepose.rnxp.http.io.control.HttpMessageSerializer;
 import org.openrepose.rnxp.http.io.control.HttpMessageUpdateController;
-import org.openrepose.rnxp.http.proxy.StreamController;
+import org.openrepose.rnxp.http.proxy.OriginConnectionFuture;
 
 /**
  *
@@ -24,14 +27,14 @@ import org.openrepose.rnxp.http.proxy.StreamController;
  */
 public class LiveHttpServletRequest extends AbstractHttpServletRequest implements UpdatableHttpServletRequest {
 
-    private final StreamController streamController;
+    private final OriginConnectionFuture streamController;
     private final Map<String, List<String>> headerMap;
     private final StringBuffer requestUrl;
     private HttpMethod requestMethod;
     private String requestUri;
     private String httpVersion;
 
-    public LiveHttpServletRequest(HttpMessageUpdateController updateController, StreamController streamController) {
+    public LiveHttpServletRequest(HttpMessageUpdateController updateController, OriginConnectionFuture streamController) {
         this.streamController = streamController;
 
         headerMap = new HashMap<String, List<String>>();
@@ -41,7 +44,12 @@ public class LiveHttpServletRequest extends AbstractHttpServletRequest implement
     }
 
     @Override
-    public StreamController getStreamController() {
+    public HttpMessageSerializer commitMessage() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public OriginConnectionFuture getOriginConnectionFuture() {
         return streamController;
     }
 
@@ -67,7 +75,7 @@ public class LiveHttpServletRequest extends AbstractHttpServletRequest implement
             case HEADER:
                 addHeader(((HeaderPartial) partial).getHeaderKey(), ((HeaderPartial) partial).getHeaderValue());
                 break;
-
+                
             default:
         }
     }

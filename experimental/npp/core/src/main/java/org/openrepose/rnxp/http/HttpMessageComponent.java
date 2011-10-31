@@ -20,5 +20,8 @@ public enum HttpMessageComponent {
     REQUEST_URI,
         
     // Response
-    RESPONSE_STATUS_CODE
+    RESPONSE_STATUS_CODE,
+    
+    // Streamable
+    UNPARSED_STREAMABLE
 }

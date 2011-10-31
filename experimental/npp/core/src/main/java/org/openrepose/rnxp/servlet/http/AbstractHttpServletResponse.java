@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Locale;
-import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
@@ -141,11 +140,6 @@ public abstract class AbstractHttpServletResponse extends AbstractUpdatableHttpM
 
     @Override
     public Locale getLocale() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    @Override
-    public ServletOutputStream getOutputStream() throws IOException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

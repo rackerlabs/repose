@@ -1,8 +1,10 @@
 package org.openrepose.rnxp.http.io.control;
 
 import java.io.InputStream;
+import java.io.OutputStream;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferInputStream;
+import org.jboss.netty.buffer.ChannelBufferOutputStream;
 import org.openrepose.rnxp.decoder.partial.ContentMessagePartial;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
 import org.openrepose.rnxp.netty.valve.ChannelValve;
@@ -44,14 +46,29 @@ public class BlockingUpdateController implements HttpMessageUpdateController {
         }
     }
 
+    private void initBuffer() {
+        if (contentBuffer != null) {
+            throw new IllegalStateException("A stream has already been bound to this update controller");
+        }
+
+        contentBuffer = buffer(512);
+    }
+    
+    public void commit() {
+        shutInboundValve();
+    }
+
+    @Override
+    public OutputStream connectOutputStream() {
+        initBuffer();
+        openInboundValve();
+
+        return new ChannelBufferOutputStream(contentBuffer);
+    }
+
     @Override
     public InputStream connectInputStream() {
-        if (contentBuffer != null) {
-            throw new IllegalStateException("An input stream has already been bound to this update controller");
-        }
-        
-        contentBuffer = buffer(512);
-
+        initBuffer();
         openInboundValve();
 
         return new ChannelBufferInputStream(contentBuffer);

@@ -10,7 +10,7 @@ import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import org.openrepose.rnxp.http.proxy.StreamController;
+import org.openrepose.rnxp.http.proxy.OriginConnectionFuture;
 import org.openrepose.rnxp.servlet.http.LiveHttpServletRequest;
 
 /**
@@ -32,9 +32,8 @@ public class ExternalRoutableRequestDispatcher implements RequestDispatcher {
             
             final InetSocketAddress address = new InetSocketAddress(destination.getHost(), httpPort(destination));
             
-            final StreamController streamController = httpRequest.getStreamController();
-            streamController.engageRemote(address);
-            streamController.commitRequest(httpRequest);
+            final OriginConnectionFuture connectionFuture = httpRequest.getOriginConnectionFuture();
+            connectionFuture.connect(address, httpRequest.commitMessage());
         }
         
         throw new IllegalArgumentException("Request opting to forward must forward to a routable destination");
