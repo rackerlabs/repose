@@ -77,4 +77,9 @@ public final class MutableHttpServletResponse extends HttpServletResponseWrapper
     public PrintWriter getWriter() throws IOException {
         return outputStreamWriter;
     }
+    
+    public String toXml() {
+       // TODO: implement this
+       return "";
+    }
 }

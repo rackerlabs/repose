@@ -19,7 +19,7 @@
           </elementProp>
           <elementProp name="username" elementType="Argument">
             <stringProp name="Argument.name">username</stringProp>
-            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.value">cmarin1</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="authhost" elementType="Argument">
@@ -29,7 +29,7 @@
           </elementProp>
           <elementProp name="key" elementType="Argument">
             <stringProp name="Argument.name">key</stringProp>
-            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.value">0f97f489c848438090250d50c7e1ea88</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="token" elementType="Argument">
@@ -39,7 +39,7 @@
           </elementProp>
           <elementProp name="accept" elementType="Argument">
             <stringProp name="Argument.name">accept</stringProp>
-            <stringProp name="Argument.value"></stringProp>
+            <stringProp name="Argument.value">application/xml</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="path" elementType="Argument">
@@ -63,7 +63,7 @@
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">4</stringProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
         <stringProp name="ThreadGroup.ramp_time">1</stringProp>
         <longProp name="ThreadGroup.start_time">1314650128000</longProp>
         <longProp name="ThreadGroup.end_time">1314650128000</longProp>
@@ -72,7 +72,7 @@
         <stringProp name="ThreadGroup.delay"></stringProp>
       </ThreadGroup>
       <hashTree>
-        <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="User Parameters" enabled="true">
+        <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="User Parameters" enabled="false">
           <collectionProp name="UserParameters.names">
             <stringProp name="-265713450">username</stringProp>
             <stringProp name="-1423461112">accept</stringProp>
@@ -81,29 +81,29 @@
             <stringProp name="98629247">group</stringProp>
           </collectionProp>
           <collectionProp name="UserParameters.thread_values">
-            <collectionProp name="-1420596446">
-              <stringProp name="503843165">user-test1</stringProp>
+            <collectionProp name="482847873">
+              <stringProp name="358484212">usertest1</stringProp>
               <stringProp name="-1248326952">application/xml</stringProp>
               <stringProp name="3707">v1</stringProp>
               <stringProp name="-925926243">asdasdasd-adsasdads-asdasdasd-adsadsasd</stringProp>
               <stringProp name="606175198">customer</stringProp>
             </collectionProp>
-            <collectionProp name="-1935018116">
-              <stringProp name="503843166">user-test2</stringProp>
+            <collectionProp name="-31573797">
+              <stringProp name="358484213">usertest2</stringProp>
               <stringProp name="-1248326952">application/xml</stringProp>
               <stringProp name="3708">v2</stringProp>
               <stringProp name="-503241867">now-is-the-time</stringProp>
               <stringProp name="606175198">customer</stringProp>
             </collectionProp>
-            <collectionProp name="1659408822">
-              <stringProp name="503843167">user-test3</stringProp>
+            <collectionProp name="-732114155">
+              <stringProp name="358484214">usertest3</stringProp>
               <stringProp name="-43840953">application/json</stringProp>
               <stringProp name="3707">v1</stringProp>
               <stringProp name="76684575">my-third-test-user</stringProp>
               <stringProp name="606175198">customer</stringProp>
             </collectionProp>
-            <collectionProp name="-123889075">
-              <stringProp name="503843168">user-test4</stringProp>
+            <collectionProp name="1779555244">
+              <stringProp name="358484215">usertest4</stringProp>
               <stringProp name="-43840953">application/json</stringProp>
               <stringProp name="3708">v2</stringProp>
               <stringProp name="-1442861776">dkshk-fdjke3-fdfjdk-21342</stringProp>
@@ -114,7 +114,7 @@
         </UserParameters>
         <hashTree/>
         <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="hosts info" enabled="true">
-          <stringProp name="filename">tmp/hosts.csv</stringProp>
+          <stringProp name="filename">../../../tmp/hosts.csv</stringProp>
           <stringProp name="fileEncoding"></stringProp>
           <stringProp name="variableNames">endpoint</stringProp>
           <stringProp name="delimiter"></stringProp>
@@ -170,6 +170,62 @@
           <boolProp name="UserParameters.per_iteration">true</boolProp>
         </UserParameters>
         <hashTree/>
+        <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="User Parameters" enabled="true">
+          <collectionProp name="UserParameters.names">
+            <stringProp name="3373707">name</stringProp>
+            <stringProp name="-1423461112">accept</stringProp>
+            <stringProp name="351608024">version</stringProp>
+            <stringProp name="906743188">auth-token</stringProp>
+            <stringProp name="98629247">group</stringProp>
+            <stringProp name="-356853330">acceptHeaderVer</stringProp>
+            <stringProp name="-819976989">verNum</stringProp>
+            <stringProp name="-383553229">resourcepath</stringProp>
+          </collectionProp>
+          <collectionProp name="UserParameters.thread_values">
+            <collectionProp name="-1591690138">
+              <stringProp name="358484212">usertest1</stringProp>
+              <stringProp name="-1248326952">application/xml</stringProp>
+              <stringProp name="3707">v1</stringProp>
+              <stringProp name="-925926243">asdasdasd-adsasdads-asdasdasd-adsadsasd</stringProp>
+              <stringProp name="606175198">customer</stringProp>
+              <stringProp name="3708">v2</stringProp>
+              <stringProp name="49">1</stringProp>
+              <stringProp name="1409471242">/usertest1/ss</stringProp>
+            </collectionProp>
+            <collectionProp name="-491277702">
+              <stringProp name="358484213">usertest2</stringProp>
+              <stringProp name="1393866505">v1.0+xml</stringProp>
+              <stringProp name="3708">v2</stringProp>
+              <stringProp name="-503241867">now-is-the-time</stringProp>
+              <stringProp name="606175198">customer</stringProp>
+              <stringProp name="3707">v1</stringProp>
+              <stringProp name="50">2</stringProp>
+              <stringProp name="-287715930">/usertest2</stringProp>
+            </collectionProp>
+            <collectionProp name="-92095917">
+              <stringProp name="358484214">usertest3</stringProp>
+              <stringProp name="-635250895">vnd.vendo.servicer-v1+xml</stringProp>
+              <stringProp name="3707">v1</stringProp>
+              <stringProp name="76684575">my-third-test-user</stringProp>
+              <stringProp name="606175198">customer</stringProp>
+              <stringProp name="3708">v2</stringProp>
+              <stringProp name="49">1</stringProp>
+              <stringProp name="1644443642">/usertest3/test</stringProp>
+            </collectionProp>
+            <collectionProp name="-1205936365">
+              <stringProp name="358484215">usertest4</stringProp>
+              <stringProp name="-526297701">application/vnd.rackspace; x=v1; y=xml</stringProp>
+              <stringProp name="3708">v2</stringProp>
+              <stringProp name="-1442861776">dkshk-fdjke3-fdfjdk-21342</stringProp>
+              <stringProp name="1127932692">custome</stringProp>
+              <stringProp name="3707">v1</stringProp>
+              <stringProp name="50">2</stringProp>
+              <stringProp name="-287715928">/usertest4</stringProp>
+            </collectionProp>
+          </collectionProp>
+          <boolProp name="UserParameters.per_iteration">true</boolProp>
+        </UserParameters>
+        <hashTree/>
         <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
           <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
             <collectionProp name="Arguments.arguments"/>
@@ -184,7 +240,7 @@
           <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
         </ConfigTestElement>
         <hashTree/>
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="get Token Controller" enabled="false"/>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="get Token Controller" enabled="true"/>
         <hashTree>
           <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
             <collectionProp name="HeaderManager.headers">
@@ -279,6 +335,92 @@ log.info(&quot;test&quot;+${respcode});</stringProp>
             <hashTree/>
           </hashTree>
         </hashTree>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Get Version" enabled="true"/>
+        <hashTree>
+          <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain">${endpoint}</stringProp>
+            <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+          </ConfigTestElement>
+          <hashTree/>
+          <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+            <collectionProp name="HeaderManager.headers">
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-Auth-Token</stringProp>
+                <stringProp name="Header.value">${auth-token}</stringProp>
+              </elementProp>
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">Accept</stringProp>
+                <stringProp name="Header.value">application/xml</stringProp>
+              </elementProp>
+              <elementProp name="" elementType="Header">
+                <stringProp name="Header.name">X-Auth-User</stringProp>
+                <stringProp name="Header.value">${name}</stringProp>
+              </elementProp>
+            </collectionProp>
+          </HeaderManager>
+          <hashTree/>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="getSingleVersion: user valid token valid" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">v1/${name}</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <stringProp name="HTTPSampler.implementation">Java</stringProp>
+            <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+            <boolProp name="HTTPSampler.monitor">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="1477249802">200 OK</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="-1926470151">&lt;h1&gt;Servlet version at /_${version}/${name}&lt;/h1&gt;</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion - tenant, tenant-id and role" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="912632629">&lt;h2&gt;x-tenant : ${name}&lt;/h2&gt;</stringProp>
+                <stringProp name="-1897740094">&lt;h2&gt;x-tenant-id : usertest1&lt;/h2&gt;</stringProp>
+                <stringProp name="1193658140">&lt;h2&gt;x-role : sysadmin&lt;/h2&gt;</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">2</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+          </hashTree>
+        </hashTree>
         <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersions - 401" enabled="false"/>
         <hashTree>
           <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="getVersions" enabled="true">
@@ -368,7 +510,7 @@ log.info(&quot;test&quot;+${respcode});</stringProp>
             <hashTree/>
           </hashTree>
         </hashTree>
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersion case 1 -  user null token null" enabled="true"/>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersion case 1 -  user null token null" enabled="false"/>
         <hashTree>
           <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
             <collectionProp name="HeaderManager.headers">
@@ -416,7 +558,7 @@ log.info(&quot;test&quot;+${respcode});</stringProp>
             <hashTree/>
           </hashTree>
         </hashTree>
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersion case 2 - user valid token null" enabled="true"/>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersion case 2 - user valid token null" enabled="false"/>
         <hashTree>
           <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
             <collectionProp name="HeaderManager.headers">
@@ -500,7 +642,7 @@ log.info(&quot;test&quot;+${respcode});</stringProp>
             <hashTree/>
           </hashTree>
         </hashTree>
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersion case 3 - user invalid token null" enabled="true"/>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersion case 3 - user invalid token null" enabled="false"/>
         <hashTree>
           <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
             <collectionProp name="HeaderManager.headers">
@@ -552,7 +694,7 @@ log.info(&quot;test&quot;+${respcode});</stringProp>
             <hashTree/>
           </hashTree>
         </hashTree>
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersion case 4 - user null token valid" enabled="true"/>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersion case 4 - user null token valid" enabled="false"/>
         <hashTree>
           <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
             <collectionProp name="HeaderManager.headers">
@@ -604,7 +746,7 @@ log.info(&quot;test&quot;+${respcode});</stringProp>
             <hashTree/>
           </hashTree>
         </hashTree>
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersion case 5 - user null token invalid" enabled="true"/>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersion case 5 - user null token invalid" enabled="false"/>
         <hashTree>
           <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
             <collectionProp name="HeaderManager.headers">
@@ -652,7 +794,7 @@ log.info(&quot;test&quot;+${respcode});</stringProp>
             <hashTree/>
           </hashTree>
         </hashTree>
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersion case 6 - user invalid token invalid" enabled="true"/>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersion case 6 - user invalid token invalid" enabled="false"/>
         <hashTree>
           <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
             <collectionProp name="HeaderManager.headers">
@@ -773,7 +915,7 @@ log.info(&quot;test&quot;+${respcode});</stringProp>
             <hashTree/>
           </hashTree>
         </hashTree>
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersion case 7 - user valid token valid" enabled="true"/>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersion case 7 - user valid token valid" enabled="false"/>
         <hashTree>
           <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
             <collectionProp name="HeaderManager.headers">
@@ -866,7 +1008,7 @@ log.info(&quot;test&quot;+${respcode});</stringProp>
             <hashTree/>
           </hashTree>
         </hashTree>
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersion case 8 - user valid token valid" enabled="true"/>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersion case 8 - user valid token valid" enabled="false"/>
         <hashTree>
           <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
             <collectionProp name="HeaderManager.headers">
@@ -968,7 +1110,7 @@ log.info(&quot;test&quot;+${respcode});</stringProp>
             <hashTree/>
           </hashTree>
         </hashTree>
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersion case 8 - user valid token valid" enabled="true"/>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersion case 8 - user valid token valid" enabled="false"/>
         <hashTree>
           <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
             <collectionProp name="HeaderManager.headers">

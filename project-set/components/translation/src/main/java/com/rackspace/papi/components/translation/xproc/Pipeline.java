@@ -7,5 +7,6 @@ public interface Pipeline {
 
    public List<XdmNode> getResultPort(String name);
    public void run(List<PipelineInput> inputs) throws PipelineException;
+   public void reset();
    
 }
