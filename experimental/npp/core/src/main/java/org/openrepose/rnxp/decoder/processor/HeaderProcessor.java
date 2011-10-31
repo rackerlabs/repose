@@ -9,4 +9,6 @@ import org.openrepose.rnxp.decoder.partial.impl.HttpErrorPartial;
 public interface HeaderProcessor {
 
     HttpErrorPartial processHeader(String key, String value);
+
+    void finishedReadingHeaders();
 }

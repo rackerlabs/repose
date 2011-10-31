@@ -14,10 +14,8 @@ import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
 import org.openrepose.rnxp.decoder.partial.impl.HeaderPartial;
 import org.openrepose.rnxp.decoder.partial.impl.HttpErrorPartial;
 import org.openrepose.rnxp.decoder.partial.impl.HttpVersionPartial;
-import org.openrepose.rnxp.decoder.partial.impl.RequestMethodPartial;
-import org.openrepose.rnxp.decoder.partial.impl.RequestUriPartial;
+import org.openrepose.rnxp.decoder.partial.impl.StatusCodePartial;
 import org.openrepose.rnxp.http.HttpMessageComponent;
-import org.openrepose.rnxp.http.HttpMethod;
 import static org.junit.Assert.*;
 import static org.jboss.netty.buffer.ChannelBuffers.*;
 
@@ -26,16 +24,16 @@ import static org.jboss.netty.buffer.ChannelBuffers.*;
  * @author zinic
  */
 @RunWith(Enclosed.class)
-public class HttpRequestDecoderTest {
+public class HttpResponseDecoderTest {
 
     @Ignore
     public static class HttpDecoderTestPart {
 
-        protected HttpRequestDecoder decoder;
+        protected HttpResponseDecoder decoder;
 
         @Before
         public void standUp() throws Exception {
-            decoder = new HttpRequestDecoder();
+            decoder = new HttpResponseDecoder();
         }
 
         public HttpMessagePartial nextPartial(ChannelBuffer buffer, int expectedReads) throws Exception {
@@ -57,91 +55,6 @@ public class HttpRequestDecoderTest {
         }
     }
 
-    public static class WhenDecodingRequestMethods extends HttpDecoderTestPart {
-
-        private void validateDecodedMethod(HttpMethod method, RequestMethodPartial decodedPartial) {
-            assertNotNull("Decoder must decode " + method.name() + " methods", decodedPartial);
-            assertEquals("Decoder must decode " + method.name() + " methods after reading one byte", HttpMessageComponent.REQUEST_METHOD, decodedPartial.getHttpMessageComponent());
-            assertEquals("Decoder must decode " + method.name() + " methods after reading one byte", method, decodedPartial.getHttpMethod());
-        }
-        
-        @Test
-        public void shouldDecodeGET() throws Exception {
-            final ChannelBuffer buffer = copiedBuffer("G".getBytes(CharsetUtil.US_ASCII));
-
-            final RequestMethodPartial decodedPartial = (RequestMethodPartial) nextPartial(buffer, 1);
-            validateDecodedMethod(HttpMethod.GET, decodedPartial);
-        }
-
-        @Test
-        public void shouldDecodeDELETE() throws Exception {
-            final ChannelBuffer buffer = copiedBuffer("D".getBytes(CharsetUtil.US_ASCII));
-
-            final RequestMethodPartial decodedPartial = (RequestMethodPartial) nextPartial(buffer, 1);
-            validateDecodedMethod(HttpMethod.DELETE, decodedPartial);
-        }
-
-        @Test
-        public void shouldDecodeHEAD() throws Exception {
-            final ChannelBuffer buffer = copiedBuffer("H".getBytes(CharsetUtil.US_ASCII));
-
-            final RequestMethodPartial decodedPartial = (RequestMethodPartial) nextPartial(buffer, 1);
-            validateDecodedMethod(HttpMethod.HEAD, decodedPartial);
-        }
-
-        @Test
-        public void shouldDecodeOPTIONS() throws Exception {
-            final ChannelBuffer buffer = copiedBuffer("O".getBytes(CharsetUtil.US_ASCII));
-
-            final RequestMethodPartial decodedPartial = (RequestMethodPartial) nextPartial(buffer, 1);
-            validateDecodedMethod(HttpMethod.OPTIONS, decodedPartial);
-        }
-
-        @Test
-        public void shouldDecodeTRACE() throws Exception {
-            final ChannelBuffer buffer = copiedBuffer("T".getBytes(CharsetUtil.US_ASCII));
-
-            final RequestMethodPartial decodedPartial = (RequestMethodPartial) nextPartial(buffer, 1);
-            validateDecodedMethod(HttpMethod.TRACE, decodedPartial);
-        }
-
-        @Test
-        public void shouldDecodePUT() throws Exception {
-            final ChannelBuffer buffer = copiedBuffer("PU".getBytes(CharsetUtil.US_ASCII));
-
-            final RequestMethodPartial decodedPartial = (RequestMethodPartial) nextPartial(buffer, 2);
-            validateDecodedMethod(HttpMethod.PUT, decodedPartial);
-        }
-
-        @Test
-        public void shouldDecodePOST() throws Exception {
-            final ChannelBuffer buffer = copiedBuffer("PO".getBytes(CharsetUtil.US_ASCII));
-
-            final RequestMethodPartial decodedPartial = (RequestMethodPartial) nextPartial(buffer, 2);
-            validateDecodedMethod(HttpMethod.POST, decodedPartial);
-        }
-    }
-
-    public static class WhenDecodingRequestUri extends HttpDecoderTestPart {
-
-        @Override
-        public void standUp() throws Exception {
-            super.standUp();
-
-            stepDecoderTo(DecoderState.READ_URI);
-        }
-
-        @Test
-        public void shouldDecodeValidUri() throws Exception {
-            final String expectedUri = "/path", requestedUri = expectedUri + " ";
-            final ChannelBuffer buffer = copiedBuffer(requestedUri.getBytes(CharsetUtil.US_ASCII));
-
-            final RequestUriPartial uriPartial = (RequestUriPartial) nextPartial(buffer, 6);
-
-            assertEquals("Decoder must decode valid URIs", expectedUri, uriPartial.getRequestUri());
-        }
-    }
-
     public static class WhenDecodingRequestHttpVersion extends HttpDecoderTestPart {
 
         @Override
@@ -149,15 +62,6 @@ public class HttpRequestDecoderTest {
             super.standUp();
 
             stepDecoderTo(DecoderState.READ_VERSION);
-        }
-
-        @Test
-        public void shouldFailInvalidHttpVersions() throws Exception {
-            final ChannelBuffer buffer = copiedBuffer("XTTP/1.1\r\n".getBytes(CharsetUtil.US_ASCII));
-
-            final HttpErrorPartial versionPartial = (HttpErrorPartial) nextPartial(buffer, 1);
-
-            assertEquals("Decoder must decode valid request HTTP versions", HttpStatusCode.BAD_REQUEST, versionPartial.getStatusCode());
         }
 
         @Test
@@ -171,6 +75,27 @@ public class HttpRequestDecoderTest {
         }
     }
 
+    public static class WhenDecodingResponseStatusCodes extends HttpDecoderTestPart {
+
+        @Override
+        public void standUp() throws Exception {
+            super.standUp();
+
+            stepDecoderTo(DecoderState.READ_STATUS_CODE);
+        }
+
+        @Test
+        public void shouldDecodeValidHttpVersions() throws Exception {
+            final HttpStatusCode expectedCode = HttpStatusCode.OK;
+            final ChannelBuffer buffer = copiedBuffer((expectedCode.intValue() + " ").getBytes(CharsetUtil.US_ASCII));
+
+            final StatusCodePartial statusCodePartial = (StatusCodePartial) nextPartial(buffer, 4);
+
+            assertEquals("Decoder must decode valid request HTTP versions", expectedCode, statusCodePartial.getStatusCode());
+        }
+    }
+
+    @Ignore
     public static class WhenDecodingRequestHeader extends HttpDecoderTestPart {
 
         @Override
@@ -223,7 +148,7 @@ public class HttpRequestDecoderTest {
         }
     }
 
-    public static class WhenDecodingRequestContent extends HttpDecoderTestPart {
+    public static class WhenDecodingResponseContent extends HttpDecoderTestPart {
 
         @Override
         public void standUp() throws Exception {

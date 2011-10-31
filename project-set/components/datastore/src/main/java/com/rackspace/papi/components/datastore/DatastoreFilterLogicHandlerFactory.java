@@ -96,7 +96,7 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
     
    @Override
    protected DatastoreFilterLogicHandler buildHandler() {
-      return new DatastoreFilterLogicHandler(datastoreService, clusterView.copy(), lastLocalAddr, hashRingDatastore);
+      return new DatastoreFilterLogicHandler(datastoreService, clusterView, lastLocalAddr, hashRingDatastore);
    }
     
 

@@ -1,8 +1,7 @@
 package com.rackspace.papi.commons.util.http;
 
 /**
- * This class is an enumeration of HttpStatusCodes that we use.  This was created as an
- * alternative to constants in HttpServletResponse interface.
+ * This class is an enumeration of HTTP response status codes
  */
 public enum HttpStatusCode {
 
