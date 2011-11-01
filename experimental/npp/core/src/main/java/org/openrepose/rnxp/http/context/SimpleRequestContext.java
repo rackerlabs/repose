@@ -56,8 +56,8 @@ public class SimpleRequestContext implements RequestContext {
     }
 
     @Override
-    public void responseConnected(UpdatableHttpServletResponse response) {
-        this.response.setResponseDelegate(response);
+    public void responseConnected(UpdatableHttpServletResponse newResponse) {
+        response.setResponseDelegate(newResponse);
     }
 
     @Override

@@ -13,11 +13,11 @@ import org.openrepose.rnxp.decoder.partial.ContentMessagePartial;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
 import org.openrepose.rnxp.http.io.control.HttpMessageUpdateController;
 import org.openrepose.rnxp.http.proxy.ClientPipelineFactory;
-import org.openrepose.rnxp.http.proxy.ConnectionFuture;
 import org.openrepose.rnxp.http.proxy.NettyOriginConnectionFuture;
 import org.openrepose.rnxp.http.proxy.InboundOutboundCoordinator;
 import org.openrepose.rnxp.http.proxy.OriginChannelFactory;
 import org.openrepose.rnxp.http.proxy.OriginConnectionFuture;
+import org.openrepose.rnxp.http.proxy.StreamController;
 import org.openrepose.rnxp.netty.valve.ChannelReadValve;
 import org.openrepose.rnxp.netty.valve.ChannelValve;
 import org.slf4j.Logger;
@@ -32,13 +32,16 @@ public class HttpRequestHandler extends SimpleChannelUpstreamHandler {
     private static final Logger LOG = LoggerFactory.getLogger(HttpRequestHandler.class);
     
     private final OriginChannelFactory proxyChannelFactory;
+    private final StreamController streamController;
+            
     private RequestContext requestContext;
     private InboundOutboundCoordinator coordinator;
     private ChannelValve inboundReadValve;
     private HttpMessageUpdateController updateController;
 
-    public HttpRequestHandler(PowerProxy powerProxyInstance, OriginChannelFactory proxyChannelFactory) {
+    public HttpRequestHandler(PowerProxy powerProxyInstance, OriginChannelFactory proxyChannelFactory, StreamController streamController) {
         this.proxyChannelFactory = proxyChannelFactory;
+        this.streamController = streamController;
     }
 
     @Override
@@ -53,25 +56,17 @@ public class HttpRequestHandler extends SimpleChannelUpstreamHandler {
         coordinator = new InboundOutboundCoordinator();
         
         // Default coordination happens with the request channel in the case where we don't route to the origin
-        coordinator.setInboundChannel(channel);
-        coordinator.setOutboundChannel(channel);
+        coordinator.setInboundChannel(channel, streamController);
+        coordinator.setOutboundChannel(channel, streamController);
         
-        final ConnectionFuture proxyConnectionFuture = new ConnectionFuture() {
-
-            @Override
-            public void connected(Channel channel) {
-                coordinator.setOutboundChannel(channel);
-            }
-        };
-
-        final OriginConnectionFuture streamController = new NettyOriginConnectionFuture(
-                new ClientPipelineFactory(requestContext, proxyConnectionFuture), proxyChannelFactory);
+        final OriginConnectionFuture originConnectionFuture = new NettyOriginConnectionFuture(
+                new ClientPipelineFactory(requestContext, coordinator), proxyChannelFactory);
 
         // Set up our update controller for Request < -- > Channel communication
         updateController = new BlockingUpdateController(inboundReadValve);
 
         // Let's kick off the worker thread
-        requestContext.startRequest(updateController, streamController);
+        requestContext.startRequest(updateController, originConnectionFuture);
     }
 
     @Override

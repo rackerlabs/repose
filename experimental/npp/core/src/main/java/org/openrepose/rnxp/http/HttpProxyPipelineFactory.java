@@ -3,8 +3,8 @@ package org.openrepose.rnxp.http;
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
-import org.jboss.netty.handler.codec.http.HttpRequestDecoder;
 import org.openrepose.rnxp.PowerProxy;
+import org.openrepose.rnxp.decoder.HttpRequestDecoder;
 import org.openrepose.rnxp.http.proxy.OriginChannelFactory;
 
 /**
@@ -23,8 +23,10 @@ public class HttpProxyPipelineFactory implements ChannelPipelineFactory {
 
     @Override
     public ChannelPipeline getPipeline() throws Exception {
+        final HttpRequestDecoder decoder = new HttpRequestDecoder();
+        
         return Channels.pipeline(
-                new HttpRequestDecoder(),
-                new HttpRequestHandler(powerProxy, proxyRemoteFactory));
+                decoder,
+                new HttpRequestHandler(powerProxy, proxyRemoteFactory, decoder.getStreamController()));
     }
 }
