@@ -1,0 +1,258 @@
+<!--*- nxml -*-->
+<xproc-config xmlns="http://xmlcalabash.com/ns/configuration"
+	      xmlns:p="http://www.w3.org/ns/xproc"
+	      xmlns:cx="http://xmlcalabash.com/ns/extensions"
+	      xmlns:cxf="http://xmlcalabash.com/ns/extensions/fileutils"
+	      xmlns:cxo="http://xmlcalabash.com/ns/extensions/osutils"
+	      xmlns:cxu="http://xmlcalabash.com/ns/extensions/xmlunit">
+
+<implementation type="p:add-attribute"
+		class-name="com.xmlcalabash.library.AddAttribute"/>
+
+<implementation type="p:add-xml-base"
+		class-name="com.xmlcalabash.library.AddXmlBase"/>
+
+<implementation type="p:compare"
+		class-name="com.xmlcalabash.library.Compare"/>
+
+<implementation type="p:count"
+		class-name="com.xmlcalabash.library.Count"/>
+
+<implementation type="p:delete"
+		class-name="com.xmlcalabash.library.Delete"/>
+
+<implementation type="p:directory-list"
+		class-name="com.xmlcalabash.library.DirectoryList"/>
+
+<implementation type="p:error"
+		class-name="com.xmlcalabash.library.Error"/>
+
+<implementation type="p:escape-markup"
+		class-name="com.xmlcalabash.library.EscapeMarkup"/>
+
+<implementation type="p:exec"
+		class-name="com.xmlcalabash.library.Exec"/>
+
+<implementation type="p:http-request"
+		class-name="com.xmlcalabash.library.HttpRequest"/>
+
+<implementation type="p:identity"
+		class-name="com.xmlcalabash.library.Identity"/>
+
+<implementation type="p:filter"
+		class-name="com.xmlcalabash.library.Filter"/>
+
+<implementation type="p:hash"
+		class-name="com.xmlcalabash.library.Hash"/>
+
+<implementation type="p:uuid"
+		class-name="com.xmlcalabash.library.UUID"/>
+
+<implementation type="p:insert"
+		class-name="com.xmlcalabash.library.Insert"/>
+
+<implementation type="p:label-elements"
+		class-name="com.xmlcalabash.library.LabelElements"/>
+
+<implementation type="p:load"
+		class-name="com.xmlcalabash.library.Load"/>
+
+<implementation type="p:make-absolute-uris"
+		class-name="com.xmlcalabash.library.MakeAbsoluteURIs"/>
+
+<implementation type="p:namespace-rename"
+		class-name="com.xmlcalabash.library.NamespaceRename"/>
+
+<implementation type="p:pack"
+		class-name="com.xmlcalabash.library.Pack"/>
+
+<implementation type="p:parameters"
+		class-name="com.xmlcalabash.library.Parameters"/>
+
+<implementation type="p:rename"
+		class-name="com.xmlcalabash.library.Rename"/>
+
+<implementation type="p:replace"
+		class-name="com.xmlcalabash.library.Replace"/>
+
+<implementation type="p:serialize"
+		class-name="com.xmlcalabash.library.Serialize"/>
+
+<implementation type="p:set-attributes"
+		class-name="com.xmlcalabash.library.SetAttributes"/>
+
+<implementation type="p:sink"
+		class-name="com.xmlcalabash.library.Sink"/>
+
+<implementation type="p:split-sequence"
+		class-name="com.xmlcalabash.library.SplitSequence"/>
+
+<implementation type="p:store"
+		class-name="com.xmlcalabash.library.Store"/>
+
+<implementation type="p:string-replace"
+		class-name="com.xmlcalabash.library.StringReplace"/>
+
+<implementation type="p:unescape-markup"
+		class-name="com.xmlcalabash.library.UnescapeMarkup"/>
+
+<implementation type="p:unwrap"
+		class-name="com.xmlcalabash.library.Unwrap"/>
+
+<implementation type="p:validate-with-relax-ng"
+		class-name="com.xmlcalabash.library.ValidateJing"/>
+
+<implementation type="p:validate-with-xml-schema"
+		class-name="com.xmlcalabash.library.ValidateWithXSD"/>
+
+<implementation type="p:validate-with-schematron"
+		class-name="com.xmlcalabash.library.ValidateWithSCH"/>
+
+<implementation type="p:wrap"
+		class-name="com.xmlcalabash.library.Wrap"/>
+
+<implementation type="p:wrap-sequence"
+		class-name="com.xmlcalabash.library.WrapSequence"/>
+
+<implementation type="p:www-form-urldecode"
+		class-name="com.xmlcalabash.library.WWWFormURLDecode"/>
+
+<implementation type="p:www-form-urlencode"
+		class-name="com.xmlcalabash.library.WWWFormURLEncode"/>
+
+<implementation type="p:xquery"
+		class-name="com.xmlcalabash.library.XQuery"/>
+
+<implementation type="p:xslt"
+		class-name="com.xmlcalabash.library.XSLT"/>
+
+<implementation type="p:xsl-formatter"
+		class-name="com.xmlcalabash.library.XSLFormatter"/>
+
+<implementation type="p:xinclude"
+		class-name="com.xmlcalabash.library.XInclude"/>
+
+<implementation type="p:in-scope-names"
+		class-name="com.xmlcalabash.library.InScopeNames"/>
+
+<implementation type="p:template"
+		class-name="com.xmlcalabash.library.Template"/>
+
+<!-- DEPRECATED -->
+<implementation type="p:document-template"
+		class-name="com.xmlcalabash.library.Template"/>
+
+<!-- my own -->
+
+<implementation type="cx:collection-manager"
+		class-name="com.xmlcalabash.extensions.CollectionManager"/>
+
+<implementation type="cx:delta-xml"
+		class-name="com.xmlcalabash.extensions.DeltaXML"/>
+
+<implementation type="cx:eval"
+		class-name="com.xmlcalabash.extensions.Eval"/>
+
+<implementation type="cx:message"
+		class-name="com.xmlcalabash.extensions.Message"/>
+
+<implementation type="cx:pretty-print"
+		class-name="com.xmlcalabash.extensions.PrettyPrint"/>
+
+<implementation type="cx:metadata-extractor"
+		class-name="com.xmlcalabash.extensions.MetadataExtractor"/>
+
+<implementation type="cx:namespace-delete"
+		class-name="com.xmlcalabash.extensions.NamespaceDelete"/>
+
+<implementation type="cx:nvdl"
+		class-name="com.xmlcalabash.extensions.NVDL"/>
+
+<implementation type="pxp:nvdl"
+                xmlns:pxp="http://exproc.org/proposed/steps"
+		class-name="com.xmlcalabash.extensions.NVDL"/>
+
+<implementation type="cx:unzip"
+		class-name="com.xmlcalabash.extensions.Unzip"/>
+
+<implementation type="pxp:unzip"
+                xmlns:pxp="http://exproc.org/proposed/steps"
+		class-name="com.xmlcalabash.extensions.Unzip"/>
+
+<implementation type="cx:uri-info"
+		class-name="com.xmlcalabash.extensions.UriInfo"/>
+
+<implementation type="cx:zip"
+		class-name="com.xmlcalabash.extensions.Zip"/>
+
+<implementation type="pxp:zip"
+                xmlns:pxp="http://exproc.org/proposed/steps"
+		class-name="com.xmlcalabash.extensions.Zip"/>
+
+<implementation xmlns:ml="http://xmlcalabash.com/ns/extensions/marklogic"
+		type="ml:adhoc-query"
+		class-name="com.xmlcalabash.extensions.marklogic.XCCAdhocQuery"/>
+
+<implementation xmlns:ml="http://xmlcalabash.com/ns/extensions/marklogic"
+		type="ml:invoke-module"
+		class-name="com.xmlcalabash.extensions.marklogic.XCCInvokeModule"/>
+
+<implementation xmlns:ml="http://xmlcalabash.com/ns/extensions/marklogic"
+		type="ml:insert-document"
+		class-name="com.xmlcalabash.extensions.marklogic.XCCInsertDocument"/>
+
+<implementation type="cx:get-cookies"
+		class-name="com.xmlcalabash.extensions.GetCookies"/>
+
+<implementation type="cx:set-cookies"
+		class-name="com.xmlcalabash.extensions.SetCookies"/>
+
+<implementation type="cx:css-formatter"
+		class-name="com.xmlcalabash.extensions.CssFormatter"/>
+
+<!-- Fileutils -->
+
+<implementation type="cxf:info"
+		class-name="com.xmlcalabash.extensions.fileutils.Info"/>
+
+<implementation type="cxf:delete"
+		class-name="com.xmlcalabash.extensions.fileutils.Delete"/>
+
+<implementation type="cxf:mkdir"
+		class-name="com.xmlcalabash.extensions.fileutils.Mkdir"/>
+
+<implementation type="cxf:copy"
+		class-name="com.xmlcalabash.extensions.fileutils.Copy"/>
+
+<implementation type="cxf:move"
+		class-name="com.xmlcalabash.extensions.fileutils.Move"/>
+
+<implementation type="cxf:touch"
+		class-name="com.xmlcalabash.extensions.fileutils.Touch"/>
+
+<implementation type="cxf:tempfile"
+		class-name="com.xmlcalabash.extensions.fileutils.Tempfile"/>
+
+<implementation type="cxf:head"
+		class-name="com.xmlcalabash.extensions.fileutils.Head"/>
+
+<implementation type="cxf:tail"
+		class-name="com.xmlcalabash.extensions.fileutils.Tail"/>
+
+<!-- OSutils -->
+
+<implementation type="cxo:info"
+		class-name="com.xmlcalabash.extensions.osutils.Info"/>
+
+<implementation type="cxo:cwd"
+		class-name="com.xmlcalabash.extensions.osutils.Cwd"/>
+
+<implementation type="cxo:env"
+		class-name="com.xmlcalabash.extensions.osutils.Env"/>
+
+<!-- XMLUnit -->
+
+<implementation type="cxu:compare"
+		class-name="com.xmlcalabash.extensions.xmlunit.Compare" />
+
+</xproc-config>
