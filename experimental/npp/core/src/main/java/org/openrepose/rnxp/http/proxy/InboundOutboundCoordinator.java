@@ -1,7 +1,9 @@
 package org.openrepose.rnxp.http.proxy;
 
+import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
+import org.jboss.netty.channel.ChannelFutureListener;
 
 /**
  *
@@ -9,13 +11,26 @@ import org.jboss.netty.channel.ChannelFuture;
  */
 public class InboundOutboundCoordinator {
 
+    private final ChannelFutureListener writeNotifier;
     private StreamController inboundStream, outboundStream;
     private ChannelUpdater inboundUpdate, outboundUpdate;
     private Channel inboundChannel, outboundChannel;
 
     public InboundOutboundCoordinator() {
+        writeNotifier = new ChannelFutureListener() {
+
+            @Override
+            public void operationComplete(ChannelFuture cf) throws Exception {
+                notifyWriter();
+            }
+        };
     }
 
+    public synchronized void close() {
+        inboundChannel.close();
+        outboundChannel.close();
+    }
+    
     public synchronized boolean streamable() {
         return inboundChannel != null && outboundChannel != null;
     }
@@ -48,11 +63,21 @@ public class InboundOutboundCoordinator {
         }
     }
 
-    public void writeOutbound(Object o) {
+    public synchronized void write(ChannelBuffer buffer) throws InterruptedException {
+        outboundChannel.write(buffer).addListener(writeNotifier);
+
+        wait();
+    }
+
+    private synchronized void notifyWriter() {
+        notify();
+    }
+
+    public void streamOutbound(Object o) {
         write(outboundChannel, inboundChannel, outboundUpdate, o);
     }
 
-    public void writeInbound(Object o) {
+    public void streamInbound(Object o) {
         write(inboundChannel, outboundChannel, inboundUpdate, o);
     }
 

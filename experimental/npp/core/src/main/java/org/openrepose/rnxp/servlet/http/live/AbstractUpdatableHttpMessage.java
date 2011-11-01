@@ -6,11 +6,11 @@ import java.io.OutputStream;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
 import org.openrepose.rnxp.http.io.control.HttpMessageSerializer;
 import org.openrepose.rnxp.http.io.control.UpdatableHttpMessage;
-import org.openrepose.rnxp.http.io.control.HttpMessageUpdateController;
+import org.openrepose.rnxp.http.io.control.HttpConnectionController;
 import org.openrepose.rnxp.http.HttpMessageComponent;
 import org.openrepose.rnxp.http.HttpMessageComponentOrder;
 import org.openrepose.rnxp.servlet.http.ServletInputStream;
-import org.openrepose.rnxp.servlet.http.ServletOutputStream;
+import org.openrepose.rnxp.servlet.http.ServletOutputStreamWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,11 +23,11 @@ public abstract class AbstractUpdatableHttpMessage implements UpdatableHttpMessa
     private static final Logger LOG = LoggerFactory.getLogger(AbstractUpdatableHttpMessage.class);
     private InputStream connectedInputStream;
     private OutputStream connectedOutputStream;
-    private HttpMessageUpdateController updateController;
+    private HttpConnectionController updateController;
     private HttpMessageComponent lastReadComponent;
 
     // TODO:Review - Visibility
-    protected void setUpdateController(HttpMessageUpdateController updateController) {
+    protected void setUpdateController(HttpConnectionController updateController) {
         this.updateController = updateController;
 
         lastReadComponent = HttpMessageComponent.MESSAGE_START;
@@ -41,12 +41,12 @@ public abstract class AbstractUpdatableHttpMessage implements UpdatableHttpMessa
         return new ServletInputStream(connectedInputStream);
     }
 
-    public synchronized ServletOutputStream getOutputStream() throws IOException {
+    public synchronized ServletOutputStreamWrapper getOutputStream() throws IOException {
         if (connectedOutputStream == null) {
             connectedOutputStream = updateController.connectOutputStream();
         }
         
-        return new ServletOutputStream(connectedOutputStream);
+        return new ServletOutputStreamWrapper(connectedOutputStream);
     }
 
     @Override

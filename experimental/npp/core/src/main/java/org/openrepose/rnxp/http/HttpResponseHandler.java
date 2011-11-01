@@ -9,8 +9,8 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.openrepose.rnxp.decoder.partial.ContentMessagePartial;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
 import org.openrepose.rnxp.http.context.RequestContext;
-import org.openrepose.rnxp.http.io.control.BlockingUpdateController;
-import org.openrepose.rnxp.http.io.control.HttpMessageUpdateController;
+import org.openrepose.rnxp.http.io.control.BlockingConnectionController;
+import org.openrepose.rnxp.http.io.control.HttpConnectionController;
 import org.openrepose.rnxp.http.proxy.InboundOutboundCoordinator;
 import org.openrepose.rnxp.http.proxy.StreamController;
 import org.openrepose.rnxp.netty.valve.ChannelReadValve;
@@ -29,7 +29,7 @@ public class HttpResponseHandler extends SimpleChannelUpstreamHandler {
     private final RequestContext requestContext;
     private final InboundOutboundCoordinator coordinator;
     private final StreamController streamController;
-    private HttpMessageUpdateController updateController;
+    private HttpConnectionController updateController;
     private ChannelValve readValve;
 
     public HttpResponseHandler(RequestContext requestContext, InboundOutboundCoordinator coordinator, StreamController streamController) {
@@ -50,7 +50,7 @@ public class HttpResponseHandler extends SimpleChannelUpstreamHandler {
         coordinator.setOutboundChannel(channel, streamController);
 
         // Set up our update controller for Response < -- > Channel communication
-        updateController = new BlockingUpdateController(readValve);
+        updateController = new BlockingConnectionController(coordinator, readValve);
 
         // Build the request object and make it aware of the update controller
         final LiveHttpServletResponse liveHttpServletResponse = new LiveHttpServletResponse(updateController);
@@ -64,7 +64,7 @@ public class HttpResponseHandler extends SimpleChannelUpstreamHandler {
         final HttpMessagePartial partial = (HttpMessagePartial) e.getMessage();
 
         if (HttpMessageComponent.UNPARSED_STREAMABLE == partial.getHttpMessageComponent()) {
-            coordinator.writeInbound(((ContentMessagePartial) partial).getData());
+            coordinator.streamInbound(((ContentMessagePartial) partial).getData());
         }
 
         if (!partial.isError()) {

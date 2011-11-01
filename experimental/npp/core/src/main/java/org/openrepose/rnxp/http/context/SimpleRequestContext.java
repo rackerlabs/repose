@@ -1,8 +1,9 @@
 package org.openrepose.rnxp.http.context;
 
+import java.io.IOException;
 import javax.servlet.ServletException;
 import org.openrepose.rnxp.PowerProxy;
-import org.openrepose.rnxp.http.io.control.HttpMessageUpdateController;
+import org.openrepose.rnxp.http.io.control.HttpConnectionController;
 import org.openrepose.rnxp.http.proxy.OriginConnectionFuture;
 import org.openrepose.rnxp.servlet.http.live.LiveHttpServletRequest;
 import org.openrepose.rnxp.servlet.http.SwitchableHttpServletResponse;
@@ -18,7 +19,6 @@ import org.slf4j.LoggerFactory;
 public class SimpleRequestContext implements RequestContext {
 
     private static final Logger LOG = LoggerFactory.getLogger(SimpleRequestContext.class);
-    
     private final PowerProxy powerProxyInstance;
     private final SwitchableHttpServletResponse response;
     private Thread workerThread;
@@ -30,24 +30,25 @@ public class SimpleRequestContext implements RequestContext {
     }
 
     @Override
-    public void startRequest(final HttpMessageUpdateController updateController, final OriginConnectionFuture streamController) {
+    public void startRequest(final HttpConnectionController updateController, final OriginConnectionFuture streamController) {
         final LiveHttpServletRequest request = new LiveHttpServletRequest(updateController, streamController);
-        
+
         workerThread = new Thread(new Runnable() {
 
             @Override
             public void run() {
-                response.setResponseDelegate(new DetachedHttpServletResponse());
-                
+                response.setResponseDelegate(new DetachedHttpServletResponse(updateController));
+
                 try {
                     powerProxyInstance.handleRequest(request, response);
-                    
-                    if (!response.isCommitted()) {
-                        // TODO: Flush response
-                        response.getResponseDelegate();
-                    }
+                    response.flushBuffer();
                 } catch (ServletException se) {
                     LOG.error(se.getMessage(), se);
+                } catch (IOException ioe) {
+                    LOG.error(ioe.getMessage(), ioe);
+                } finally {
+                    updateController.close();
+                    LOG.info("Requesting handling finished");
                 }
             }
         });

@@ -8,11 +8,13 @@ import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
  *
  * @author zinic
  */
-public interface HttpMessageUpdateController {
+public interface HttpConnectionController {
 
     void blockingRequestUpdate(UpdatableHttpMessage updatableMessage) throws InterruptedException;
     
     void applyPartial(HttpMessagePartial partial);
+    
+    void close();
     
     InputStream connectInputStream();
     

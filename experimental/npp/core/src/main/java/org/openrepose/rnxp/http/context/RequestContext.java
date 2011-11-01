@@ -1,6 +1,6 @@
 package org.openrepose.rnxp.http.context;
 
-import org.openrepose.rnxp.http.io.control.HttpMessageUpdateController;
+import org.openrepose.rnxp.http.io.control.HttpConnectionController;
 import org.openrepose.rnxp.http.proxy.OriginConnectionFuture;
 import org.openrepose.rnxp.servlet.http.live.UpdatableHttpServletResponse;
 
@@ -10,7 +10,7 @@ import org.openrepose.rnxp.servlet.http.live.UpdatableHttpServletResponse;
  */
 public interface RequestContext {
 
-    void startRequest(HttpMessageUpdateController updateController, OriginConnectionFuture streamController);
+    void startRequest(HttpConnectionController updateController, OriginConnectionFuture streamController);
     
     void responseConnected(UpdatableHttpServletResponse response);
     

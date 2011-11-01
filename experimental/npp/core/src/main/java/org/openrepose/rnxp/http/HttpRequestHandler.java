@@ -2,7 +2,7 @@ package org.openrepose.rnxp.http;
 
 import org.jboss.netty.channel.Channel;
 import org.openrepose.rnxp.http.context.RequestContext;
-import org.openrepose.rnxp.http.io.control.BlockingUpdateController;
+import org.openrepose.rnxp.http.io.control.BlockingConnectionController;
 import org.jboss.netty.channel.ChannelStateEvent;
 import org.openrepose.rnxp.PowerProxy;
 import org.jboss.netty.channel.ChannelHandlerContext;
@@ -12,7 +12,7 @@ import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.openrepose.rnxp.decoder.partial.ContentMessagePartial;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
 import org.openrepose.rnxp.http.context.SimpleRequestContext;
-import org.openrepose.rnxp.http.io.control.HttpMessageUpdateController;
+import org.openrepose.rnxp.http.io.control.HttpConnectionController;
 import org.openrepose.rnxp.http.proxy.ClientPipelineFactory;
 import org.openrepose.rnxp.http.proxy.NettyOriginConnectionFuture;
 import org.openrepose.rnxp.http.proxy.InboundOutboundCoordinator;
@@ -38,7 +38,7 @@ public class HttpRequestHandler extends SimpleChannelUpstreamHandler {
     
     private InboundOutboundCoordinator coordinator;
     private ChannelValve inboundReadValve;
-    private HttpMessageUpdateController updateController;
+    private HttpConnectionController updateController;
 
     public HttpRequestHandler(PowerProxy powerProxyInstance, OriginChannelFactory proxyChannelFactory, StreamController streamController) {
         requestContext = new SimpleRequestContext(powerProxyInstance);
@@ -66,7 +66,7 @@ public class HttpRequestHandler extends SimpleChannelUpstreamHandler {
                 new ClientPipelineFactory(requestContext, coordinator), proxyChannelFactory);
 
         // Set up our update controller for Request < -- > Channel communication
-        updateController = new BlockingUpdateController(inboundReadValve);
+        updateController = new BlockingConnectionController(coordinator, inboundReadValve);
 
         // Let's kick off the worker thread
         requestContext.startRequest(updateController, originConnectionFuture);
@@ -77,7 +77,7 @@ public class HttpRequestHandler extends SimpleChannelUpstreamHandler {
         final HttpMessagePartial partial = (HttpMessagePartial) e.getMessage();
 
         if (HttpMessageComponent.UNPARSED_STREAMABLE == partial.getHttpMessageComponent()) {
-            coordinator.writeOutbound(((ContentMessagePartial)partial).getData());
+            coordinator.streamOutbound(((ContentMessagePartial)partial).getData());
         }
 
         if (!partial.isError()) {

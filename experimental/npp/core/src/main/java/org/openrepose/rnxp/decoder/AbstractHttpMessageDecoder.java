@@ -165,7 +165,7 @@ public abstract class AbstractHttpMessageDecoder extends FrameDecoder implements
             if (readUntilCaseSensitive(socketBuffer, expectedControlCharacter) != null) {
                 messagePartial = new HttpVersionPartial(HttpMessageComponent.HTTP_VERSION, flushToString(currentBuffer));
                 stateCounter = 0;
-                
+
                 // Skip the next bit of whitespace
                 skipFollowingBytes(1);
             }
@@ -197,18 +197,21 @@ public abstract class AbstractHttpMessageDecoder extends FrameDecoder implements
                         headerProcessor.finishedReadingHeaders();
                     }
 
-                    // Skip the expected LF
-                    skipFollowingBytes(1);
-
                     switch (getContentPresence()) {
                         case CHUNKED:
                             messagePartial = new EmptyHttpMessagePartial(HttpMessageComponent.CONTENT_START);
                             setDecoderState(READ_CHUNK_LENGTH);
+
+                            // Skip the expected LF
+                            skipFollowingBytes(1);
                             break;
 
                         case STATIC_LENGTH:
                             messagePartial = new EmptyHttpMessagePartial(HttpMessageComponent.CONTENT_START);
                             setDecoderState(READ_CONTENT);
+
+                            // Skip the expected LF
+                            skipFollowingBytes(1);
                             break;
 
                         default:

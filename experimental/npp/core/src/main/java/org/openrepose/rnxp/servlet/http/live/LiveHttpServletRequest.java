@@ -16,7 +16,7 @@ import org.openrepose.rnxp.decoder.partial.impl.RequestMethodPartial;
 import org.openrepose.rnxp.decoder.partial.impl.RequestUriPartial;
 import org.openrepose.rnxp.http.HttpMethod;
 import org.openrepose.rnxp.http.io.control.HttpMessageSerializer;
-import org.openrepose.rnxp.http.io.control.HttpMessageUpdateController;
+import org.openrepose.rnxp.http.io.control.HttpConnectionController;
 import org.openrepose.rnxp.http.proxy.OriginConnectionFuture;
 
 /**
@@ -32,7 +32,7 @@ public class LiveHttpServletRequest extends AbstractHttpServletRequest implement
     private String requestUri;
     private String httpVersion;
 
-    public LiveHttpServletRequest(HttpMessageUpdateController updateController, OriginConnectionFuture streamController) {
+    public LiveHttpServletRequest(HttpConnectionController updateController, OriginConnectionFuture streamController) {
         this.streamController = streamController;
 
         headerMap = new HashMap<String, List<String>>();

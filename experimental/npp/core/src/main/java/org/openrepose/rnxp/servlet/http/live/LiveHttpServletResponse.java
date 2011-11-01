@@ -4,7 +4,7 @@ import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
 import org.openrepose.rnxp.decoder.partial.impl.StatusCodePartial;
 import org.openrepose.rnxp.http.io.control.HttpMessageSerializer;
-import org.openrepose.rnxp.http.io.control.HttpMessageUpdateController;
+import org.openrepose.rnxp.http.io.control.HttpConnectionController;
 import org.openrepose.rnxp.http.proxy.OriginConnectionFuture;
 
 /**
@@ -15,7 +15,7 @@ public class LiveHttpServletResponse extends AbstractHttpServletResponse impleme
 
     private HttpStatusCode statusCode;
 
-    public LiveHttpServletResponse(HttpMessageUpdateController updateController) {
+    public LiveHttpServletResponse(HttpConnectionController updateController) {
         setUpdateController(updateController);
     }
 

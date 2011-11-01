@@ -7,6 +7,7 @@ import org.jboss.netty.buffer.ChannelBufferInputStream;
 import org.jboss.netty.buffer.ChannelBufferOutputStream;
 import org.openrepose.rnxp.decoder.partial.ContentMessagePartial;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
+import org.openrepose.rnxp.http.proxy.InboundOutboundCoordinator;
 import org.openrepose.rnxp.netty.valve.ChannelValve;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,14 +20,16 @@ import static org.jboss.netty.buffer.ChannelBuffers.*;
  *
  * @author zinic
  */
-public class BlockingUpdateController implements HttpMessageUpdateController {
+public class BlockingConnectionController implements HttpConnectionController {
 
-    private static final Logger LOG = LoggerFactory.getLogger(BlockingUpdateController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(BlockingConnectionController.class);
+    private final InboundOutboundCoordinator coordinator;
     private final ChannelValve inboundReadValve;
     private ChannelBuffer contentBuffer;
     private UpdatableHttpMessage updatableMessage;
 
-    public BlockingUpdateController(ChannelValve inboundReadValve) {
+    public BlockingConnectionController(InboundOutboundCoordinator coordinator, ChannelValve inboundReadValve) {
+        this.coordinator = coordinator;
         this.inboundReadValve = inboundReadValve;
     }
 
@@ -46,6 +49,11 @@ public class BlockingUpdateController implements HttpMessageUpdateController {
         }
     }
 
+    @Override
+    public void close() {
+        coordinator.close();
+    }
+
     private void initBuffer() {
         if (contentBuffer != null) {
             throw new IllegalStateException("A stream has already been bound to this update controller");
@@ -53,23 +61,19 @@ public class BlockingUpdateController implements HttpMessageUpdateController {
 
         contentBuffer = buffer(512);
     }
-    
+
     public void commit() {
         shutInboundValve();
     }
 
     @Override
     public OutputStream connectOutputStream() {
-        initBuffer();
-        openInboundValve();
-
-        return new ChannelBufferOutputStream(contentBuffer);
+        return new BlockingOutputStream(coordinator);
     }
 
     @Override
     public InputStream connectInputStream() {
         initBuffer();
-        openInboundValve();
 
         return new ChannelBufferInputStream(contentBuffer);
     }
@@ -96,10 +100,12 @@ public class BlockingUpdateController implements HttpMessageUpdateController {
                 break;
 
             // We update for content start and message to let the request know that header parsing is done
-            case CONTENT_START:
-            case MESSAGE_END_NO_CONTENT:
-                shutInboundValve();
-                notifyUpdateWait();
+//            case CONTENT_START:
+//            case MESSAGE_END_NO_CONTENT:
+//                break;
+                
+            case HEADER:
+                // Don't update until all headers are read - dump this state
                 break;
 
             default:

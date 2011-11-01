@@ -14,6 +14,8 @@ public class HttpMessageComponentOrder {
         HttpMessageComponent.HEADER,
         HttpMessageComponent.CONTENT_START,
         HttpMessageComponent.CONTENT,
+        HttpMessageComponent.MESSAGE_END_NO_CONTENT,
+        HttpMessageComponent.MESSAGE_END_WITH_CONTENT
     });
     
     public static HttpMessageComponentOrder requestOrderInstance() {
