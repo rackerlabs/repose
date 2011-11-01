@@ -36,4 +36,26 @@ public enum MediaType {
     public String toString() {
         return mimeType;
     }
+
+    public String getType() {
+        String type = "";
+        String[] parts = this.mimeType.split("/");
+
+        if (parts.length > 1) {
+            type = parts[0];
+        }
+
+        return type;
+    }
+
+    public String getSubtype() {
+        String subtype = "";
+        String[] parts = this.mimeType.split("/");
+
+        if (parts.length > 1) {
+            subtype = parts[1];    
+        }
+
+        return subtype;
+    }
 }

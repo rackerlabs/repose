@@ -28,15 +28,6 @@
             <xs:element name="request" type="httpx:Request" />
             <xs:element name="response" type="httpx:Response" />
         </xs:choice>
-       
-        <xs:attribute name="fidelity" type="httpx:MessageFidelity" use="required">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
     </xs:complexType>
     
     <xs:complexType name="Message" abstract="true">
@@ -83,6 +74,15 @@
                 </xs:attribute>
         
                 <xs:attribute name="uri" type="xs:anyURI" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="fidelity" type="httpx:MessageFidelity" use="required">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>
@@ -144,6 +144,15 @@
                 </xs:attribute>
         
                 <xs:attribute name="reason" type="httpx:ReasonPhrase" use="required">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
+                <xs:attribute name="fidelity" type="httpx:MessageFidelity" use="required">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>

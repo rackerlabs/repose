@@ -1,14 +1,19 @@
 package com.rackspace.papi.components.translation;
 
+import com.rackspace.httpx.MessageDetail;
+import com.rackspace.httpx.RequestHeadDetail;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.components.translation.preprocessor.InputStreamProcessor;
 import com.rackspace.papi.components.translation.preprocessor.cdata.UnknownContentStreamProcessor;
 import com.rackspace.papi.components.translation.preprocessor.json.JsonxStreamProcessor;
 import com.rackspace.papi.components.translation.util.BodyContentMediaType;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.transform.sax.SAXTransformerFactory;
+
+import com.rackspace.papi.httpx.parser.RequestParserFactory;
 import org.codehaus.jackson.JsonFactory;
 
 public class TranslationRequestPreProcessor {
@@ -21,7 +26,12 @@ public class TranslationRequestPreProcessor {
    }
 
    public InputStream getHeaderStream() throws IOException {
-      return new ByteArrayInputStream(request.toXml().getBytes());
+      // TODO: Need to get fidelities from config and pass them into the parser
+      List<MessageDetail> requestFidelity = new ArrayList<MessageDetail>();
+      List<RequestHeadDetail > headFidelity =  new ArrayList<RequestHeadDetail>();
+      List<String> headersFidelity = new ArrayList<String>();
+
+      return RequestParserFactory.newInstance().parse(request, requestFidelity, headFidelity, headersFidelity);
    }
 
    public InputStream getBodyStream() throws IOException {
