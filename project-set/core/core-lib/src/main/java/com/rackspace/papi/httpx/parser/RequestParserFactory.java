@@ -1,4 +1,4 @@
-package com.rackspace.papi.commons.util.servlet.http.parser;
+package com.rackspace.papi.httpx.parser;
 
 /**
  * @author fran
@@ -6,6 +6,6 @@ package com.rackspace.papi.commons.util.servlet.http.parser;
 public class RequestParserFactory {
     
     public static Parser newInstance() {
-        return new HttpRequestParser();    
+        return new HttpRequestParser();
     }
 }

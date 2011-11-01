@@ -2,10 +2,9 @@
 
 <httpx xmlns='http://docs.rackspace.com/httpx/v1.0' 
     xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-    xsi:schemaLocation='http://docs.rackspace.com/httpx/v1.0 ./httpx.xsd'
-    fidelity="HEAD BODY">
+    xsi:schemaLocation='http://docs.rackspace.com/httpx/v1.0 ./httpx.xsd'>
 
-    <response version="HTTP/1.1" status-code="413" reason="Request Entity Too Large">
+    <response version="HTTP/1.1" status-code="413" reason="Request Entity Too Large" fidelity="HEAD BODY">
         <head fidelity="HEADERS">
             <headers fidelity="*">
                 <header name="Retry-After">
