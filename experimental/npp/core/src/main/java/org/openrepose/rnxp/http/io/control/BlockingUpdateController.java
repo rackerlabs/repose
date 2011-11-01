@@ -137,6 +137,6 @@ public class BlockingUpdateController implements HttpMessageUpdateController {
 
     private synchronized void notifyUpdateWait() {
         // Allow the worker thread to continue
-        notify();
+        notifyAll();
     }
 }

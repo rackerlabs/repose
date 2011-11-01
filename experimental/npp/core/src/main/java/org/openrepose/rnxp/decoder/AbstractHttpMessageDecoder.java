@@ -164,7 +164,8 @@ public abstract class AbstractHttpMessageDecoder extends FrameDecoder implements
         } else {
             if (readUntilCaseSensitive(socketBuffer, expectedControlCharacter) != null) {
                 messagePartial = new HttpVersionPartial(HttpMessageComponent.HTTP_VERSION, flushToString(currentBuffer));
-
+                stateCounter = 0;
+                
                 // Skip the next bit of whitespace
                 skipFollowingBytes(1);
             }

@@ -11,7 +11,7 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import org.openrepose.rnxp.http.proxy.OriginConnectionFuture;
-import org.openrepose.rnxp.servlet.http.LiveHttpServletRequest;
+import org.openrepose.rnxp.servlet.http.live.LiveHttpServletRequest;
 
 /**
  *

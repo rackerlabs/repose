@@ -1,4 +1,4 @@
-package org.openrepose.rnxp.servlet.http;
+package org.openrepose.rnxp.servlet.http.live;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,6 +9,8 @@ import org.openrepose.rnxp.http.io.control.UpdatableHttpMessage;
 import org.openrepose.rnxp.http.io.control.HttpMessageUpdateController;
 import org.openrepose.rnxp.http.HttpMessageComponent;
 import org.openrepose.rnxp.http.HttpMessageComponentOrder;
+import org.openrepose.rnxp.servlet.http.ServletInputStream;
+import org.openrepose.rnxp.servlet.http.ServletOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,8 +65,8 @@ public abstract class AbstractUpdatableHttpMessage implements UpdatableHttpMessa
         }
     }
 
-    protected synchronized void loadComponent(HttpMessageComponent component, HttpMessageComponentOrder order) {
-        while (order.isEqualOrAfter(component, lastReadComponent())) {
+    protected void loadComponent(HttpMessageComponent component, HttpMessageComponentOrder order) {
+        while (order.isBefore(lastReadComponent(), component)) {
             LOG.info("Requesting more HTTP request data up to " + component + ". Current position: " + lastReadComponent());
 
             requestUpdate();

@@ -1,9 +1,10 @@
-package org.openrepose.rnxp.servlet.http;
+package org.openrepose.rnxp.servlet.http.detached;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Locale;
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
@@ -11,7 +12,12 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author zinic
  */
-public abstract class AbstractHttpServletResponse extends AbstractUpdatableHttpMessage implements HttpServletResponse {
+public abstract class AbstractHttpServletResponse implements HttpServletResponse {
+
+    @Override
+    public ServletOutputStream getOutputStream() throws IOException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
     @Override
     public void addCookie(Cookie cookie) {

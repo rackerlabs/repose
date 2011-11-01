@@ -1,6 +1,5 @@
-package org.openrepose.rnxp.servlet.http;
+package org.openrepose.rnxp.servlet.http.live;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -8,7 +7,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.ServletInputStream;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
 import org.openrepose.rnxp.decoder.partial.impl.HeaderPartial;
 import org.openrepose.rnxp.decoder.partial.impl.HttpVersionPartial;

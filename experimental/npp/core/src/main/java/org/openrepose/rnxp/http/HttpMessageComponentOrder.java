@@ -22,16 +22,27 @@ public class HttpMessageComponentOrder {
     
     private final HttpMessageComponent[] order;
 
-    public HttpMessageComponentOrder(HttpMessageComponent[] order) {
+    private HttpMessageComponentOrder(HttpMessageComponent[] order) {
         this.order = order;
     }
 
     public boolean isBefore(HttpMessageComponent first, HttpMessageComponent second) {
         return indexOf(first) < indexOf(second);
     }
+    
+    public boolean isAfter(HttpMessageComponent first, HttpMessageComponent second) {
+        return indexOf(first) > indexOf(second);
+    }
 
-    public boolean isEqualOrAfter(HttpMessageComponent first, HttpMessageComponent second) {
-        return indexOf(first) >= indexOf(second);
+    public boolean isEqual(HttpMessageComponent first, HttpMessageComponent second) {
+        return indexOf(first) == indexOf(second);
+    }
+
+    public boolean isAfterOrEqual(HttpMessageComponent first, HttpMessageComponent second) {
+        final int firstIndex = indexOf(first);
+        final int secondIndex = indexOf(second);
+        
+        return firstIndex >= secondIndex;
     }
     
     public int indexOf(HttpMessageComponent component) {

@@ -15,7 +15,7 @@ import org.openrepose.rnxp.http.proxy.InboundOutboundCoordinator;
 import org.openrepose.rnxp.http.proxy.StreamController;
 import org.openrepose.rnxp.netty.valve.ChannelReadValve;
 import org.openrepose.rnxp.netty.valve.ChannelValve;
-import org.openrepose.rnxp.servlet.http.LiveHttpServletResponse;
+import org.openrepose.rnxp.servlet.http.live.LiveHttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

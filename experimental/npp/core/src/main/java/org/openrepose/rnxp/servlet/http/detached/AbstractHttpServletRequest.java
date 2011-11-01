@@ -1,4 +1,4 @@
-package org.openrepose.rnxp.servlet.http;
+package org.openrepose.rnxp.servlet.http.detached;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,7 +25,7 @@ import javax.servlet.http.Part;
  *
  * @author zinic
  */
-public abstract class AbstractHttpServletRequest extends AbstractUpdatableHttpMessage implements HttpServletRequest {
+public abstract class AbstractHttpServletRequest implements HttpServletRequest {
 
     @Override
     public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {

@@ -7,13 +7,11 @@ import org.openrepose.rnxp.http.proxy.OriginConnectionFuture;
  *
  * @author zinic
  */
-public interface UpdatableHttpMessage {
+public interface UpdatableHttpMessage extends CommittableHttpMessage {
 
     void applyPartial(HttpMessagePartial partial);
 
     void requestUpdate();
-
-    HttpMessageSerializer commitMessage();
 
     OriginConnectionFuture getOriginConnectionFuture();
 }

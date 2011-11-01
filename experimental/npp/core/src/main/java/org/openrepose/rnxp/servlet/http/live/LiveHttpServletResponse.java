@@ -1,4 +1,4 @@
-package org.openrepose.rnxp.servlet.http;
+package org.openrepose.rnxp.servlet.http.live;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;

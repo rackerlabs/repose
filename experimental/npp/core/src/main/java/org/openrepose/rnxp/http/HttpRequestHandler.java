@@ -11,6 +11,7 @@ import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
 import org.openrepose.rnxp.decoder.partial.ContentMessagePartial;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
+import org.openrepose.rnxp.http.context.SimpleRequestContext;
 import org.openrepose.rnxp.http.io.control.HttpMessageUpdateController;
 import org.openrepose.rnxp.http.proxy.ClientPipelineFactory;
 import org.openrepose.rnxp.http.proxy.NettyOriginConnectionFuture;
@@ -33,13 +34,15 @@ public class HttpRequestHandler extends SimpleChannelUpstreamHandler {
     
     private final OriginChannelFactory proxyChannelFactory;
     private final StreamController streamController;
-            
-    private RequestContext requestContext;
+    private final RequestContext requestContext;
+    
     private InboundOutboundCoordinator coordinator;
     private ChannelValve inboundReadValve;
     private HttpMessageUpdateController updateController;
 
     public HttpRequestHandler(PowerProxy powerProxyInstance, OriginChannelFactory proxyChannelFactory, StreamController streamController) {
+        requestContext = new SimpleRequestContext(powerProxyInstance);
+        
         this.proxyChannelFactory = proxyChannelFactory;
         this.streamController = streamController;
     }

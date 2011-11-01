@@ -4,10 +4,10 @@ import javax.servlet.ServletException;
 import org.openrepose.rnxp.PowerProxy;
 import org.openrepose.rnxp.http.io.control.HttpMessageUpdateController;
 import org.openrepose.rnxp.http.proxy.OriginConnectionFuture;
-import org.openrepose.rnxp.servlet.http.LiveHttpServletRequest;
-import org.openrepose.rnxp.servlet.http.LiveHttpServletResponse;
+import org.openrepose.rnxp.servlet.http.live.LiveHttpServletRequest;
 import org.openrepose.rnxp.servlet.http.SwitchableHttpServletResponse;
-import org.openrepose.rnxp.servlet.http.UpdatableHttpServletResponse;
+import org.openrepose.rnxp.servlet.http.detached.DetachedHttpServletResponse;
+import org.openrepose.rnxp.servlet.http.live.UpdatableHttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,13 +37,14 @@ public class SimpleRequestContext implements RequestContext {
 
             @Override
             public void run() {
-                response.setResponseDelegate(new LiveHttpServletResponse(null));
+                response.setResponseDelegate(new DetachedHttpServletResponse());
                 
                 try {
                     powerProxyInstance.handleRequest(request, response);
                     
                     if (!response.isCommitted()) {
                         // TODO: Flush response
+                        response.getResponseDelegate();
                     }
                 } catch (ServletException se) {
                     LOG.error(se.getMessage(), se);

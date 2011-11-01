@@ -142,10 +142,6 @@ public class HttpRequestDecoder extends AbstractHttpMessageDecoder {
         if (readChar != null) {
             // TODO: Validate
             final RequestUriPartial uriPartial = new RequestUriPartial(HttpMessageComponent.REQUEST_URI, flushCharacterBuffer());
-
-            // Skip the next bit of whitespace
-            skipFollowingBytes(1);
-
             setDecoderState(READ_VERSION);
 
             return uriPartial;

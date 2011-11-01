@@ -33,6 +33,6 @@ public class NXPDaemon {
         bootstrap.setOption("child.tcpNoDelay", true);
         bootstrap.setOption("child.keepAlive", true);
 
-        bootstrap.bind(new InetSocketAddress(8080));
+        bootstrap.bind(new InetSocketAddress(8081));
     }
 }
