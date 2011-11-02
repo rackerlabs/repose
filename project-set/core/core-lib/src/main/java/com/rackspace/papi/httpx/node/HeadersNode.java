@@ -18,8 +18,6 @@ public class HeadersNode extends ObjectFactoryUser implements Node {
     private final List<String> fidelity;
     private final AcceptFidelityValidator fidelityValidator;
 
-
-
     public HeadersNode(HttpServletRequest request, RequestHead requestHead, List<String> fidelity) {
         this.request = request;
         this.requestHead = requestHead;
