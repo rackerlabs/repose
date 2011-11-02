@@ -102,7 +102,7 @@ public final class MediaRangeParser {
 
     private static MediaRange createMediaRange(String mediaTypeString, Map<String, String> acceptParameters) {
         MediaRange mediaRange = new MediaRange(MediaType.UNKNOWN);
-        MediaType mediaType = MediaType.fromMediaTypeString(mediaTypeString);
+        MediaType mediaType = MediaType.fromMediaTypeString(mediaTypeString.trim());
 
         if (MediaType.UNKNOWN.equals(mediaType)) {
             if (mediaTypeString.contains("xml") || acceptParameters.values().contains("xml")) {

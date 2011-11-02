@@ -118,7 +118,10 @@ name mappings are listed below.
 
 
 Repose Documentation
-Documentation is included with the source files and may be built...
+Documentation is included with the source files and may be built with the maven command:  
+    mvn clean install
+This will build the documentation pdfs in the generated "target/docbkx/" directory.
+
 
 
 Notes Regarding Licensing

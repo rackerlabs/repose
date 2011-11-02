@@ -1,7 +1,5 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
-import com.rackspace.papi.commons.util.servlet.http.parser.RequestParserFactory;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import java.util.Collections;
@@ -118,10 +116,5 @@ public final class MutableHttpServletRequest extends HttpServletRequestWrapper {
         final List<String> headerValues = headers.get(headerName);
 
         return (headerValues != null && headerValues.size() > 0) ? headerValues.get(0) : null;
-    }
-
-    // TODO: Adjust this as we move forward
-    public String toXml() {
-        return RequestParserFactory.newInstance().parse(this);
-    }
+    }   
 }

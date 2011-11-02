@@ -13,6 +13,7 @@ import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
 import org.openrepose.rnxp.decoder.partial.impl.HttpVersionPartial;
 import org.openrepose.rnxp.http.HttpMessageComponent;
 
+import org.openrepose.rnxp.http.proxy.StreamController;
 import static org.openrepose.rnxp.decoder.AsciiCharacterConstant.*;
 import static org.jboss.netty.buffer.ChannelBuffers.*;
 
@@ -22,11 +23,13 @@ import static org.openrepose.rnxp.decoder.DecoderState.*;
  *
  * @author zinic
  */
-public abstract class AbstractHttpMessageDecoder extends FrameDecoder {
+public abstract class AbstractHttpMessageDecoder extends FrameDecoder implements StreamableDecoder {
 
     private static final char[] HTTP_VERSION_HEAD = new char[]{'H', 'T', 'T', 'P', '/'};
     private static final boolean CASE_SENSITIVE = Boolean.TRUE, CASE_INSENSITIVE = Boolean.FALSE;
-    public static final short DEFAULT_BUFFER_SIZE = 8192;
+    private static final short DEFAULT_BUFFER_SIZE = 8192;
+    private final StreamController streamController;
+    private volatile boolean setStream;
     private ChannelBuffer characterBufferAside, currentBuffer;
     private ContentPresence contentPresence;
     private int decoderSkipLength, stateCounter;
@@ -34,6 +37,21 @@ public abstract class AbstractHttpMessageDecoder extends FrameDecoder {
     private DecoderState state;
 
     public AbstractHttpMessageDecoder() {
+        streamController = new StreamController() {
+
+            @Override
+            public boolean isStreaming() {
+                return getDecoderState() == DecoderState.STREAM;
+            }
+
+            @Override
+            public void stream() {
+                if (getDecoderState() != DecoderState.STREAM) {
+                    setStream = true;
+                }
+            }
+        };
+
         init();
     }
 
@@ -65,7 +83,18 @@ public abstract class AbstractHttpMessageDecoder extends FrameDecoder {
             return null;
         }
 
-        return httpDecode(chc, chnl, cb);
+        if (setStream) {
+            setStream = false;
+            setDecoderState(STREAM);
+        }
+
+        switch (getDecoderState()) {
+            case STREAM:
+                return new ContentMessagePartial(HttpMessageComponent.UNPARSED_STREAMABLE, cb.readByte());
+
+            default:
+                return httpDecode(chc, chnl, cb);
+        }
     }
 
     protected abstract Object httpDecode(ChannelHandlerContext chc, Channel chnl, ChannelBuffer cb) throws Exception;
@@ -76,8 +105,10 @@ public abstract class AbstractHttpMessageDecoder extends FrameDecoder {
         return currentBuffer.readable();
     }
 
+    /**
+     * Backing buffer swap
+     */
     public void flipBuffers() {
-        // Buffer pointer swap
         final ChannelBuffer temp = characterBufferAside;
         characterBufferAside = currentBuffer;
         currentBuffer = temp != null ? temp : buffer(8192);
@@ -133,6 +164,7 @@ public abstract class AbstractHttpMessageDecoder extends FrameDecoder {
         } else {
             if (readUntilCaseSensitive(socketBuffer, expectedControlCharacter) != null) {
                 messagePartial = new HttpVersionPartial(HttpMessageComponent.HTTP_VERSION, flushToString(currentBuffer));
+                stateCounter = 0;
 
                 // Skip the next bit of whitespace
                 skipFollowingBytes(1);
@@ -164,19 +196,22 @@ public abstract class AbstractHttpMessageDecoder extends FrameDecoder {
                     if (headerProcessor != null) {
                         headerProcessor.finishedReadingHeaders();
                     }
-                    
-                    // Skip the expected LF
-                    skipFollowingBytes(1);
 
                     switch (getContentPresence()) {
                         case CHUNKED:
                             messagePartial = new EmptyHttpMessagePartial(HttpMessageComponent.CONTENT_START);
                             setDecoderState(READ_CHUNK_LENGTH);
+
+                            // Skip the expected LF
+                            skipFollowingBytes(1);
                             break;
 
                         case STATIC_LENGTH:
                             messagePartial = new EmptyHttpMessagePartial(HttpMessageComponent.CONTENT_START);
                             setDecoderState(READ_CONTENT);
+
+                            // Skip the expected LF
+                            skipFollowingBytes(1);
                             break;
 
                         default:
@@ -324,5 +359,10 @@ public abstract class AbstractHttpMessageDecoder extends FrameDecoder {
 
     public void skipFollowingBytes(int decoderSkipLength) {
         this.decoderSkipLength = decoderSkipLength;
+    }
+
+    @Override
+    public StreamController getStreamController() {
+        return streamController;
     }
 }

@@ -7,6 +7,7 @@ package org.openrepose.rnxp.http.proxy;
 import java.net.InetSocketAddress;
 import java.util.concurrent.Executors;
 import org.jboss.netty.bootstrap.ClientBootstrap;
+import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.socket.ClientSocketChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioClientSocketChannelFactory;
 
@@ -24,7 +25,7 @@ public class OriginChannelFactory {
                 Executors.newCachedThreadPool());
     }
     
-    public void connect(InetSocketAddress addr, ClientPipelineFactory pipelineFactory) {
+    public void connect(InetSocketAddress addr, ChannelPipelineFactory pipelineFactory) {
         final ClientBootstrap clientBootstrap = new ClientBootstrap(cf);
         clientBootstrap.setPipelineFactory(pipelineFactory);
         clientBootstrap.connect(addr);
