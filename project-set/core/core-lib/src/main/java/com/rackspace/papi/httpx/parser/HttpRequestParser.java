@@ -3,9 +3,7 @@ package com.rackspace.papi.httpx.parser;
 import com.rackspace.httpx.*;
 import com.rackspace.papi.httpx.ObjectFactoryUser;
 import com.rackspace.papi.httpx.marshaller.MarshallerFactory;
-import com.rackspace.papi.httpx.node.HeadNode;
-import com.rackspace.papi.httpx.node.HeadersNode;
-import com.rackspace.papi.httpx.node.UriDetailNode;
+import com.rackspace.papi.httpx.node.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.InputStream;
@@ -21,44 +19,37 @@ public class HttpRequestParser extends ObjectFactoryUser implements Parser<HttpS
 
         MessageEnvelope messageEnvelope = objectFactory.createMessageEnvelope();
         Request messageRequest = objectFactory.createRequest();
-        Method method = Method.fromValue(request.getMethod());
 
-        messageRequest.setMethod(method);
-        messageRequest.setUri(request.getRequestURI());
-        messageRequest.setVersion(request.getProtocol());
+        ComplexNode requestNode = new RequestNode(request, messageRequest, requestFidelity);
 
-        // TODO: Play with the algorithm here to clean up nesting
-        for (MessageDetail detail : requestFidelity) {
-            messageRequest.getFidelity().add(detail);
-
-            switch (detail) {
-
-                case HEAD: {
+        for (MessageDetail fidelity : requestFidelity) {
+            switch (fidelity) {
+                case HEAD:
                     RequestHead head = objectFactory.createRequestHead();
-                    HeadNode headNode = new HeadNode(messageRequest, head, headFidelity);
-                    
+                    ComplexNode headNode = new HeadNode(messageRequest, head, headFidelity);
+
                     for (RequestHeadDetail headDetail : headFidelity) {
 
                         switch (headDetail) {
-                            case URI_DETAIL: {
+                            case URI_DETAIL:
                                 headNode.addChildNode(new UriDetailNode(request.getParameterMap(), head));
-                            }
-                            break;
-                            case HEADERS: {
+                                break;
+                            case HEADERS:
                                 headNode.addChildNode(new HeadersNode(request, head, headersFidelity));
-                            }
                         }
                     }
 
-                    headNode.build();
-                }
-                break;
-                default:
-                    Body body = objectFactory.createBody();                 
-                    messageRequest.setBody(body);
+                    requestNode.addChildNode(headNode);
+                    break;
             }
         }
 
+        // Unless we want the parser to merge streams, for now we always set an empty body tag
+        Body body = objectFactory.createBody();
+        messageRequest.setBody(body);
+
+        requestNode.build();
+        
         messageEnvelope.setRequest(messageRequest);
 
         return MarshallerFactory.newInstance().marshall(messageEnvelope);

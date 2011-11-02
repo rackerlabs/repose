@@ -10,7 +10,7 @@ import java.util.List;
 /**
  * @author fran
  */
-public class HeadNode implements Node {
+public class HeadNode implements ComplexNode {
     private final List<Node> nodes = new ArrayList<Node>();
     private final Request messageRequest;
     private final RequestHead head;
