@@ -732,7 +732,7 @@
         </CSVDataSet>
         <hashTree/>
         <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="End points" enabled="true">
-          <stringProp name="filename">../../../tmp/hosts.csv</stringProp>
+          <stringProp name="filename">/tmp/hosts.csv</stringProp>
           <stringProp name="fileEncoding"></stringProp>
           <stringProp name="variableNames">endpoint</stringProp>
           <stringProp name="delimiter"></stringProp>
