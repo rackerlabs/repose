@@ -114,7 +114,7 @@
         </UserParameters>
         <hashTree/>
         <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="hosts info" enabled="true">
-          <stringProp name="filename">../../../tmp/hosts.csv</stringProp>
+          <stringProp name="filename">/tmp/hosts.csv</stringProp>
           <stringProp name="fileEncoding"></stringProp>
           <stringProp name="variableNames">endpoint</stringProp>
           <stringProp name="delimiter"></stringProp>
