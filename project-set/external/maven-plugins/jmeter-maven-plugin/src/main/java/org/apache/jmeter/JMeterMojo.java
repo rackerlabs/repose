@@ -182,10 +182,16 @@ public class JMeterMojo extends AbstractMojo {
      * 
      * @parameter
      */
+    private String dateFormat;
+    /**
+     * Sets whether or not to append a date format to the end of the result file.
+     * 
+     * @parameter date format string. default is no string eg: test-file.jmx -> test-file.html
+     * /
+     */
     private boolean jmeterPreserveIncludeOrder;
     private File workDir;
     private File jmeterLog;
-    private DateFormat fmt = new SimpleDateFormat("yyMMdd");
     private static final String JMETER_ARTIFACT_GROUPID = "org.apache.jmeter";
 
     /**
@@ -259,7 +265,7 @@ public class JMeterMojo extends AbstractMojo {
     private InputStream getXslt() throws IOException {
         if (this.reportXslt == null) {
             //if we are using the default report, also copy the images out.
-            
+
             // TODO:Reimplement - Reimplement this without IOUtils
 //            IOUtils.copy(Thread.currentThread().getContextClassLoader().getResourceAsStream("reports/collapse.jpg"), new FileOutputStream(this.reportDir.getPath() + File.separator + "collapse.jpg"));
 //            IOUtils.copy(Thread.currentThread().getContextClassLoader().getResourceAsStream("reports/expand.jpg"), new FileOutputStream(this.reportDir.getPath() + File.separator + "expand.jpg"));
@@ -334,11 +340,11 @@ public class JMeterMojo extends AbstractMojo {
                 final OutputStream out = new FileOutputStream(propertyFile);
                 final InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(propertyFile.getName());
                 int value = -1;
-                
+
                 while ((value = in.read()) != -1) {
                     out.write(value);
                 }
-                
+
                 out.close();
                 in.close();
             } catch (IOException e) {
@@ -360,11 +366,17 @@ public class JMeterMojo extends AbstractMojo {
     private String executeTest(File test) throws MojoExecutionException {
 
         Runtime rt = Runtime.getRuntime();
-        String resultFileName = reportDir.toString() + File.separator + test.getName().substring(0, test.getName().lastIndexOf(".")) + "-" + fmt.format(new Date()) + ".xml";
+        String resultFileName;
+        if (dateFormat != null) {
+            getLog().info("Date Format chosen: " + dateFormat);
+            DateFormat formt = new SimpleDateFormat(dateFormat);
+            resultFileName = reportDir.toString() + File.separator + test.getName().substring(0, test.getName().lastIndexOf(".")) + "-" + formt.format(new Date()) + ".xml";
+        } else {
+            resultFileName = reportDir.toString() + File.separator + test.getName().substring(0, test.getName().lastIndexOf(".")) + ".xml";
+        }
         //delete file if it already exists
         new File(resultFileName).delete();
         ArrayList<String> commandlist = new ArrayList<String>();
-        getLog().info(String.valueOf(test.exists()));
         String jmeterCmd = jmeterhome + "/bin/jmeter", arg1 = "-n", arg2 = "-t", arg3 = test.getAbsolutePath();
         String arg4 = "-l", arg5 = resultFileName, arg6 = "-j", arg7 = jmeterLog.getAbsolutePath();
 
