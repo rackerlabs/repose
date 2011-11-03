@@ -10,14 +10,14 @@ import java.util.List;
 /**
  * @author fran
  */
-public class HeadNode implements ComplexNode {
+public class RequestHeadNode implements ComplexNode {
     private final List<Node> nodes = new ArrayList<Node>();
-    private final Request messageRequest;
+    private final Request message;
     private final RequestHead head;
     private final List<RequestHeadDetail> headFidelity;
 
-    public HeadNode(Request messageRequest, RequestHead head, List<RequestHeadDetail> headFidelity) {
-        this.messageRequest = messageRequest;
+    public RequestHeadNode(Request message, RequestHead head, List<RequestHeadDetail> headFidelity) {
+        this.message = message;
         this.head = head;
         this.headFidelity = headFidelity;
     }
@@ -30,7 +30,7 @@ public class HeadNode implements ComplexNode {
             node.build();
         }
 
-        messageRequest.setHead(head);
+        message.setHead(head);
     }
 
     public void addChildNode(Node node) {

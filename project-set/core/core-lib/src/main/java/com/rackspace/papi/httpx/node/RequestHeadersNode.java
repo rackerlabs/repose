@@ -12,24 +12,24 @@ import java.util.List;
 /**
  * @author fran
  */
-public class HeadersNode extends ObjectFactoryUser implements Node {
+public class RequestHeadersNode extends ObjectFactoryUser implements Node {
     private final HttpServletRequest request;
     private final RequestHead requestHead;
     private final List<String> fidelity;
     private final AcceptFidelityValidator fidelityValidator;
 
-    public HeadersNode(HttpServletRequest request, RequestHead requestHead, List<String> fidelity) {
+    public RequestHeadersNode(HttpServletRequest request, RequestHead requestHead, List<String> fidelity) {
         this.request = request;
         this.requestHead = requestHead;
         this.fidelity = fidelity;
-        this.fidelityValidator = new AcceptFidelityValidator(fidelity);
+        this.fidelityValidator = new AcceptFidelityValidator(fidelity);    
     }
 
     @Override
     public void build() {
         RequestHeaders requestHeaders = objectFactory.createRequestHeaders();
 
-        requestHeaders.getFidelity().addAll(fidelity);        
+        requestHeaders.getFidelity().addAll(fidelity);
 
         if (fidelityValidator.hasValidFidelity()) {
             while (request.getHeaderNames().hasMoreElements()) {
