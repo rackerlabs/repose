@@ -1,54 +1,26 @@
 package com.rackspace.papi.components.translation;
 
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
-import com.rackspace.papi.components.translation.preprocessor.InputStreamProcessor;
-import com.rackspace.papi.components.translation.preprocessor.cdata.UnknownContentStreamProcessor;
-import com.rackspace.papi.components.translation.preprocessor.json.JsonxStreamProcessor;
-import com.rackspace.papi.components.translation.util.BodyContentMediaType;
-import java.io.ByteArrayInputStream;
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
+import com.rackspace.papi.components.translation.postprocessor.InputStreamPostProcessor;
+import com.rackspace.papi.components.translation.postprocessor.RequestStreamPostProcessor;
 import java.io.IOException;
 import java.io.InputStream;
-import javax.xml.transform.sax.SAXTransformerFactory;
-import org.codehaus.jackson.JsonFactory;
+import javax.xml.transform.Source;
 
 public class TranslationRequestPostProcessor {
 
-   private static final SAXTransformerFactory handlerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
-   private final MutableHttpServletResponse response;
+   private final MutableHttpServletRequest request;
 
-   public TranslationRequestPostProcessor(MutableHttpServletResponse response) {
-      this.response = response;
+   public TranslationRequestPostProcessor(MutableHttpServletRequest request) {
+      this.request = request;
    }
 
-
-   public InputStream getHeaderStream() throws IOException {
-      return new ByteArrayInputStream(response.toXml().getBytes());
-   }
-
-   public InputStream getBodyStream() throws IOException {
-      final String contentType = response.getContentType();
-      final InputStream result;
-
-      switch (BodyContentMediaType.getMediaType(contentType)) {
-         case XML:
-            result = response.getBufferedOutputAsInputStream();
-            break;
-         case JSON:
-            result = getJsonProcessor().process(response.getBufferedOutputAsInputStream());
-            break;
-         default:
-            result = getUnknownContentProcessor().process(response.getBufferedOutputAsInputStream());
-      }
-
-      return result;
-   }
-
-   protected InputStreamProcessor getJsonProcessor() {
-      return new JsonxStreamProcessor(new JsonFactory(), handlerFactory);
+   public InputStream getBodyStream(Source node) throws IOException {
+      return getPostProcessor().process(node);
    }
    
-   protected InputStreamProcessor getUnknownContentProcessor() {
-      return new UnknownContentStreamProcessor();
+   protected InputStreamPostProcessor getPostProcessor() {
+      return new RequestStreamPostProcessor();
    }
    
 }
