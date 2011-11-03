@@ -38,11 +38,13 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
     }
     
     protected InputStream getHttpxStream(MutableHttpServletRequest request) {
+      // TODO: get these from translation config 
       List<MessageDetail> requestFidelity = new ArrayList<MessageDetail>();
       List<RequestHeadDetail > headFidelity =  new ArrayList<RequestHeadDetail>();
       List<String> headersFidelity = new ArrayList<String>();
+      boolean jsonPreprocessing = false;
 
-      return RequestParserFactory.newInstance().parse(request, requestFidelity, headFidelity, headersFidelity);
+      return RequestParserFactory.newInstance().parse(request, requestFidelity, headFidelity, headersFidelity, jsonPreprocessing);
     }
     
     public FilterDirector handleRequest(final MutableHttpServletRequest request, MutableHttpServletResponse response) throws IOException {
