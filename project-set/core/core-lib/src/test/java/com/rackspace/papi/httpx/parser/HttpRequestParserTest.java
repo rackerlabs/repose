@@ -7,7 +7,6 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,9 +21,8 @@ import static org.mockito.Mockito.*;
  * @author fran
  */
 @RunWith(Enclosed.class)
-
 public class HttpRequestParserTest {
-    public static class WhenParsingRequest {
+    public static class WhenParsing {
         private HttpServletRequest mockedRequest;
         Map<String, String[]> parameterMap = new HashMap<String, String[]>();
         private Enumeration<String> headerNames;
@@ -70,13 +68,7 @@ public class HttpRequestParserTest {
             when(mockedRequest.getMethod()).thenReturn("POST");
             when(mockedRequest.getRequestURI()).thenReturn("/request");
             when(mockedRequest.getProtocol()).thenReturn("HTTP/1.1");
-            when(mockedRequest.getInputStream()).thenReturn(new ServletInputStream() {
-                @Override
-                public int read() throws IOException {
-                    return 0;  
-                }
-            });
-
+            
             messageFidelity.add(MessageDetail.BODY);
             messageFidelity.add(MessageDetail.HEAD);
 
@@ -90,9 +82,9 @@ public class HttpRequestParserTest {
         @Test
         public void shouldParse() throws IOException {
             Parser parser = RequestParserFactory.newInstance();
-            String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><httpx xmlns=\"http://docs.rackspace.com/httpx/v1.0\"><request fidelity=\"BODY HEAD\" uri=\"/request\" method=\"POST\" version=\"HTTP/1.1\"><head fidelity=\"URI_DETAIL HEADERS\"><uri-detail fragment=\"where do we get this?\"><query-parameter name=\"A\"><value>1</value><value>2</value></query-parameter><query-parameter name=\"B\"><value>1</value><value>2</value></query-parameter></uri-detail><headers fidelity=\"* ACCEPT\"><accept><media-range subtype=\"xml\" type=\"application\"><parameter value=\"0.8\" name=\" q\"/></media-range><media-range subtype=\"html\" type=\"text\"/></accept><header name=\"Content-Type\"><value>application/xml</value></header></headers></head><body/></request></httpx>";
+            String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><httpx xmlns=\"http://docs.rackspace.com/httpx/v1.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://docs.rackspace.com/httpx/v1.0 ./httpx.xsd\"><request fidelity=\"BODY HEAD\" uri=\"/request\" method=\"POST\" version=\"HTTP/1.1\"><head fidelity=\"URI_DETAIL HEADERS\"><uri-detail fragment=\"where do we get this?\"><query-parameter name=\"A\"><value>1</value><value>2</value></query-parameter><query-parameter name=\"B\"><value>1</value><value>2</value></query-parameter></uri-detail><headers fidelity=\"* ACCEPT\"><accept><media-range subtype=\"xml\" type=\"application\"><parameter value=\"0.8\" name=\" q\"/></media-range><media-range subtype=\"html\" type=\"text\"/></accept><header name=\"Content-Type\"><value>application/xml</value></header></headers></head><body/></request></httpx>";
 
-            InputStream actual = parser.parse(mockedRequest, messageFidelity, headFidelity, headersFidelity);
+            InputStream actual = parser.parse(mockedRequest, messageFidelity, headFidelity, headersFidelity, false);
 
             InputStreamReader reader = new InputStreamReader(actual);
             BufferedReader bufReader = new BufferedReader(reader);
@@ -100,5 +92,4 @@ public class HttpRequestParserTest {
             assertEquals(expected, bufReader.readLine());
         }
     }
-    
 }

@@ -25,15 +25,6 @@ public class TranslationRequestPreProcessor {
       this.request = request;
    }
 
-   public InputStream getHeaderStream() throws IOException {
-      // TODO: Need to get fidelities from config and pass them into the parser
-      List<MessageDetail> requestFidelity = new ArrayList<MessageDetail>();
-      List<RequestHeadDetail > headFidelity =  new ArrayList<RequestHeadDetail>();
-      List<String> headersFidelity = new ArrayList<String>();
-
-      return RequestParserFactory.newInstance().parse(request, requestFidelity, headFidelity, headersFidelity);
-   }
-
    public InputStream getBodyStream() throws IOException {
       final String contentType = request.getContentType();
       final InputStream result;
