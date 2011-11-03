@@ -1,29 +1,30 @@
 package com.rackspace.papi.components.translation;
 
+
+import com.rackspace.httpx.MessageDetail;
+import com.rackspace.httpx.RequestHeadDetail;
 import com.rackspace.papi.commons.util.pooling.Pool;
 import com.rackspace.papi.commons.util.pooling.ResourceContext;
 import com.rackspace.papi.commons.util.pooling.ResourceContextException;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
-import com.rackspace.papi.components.translation.config.RequestTranslationProcess;
+import com.rackspace.papi.components.translation.config.TranslationConfig;
+import com.rackspace.papi.components.translation.xproc.Pipeline;
+import com.rackspace.papi.components.translation.xproc.PipelineInput;
 import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-
-import com.rackspace.papi.components.translation.config.TranslationConfig;
-import com.rackspace.papi.components.translation.xproc.Pipeline;
-import com.rackspace.papi.components.translation.xproc.PipelineInput;
-import com.rackspace.papi.components.translation.xproc.calabash.CalabashPipelineBuilder;
+import com.rackspace.papi.httpx.parser.RequestParserFactory;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import net.sf.saxon.s9api.XdmNode;
+import javax.xml.transform.Source;
 import org.xml.sax.InputSource;
 
 public class TranslationHandler extends AbstractFilterLogicHandler {
     private final static String SOURCE_PORT = "source";
-    private final static String BODY_PARAM = "bodySource";
     private final static String PRIMARY_RESULT = "result";
     private final TranslationConfig config;
     private Pool<Pipeline> requestPipelinePool;
@@ -33,74 +34,46 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
         this.config = translationConfig;
     }
     
-    public List<PipelineInput> getRequestPipelineInputs(final TranslationRequestPreProcessor requestProcessor) throws IOException {
-        // TODO: do we need to check fidelity here to decide whether or not to pass in body stream?
-        List<PipelineInput> inputs = new ArrayList<PipelineInput>() {{
-           add(PipelineInput.port(SOURCE_PORT, new InputSource(requestProcessor.getHeaderStream())));
-           add(PipelineInput.parameter(BODY_PARAM, requestProcessor.getBodyStream()));
-        }};
-        
-        return inputs;
-    }
+    protected InputStream getHttpxStream(MutableHttpServletRequest request) {
+      List<MessageDetail> requestFidelity = new ArrayList<MessageDetail>();
+      List<RequestHeadDetail > headFidelity =  new ArrayList<RequestHeadDetail>();
+      List<String> headersFidelity = new ArrayList<String>();
 
-    public FilterDirector handleRequest(MutableHttpServletRequest request, MutableHttpServletResponse response) throws IOException {
+      return RequestParserFactory.newInstance().parse(request, requestFidelity, headFidelity, headersFidelity);
+    }
+    
+    public FilterDirector handleRequest(final MutableHttpServletRequest request, MutableHttpServletResponse response) throws IOException {
         FilterDirector filterDirector = new FilterDirectorImpl();
 
-        final List<PipelineInput> inputs = getRequestPipelineInputs(new TranslationRequestPreProcessor(request));
         
-        List<XdmNode> nodes = requestPipelinePool.use(new ResourceContext<Pipeline, List<XdmNode>>() {
+        List<Source> nodes = requestPipelinePool.use(new ResourceContext<Pipeline, List<Source>>() {
             @Override
-            public List<XdmNode> perform(Pipeline pipe) throws ResourceContextException {
-              pipe.run(inputs);
-              
-              // TODO: are we only going to worry the "result" port or will we allow other ports?
-              return pipe.getResultPort(PRIMARY_RESULT);
+            public List<Source> perform(Pipeline pipe) throws ResourceContextException {
+               // Send HTTPx as the source port.  The input stream will already
+               // contain the request body if requested via "fidelity" options
+               List<PipelineInput> inputs = new ArrayList<PipelineInput>();
+               inputs.add(PipelineInput.port(SOURCE_PORT, new InputSource(getHttpxStream(request))));
+
+               pipe.run(inputs);
+
+               return pipe.getResultPort(PRIMARY_RESULT);
             }
         });
         
 
-        for (XdmNode node: nodes) {
-           // TODO: use node to generate new request
+        final InputStream httpxStream;
+        if (!nodes.isEmpty()) {
+           // Use the first document returned on the result port
+           httpxStream = new TranslationRequestPostProcessor(request).getBodyStream(nodes.get(0));
+        } else {
+           httpxStream = null;
         }
         
-        // TODO: How do we know if we need to translate JSONx to JSON?
+        // TODO use stream to create new HTTPx request.
         
         filterDirector.setFilterAction(FilterAction.PASS);
         
         return filterDirector;
     }
     
-    public List<PipelineInput> getResponsePipelineInputs(final TranslationRequestPostProcessor responseProcessor) throws IOException {
-        List<PipelineInput> inputs = new ArrayList<PipelineInput>() {{
-           add(PipelineInput.port(SOURCE_PORT, new InputSource(responseProcessor.getHeaderStream())));
-           add(PipelineInput.parameter(BODY_PARAM, responseProcessor.getBodyStream()));
-        }};
-        
-        return inputs;
-    }
-
-    public FilterDirector handleResponse(MutableHttpServletRequest request, MutableHttpServletResponse response) throws IOException {
-        FilterDirector filterDirector = new FilterDirectorImpl();
-
-        final List<PipelineInput> inputs = getResponsePipelineInputs(new TranslationRequestPostProcessor(response));
-        
-        List<XdmNode> nodes = responsePipelinePool.use(new ResourceContext<Pipeline, List<XdmNode>>() {
-            @Override
-            public List<XdmNode> perform(Pipeline pipe) throws ResourceContextException {
-              pipe.run(inputs);
-              return pipe.getResultPort(PRIMARY_RESULT);
-            }
-        });
-        
-
-        for (XdmNode node: nodes) {
-           // TODO: use node to generate new response
-        }
-        
-        // TODO: How do we know if we need to translate JSONx to JSON?
-        
-        filterDirector.setFilterAction(FilterAction.PASS);
-        
-        return filterDirector;
-   }
 }

@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.transform.Source;
 import net.sf.saxon.s9api.QName;
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmNode;
@@ -136,13 +137,13 @@ public class CalabashPipeline implements Pipeline {
    }
    
    @Override
-   public List<XdmNode> getResultPort(String name) {
+   public List<Source> getResultPort(String name) {
       try {
          ReadablePipe pipe = pipeline.readFrom(name);
-         List<XdmNode> nodes = new ArrayList<XdmNode>();
+         List<Source> nodes = new ArrayList<Source>();
 
          while(pipe.moreDocuments()) {
-               nodes.add(pipe.read());
+               nodes.add(pipe.read().asSource());
          }
 
          return nodes;
