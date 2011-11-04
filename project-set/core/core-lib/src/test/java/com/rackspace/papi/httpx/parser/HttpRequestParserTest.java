@@ -68,6 +68,7 @@ public class HttpRequestParserTest {
             when(mockedRequest.getMethod()).thenReturn("POST");
             when(mockedRequest.getRequestURI()).thenReturn("/request");
             when(mockedRequest.getProtocol()).thenReturn("HTTP/1.1");
+            when(mockedRequest.getContentType()).thenReturn("application/xml");
             
             messageFidelity.add(MessageDetail.BODY);
             messageFidelity.add(MessageDetail.HEAD);
