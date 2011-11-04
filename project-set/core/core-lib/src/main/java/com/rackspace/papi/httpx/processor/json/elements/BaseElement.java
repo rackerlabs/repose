@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.translation.preprocessor.json.elements;
+package com.rackspace.papi.httpx.processor.json.elements;
 
 import org.xml.sax.helpers.AttributesImpl;
 

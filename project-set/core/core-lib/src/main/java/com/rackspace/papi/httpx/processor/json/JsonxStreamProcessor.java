@@ -1,14 +1,15 @@
-package com.rackspace.papi.components.translation.preprocessor.json;
+package com.rackspace.papi.httpx.processor.json;
 
 import com.rackspace.papi.commons.util.Destroyable;
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
-import com.rackspace.papi.components.translation.preprocessor.Element;
-import com.rackspace.papi.components.translation.preprocessor.InputStreamProcessor;
-import com.rackspace.papi.components.translation.preprocessor.PreProcessorException;
-import com.rackspace.papi.components.translation.preprocessor.json.elements.ElementFactory;
+//import com.rackspace.papi.components.translation.preprocessor.Element;
+//import com.rackspace.papi.components.translation.preprocessor.InputStreamProcessor;
+//import com.rackspace.papi.components.translation.preprocessor.PreProcessorException;
+import com.rackspace.papi.httpx.processor.Element;
+import com.rackspace.papi.httpx.processor.InputStreamProcessor;
+import com.rackspace.papi.httpx.processor.PreProcessorException;
+import com.rackspace.papi.httpx.processor.json.elements.ElementFactory;
 import java.io.*;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.TransformerConfigurationException;

@@ -1,8 +1,8 @@
-package com.rackspace.papi.components.translation.preprocessor.cdata;
+package com.rackspace.papi.httpx.processor.cdata;
 
 import com.rackspace.papi.commons.util.io.InputStreamMerger;
-import com.rackspace.papi.components.translation.preprocessor.InputStreamProcessor;
-import com.rackspace.papi.components.translation.preprocessor.PreProcessorException;
+import com.rackspace.papi.httpx.processor.InputStreamProcessor;
+import com.rackspace.papi.httpx.processor.PreProcessorException;
 import java.io.InputStream;
 
 public class UnknownContentStreamProcessor implements InputStreamProcessor {

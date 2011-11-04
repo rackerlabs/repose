@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.translation.preprocessor;
+package com.rackspace.papi.httpx.processor;
 
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;

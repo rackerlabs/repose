@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.translation.util;
+package com.rackspace.papi.httpx.processor.util;
 
 import java.util.regex.Pattern;
 

@@ -1,28 +1,24 @@
-package com.rackspace.papi.components.translation;
+package com.rackspace.papi.httpx.processor;
 
-import com.rackspace.httpx.MessageDetail;
-import com.rackspace.httpx.RequestHeadDetail;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import com.rackspace.papi.components.translation.preprocessor.InputStreamProcessor;
-import com.rackspace.papi.components.translation.preprocessor.cdata.UnknownContentStreamProcessor;
-import com.rackspace.papi.components.translation.preprocessor.json.JsonxStreamProcessor;
-import com.rackspace.papi.components.translation.util.BodyContentMediaType;
+import com.rackspace.papi.httpx.processor.cdata.UnknownContentStreamProcessor;
+import com.rackspace.papi.httpx.processor.json.JsonxStreamProcessor;
+import com.rackspace.papi.httpx.processor.util.BodyContentMediaType;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.xml.transform.sax.SAXTransformerFactory;
 
-import com.rackspace.papi.httpx.parser.RequestParserFactory;
 import org.codehaus.jackson.JsonFactory;
 
 public class TranslationRequestPreProcessor {
 
    private static final SAXTransformerFactory handlerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
-   private final MutableHttpServletRequest request;
+   private final HttpServletRequest request;
+   private final boolean jsonPreprocessing;
 
-   public TranslationRequestPreProcessor(MutableHttpServletRequest request) {
+   public TranslationRequestPreProcessor(HttpServletRequest request, boolean jsonPreprocessing) {
       this.request = request;
+      this.jsonPreprocessing = jsonPreprocessing;
    }
 
    public InputStream getBodyStream() throws IOException {
@@ -34,7 +30,11 @@ public class TranslationRequestPreProcessor {
             result = request.getInputStream();
             break;
          case JSON:
-            result = getJsonProcessor().process(request.getInputStream());
+            if (jsonPreprocessing) {
+                result = getJsonProcessor().process(request.getInputStream());
+            } else {
+                result = request.getInputStream();
+            }
             break;
          default:
             result = getUnknownContentProcessor().process(request.getInputStream());
