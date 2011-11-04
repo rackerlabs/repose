@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 public final class PapiBanner {
 
     private static final Logger LOG = LoggerFactory.getLogger(PapiBanner.class);
-
+    
     private PapiBanner() {
     }
 

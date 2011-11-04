@@ -11,7 +11,5 @@ public interface UpdatableHttpMessage extends CommittableHttpMessage {
 
     void applyPartial(HttpMessagePartial partial);
 
-    void requestUpdate();
-
     OriginConnectionFuture getOriginConnectionFuture();
 }

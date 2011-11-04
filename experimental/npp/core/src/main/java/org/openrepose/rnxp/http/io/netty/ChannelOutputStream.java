@@ -1,4 +1,4 @@
-package org.openrepose.rnxp.http.io.control;
+package org.openrepose.rnxp.http.io.netty;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -12,36 +12,36 @@ import org.slf4j.LoggerFactory;
  *
  * @author zinic
  */
-public class BlockingOutputStream extends OutputStream {
+public class ChannelOutputStream extends OutputStream {
     
-    private static final Logger LOG = LoggerFactory.getLogger(BlockingOutputStream.class);
-
+    private static final Logger LOG = LoggerFactory.getLogger(ChannelOutputStream.class);
     private final InboundOutboundCoordinator coordinator;
     private final ChannelBuffer writeBuffer;
-
-    public BlockingOutputStream(InboundOutboundCoordinator coordinator) {
+    
+    public ChannelOutputStream(InboundOutboundCoordinator coordinator) {
         this.coordinator = coordinator;
         
         writeBuffer = ChannelBuffers.buffer(512);
     }
-
+    
     @Override
     public void flush() throws IOException {
         LOG.info("Flushing: " + writeBuffer.readableBytes());
         
         try {
-            coordinator.write(writeBuffer);
+            coordinator.write(writeBuffer).await();
+            writeBuffer.clear();
         } catch (InterruptedException ie) {
-            throw new IOException("Write thread interrupted", ie);
+            LOG.error("Interrupted while flushing!", ie);
         }
     }
-
+    
     @Override
     public void write(int i) throws IOException {
-        if (writeBuffer.writable()) {
-            writeBuffer.writeByte(i);
-        } else {
+        if (!writeBuffer.writable()) {
             flush();
         }
+        
+        writeBuffer.writeByte(i);
     }
 }

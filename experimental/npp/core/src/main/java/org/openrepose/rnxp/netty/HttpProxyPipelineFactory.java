@@ -1,10 +1,11 @@
-package org.openrepose.rnxp.http;
+package org.openrepose.rnxp.netty;
 
 import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 import org.openrepose.rnxp.PowerProxy;
-import org.openrepose.rnxp.decoder.HttpRequestDecoder;
+import org.openrepose.rnxp.http.HttpRequestHandler;
+import org.openrepose.rnxp.io.push.PushChannelUpstreamHandler;
 import org.openrepose.rnxp.http.proxy.OriginChannelFactory;
 
 /**
@@ -23,10 +24,9 @@ public class HttpProxyPipelineFactory implements ChannelPipelineFactory {
 
     @Override
     public ChannelPipeline getPipeline() throws Exception {
-        final HttpRequestDecoder decoder = new HttpRequestDecoder();
-        
-        return Channels.pipeline(
-                decoder,
-                new HttpRequestHandler(powerProxy, proxyRemoteFactory, decoder.getStreamController()));
+        final HttpRequestHandler handler = new HttpRequestHandler(powerProxy, proxyRemoteFactory);
+        final PushChannelUpstreamHandler pushHandler = new PushChannelUpstreamHandler(handler);
+                
+        return Channels.pipeline(pushHandler);
     }
 }

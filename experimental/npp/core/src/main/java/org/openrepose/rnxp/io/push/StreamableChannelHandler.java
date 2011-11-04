@@ -1,4 +1,4 @@
-package org.openrepose.rnxp.decoder;
+package org.openrepose.rnxp.io.push;
 
 import org.openrepose.rnxp.http.proxy.StreamController;
 
@@ -6,7 +6,7 @@ import org.openrepose.rnxp.http.proxy.StreamController;
  *
  * @author zinic
  */
-public interface StreamableDecoder {
+public interface StreamableChannelHandler {
 
     StreamController getStreamController();
 }

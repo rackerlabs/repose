@@ -5,8 +5,6 @@ import org.openrepose.rnxp.decoder.processor.HeaderProcessor;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
 import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
 
 import org.openrepose.rnxp.decoder.partial.impl.StatusCodePartial;
 import static org.openrepose.rnxp.decoder.DecoderState.*;
@@ -54,17 +52,17 @@ public class HttpResponseDecoder extends AbstractHttpMessageDecoder {
     }
 
     @Override
-    protected Object httpDecode(ChannelHandlerContext chc, Channel chnl, ChannelBuffer socketBuffer) throws Exception {
+    protected HttpMessagePartial httpDecode(ChannelBuffer readBuffer) {
         try {
             switch (getDecoderState()) {
                 case READ_VERSION:
-                    return readRequestVersion(socketBuffer);
+                    return readRequestVersion(readBuffer);
 
                 case READ_STATUS_CODE:
-                    return readStatusCode(socketBuffer);
+                    return readStatusCode(readBuffer);
 
                 case READ_REASON_PHRASE:
-                    if (readUntilCaseInsensitive(socketBuffer, CARRIAGE_RETURN) != null) {
+                    if (readUntilCaseInsensitive(readBuffer, CARRIAGE_RETURN) != null) {
                         // Skip the LF
                         skipFollowingBytes(1);
                         setDecoderState(READ_HEADER_KEY);
@@ -72,19 +70,19 @@ public class HttpResponseDecoder extends AbstractHttpMessageDecoder {
                     break;
 
                 case READ_HEADER_KEY:
-                    return readHeaderKey(socketBuffer, currentHeaderProcessor);
+                    return readHeaderKey(readBuffer, currentHeaderProcessor);
 
                 case READ_HEADER_VALUE:
-                    return readHeaderValue(socketBuffer, currentHeaderProcessor);
+                    return readHeaderValue(readBuffer, currentHeaderProcessor);
 
                 case READ_CONTENT:
-                    return readContent(socketBuffer);
+                    return readContent(readBuffer);
 
                 case READ_CHUNK_LENGTH:
-                    return readContentChunkLength(socketBuffer);
+                    return readContentChunkLength(readBuffer);
 
                 case READ_CONTENT_CHUNKED:
-                    return readContentChunked(socketBuffer);
+                    return readContentChunked(readBuffer);
 
                 case STOP:
             }

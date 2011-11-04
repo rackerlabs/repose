@@ -57,7 +57,7 @@ public class PowerApiContextManager implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce) {
         final String showMePapi = sce.getServletContext().getInitParameter("show-me-papi");
         
-        if (showMePapi != null && showMePapi.equalsIgnoreCase("true")) {
+        if (showMePapi == null || showMePapi.equalsIgnoreCase("true")) {
             PapiBanner.print(LOG);
         }
         

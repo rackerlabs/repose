@@ -4,7 +4,6 @@ import org.jboss.netty.channel.ChannelPipeline;
 import org.jboss.netty.channel.ChannelPipelineFactory;
 import org.jboss.netty.channel.Channels;
 import org.openrepose.rnxp.decoder.HttpResponseDecoder;
-import org.openrepose.rnxp.http.HttpResponseHandler;
 import org.openrepose.rnxp.http.context.RequestContext;
 
 public class ClientPipelineFactory implements ChannelPipelineFactory {
@@ -21,8 +20,6 @@ public class ClientPipelineFactory implements ChannelPipelineFactory {
     public ChannelPipeline getPipeline() throws Exception {
         final HttpResponseDecoder decoder = new HttpResponseDecoder();
         
-        return Channels.pipeline(
-                decoder,
-                new HttpResponseHandler(requestContext, coordinator, decoder.getStreamController()));
+        return Channels.pipeline();
     }
 }

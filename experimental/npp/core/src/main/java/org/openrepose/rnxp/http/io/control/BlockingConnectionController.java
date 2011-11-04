@@ -1,18 +1,26 @@
 package org.openrepose.rnxp.http.io.control;
 
+import org.openrepose.rnxp.http.io.netty.ChannelOutputStream;
+import org.openrepose.rnxp.logging.ThreadStamp;
+import java.util.concurrent.locks.Lock;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBufferInputStream;
-import org.jboss.netty.buffer.ChannelBufferOutputStream;
 import org.openrepose.rnxp.decoder.partial.ContentMessagePartial;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
-import org.openrepose.rnxp.http.proxy.InboundOutboundCoordinator;
-import org.openrepose.rnxp.netty.valve.ChannelValve;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import static org.jboss.netty.buffer.ChannelBuffers.*;
+import org.openrepose.rnxp.decoder.AbstractHttpMessageDecoder;
+import org.openrepose.rnxp.decoder.HttpMessageDecoder;
+import org.openrepose.rnxp.decoder.HttpRequestDecoder;
+import org.openrepose.rnxp.http.proxy.InboundOutboundCoordinator;
+import org.openrepose.rnxp.pipe.MessagePipe;
+import org.openrepose.rnxp.pipe.PipeOperationInterruptedException;
 
 /**
  * This controller assumes that the channel is blocked for the duration of logic
@@ -24,125 +32,55 @@ public class BlockingConnectionController implements HttpConnectionController {
 
     private static final Logger LOG = LoggerFactory.getLogger(BlockingConnectionController.class);
     private final InboundOutboundCoordinator coordinator;
-    private final ChannelValve inboundReadValve;
-    private ChannelBuffer contentBuffer;
-    private UpdatableHttpMessage updatableMessage;
+    private final MessagePipe<ChannelBuffer> messagePipe;
+    private final HttpMessageDecoder decoder;
+    
+    private ChannelBuffer remainingData;
 
-    public BlockingConnectionController(InboundOutboundCoordinator coordinator, ChannelValve inboundReadValve) {
+    public BlockingConnectionController(InboundOutboundCoordinator coordinator, MessagePipe<ChannelBuffer> messagePipe, HttpMessageDecoder decoder) {
         this.coordinator = coordinator;
-        this.inboundReadValve = inboundReadValve;
+        this.messagePipe = messagePipe;
+        this.decoder = decoder;
     }
 
     @Override
-    public void blockingRequestUpdate(UpdatableHttpMessage updatableMessage) throws InterruptedException {
-        openInboundValve();
-
-        this.updatableMessage = updatableMessage;
+    public HttpMessagePartial requestUpdate() throws InterruptedException {
+        ThreadStamp.outputThreadStamp(LOG, "Worker processing next message");
 
         try {
-            LOG.info("Worker thread waiting");
-
-            waitForUpdate();
+            HttpMessagePartial messagePartial = null;
+            
+            while (messagePartial == null) {
+                if (remainingData != null && remainingData.readable()) {
+                    messagePartial = decoder.decode(remainingData);
+                } else {
+                    ThreadStamp.outputThreadStamp(LOG, "Worker requesting next message object from pipe");
+                    remainingData = messagePipe.nextMessage();
+                }
+            }
+            
+            return messagePartial;
+        } catch (PipeOperationInterruptedException poie) {
+            throw new RuntimeException(); // TODO:Implement
         } finally {
-            updatableMessage = null;
-            LOG.info("Released");
+            ThreadStamp.outputThreadStamp(LOG, "Worker released");
         }
     }
 
     @Override
     public void close() {
-        coordinator.close();
-    }
-
-    private void initBuffer() {
-        if (contentBuffer != null) {
-            throw new IllegalStateException("A stream has already been bound to this update controller");
-        }
-
-        contentBuffer = buffer(512);
     }
 
     public void commit() {
-        shutInboundValve();
     }
 
     @Override
     public OutputStream connectOutputStream() {
-        return new BlockingOutputStream(coordinator);
+        return new ChannelOutputStream(coordinator);
     }
 
     @Override
     public InputStream connectInputStream() {
-        initBuffer();
-
-        return new ChannelBufferInputStream(contentBuffer);
-    }
-
-    @Override
-    public void applyPartial(HttpMessagePartial partial) {
-        LOG.info("Applying partial: " + partial.getHttpMessageComponent());
-
-        switch (partial.getHttpMessageComponent()) {
-            case CONTENT:
-                boolean closeValve = contentBuffer.writable();
-
-                if (!closeValve) {
-                    contentBuffer.writeByte(((ContentMessagePartial) partial).getData());
-                    closeValve = contentBuffer.writable();
-                }
-
-                if (closeValve) {
-                    shutInboundValve();
-                }
-
-                notifyUpdateWait();
-
-                break;
-
-            // We update for content start and message to let the request know that header parsing is done
-//            case CONTENT_START:
-//            case MESSAGE_END_NO_CONTENT:
-//                break;
-                
-            case HEADER:
-                // Don't update until all headers are read - dump this state
-                break;
-
-            default:
-                // Attempt to apply the partial
-                if (updatableMessage != null) {
-                    updatableMessage.applyPartial(partial);
-                } else {
-                    throw new IllegalStateException("Message object not set! No updates are expected at this time.");
-                }
-
-                shutInboundValve();
-                notifyUpdateWait();
-        }
-    }
-
-    private void openInboundValve() {
-        if (!inboundReadValve.isOpen()) {
-            inboundReadValve.open();
-        }
-    }
-
-    private void shutInboundValve() {
-        if (inboundReadValve.isOpen()) {
-            inboundReadValve.shut();
-        }
-    }
-
-    private synchronized void waitForUpdate() throws InterruptedException {
-        try {
-            wait();
-        } catch (InterruptedException ie) {
-            throw ie;
-        }
-    }
-
-    private synchronized void notifyUpdateWait() {
-        // Allow the worker thread to continue
-        notifyAll();
+        return new ChannelBufferInputStream(null);
     }
 }

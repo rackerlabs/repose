@@ -1,5 +1,6 @@
 package org.openrepose.rnxp.decoder;
 
+import org.jboss.netty.channel.Channel;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import org.junit.Test;
 import org.jboss.netty.buffer.ChannelBuffer;
@@ -18,7 +19,9 @@ import org.openrepose.rnxp.decoder.partial.impl.RequestMethodPartial;
 import org.openrepose.rnxp.decoder.partial.impl.RequestUriPartial;
 import org.openrepose.rnxp.http.HttpMessageComponent;
 import org.openrepose.rnxp.http.HttpMethod;
+
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 import static org.jboss.netty.buffer.ChannelBuffers.*;
 
 /**
@@ -40,7 +43,7 @@ public class HttpRequestDecoderTest {
 
         public HttpMessagePartial nextPartial(ChannelBuffer buffer, int expectedReads) throws Exception {
             for (int read = 1; read <= expectedReads; read++) {
-                final HttpMessagePartial partial = (HttpMessagePartial) decoder.decode(null, null, buffer);
+                final HttpMessagePartial partial = decoder.decode(buffer);
 
                 if (partial != null) {
                     assertEquals("Decoder must decode partial in " + expectedReads + " read passes", expectedReads, read);
@@ -250,7 +253,7 @@ public class HttpRequestDecoderTest {
             assertEquals("Next partial must be CONTENT_START", nextPartial(buffer, 2).getHttpMessageComponent(), HttpMessageComponent.CONTENT_START);
 
             for (int i = 0; i < expectedContent.length - 1;) {
-                final HttpMessagePartial rawHttpMessagePartial = (HttpMessagePartial) decoder.decode(null, null, buffer);
+                final HttpMessagePartial rawHttpMessagePartial = decoder.decode(buffer);
 
                 if (rawHttpMessagePartial != null) {
                     assertEquals("Content must be tranmitted in ContentMessagePartials", ContentMessagePartial.class, rawHttpMessagePartial.getClass());
@@ -260,7 +263,7 @@ public class HttpRequestDecoderTest {
                 }
             }
 
-            final ContentMessagePartial contentPartial = (ContentMessagePartial) decoder.decode(null, null, buffer);
+            final ContentMessagePartial contentPartial = (ContentMessagePartial) decoder.decode(buffer);
             assertEquals("Decoder must end static length content", HttpMessageComponent.MESSAGE_END_WITH_CONTENT, contentPartial.getHttpMessageComponent());
         }
 
@@ -268,7 +271,7 @@ public class HttpRequestDecoderTest {
             assertEquals("Next partial must be CONTENT_START", nextPartial(buffer, 2).getHttpMessageComponent(), HttpMessageComponent.CONTENT_START);
             
             for (int i = 0; i < expectedContent.length;) {
-                final HttpMessagePartial rawHttpMessagePartial = (HttpMessagePartial) decoder.decode(null, null, buffer);
+                final HttpMessagePartial rawHttpMessagePartial = decoder.decode(buffer);
 
                 if (rawHttpMessagePartial != null) {
                     assertEquals("Content must be tranmitted in ContentMessagePartials on index " + i, ContentMessagePartial.class, rawHttpMessagePartial.getClass());
