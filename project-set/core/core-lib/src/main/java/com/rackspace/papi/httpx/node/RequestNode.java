@@ -13,17 +13,25 @@ import java.util.List;
 public class RequestNode extends ObjectFactoryUser implements ComplexNode {
     private final List<Node> nodes = new ArrayList<Node>();
     private final HttpServletRequest request;
-    private final Request messageRequest;
+    private final MessageEnvelope messageEnvelope;
     private final List<MessageDetail> requestFidelity;
+    private final List<RequestHeadDetail> headFidelity;
+    private final List<String> headersFidelity;
+    private final boolean jsonProcessing;
 
-    public RequestNode(HttpServletRequest request, Request messageRequest, List<MessageDetail> requestFidelity) {
+    public RequestNode(HttpServletRequest request, MessageEnvelope messageEnvelope, List<MessageDetail> requestFidelity, List<RequestHeadDetail> headFidelity, List<String> headersFidelity, boolean jsonProcessing) {
         this.request = request;
-        this.messageRequest = messageRequest;
+        this.messageEnvelope = messageEnvelope;
         this.requestFidelity = requestFidelity;
+        this.headFidelity = headFidelity;
+        this.headersFidelity = headersFidelity;
+        this.jsonProcessing = jsonProcessing;
     }
 
     @Override
     public void build() {
+        Request messageRequest = objectFactory.createRequest();
+
         Method method = Method.fromValue(request.getMethod());
 
         messageRequest.setMethod(method);
@@ -32,9 +40,21 @@ public class RequestNode extends ObjectFactoryUser implements ComplexNode {
 
         messageRequest.getFidelity().addAll(requestFidelity);
 
+        for (MessageDetail fidelity : requestFidelity) {
+            switch (fidelity) {
+                case HEAD:
+                    this.addChildNode(new RequestHeadNode(request, messageRequest, headFidelity, headersFidelity));
+                    break;
+                case BODY :
+                    this.addChildNode(new RequestBodyNode(request, messageRequest, jsonProcessing));
+            }
+        }
+
         for (Node node : nodes) {
             node.build();
         }
+
+        messageEnvelope.setRequest(messageRequest);
     }
 
     public void addChildNode(Node node) {

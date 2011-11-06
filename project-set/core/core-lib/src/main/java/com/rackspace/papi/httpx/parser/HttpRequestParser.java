@@ -6,7 +6,6 @@ import com.rackspace.papi.httpx.marshaller.MarshallerFactory;
 import com.rackspace.papi.httpx.node.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
@@ -16,49 +15,13 @@ import java.util.List;
 public class HttpRequestParser extends ObjectFactoryUser implements Parser<HttpServletRequest, RequestHeadDetail> {
 
     @Override
-    public InputStream parse(HttpServletRequest request, List<MessageDetail> requestFidelity, List<RequestHeadDetail> headFidelity, List<String> headersFidelity, boolean jsonPreprocessing) {
-
+    public InputStream parse(HttpServletRequest request, List<MessageDetail> requestFidelity, List<RequestHeadDetail> headFidelity, List<String> headersFidelity, boolean jsonProcessing) {
         MessageEnvelope messageEnvelope = objectFactory.createMessageEnvelope();
-        Request messageRequest = objectFactory.createRequest();
 
-        ComplexNode requestNode = new RequestNode(request, messageRequest, requestFidelity);
-
-        for (MessageDetail fidelity : requestFidelity) {
-            switch (fidelity) {
-                case HEAD:
-                    RequestHead head = objectFactory.createRequestHead();
-                    ComplexNode headNode = new RequestHeadNode(messageRequest, head, headFidelity);
-
-                    for (RequestHeadDetail headDetail : headFidelity) {
-
-                        switch (headDetail) {
-                            case URI_DETAIL:
-                                headNode.addChildNode(new UriDetailNode(request.getParameterMap(), head));
-                                break;
-                            case HEADERS:
-                                headNode.addChildNode(new RequestHeadersNode(request, head, headersFidelity));
-                        }
-                    }
-
-                    requestNode.addChildNode(headNode);
-                    break;
-                case BODY :
-                    Body body = objectFactory.createBody();
-                    try {
-                        body.getContent().add(request.getInputStream());
-                    } catch (IOException e) {
-                        // TODO: Move all this stuff when processing the body
-                        e.printStackTrace();
-                    }
-
-                    messageRequest.setBody(body);
-            }
-        }        
+        ComplexNode requestNode = new RequestNode(request, messageEnvelope, requestFidelity, headFidelity, headersFidelity, jsonProcessing);
 
         requestNode.build();
         
-        messageEnvelope.setRequest(messageRequest);
-
         return MarshallerFactory.newInstance().marshall(messageEnvelope);
     }
 }

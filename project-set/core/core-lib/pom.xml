@@ -36,6 +36,12 @@
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>configuration</artifactId>
         </dependency>
+
+        <dependency>
+           <groupId>org.codehaus.jackson</groupId>
+           <artifactId>jackson-core-lgpl</artifactId>
+           <version>1.6.4</version>
+        </dependency>
     </dependencies>
 
     <build>

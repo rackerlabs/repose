@@ -3,28 +3,45 @@ package com.rackspace.papi.httpx.node;
 import com.rackspace.httpx.Request;
 import com.rackspace.httpx.RequestHead;
 import com.rackspace.httpx.RequestHeadDetail;
+import com.rackspace.papi.httpx.ObjectFactoryUser;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author fran
  */
-public class RequestHeadNode implements ComplexNode {
+public class RequestHeadNode extends ObjectFactoryUser implements ComplexNode {
     private final List<Node> nodes = new ArrayList<Node>();
+    private final HttpServletRequest request;
     private final Request message;
-    private final RequestHead head;
     private final List<RequestHeadDetail> headFidelity;
+    private final List<String> headersFidelity;
 
-    public RequestHeadNode(Request message, RequestHead head, List<RequestHeadDetail> headFidelity) {
+    public RequestHeadNode(HttpServletRequest request, Request message, List<RequestHeadDetail> headFidelity, List<String> headersFidelity) {
+        this.request = request;
         this.message = message;
-        this.head = head;
         this.headFidelity = headFidelity;
+        this.headersFidelity = headersFidelity;
     }
 
     @Override
     public void build() {
+        RequestHead head = objectFactory.createRequestHead();
+        
         head.getFidelity().addAll(headFidelity);
+
+        for (RequestHeadDetail headDetail : headFidelity) {
+
+            switch (headDetail) {
+                case URI_DETAIL:
+                    this.addChildNode(new UriDetailNode(request.getParameterMap(), head));
+                    break;
+                case HEADERS:
+                    this.addChildNode(new RequestHeadersNode(request, head, headersFidelity));
+            }
+        }
 
         for (Node node : nodes) {
             node.build();
@@ -33,6 +50,7 @@ public class RequestHeadNode implements ComplexNode {
         message.setHead(head);
     }
 
+    @Override
     public void addChildNode(Node node) {
         nodes.add(node);
     }
