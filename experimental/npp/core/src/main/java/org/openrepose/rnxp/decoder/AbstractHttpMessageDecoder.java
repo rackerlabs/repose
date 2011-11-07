@@ -1,35 +1,29 @@
 package org.openrepose.rnxp.decoder;
 
+import java.io.StringWriter;
+
+import org.jboss.netty.buffer.ChannelBuffer;
 import org.openrepose.rnxp.decoder.partial.ContentMessagePartial;
 import org.openrepose.rnxp.decoder.partial.EmptyHttpMessagePartial;
-import org.openrepose.rnxp.decoder.partial.impl.HeaderPartial;
-import org.openrepose.rnxp.decoder.processor.HeaderProcessor;
-import java.io.StringWriter;
-import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.handler.codec.frame.FrameDecoder;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
+import org.openrepose.rnxp.decoder.partial.impl.HeaderPartial;
 import org.openrepose.rnxp.decoder.partial.impl.HttpVersionPartial;
+import org.openrepose.rnxp.decoder.processor.HeaderProcessor;
 import org.openrepose.rnxp.http.HttpMessageComponent;
 
-import org.openrepose.rnxp.http.proxy.StreamController;
-import static org.openrepose.rnxp.decoder.AsciiCharacterConstant.*;
 import static org.jboss.netty.buffer.ChannelBuffers.*;
-
+import static org.openrepose.rnxp.decoder.AsciiCharacterConstant.*;
 import static org.openrepose.rnxp.decoder.DecoderState.*;
 
 /**
  *
  * @author zinic
  */
-public abstract class AbstractHttpMessageDecoder extends FrameDecoder implements StreamableDecoder {
+public abstract class AbstractHttpMessageDecoder implements HttpMessageDecoder {
 
     private static final char[] HTTP_VERSION_HEAD = new char[]{'H', 'T', 'T', 'P', '/'};
     private static final boolean CASE_SENSITIVE = Boolean.TRUE, CASE_INSENSITIVE = Boolean.FALSE;
     private static final short DEFAULT_BUFFER_SIZE = 8192;
-    private final StreamController streamController;
-    private volatile boolean setStream;
     private ChannelBuffer characterBufferAside, currentBuffer;
     private ContentPresence contentPresence;
     private int decoderSkipLength, stateCounter;
@@ -37,21 +31,6 @@ public abstract class AbstractHttpMessageDecoder extends FrameDecoder implements
     private DecoderState state;
 
     public AbstractHttpMessageDecoder() {
-        streamController = new StreamController() {
-
-            @Override
-            public boolean isStreaming() {
-                return getDecoderState() == DecoderState.STREAM;
-            }
-
-            @Override
-            public void stream() {
-                if (getDecoderState() != DecoderState.STREAM) {
-                    setStream = true;
-                }
-            }
-        };
-
         init();
     }
 
@@ -77,27 +56,17 @@ public abstract class AbstractHttpMessageDecoder extends FrameDecoder implements
     }
 
     @Override
-    protected final Object decode(ChannelHandlerContext chc, Channel chnl, ChannelBuffer cb) throws Exception {
+    public HttpMessagePartial decode(ChannelBuffer cb) {
         if (shouldSkip()) {
             skip(cb);
+            
             return null;
         }
 
-        if (setStream) {
-            setStream = false;
-            setDecoderState(STREAM);
-        }
-
-        switch (getDecoderState()) {
-            case STREAM:
-                return new ContentMessagePartial(HttpMessageComponent.UNPARSED_STREAMABLE, cb.readByte());
-
-            default:
-                return httpDecode(chc, chnl, cb);
-        }
+        return httpDecode(cb);
     }
 
-    protected abstract Object httpDecode(ChannelHandlerContext chc, Channel chnl, ChannelBuffer cb) throws Exception;
+    protected abstract HttpMessagePartial httpDecode(ChannelBuffer cb);
 
     protected abstract DecoderState initialState();
 
@@ -359,10 +328,5 @@ public abstract class AbstractHttpMessageDecoder extends FrameDecoder implements
 
     public void skipFollowingBytes(int decoderSkipLength) {
         this.decoderSkipLength = decoderSkipLength;
-    }
-
-    @Override
-    public StreamController getStreamController() {
-        return streamController;
     }
 }

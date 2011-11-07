@@ -3,7 +3,7 @@
 
     <groupId>com.rackspace.papi.tests</groupId>
     <artifactId>TestMaster</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.3-SNAPSHOT</version>
     <name>TestMaster</name>
     <packaging>pom</packaging>
 
@@ -61,30 +61,27 @@
     </dependency>
     </dependencies>
     <build>
-            <plugins>
-
-                <plugin>
-                    <groupId>org.apache.jmeter</groupId>
-                    <artifactId>maven-jmeter-plugin</artifactId>
-                    <version>4.2</version>
-                    <executions>
-                        <execution>
-                            <id>jmeter-tests</id>
-                            <phase>verify</phase>
-                            <goals>
-                                <goal>jmeter</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <reportDir>${project.build.directory}/jmeter-reports</reportDir>
-                        <include>PowerAPI_Valve test.jmx</include>
-                        <jmeterhome>/usr/share/jmeter</jmeterhome>
-                        <jmeterPreserveIncludeOrder>true</jmeterPreserveIncludeOrder>
-                    </configuration>
-                </plugin>
-
-            </plugins>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.jmeter</groupId>
+                <artifactId>papi-maven-jmeter-plugin</artifactId>
+                <version>1.0.3-SNAPSHOT</version>
+                <executions>
+                    <execution>
+                        <id>jmeter-tests</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>jmeter</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <reportDir>${project.build.directory}/jmeter-reports</reportDir>
+                    <jmeterhome>/usr/share/jmeter</jmeterhome>
+                    <jmeterPreserveIncludeOrder>true</jmeterPreserveIncludeOrder>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
     
 </project>

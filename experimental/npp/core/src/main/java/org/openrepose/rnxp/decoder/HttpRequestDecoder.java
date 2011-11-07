@@ -1,8 +1,6 @@
 package org.openrepose.rnxp.decoder;
 
 import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
 
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
 import org.openrepose.rnxp.decoder.partial.impl.HttpErrorPartial;
@@ -57,35 +55,35 @@ public class HttpRequestDecoder extends AbstractHttpMessageDecoder {
     }
 
     @Override
-    protected Object httpDecode(ChannelHandlerContext chc, Channel chnl, ChannelBuffer socketBuffer) throws Exception {
+    protected HttpMessagePartial httpDecode(ChannelBuffer readBuffer) {
         try {
             switch (getDecoderState()) {
                 case READ_SC_PARSE_METHOD:
-                    return readSingleCharacterParsableMethod(socketBuffer);
+                    return readSingleCharacterParsableMethod(readBuffer);
 
                 case READ_MC_PARSE_METHOD:
-                    return readMultiCharacterParsableMethod(socketBuffer);
+                    return readMultiCharacterParsableMethod(readBuffer);
 
                 case READ_URI:
-                    return readRequestURI(socketBuffer);
+                    return readRequestURI(readBuffer);
 
                 case READ_VERSION:
-                    return readRequestVersion(socketBuffer);
+                    return readRequestVersion(readBuffer);
 
                 case READ_HEADER_KEY:
-                    return readHeaderKey(socketBuffer, currentHeaderProcessor);
+                    return readHeaderKey(readBuffer, currentHeaderProcessor);
 
                 case READ_HEADER_VALUE:
-                    return readHeaderValue(socketBuffer, currentHeaderProcessor);
+                    return readHeaderValue(readBuffer, currentHeaderProcessor);
 
                 case READ_CONTENT:
-                    return readContent(socketBuffer);
+                    return readContent(readBuffer);
 
                 case READ_CHUNK_LENGTH:
-                    return readContentChunkLength(socketBuffer);
+                    return readContentChunkLength(readBuffer);
 
                 case READ_CONTENT_CHUNKED:
-                    return readContentChunked(socketBuffer);
+                    return readContentChunked(readBuffer);
                 case STOP:
             }
         } catch (IndexOutOfBoundsException boundsException) {

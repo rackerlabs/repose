@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
@@ -55,14 +56,15 @@ public class PowerApiContextManager implements ServletContextListener {
     
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+//        final ServletContext servletContext;
         final String showMePapi = sce.getServletContext().getInitParameter("show-me-papi");
         
-        if (showMePapi != null && showMePapi.equalsIgnoreCase("true")) {
+        if (showMePapi == null || showMePapi.equalsIgnoreCase("true")) {
             PapiBanner.print(LOG);
         }
         
         try {
-            //TODO:Enhancement load the initial context from a class defined as a context listener init parameter
+//            if ()
             this.initialContext = new InitialServiceContextFactory().getInitialContext();
         } catch (NamingException ne) {
             handleNamingException("Failed to build initial context", ne);

@@ -5,7 +5,7 @@ import java.util.concurrent.Executors;
 import org.jboss.netty.bootstrap.ServerBootstrap;
 import org.jboss.netty.channel.ChannelFactory;
 import org.jboss.netty.channel.socket.nio.NioServerSocketChannelFactory;
-import org.openrepose.rnxp.http.HttpProxyPipelineFactory;
+import org.openrepose.rnxp.netty.HttpProxyPipelineFactory;
 import org.openrepose.rnxp.http.proxy.OriginChannelFactory;
 
 /**

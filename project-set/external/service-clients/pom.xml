@@ -18,6 +18,7 @@
 
     <modules>
         <module>rackspace-auth-v1.1</module>
+        <module>rackspace-auth-v2.0</module>
     </modules>  
 
     <dependencyManagement>

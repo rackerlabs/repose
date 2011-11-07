@@ -3,8 +3,8 @@ package org.openrepose.rnxp.servlet.http.live;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import org.openrepose.rnxp.logging.ThreadStamp;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
-import org.openrepose.rnxp.http.io.control.HttpMessageSerializer;
 import org.openrepose.rnxp.http.io.control.UpdatableHttpMessage;
 import org.openrepose.rnxp.http.io.control.HttpConnectionController;
 import org.openrepose.rnxp.http.HttpMessageComponent;
@@ -45,7 +45,7 @@ public abstract class AbstractUpdatableHttpMessage implements UpdatableHttpMessa
         if (connectedOutputStream == null) {
             connectedOutputStream = updateController.connectOutputStream();
         }
-        
+
         return new ServletOutputStreamWrapper(connectedOutputStream);
     }
 
@@ -56,21 +56,32 @@ public abstract class AbstractUpdatableHttpMessage implements UpdatableHttpMessa
         mergeWithPartial(partial);
     }
 
-    @Override
-    public final void requestUpdate() {
-        try {
-            updateController.blockingRequestUpdate(this);
-        } catch (InterruptedException ie) {
-            LOG.error(ie.getMessage(), ie);
+    protected void loadComponent(HttpMessageComponent requestedComponent, HttpMessageComponentOrder order) {
+        while (shouldLoad(requestedComponent, order)) {
+            ThreadStamp.outputThreadStamp(LOG, "Requesting more HTTP request data up to " + requestedComponent + ". Current position: " + lastReadComponent() + ".");
+
+            try {
+                applyPartial(updateController.requestUpdate());
+            } catch (InterruptedException ie) {
+                LOG.error("EXPLODE");
+            }
         }
     }
 
-    protected void loadComponent(HttpMessageComponent component, HttpMessageComponentOrder order) {
-        while (order.isBefore(lastReadComponent(), component)) {
-            LOG.info("Requesting more HTTP request data up to " + component + ". Current position: " + lastReadComponent());
+    private boolean shouldLoad(HttpMessageComponent requestedComponent, HttpMessageComponentOrder order) {
+        final HttpMessageComponent lastReadPart = lastReadComponent();
 
-            requestUpdate();
+        switch (lastReadPart) {
+            case HEADER:
+                return true;
+
+            default:
+                return order.isBefore(lastReadPart, requestedComponent);
         }
+    }
+
+    protected boolean hasHeaders(HttpMessageComponentOrder order) {
+        return !order.isAfter(lastReadComponent, HttpMessageComponent.HEADER);
     }
 
     protected HttpMessageComponent lastReadComponent() {
