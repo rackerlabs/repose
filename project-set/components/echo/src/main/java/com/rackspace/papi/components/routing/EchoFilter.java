@@ -10,6 +10,9 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import java.io.IOException;
+import java.util.Enumeration;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 public class EchoFilter implements Filter {
 
@@ -19,7 +22,21 @@ public class EchoFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
 
-        // TODO
+        final HttpServletRequest httpRequest = (HttpServletRequest) request;
+        final HttpServletResponse httpResponse = (HttpServletResponse) response;
+
+        final Enumeration<String> requestHeaderNames = httpRequest.getHeaderNames();
+
+        while (requestHeaderNames.hasMoreElements()) {
+            final String nextHeaderName = requestHeaderNames.nextElement();
+            final Enumeration<String> headerValues = httpRequest.getHeaders(nextHeaderName);
+
+            while (headerValues.hasMoreElements()) {
+                httpResponse.addHeader(nextHeaderName, headerValues.nextElement());
+            }
+        }
+        
+        httpResponse.setStatus(200);
     }
 
     @Override
