@@ -7,7 +7,6 @@ import java.util.Locale;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
-import org.openrepose.rnxp.http.io.control.HttpMessageSerializer;
 
 /**
  *
@@ -26,8 +25,8 @@ public class SwitchableHttpServletResponse implements CommittableHttpServletResp
     }
 
     @Override
-    public HttpMessageSerializer commitMessage() {
-        return responseDelegate.commitMessage();
+    public void commitMessage() throws IOException {
+        responseDelegate.commitMessage();
     }
 
     @Override

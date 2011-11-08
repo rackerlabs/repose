@@ -1,10 +1,12 @@
 package org.openrepose.rnxp.http.io.control;
 
+import java.io.IOException;
+
 /**
  *
  * @author zinic
  */
 public interface CommittableHttpMessage {
 
-    HttpMessageSerializer commitMessage();
+    void commitMessage() throws IOException;
 }

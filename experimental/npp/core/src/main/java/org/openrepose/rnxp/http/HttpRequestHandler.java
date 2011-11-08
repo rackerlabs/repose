@@ -14,22 +14,26 @@ import org.openrepose.rnxp.http.proxy.InboundOutboundCoordinator;
 import org.openrepose.rnxp.http.proxy.OriginChannelFactory;
 import org.openrepose.rnxp.http.proxy.OriginConnectionFuture;
 import org.openrepose.rnxp.pipe.MessagePipe;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author zinic
  */
 public class HttpRequestHandler implements ChannelEventListener {
+
+    private static final Logger LOG = LoggerFactory.getLogger(HttpRequestHandler.class);
     
     private final OriginChannelFactory proxyChannelFactory;
     private final RequestContext requestContext;
-    
+
     public HttpRequestHandler(PowerProxy powerProxyInstance, OriginChannelFactory proxyChannelFactory) {
         requestContext = new SimpleRequestContext(powerProxyInstance);
-        
+
         this.proxyChannelFactory = proxyChannelFactory;
     }
-    
+
     @Override
     public void channelOpen(MessagePipe<ChannelBuffer> messagePipe, InboundOutboundCoordinator coordinator) {
         // Set up the origin connection future for initiating conversations with the origin server
@@ -41,5 +45,12 @@ public class HttpRequestHandler implements ChannelEventListener {
 
         // Let's kick off the worker thread
         requestContext.startRequest(updateController, originConnectionFuture);
+    }
+
+    @Override
+    public void exception(Throwable cause) {
+        LOG.error("Connection exception caught, aborting worker. Reason: " + cause.getMessage(), cause);
+
+        requestContext.conversationAborted();
     }
 }

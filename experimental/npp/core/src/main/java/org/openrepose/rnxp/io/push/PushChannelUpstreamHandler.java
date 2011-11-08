@@ -1,13 +1,9 @@
 package org.openrepose.rnxp.io.push;
 
 import org.jboss.netty.buffer.ChannelBuffer;
-import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelHandlerContext;
-import org.jboss.netty.channel.ChannelStateEvent;
-import org.jboss.netty.channel.MessageEvent;
-import org.jboss.netty.channel.SimpleChannelUpstreamHandler;
-import org.openrepose.rnxp.logging.ThreadStamp;
+import org.jboss.netty.channel.*;
 import org.openrepose.rnxp.http.proxy.InboundOutboundCoordinator;
+import org.openrepose.rnxp.logging.ThreadStamp;
 import org.openrepose.rnxp.pipe.BlockingMessagePipe;
 import org.openrepose.rnxp.pipe.MessagePipe;
 import org.slf4j.Logger;
@@ -51,8 +47,13 @@ public class PushChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
     }
 
     @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e) throws Exception {
+        
+    }
+
+    @Override
     public void channelInterestChanged(ChannelHandlerContext ctx, ChannelStateEvent e) throws Exception {
-        ThreadStamp.outputThreadStamp(LOG, "Channel interest changed. Interest: " + e.getChannel().getInterestOps());
+        ThreadStamp.log(LOG, "Channel interest changed. Interest: " + e.getChannel().getInterestOps());
     }
 
     @Override

@@ -6,6 +6,8 @@ import com.rackspace.papi.servlet.InitParameter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -29,11 +31,14 @@ public class PowerProxy {
     private final Map<String, Object> containerAttributes;
     private final PowerApiContextManager ctxManager;
     private final PowerFilter powerFilterInstance;
+    private final ExecutorService executorService;
 
     public PowerProxy() {
         containerAttributes = new HashMap<String, Object>();
         ctxManager = new PowerApiContextManager();
         powerFilterInstance = new PowerFilter();
+
+        executorService = Executors.newCachedThreadPool();
     }
 
     public void init() {
@@ -62,5 +67,9 @@ public class PowerProxy {
         } catch (ServletException se) {
             LOG.error(se.getMessage(), se);
         }
+    }
+
+    public ExecutorService getExecutorService() {
+        return executorService;
     }
 }

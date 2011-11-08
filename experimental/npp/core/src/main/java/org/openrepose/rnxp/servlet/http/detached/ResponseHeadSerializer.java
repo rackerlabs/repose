@@ -4,15 +4,19 @@ import java.util.Iterator;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.openrepose.rnxp.http.HttpMessageComponent;
 import org.openrepose.rnxp.http.io.control.HttpMessageSerializer;
+import org.openrepose.rnxp.http.util.StringCharsetEncoder;
 
 import static org.jboss.netty.buffer.ChannelBuffers.*;
+import static org.openrepose.rnxp.http.io.control.HttpControlSequence.*;
 
 /**
  *
  * @author zinic
  */
-public class DetachedResponseSerializer implements HttpMessageSerializer {
-
+public class ResponseHeadSerializer implements HttpMessageSerializer {
+    
+    private static final StringCharsetEncoder ASCII_ENCODER = StringCharsetEncoder.asciiEncoder();
+    
     private final DetachedHttpServletResponse response;
     private final ChannelBuffer buffer;
     private byte[] currentHeaderKeyBytes;
@@ -20,7 +24,7 @@ public class DetachedResponseSerializer implements HttpMessageSerializer {
     private Iterator<String> headerValuesRemaining;
     private HttpMessageComponent nextComponent;
 
-    public DetachedResponseSerializer(DetachedHttpServletResponse response) {
+    public ResponseHeadSerializer(DetachedHttpServletResponse response) {
         this.response = response;
 
         nextComponent = HttpMessageComponent.HTTP_VERSION;
@@ -46,13 +50,16 @@ public class DetachedResponseSerializer implements HttpMessageSerializer {
     public boolean loadNextComponent() {
         switch (nextComponent) {
             case HTTP_VERSION:
-                buffer.writeBytes("HTTP/1.1 ".getBytes());
+                buffer.writeBytes(HTTP_VERSION.getBytes());
+                buffer.writeBytes(SPACE.getBytes());
+                
                 nextComponent = HttpMessageComponent.RESPONSE_STATUS_CODE;
-
                 break;
 
             case RESPONSE_STATUS_CODE:
-                buffer.writeBytes((response.getStatus() + " \r\n").getBytes());
+                buffer.writeBytes(ASCII_ENCODER.encode(response.getStatus()));
+                buffer.writeBytes(SPACE.getBytes());
+                buffer.writeBytes(LINE_END.getBytes());
 
                 nextComponent = HttpMessageComponent.HEADER;
                 break;
@@ -65,7 +72,7 @@ public class DetachedResponseSerializer implements HttpMessageSerializer {
                 if (headerValuesRemaining == null || !headerValuesRemaining.hasNext()) {
                     if (headerKeysRemaining.hasNext()) {
                         final String headerKey = headerKeysRemaining.next();
-                        currentHeaderKeyBytes = headerKey.getBytes();
+                        currentHeaderKeyBytes = ASCII_ENCODER.encode(headerKey);
 
                         headerValuesRemaining = response.getHeaders(headerKey).iterator();
                     } else {
@@ -76,12 +83,13 @@ public class DetachedResponseSerializer implements HttpMessageSerializer {
                 if (headerValuesRemaining.hasNext()) {
                     final String nextVal = headerValuesRemaining.next();
 
-                    buffer.writeBytes(currentHeaderKeyBytes);
-                    buffer.writeBytes(":".getBytes());
-                    buffer.writeBytes(nextVal == null ? new byte[0] : nextVal.getBytes());
-                    buffer.writeBytes("\r\n".getBytes());
+                    if (nextVal != null) {
+                        buffer.writeBytes(currentHeaderKeyBytes);
+                        buffer.writeBytes(HEADER_SEPERATOR.getBytes());
+                        buffer.writeBytes(ASCII_ENCODER.encode(nextVal));
+                        buffer.writeBytes(LINE_END.getBytes());
+                    }
                 }
-
                 break;
         }
 
