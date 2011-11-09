@@ -1,4 +1,9 @@
-package com.rackspace.papi.components.clientauth.rackspace;
+package com.rackspace.papi.components.clientauth.rackspace.v1_1;
+
+import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
+
+
+import com.rackspace.papi.components.clientauth.rackspace.IdentityStatus;
 
 import com.rackspace.auth.v1_1.Account;
 import com.rackspace.auth.v1_1.AuthenticationServiceClient;
@@ -11,11 +16,8 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.auth.AuthModule;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.clientauth.rackspace.config.RackspaceAuth;
-import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
@@ -124,8 +126,6 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
 
          filterDirector.requestHeaderManager().putHeader(CommonHttpHeader.IDENTITY_STATUS.headerKey(), identityStatus.name());
       }
-
-
    }
 
    private String[] getGroupsListIds(String accountUsername) {
@@ -141,8 +141,9 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
       return groupsArray;
    }
 
-   public void handleResponse(MutableHttpServletRequest request, MutableHttpServletResponse response) {
-      /// The WWW Authenticate header can be used to communicate to the client
+    @Override
+    public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
+        /// The WWW Authenticate header can be used to communicate to the client
       // (since we are a proxy) how to correctly authenticate itself
       final String wwwAuthenticateHeader = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.headerKey());
 
@@ -154,9 +155,12 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
             updateHttpResponse(response, wwwAuthenticateHeader);
             break;
       }
-   }
 
-   private void updateHttpResponse(MutableHttpServletResponse httpResponse, String wwwAuthenticateHeader) {
+      // TODO: Do we need to return a valid FilterDirector here? 
+      return null;
+    }
+
+   private void updateHttpResponse(ReadableHttpServletResponse httpResponse, String wwwAuthenticateHeader) {
 
       // If in the case that the origin service supports delegated authentication
       // we should then communicate to the client how to authenticate with us

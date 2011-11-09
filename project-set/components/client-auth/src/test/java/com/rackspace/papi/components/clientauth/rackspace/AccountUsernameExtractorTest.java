@@ -3,6 +3,7 @@ package com.rackspace.papi.components.clientauth.rackspace;
 import com.rackspace.auth.v1_1.Account;
 import com.rackspace.papi.components.clientauth.rackspace.config.AccountMapping;
 import com.rackspace.papi.components.clientauth.rackspace.config.AccountType;
+import com.rackspace.papi.components.clientauth.rackspace.v1_1.AccountUsernameExtractor;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
