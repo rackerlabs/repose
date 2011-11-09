@@ -4,7 +4,6 @@ import com.rackspace.papi.auth.AuthModule;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 
 import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
-import com.rackspace.papi.components.clientauth.rackspace.RackspaceAuthenticationHandler;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,14 +38,27 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
    private class ClientAuthConfigurationListener implements UpdateListener<ClientAuthConfig> {
       @Override
       public void configurationUpdated(ClientAuthConfig modifiedConfig) {
-         if (modifiedConfig.getRackspaceAuth() != null) {
-            authenticationModule = new RackspaceAuthenticationHandler(modifiedConfig.getRackspaceAuth());
-         } else if (modifiedConfig.getHttpBasicAuth() == null) {
+
+        if (modifiedConfig.getRackspaceAuth() != null) {
+            authenticationModule = getAuth1_1Handler(modifiedConfig);
+        } else if (modifiedConfig.getRackspaceAuthV20() != null) {
+            authenticationModule = getAuth2_0Handler(modifiedConfig);
+        } else if (modifiedConfig.getHttpBasicAuth() != null) {
+            // TODO: Create handler for HttpBasic
+            authenticationModule = null;
+        } else {
             LOG.error("Authentication module is not understood or supported. Please check your configuration.");
-         }
+        }
       }
    }
-   
+
+   private AuthModule getAuth1_1Handler(ClientAuthConfig config) {
+       return new com.rackspace.papi.components.clientauth.rackspace.v1_1.RackspaceAuthenticationHandler(config.getRackspaceAuth());
+   }
+
+   private AuthModule getAuth2_0Handler(ClientAuthConfig config) {
+       return new com.rackspace.papi.components.clientauth.rackspace.v2_0.RackspaceAuthenticationHandler(config.getRackspaceAuthV20());            
+   }   
 
    protected AuthModule buildHandler() {
       return authenticationModule;
