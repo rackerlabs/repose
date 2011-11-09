@@ -26,7 +26,7 @@ public class SimplePushController implements PushController {
 
     @Override
     public synchronized void stopMessageFlow() {
-        ThreadStamp.outputThreadStamp(LOG, "Pausing message flow");
+        ThreadStamp.log(LOG, "Pausing message flow");
 
         if (shouldRead) {
             shouldRead = false;
@@ -36,7 +36,7 @@ public class SimplePushController implements PushController {
 
     @Override
     public synchronized void requestNext() {
-        ThreadStamp.outputThreadStamp(LOG, "Requesting more messages");
+        ThreadStamp.log(LOG, "Requesting more messages");
 
         if (!shouldRead) {
             shouldRead = true;

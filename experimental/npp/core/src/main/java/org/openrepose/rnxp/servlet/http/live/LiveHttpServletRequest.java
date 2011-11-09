@@ -1,5 +1,6 @@
 package org.openrepose.rnxp.servlet.http.live;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
@@ -15,7 +16,6 @@ import org.openrepose.rnxp.http.HttpMessageComponentOrder;
 import org.openrepose.rnxp.decoder.partial.impl.RequestMethodPartial;
 import org.openrepose.rnxp.decoder.partial.impl.RequestUriPartial;
 import org.openrepose.rnxp.http.HttpMethod;
-import org.openrepose.rnxp.http.io.control.HttpMessageSerializer;
 import org.openrepose.rnxp.http.io.control.HttpConnectionController;
 import org.openrepose.rnxp.http.proxy.OriginConnectionFuture;
 
@@ -42,7 +42,7 @@ public class LiveHttpServletRequest extends AbstractHttpServletRequest implement
     }
 
     @Override
-    public HttpMessageSerializer commitMessage() {
+    public void commitMessage() throws IOException {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 

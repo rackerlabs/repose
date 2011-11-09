@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.rackspacecloud.com/power-api/client-auth/rs-auth-2.0/v2.0"
+           xmlns:auth-2.0="http://docs.rackspacecloud.com/power-api/client-auth/rs-auth-2.0/v2.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">    
+
+    <!-- Configuration -->
+    <xs:element name="rackspace-auth-v2.0">
+        <xs:complexType>
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines a Rackspace Cloud Auth version 2.0 configuration</html:p>
+                </xs:documentation>
+            </xs:annotation>
+
+            <xs:sequence>
+                <xs:element name="authentication-server" type="auth-2.0:authenticationServer2.0" minOccurs="1" maxOccurs="1" />
+                <xs:element name="account-mapping" type="auth-2.0:accountMapping2.0" minOccurs="1" maxOccurs="unbounded" />
+            </xs:sequence>
+
+            <xs:attribute name="delegatable" type="xs:boolean" use="optional" default="false">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Tells the service whether or not to support auth delegation.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="authenticationServer2.0">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Describes an authentication 2.0 endpoint</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="username" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Username to use (Basic Auth Only)</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="password" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Password to use (Basic Auth Only)</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="uri" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Target URI for authentication requests</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="accountMapping2.0">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Describes how to extract the account id from a given URI</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="id-regex" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Regex used to extract the account id from a given URI</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+</xs:schema>

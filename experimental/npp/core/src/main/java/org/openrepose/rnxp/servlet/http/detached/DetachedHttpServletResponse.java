@@ -1,10 +1,10 @@
 package org.openrepose.rnxp.servlet.http.detached;
 
+import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import java.io.IOException;
-import java.util.Arrays;
+import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,48 +22,43 @@ public class DetachedHttpServletResponse extends AbstractHttpServletResponse imp
 
     private final HttpConnectionController updateController;
     private final Map<String, List<String>> headerMap;
-    private int status;
+    private HttpStatusCode statusCode;
     private ServletOutputStream outputStream;
-    private boolean committed;
+    private volatile boolean committed;
 
     public DetachedHttpServletResponse(HttpConnectionController updateController) {
         this.updateController = updateController;
 
-        status = 500;
+        statusCode = HttpStatusCode.BAD_GATEWAY; // TODO:Review - Don't know if this is sane or not for a proxy
         headerMap = new HashMap<String, List<String>>();
         committed = false;
     }
 
     @Override
     public int getStatus() {
-        return status;
+        return statusCode.intValue();
     }
 
     @Override
     public void setStatus(int sc) {
-        status = sc;
+        statusCode = HttpStatusCode.fromInt(sc);
     }
 
     @Override
-    public void flushBuffer() throws IOException {
-        // No
+    public synchronized void flushBuffer() throws IOException {
+        final OutputStream os = getOutputStream();
+        
+        if (!committed) {
+            commitMessage();
+        }
+        
+        os.flush();
     }
 
     @Override
     public synchronized ServletOutputStream getOutputStream() throws IOException {
         if (outputStream == null) {
             outputStream = new org.openrepose.rnxp.servlet.http.ServletOutputStreamWrapper(updateController.connectOutputStream());
-
-            // This commits the message - opening the output stream is serious business
-            final HttpMessageSerializer serializer = commitMessage();
-            int read;
-
-            while ((read = serializer.read()) != -1) {
-                outputStream.write(read);
-            }
-
-            outputStream.flush();
-            committed = true;
         }
 
         return outputStream;
@@ -75,8 +70,23 @@ public class DetachedHttpServletResponse extends AbstractHttpServletResponse imp
     }
 
     @Override
-    public HttpMessageSerializer commitMessage() {
-        return new DetachedResponseSerializer(this);
+    public synchronized void commitMessage() throws IOException {
+        if (committed) {
+            throw new IllegalStateException("Response has already been committed");
+        }
+        
+        final OutputStream os = getOutputStream();
+        
+        // This commits the message - opening the output stream is serious business
+        final HttpMessageSerializer serializer = new ResponseHeadSerializer(this);
+        int read;
+
+        while ((read = serializer.read()) != -1) {
+            os.write(read);
+        }
+
+        os.flush();
+        committed = true;
     }
 
     @Override
@@ -96,16 +106,6 @@ public class DetachedHttpServletResponse extends AbstractHttpServletResponse imp
         return headerValues != null && headerValues.size() > 0 ? Collections.unmodifiableCollection(headerValues) : null;
     }
 
-    @Override
-    public void setHeader(String name, String value) {
-        putHeader(name, value);
-    }
-
-    @Override
-    public void addHeader(String name, String value) {
-        addHeader(name, value);
-    }
-
     private List<String> newHeaderList(String headerKey) {
         final List<String> newList = new LinkedList<String>();
         headerMap.put(headerKey, newList);
@@ -119,16 +119,18 @@ public class DetachedHttpServletResponse extends AbstractHttpServletResponse imp
         return list != null ? list : newHeaderList(headerKey);
     }
 
-    public void addHeader(String headerKey, String... values) {
+    @Override
+    public void addHeader(String headerKey, String value) {
         final List<String> headerList = getHeaderList(headerKey);
 
-        headerList.addAll(Arrays.asList(values));
+        headerList.add(value);
     }
 
-    public void putHeader(String headerKey, String... values) {
+    @Override
+    public void setHeader(String headerKey, String value) {
         final List<String> headerList = getHeaderList(headerKey);
         headerList.clear();
 
-        headerList.addAll(Arrays.asList(values));
+        headerList.add(value);
     }
 }
