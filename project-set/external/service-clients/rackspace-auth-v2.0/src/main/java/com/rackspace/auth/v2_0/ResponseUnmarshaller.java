@@ -7,7 +7,6 @@ import com.rackspace.papi.commons.util.pooling.ResourceConstructionException;
 import com.rackspace.papi.commons.util.pooling.ResourceContextException;
 
 
-//import com.rackspacecloud.docs.auth.api.v1.FullToken;
 import com.rackspace.papi.commons.util.pooling.Pool;
 import com.rackspace.papi.commons.util.pooling.ResourceContext;
 
@@ -29,7 +28,7 @@ public class ResponseUnmarshaller {
 
    public ResponseUnmarshaller() {
       try {
-         jaxbContext = JAXBContext.newInstance(com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.ObjectFactory.class);
+         jaxbContext = JAXBContext.newInstance(org.openstack.docs.identity.api.v2.ObjectFactory.class);
          pool = new GenericBlockingResourcePool<Unmarshaller>(new ConstructionStrategy<Unmarshaller>() {
 
             @Override
