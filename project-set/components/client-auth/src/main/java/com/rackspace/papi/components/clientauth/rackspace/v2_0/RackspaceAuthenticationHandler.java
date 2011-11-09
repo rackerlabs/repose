@@ -14,6 +14,7 @@ import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 import org.openstack.docs.identity.api.v2.Token;
 import org.slf4j.Logger;
 
@@ -55,8 +56,8 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
       final Account account = accountUsernameExtractor.extract(request.getRequestURL().toString());
 
       try {
-        Token token = authenticationService.validateToken(account, authToken);
-        AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(token, cfg.isDelegatable(), filterDirector, account.getUsername());
+        AuthenticateResponse authenticateResponse = authenticationService.validateToken(account, authToken);
+        AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(authenticateResponse, cfg.isDelegatable(), filterDirector, account.getUsername());
         headerManager.setFilterDirectorValues();  
           
       } catch (Exception ex) {

@@ -7,6 +7,7 @@ import com.rackspace.papi.components.clientauth.rackspace.config.User;
 import com.rackspace.papi.components.clientauth.rackspace.config.UserRoles;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 import org.openstack.docs.identity.api.v2.Token;
 
 import java.util.ArrayList;
@@ -16,13 +17,13 @@ import java.util.List;
  * @author fran
  */
 public class AuthenticationHeaderManager {
-    private final Token token;
+    private final AuthenticateResponse authenticateResponse;
     private final Boolean isDelegatable;
     private final FilterDirector filterDirector;
     private final String tenantId;
 
-    public AuthenticationHeaderManager(Token token, Boolean isDelegatable, FilterDirector filterDirector, String tenantId) {
-        this.token = token;
+    public AuthenticationHeaderManager(AuthenticateResponse authenticateResponse, Boolean isDelegatable, FilterDirector filterDirector, String tenantId) {
+        this.authenticateResponse = authenticateResponse;
         this.isDelegatable = isDelegatable;
         this.filterDirector = filterDirector;
         this.tenantId = tenantId;
@@ -30,7 +31,7 @@ public class AuthenticationHeaderManager {
 
     public void setFilterDirectorValues() {
       Boolean validToken = false;
-      if (token.getId() != null) {
+      if (authenticateResponse.getToken().getId() != null) {
         validToken = true;
       }
       filterDirector.requestHeaderManager().putHeader(CommonHttpHeader.EXTENDED_AUTHORIZATION.headerKey(), "proxy " + tenantId);
