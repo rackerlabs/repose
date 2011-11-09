@@ -28,20 +28,6 @@ public class ServiceClientResponse<EntityClass> {
       return data;
    }
 
-   /*
-   public String getDataAsString() throws IOException {
-      BufferedReader reader = new BufferedReader(new InputStreamReader(data));
-      StringBuilder sb = new StringBuilder();
-      String line = null;
-      while ((line = reader.readLine()) != null) {
-         sb.append(line + "\n");
-      }
-      reader.close();
-      return sb.toString();
-   }
-    *
-    */
-
    public EntityClass getEntity() {
       return entity;
    }

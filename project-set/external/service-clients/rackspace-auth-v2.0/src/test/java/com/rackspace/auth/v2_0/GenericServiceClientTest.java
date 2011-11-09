@@ -1,9 +1,11 @@
 package com.rackspace.auth.v2_0;
 
+import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import org.junit.Before;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.openstack.docs.identity.api.v2.Token;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
@@ -20,14 +22,47 @@ import static org.mockito.Mockito.*;
  */
 @RunWith(Enclosed.class)
 public class GenericServiceClientTest {
-    String endpoint = "http://auth-n01.dev.us.ccp.rackspace.net/v2.0/tokens";    
-    String username = "auth";
-    String password = "auth123";
-    String tenant = "?";
-    String token = "?";
+    public static class WhenHittingAuth2_0 {
+        String endpoint = "http://auth-n01.dev.us.ccp.rackspace.net/v2.0";
+        String username = "auth";
+        String password = "auth123";
+        String tenant = "?";
+        String token = "?";
+        String userId = "102916";
 
-    @Test
-    public void shouldValidateToken() {
-        GenericServiceClient client = new GenericServiceClient(username, password);
-    }   
+//        @Test
+//        public void shouldValidateToken() {
+//            GenericServiceClient client = new GenericServiceClient(username, password);
+//
+//            final ServiceClientResponse<Groups> serviceResponse = client.get(endpoint + "/users/" + userId + "/RAX-KSGRP");
+//            final int response = serviceResponse.getStatusCode();
+//            Groups groups = null;
+//
+//            ResponseUnmarshaller responseUnmarshaller = new ResponseUnmarshaller();
+//
+//            switch (response) {
+//                case 200:
+//                    groups = responseUnmarshaller.unmarshall(serviceResponse.getData(), Groups.class);
+//            }
+//        }
+
+        @Test
+        public void shouldGetAuthToken() {
+//            GenericServiceClient client = new GenericServiceClient(username, password);
+//
+//            final ServiceClientResponse<Token> serviceResponse = client.getAdminToken(endpoint + "/token", "auth", "auth123");
+//            final int response = serviceResponse.getStatusCode();
+//            Token groups = null;
+//
+//            ResponseUnmarshaller responseUnmarshaller = new ResponseUnmarshaller();
+//
+//            switch (response) {
+//                case 200:
+//                    groups = responseUnmarshaller.unmarshall(serviceResponse.getData(), Token.class);
+//            }
+        }
+
+
+        
+    }
 }

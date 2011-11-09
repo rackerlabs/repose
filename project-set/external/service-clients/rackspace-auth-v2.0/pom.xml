@@ -39,27 +39,42 @@
         </dependency>
     </dependencies>
 
-    <!--<build>-->
-        <!--<plugins>-->
-            <!--<plugin>-->
-                <!--<groupId>com.sun.tools.xjc.maven2</groupId>-->
-                <!--<artifactId>maven-jaxb-plugin</artifactId>-->
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xml-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>transform</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                    </execution>
+                </executions>
 
-                <!--<configuration>-->
-                    <!--<includeSchemas>-->
-                        <!--<includeSchema>**/*.xsd</includeSchema>-->
-                    <!--</includeSchemas>-->
+                <configuration>
+                    <transformationSets>
+                        <transformationSet>
+                            <dir>src/main/resources/META-INF/schema/auth-2.0-service</dir>
+                            <stylesheet>src/main/resources/META-INF/schema/xsl/s1.0p.xsl</stylesheet>
+                        </transformationSet>
+                    </transformationSets>                    
 
-                    <!--<includeBindings>-->
-                        <!--<includeBinding>**/*.xjb</includeBinding>-->
-                    <!--</includeBindings>-->
+                </configuration>
+            </plugin>
 
-                    <!--<strict>true</strict>-->
-                    <!--<verbose>false</verbose>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
-        <!--</plugins>-->
-    <!--</build>-->
+            <plugin>
+                <groupId>com.sun.tools.xjc.maven2</groupId>
+                <artifactId>maven-jaxb-plugin</artifactId>
 
+                <configuration>
+                    <schemaDirectory>${basedir}/target/generated-resources/xml/xslt</schemaDirectory>                
+                    <strict>true</strict>
+                    <verbose>false</verbose>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

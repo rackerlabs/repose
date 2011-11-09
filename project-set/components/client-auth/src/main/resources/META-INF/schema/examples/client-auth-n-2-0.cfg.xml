@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<client-auth xmlns="http://docs.rackspacecloud.com/power-api/client-auth/v1.0">
+    <rackspace-auth-v2.0 delegatable="true" xmlns="http://docs.rackspacecloud.com/power-api/client-auth/rs-auth-2.0/v2.0">
+        <authentication-server username="auth" password="auth123" uri="http://auth-n02.dev.us.ccp.rackspace.net/v2.0/" />
+
+        <account-mapping id-regex=".*/servers/(\w*)/.*"/>        
+    </rackspace-auth-v2.0>
+</client-auth>

@@ -2,6 +2,7 @@ package com.rackspace.papi.components.clientauth.rackspace;
 
 import com.rackspace.papi.components.clientauth.rackspace.config.AuthenticationServer;
 import com.rackspace.papi.components.clientauth.rackspace.config.RackspaceAuth;
+import com.rackspace.papi.components.clientauth.rackspace.v1_1.RackspaceAuthenticationHandler;
 import net.sf.ehcache.CacheManager;
 import org.junit.Before;
 import org.junit.Test;
