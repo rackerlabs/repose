@@ -84,7 +84,7 @@
                     </excludes>
                     
                     <testFailureIgnore>true</testFailureIgnore>
-                    <skip>false</skip>
+                    <skip>true</skip>
                 </configuration>
             </plugin>
             

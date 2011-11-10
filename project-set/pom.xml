@@ -77,7 +77,10 @@
                                 <execution>
                                     <id>Build RPM</id>
                         
+                                    <phase>package</phase>
+
                                     <goals>
+                                        <goal>rpm</goal>
                                         <goal>attached-rpm</goal>
                                     </goals>
                                 </execution>
