@@ -137,12 +137,6 @@
                                         <prefix>/var/powerapi/logs</prefix>
                                         <filemode>765</filemode>
                                     </mapper>
-                                    
-                                    <mapper>
-                                        <type>dir</type>
-                                        <prefix>/usr/share/powerapi/filters</prefix>
-                                        <filemode>755</filemode>
-                                    </mapper>
 
                                     <mapper>
                                         <type>dir</type>
