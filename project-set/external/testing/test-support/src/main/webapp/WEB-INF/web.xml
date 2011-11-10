@@ -16,6 +16,10 @@
         <servlet-name>landingServlet</servlet-name>
         <servlet-class>com.rackspace.tests.testSupport.landingServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>mockKeyStoneTokenServlet</servlet-name>
+        <servlet-class>com.rackspace.tests.testSupport.mockKeyStoneTokenServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>mockTokenServlet</servlet-name>
         <url-pattern>/token/*</url-pattern>
@@ -36,6 +40,10 @@
         <url-pattern>/users/usertest2/groups/*</url-pattern>
         <url-pattern>/users/cmarin1/groups/*</url-pattern>
         <url-pattern>/users/usertest3/groups/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>mockKeyStoneTokenServlet</servlet-name>
+        <url-pattern>/keystone/token/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

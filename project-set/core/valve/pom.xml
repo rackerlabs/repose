@@ -127,28 +127,6 @@
                         
                         <configuration>
                             <dataSet>
-                                    <!-- The jar file -->
-                                <data>
-                                    <src>${project.build.directory}/${project.build.finalName}.jar</src>
-                                    <type>file</type>
-                                    <mapper>
-                                        <type>perm</type>
-                                        <prefix>/usr/share/lib</prefix>
-                                    </mapper>
-                                </data>
-
-                                    <!-- The config directory and files -->
-                                <data>
-                                    <src>../core-lib/src/main/resources/META-INF/schema/examples/</src>
-                                    <type>directory</type>
-                                    <includes>*.cfg.xml</includes>
-
-                                    <mapper>
-                                        <type>perm</type>
-                                        <prefix>/etc/powerapi</prefix>                                            
-                                        <filemode>755</filemode>                                            
-                                    </mapper>
-                                </data>
 
                                 <!-- The log directory with info file as placeholder for plugin -->
                                 <data>
@@ -165,7 +143,38 @@
                                         <prefix>/usr/share/powerapi/filters</prefix>
                                         <filemode>755</filemode>
                                     </mapper>
+
+                                    <mapper>
+                                        <type>dir</type>
+                                        <prefix>/usr/share/lib</prefix>
+                                        <filemode>755</filemode>
+                                    </mapper>
                                 </data>                                  
+
+                                    <!-- The config directory and files -->
+                                <data>
+                                    <src>../core-lib/src/main/resources/META-INF/schema/examples/</src>
+                                    <type>directory</type>
+                                    <includes>*.cfg.xml</includes>
+
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>/etc/powerapi</prefix>                                            
+                                        <filemode>755</filemode>                                            
+                                    </mapper>
+                                </data>
+
+
+                                    <!-- The jar file -->
+                                <data>
+                                    <src>${project.build.directory}/${project.build.finalName}.jar</src>
+                                    <type>file</type>
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>/usr/share/lib</prefix>
+                                    </mapper>
+                                </data>
+
                                     <!-- The start script -->
                                 <data>
                                     <src>${project.build.directory}/${project.build.finalName}.jar</src>
@@ -175,6 +184,17 @@
                                         <prefix>/usr/share/lib</prefix>
                                     </mapper>
                                 </data>
+
+                                    <!--The log file -->
+                                <data>
+                                    <src>${project.build.directory}/../src/deb/current.log</src>
+                                    <type>file</type>
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>/var/powerapi/logs</prefix>
+                                    </mapper>
+                                </data>
+
                             </dataSet>
                         </configuration>
                     </execution>
