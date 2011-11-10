@@ -7,7 +7,8 @@ package com.rackspace.tests.testSupport;
 import java.io.IOException;
 import java.io.PrintWriter;
 
-
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -17,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author malconis
  */
-public class mockTokenServlet extends HttpServlet {
+public class mockKeyStoneTokenServlet extends HttpServlet {
 
     // Need to move these somewhere else where they won't be re-initialized everytime we auth
     MockUser user1 = new MockUser("usertest1", "CLOUD", "/asdasdasd-adsasdads-asdasdasd-adsadsasd");
@@ -38,23 +39,20 @@ public class mockTokenServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        
-
-
-        String queryParams = request.getQueryString();
         String token = request.getPathInfo();
         boolean valid = false;
-        passedUser = new MockUser(queryParams, token);
         try {
         
             
             for (MockUser u : testUsers) {
-                if (u.equals(passedUser)) {
+                if (u.getToken().equals(token)) {
                     valid = true;
+                    passedUser = u;
                 }
             }
 
             if (valid) {
+                passedUser = new MockUser(passedUser);
                 out.println(passedUser);
             } else {
                 response.setStatus(400);
