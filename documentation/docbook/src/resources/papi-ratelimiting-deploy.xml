@@ -171,26 +171,26 @@
                     <row>
                         <entry>                         
                              <para>
-                                 <code>X-PP-User</code>
+                                 <code>X_USER</code>
                              </para>    
                              <para>
                                  <emphasis>Required</emphasis>
                              </para>
                         </entry>
-                        <entry><code>X-PP-User</code> is a single-value header. This header is used to
+                        <entry><code>X_USER</code> is a single-value header. This header is used to
                             describe the unique name of the client making the request. This name is
                             used in part to cache and store request hits.</entry>
                     </row>
                     <row>
                         <entry>
                             <para>
-                                <code>X-PP-Groups</code>
+                                <code>X_ROLE</code>
                             </para>
                             <para>
                                 <emphasis>Optional</emphasis>
                             </para>
                         </entry>    
-                        <entry><code>X-PP-Groups</code> is a list of string values. This header is used to
+                        <entry><code>X_ROLE</code> is a list of string values. This header is used to
                             describe all of the limit groups the client belongs to. A client may
                             belong to multiple limit groups or to none.</entry>
                     </row>
@@ -254,7 +254,7 @@
                 <para> 
                     Limit groups identify a group of related rate limits and bind them to a series of
                     names. The names can be used to limit incoming requests using the
-                    <code>X-PP-Groups</code> header. 
+                    <code>X_ROLE</code> header.
                 </para>
                 <para> </para>
             </callout>
@@ -272,7 +272,7 @@
                 <para> A single <code>limit-group</code> may be identified as the
                     <code>default</code> group. 
                     The <code>default</code> group will handle any requests that cannot be matched
-                    on the basis of a group name to any of the groups identified in the <code>X-PP-Groups</code> header.
+                    on the basis of a group name to any of the groups identified in the <code>X_ROLE</code> header.
                     In this example, the limits defined for <code>groups="customer"</code> will be applied to requests that cannot be explicitly matched to a group.
                 </para>
                 <para> </para>
@@ -452,7 +452,7 @@
         <title>Recording Client Requests</title>
         <para> The rate limiting component must be able to both record request usage on a per-limit
             basis and recall all stored limits that belong to a named client. The
-                <code>X-PP-User</code> HTTP header is used for this purpose. </para>
+                <code>X_USER</code> HTTP header is used for this purpose. </para>
         <section xml:id="Cache_Indexing-d1e439">
         <title>Cache Indexing</title>
         <para> 
@@ -461,9 +461,9 @@
             limits to a named client. 
         </para>
         <para> The rate limiting component indexes stored limit cache keys in a separate cached
-                object for each named client identified with the <code>X-PP-User</code> HTTP header.
+                object for each named client identified with the <code>X_USER</code> HTTP header.
                 This data structure is called the user limit key map.  </para>
-        <para> The string value of the <code>X-PP-User</code> HTTP header is treated as the cache
+        <para> The string value of the <code>X_USER</code> HTTP header is treated as the cache
                 key for this index. </para>
         </section>
         <section xml:id="Single_Node-d1e447">
@@ -517,8 +517,8 @@
                             <programlisting>
 GET /service/limits HTTP/1.1 
 Accept: application/vnd.rackspace-v1.0+xml 
-X-PP-User: demo-username 
-X-PP-Groups: demo-customer
+X_USER: demo-username
+X_ROLE: demo-customer
                                 </programlisting>
                         </entry>
                         <entry/>
@@ -584,8 +584,8 @@ Content-Length: 538
                                 <programlisting>
 GET /service/my/resource HTTP/1.1 
 Accept: application/vnd.rackspace-v1.0+xml 
-X-PP-User: username 
-X-PP-Groups: customer
+X_USER: username
+X_ROLE: customer
                                 </programlisting>
                             </entry>
                             <entry/>

@@ -3,6 +3,7 @@ package com.rackspace.auth.v2_0;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import net.sf.ehcache.CacheManager;
 import org.openstack.docs.identity.api.v2.AuthenticateResponse;
+import org.openstack.docs.identity.api.v2.Tenants;
 
 /**
  * @author fran
@@ -38,7 +39,7 @@ public class AuthenticationServiceClient {
         return authenticateResponse.getToken().getId();
     }
 
-    public AuthenticateResponse validateToken(Account account, String userToken) {
+    public AuthenticateResponse validateToken(String userToken) {
         final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, adminToken);
         final int response = serviceResponse.getStatusCode();
         AuthenticateResponse authenticateResponse = null;
@@ -49,18 +50,7 @@ public class AuthenticationServiceClient {
         }
 
         return authenticateResponse;
-    }    
-
-    public Groups getGroups(String userId) {
-        final ServiceClientResponse<Groups> serviceResponse = serviceClient.get(targetHostUri + "/users/" + userId + "/RAX-KSGRP", adminToken);
-        final int response = serviceResponse.getStatusCode();
-        Groups groups = null;
-
-        switch (response) {
-            case 200:
-                groups = responseUnmarshaller.unmarshall(serviceResponse.getData(), Groups.class);
-        }
-
-        return groups;
     }
+
+    
 }

@@ -15,6 +15,7 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import org.openstack.docs.identity.api.v2.AuthenticateResponse;
+import org.openstack.docs.identity.api.v2.Tenants;
 import org.openstack.docs.identity.api.v2.Token;
 import org.slf4j.Logger;
 
@@ -48,7 +49,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
 
     @Override
     public FilterDirector authenticate(HttpServletRequest request) {
-        final FilterDirector filterDirector = new FilterDirectorImpl();
+      final FilterDirector filterDirector = new FilterDirectorImpl();
       filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
       filterDirector.setFilterAction(FilterAction.USE_MESSAGE_SERVICE);
 
@@ -56,7 +57,8 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
       final Account account = accountUsernameExtractor.extract(request.getRequestURL().toString());
 
       try {
-        AuthenticateResponse authenticateResponse = authenticationService.validateToken(account, authToken);
+        AuthenticateResponse authenticateResponse = authenticationService.validateToken(authToken);
+
         AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(authenticateResponse, cfg.isDelegatable(), filterDirector, account.getUsername());
         headerManager.setFilterDirectorValues();  
           
@@ -66,20 +68,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
       }
 
       return filterDirector;
-    }
-
-    private Groups getGroups(String userId, FilterDirector filterDirector) {
-        Groups groups = null;
-
-        try {
-            groups = authenticationService.getGroups(userId);
-        } catch (Exception ex) {
-            LOG.error("Failure in auth: " + ex.getMessage(), ex);
-            filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-        }
-
-        return groups;
-    }
+    }    
 
     @Override
     public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
