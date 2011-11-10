@@ -2,7 +2,7 @@ package com.rackspace.auth.v2_0;
 
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import net.sf.ehcache.CacheManager;
-import org.openstack.docs.identity.api.v2.Token;
+import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 
 /**
  * @author fran
@@ -26,29 +26,29 @@ public class AuthenticationServiceClient {
     }
 
     private String getAdminToken(String username, String password) {
-        final ServiceClientResponse<Token> serviceResponse = serviceClient.getAdminToken(targetHostUri + "/tokens", username, password);
+        final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.getAdminToken(targetHostUri + "/tokens", username, password);
         final int response = serviceResponse.getStatusCode();
-        Token token = null;
+        AuthenticateResponse authenticateResponse = null;
 
         switch (response) {
             case 200:
-                token = responseUnmarshaller.unmarshall(serviceResponse.getData(), Token.class);
+                authenticateResponse = responseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
         }
 
-        return token.getId();
+        return authenticateResponse.getToken().getId();
     }
 
-    public Token validateToken(Account account, String userToken) {
-        final ServiceClientResponse<Groups> serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, adminToken);
+    public AuthenticateResponse validateToken(Account account, String userToken) {
+        final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, adminToken);
         final int response = serviceResponse.getStatusCode();
-        Token token = null;
+        AuthenticateResponse authenticateResponse = null;
 
         switch (response) {
             case 200:
-                token = responseUnmarshaller.unmarshall(serviceResponse.getData(), Token.class);
+                authenticateResponse = responseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
         }
 
-        return token;
+        return authenticateResponse;
     }    
 
     public Groups getGroups(String userId) {

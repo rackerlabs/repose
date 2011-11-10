@@ -9,10 +9,15 @@ import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.api.client.WebResource.Builder;
+import com.sun.jersey.api.client.filter.LoggingFilter;
 import com.sun.ws.rs.ext.RuntimeDelegateImpl;
+import org.openstack.docs.identity.api.v2.AuthenticationRequest;
+import org.openstack.docs.identity.api.v2.PasswordCredentialsBase;
 import org.openstack.docs.identity.api.v2.PasswordCredentialsRequiredUsername;
 
 import javax.ws.rs.ext.RuntimeDelegate;
+import javax.xml.bind.JAXBElement;
+import javax.xml.namespace.QName;
 import java.util.Map;
 
 /**
@@ -42,9 +47,10 @@ public class GenericServiceClient {
 
         HTTPBasicAuthFilter authFilter = new HTTPBasicAuthFilter(username, password);
         client.addFilter(authFilter);
+
+        client.addFilter(new LoggingFilter());
     }
 
-    // TODO: Get the Jersey post working here 
     public ServiceClientResponse getAdminToken(String uri, String username, String password) throws AuthServiceException {
         WebResource resource = client.resource(uri);
 
@@ -52,9 +58,13 @@ public class GenericServiceClient {
         credentials.setUsername(username);
         credentials.setPassword(password);
 
-        String passwordCredentials = "<auth xmlns=\"http://docs.openstack.org/identity/api/v2.0\"><passwordCredentials username=\"" + username + "\" password=\"" + password + "\"/></auth>";
+        JAXBElement jaxbCredentials = new JAXBElement(new QName("http://docs.openstack.org/identity/api/v2.0","passwordCredentials"), PasswordCredentialsRequiredUsername.class, credentials);
+        AuthenticationRequest request = new AuthenticationRequest();
+        request.setCredential(jaxbCredentials);
 
-        ClientResponse response = resource.type(new MediaType("application", "xml")).header("Accept", "application/xml").post(ClientResponse.class, credentials);
+        JAXBElement jaxbRequest = new JAXBElement(new QName("http://docs.openstack.org/identity/api/v2.0", "auth"), AuthenticationRequest.class, request);
+        ClientResponse response = resource.type(MediaType.APPLICATION_XML_TYPE).header("Accept", "application/xml").post(ClientResponse.class, jaxbRequest);
+
         return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
     }
 
