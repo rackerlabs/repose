@@ -54,7 +54,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
       final Account account = accountUsernameExtractor.extract(request.getRequestURL().toString());
 
       try {
-        CachableTokenInfo cachableTokenInfo = authenticationService.validateToken(authToken);
+        CachableTokenInfo cachableTokenInfo = authenticationService.validateToken(account.getUsername(), authToken, cfg.getIdentityService().getUsername(), cfg.getIdentityService().getPassword());
 
         AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(cachableTokenInfo, cfg.isDelegatable(), filterDirector, account.getUsername());
         headerManager.setFilterDirectorValues();  
