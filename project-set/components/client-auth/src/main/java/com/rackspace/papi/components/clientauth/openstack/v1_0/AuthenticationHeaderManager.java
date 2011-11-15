@@ -1,14 +1,12 @@
-package com.rackspace.papi.components.clientauth.rackspace.v2_0;
+package com.rackspace.papi.components.clientauth.openstack.v1_0;
 
-import com.rackspace.auth.v2_0.CachableTokenInfo;
+import com.rackspace.auth.openstack.ids.CachableTokenInfo;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.components.clientauth.rackspace.IdentityStatus;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import org.openstack.docs.identity.api.v2.AuthenticateResponse;
-import org.openstack.docs.identity.api.v2.Role;
 
 /**
  * @author fran

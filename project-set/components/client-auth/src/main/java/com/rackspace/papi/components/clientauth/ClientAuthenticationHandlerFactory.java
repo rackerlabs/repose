@@ -41,7 +41,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
 
         if (modifiedConfig.getRackspaceAuth() != null) {
             authenticationModule = getAuth1_1Handler(modifiedConfig);
-        } else if (modifiedConfig.getRackspaceAuthV20() != null) {
+        } else if (modifiedConfig.getOpenstackAuth() != null) {
             authenticationModule = getAuth2_0Handler(modifiedConfig);
         } else if (modifiedConfig.getHttpBasicAuth() != null) {
             // TODO: Create handler for HttpBasic
@@ -57,7 +57,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
    }
 
    private AuthModule getAuth2_0Handler(ClientAuthConfig config) {
-       return new com.rackspace.papi.components.clientauth.rackspace.v2_0.RackspaceAuthenticationHandler(config.getRackspaceAuthV20());            
+       return new com.rackspace.papi.components.clientauth.openstack.v1_0.RackspaceAuthenticationHandler(config.getOpenstackAuth());            
    }   
 
    protected AuthModule buildHandler() {

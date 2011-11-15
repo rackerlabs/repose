@@ -1,9 +1,8 @@
-package com.rackspace.papi.components.clientauth.rackspace.v2_0;
+package com.rackspace.papi.components.clientauth.openstack.v1_0;
 
-import com.rackspace.auth.v2_0.Account;
+import com.rackspace.auth.openstack.ids.Account;
 import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.components.clientauth.rackspace.config.AccountMapping;
-import com.rackspace.papi.components.clientauth.rackspace.config.AccountMapping20;
+import com.rackspace.papi.components.clientauth.openstack.config.ClientMapping;
 
 import java.util.HashMap;
 import java.util.List;
@@ -15,24 +14,24 @@ import java.util.regex.Pattern;
  * @author fran
  */
 public class AccountUsernameExtractor {
-    private final List<AccountMapping20> accountMappings;
-    private final Map<AccountMapping20, Pattern> compiledAccountMappingRegexes;
+    private final List<ClientMapping> accountMappings;
+    private final Map<ClientMapping, Pattern> compiledAccountMappingRegexes;
 
-    public AccountUsernameExtractor(List<AccountMapping20> accountMappings) {
+    public AccountUsernameExtractor(List<ClientMapping> accountMappings) {
         this.accountMappings = accountMappings;
-        this.compiledAccountMappingRegexes = new HashMap<AccountMapping20, Pattern>();
+        this.compiledAccountMappingRegexes = new HashMap<ClientMapping, Pattern>();
 
         compileRegexCache();
     }
 
     private void compileRegexCache() {
-        for (AccountMapping20 mapping : accountMappings) {
+        for (ClientMapping mapping : accountMappings) {
             compiledAccountMappingRegexes.put(mapping, Pattern.compile(mapping.getIdRegex()));
         }
     }
 
     public Account extract(String uri) {
-        for (Map.Entry<AccountMapping20, Pattern> entry : compiledAccountMappingRegexes.entrySet()) {
+        for (Map.Entry<ClientMapping, Pattern> entry : compiledAccountMappingRegexes.entrySet()) {
             final Matcher accountIdMatcher = entry.getValue().matcher(uri);
 
             if (accountIdMatcher.find()) {
