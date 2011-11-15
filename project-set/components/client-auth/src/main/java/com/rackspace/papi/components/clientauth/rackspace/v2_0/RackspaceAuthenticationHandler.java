@@ -2,6 +2,7 @@ package com.rackspace.papi.components.clientauth.rackspace.v2_0;
 
 import com.rackspace.auth.v2_0.Account;
 import com.rackspace.auth.v2_0.AuthenticationServiceClient;
+import com.rackspace.auth.v2_0.CachableTokenInfo;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import com.rackspace.papi.components.clientauth.rackspace.config.RackspaceAuthV20;
 import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
@@ -15,6 +16,7 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import org.openstack.docs.identity.api.v2.AuthenticateResponse;
+import org.openstack.docs.identity.api.v2.Tenants;
 import org.openstack.docs.identity.api.v2.Token;
 import org.slf4j.Logger;
 
@@ -48,7 +50,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
 
     @Override
     public FilterDirector authenticate(HttpServletRequest request) {
-        final FilterDirector filterDirector = new FilterDirectorImpl();
+      final FilterDirector filterDirector = new FilterDirectorImpl();
       filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
       filterDirector.setFilterAction(FilterAction.USE_MESSAGE_SERVICE);
 
@@ -56,8 +58,9 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
       final Account account = accountUsernameExtractor.extract(request.getRequestURL().toString());
 
       try {
-        AuthenticateResponse authenticateResponse = authenticationService.validateToken(account, authToken);
-        AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(authenticateResponse, cfg.isDelegatable(), filterDirector, account.getUsername());
+        CachableTokenInfo cachableTokenInfo = authenticationService.validateToken(authToken);
+
+        AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(cachableTokenInfo, cfg.isDelegatable(), filterDirector, account.getUsername());
         headerManager.setFilterDirectorValues();  
           
       } catch (Exception ex) {
@@ -66,20 +69,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
       }
 
       return filterDirector;
-    }
-
-    private Groups getGroups(String userId, FilterDirector filterDirector) {
-        Groups groups = null;
-
-        try {
-            groups = authenticationService.getGroups(userId);
-        } catch (Exception ex) {
-            LOG.error("Failure in auth: " + ex.getMessage(), ex);
-            filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-        }
-
-        return groups;
-    }
+    }    
 
     @Override
     public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {

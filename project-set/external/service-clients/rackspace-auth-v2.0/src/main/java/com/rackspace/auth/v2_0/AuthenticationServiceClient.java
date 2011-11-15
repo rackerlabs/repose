@@ -3,6 +3,7 @@ package com.rackspace.auth.v2_0;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import net.sf.ehcache.CacheManager;
 import org.openstack.docs.identity.api.v2.AuthenticateResponse;
+import org.openstack.docs.identity.api.v2.Tenants;
 
 /**
  * @author fran
@@ -26,41 +27,36 @@ public class AuthenticationServiceClient {
     }
 
     private String getAdminToken(String username, String password) {
+        // TODO: Check if admin token in cache before making call to get it; if not cache it
         final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.getAdminToken(targetHostUri + "/tokens", username, password);
         final int response = serviceResponse.getStatusCode();
         AuthenticateResponse authenticateResponse = null;
+        String adminToken = null;
 
         switch (response) {
             case 200:
                 authenticateResponse = responseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
+                adminToken = authenticateResponse.getToken().getId();
+
+
         }
 
-        return authenticateResponse.getToken().getId();
+        return adminToken;
     }
 
-    public AuthenticateResponse validateToken(Account account, String userToken) {
+    public CachableTokenInfo validateToken(String userToken) {
+        // TODO: Check if token in cache before making call to get it; if not cache it
         final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, adminToken);
         final int response = serviceResponse.getStatusCode();
         AuthenticateResponse authenticateResponse = null;
+        CachableTokenInfo token = null;
 
         switch (response) {
             case 200:
                 authenticateResponse = responseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
+                token = new CachableTokenInfo(authenticateResponse);                           
         }
-
-        return authenticateResponse;
-    }    
-
-    public Groups getGroups(String userId) {
-        final ServiceClientResponse<Groups> serviceResponse = serviceClient.get(targetHostUri + "/users/" + userId + "/RAX-KSGRP", adminToken);
-        final int response = serviceResponse.getStatusCode();
-        Groups groups = null;
-
-        switch (response) {
-            case 200:
-                groups = responseUnmarshaller.unmarshall(serviceResponse.getData(), Groups.class);
-        }
-
-        return groups;
+       
+        return token;
     }
 }
