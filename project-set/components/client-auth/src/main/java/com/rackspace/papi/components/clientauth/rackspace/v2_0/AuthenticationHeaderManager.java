@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.clientauth.rackspace.v2_0;
 
+import com.rackspace.auth.v2_0.CachableTokenInfo;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
@@ -13,19 +14,19 @@ import org.openstack.docs.identity.api.v2.Role;
  * @author fran
  */
 public class AuthenticationHeaderManager {
-    private final AuthenticateResponse authenticateResponse;
+    private final CachableTokenInfo cachableTokenInfo;
     private final Boolean isDelegatable;
     private final FilterDirector filterDirector;
     private final String tenantId;
     private final Boolean validToken;
 
-    public AuthenticationHeaderManager(AuthenticateResponse authenticateResponse, Boolean isDelegatable, FilterDirector filterDirector, String tenantId) {
-        this.authenticateResponse = authenticateResponse;
+    public AuthenticationHeaderManager(CachableTokenInfo cachableTokenInfo, Boolean isDelegatable, FilterDirector filterDirector, String tenantId) {
+        this.cachableTokenInfo = cachableTokenInfo;
         this.isDelegatable = isDelegatable;
         this.filterDirector = filterDirector;
         this.tenantId = tenantId;
 
-        if (authenticateResponse != null && authenticateResponse.getToken().getId() != null && authenticateResponse.getToken().getId() != null) {
+        if (cachableTokenInfo != null && cachableTokenInfo.getTokenId() != null) {
             this.validToken = true;
         } else {
             this.validToken = false;
@@ -74,23 +75,14 @@ public class AuthenticationHeaderManager {
      * USER
      */
     private void setUser() {
-        filterDirector.requestHeaderManager().putHeader(PowerApiHeader.USER.headerKey(), authenticateResponse.getUser().getName());
+        filterDirector.requestHeaderManager().putHeader(PowerApiHeader.USER.headerKey(), cachableTokenInfo.getUsername());
     }
 
     /**
      * ROLES
      */
     private void setRoles() {
-        String tmp = new String();
-
-        for (Role role : authenticateResponse.getUser().getRoles().getRole()) {
-            tmp += (role + ",");
-        }
-
-        String roles = "";
-        if (tmp.endsWith(",")) {
-            roles = tmp.substring(0, tmp.length() - 1);
-        }
+        String roles = cachableTokenInfo.getRoles();
 
         if (StringUtilities.isNotBlank(roles)) {
             filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.headerKey(), roles);

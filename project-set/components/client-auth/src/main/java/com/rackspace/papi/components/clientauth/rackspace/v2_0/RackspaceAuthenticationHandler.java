@@ -2,6 +2,7 @@ package com.rackspace.papi.components.clientauth.rackspace.v2_0;
 
 import com.rackspace.auth.v2_0.Account;
 import com.rackspace.auth.v2_0.AuthenticationServiceClient;
+import com.rackspace.auth.v2_0.CachableTokenInfo;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import com.rackspace.papi.components.clientauth.rackspace.config.RackspaceAuthV20;
 import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
@@ -57,9 +58,9 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
       final Account account = accountUsernameExtractor.extract(request.getRequestURL().toString());
 
       try {
-        AuthenticateResponse authenticateResponse = authenticationService.validateToken(authToken);
+        CachableTokenInfo cachableTokenInfo = authenticationService.validateToken(authToken);
 
-        AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(authenticateResponse, cfg.isDelegatable(), filterDirector, account.getUsername());
+        AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(cachableTokenInfo, cfg.isDelegatable(), filterDirector, account.getUsername());
         headerManager.setFilterDirectorValues();  
           
       } catch (Exception ex) {

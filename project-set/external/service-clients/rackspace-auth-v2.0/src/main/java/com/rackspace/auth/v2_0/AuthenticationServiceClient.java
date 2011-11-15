@@ -27,30 +27,36 @@ public class AuthenticationServiceClient {
     }
 
     private String getAdminToken(String username, String password) {
+        // TODO: Check if admin token in cache before making call to get it; if not cache it
         final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.getAdminToken(targetHostUri + "/tokens", username, password);
         final int response = serviceResponse.getStatusCode();
         AuthenticateResponse authenticateResponse = null;
+        String adminToken = null;
 
         switch (response) {
             case 200:
                 authenticateResponse = responseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
+                adminToken = authenticateResponse.getToken().getId();
+
+
         }
 
-        return authenticateResponse.getToken().getId();
+        return adminToken;
     }
 
-    public AuthenticateResponse validateToken(String userToken) {
+    public CachableTokenInfo validateToken(String userToken) {
+        // TODO: Check if token in cache before making call to get it; if not cache it
         final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, adminToken);
         final int response = serviceResponse.getStatusCode();
         AuthenticateResponse authenticateResponse = null;
+        CachableTokenInfo token = null;
 
         switch (response) {
             case 200:
                 authenticateResponse = responseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
+                token = new CachableTokenInfo(authenticateResponse);                           
         }
-
-        return authenticateResponse;
+       
+        return token;
     }
-
-    
 }
