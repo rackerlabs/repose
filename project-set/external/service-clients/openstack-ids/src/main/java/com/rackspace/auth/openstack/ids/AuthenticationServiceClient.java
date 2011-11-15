@@ -1,9 +1,10 @@
 package com.rackspace.auth.openstack.ids;
 
-import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
+import com.rackspace.auth.openstack.ids.cache.EhcacheWrapper;
 import net.sf.ehcache.CacheManager;
 import org.openstack.docs.identity.api.v2.AuthenticateResponse;
-import org.openstack.docs.identity.api.v2.Tenants;
+
+import java.util.Calendar;
 
 /**
  * @author fran
@@ -14,49 +15,56 @@ public class AuthenticationServiceClient {
     private final GenericServiceClient serviceClient;
     private final ResponseUnmarshaller responseUnmarshaller;
     private final CacheManager cacheManager;
-    private final AuthenticationCache authenticationCache;
-    private String adminToken = null;
+    private final EhcacheWrapper ehcacheWrapper;
 
     public AuthenticationServiceClient(String targetHostUri, String username, String password) {
         this.responseUnmarshaller = new ResponseUnmarshaller();
         this.serviceClient = new GenericServiceClient(username, password);
         this.targetHostUri = targetHostUri;
         this.cacheManager = new CacheManager();
-        this.authenticationCache = new AuthenticationCache(cacheManager);
-        this.adminToken = getAdminToken(username, password);
+        this.ehcacheWrapper = new EhcacheWrapper(cacheManager);
+    }
+
+    public CachableTokenInfo validateToken(String tenant, String userToken, String adminUsername, String adminPassword) {
+        CachableTokenInfo token = (CachableTokenInfo) ehcacheWrapper.get(tenant);
+
+        if (token == null) {
+            final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, getAdminToken(adminUsername, adminPassword));
+            final int response = serviceResponse.getStatusCode();
+            AuthenticateResponse authenticateResponse = null;
+
+            switch (response) {
+                case 200:
+                    authenticateResponse = responseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
+                        token = new CachableTokenInfo(authenticateResponse);
+                        final Long expireTtl = authenticateResponse.getToken().getExpires().toGregorianCalendar().getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
+
+                        ehcacheWrapper.put(tenant, token, expireTtl.intValue());
+            }
+        }
+
+        return token;
     }
 
     private String getAdminToken(String username, String password) {
-        // TODO: Check if admin token in cache before making call to get it; if not cache it
-        final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.getAdminToken(targetHostUri + "/tokens", username, password);
-        final int response = serviceResponse.getStatusCode();
-        AuthenticateResponse authenticateResponse = null;
-        String adminToken = null;
+        String adminToken = (String) ehcacheWrapper.get(username+password);
 
-        switch (response) {
-            case 200:
-                authenticateResponse = responseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
-                adminToken = authenticateResponse.getToken().getId();
+        if (adminToken == null) {
+            final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.getAdminToken(targetHostUri + "/tokens", username, password);
+            final int response = serviceResponse.getStatusCode();
+            AuthenticateResponse authenticateResponse = null;
 
+            switch (response) {
+                case 200:
+                    authenticateResponse = responseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
+                    adminToken = authenticateResponse.getToken().getId();
 
+                    final Long expireTtl = authenticateResponse.getToken().getExpires().toGregorianCalendar().getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
+
+                    ehcacheWrapper.put(username+password, adminToken, expireTtl.intValue());
+            }
         }
 
         return adminToken;
-    }
-
-    public CachableTokenInfo validateToken(String userToken) {
-        // TODO: Check if token in cache before making call to get it; if not cache it
-        final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, adminToken);
-        final int response = serviceResponse.getStatusCode();
-        AuthenticateResponse authenticateResponse = null;
-        CachableTokenInfo token = null;
-
-        switch (response) {
-            case 200:
-                authenticateResponse = responseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
-                token = new CachableTokenInfo(authenticateResponse);                           
-        }
-       
-        return token;
     }
 }
