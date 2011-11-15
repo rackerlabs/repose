@@ -74,6 +74,12 @@
             </dependency>
             
             <dependency>
+                <groupId>com.rackspace.cloud.services.clients</groupId>
+                <artifactId>openstack-ids</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            
+            <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
                 <version>4.1.2</version>

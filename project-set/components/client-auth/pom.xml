@@ -32,8 +32,7 @@
 
         <dependency>
             <groupId>com.rackspace.cloud.services.clients</groupId>
-            <artifactId>rackspace-auth-v2.0</artifactId>
-            <version>1.0.3-SNAPSHOT</version>
+            <artifactId>openstack-ids</artifactId>
         </dependency>
         
         <dependency>

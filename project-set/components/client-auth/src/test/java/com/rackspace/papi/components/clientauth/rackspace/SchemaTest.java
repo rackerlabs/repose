@@ -39,7 +39,7 @@ public class SchemaTest {
             jaxbUnmarshaller.setSchema(SCHEMA_FACTORY.newSchema(
                     new StreamSource[]{
                         new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/config/rackspace-auth-v1.1/rackspace-auth-v1.1.xsd")),
-                        new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/config/rackspace-auth-v2.0/rackspace-auth-v2.0.xsd")),                            
+                        new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/config/openstack-ids-auth/openstack-ids-auth.xsd")),                            
                         new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/config/http-basic/http-basic.xsd")),
                         new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/config/client-auth-n-configuration.xsd"))
                     }));
