@@ -13,7 +13,7 @@ import java.util.Calendar;
  */
 public class MockUser {
 
-    protected String name, group, token;
+    protected String name, group, token, password;
     protected SimpleDateFormat format;
     protected final Calendar cal = Calendar.getInstance();
     protected boolean keystone;

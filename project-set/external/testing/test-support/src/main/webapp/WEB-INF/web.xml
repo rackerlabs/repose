@@ -20,6 +20,10 @@
         <servlet-name>mockKeyStoneTokenServlet</servlet-name>
         <servlet-class>com.rackspace.tests.testSupport.mockKeyStoneTokenServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>GetTokensServlet</servlet-name>
+        <servlet-class>com.rackspace.tests.testSupport.GetTokensServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>mockTokenServlet</servlet-name>
         <url-pattern>/token/*</url-pattern>
@@ -44,6 +48,10 @@
     <servlet-mapping>
         <servlet-name>mockKeyStoneTokenServlet</servlet-name>
         <url-pattern>/keystone/token/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>GetTokensServlet</servlet-name>
+        <url-pattern>/tokens</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
