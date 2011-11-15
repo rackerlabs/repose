@@ -7,11 +7,12 @@ package com.rackspace.papi.commons.util.http;
 public enum PowerApiHeader implements HttpHeader {
 
     ROUTE_DESTINATION("X-PP-RouteDestination"),
-    USER("X-PP-User"),
-    GROUPS("X-PP-Groups"),
-    TENANT("X-TENANT"),
-    TENANT_ID("X-TENANT-ID"),
-    ROLES("X-ROLE");
+    USER("HTTP_X_USER"),
+    GROUPS("HTTP_X_ROLE"),
+    TENANT("HTTP_X_TENANT"),
+    TENANT_NAME("HTTP_X_TENANT_NAME"),
+    TENANT_ID("HTTP_X_TENANT_ID"),
+    ROLES("X_ROLE");
 
     private final String headerName;
 

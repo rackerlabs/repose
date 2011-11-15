@@ -7,7 +7,7 @@
     <header-filters>
         <whitelist>
             <header id="Accept"/>
-            <header id="X-PP-User" />
+            <header id="X_USER" />
             <header id="X-Auth-Token" />            
         </whitelist>
     </header-filters>

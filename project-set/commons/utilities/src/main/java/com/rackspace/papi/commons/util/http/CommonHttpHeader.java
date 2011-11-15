@@ -8,13 +8,13 @@ public enum CommonHttpHeader implements HttpHeader {
     
     //Auth specific
     AUTH_TOKEN("X-Auth-Token"),
-    AUTHORIZATION("Authorization"),
+    AUTHORIZATION("HTTP_AUTHORIZATION"),
 
     /**
      * This header allows the underlying service to identify who authenticated
      * the request in question.
      */
-    EXTENDED_AUTHORIZATION("X-Authorization"),
+    EXTENDED_AUTHORIZATION("HTTP_X_AUTHORIZATION"),
     
     /**
      * This header allows the underlying service to identify whether or not the
@@ -22,8 +22,8 @@ public enum CommonHttpHeader implements HttpHeader {
      * 
      * The only two valid values for this header should be: "Confirmed" or "Indeterminate"
      */
-    IDENTITY_STATUS("X-Identity-Status"),
-    WWW_AUTHENTICATE("WWWW-Authenticate"),
+    IDENTITY_STATUS("HTTP_X_IDENTITY_STATUS"),
+    WWW_AUTHENTICATE("WWW-Authenticate"),
     
     //Standards
     HOST("Host"),
