@@ -1,4 +1,4 @@
-package com.rackspace.auth.v2_0;
+package com.rackspace.auth.openstack.ids;
 
 /*
  *  Copyright 2010 Rackspace.
@@ -22,13 +22,21 @@ package com.rackspace.auth.v2_0;
  *
  * @author jhopper
  */
-public class AuthServiceException extends RuntimeException {
+public class Account {
+    private final String type;
+    private final String username;
 
-    public AuthServiceException(String message, Throwable cause) {
-        super(message, cause);
+    public Account(String type, String username) {
+        this.type = type;
+        this.username = username;
     }
 
-    public AuthServiceException(String message) {
-        super(message);
+    public String getUsername() {
+        return username;
+    }
+
+    public String getType() {
+        return type;
     }
 }
+

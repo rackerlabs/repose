@@ -1,4 +1,4 @@
-package com.rackspace.auth.v2_0;
+package com.rackspace.auth.openstack.ids;
 
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;

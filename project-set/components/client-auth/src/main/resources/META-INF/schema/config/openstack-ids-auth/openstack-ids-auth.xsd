@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://docs.rackspacecloud.com/power-api/client-auth/rs-auth-2.0/v2.0"
-           xmlns:auth-2.0="http://docs.rackspacecloud.com/power-api/client-auth/rs-auth-2.0/v2.0"
+           targetNamespace="http://docs.openrepose.org/power-api/client-auth/os-ids-auth/v1.0"
+           xmlns:os-ids-auth="http://docs.openrepose.org/power-api/client-auth/os-ids-auth/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">    
 
     <!-- Configuration -->
-    <xs:element name="rackspace-auth-v2.0">
+    <xs:element name="openstack-auth">
         <xs:complexType>
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Defines a Rackspace Cloud Auth version 2.0 configuration</html:p>
+                    <html:p>Defines an OpenStack Identity Service authentication configuration</html:p>
                 </xs:documentation>
             </xs:annotation>
 
             <xs:sequence>
-                <xs:element name="authentication-server" type="auth-2.0:authenticationServer2.0" minOccurs="1" maxOccurs="1" />
-                <xs:element name="account-mapping" type="auth-2.0:accountMapping2.0" minOccurs="1" maxOccurs="unbounded" />
+                <xs:element name="identity-service" type="os-ids-auth:OpenStackIdentityService" minOccurs="1" maxOccurs="1" />
+                <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="1" maxOccurs="unbounded" />
             </xs:sequence>
 
             <xs:attribute name="delegatable" type="xs:boolean" use="optional" default="false">
@@ -30,10 +30,10 @@
         </xs:complexType>
     </xs:element>
 
-    <xs:complexType name="authenticationServer2.0">
+    <xs:complexType name="OpenStackIdentityService">
         <xs:annotation>
             <xs:documentation>
-                <html:p>Describes an authentication 2.0 endpoint</html:p>
+                <html:p>Describes an OpenStack Identity Service endpoint</html:p>
             </xs:documentation>
         </xs:annotation>
 
@@ -62,20 +62,19 @@
         </xs:attribute>
     </xs:complexType>
 
-    <xs:complexType name="accountMapping2.0">
+    <xs:complexType name="ClientMapping">
         <xs:annotation>
             <xs:documentation>
-                <html:p>Describes how to extract the account id from a given URI</html:p>
+                <html:p>Describes how to extract the client id from a given URI</html:p>
             </xs:documentation>
         </xs:annotation>
 
         <xs:attribute name="id-regex" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Regex used to extract the account id from a given URI</html:p>
+                    <html:p>Regex used to extract the client id from a given URI</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
-
 </xs:schema>

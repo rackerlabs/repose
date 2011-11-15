@@ -1,10 +1,8 @@
-package com.rackspace.papi.components.clientauth.rackspace.v2_0;
+package com.rackspace.papi.components.clientauth.openstack.v1_0;
 
-import com.rackspace.auth.v2_0.Account;
-import com.rackspace.auth.v2_0.AuthenticationServiceClient;
-import com.rackspace.auth.v2_0.CachableTokenInfo;
-import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
-import com.rackspace.papi.components.clientauth.rackspace.config.RackspaceAuthV20;
+import com.rackspace.auth.openstack.ids.Account;
+import com.rackspace.auth.openstack.ids.AuthenticationServiceClient;
+import com.rackspace.auth.openstack.ids.CachableTokenInfo;
 import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
 
 import com.rackspace.papi.auth.AuthModule;
@@ -12,12 +10,10 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
+import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import org.openstack.docs.identity.api.v2.AuthenticateResponse;
-import org.openstack.docs.identity.api.v2.Tenants;
-import org.openstack.docs.identity.api.v2.Token;
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,13 +25,13 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RackspaceAuthenticationHandler.class);
    private final AuthenticationServiceClient authenticationService;
-   private final RackspaceAuthV20 cfg;
+   private final OpenstackAuth cfg;
    private final AccountUsernameExtractor accountUsernameExtractor;
 
-   public RackspaceAuthenticationHandler(RackspaceAuthV20 cfg) {
-      this.authenticationService = new AuthenticationServiceClient(cfg.getAuthenticationServer().getUri(), cfg.getAuthenticationServer().getUsername(), cfg.getAuthenticationServer().getPassword());
+   public RackspaceAuthenticationHandler(OpenstackAuth cfg) {
+      this.authenticationService = new AuthenticationServiceClient(cfg.getIdentityService().getUri(), cfg.getIdentityService().getUsername(), cfg.getIdentityService().getPassword());
       this.cfg = cfg;
-      this.accountUsernameExtractor = new AccountUsernameExtractor(cfg.getAccountMapping());
+      this.accountUsernameExtractor = new AccountUsernameExtractor(cfg.getClientMapping());
    }
 
     @Override

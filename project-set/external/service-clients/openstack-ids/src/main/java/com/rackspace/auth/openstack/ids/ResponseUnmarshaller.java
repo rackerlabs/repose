@@ -1,4 +1,4 @@
-package com.rackspace.auth.v2_0;
+package com.rackspace.auth.openstack.ids;
 
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import com.rackspace.papi.commons.util.pooling.ConstructionStrategy;
