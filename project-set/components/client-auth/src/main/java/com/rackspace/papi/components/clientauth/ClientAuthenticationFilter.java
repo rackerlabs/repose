@@ -58,6 +58,11 @@ public class ClientAuthenticationFilter implements Filter {
                 handlerFactory.newHandler().handleResponse(mutableHttpRequest, mutableHttpResponse);
                 break;
 
+            case PROCESS_RESPONSE:
+                chain.doFilter(mutableHttpRequest, mutableHttpResponse);
+                handlerFactory.newHandler().handleResponse(mutableHttpRequest, mutableHttpResponse);
+                break;
+
             default:
                 mutableHttpResponse.setStatus(director.getResponseStatus().intValue());
                 break;

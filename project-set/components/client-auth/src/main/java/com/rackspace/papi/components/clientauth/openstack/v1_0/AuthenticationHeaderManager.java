@@ -35,10 +35,12 @@ public class AuthenticationHeaderManager {
     public void setFilterDirectorValues() {
         setExtendedAuthorization();
 
-        if (validToken || isDelegatable) {
+        if (validToken) {
             filterDirector.setFilterAction(FilterAction.PASS);
+        } else if (isDelegatable) {
+            filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
         }
-
+        
         if (validToken) {
             setUser();
             setRoles();

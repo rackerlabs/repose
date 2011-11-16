@@ -1,7 +1,6 @@
 package com.rackspace.papi.components.clientauth.openstack.v1_0;
 
 import com.rackspace.auth.openstack.ids.Account;
-import com.rackspace.auth.openstack.ids.AuthenticationServiceClient;
 import com.rackspace.auth.openstack.ids.CachableTokenInfo;
 import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
 import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
@@ -37,7 +36,7 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
 
     @Override
     public String getWWWAuthenticateHeaderContents() {
-        return "TODO: What should this be for Cloud Auth 2.0?";
+        return "TODO";
     }
 
     @Override
@@ -49,7 +48,7 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
     public FilterDirector authenticate(HttpServletRequest request) {
         final FilterDirector filterDirector = new FilterDirectorImpl();
         filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
-        filterDirector.setFilterAction(FilterAction.USE_MESSAGE_SERVICE);
+        filterDirector.setFilterAction(FilterAction.RETURN);
 
         final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.headerKey());
         final Account account = accountUsernameExtractor.extract(request.getRequestURI());
