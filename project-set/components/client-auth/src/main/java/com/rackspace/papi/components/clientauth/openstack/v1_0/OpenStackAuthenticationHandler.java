@@ -23,12 +23,12 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler implements AuthModule {
 
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RackspaceAuthenticationHandler.class);
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(OpenStackAuthenticationHandler.class);
    private final AuthenticationServiceClient authenticationService;
    private final OpenstackAuth cfg;
    private final AccountUsernameExtractor accountUsernameExtractor;
 
-   public RackspaceAuthenticationHandler(OpenstackAuth cfg) {
+   public OpenStackAuthenticationHandler(OpenstackAuth cfg) {
       this.authenticationService = new AuthenticationServiceClient(cfg.getIdentityService().getUri(), cfg.getIdentityService().getUsername(), cfg.getIdentityService().getPassword());
       this.cfg = cfg;
       this.accountUsernameExtractor = new AccountUsernameExtractor(cfg.getClientMapping());
