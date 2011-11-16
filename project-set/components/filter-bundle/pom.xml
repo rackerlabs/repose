@@ -200,7 +200,7 @@
                                             <location>../versioning/src/main/resources/META-INF/schema/examples/versioning.cfg.xml</location>
                                         </source>
                                         <source>
-                                            <location>../client-auth/src/main/resources/META-INF/schema/examples/client-auth-n.cfg.xml</location>
+                                            <location>../client-auth/src/main/resources/META-INF/schema/examples/rackspace/client-auth-n.cfg.xml</location>
                                         </source>
                                         <source>
                                             <location>../rate-limiting/src/main/resources/META-INF/schema/examples/rate-limiting.cfg.xml</location>

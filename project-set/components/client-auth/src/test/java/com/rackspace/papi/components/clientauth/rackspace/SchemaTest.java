@@ -47,7 +47,7 @@ public class SchemaTest {
 
         @Test
         public void shouldValidateAgainstStaticExample() throws Exception {
-            final StreamSource sampleSource = new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/examples/client-auth-n.cfg.xml"));
+            final StreamSource sampleSource = new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/examples/rackspace/client-auth-n.cfg.xml"));
 
             assertNotNull("Expected element should not be null", jaxbUnmarshaller.unmarshal(sampleSource, ClientAuthConfig.class).getValue().getRackspaceAuth());
         }

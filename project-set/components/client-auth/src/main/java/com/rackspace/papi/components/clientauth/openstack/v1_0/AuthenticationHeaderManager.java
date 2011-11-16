@@ -12,6 +12,7 @@ import com.rackspace.papi.filter.logic.FilterDirector;
  * @author fran
  */
 public class AuthenticationHeaderManager {
+
     private final CachableTokenInfo cachableTokenInfo;
     private final Boolean isDelegatable;
     private final FilterDirector filterDirector;

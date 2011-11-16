@@ -57,7 +57,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
    }
 
    private AuthModule getAuth2_0Handler(ClientAuthConfig config) {
-       return new com.rackspace.papi.components.clientauth.openstack.v1_0.RackspaceAuthenticationHandler(config.getOpenstackAuth());            
+       return new com.rackspace.papi.components.clientauth.openstack.v1_0.OpenStackAuthenticationHandler(config.getOpenstackAuth());            
    }   
 
    protected AuthModule buildHandler() {
