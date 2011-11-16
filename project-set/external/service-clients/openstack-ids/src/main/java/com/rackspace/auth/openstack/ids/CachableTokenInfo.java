@@ -9,6 +9,7 @@ import java.io.Serializable;
  * @author fran
  */
 public class CachableTokenInfo implements Serializable {
+
     private final String tokenId;
     private final String username;
     private final String roles;
@@ -19,6 +20,7 @@ public class CachableTokenInfo implements Serializable {
         this.roles = formatRoles(response);
     }
 
+    // TODO: Consider using string builder
     private String formatRoles(AuthenticateResponse response) {
         String tmp = new String();
 
@@ -26,12 +28,12 @@ public class CachableTokenInfo implements Serializable {
             tmp += (role + ",");
         }
 
-        String roles = "";
+        String formattedRoles = "";
         if (tmp.endsWith(",")) {
-            roles = tmp.substring(0, tmp.length() - 1);
+            formattedRoles = tmp.substring(0, tmp.length() - 1);
         }
 
-        return roles;
+        return formattedRoles;
     }
 
     public String getTokenId() {
