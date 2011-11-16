@@ -3,10 +3,12 @@ package com.rackspace.auth.openstack.ids;
 import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 import org.openstack.docs.identity.api.v2.Role;
 
+import java.io.Serializable;
+
 /**
  * @author fran
  */
-public class CachableTokenInfo {
+public class CachableTokenInfo implements Serializable {
     private final String tokenId;
     private final String username;
     private final String roles;
