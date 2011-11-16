@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.clientauth.rackspace.v1_1;
 
+import com.rackspace.papi.components.clientauth.openstack.v1_0.OpenStackServiceHeader;
 import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
 
 
@@ -66,66 +67,22 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
 
       if ((!StringUtilities.isBlank(authToken) && acct != null)) {
          try {
-            validToken = authenticationService.validateToken(acct, authToken); //validateToken(acct, authToken);
+            validToken = authenticationService.validateToken(acct, authToken);
          } catch (Exception ex) {
             LOG.error("Failure in auth: " + ex.getMessage(), ex);
             filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
          }
       }
 
-      setFilterDirectorValues(validToken, cfg.isDelegatable(), cfg.isKeystoneActive(), cfg.getUserRoles(), filterDirector, acct == null ? "" : acct.getUsername());
+      String[] groups = null;
+      if (validToken) {
+        groups = getGroupsListIds(acct.getUsername());
+      }
+
+      AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(validToken, cfg, filterDirector, acct == null ? "" : acct.getUsername(), groups);
+      headerManager.setFilterDirectorValues();
 
       return filterDirector;
-   }
-
-    // TODO: This hold the "business rules" on how we should populate the headers.  May want to move this to some
-    // sort of business rules class just to make it a little neater.
-   private void setFilterDirectorValues(boolean validToken, boolean isDelegatable, boolean keystone, UserRoles userRoles, FilterDirector filterDirector, String accountUsername) {
-      filterDirector.requestHeaderManager().putHeader(CommonHttpHeader.EXTENDED_AUTHORIZATION.headerKey(), "proxy " + accountUsername);
-
-      if (validToken || isDelegatable) {
-         filterDirector.setFilterAction(FilterAction.PASS);
-      }
-
-      if (validToken) {
-         filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.headerKey(), getGroupsListIds(accountUsername));
-         filterDirector.requestHeaderManager().putHeader(PowerApiHeader.USER.headerKey(), accountUsername);
-
-         // This is temporary to support roles until we integrate with Auth 2.0
-         if (keystone) {
-            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.TENANT.headerKey(), accountUsername);
-            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.TENANT_ID.headerKey(), accountUsername);
-
-            List<String> roleList = new ArrayList<String>();
-
-            for (String r : userRoles.getDefault().getRoles().getRole()) {
-               roleList.add(r);
-            }
-
-            for (User user : userRoles.getUser()) {
-               if (user.getName().equalsIgnoreCase(accountUsername)) {
-                  for (String r : user.getRoles().getRole()) {
-                     roleList.add(r);
-                  }
-               }
-            }
-
-            if (roleList.size() > 0) {
-               filterDirector.requestHeaderManager().putHeader(PowerApiHeader.ROLES.headerKey(), roleList.toArray(new String[0]));
-            }
-         }
-         //  end temporary keystone support
-      }
-
-      if (isDelegatable) {
-         IdentityStatus identityStatus = IdentityStatus.Confirmed;
-
-         if (!validToken) {
-            identityStatus = IdentityStatus.Indeterminate;
-         }
-
-         filterDirector.requestHeaderManager().putHeader(CommonHttpHeader.IDENTITY_STATUS.headerKey(), identityStatus.name());
-      }
    }
 
    private String[] getGroupsListIds(String accountUsername) {
