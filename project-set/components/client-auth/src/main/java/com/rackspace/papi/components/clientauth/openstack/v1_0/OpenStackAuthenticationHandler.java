@@ -21,7 +21,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * @author fran
  */
-public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler implements AuthModule {
+public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler implements AuthModule {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RackspaceAuthenticationHandler.class);
    private final AuthenticationServiceClient authenticationService;
