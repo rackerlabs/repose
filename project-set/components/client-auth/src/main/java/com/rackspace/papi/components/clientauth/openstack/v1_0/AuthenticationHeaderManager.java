@@ -52,7 +52,7 @@ public class AuthenticationHeaderManager {
      * EXTENDED AUTHORIZATION
      */
     private void setExtendedAuthorization() {
-        filterDirector.requestHeaderManager().putHeader(CommonHttpHeader.EXTENDED_AUTHORIZATION.headerKey(), "proxy " + tenantId);
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.headerKey(), "proxy " + tenantId);
     }
 
     /**
@@ -66,26 +66,7 @@ public class AuthenticationHeaderManager {
                 identityStatus = IdentityStatus.Indeterminate;
             }
 
-            filterDirector.requestHeaderManager().putHeader(CommonHttpHeader.IDENTITY_STATUS.headerKey(), identityStatus.name());
-        }
-    }
-
-    /**
-     * USER
-     */
-    private void setUser() {
-        filterDirector.requestHeaderManager().putHeader(PowerApiHeader.USER.headerKey(), cachableTokenInfo.getUsername());
-    }
-
-    /**
-     * ROLES
-     */
-    private void setRoles() {
-        String roles = cachableTokenInfo.getRoles();
-
-        if (StringUtilities.isNotBlank(roles)) {
-            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.headerKey(), roles);
-            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.ROLES.headerKey(), roles);
+            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.IDENTITY_STATUS.headerKey(), identityStatus.name());
         }
     }
 
@@ -93,9 +74,36 @@ public class AuthenticationHeaderManager {
      * TENANT
      */
     private void setTenant() {
-        filterDirector.requestHeaderManager().putHeader(PowerApiHeader.USER.headerKey(), tenantId);
-        filterDirector.requestHeaderManager().putHeader(PowerApiHeader.TENANT_NAME.headerKey(), tenantId);
-        filterDirector.requestHeaderManager().putHeader(PowerApiHeader.TENANT.headerKey(), tenantId);
-        filterDirector.requestHeaderManager().putHeader(PowerApiHeader.TENANT_ID.headerKey(), tenantId);
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.headerKey(), tenantId);
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.headerKey(), tenantId);
     }
+
+    /**
+     * USER
+     * The PowerApiHeader is used for Rate Limiting
+     * The OpenStackServiceHeader is used for an OpenStack service
+     */
+    private void setUser() {
+        filterDirector.requestHeaderManager().putHeader(PowerApiHeader.USER.headerKey(), cachableTokenInfo.getUsername());
+
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_NAME.headerKey(), cachableTokenInfo.getUsername());
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_ID.headerKey(), cachableTokenInfo.getUserId());
+    }
+
+    /**
+     * ROLES
+     * The PowerApiHeader is used for Rate Limiting
+     * The OpenStackServiceHeader is used for an OpenStack service
+     */
+    private void setRoles() {
+        String roles = cachableTokenInfo.getRoles();
+
+        if (StringUtilities.isNotBlank(roles)) {
+            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.headerKey(), cachableTokenInfo.getRoleNames());
+
+            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.ROLES.headerKey(), roles);
+        }
+    }
+
+
 }
