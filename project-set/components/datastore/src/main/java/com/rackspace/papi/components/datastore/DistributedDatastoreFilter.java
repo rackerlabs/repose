@@ -46,7 +46,6 @@ public class DistributedDatastoreFilter implements Filter {
 
             case RETURN:
             case PROCESS_RESPONSE:
-            case USE_MESSAGE_SERVICE:
                 director.applyTo(httpResponse);     
                 break;
         }
