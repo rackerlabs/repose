@@ -42,14 +42,14 @@
 
     <build>
         <plugins>
-            <plugin>
+            <plugin>                
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>xml-maven-plugin</artifactId>
                
                 <configuration>
                     <transformationSets>
                         <transformationSet>
-                            <dir>src/main/resources/META-INF/schema/auth-2.0-service</dir>
+                            <dir>src/main/resources/META-INF/schema/openstack</dir>
                             <stylesheet>src/main/resources/META-INF/schema/xsl/s1.0p.xsl</stylesheet>
                         </transformationSet>
                     </transformationSets>                    
