@@ -7,14 +7,13 @@ import com.rackspacecloud.docs.auth.api.v1.UnauthorizedFault;
 import com.sun.jersey.spi.resource.Singleton;
 import java.util.Calendar;
 import javax.ws.rs.*;
-import javax.ws.rs.core.CacheControl;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.core.*;
+import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.datatype.*;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 @Path("/v1.1")
 @Singleton
@@ -22,7 +21,7 @@ public class AuthResource {
 
    private final ObjectFactory objectFactory;
    private final DatatypeFactory dataTypeFactory;
-   private final String[] validUsers = {"cmarin1"};
+   private final String[] validUsers = {"cmarin1", "usertest1", "usertest2", "usertest3", "usertest4"};
 
    public AuthResource() throws DatatypeConfigurationException {
       objectFactory = new ObjectFactory();
@@ -30,15 +29,27 @@ public class AuthResource {
    }
 
    @GET
-   @Produces("application/xml")
+   @Produces({"application/xml", "application/json"})
    public Response getToken(@HeaderParam("X-Auth-User") String userName, @HeaderParam("X-Auth-Key") String key) {
       if (!validateUser(userName)) {
-         return Response.status(Status.UNAUTHORIZED).type(MediaType.APPLICATION_OCTET_STREAM).entity("Bad username or password").build();
+         return Response
+                 .status(Status.UNAUTHORIZED)
+                 .type(MediaType.APPLICATION_OCTET_STREAM)
+                 .entity("Bad username or password")
+                 .build();
       }
       
       CacheControl control = new CacheControl();
       control.setMaxAge(85961);
-      return Response.noContent().header("X-Auth-Token", userName.hashCode() + ":" + key.hashCode()).header("X-Storage-Url", "/storage/" + userName).header("X-Storage-Token", userName.hashCode() + ":" + key.hashCode()).header("X-CDN-Management-Url", "/cdn/" + userName).header("X-Server-Management-Url", "/server/" + userName).cacheControl(control).build();
+      return Response
+              .noContent()
+              .header("X-Auth-Token", userName.hashCode() + ":" + key.hashCode())
+              .header("X-Storage-Url", "/storage/" + userName)
+              .header("X-Storage-Token", userName.hashCode() + ":" + key.hashCode())
+              .header("X-CDN-Management-Url", "/cdn/" + userName)
+              .header("X-Server-Management-Url", "/server/" + userName)
+              .cacheControl(control)
+              .build();
    }
 
    @GET
@@ -47,10 +58,16 @@ public class AuthResource {
    public Response validateToken(@PathParam("token") String token, @QueryParam("belongsTo") String userName, @QueryParam("type") String accountType, @Context UriInfo context) throws DatatypeConfigurationException {
 
       if (!validateUser(userName)) {
-         return Response.status(Status.UNAUTHORIZED).entity(objectFactory.createUnauthorized(createUnauthorized())).build();
+         return Response
+                 .status(Status.UNAUTHORIZED)
+                 .entity(objectFactory.createUnauthorized(createUnauthorized()))
+                 .build();
       }
       if (!validateToken(userName, token, accountType)) {
-         return Response.status(Status.NOT_FOUND).entity(objectFactory.createItemNotFound(createItemNotFound())).build();
+         return Response
+                 .status(Status.NOT_FOUND)
+                 .entity(objectFactory.createItemNotFound(createItemNotFound()))
+                 .build();
       }
 
       return Response.ok(objectFactory.createToken(createToken(userName, token))).build();
@@ -62,16 +79,24 @@ public class AuthResource {
    public Response validateTokenJson(@PathParam("token") String token, @QueryParam("belongsTo") String userName, @QueryParam("type") String accountType, @Context UriInfo context) {
 
       if (!validateUser(userName)) {
-         return Response.status(Status.UNAUTHORIZED).entity(new UnauthorizedWrapper(createUnauthorized())).build();
+         return Response
+                 .status(Status.UNAUTHORIZED)
+                 .entity(new UnauthorizedWrapper(createUnauthorized()))
+                 .build();
       }
 
       if (!validateToken(userName, token, accountType)) {
-         return Response.status(Status.NOT_FOUND).entity(new ItemNotFoundWrapper(createItemNotFound())).build();
+         return Response
+                 .status(Status.NOT_FOUND)
+                 .entity(new ItemNotFoundWrapper(createItemNotFound()))
+                 .build();
       }
 
       return Response.ok(new TokenWrapper(createToken(userName, token))).build();
    }
 
+   // Wrapper classes so that Jackson can correctly wrap the elements in a 
+   // root element
    @XmlRootElement(name = "token")
    private static class TokenWrapper {
 
@@ -80,7 +105,8 @@ public class AuthResource {
       public TokenWrapper(FullToken token) {
          this.token = token;
       }
-
+      
+      @XmlElement(name="token")
       public FullToken getToken() {
          return token;
       }
