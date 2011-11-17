@@ -8,60 +8,58 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
-import com.sun.jersey.api.client.WebResource.Builder;
 import com.sun.jersey.api.client.filter.LoggingFilter;
 import com.sun.ws.rs.ext.RuntimeDelegateImpl;
 import org.openstack.docs.identity.api.v2.AuthenticationRequest;
-import org.openstack.docs.identity.api.v2.PasswordCredentialsBase;
 import org.openstack.docs.identity.api.v2.PasswordCredentialsRequiredUsername;
 
 import javax.ws.rs.ext.RuntimeDelegate;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
-import java.util.Map;
 
 /**
  * @author fran
  */
 public class GenericServiceClient {
     static {
-        // If this works we need to figure out why and make sure it's part of our init
+        // TODO: This should be removed, relocated or ignored. This is related to the issues we were seeing
+        // where Jersey would work on some JVM installations but not all. This was rectified by adding a dependency
+        // on jersey-server
+        
         RuntimeDelegate.setInstance(new RuntimeDelegateImpl());
     }
 
     private final Client client;
-    private final String ACCEPT = "application/xml";
-
-    private Builder setHeaders(Builder builder, Map<String, String> headers) {
-        for (String key: headers.keySet()) {
-            builder = builder.header(key, headers.get(key));
-        }
-
-        return builder;
-    }
+    private final String username, password;
 
     public GenericServiceClient(String username, String password) {
+        this.username = username;
+        this.password = password;
+        
         DefaultClientConfig cc = new DefaultClientConfig();
         cc.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, false);
         client = Client.create(cc);
 
+        // TODO: Validate that this is required for all calls or only some
         HTTPBasicAuthFilter authFilter = new HTTPBasicAuthFilter(username, password);
         client.addFilter(authFilter);
 
         client.addFilter(new LoggingFilter());
     }
 
-    public ServiceClientResponse getAdminToken(String uri, String username, String password) throws AuthServiceException {
+    public ServiceClientResponse getAdminToken(String uri) throws AuthServiceException {
         WebResource resource = client.resource(uri);
 
         PasswordCredentialsRequiredUsername credentials = new PasswordCredentialsRequiredUsername();
         credentials.setUsername(username);
         credentials.setPassword(password);
 
+        // TODO: These QNames should come from the schema objects themselves
         JAXBElement jaxbCredentials = new JAXBElement(new QName("http://docs.openstack.org/identity/api/v2.0","passwordCredentials"), PasswordCredentialsRequiredUsername.class, credentials);
         AuthenticationRequest request = new AuthenticationRequest();
         request.setCredential(jaxbCredentials);
 
+        // TODO: These QNames should come from the schema objects themselves
         JAXBElement jaxbRequest = new JAXBElement(new QName("http://docs.openstack.org/identity/api/v2.0", "auth"), AuthenticationRequest.class, request);
         ClientResponse response = resource.type(MediaType.APPLICATION_XML_TYPE).header("Accept", "application/xml").post(ClientResponse.class, jaxbRequest);
 

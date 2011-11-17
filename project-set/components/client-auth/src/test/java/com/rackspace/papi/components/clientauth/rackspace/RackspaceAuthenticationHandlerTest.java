@@ -17,7 +17,7 @@ import static org.junit.Assert.*;
  * @author fran
  */
 @RunWith(Enclosed.class)
-public class RackspaceAuthenticationModuleTest {
+public class RackspaceAuthenticationHandlerTest {
     public static class WhenGettingWWWAuthenticateHeaderContents {
         private RackspaceAuth authConfiguration;
         private CacheManager cacheManager;

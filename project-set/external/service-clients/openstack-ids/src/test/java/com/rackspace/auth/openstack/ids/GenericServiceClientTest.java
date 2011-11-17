@@ -1,10 +1,11 @@
-package com.rackspace.auth.v2_0;
+package com.rackspace.auth.openstack.ids;
 
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import org.junit.Before;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.openstack.docs.identity.api.v2.Role;
 import org.openstack.docs.identity.api.v2.Token;
 
 import javax.servlet.http.HttpServletRequest;
@@ -48,6 +49,7 @@ public class GenericServiceClientTest {
 
         @Test
         public void shouldGetAuthToken() {
+
 //            GenericServiceClient client = new GenericServiceClient(username, password);
 //
 //            final ServiceClientResponse<Token> serviceResponse = client.getAdminToken(endpoint + "/token", "auth", "auth123");

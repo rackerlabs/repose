@@ -9,13 +9,14 @@ import java.util.Calendar;
 /**
  * @author fran
  */
-public class AuthenticationServiceClient {
+public class AuthenticationServiceClient implements OpenStackAuthenticationService {
 
     private final String targetHostUri;
     private final GenericServiceClient serviceClient;
     private final ResponseUnmarshaller responseUnmarshaller;
     private final CacheManager cacheManager;
     private final EhcacheWrapper ehcacheWrapper;
+    private final String adminTokenCacheKey;
 
     public AuthenticationServiceClient(String targetHostUri, String username, String password) {
         this.responseUnmarshaller = new ResponseUnmarshaller();
@@ -23,45 +24,46 @@ public class AuthenticationServiceClient {
         this.targetHostUri = targetHostUri;
         this.cacheManager = new CacheManager();
         this.ehcacheWrapper = new EhcacheWrapper(cacheManager);
+        
+        adminTokenCacheKey = "Admin_Token:" + (username + password).hashCode();
     }
 
-    public CachableTokenInfo validateToken(String tenant, String userToken, String adminUsername, String adminPassword) {
+    @Override
+    public CachableTokenInfo validateToken(String tenant, String userToken) {
         CachableTokenInfo token = (CachableTokenInfo) ehcacheWrapper.get(tenant);
 
         if (token == null) {
-            final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, getAdminToken(adminUsername, adminPassword));
+            final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, getAdminToken());
             final int response = serviceResponse.getStatusCode();
-            AuthenticateResponse authenticateResponse = null;
 
             switch (response) {
                 case 200:
-                    authenticateResponse = responseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
-                        token = new CachableTokenInfo(authenticateResponse);
-                        final Long expireTtl = authenticateResponse.getToken().getExpires().toGregorianCalendar().getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
+                    final AuthenticateResponse authenticateResponse = responseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
+                    final Long expireTtl = authenticateResponse.getToken().getExpires().toGregorianCalendar().getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
+                    ehcacheWrapper.put(tenant, token, expireTtl.intValue());
 
-                        ehcacheWrapper.put(tenant, token, expireTtl.intValue());
+                    token = new CachableTokenInfo(authenticateResponse);
             }
         }
 
         return token;
     }
 
-    private String getAdminToken(String username, String password) {
-        String adminToken = (String) ehcacheWrapper.get(username+password);
+    private String getAdminToken() {
+        String adminToken = (String) ehcacheWrapper.get(adminTokenCacheKey);
 
         if (adminToken == null) {
-            final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.getAdminToken(targetHostUri + "/tokens", username, password);
+            final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.getAdminToken(targetHostUri + "/tokens");
             final int response = serviceResponse.getStatusCode();
-            AuthenticateResponse authenticateResponse = null;
 
             switch (response) {
                 case 200:
-                    authenticateResponse = responseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
+                    final AuthenticateResponse authenticateResponse = responseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
                     adminToken = authenticateResponse.getToken().getId();
 
                     final Long expireTtl = authenticateResponse.getToken().getExpires().toGregorianCalendar().getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
 
-                    ehcacheWrapper.put(username+password, adminToken, expireTtl.intValue());
+                    ehcacheWrapper.put(adminTokenCacheKey, adminToken, expireTtl.intValue());
             }
         }
 
