@@ -38,7 +38,6 @@ public class ContentNormalizationFilter implements Filter {
 
         switch (director.getFilterAction()) {
             case RETURN:
-            case USE_MESSAGE_SERVICE:
                 break;
 
             case PASS:
