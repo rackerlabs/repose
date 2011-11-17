@@ -4,8 +4,6 @@ import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.filter.PowerFilter;
 import com.rackspace.papi.model.Host;
-import com.rackspace.papi.service.context.jndi.ContextAdapter;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.FilterChain;
