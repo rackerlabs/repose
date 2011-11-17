@@ -1,7 +1,6 @@
 package com.rackspace.papi.components.clientauth.openstack.v1_0;
 
 import com.rackspace.auth.openstack.ids.Account;
-import com.rackspace.auth.openstack.ids.AuthenticationServiceClient;
 import com.rackspace.auth.openstack.ids.CachableTokenInfo;
 import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
 import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
@@ -37,7 +36,7 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
 
     @Override
     public String getWWWAuthenticateHeaderContents() {
-        return "TODO: What should this be for Cloud Auth 2.0?";
+        return "TODO";
     }
 
     @Override
@@ -49,9 +48,9 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
     public FilterDirector authenticate(HttpServletRequest request) {
         final FilterDirector filterDirector = new FilterDirectorImpl();
         filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
-        filterDirector.setFilterAction(FilterAction.USE_MESSAGE_SERVICE);
+        filterDirector.setFilterAction(FilterAction.RETURN);
 
-        final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.headerKey());
+        final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.getHeaderKey());
         final Account account = accountUsernameExtractor.extract(request.getRequestURI());
 
         try {
@@ -69,36 +68,40 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
 
     @Override
     public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
+        FilterDirector myDirector = new FilterDirectorImpl();
+
         /// The WWW Authenticate header can be used to communicate to the client
         // (since we are a proxy) how to correctly authenticate itself
-        final String wwwAuthenticateHeader = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.headerKey());
+        final String wwwAuthenticateHeader = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey());
 
         switch (HttpStatusCode.fromInt(response.getStatus())) {
             // NOTE: We should only mutate the WWW-Authenticate header on a
             // 401 (unauthorized) or 403 (forbidden) response from the origin service
             case UNAUTHORIZED:
             case FORBIDDEN:
-                updateHttpResponse(response, wwwAuthenticateHeader);
+                myDirector = updateHttpResponse(myDirector, wwwAuthenticateHeader);
                 break;
         }
-
-        // TODO: Do we need to return a valid FilterDirector here?
-        return null;
+        
+        return myDirector;
     }
 
-    private void updateHttpResponse(ReadableHttpServletResponse httpResponse, String wwwAuthenticateHeader) {
+    private FilterDirector updateHttpResponse(FilterDirector director, String wwwAuthenticateHeader) {
+        final FilterDirector myDirector = new FilterDirectorImpl(director);
 
         // If in the case that the origin service supports delegated authentication
         // we should then communicate to the client how to authenticate with us
         if (!StringUtilities.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains("Delegated")) {
             final String replacementWwwAuthenticateHeader = getWWWAuthenticateHeaderContents();
-            httpResponse.setHeader(CommonHttpHeader.WWW_AUTHENTICATE.headerKey(), replacementWwwAuthenticateHeader);
+            myDirector.responseHeaderManager().putHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey(), replacementWwwAuthenticateHeader);
         } else {
             // In the case where authentication has failed and we did not receive
             // a delegated WWW-Authenticate header, this means that our own authentication
             // with the origin service has failed and must then be communicated as
             // a 500 (internal server error) to the client
-            httpResponse.setStatus(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue());
+            myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
+        
+        return myDirector;
     }
 }

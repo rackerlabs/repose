@@ -30,10 +30,12 @@ public class AuthenticationHeaderManager {
     public void setFilterDirectorValues() {
         setExtendedAuthorization();
 
-        if (validToken || isDelegatable) {
+        if (validToken) {
             filterDirector.setFilterAction(FilterAction.PASS);
+        } else if (isDelegatable) {
+            filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
         }
-
+        
         if (validToken) {
             setUser();
             setRoles();
@@ -47,7 +49,7 @@ public class AuthenticationHeaderManager {
      * EXTENDED AUTHORIZATION
      */
     private void setExtendedAuthorization() {
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.headerKey(), "proxy " + tenantId);
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.getHeaderKey(), "proxy " + tenantId);
     }
 
     /**
@@ -61,7 +63,7 @@ public class AuthenticationHeaderManager {
                 identityStatus = IdentityStatus.Indeterminate;
             }
 
-            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.IDENTITY_STATUS.headerKey(), identityStatus.name());
+            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.IDENTITY_STATUS.getHeaderKey(), identityStatus.name());
         }
     }
 
@@ -69,8 +71,8 @@ public class AuthenticationHeaderManager {
      * TENANT
      */
     private void setTenant() {
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.headerKey(), tenantId);
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.headerKey(), tenantId);
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.getHeaderKey(), tenantId);
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.getHeaderKey(), tenantId);
     }
 
     /**
@@ -79,10 +81,10 @@ public class AuthenticationHeaderManager {
      * The OpenStackServiceHeader is used for an OpenStack service
      */
     private void setUser() {
-        filterDirector.requestHeaderManager().putHeader(PowerApiHeader.USER.headerKey(), cachableTokenInfo.getUsername());
+        filterDirector.requestHeaderManager().putHeader(PowerApiHeader.USER.getHeaderKey(), cachableTokenInfo.getUsername());
 
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_NAME.headerKey(), cachableTokenInfo.getUsername());
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_ID.headerKey(), cachableTokenInfo.getUserId());
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_NAME.getHeaderKey(), cachableTokenInfo.getUsername());
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_ID.getHeaderKey(), cachableTokenInfo.getUserId());
     }
 
     /**
@@ -93,9 +95,7 @@ public class AuthenticationHeaderManager {
         String roles = cachableTokenInfo.getRoles();
 
         if (StringUtilities.isNotBlank(roles)) {
-            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.ROLES.headerKey(), roles);
+            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.ROLES.getHeaderKey(), roles);
         }
     }
-
-
 }

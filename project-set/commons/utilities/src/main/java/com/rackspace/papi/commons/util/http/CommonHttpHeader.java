@@ -19,14 +19,24 @@ public enum CommonHttpHeader implements HttpHeader {
     ACCEPT("Accept"),
     CONTENT_TYPE("Content-Type");
 
-    private final String headerName;
+    private final String headerKey;
 
-    private CommonHttpHeader(String headerName) {
-        this.headerName = headerName;
+    private CommonHttpHeader(String headerKey) {
+        this.headerKey = headerKey;
     }
 
     @Override
-    public String headerKey() {
-        return headerName;
+    public String getHeaderKey() {
+        return headerKey;
+    }
+    
+    @Override
+    public boolean matches(String st) {
+        return headerKey.equalsIgnoreCase(st);
+    }
+    
+    @Override
+    public String toString() {
+        return headerKey.toLowerCase();
     }
 }

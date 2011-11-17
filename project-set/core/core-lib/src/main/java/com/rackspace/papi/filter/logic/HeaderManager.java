@@ -15,12 +15,12 @@ public interface HeaderManager {
 
         void removeHeader(String headerName);
 
-        void addHeader(String key, String[] values);
+        void addHeader(String key, Set<String> values);
     }
-    
+
     void putHeader(String key, String... values);
 
-    Map<String, String[]> headersToAdd();
+    Map<String, Set<String>> headersToAdd();
 
     Set<String> headersToRemove();
 

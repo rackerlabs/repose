@@ -61,7 +61,7 @@ public class ConfigurationData {
             final ServiceVersionMapping currentServiceVersion = getServiceVersionForMediaRange(range);
 
             if (currentServiceVersion != null) {
-                director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.headerKey(), range.getMediaType().toString());
+                director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.getHeaderKey(), range.getMediaType().toString());
                 destination = new VersionedOriginService(currentServiceVersion, getHostForVersionMapping(currentServiceVersion));
             }
         }

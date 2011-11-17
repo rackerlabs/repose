@@ -20,13 +20,13 @@ public class ServiceAuthenticationHandler extends AbstractFilterLogicHandler {
    }
    
    public FilterDirector handleRequest(MutableHttpServletRequest request, MutableHttpServletResponse response) {
-      request.addHeader(CommonHttpHeader.AUTHORIZATION.headerKey(), base64EncodedCredentials);
+      request.addHeader(CommonHttpHeader.AUTHORIZATION.getHeaderKey(), base64EncodedCredentials);
 
       return null;
    }
 
    public void handleResponse(MutableHttpServletRequest request, MutableHttpServletResponse response) {
-      final String wwwAuthenticateHeader = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.headerKey());
+      final String wwwAuthenticateHeader = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey());
 
       switch (HttpStatusCode.fromInt(response.getStatus())) {
          case NOT_IMPLEMENTED:
@@ -35,7 +35,7 @@ public class ServiceAuthenticationHandler extends AbstractFilterLogicHandler {
 
             //Remove the WWW-Authenticate header if present
             if (!StringUtilities.isBlank(wwwAuthenticateHeader)) {
-               response.setHeader(CommonHttpHeader.WWW_AUTHENTICATE.headerKey(), null);
+               response.setHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey(), null);
             }
             break;
 
@@ -45,7 +45,7 @@ public class ServiceAuthenticationHandler extends AbstractFilterLogicHandler {
                response.setStatus(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue());
             } else {
                //Remove the header
-               response.setHeader(CommonHttpHeader.WWW_AUTHENTICATE.headerKey(), null);
+               response.setHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey(), null);
             }
 
             break;

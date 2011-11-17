@@ -56,7 +56,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
             newRateLimiter().recordLimitedRequest(new RateLimitingRequestInfo(request), director);
          }
       } else {
-         LOG.warn("Expected header: " + PowerApiHeader.USER.headerKey()
+         LOG.warn("Expected header: " + PowerApiHeader.USER.getHeaderKey()
                  + " was not supplied in the request. Rate limiting requires this header to operate.");
 
          // Auto return a 401 if the request does not meet expectations
@@ -72,7 +72,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
    }
 
    public boolean requestHasExpectedHeaders(HttpServletRequest request) {
-      return request.getHeader(PowerApiHeader.USER.headerKey()) != null;
+      return request.getHeader(PowerApiHeader.USER.getHeaderKey()) != null;
    }
 
    private void describeLimitsForRequest(final FilterDirector director, HttpServletRequest request) {

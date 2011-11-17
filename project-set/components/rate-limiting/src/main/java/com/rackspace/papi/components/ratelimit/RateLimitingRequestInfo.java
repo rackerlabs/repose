@@ -20,11 +20,11 @@ public class RateLimitingRequestInfo {
         
         allUserGroups = new LinkedList<String>();
 
-        for (Enumeration<String> groupHeaders = request.getHeaders(PowerApiHeader.GROUPS.headerKey()); groupHeaders.hasMoreElements();) {
+        for (Enumeration<String> groupHeaders = request.getHeaders(PowerApiHeader.GROUPS.getHeaderKey()); groupHeaders.hasMoreElements();) {
             allUserGroups.add(groupHeaders.nextElement());
         }
 
-        userName = request.getHeader(PowerApiHeader.USER.headerKey());
+        userName = request.getHeader(PowerApiHeader.USER.getHeaderKey());
         requestMethod = HttpMethod.fromValue(request.getMethod().toUpperCase());
 
     }
