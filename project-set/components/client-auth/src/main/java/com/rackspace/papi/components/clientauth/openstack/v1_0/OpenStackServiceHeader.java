@@ -43,14 +43,25 @@ public enum OpenStackServiceHeader implements HttpHeader {
      */
     ROLES("X_ROLES");
 
-    private final String headerName;
+    
+    private final String headerKey;
 
-    private OpenStackServiceHeader(String headerName) {
-        this.headerName = headerName;
+    private OpenStackServiceHeader(String headerKey) {
+        this.headerKey = headerKey;
     }
 
     @Override
-    public String headerKey() {
-        return headerName;
+    public String getHeaderKey() {
+        return headerKey;
+    }
+    
+    @Override
+    public boolean matches(String st) {
+        return headerKey.equalsIgnoreCase(st);
+    }
+    
+    @Override
+    public String toString() {
+        return headerKey.toLowerCase();
     }
 }

@@ -83,7 +83,7 @@ public class PowerFilterChain implements FilterChain {
     }
 
     private void route(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
-        final String routeDestination = ((HttpServletRequest) servletRequest).getHeader(PowerApiHeader.ROUTE_DESTINATION.headerKey());
+        final String routeDestination = ((HttpServletRequest) servletRequest).getHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey());
 
         if (!StringUtilities.isBlank(routeDestination)) {
             // According to the Java 6 javadocs the routeDestination passed into getContext:

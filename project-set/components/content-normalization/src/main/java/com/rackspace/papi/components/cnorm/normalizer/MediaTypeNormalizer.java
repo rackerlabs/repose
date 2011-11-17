@@ -46,13 +46,13 @@ public class MediaTypeNormalizer {
     public void normalizeContentMediaType(HttpServletRequest request, FilterDirector director) {
         // The preferred media type should only be null if there were no media types specified
         if (preferredMediaType != null) {
-            final boolean requestHasAcceptHeader = request.getHeader(CommonHttpHeader.ACCEPT.headerKey()) != null;
+            final boolean requestHasAcceptHeader = request.getHeader(CommonHttpHeader.ACCEPT.getHeaderKey()) != null;
             final MediaType requestedVariantMediaType = getMediaTypeForVariant(request, director);
             
             if (requestedVariantMediaType != null) {
-                director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.headerKey(), requestedVariantMediaType.getName());
+                director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.getHeaderKey(), requestedVariantMediaType.getName());
             } else if (!requestHasAcceptHeader) {
-                director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.headerKey(), preferredMediaType.getName());
+                director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.getHeaderKey(), preferredMediaType.getName());
             }
         }
     }
