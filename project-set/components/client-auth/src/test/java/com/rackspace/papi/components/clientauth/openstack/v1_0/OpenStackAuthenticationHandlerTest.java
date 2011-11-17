@@ -3,6 +3,7 @@ package com.rackspace.papi.components.clientauth.openstack.v1_0;
 import com.rackspace.auth.openstack.ids.CachableTokenInfo;
 import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
+import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.clientauth.openstack.config.ClientMapping;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
@@ -113,17 +114,58 @@ public class OpenStackAuthenticationHandlerTest {
             assertEquals("Auth component must pass invalid requests but process their responses", FilterAction.PROCESS_RESPONSE, requestDirector.getFilterAction());
         }
 
-        @Test @Ignore
-        public void shouldModifyWwwAuthenticateHeaderOn401() {
-            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.headerKey())).thenReturn("Delegated");
+        @Test
+        public void shouldNotModifyResponseOnResponseStatusCodeNotEqualTo401or403() {
+            when(response.getStatus()).thenReturn(Integer.valueOf(200));
+
+            final FilterDirector responseDirector = handler.handleResponse(request, response);
+
+            assertEquals("Auth component must pass valid, delegated responses", FilterAction.NOT_SET, responseDirector.getFilterAction());
+        }
+        
+        @Test
+        public void shouldModifyDelegatedWwwAuthenticateHeaderOn401() {;
+            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Delegated");
             when(response.getStatus()).thenReturn(Integer.valueOf(401));
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
             final Map<String, Set<String>> headers = responseDirector.responseHeaderManager().headersToAdd();
 
-            final Set<String> headerValues = headers.get(CommonHttpHeader.WWW_AUTHENTICATE.headerKey());
+            final Set<String> headerValues = headers.get(CommonHttpHeader.WWW_AUTHENTICATE.toString());
 
             assertEquals("Auth component must pass invalid requests but process their responses", "TODO", headerValues.iterator().next());
+        }
+        
+        @Test
+        public void shouldModifyDelegatedWwwAuthenticateHeaderOn403() {
+            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Delegated");
+            when(response.getStatus()).thenReturn(Integer.valueOf(403));
+
+            final FilterDirector responseDirector = handler.handleResponse(request, response);
+            final Map<String, Set<String>> headers = responseDirector.responseHeaderManager().headersToAdd();
+
+            final Set<String> headerValues = headers.get(CommonHttpHeader.WWW_AUTHENTICATE.toString());
+
+            assertEquals("Auth component must pass invalid requests but process their responses", "TODO", headerValues.iterator().next());
+        }        
+                
+        @Test
+        public void shouldReturn501OnAuthFailureWithNonDelegatedWwwAuthenticateHeaderSet() {
+            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Not-Delegated");
+            when(response.getStatus()).thenReturn(Integer.valueOf(401));
+
+            final FilterDirector responseDirector = handler.handleResponse(request, response);
+            
+            assertEquals("Auth component must identify proxy auth failures", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
+        }
+        
+        @Test
+        public void shouldReturn501OnAuthFailureWithNoWwwAuthenticateHeaderSet() {
+            when(response.getStatus()).thenReturn(Integer.valueOf(401));
+
+            final FilterDirector responseDirector = handler.handleResponse(request, response);
+            
+            assertEquals("Auth component must identify proxy auth failures", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
         }
     }
 }

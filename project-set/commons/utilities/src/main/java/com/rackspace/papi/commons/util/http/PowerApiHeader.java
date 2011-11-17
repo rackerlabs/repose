@@ -6,18 +6,28 @@ package com.rackspace.papi.commons.util.http;
  */
 public enum PowerApiHeader implements HttpHeader {
 
-    ROUTE_DESTINATION("X-PP-RouteDestination"),
+    NEXT_ROUTE("X-PP-Next-Route"),
     USER("X-PP-User"),
-    GROUPS("X-PP-Groups");    
+    GROUPS("X-PP-Groups");
+    
+    private final String headerKey;
 
-    private final String headerName;
-
-    private PowerApiHeader(String headerName) {
-        this.headerName = headerName;
+    private PowerApiHeader(String headerKey) {
+        this.headerKey = headerKey;
     }
 
     @Override
-    public String headerKey() {
-        return headerName;
+    public String getHeaderKey() {
+        return headerKey;
+    }
+    
+    @Override
+    public boolean matches(String st) {
+        return headerKey.equalsIgnoreCase(st);
+    }
+    
+    @Override
+    public String toString() {
+        return headerKey.toLowerCase();
     }
 }

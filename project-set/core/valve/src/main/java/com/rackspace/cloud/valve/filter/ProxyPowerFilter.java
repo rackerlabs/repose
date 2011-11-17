@@ -67,7 +67,7 @@ public class ProxyPowerFilter extends PowerFilter {
     // Set routeDestination to "default" route in case Versioning Filter is not running.
     // If versioning filter is running, it will replace this value.
     final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
-    mutableHttpRequest.replaceHeader(PowerApiHeader.ROUTE_DESTINATION.headerKey(), defaultRouteUrl);
+    mutableHttpRequest.replaceHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey(), defaultRouteUrl);
     
     super.doFilter(mutableHttpRequest, response, chain);
   }
