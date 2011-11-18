@@ -3,6 +3,8 @@ package com.rackspace.papi.components.clientauth.openstack.v1_0;
 import com.rackspace.auth.openstack.ids.Account;
 import com.rackspace.auth.openstack.ids.CachableTokenInfo;
 import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
+import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
+import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
 
 import com.rackspace.papi.auth.AuthModule;
@@ -17,6 +19,8 @@ import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author fran
@@ -56,7 +60,12 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
         try {
             final CachableTokenInfo cachableTokenInfo = authenticationService.validateToken(account.getUsername(), authToken);
 
-            final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(cachableTokenInfo, delegatable, filterDirector, account.getUsername());
+            Groups groups = null;
+            if (cachableTokenInfo != null) {
+                groups = authenticationService.getGroups(cachableTokenInfo.getUserId());
+            }
+
+            final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(cachableTokenInfo, delegatable, filterDirector, account.getUsername(), groups);
             headerManager.setFilterDirectorValues();
         } catch (Exception ex) {
             LOG.error("Failure in auth: " + ex.getMessage(), ex);
