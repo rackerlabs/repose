@@ -1,31 +1,26 @@
 package com.rackspace.papi.tests.mock.service;
 
-import com.rackspacecloud.docs.auth.api.v1.FullToken;
-import com.rackspacecloud.docs.auth.api.v1.ItemNotFoundFault;
-import com.rackspacecloud.docs.auth.api.v1.ObjectFactory;
-import com.rackspacecloud.docs.auth.api.v1.UnauthorizedFault;
+import com.rackspacecloud.docs.auth.api.v1.*;
 import com.sun.jersey.spi.resource.Singleton;
+import java.io.IOException;
 import java.util.Calendar;
+import java.util.List;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.*;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 
 @Path("/v1.1")
 @Singleton
-public class AuthResource {
-
+public class AuthResource extends BaseAuthResource {
+   private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthResource.class);
    private final ObjectFactory objectFactory;
-   private final DatatypeFactory dataTypeFactory;
-   private final String[] validUsers = {"cmarin1", "usertest1", "usertest2", "usertest3", "usertest4"};
 
-   public AuthResource() throws DatatypeConfigurationException {
+   public AuthResource() throws DatatypeConfigurationException, IOException {
+      super("/auth1_1.properties");
       objectFactory = new ObjectFactory();
-      dataTypeFactory = DatatypeFactory.newInstance();
    }
 
    @GET
@@ -95,8 +90,88 @@ public class AuthResource {
       return Response.ok(new TokenWrapper(createToken(userName, token))).build();
    }
 
+   @GET
+   @Path("/users/{userId}/groups")
+   @Produces({"application/xml"})
+   public Response getGroups(@PathParam("userId") String userName) {
+      return Response.ok(objectFactory.createGroups(buildGroups(userName))).build();
+   }
+   
+   @GET
+   @Path("/users/{userId}/groups")
+   @Produces({"application/json"})
+   public Response getGroupsJson(@PathParam("userId") String userName) {
+      return Response.ok(new GroupsWrapper(buildGroups(userName))).build();
+   }
+   
+   private GroupsList buildGroups(String userName) {
+      GroupsList groupList = objectFactory.createGroupsList();
+      
+      String groups = getProperties().getProperty("groups." + userName);
+      
+      if (groups == null) {
+         LOG.warn("No groups defined for user: " + userName);
+         return groupList;
+      }
+      
+      String[] groupNames = groups.split(",");
+      
+      for (String groupId: groupNames) {
+         Group group = getGroup(userName, groupId);
+         if (group != null) {
+            groupList.getGroup().add(group);
+         }
+      }
+      
+      return groupList;
+   }
+   
+   private Group getGroup(String userName, String groupId) {
+      
+      String baseGroup = "group." + userName + "." + groupId;
+      String desc = getProperties().getProperty(baseGroup + ".desc");
+      
+      if (desc == null) {
+         LOG.warn("Unable to find group details for role: " + baseGroup);
+         desc = "Unknown";
+      }
+      
+      Group group = objectFactory.createGroup();
+      group.setId(groupId);
+      group.setDescription(desc);
+      
+      return group;
+   }
+   
    // Wrapper classes so that Jackson can correctly wrap the elements in a 
    // root element
+   
+   @XmlRootElement(name="groups")
+   private static class GroupsWrapper {
+      private final ValuesWrapper values;
+      public GroupsWrapper(GroupsList groups) {
+         this.values = new ValuesWrapper(groups);
+      }
+      
+      @XmlElement(name="groups")
+      public ValuesWrapper getGroups() {
+         return values;
+      }
+   }
+   
+   @XmlRootElement(name="values")
+   private static class ValuesWrapper {
+      private final List<Group> groups;
+      public ValuesWrapper(GroupsList groups) {
+         this.groups = groups.getGroup();
+      }
+      
+      @XmlElement(name="values")
+      public List<Group> getValues() {
+         return groups;
+      }
+   }
+
    @XmlRootElement(name = "token")
    private static class TokenWrapper {
 
@@ -140,28 +215,6 @@ public class AuthResource {
       }
    }
 
-   private XMLGregorianCalendar getCalendar() {
-      return getCalendar(Calendar.DAY_OF_YEAR, 0);
-   }
-
-   private XMLGregorianCalendar getCalendar(int field, int value) {
-      Calendar calendar = Calendar.getInstance();
-      if (value != 0) {
-         calendar.setLenient(true);
-         calendar.add(field, value);
-      }
-      int year = calendar.get(Calendar.YEAR);
-      int month = calendar.get(Calendar.MONTH) + 1;
-      int day = calendar.get(Calendar.DAY_OF_MONTH);
-      int hour = calendar.get(Calendar.HOUR_OF_DAY);
-      int min = calendar.get(Calendar.MINUTE);
-      int sec = calendar.get(Calendar.SECOND);
-      int milli = calendar.get(Calendar.MILLISECOND);
-      int tz = calendar.get(Calendar.ZONE_OFFSET) / 60000;
-
-      return dataTypeFactory.newXMLGregorianCalendar(year, month, day, hour, min, sec, milli, tz);
-   }
-
    private FullToken createToken(String userName, String id) {
       FullToken token = new FullToken();
       token.setId(id);
@@ -192,16 +245,6 @@ public class AuthResource {
       fault.setDetails("");
 
       return fault;
-   }
-
-   private boolean validateUser(String userName) {
-      for (String user : validUsers) {
-         if (user.equals(userName)) {
-            return true;
-         }
-      }
-
-      return false;
    }
 
    private boolean validateToken(String userName, String token, String accountType) {
