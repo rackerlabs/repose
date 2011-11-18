@@ -15,11 +15,16 @@ import javax.xml.datatype.DatatypeConfigurationException;
 @Path("/v1.1")
 @Singleton
 public class AuthResource extends BaseAuthResource {
+   private static final String DEFAULT_PROPS = "/auth1_1.properties";
    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthResource.class);
    private final ObjectFactory objectFactory;
 
    public AuthResource() throws DatatypeConfigurationException, IOException {
-      super("/auth1_1.properties");
+      this(DEFAULT_PROPS);
+   }
+   
+   public AuthResource(String propertiesFile) throws DatatypeConfigurationException, IOException {
+      super(propertiesFile);
       objectFactory = new ObjectFactory();
    }
 
@@ -94,6 +99,13 @@ public class AuthResource extends BaseAuthResource {
    @Path("/users/{userId}/groups")
    @Produces({"application/xml"})
    public Response getGroups(@PathParam("userId") String userName) {
+      if (!validateUser(userName)) {
+         return Response
+                 .status(Status.NOT_FOUND)
+                 .entity(objectFactory.createItemNotFound(createItemNotFound()))
+                 .build();
+      }
+      
       return Response.ok(objectFactory.createGroups(buildGroups(userName))).build();
    }
    
@@ -101,6 +113,12 @@ public class AuthResource extends BaseAuthResource {
    @Path("/users/{userId}/groups")
    @Produces({"application/json"})
    public Response getGroupsJson(@PathParam("userId") String userName) {
+      if (!validateUser(userName)) {
+         return Response
+                 .status(Status.NOT_FOUND)
+                 .entity(new ItemNotFoundWrapper(createItemNotFound()))
+                 .build();
+      }
       return Response.ok(new GroupsWrapper(buildGroups(userName))).build();
    }
    

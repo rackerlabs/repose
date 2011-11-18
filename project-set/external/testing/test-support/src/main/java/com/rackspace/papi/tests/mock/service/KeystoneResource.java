@@ -13,11 +13,16 @@ import org.openstack.docs.identity.api.v2.*;
 @Path("/keystone")
 @Singleton
 public class KeystoneResource extends BaseAuthResource {
+   private static final String DEFAULT_PROPS = "/keystone.properties";
    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(KeystoneResource.class);
    private final ObjectFactory objectFactory;
    
    public KeystoneResource() throws DatatypeConfigurationException, IOException {
-      super("/keystone.properties");
+      this(DEFAULT_PROPS);
+   }
+   
+   public KeystoneResource(String propertiesFile) throws DatatypeConfigurationException, IOException {
+      super(propertiesFile);
       objectFactory = new ObjectFactory();
    }
    
