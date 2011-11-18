@@ -79,6 +79,12 @@
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
       </dependency>
+      
+      <dependency>
+         <groupId>com.rackspace.papi.components</groupId>
+         <artifactId>rate-limiting</artifactId>
+         <version>${project.version}</version>
+      </dependency>
    </dependencies>
 
    <build>
