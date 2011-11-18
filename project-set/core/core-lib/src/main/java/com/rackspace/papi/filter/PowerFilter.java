@@ -123,7 +123,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
         final PowerFilterChain requestFilterChainState = new PowerFilterChain(Collections.unmodifiableList(this.filterChain), chain, filterConfig.getServletContext());
 
-        mutableHttpResponse.setHeader(CommonHttpHeader.CONTENT_TYPE.headerKey(), mutableHttpRequest.getHeader(CommonHttpHeader.ACCEPT.headerKey()));
+        mutableHttpResponse.setHeader(CommonHttpHeader.CONTENT_TYPE.getHeaderKey(), mutableHttpRequest.getHeader(CommonHttpHeader.ACCEPT.getHeaderKey()));
 
         try {
             requestFilterChainState.startFilterChain(mutableHttpRequest, mutableHttpResponse);

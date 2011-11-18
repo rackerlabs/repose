@@ -30,14 +30,14 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
         final FilterDirector myDirector = new FilterDirectorImpl();
         myDirector.setFilterAction(FilterAction.PASS);
 
-        final String firstRoutingDestination = request.getHeader(PowerApiHeader.ROUTE_DESTINATION.headerKey());
+        final String firstRoutingDestination = request.getHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey());
 
         if (firstRoutingDestination == null) {
             final SystemModelInterrogator interrogator = new SystemModelInterrogator(systemModel);
             final Host nextRoutableHost = interrogator.getNextRoutableHost();
 
             try {
-                myDirector.requestHeaderManager().putHeader(PowerApiHeader.ROUTE_DESTINATION.headerKey(), HostUtilities.asUrl(nextRoutableHost, request.getRequestURI()));
+                myDirector.requestHeaderManager().putHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey(), HostUtilities.asUrl(nextRoutableHost, request.getRequestURI()));
             } catch (MalformedURLException murle) {
                 // Malformed URL Expcetions are unexpected and should return as a 502
                 LOG.error(murle.getMessage(), murle);

@@ -105,8 +105,8 @@ public class VersioningHandler extends AbstractFilterLogicHandler  {
         final String routeDestinationPrefix = isExternalRoute ? HostUtilities.asUrl(targetOriginService.getOriginServiceHost()) : "";
         final String contextPath = StringUtilities.getValue(targetOriginService.getMapping().getContextPath(), "");
         
-        filterDirector.requestHeaderManager().removeHeader(PowerApiHeader.ROUTE_DESTINATION.headerKey());
-        filterDirector.requestHeaderManager().putHeader(PowerApiHeader.ROUTE_DESTINATION.headerKey(), routeDestinationPrefix + contextPath);
+        filterDirector.requestHeaderManager().removeHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey());
+        filterDirector.requestHeaderManager().putHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey(), routeDestinationPrefix + contextPath);
 
         if (versionedRequest.uriRequiresRewrite()) {
             // Set the URI to the correct, internally versioned path and pass it to the origin service

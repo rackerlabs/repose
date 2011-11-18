@@ -1,22 +1,8 @@
 package com.rackspace.auth.openstack.ids;
 
-import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
-import org.junit.Before;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openstack.docs.identity.api.v2.Role;
-import org.openstack.docs.identity.api.v2.Token;
-
-import javax.servlet.http.HttpServletRequest;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.*;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 /**
  * @author fran
@@ -39,7 +25,7 @@ public class GenericServiceClientTest {
 //            final int response = serviceResponse.getStatusCode();
 //            Groups groups = null;
 //
-//            ResponseUnmarshaller responseUnmarshaller = new ResponseUnmarshaller();
+//            OpenStackCoreResponseUnmarshaller responseUnmarshaller = new OpenStackCoreResponseUnmarshaller();
 //
 //            switch (response) {
 //                case 200:
@@ -56,7 +42,7 @@ public class GenericServiceClientTest {
 //            final int response = serviceResponse.getStatusCode();
 //            Token groups = null;
 //
-//            ResponseUnmarshaller responseUnmarshaller = new ResponseUnmarshaller();
+//            OpenStackCoreResponseUnmarshaller responseUnmarshaller = new OpenStackCoreResponseUnmarshaller();
 //
 //            switch (response) {
 //                case 200:

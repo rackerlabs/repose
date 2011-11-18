@@ -42,24 +42,25 @@ public class ClientAuthenticationFilter implements Filter {
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
 
-        final FilterDirector director = handlerFactory.newHandler().handleRequest(mutableHttpRequest, mutableHttpResponse);
+        FilterDirector director = handlerFactory.newHandler().handleRequest(mutableHttpRequest, mutableHttpResponse);
 
-        if (director.requestHeaderManager().hasHeaders()) {
-            director.requestHeaderManager().applyTo(mutableHttpRequest);
-        }
-
-        if (director.responseHeaderManager().hasHeaders()) {
-            director.responseHeaderManager().applyTo(mutableHttpResponse);
-        }
+        director.applyTo(mutableHttpRequest);
 
         switch (director.getFilterAction()) {
             case PASS:
+                // This logic is replicated because it emulates old, expected behavior,
                 chain.doFilter(mutableHttpRequest, mutableHttpResponse);
-                handlerFactory.newHandler().handleResponse(mutableHttpRequest, mutableHttpResponse);
+                director = handlerFactory.newHandler().handleResponse(mutableHttpRequest, mutableHttpResponse);
+                director.applyTo(mutableHttpResponse);
                 break;
 
+            case PROCESS_RESPONSE:
+                chain.doFilter(mutableHttpRequest, mutableHttpResponse);
+                director = handlerFactory.newHandler().handleResponse(mutableHttpRequest, mutableHttpResponse);
+
+            case RETURN:
             default:
-                mutableHttpResponse.setStatus(director.getResponseStatus().intValue());
+                director.applyTo(mutableHttpResponse);
                 break;
         }
     }

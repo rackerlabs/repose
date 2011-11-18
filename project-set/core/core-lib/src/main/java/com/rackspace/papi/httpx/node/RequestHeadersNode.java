@@ -36,8 +36,8 @@ public class RequestHeadersNode extends ObjectFactoryUser implements Node {
 
                 String headerName = request.getHeaderNames().nextElement();
 
-                if (headerName.equalsIgnoreCase(CommonHttpHeader.ACCEPT.headerKey()) && fidelityValidator.hasAcceptFidelity()) {
-                    new AcceptHeaderNode(request.getHeader(CommonHttpHeader.ACCEPT.headerKey()), requestHeaders).build();
+                if (headerName.equalsIgnoreCase(CommonHttpHeader.ACCEPT.getHeaderKey()) && fidelityValidator.hasAcceptFidelity()) {
+                    new AcceptHeaderNode(request.getHeader(CommonHttpHeader.ACCEPT.getHeaderKey()), requestHeaders).build();
                 } else if (fidelityValidator.hasStarFidelity()){
                     ComplexParameter complexParameter = objectFactory.createComplexParameter();
                     complexParameter.setName(headerName);

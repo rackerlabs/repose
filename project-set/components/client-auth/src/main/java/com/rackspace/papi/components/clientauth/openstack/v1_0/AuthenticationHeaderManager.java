@@ -1,15 +1,20 @@
 package com.rackspace.papi.components.clientauth.openstack.v1_0;
 
 import com.rackspace.auth.openstack.ids.CachableTokenInfo;
+import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
+import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.components.clientauth.rackspace.IdentityStatus;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author fran
+ * 
  */
 public class AuthenticationHeaderManager {
 
@@ -18,30 +23,30 @@ public class AuthenticationHeaderManager {
     private final FilterDirector filterDirector;
     private final String tenantId;
     private final Boolean validToken;
+    private final Groups groups;
 
-    public AuthenticationHeaderManager(CachableTokenInfo cachableTokenInfo, Boolean isDelegatable, FilterDirector filterDirector, String tenantId) {
+    public AuthenticationHeaderManager(CachableTokenInfo cachableTokenInfo, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, Groups groups) {
         this.cachableTokenInfo = cachableTokenInfo;
         this.isDelegatable = isDelegatable;
         this.filterDirector = filterDirector;
         this.tenantId = tenantId;
-
-        if (cachableTokenInfo != null && cachableTokenInfo.getTokenId() != null) {
-            this.validToken = true;
-        } else {
-            this.validToken = false;
-        }
+        this.validToken = cachableTokenInfo != null && cachableTokenInfo.getTokenId() != null;       
+        this.groups = groups;
     }
 
     public void setFilterDirectorValues() {
         setExtendedAuthorization();
 
-        if (validToken || isDelegatable) {
+        if (validToken) {
             filterDirector.setFilterAction(FilterAction.PASS);
+        } else if (isDelegatable) {
+            filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
         }
-
+        
         if (validToken) {
             setUser();
             setRoles();
+            setGroups();
             setTenant();
         }
 
@@ -52,7 +57,7 @@ public class AuthenticationHeaderManager {
      * EXTENDED AUTHORIZATION
      */
     private void setExtendedAuthorization() {
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.headerKey(), "proxy " + tenantId);
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.getHeaderKey(), "proxy " + tenantId);
     }
 
     /**
@@ -66,7 +71,7 @@ public class AuthenticationHeaderManager {
                 identityStatus = IdentityStatus.Indeterminate;
             }
 
-            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.IDENTITY_STATUS.headerKey(), identityStatus.name());
+            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.IDENTITY_STATUS.getHeaderKey(), identityStatus.name());
         }
     }
 
@@ -74,8 +79,8 @@ public class AuthenticationHeaderManager {
      * TENANT
      */
     private void setTenant() {
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.headerKey(), tenantId);
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.headerKey(), tenantId);
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.getHeaderKey(), tenantId);
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.getHeaderKey(), tenantId);
     }
 
     /**
@@ -84,26 +89,36 @@ public class AuthenticationHeaderManager {
      * The OpenStackServiceHeader is used for an OpenStack service
      */
     private void setUser() {
-        filterDirector.requestHeaderManager().putHeader(PowerApiHeader.USER.headerKey(), cachableTokenInfo.getUsername());
+        filterDirector.requestHeaderManager().putHeader(PowerApiHeader.USER.getHeaderKey(), cachableTokenInfo.getUsername());
 
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_NAME.headerKey(), cachableTokenInfo.getUsername());
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_ID.headerKey(), cachableTokenInfo.getUserId());
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_NAME.getHeaderKey(), cachableTokenInfo.getUsername());
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_ID.getHeaderKey(), cachableTokenInfo.getUserId());
     }
 
     /**
      * ROLES
-     * The PowerApiHeader is used for Rate Limiting
      * The OpenStackServiceHeader is used for an OpenStack service
      */
     private void setRoles() {
         String roles = cachableTokenInfo.getRoles();
 
         if (StringUtilities.isNotBlank(roles)) {
-            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.headerKey(), cachableTokenInfo.getRoleNames());
-
-            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.ROLES.headerKey(), roles);
+            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.ROLES.getHeaderKey(), roles);
         }
     }
 
+    /**
+     * GROUPS
+     * The PowerApiHeader is used for Rate Limiting
+     */
+    private void setGroups() {
+        if (groups != null) {
+            List<String> groupIds = new ArrayList<String>();
+            for(Group group : groups.getGroup()) {
+                groupIds.add(group.getId());
+            }
 
+            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.getHeaderKey(), groupIds.toArray(new String[0]));
+        }
+    }
 }
