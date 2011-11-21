@@ -26,7 +26,8 @@ public class MockServiceResource {
 
         Set<String> headerPairs = headers.getRequestHeaders().keySet();
         Set<String> queryParams = uri.getQueryParameters().keySet();
-        String resp = "<html>\n\t<head>\n\t\t<title>Servlet version</title>\n\t</head>\n\t<body>\n\t\t<h1>Servlet version at " + uri.getPath() + "</h1>";
+        String resp = "<html>\n\t<head>\n\t\t<title>Servlet version</title>\n\t</head>\n\t<body>\n\t\t<h1>Servlet version at "
+                      + uri.getPath() + "</h1>";
         List<String> header;
         if (!headerPairs.isEmpty()) {
             resp += "\n\t\t<h2>HEADERS</h2>";
