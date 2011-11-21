@@ -93,8 +93,16 @@ public class KeystoneResource extends BaseAuthResource {
    @GET
    @Path("/users/{userId}/RAX-KSGRP")
    @Produces("application/xml")
-   public Response getGroups(@PathParam("userId") Integer userId, @HeaderParam("X-Auth-Token") String authToken) {
-      String userName = getUserName(userId);
+   public Response getGroups(@PathParam("userId") String userId, @HeaderParam("X-Auth-Token") String authToken) {
+      Integer id;
+      
+      try {
+         id = Integer.valueOf(userId);
+      } catch(NumberFormatException ex) {
+         id = -1;
+      }
+      
+      String userName = getUserName(id);
       
       if (!validateUser(userName)) {
          return Response
