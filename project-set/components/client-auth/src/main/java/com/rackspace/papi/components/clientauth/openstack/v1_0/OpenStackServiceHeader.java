@@ -9,39 +9,39 @@ public enum OpenStackServiceHeader implements HttpHeader {
     /**
      * The client identity being passed in
      */
-    EXTENDED_AUTHORIZATION("HTTP_X_AUTHORIZATION"),
+    EXTENDED_AUTHORIZATION("X-Authorization"),
 
     /**
      *  'Confirmed' or 'Invalid'
      *   The underlying service will only see a value of 'Invalid' if the PAPI
      *   is configured to run in 'delegatable' mode
      */
-    IDENTITY_STATUS("HTTP_X_IDENTITY_STATUS"),
+    IDENTITY_STATUS("X-Identity-Status"),
 
     /**
      * Unique user identifier, string
      */
-    USER_NAME("HTTP_X_USER_NAME"),
+    USER_NAME("X-User-Name"),
 
     /**
      * Identity-service managed unique identifier, string
      */
-    USER_ID("HTTP_X_USER_ID"),
+    USER_ID("X-User-Id"),
 
     /**
      * Unique tenant identifier, string
      */
-    TENANT_NAME("HTTP_X_TENANT_NAME"),
+    TENANT_NAME("X-Tenant-Name"),
 
     /**
      * Identity service managed unique identifier, string
      */    
-    TENANT_ID("HTTP_X_TENANT_ID"),
+    TENANT_ID("X-Tenant-Id"),
 
     /**
      * Comma delimited list of case-sensitive Roles
      */
-    ROLES("X_ROLES");
+    ROLES("X-Roles");
 
     
     private final String headerKey;

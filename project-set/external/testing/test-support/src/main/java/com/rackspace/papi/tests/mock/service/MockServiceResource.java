@@ -1,7 +1,7 @@
 
 package com.rackspace.papi.tests.mock.service;
 
-
+import com.rackspace.papi.components.limits.schema.ObjectFactory;
 import com.sun.jersey.spi.resource.Singleton;
 import java.util.Calendar;
 import java.util.Enumeration;
@@ -38,7 +38,8 @@ public class MockServiceResource {
         
         Set<String> headerPairs = headers.getRequestHeaders().keySet();
         Set<String> queryParams = uri.getQueryParameters().keySet();
-        String resp = "<html>\n\t<head>\n\t\t<title>Servlet version</title>\n\t</head>\n\t<body>\n\t\t<h1>Servlet version at " + uri.getPath() + "</h1>";
+        String resp = "<html>\n\t<head>\n\t\t<title>Servlet version</title>\n\t</head>\n\t<body>\n\t\t<h1>Servlet version at "
+                      + uri.getPath() + "</h1>";
         List<String> header;
         if(!headerPairs.isEmpty()){
             resp += "\n\t\t<h2>HEADERS</h2>";
@@ -93,12 +94,6 @@ public class MockServiceResource {
             abs.setValue(value-=5);
             limitList.getLimit().add(abs);
         }
-        
-        
-        
-        
-        
-        
            
         return limitList;    
     }
