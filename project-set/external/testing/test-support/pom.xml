@@ -26,12 +26,6 @@
          <artifactId>javaee-web-api</artifactId>
       </dependency>
 
-      <dependency>
-         <groupId>com.sun.jersey</groupId>
-         <artifactId>jersey-json</artifactId>
-         <version>1.9.1</version>
-      </dependency>
-        
       -->
       <dependency>
          <groupId>com.sun.jersey</groupId>
@@ -85,20 +79,13 @@
          <version>1.0.3.1</version>
          <scope>test</scope>
       </dependency>
-        <dependency>
+      <!-- javax.mail provides a functional version of javaee jar required for tests -->
+      <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
             <scope>test</scope>
-        </dependency>
-        <!--
-        <dependency>
-            <groupId>com.sun.grizzly</groupId>
-            <artifactId>grizzly-servlet-webserver</artifactId>
-            <version>1.9.40</version>
-            <scope>test</scope>
-        </dependency>
-        -->
-       <dependency>
+      </dependency>
+      <dependency>
          <groupId>com.rackspace.papi.components</groupId>
          <artifactId>rate-limiting</artifactId>
          <version>${project.version}</version>
