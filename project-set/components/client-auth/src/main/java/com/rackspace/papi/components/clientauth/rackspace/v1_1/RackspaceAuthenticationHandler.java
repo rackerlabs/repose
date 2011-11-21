@@ -51,7 +51,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
    public FilterDirector authenticate(HttpServletRequest request) {
       final FilterDirector filterDirector = new FilterDirectorImpl();
       filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
-      filterDirector.setFilterAction(FilterAction.USE_MESSAGE_SERVICE);
+      filterDirector.setFilterAction(FilterAction.RETURN);
 
       final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.getHeaderKey());
       final Account acct = accountUsernameExtractor.extract(request.getRequestURL().toString());

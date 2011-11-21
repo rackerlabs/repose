@@ -31,6 +31,9 @@ public interface HttpHeader {
      * the key of the header. This method abstracts the character case issue that
      * plagues header key matching.
      * 
+     * This is here because of a deficiency in the java enumeration contract.
+     * The equals method is marked final for all enumeration types.
+     * 
      * @param s
      * @return 
      */
