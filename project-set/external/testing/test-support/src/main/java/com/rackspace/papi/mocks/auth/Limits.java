@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rackspace.tests.testSupport;
+package com.rackspace.papi.mocks.auth;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author malconis
  */
-public class limits extends HttpServlet {
+public class Limits extends HttpServlet {
 
   /** 
    * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.

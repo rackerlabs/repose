@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rackspace.tests.testSupport;
+package com.rackspace.papi.mocks.auth;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -17,15 +17,15 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author malconis
  */
-public class mockTokenServlet extends HttpServlet {
+public class TokenServlet extends HttpServlet {
 
     // Need to move these somewhere else where they won't be re-initialized everytime we auth
-    MockUser user1 = new MockUser("usertest1", "CLOUD", "/asdasdasd-adsasdads-asdasdasd-adsadsasd");
-    MockUser user2 = new MockUser("usertest2", "CLOUD", "/now-is-the-time");
-    MockUser user3 = new MockUser("usertest3", "CLOUD", "/my-third-test-user");
-    MockUser user4 = new MockUser("usertest4", "CLOUD", "/dkshk-fdjke3-fdfjdk-21342");
-    MockUser[] testUsers = {user1, user2, user3, user4}; // new ArrayList<MockUser>();
-    MockUser passedUser;
+    User user1 = new User("usertest1", "CLOUD", "/asdasdasd-adsasdads-asdasdasd-adsadsasd");
+    User user2 = new User("usertest2", "CLOUD", "/now-is-the-time");
+    User user3 = new User("usertest3", "CLOUD", "/my-third-test-user");
+    User user4 = new User("usertest4", "CLOUD", "/dkshk-fdjke3-fdfjdk-21342");
+    User[] testUsers = {user1, user2, user3, user4}; // new ArrayList<MockUser>();
+    User passedUser;
 
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -44,11 +44,11 @@ public class mockTokenServlet extends HttpServlet {
         String queryParams = request.getQueryString();
         String token = request.getPathInfo();
         boolean valid = false;
-        passedUser = new MockUser(queryParams, token);
+        passedUser = new User(queryParams, token);
         try {
         
             
-            for (MockUser u : testUsers) {
+            for (User u : testUsers) {
                 if (u.equals(passedUser)) {
                     valid = true;
                 }
