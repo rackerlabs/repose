@@ -20,18 +20,18 @@
    </properties>
 
    <dependencies>
+      <!--
       <dependency>
          <groupId>javax</groupId>
          <artifactId>javaee-web-api</artifactId>
       </dependency>
+      -->
 
-      <!--
       <dependency>
          <groupId>com.sun.jersey</groupId>
          <artifactId>jersey-json</artifactId>
          <version>1.9.1</version>
       </dependency>
-      -->
         
       <dependency>
          <groupId>com.sun.jersey</groupId>
@@ -51,6 +51,7 @@
          <version>${project.version}</version>
       </dependency>
 
+      <!--
       <dependency>
          <groupId>com.sun.jersey</groupId>
          <artifactId>jersey-client</artifactId>
@@ -74,17 +75,31 @@
          <artifactId>jackson-xc</artifactId>
          <version>1.9.2</version>
       </dependency>
+      -->
 
       <dependency>
          <groupId>junit</groupId>
          <artifactId>junit</artifactId>
       </dependency>
-      
       <dependency>
-         <groupId>com.rackspace.papi.components</groupId>
-         <artifactId>rate-limiting</artifactId>
-         <version>${project.version}</version>
+         <groupId>com.sun.jersey.test.framework</groupId>
+         <artifactId>jersey-test-framework</artifactId>
+         <version>1.0.3.1</version>
+         <scope>test</scope>
       </dependency>
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!--
+        <dependency>
+            <groupId>com.sun.grizzly</groupId>
+            <artifactId>grizzly-servlet-webserver</artifactId>
+            <version>1.9.40</version>
+            <scope>test</scope>
+        </dependency>
+        -->
    </dependencies>
 
    <build>
@@ -111,6 +126,7 @@
             </configuration>
          </plugin>
 
+<!--
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
@@ -136,6 +152,7 @@
                </execution>
             </executions>
          </plugin>
+         -->
       </plugins>
    </build>
 </project>
