@@ -2,11 +2,13 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rackspace.tests.testSupport;
+package com.rackspace.papi.mocks.auth;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.Enumeration;
+
+import java.util.ArrayList;
+import java.util.List;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -16,7 +18,15 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author malconis
  */
-public class landingServlet extends HttpServlet {
+public class KeyStoneTokenServlet extends HttpServlet {
+
+    // Need to move these somewhere else where they won't be re-initialized everytime we auth
+    User user1 = new User("usertest1", "CLOUD", "/asdasdasd-adsasdads-asdasdasd-adsadsasd");
+    User user2 = new User("usertest2", "CLOUD", "/now-is-the-time");
+    User user3 = new User("usertest3", "CLOUD", "/my-third-test-user");
+    User user4 = new User("usertest4", "CLOUD", "/dkshk-fdjke3-fdfjdk-21342");
+    User[] testUsers = {user1, user2, user3, user4}; // new ArrayList<MockUser>();
+    User passedUser;
 
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -29,41 +39,26 @@ public class landingServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
         PrintWriter out = response.getWriter();
-        Enumeration<String> headers = request.getHeaderNames();
-        String headerName, value, queryString, queryParam;
-        queryString = request.getQueryString();
+        String token = request.getPathInfo();
+        boolean valid = false;
         try {
-            out.println("<html>");
-            out.println("\t<head>");
-            out.println("\t\t<title>Servlet version</title>");
-            out.println("\t</head>");
-            out.println("\t<body>");
-            out.println("\t\t<h1>Servlet version at " + request.getRequestURI() + "</h1>");
-            out.println("\t\t<h2>HEADERS</h2>");
-            while (headers.hasMoreElements()) {
-                headerName = headers.nextElement();
-                Enumeration<String> headerValues = request.getHeaders(headerName);
-                while(headerValues.hasMoreElements()){
-                    value = headerValues.nextElement();
-                    out.println("\t\t<h2>" + headerName + " : " + value  +"</h2>");
-                }
-                
-            }
-            //TODO: DISPLAY Query parameters
+        
             
-            if(queryString != null){
-                out.println("\t\t<h3>QUERY PARAMETERS</h3>");
-                String[] query = queryString.split("&");
-                String[] params;
-                //for(int i=0;i<query.length/2;i=i+2){
-                for(String q: query){
-                    params = q.split("=");
-                    out.println("\t\t<h3>"+params[0]+" : "+params[1]+"</h3>");
+            for (User u : testUsers) {
+                if (u.getToken().equals(token)) {
+                    valid = true;
+                    passedUser = u;
                 }
             }
-            //out.println("\t\t<h3>"+request.getQueryString()+"</h3>");
-            out.println("\t</body>");
-            out.println("</html>");
+
+            if (valid) {
+                passedUser = new User(passedUser);
+                out.println(passedUser);
+            } else {
+                response.setStatus(400);
+            }
+
+
         } finally {
             out.close();
         }

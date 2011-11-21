@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rackspace.tests.testSupport;
+package com.rackspace.papi.mocks.auth;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -11,14 +11,14 @@ import java.util.Calendar;
  *
  * @author malconis
  */
-public class MockUser {
+public class User {
 
     protected String name, group, token, password;
     protected SimpleDateFormat format;
     protected final Calendar cal = Calendar.getInstance();
     protected boolean keystone;
 
-    public MockUser(String name, String group, String token) {
+    public User(String name, String group, String token) {
         this.name = name;
         this.group = group;
         this.token = token;
@@ -27,7 +27,7 @@ public class MockUser {
         keystone = false;
     }
 
-    public MockUser(String params, String token) {
+    public User(String params, String token) {
         this.token = token;
 
         this.name = params.split("&")[0].split("=")[1];
@@ -37,7 +37,7 @@ public class MockUser {
         keystone = false;
     }
 
-    public MockUser(MockUser user) {
+    public User(User user) {
         this.token = user.getToken();
         this.name = user.getName();
         keystone = true;
@@ -56,7 +56,7 @@ public class MockUser {
         return token;
     }
 
-    public boolean equals(MockUser user) {
+    public boolean equals(User user) {
 
 
         return user.getName().equals(name) && user.getGroup().equals(group) && user.getToken().equals(token) ? true : false;

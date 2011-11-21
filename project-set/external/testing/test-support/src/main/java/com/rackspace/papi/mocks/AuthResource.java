@@ -1,4 +1,4 @@
-package com.rackspace.papi.tests.mock.service;
+package com.rackspace.papi.mocks;
 
 import com.rackspacecloud.docs.auth.api.v1.FullToken;
 import com.rackspacecloud.docs.auth.api.v1.ItemNotFoundFault;

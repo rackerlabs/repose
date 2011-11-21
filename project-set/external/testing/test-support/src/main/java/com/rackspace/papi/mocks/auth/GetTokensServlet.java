@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rackspace.tests.testSupport;
+package com.rackspace.papi.mocks.auth;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,11 +30,11 @@ public class GetTokensServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    MockUser user1 = new MockUser("usertest1", "CLOUD", "asdasdasd-adsasdads-asdasdasd-adsadsasd");
-    MockUser user2 = new MockUser("usertest2", "CLOUD", "now-is-the-time");
-    MockUser user3 = new MockUser("usertest3", "CLOUD", "my-third-test-user");
-    MockUser user4 = new MockUser("usertest4", "CLOUD", "dkshk-fdjke3-fdfjdk-21342");
-    MockUser[] testUsers = {user1, user2, user3, user4}; // new ArrayList<MockUser>();
+    User user1 = new User("usertest1", "CLOUD", "asdasdasd-adsasdads-asdasdasd-adsadsasd");
+    User user2 = new User("usertest2", "CLOUD", "now-is-the-time");
+    User user3 = new User("usertest3", "CLOUD", "my-third-test-user");
+    User user4 = new User("usertest4", "CLOUD", "dkshk-fdjke3-fdfjdk-21342");
+    User[] testUsers = {user1, user2, user3, user4}; // new ArrayList<MockUser>();
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -51,7 +51,7 @@ public class GetTokensServlet extends HttpServlet {
             }
             
             passedUser = requestBody.substring(requestBody.indexOf("\"username\": \"")+13, requestBody.indexOf("\", \"password\":"));
-            for(MockUser u: testUsers){
+            for(User u: testUsers){
                 if(u.getName().equals(passedUser)){
                     String myResponse = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
                             + "<access xmlns=\"http://docs.openstack.org/identity/api/v2.0\" xmlns:ns2=\"http://docs.rackspace.com/identity/api/ext/RAX-KSKEY/v1.0\" "
