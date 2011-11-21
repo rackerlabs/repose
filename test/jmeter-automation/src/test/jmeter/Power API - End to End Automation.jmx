@@ -723,7 +723,7 @@
         <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="End points" enabled="true">
           <stringProp name="filename">/tmp/hosts.csv</stringProp>
           <stringProp name="fileEncoding"></stringProp>
-          <stringProp name="variableNames">endpoint</stringProp>
+          <stringProp name="variableNames">endpoint,port</stringProp>
           <stringProp name="delimiter"></stringProp>
           <boolProp name="quotedData">true</boolProp>
           <boolProp name="recycle">true</boolProp>
@@ -742,15 +742,6 @@
               </elementProp>
             </collectionProp>
           </Arguments>
-          <hashTree/>
-          <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Port info" enabled="true">
-            <stringProp name="CounterConfig.start">8887</stringProp>
-            <stringProp name="CounterConfig.end">8889</stringProp>
-            <stringProp name="CounterConfig.incr"></stringProp>
-            <stringProp name="CounterConfig.name">port</stringProp>
-            <stringProp name="CounterConfig.format"></stringProp>
-            <boolProp name="CounterConfig.per_user">false</boolProp>
-          </CounterConfig>
           <hashTree/>
           <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
             <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">

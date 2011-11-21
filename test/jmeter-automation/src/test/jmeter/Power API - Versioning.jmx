@@ -525,7 +525,7 @@
               <collectionProp name="Asserion.test_strings">
                 <stringProp name="-901282254">&lt;h2&gt;http_x_tenant_name : ${name}&lt;/h2&gt;</stringProp>
                 <stringProp name="1726360034">&lt;h2&gt;http_x_tenant_id : ${name}&lt;/h2&gt;</stringProp>
-                <stringProp name="-109935382">&lt;h2&gt;x_roles : sysadmin</stringProp>
+                <stringProp name="-2095310657">&lt;h2&gt;x_roles : .*sysadmin.*&lt;/h2&gt;</stringProp>
               </collectionProp>
               <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
               <boolProp name="Assertion.assume_success">false</boolProp>
@@ -611,7 +611,7 @@
           <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="hosts info" enabled="true">
             <stringProp name="filename">/tmp/hosts.csv</stringProp>
             <stringProp name="fileEncoding"></stringProp>
-            <stringProp name="variableNames">endpoint</stringProp>
+            <stringProp name="variableNames">endpoint,targetPort</stringProp>
             <stringProp name="delimiter"></stringProp>
             <boolProp name="quotedData">true</boolProp>
             <boolProp name="recycle">true</boolProp>
@@ -619,7 +619,7 @@
             <stringProp name="shareMode">All threads</stringProp>
           </CSVDataSet>
           <hashTree/>
-          <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="port info" enabled="true">
+          <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="port info" enabled="false">
             <stringProp name="CounterConfig.start">8887</stringProp>
             <stringProp name="CounterConfig.end">8889</stringProp>
             <stringProp name="CounterConfig.incr"></stringProp>
