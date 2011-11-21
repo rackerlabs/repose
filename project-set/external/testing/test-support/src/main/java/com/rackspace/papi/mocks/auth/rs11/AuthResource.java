@@ -1,5 +1,6 @@
-package com.rackspace.papi.tests.mock.service;
+package com.rackspace.papi.mocks.auth.rs11;
 
+import com.rackspace.papi.mocks.auth.BaseAuthResource;
 import com.rackspacecloud.docs.auth.api.v1.*;
 import com.sun.jersey.spi.resource.Singleton;
 import java.io.IOException;

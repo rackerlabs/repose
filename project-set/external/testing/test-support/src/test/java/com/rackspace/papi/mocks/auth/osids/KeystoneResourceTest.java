@@ -1,4 +1,4 @@
-package com.rackspace.papi.tests.mock.service;
+package com.rackspace.papi.mocks.auth.osids;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.test.framework.JerseyTest;
@@ -18,7 +18,7 @@ import org.openstack.docs.identity.api.v2.*;
 public class KeystoneResourceTest {
    
    public static class WhenGettingTokens extends JerseyTest {
-      private static final String baseResourcePackage = "com.rackspace.papi.tests.mock.service";
+      private static final String baseResourcePackage = "com.rackspace.papi.mocks.auth.osids";
       private final String INVALID_USER = "mickey";
       private final String VALID_USER = "cmarin2";
       private final String KEY = "SomeKey";

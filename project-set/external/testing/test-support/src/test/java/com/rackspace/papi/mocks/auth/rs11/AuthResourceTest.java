@@ -1,4 +1,4 @@
-package com.rackspace.papi.tests.mock.service;
+package com.rackspace.papi.mocks.auth.rs11;
 
 import com.rackspacecloud.docs.auth.api.v1.GroupsList;
 import com.rackspacecloud.docs.auth.api.v1.Token;
@@ -14,7 +14,7 @@ import org.junit.runner.RunWith;
 public class AuthResourceTest {
    
    public static class WhenGettingTokens extends JerseyTest {
-      private static final String baseResourcePackage = "com.rackspace.papi.tests.mock.service";
+      private static final String baseResourcePackage = "com.rackspace.papi.mocks.auth.rs11";
       private final String INVALID_USER = "mickey";
       private final String VALID_USER = "cmarin1";
       private final String KEY = "SomeKey";
@@ -87,7 +87,7 @@ public class AuthResourceTest {
    }
    
    public static class WhenGettingGroups extends JerseyTest {
-      private static final String baseResourcePackage = "com.rackspace.papi.tests.mock.service";
+      private static final String baseResourcePackage = "com.rackspace.papi.mocks.auth.rs11";
       private final String INVALID_USER = "mickey";
       private final String VALID_USER = "cmarin1";
       private final String KEY = "SomeKey";

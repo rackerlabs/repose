@@ -1,5 +1,6 @@
-package com.rackspace.papi.tests.mock.service;
+package com.rackspace.papi.mocks.auth;
 
+import com.rackspace.papi.mocks.BaseResource;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;

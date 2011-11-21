@@ -1,53 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app version="3.0" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd">
     <servlet>
-        <servlet-name>mockTokenServlet</servlet-name>
-        <servlet-class>com.rackspace.tests.testSupport.mockTokenServlet</servlet-class>
+        <servlet-name>TokenServlet</servlet-name>
+        <servlet-class>com.rackspace.papi.mocks.auth.TokenServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>mockGetGroupsServlet</servlet-name>
-        <servlet-class>com.rackspace.tests.testSupport.mockGetGroupsServlet</servlet-class>
+        <servlet-name> GetGroupsServlet</servlet-name>
+        <servlet-class>com.rackspace.papi.mocks.auth.GetGroupsServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>limits</servlet-name>
-        <servlet-class>com.rackspace.tests.testSupport.limits</servlet-class>
+        <servlet-name>LimitsServlet</servlet-name>
+        <servlet-class>com.rackspace.papi.mocks.auth.Limits</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>landingServlet</servlet-name>
-        <servlet-class>com.rackspace.tests.testSupport.landingServlet</servlet-class>
+        <servlet-name>LandingServlet</servlet-name>
+        <servlet-class>com.rackspace.papi.mocks.auth.LandingServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>mockKeyStoneTokenServlet</servlet-name>
-        <servlet-class>com.rackspace.tests.testSupport.mockKeyStoneTokenServlet</servlet-class>
+        <servlet-name>KeyStoneTokenServlet</servlet-name>
+        <servlet-class>com.rackspace.papi.mocks.auth.KeyStoneTokenServlet</servlet-class>
     </servlet>
     <servlet>
         <servlet-name>GetTokensServlet</servlet-name>
-        <servlet-class>com.rackspace.tests.testSupport.GetTokensServlet</servlet-class>
+        <servlet-class>com.rackspace.papi.mocks.auth.GetTokensServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>ServletAdaptor</servlet-name>
+        <servlet-name>ServletAdapter</servlet-name>
         <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
-        <servlet-name>ServletAdaptor</servlet-name>
+        <servlet-name>ServletAdapter</servlet-name>
         <url-pattern>/resources/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>mockTokenServlet</servlet-name>
+        <servlet-name>TokenServlet</servlet-name>
         <url-pattern>/token/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>landingServlet</servlet-name>
+        <servlet-name>LandingServlet</servlet-name>
         <url-pattern>/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>limits</servlet-name>
+        <servlet-name>LimitsServlet</servlet-name>
         <url-pattern>/cmarin1/limits/*</url-pattern>
         <url-pattern>/limits/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>mockGetGroupsServlet</servlet-name>
+        <servlet-name>GetGroupsServlet</servlet-name>
         <url-pattern>/users/usertest4/groups/*</url-pattern>
         <url-pattern>/users/usertest1/groups/*</url-pattern>
         <url-pattern>/users/usertest2/groups/*</url-pattern>
@@ -55,7 +55,7 @@
         <url-pattern>/users/usertest3/groups/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>mockKeyStoneTokenServlet</servlet-name>
+        <servlet-name>KeyStoneTokenServlet</servlet-name>
         <url-pattern>/keystone/token/*</url-pattern>
     </servlet-mapping>
     <servlet-mapping>

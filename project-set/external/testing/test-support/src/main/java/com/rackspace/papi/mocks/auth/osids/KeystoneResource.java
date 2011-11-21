@@ -1,5 +1,8 @@
-package com.rackspace.papi.tests.mock.service;
+package com.rackspace.papi.mocks.auth.osids;
 
+
+
+import com.rackspace.papi.mocks.auth.BaseAuthResource;
 import com.sun.jersey.spi.resource.Singleton;
 import java.io.IOException;
 import java.util.Calendar;
