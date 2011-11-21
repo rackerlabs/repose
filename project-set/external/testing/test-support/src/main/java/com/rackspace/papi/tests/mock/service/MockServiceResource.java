@@ -1,20 +1,11 @@
 
 package com.rackspace.papi.tests.mock.service;
 
-import com.rackspace.papi.components.limits.schema.ObjectFactory;
-import com.sun.jersey.spi.resource.Singleton;
-import java.util.Calendar;
-import java.util.Enumeration;
+
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.*;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import com.rackspace.papi.components.limits.schema.*;
 
 /**

@@ -25,7 +25,6 @@
          <groupId>javax</groupId>
          <artifactId>javaee-web-api</artifactId>
       </dependency>
-      -->
 
       <dependency>
          <groupId>com.sun.jersey</groupId>
@@ -33,6 +32,7 @@
          <version>1.9.1</version>
       </dependency>
         
+      -->
       <dependency>
          <groupId>com.sun.jersey</groupId>
          <artifactId>jersey-server</artifactId>
@@ -51,7 +51,6 @@
          <version>${project.version}</version>
       </dependency>
 
-      <!--
       <dependency>
          <groupId>com.sun.jersey</groupId>
          <artifactId>jersey-client</artifactId>
@@ -75,7 +74,6 @@
          <artifactId>jackson-xc</artifactId>
          <version>1.9.2</version>
       </dependency>
-      -->
 
       <dependency>
          <groupId>junit</groupId>
