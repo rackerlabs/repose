@@ -41,7 +41,7 @@ public class MockServiceResource {
         if (!queryParams.isEmpty()) {
             resp += "\n\t\t<h2>Query Parameters</h2>";
             for (String q : queryParams) {
-                resp += "\n\t\t<h3> " + q + " : " + headers.getRequestHeader(q) + "</h3>";
+                resp += "\n\t\t<h3> " + q + " : " + uri.getQueryParameters().get(q) + "</h3>";
             }
         }
         resp += "\n\t</body>\n</html>";
