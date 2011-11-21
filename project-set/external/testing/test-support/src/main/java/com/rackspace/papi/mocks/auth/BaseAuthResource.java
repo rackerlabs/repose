@@ -58,5 +58,13 @@ public class BaseAuthResource extends BaseResource {
       }
       return -1;
    }
+   
+   protected String getUserName(Integer id) {
+      if (id == null || id < 0 || id >= validUsers.length) {
+         return null;
+      }
+      
+      return validUsers[id];
+   }
 
 }
