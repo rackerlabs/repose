@@ -35,7 +35,7 @@ public class AuthenticationHeaderManager {
     }
 
     public void setFilterDirectorValues() {
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.getHeaderKey(), "proxy " + accountUsername);
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.getHeaderKey(), "Proxy " + accountUsername);
 
         if (validToken || isDelegatable) {
             filterDirector.setFilterAction(FilterAction.PASS);
