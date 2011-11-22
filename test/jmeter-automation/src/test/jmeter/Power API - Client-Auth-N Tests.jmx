@@ -19,12 +19,12 @@
           </elementProp>
           <elementProp name="username" elementType="Argument">
             <stringProp name="Argument.name">username</stringProp>
-            <stringProp name="Argument.value">cmarin1</stringProp>
+            <stringProp name="Argument.value">usertest1</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="authhost" elementType="Argument">
             <stringProp name="Argument.name">authhost</stringProp>
-            <stringProp name="Argument.value">auth-n01.dev.us.ccp.rackspace.net</stringProp>
+            <stringProp name="Argument.value">50.57.189.15</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="key" elementType="Argument">
@@ -269,7 +269,7 @@
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
             <stringProp name="HTTPSampler.protocol">http</stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-            <stringProp name="HTTPSampler.path">v1.0</stringProp>
+            <stringProp name="HTTPSampler.path">resources/v1.1</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -354,7 +354,7 @@ log.info(&quot;test&quot;+${respcode});</stringProp>
             <collectionProp name="HeaderManager.headers">
               <elementProp name="" elementType="Header">
                 <stringProp name="Header.name">X-Auth-Token</stringProp>
-                <stringProp name="Header.value">${auth-token}</stringProp>
+                <stringProp name="Header.value">${token}</stringProp>
               </elementProp>
               <elementProp name="" elementType="Header">
                 <stringProp name="Header.name">Accept</stringProp>
@@ -399,7 +399,7 @@ log.info(&quot;test&quot;+${respcode});</stringProp>
             <hashTree/>
             <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
               <collectionProp name="Asserion.test_strings">
-                <stringProp name="-1926470151">&lt;h1&gt;Servlet version at /_${version}/${name}&lt;/h1&gt;</stringProp>
+                <stringProp name="-1954423825">&lt;h1&gt;Servlet version at</stringProp>
               </collectionProp>
               <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
               <boolProp name="Assertion.assume_success">false</boolProp>
@@ -408,9 +408,9 @@ log.info(&quot;test&quot;+${respcode});</stringProp>
             <hashTree/>
             <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion - tenant, tenant-id and role" enabled="true">
               <collectionProp name="Asserion.test_strings">
-                <stringProp name="1066480779">&lt;h2&gt;x-tenant-name : ${name}&lt;/h2&gt;</stringProp>
-                <stringProp name="1732876923">&lt;h2&gt;x-tenant-id : ${name}&lt;/h2&gt;</stringProp>
-                <stringProp name="648666289">&lt;h2&gt;x-roles : .*sysadmin.*&lt;/h2&gt;</stringProp>
+                <stringProp name="49679899">&lt;h3&gt; x-tenant-name : ${name}&lt;/h3&gt;</stringProp>
+                <stringProp name="1883774027">&lt;h3&gt; x-tenant-id : ${name}&lt;/h3&gt;</stringProp>
+                <stringProp name="1031508287">&lt;h3&gt; x-roles : .*sysadmin.*&lt;/h3&gt;</stringProp>
               </collectionProp>
               <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
               <boolProp name="Assertion.assume_success">false</boolProp>
