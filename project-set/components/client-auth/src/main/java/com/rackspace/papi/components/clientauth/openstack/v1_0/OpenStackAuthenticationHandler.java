@@ -28,16 +28,18 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
     private final OpenStackAuthenticationService authenticationService;
     private final AccountUsernameExtractor accountUsernameExtractor;
     private boolean delegatable;
+    private final String authServiceUri;
 
     public OpenStackAuthenticationHandler(OpenstackAuth cfg, OpenStackAuthenticationService serviceClient) {
         this.authenticationService = serviceClient;
         this.accountUsernameExtractor = new AccountUsernameExtractor(cfg.getClientMapping());
         delegatable = cfg.isDelegatable();
+        this.authServiceUri = cfg.getIdentityService().getUri();
     }
 
     @Override
     public String getWWWAuthenticateHeaderContents() {
-        return "TODO";
+        return "Keystone uri=" + authServiceUri;
     }
 
     @Override
