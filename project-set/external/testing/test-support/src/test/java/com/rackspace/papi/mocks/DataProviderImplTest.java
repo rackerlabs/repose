@@ -12,20 +12,20 @@ import static org.junit.Assert.*;
  * @author zinic
  */
 @RunWith(Enclosed.class)
-public class BaseResourceTest {
+public class DataProviderImplTest {
 
     public static class WhenGettingCalendars {
 
-        private BaseResource resource;
+        private DataProviderImpl provider;
         
         @Before
         public void standUp() throws Exception {
-            resource = new BaseResource();
+            provider = new DataProviderImpl();
         }
 
         @Test
         public void shouldReturnValidXmlGregorianCalendar() {
-            assertNotNull("Base resource must return valid XML Gregorian Calendar instances.", resource.getCalendar());
+            assertNotNull("Base resource must return valid XML Gregorian Calendar instances.", provider.getCalendar());
         }
     }
 }
