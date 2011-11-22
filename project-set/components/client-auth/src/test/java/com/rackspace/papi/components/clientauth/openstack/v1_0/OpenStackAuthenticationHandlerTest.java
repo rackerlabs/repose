@@ -6,6 +6,7 @@ import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.clientauth.openstack.config.ClientMapping;
+import com.rackspace.papi.components.clientauth.openstack.config.OpenStackIdentityService;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -34,19 +35,24 @@ public class OpenStackAuthenticationHandlerTest {
         protected ReadableHttpServletResponse response;
         protected OpenStackAuthenticationService authService;
         protected OpenStackAuthenticationHandler handler;
+        protected OpenstackAuth osauthConfig;
 
         @Before
         public void beforeAny() {
             request = mock(HttpServletRequest.class);
             response = mock(ReadableHttpServletResponse.class);
 
-            final OpenstackAuth osauthConfig = new OpenstackAuth();
+            osauthConfig = new OpenstackAuth();
             osauthConfig.setDelegatable(delegatable());
 
             final ClientMapping mapping = new ClientMapping();
             mapping.setIdRegex("/start/(.*)/");
 
             osauthConfig.getClientMapping().add(mapping);
+
+            final OpenStackIdentityService openStackIdentityService = new OpenStackIdentityService();
+            openStackIdentityService.setUri("http://some.auth.endpoint");
+            osauthConfig.setIdentityService(openStackIdentityService);
 
             authService = mock(OpenStackAuthenticationService.class);
             handler = new OpenStackAuthenticationHandler(osauthConfig, authService);
@@ -133,7 +139,9 @@ public class OpenStackAuthenticationHandlerTest {
 
             final Set<String> headerValues = headers.get(CommonHttpHeader.WWW_AUTHENTICATE.toString());
 
-            assertEquals("Auth component must pass invalid requests but process their responses", "TODO", headerValues.iterator().next());
+            final String expected = "Keystone uri=" + osauthConfig.getIdentityService().getUri();
+
+            assertEquals("Auth component must pass invalid requests but process their responses", expected, headerValues.iterator().next());
         }
         
         @Test
@@ -146,7 +154,9 @@ public class OpenStackAuthenticationHandlerTest {
 
             final Set<String> headerValues = headers.get(CommonHttpHeader.WWW_AUTHENTICATE.toString());
 
-            assertEquals("Auth component must pass invalid requests but process their responses", "TODO", headerValues.iterator().next());
+            final String expected = "Keystone uri=" + osauthConfig.getIdentityService().getUri();
+
+            assertEquals("Auth component must pass invalid requests but process their responses", expected, headerValues.iterator().next());
         }        
                 
         @Test

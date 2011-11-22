@@ -35,7 +35,8 @@ public class AuthenticationHeaderManager {
     }
 
     public void setFilterDirectorValues() {
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.getHeaderKey(), "Proxy " + accountUsername);
+
+        setIdentityStatus();
 
         if (validToken || isDelegatable) {
             filterDirector.setFilterAction(FilterAction.PASS);
@@ -43,17 +44,17 @@ public class AuthenticationHeaderManager {
 
         if (validToken) {
             filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.getHeaderKey(), groups);
-            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.USER.getHeaderKey(), accountUsername);            
+            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.USER.getHeaderKey(), accountUsername);
+            setRoles();
         }
-
-        setIdentityStatus();
-        setRoles();
     }
 
     /**
-     * Set Identity Status
+     * Set Identity Status and X-Authorization headers
      */
     private void setIdentityStatus() {
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.getHeaderKey(), "Proxy " + accountUsername);
+
         if (isDelegatable) {
             IdentityStatus identityStatus = IdentityStatus.Confirmed;
 
@@ -70,28 +71,26 @@ public class AuthenticationHeaderManager {
      * This is temporary to support roles until REPOSE supports the OpenStack Identity Service Specification
      */
     private void setRoles() {
-        if (validToken) {
-            if (keystone) {
-                filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.getHeaderKey(), accountUsername);
-                filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.getHeaderKey(), accountUsername);
+        if (keystone) {
+            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.getHeaderKey(), accountUsername);
+            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.getHeaderKey(), accountUsername);
 
-                List<String> roleList = new ArrayList<String>();
+            List<String> roleList = new ArrayList<String>();
 
-                for (String r : userRoles.getDefault().getRoles().getRole()) {
-                    roleList.add(r);
-                }
+            for (String r : userRoles.getDefault().getRoles().getRole()) {
+                roleList.add(r);
+            }
 
-                for (User user : userRoles.getUser()) {
-                    if (user.getName().equalsIgnoreCase(accountUsername)) {
-                        for (String r : user.getRoles().getRole()) {
-                            roleList.add(r);
-                        }
+            for (User user : userRoles.getUser()) {
+                if (user.getName().equalsIgnoreCase(accountUsername)) {
+                    for (String r : user.getRoles().getRole()) {
+                        roleList.add(r);
                     }
                 }
+            }
 
-                if (roleList.size() > 0) {
-                    filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.ROLES.getHeaderKey(), roleList.toArray(new String[0]));
-                }
+            if (roleList.size() > 0) {
+                filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.ROLES.getHeaderKey(), roleList.toArray(new String[0]));
             }
         }
     }
