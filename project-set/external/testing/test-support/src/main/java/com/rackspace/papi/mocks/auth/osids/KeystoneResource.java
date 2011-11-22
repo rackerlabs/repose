@@ -2,6 +2,8 @@ package com.rackspace.papi.mocks.auth.osids;
 
 
 
+import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
+import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import com.rackspace.papi.mocks.auth.BaseAuthResource;
 import com.sun.jersey.spi.resource.Singleton;
 import java.io.IOException;
@@ -19,6 +21,7 @@ public class KeystoneResource extends BaseAuthResource {
    private static final String DEFAULT_PROPS = "/keystone.properties";
    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(KeystoneResource.class);
    private final ObjectFactory objectFactory;
+   private final com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.ObjectFactory groupsObjectFactory;
    
    public KeystoneResource() throws DatatypeConfigurationException, IOException {
       this(DEFAULT_PROPS);
@@ -27,6 +30,7 @@ public class KeystoneResource extends BaseAuthResource {
    public KeystoneResource(String propertiesFile) throws DatatypeConfigurationException, IOException {
       super(propertiesFile);
       objectFactory = new ObjectFactory();
+      groupsObjectFactory = new com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.ObjectFactory();
    }
    
    @POST
@@ -86,6 +90,37 @@ public class KeystoneResource extends BaseAuthResource {
       return Response.ok(objectFactory.createAccess(response)).build();
    }
    
+   @GET
+   @Path("/users/{userId}/RAX-KSGRP")
+   @Produces("application/xml")
+   public Response getGroups(@PathParam("userId") String userId, @HeaderParam("X-Auth-Token") String authToken) {
+      Integer id;
+      
+      try {
+         id = Integer.valueOf(userId);
+      } catch(NumberFormatException ex) {
+         id = -1;
+      }
+      
+      String userName = getUserName(id);
+      
+      if (!validateUser(userName)) {
+         return Response
+                 .status(Response.Status.NOT_FOUND)
+                 .entity(objectFactory.createItemNotFound(createItemNotFound()))
+                 .build();
+      }
+      
+      if (!isValidToken(authToken)) {
+         return Response
+                 .status(Response.Status.UNAUTHORIZED)
+                 .entity(objectFactory.createUnauthorized(createUnauthorized("No valid token provided. Please use the 'X-Auth-Token' header with a valid token.")))
+                 .build();
+      }
+      
+      return Response.ok(groupsObjectFactory.createGroups(getGroups(userName))).build();
+   }
+   
    private String getUsernameFromToken(String token) {
       String userHash = token.split(":")[0];
       
@@ -99,7 +134,7 @@ public class KeystoneResource extends BaseAuthResource {
    }
    
    private boolean isValidToken(String token) {
-      String userHash = token.split(":")[0];
+      String userHash = token != null? token.split(":")[0]: "";
       
       for (String user: getValidUsers()) {
          if (String.valueOf(user.hashCode()).equals(userHash)) {
@@ -163,6 +198,49 @@ public class KeystoneResource extends BaseAuthResource {
       //role.setTenantId("tenantId");
 
       return role;
+   }
+   
+   private Groups getGroups(String userName) {
+      Groups groupList = groupsObjectFactory.createGroups();
+      
+      String groups = getProperties().getProperty("groups." + userName);
+      
+      if (groups == null) {
+         LOG.warn("No groups defined for user: " + userName);
+         return groupList;
+      }
+      
+      String[] groupNames = groups.split(",");
+      
+      for (String groupId: groupNames) {
+         Group group = getGroup(userName, groupId);
+         if (group != null) {
+            groupList.getGroup().add(group);
+         }
+      }
+      
+      return groupList;
+   }
+   
+   private Group getGroup(String userName, String groupId) {
+      
+      String baseGroup = "group." + userName + "." + groupId;
+      
+      String name = getProperties().getProperty(baseGroup + ".name");
+      String desc = getProperties().getProperty(baseGroup + ".desc", "");
+      
+      if (name == null) {
+         LOG.warn("Unable to find group details for group: " + baseGroup);
+         name = groupId;
+      }
+      
+      LOG.info("Adding group: " + groupId + " for user: " + userName);
+      Group group = groupsObjectFactory.createGroup();
+      group.setId(groupId);
+      group.setName(name);
+      group.setDescription(desc);
+
+      return group;
    }
    
    private TenantForAuthenticateResponse createTenant() {
