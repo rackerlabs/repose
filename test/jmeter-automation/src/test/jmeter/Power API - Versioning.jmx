@@ -523,9 +523,9 @@
             <hashTree/>
             <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion - tenant, tenant-id and role" enabled="true">
               <collectionProp name="Asserion.test_strings">
-                <stringProp name="-901282254">&lt;h2&gt;http_x_tenant_name : ${name}&lt;/h2&gt;</stringProp>
-                <stringProp name="1726360034">&lt;h2&gt;http_x_tenant_id : ${name}&lt;/h2&gt;</stringProp>
-                <stringProp name="-2095310657">&lt;h2&gt;x_roles : .*sysadmin.*&lt;/h2&gt;</stringProp>
+                <stringProp name="1066480779">&lt;h2&gt;x-tenant-name : ${name}&lt;/h2&gt;</stringProp>
+                <stringProp name="1732876923">&lt;h2&gt;x-tenant-id : ${name}&lt;/h2&gt;</stringProp>
+                <stringProp name="648666289">&lt;h2&gt;x-roles : .*sysadmin.*&lt;/h2&gt;</stringProp>
               </collectionProp>
               <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
               <boolProp name="Assertion.assume_success">false</boolProp>
