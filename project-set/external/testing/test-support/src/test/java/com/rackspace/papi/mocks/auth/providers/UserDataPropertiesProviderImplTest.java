@@ -1,5 +1,6 @@
-package com.rackspace.papi.mocks.auth;
+package com.rackspace.papi.mocks.auth.providers;
 
+import com.rackspace.papi.mocks.auth.provider.UserDataPropertiesProviderImpl;
 import java.io.IOException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import static org.junit.Assert.*;
@@ -9,7 +10,7 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 @RunWith(Enclosed.class)
-public class BaseAuthResourceTest {
+public class UserDataPropertiesProviderImplTest {
 
     public static class WhenLoadingProperties {
 
@@ -18,47 +19,47 @@ public class BaseAuthResourceTest {
         private final int VALID_USERID = 1;
         private final String VALID_USER = "cmarin1";
         private final String INVALID_USER = "blah";
-        private BaseAuthResource resource;
+        private UserDataPropertiesProviderImpl provider;
 
         @Before
         public void setup() throws DatatypeConfigurationException, IOException {
-            resource = new BaseAuthResource(PROP_FILE);
+            provider = new UserDataPropertiesProviderImpl(PROP_FILE);
         }
 
         @Test
         public void shouldLoadProperties() throws DatatypeConfigurationException, IOException {
-            assertNotNull(resource.getProperties());
+            assertNotNull(provider.getProperties());
         }
 
         @Test
         public void shouldHaveEmptyUsersWhenPropertiesDoesntExist() throws DatatypeConfigurationException, IOException {
-            BaseAuthResource baseAuthResource = new BaseAuthResource(INVALID_PROP_FILE);
-            assertEquals(0, baseAuthResource.getValidUsers().length);
+            UserDataPropertiesProviderImpl provider = new UserDataPropertiesProviderImpl(INVALID_PROP_FILE);
+            assertEquals(0, provider.getValidUsers().length);
         }
 
         @Test
         public void shouldReadValidUsers() throws DatatypeConfigurationException, IOException {
-            assertNotNull(resource.getProperties());
-            assertNotNull(resource.getValidUsers());
-            assertTrue(resource.getValidUsers().length > 0);
+            assertNotNull(provider.getProperties());
+            assertNotNull(provider.getValidUsers());
+            assertTrue(provider.getValidUsers().length > 0);
         }
 
         @Test
         public void shouldHaveTestUser() throws DatatypeConfigurationException, IOException {
-            assertEquals(VALID_USERID, resource.getUserId(VALID_USER));
+            assertEquals(VALID_USERID, provider.getUserId(VALID_USER));
         }
 
         @Test
         public void shouldValidateValidUser() {
             boolean expResult = true;
-            boolean result = resource.validateUser(VALID_USER);
+            boolean result = provider.validateUser(VALID_USER);
             assertEquals(expResult, result);
         }
 
         @Test
         public void shouldValidateInvalidUser() {
             boolean expResult = false;
-            boolean result = resource.validateUser(INVALID_USER);
+            boolean result = provider.validateUser(INVALID_USER);
             assertEquals(expResult, result);
         }
     }
