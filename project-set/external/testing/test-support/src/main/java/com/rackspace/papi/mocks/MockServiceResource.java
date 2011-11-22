@@ -1,4 +1,4 @@
-package com.rackspace.papi.mocks;
+ package com.rackspace.papi.mocks;
 
 import java.util.List;
 import java.util.Set;
@@ -55,7 +55,7 @@ public class MockServiceResource {
     }
 
     @GET
-    @Path("/limits")
+    @Path("/{version}/{user}/limits")
     public Response getAbsoluteLimits() {
 
         Limits limits = new Limits();
@@ -67,7 +67,8 @@ public class MockServiceResource {
 
     public AbsoluteLimitList buildAbsoluteLimits() {
         AbsoluteLimitList limitList = new AbsoluteLimitList();
-
+        
+        
         AbsoluteLimit abs;
         int value = 20;
         for (String name : absNames) {
