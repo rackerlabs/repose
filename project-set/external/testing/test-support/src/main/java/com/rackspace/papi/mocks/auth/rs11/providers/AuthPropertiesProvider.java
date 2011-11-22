@@ -60,7 +60,7 @@ public class AuthPropertiesProvider extends UserDataPropertiesProviderImpl imple
       FullToken token = new FullToken();
       token.setId(id);
       token.setCreated(getCalendar(Calendar.DAY_OF_MONTH, -1));
-      token.setExpires(getCalendar(Calendar.DAY_OF_MONTH, 30));
+      token.setExpires(getCalendar(Calendar.DAY_OF_MONTH, 10));
       token.setUserId(userName);
       token.setUserURL("/user/url");
 
