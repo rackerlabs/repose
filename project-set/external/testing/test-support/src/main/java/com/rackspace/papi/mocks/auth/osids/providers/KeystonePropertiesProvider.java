@@ -165,7 +165,7 @@ public class KeystonePropertiesProvider extends UserDataPropertiesProviderImpl i
    public Token createToken(String tokenId) {
       Token token = objectFactory.createToken();
       token.setId(tokenId);
-      token.setExpires(getCalendar(Calendar.DAY_OF_MONTH, 10));
+      token.setExpires(getCalendar(Calendar.DAY_OF_MONTH, 1));
       //token.setTenant(createTenant());
 
       return token;
