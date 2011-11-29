@@ -59,21 +59,21 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
       boolean validToken = false;
 
       if ((!StringUtilities.isBlank(authToken) && acct != null)) {
-         try {
+        try {
             validToken = authenticationService.validateToken(acct, authToken);
-         } catch (Exception ex) {
+        } catch (Exception ex) {
             LOG.error("Failure in auth: " + ex.getMessage(), ex);
             filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-         }
-      }
+        }
 
-      String[] groups = null;
-      if (validToken) {
-        groups = getGroupsListIds(acct.getUsername());
-      }
+        String[] groups = null;
+        if (validToken) {
+            groups = getGroupsListIds(acct.getUsername());
+        }
 
-      AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(validToken, cfg, filterDirector, acct == null ? "" : acct.getUsername(), groups);
-      headerManager.setFilterDirectorValues();
+        final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(validToken, cfg, filterDirector, acct == null ? "" : acct.getUsername(), groups);
+        headerManager.setFilterDirectorValues();
+      }
 
       return filterDirector;
    }
