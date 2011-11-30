@@ -115,9 +115,9 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         @Test
-        public void shouldPassInvalidCredentials() {
+        public void shouldRejectInvalidCredentials() {
             final FilterDirector requestDirector = handler.handleRequest(request, response);
-            assertEquals("Auth component must pass invalid requests but process their responses", FilterAction.PROCESS_RESPONSE, requestDirector.getFilterAction());
+            assertEquals("Auth component must reject requests with invalid credentials", FilterAction.RETURN, requestDirector.getFilterAction());
         }
 
         @Test
@@ -130,7 +130,7 @@ public class OpenStackAuthenticationHandlerTest {
         }
         
         @Test
-        public void shouldModifyDelegatedWwwAuthenticateHeaderOn401() {;
+        public void shouldModifyDelegatedWwwAuthenticateHeaderOn401() {
             when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Delegated");
             when(response.getStatus()).thenReturn(Integer.valueOf(401));
 
