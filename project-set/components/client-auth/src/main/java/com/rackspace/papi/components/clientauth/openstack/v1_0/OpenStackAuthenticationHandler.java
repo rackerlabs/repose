@@ -64,15 +64,15 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
                 LOG.error("Failure in auth: " + ex.getMessage(), ex);
                 filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
             }
-
-            Groups groups = null;
-            if (cachableTokenInfo != null) {
-                groups = authenticationService.getGroups(cachableTokenInfo.getUserId());
-            }
-
-            final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(cachableTokenInfo, delegatable, filterDirector, account == null ? "" : account.getUsername(), groups);
-            headerManager.setFilterDirectorValues();
         }
+
+        Groups groups = null;
+        if (cachableTokenInfo != null) {
+            groups = authenticationService.getGroups(cachableTokenInfo.getUserId());
+        }
+
+        final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(authToken, cachableTokenInfo, delegatable, filterDirector, account == null ? "" : account.getUsername(), groups);
+        headerManager.setFilterDirectorValues();
 
         return filterDirector;
     }

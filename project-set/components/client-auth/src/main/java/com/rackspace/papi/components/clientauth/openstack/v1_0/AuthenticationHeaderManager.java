@@ -18,6 +18,7 @@ import java.util.List;
  */
 public class AuthenticationHeaderManager {
 
+    private final String authToken;
     private final CachableTokenInfo cachableTokenInfo;
     private final Boolean isDelegatable;
     private final FilterDirector filterDirector;
@@ -25,7 +26,8 @@ public class AuthenticationHeaderManager {
     private final Boolean validToken;
     private final Groups groups;
 
-    public AuthenticationHeaderManager(CachableTokenInfo cachableTokenInfo, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, Groups groups) {
+    public AuthenticationHeaderManager(String authToken, CachableTokenInfo cachableTokenInfo, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, Groups groups) {
+        this.authToken =authToken;
         this.cachableTokenInfo = cachableTokenInfo;
         this.isDelegatable = isDelegatable;
         this.filterDirector = filterDirector;
@@ -35,22 +37,29 @@ public class AuthenticationHeaderManager {
     }
 
     public void setFilterDirectorValues() {
-        setExtendedAuthorization();
 
         if (validToken) {
             filterDirector.setFilterAction(FilterAction.PASS);
-        } else if (isDelegatable) {
-            filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
-        }
-        
-        if (validToken) {
+            setExtendedAuthorization();
             setUser();
             setRoles();
             setGroups();
             setTenant();
-        }
 
-        setIdentityStatus();
+            if (isDelegatable) {
+                setIdentityStatus();
+            }
+        } else if (isDelegatable) {
+            if (nullCredentials()) {
+                filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
+                setExtendedAuthorization();
+                setIdentityStatus();
+            }
+        }
+    }
+
+    private boolean nullCredentials() {
+        return authToken == null || tenantId == null;
     }
 
     /**
@@ -64,15 +73,13 @@ public class AuthenticationHeaderManager {
      * IDENTITY STATUS
      */
     private void setIdentityStatus() {
-        if (isDelegatable) {
-            IdentityStatus identityStatus = IdentityStatus.Confirmed;
+        IdentityStatus identityStatus = IdentityStatus.Confirmed;
 
-            if (!validToken) {
-                identityStatus = IdentityStatus.Indeterminate;
-            }
-
-            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.IDENTITY_STATUS.getHeaderKey(), identityStatus.name());
+        if (!validToken) {
+            identityStatus = IdentityStatus.Indeterminate;
         }
+
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.IDENTITY_STATUS.getHeaderKey(), identityStatus.name());
     }
 
     /**

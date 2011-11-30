@@ -23,14 +23,19 @@ public class CachableTokenInfo implements Serializable {
     }
 
     private String formatRoles(AuthenticateResponse response) {
+        String formattedRoles = null;
 
-        StringBuilder result = new StringBuilder();
-        for(Role role : response.getUser().getRoles().getRole()) {
-            result.append(role);
-            result.append(",");
+        if (response.getUser() != null && response.getUser().getRoles() != null) {
+            StringBuilder result = new StringBuilder();
+            for(Role role : response.getUser().getRoles().getRole()) {
+                result.append(role.getName());
+                result.append(",");
+            }
+
+            formattedRoles = result.substring(0, result.length() - 1);
         }
 
-        return result.substring(0, result.length() - 1);
+        return formattedRoles;
     }
 
     public String getTokenId() {
