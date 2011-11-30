@@ -110,18 +110,27 @@ public class OpenStackAuthenticationHandlerTest {
 
         @Before
         public void standUp() {
-            when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
             when(request.getHeader(anyString())).thenReturn("some-random-auth-token");
         }
 
         @Test
+        @Ignore //Bug Find 2011!!!
+        public void shouldPassNullOrBlankCredentials() {
+            when(request.getRequestURI()).thenReturn("/start/");
+            final FilterDirector requestDirector = handler.handleRequest(request, response);
+            assertEquals("Auth component must reject requests with invalid credentials", FilterAction.PASS, requestDirector.getFilterAction());
+        }
+
+        @Test
         public void shouldRejectInvalidCredentials() {
+            when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
             final FilterDirector requestDirector = handler.handleRequest(request, response);
             assertEquals("Auth component must reject requests with invalid credentials", FilterAction.RETURN, requestDirector.getFilterAction());
         }
 
         @Test
         public void shouldNotModifyResponseOnResponseStatusCodeNotEqualTo401or403() {
+            when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
             when(response.getStatus()).thenReturn(Integer.valueOf(200));
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
@@ -131,6 +140,7 @@ public class OpenStackAuthenticationHandlerTest {
         
         @Test
         public void shouldModifyDelegatedWwwAuthenticateHeaderOn401() {
+            when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
             when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Delegated");
             when(response.getStatus()).thenReturn(Integer.valueOf(401));
 
@@ -146,6 +156,7 @@ public class OpenStackAuthenticationHandlerTest {
         
         @Test
         public void shouldModifyDelegatedWwwAuthenticateHeaderOn403() {
+            when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
             when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Delegated");
             when(response.getStatus()).thenReturn(Integer.valueOf(403));
 
@@ -161,6 +172,7 @@ public class OpenStackAuthenticationHandlerTest {
                 
         @Test
         public void shouldReturn501OnAuthFailureWithNonDelegatedWwwAuthenticateHeaderSet() {
+            when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
             when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Not-Delegated");
             when(response.getStatus()).thenReturn(Integer.valueOf(401));
 
@@ -171,6 +183,7 @@ public class OpenStackAuthenticationHandlerTest {
         
         @Test
         public void shouldReturn501OnAuthFailureWithNoWwwAuthenticateHeaderSet() {
+            when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
             when(response.getStatus()).thenReturn(Integer.valueOf(401));
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
