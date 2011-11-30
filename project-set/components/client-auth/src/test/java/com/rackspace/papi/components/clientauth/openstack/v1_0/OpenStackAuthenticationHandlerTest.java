@@ -118,7 +118,7 @@ public class OpenStackAuthenticationHandlerTest {
         public void shouldPassNullOrBlankCredentials() {
             when(request.getRequestURI()).thenReturn("/start/");
             final FilterDirector requestDirector = handler.handleRequest(request, response);
-            assertEquals("Auth component must reject requests with invalid credentials", FilterAction.PASS, requestDirector.getFilterAction());
+            assertEquals("Auth component must pass requests with invalid credentials", FilterAction.PASS, requestDirector.getFilterAction());
         }
 
         @Test
@@ -168,7 +168,7 @@ public class OpenStackAuthenticationHandlerTest {
             final String expected = "Keystone uri=" + osauthConfig.getIdentityService().getUri();
 
             assertEquals("Auth component must pass invalid requests but process their responses", expected, headerValues.iterator().next());
-        }        
+        }
                 
         @Test
         public void shouldReturn501OnAuthFailureWithNonDelegatedWwwAuthenticateHeaderSet() {
@@ -189,6 +189,29 @@ public class OpenStackAuthenticationHandlerTest {
             final FilterDirector responseDirector = handler.handleResponse(request, response);
             
             assertEquals("Auth component must identify proxy auth failures", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
+        }
+
+        @Test
+        public void shouldReturn500OnAuth501FailureWithDelegatedWwwAuthenticateHeaderSet() {
+            when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
+            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Delegated");
+            when(response.getStatus()).thenReturn(Integer.valueOf(501));
+
+            final FilterDirector responseDirector = handler.handleResponse(request, response);
+
+            assertEquals("Auth component must identify proxy auth failures", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
+        }
+
+        @Test
+        @Ignore // Bug Find 2011
+        public void shouldReturn501OnAuth501FailureWithDelegatedWwwAuthenticateHeaderNotSet() {
+            when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
+            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("not-Delegated");
+            when(response.getStatus()).thenReturn(Integer.valueOf(501));
+
+            final FilterDirector responseDirector = handler.handleResponse(request, response);
+
+            assertEquals("Auth component must identify proxy auth failures", HttpStatusCode.NOT_IMPLEMENTED, responseDirector.getResponseStatus());
         }
     }
 }
