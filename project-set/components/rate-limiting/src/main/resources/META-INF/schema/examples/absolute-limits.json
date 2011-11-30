@@ -1,0 +1,14 @@
+{
+  "limits":{
+    "absolute":{
+        "limit":[{
+            "name":"an absolute",
+            "value":"6"
+        },{
+            "name":"new abs",
+            "value":"90"
+        }]
+    }
+  }
+}
+
