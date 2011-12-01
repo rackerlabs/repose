@@ -2,19 +2,23 @@ package com.rackspace.papi.commons.util.classloader.ear;
 
 import com.rackspace.papi.commons.util.classloader.EarTestSupport;
 import com.rackspace.papi.commons.util.classloader.jar.test.EmptyClass;
+import java.security.Permission;
 
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 
 /**
  *
  */
 @RunWith(Enclosed.class)
 public class EarUnpackerTest {
+
     public static class WhenUnpackingEars extends EarTestSupport {
+
         private EarUnpacker unpacker;
 
         public WhenUnpackingEars() {
@@ -31,7 +35,7 @@ public class EarUnpackerTest {
             final EarClassLoaderContext classLoaderContext = unpacker.read(
                     createEarArchiveEntryListener(unpacker.getDeploymentDirectory()),
                     createEarFile());
-            
+
             final ClassLoader localClassLoader = classLoaderContext.getClassLoader();
             final Class<?> clazz = localClassLoader.loadClass(EmptyClass.class.getName());
 
@@ -42,6 +46,34 @@ public class EarUnpackerTest {
             assertTrue("Should delete deployment directory", deleteDirectory(getDeploymentDestination()));
         }
 
-        
+        @Test @Ignore
+        public void shouldNotAllowSystemExit() throws Exception {
+            final EarClassLoaderContext classLoaderContext = unpacker.read(
+                    createEarArchiveEntryListener(unpacker.getDeploymentDirectory()),
+                    createEarFile());
+
+            final ClassLoader localClassLoader = classLoaderContext.getClassLoader();
+            final Class<?> clazz = localClassLoader.loadClass(EmptyClass.class.getName());
+
+            final SecurityManager catchManager = new SecurityManager() {
+
+                @Override
+                public void checkPermission(Permission prmsn) {
+                    if (prmsn.getName().contains("exitVM")) {
+                        fail("Caught unhandled system exit!");
+                    }
+                }
+            };
+            
+            final SecurityManager originalManager = System.getSecurityManager();
+
+            try {
+                System.setSecurityManager(catchManager);
+                clazz.newInstance();
+            } finally {
+                System.setSecurityManager(originalManager);
+                assertTrue("Should delete deployment directory", deleteDirectory(getDeploymentDestination()));
+            }
+        }
     }
 }
