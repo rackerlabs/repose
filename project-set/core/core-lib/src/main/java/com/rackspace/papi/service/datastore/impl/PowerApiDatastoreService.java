@@ -41,6 +41,18 @@ public class PowerApiDatastoreService implements DatastoreService {
     }
 
     @Override
+    public void unregisterDatastoreManager(String datastoreManagerName) throws NamingException {
+        final String nameInContext = servicePrefix + datastoreManagerName;
+        
+        try {
+            namingContext.unbind(nameInContext);
+        } catch (NamingException ex) {
+            LOG.error(ex.getMessage(), ex);
+            throw ex;
+        }
+    }
+
+    @Override
     public void registerDatastoreManager(String datastoreManagerName, DatastoreManager manager) throws NamingException {
         final String nameInContext = servicePrefix + datastoreManagerName;
         

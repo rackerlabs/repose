@@ -40,8 +40,6 @@ public class PowerFilterTest {
         }
 
         @Test
-        @Ignore
-        // TODO: Fix this test
         public void shouldDoFilter() throws IOException, ServletException, NamingException {
             ResponseMessageService mockedResponseMessageService = mock(ResponseMessageService.class);
             Context mockedContext = mock(Context.class);
@@ -50,6 +48,8 @@ public class PowerFilterTest {
             ServletContext mockedServletContext = mock(ServletContext.class);
             FakeFilterRegistration mockedFilterRegistration = new FakeFilterRegistration();
 
+            when(mockedServiceContext.getService()).thenReturn(mockedResponseMessageService);
+            
             when(mockedContext.lookup("powerapi:/services/rms")).thenReturn(mockedServiceContext);
             when(mockedFilterConfig.getServletContext()).thenReturn(mockedServletContext);
             when(mockedServletContext.addFilter(any(String.class), any(Filter.class))).thenReturn(mockedFilterRegistration);
