@@ -1,6 +1,8 @@
 package com.rackspace.papi.filter;
 
 import com.rackspace.papi.service.ServiceContext;
+import com.rackspace.papi.service.config.PowerApiConfigurationManager;
+import com.rackspace.papi.service.event.PowerProxyEventManager;
 import com.rackspace.papi.service.rms.ResponseMessageService;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -44,13 +46,22 @@ public class PowerFilterTest {
             ResponseMessageService mockedResponseMessageService = mock(ResponseMessageService.class);
             Context mockedContext = mock(Context.class);
             ServiceContext mockedServiceContext = mock(ServiceContext.class);
+            ServiceContext mockedEventServiceContext = mock(ServiceContext.class);
+            ServiceContext mockedConfigServiceContext = mock(ServiceContext.class);
             FilterConfig mockedFilterConfig = mock(FilterConfig.class);
             ServletContext mockedServletContext = mock(ServletContext.class);
             FakeFilterRegistration mockedFilterRegistration = new FakeFilterRegistration();
+            PowerProxyEventManager mockEventManager = mock(PowerProxyEventManager.class);
+            PowerApiConfigurationManager mockConfigManager = mock(PowerApiConfigurationManager.class);
 
             when(mockedServiceContext.getService()).thenReturn(mockedResponseMessageService);
+            when(mockedEventServiceContext.getService()).thenReturn(mockEventManager);
+            when(mockedConfigServiceContext.getService()).thenReturn(mockConfigManager);
             
             when(mockedContext.lookup("powerapi:/services/rms")).thenReturn(mockedServiceContext);
+            when(mockedContext.lookup("powerapi:/kernel/event")).thenReturn(mockedEventServiceContext);
+            when(mockedContext.lookup("powerapi:/services/configuration")).thenReturn(mockedConfigServiceContext);
+            
             when(mockedFilterConfig.getServletContext()).thenReturn(mockedServletContext);
             when(mockedServletContext.addFilter(any(String.class), any(Filter.class))).thenReturn(mockedFilterRegistration);
             when(mockedServletContext.getAttribute("PAPI_ServletContext")).thenReturn(mockedContext);
