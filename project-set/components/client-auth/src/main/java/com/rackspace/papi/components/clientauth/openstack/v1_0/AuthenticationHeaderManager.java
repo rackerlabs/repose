@@ -59,7 +59,7 @@ public class AuthenticationHeaderManager {
     }
 
     private boolean nullCredentials() {
-        return authToken == null || tenantId == null;
+        return StringUtilities.isBlank(authToken) || StringUtilities.isBlank(tenantId);
     }
 
     /**

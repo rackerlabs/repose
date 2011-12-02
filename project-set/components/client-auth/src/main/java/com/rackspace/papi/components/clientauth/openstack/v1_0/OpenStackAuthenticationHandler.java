@@ -92,6 +92,14 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
             case FORBIDDEN:
                 myDirector = updateHttpResponse(myDirector, wwwAuthenticateHeader);
                 break;
+            case NOT_IMPLEMENTED:
+                if ((!StringUtilities.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains("Delegated"))) {
+                    myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                    LOG.error("Repose authentication component is configured as delegetable but origin service does not support delegated mode.");
+                } else {
+                    myDirector.setResponseStatus(HttpStatusCode.NOT_IMPLEMENTED);
+                }
+                break;
         }
         
         return myDirector;
