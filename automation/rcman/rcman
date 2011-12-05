@@ -25,7 +25,7 @@ when "--configure"
     checkChefInstall
 when "--create-cluster"
     jenkins = false
-    clusterSize=4
+    clusterSize=1 #leaving this as 1 for now
     p "build"
     if !File.exists?("#{File.dirname(__FILE__)}/configs/rcman.conf")
         puts "RCMAN has not yet been configured"
