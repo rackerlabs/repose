@@ -52,7 +52,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
         filterDirector.setFilterAction(FilterAction.RETURN);
 
         final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.getHeaderKey());
-        final Account acct = accountUsernameExtractor.extract(request.getRequestURL().toString());
+        final Account acct = accountUsernameExtractor.extract(request.getRequestURI());
 
         boolean validToken = false;
 

@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.clientauth.rackspace.v1_1;
 
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.components.clientauth.openstack.v1_0.OpenStackServiceHeader;
 import com.rackspace.papi.components.clientauth.rackspace.IdentityStatus;
@@ -53,7 +54,7 @@ public class AuthenticationHeaderManager {
      * Set Identity Status and X-Authorization headers
      */
     private void setIdentityStatus() {
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.getHeaderKey(), "Proxy " + accountUsername);
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.getHeaderKey(), StringUtilities.isBlank(accountUsername) ? "Proxy" : "Proxy " + accountUsername);
 
         if (isDelegatable) {
             IdentityStatus identityStatus = IdentityStatus.Confirmed;
