@@ -35,7 +35,7 @@
         <xs:attribute name="id" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p></html:p>
+                    <html:p>A convenience id the user can set to identify a particular log.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -43,7 +43,7 @@
         <xs:attribute name="format" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p></html:p>
+                    <html:p>The format includes what will be logged.  The arguments with % are a subset of the apache mod_log_config found at http://httpd.apache.org/docs/2.2/mod/mod_log_config.html#formats</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -58,7 +58,8 @@
 
         <xs:all>
             <xs:element name="file" type="htlog:file-target" minOccurs="1" maxOccurs="1" />
-            <xs:element name="syslog" type="htlog:syslog-target" minOccurs="1" maxOccurs="1" />
+            <!-- The syslog support is future functionality -->
+            <!--<xs:element name="syslog" type="htlog:syslog-target" minOccurs="1" maxOccurs="1" />-->
         </xs:all>
     </xs:complexType>
 
@@ -72,7 +73,7 @@
         <xs:attribute name="location">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p></html:p>
+                    <html:p>The actual location of the log file.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
