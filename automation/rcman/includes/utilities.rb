@@ -88,10 +88,10 @@ module Utilities
         if !File.exists?(File.expand_path("#{chefRepo}/.chef/centos-default-template.erb"))
             FileUtils.cp("#{File.expand_path("./")}/configs/centos-default-template.erb","#{File.expand_path("~/.rcman/rc-chef/.chef/")}")
         end
-        conf =  {"chef-Repo"=>File.expand_path(chefRepo), "knife-config"=>"#{File.expand_path(chefRepo)}/.chef/knife.rb", "log-file"=>"#{File.expand_path("./")}/configs/rcman.log"}
+        conf =  {"chef-Repo"=>File.expand_path(chefRepo), "knife-config"=>"#{File.expand_path(chefRepo)}/.chef/knife.rb", "log-file"=>"#{File.expand_path(File.dirname(__FILE__))}/../configs/rcman.log"}
 
         #write out items for rcman configs
-        File.open("#{File.dirname(__FILE__)}/../configs/rcman.conf",'w') { |f|
+        File.open("#{File.expand_path(File.dirname(__FILE__))}/../configs/rcman.conf",'w') { |f|
             f.write(conf.to_yaml)
         }
     end

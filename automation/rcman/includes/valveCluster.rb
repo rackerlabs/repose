@@ -71,10 +71,8 @@ module ValveCluster
         nodeNames = "" 
         scriptDir = "#{File.expand_path(File.dirname(__FILE__))}/../"
 
-        File.open("#{scriptDir}/files/power-proxy.cfg.xml", 'w'){|f| f.write(xml)}
-
         cluster.each do |node|
-            andhost = "#{node[7]}"
+            host = "#{node[7]}"
             rsInstances += "#{node[0]},"
             nodeNames += "#{node[2]},"
             
@@ -104,7 +102,7 @@ module ValveCluster
     end
 
     def waitForRepose(node)
-        for i in 7..9
+        for i in 7..8
             uri = URI("http://#{node}:888#{i}/v1/usertest1")
             begin
                 sleep 3
