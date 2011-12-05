@@ -1,15 +1,17 @@
 #!/usr/local/bin/ruby
+
 require 'fileutils'
 require 'rubygems'
 require 'net/ssh'
 require 'net/scp'
 require 'net/http'
+
+require File.join(File.dirname(__FILE__), 'InstanceConstants.rb')
+require File.join(File.dirname(__FILE__), 'ReposeInstance.rb')
+
 module ValveCluster
-
-
-    def buildValveServer(name)
-
-        #        updateCookbook
+   def buildValveServer(name)
+        # updateCookbook
         chefRepo = getChefRepo
         image = 112
         flavor = 4
@@ -17,11 +19,14 @@ module ValveCluster
 
         puts cmd
         puts "Building node #{name}..."
+
         result = `#{cmd} | tail -n12`.split(/\n/)
         log(result.inspect)
+        
         #puts result
         nodes = `knife node list -c #{chefRepo}/chef/knife.rb`.split(/\n/)
         output = `knife node show #{name} -c #{chefRepo}/.chef/knife.rb`
+        
         if output.include?("ERROR")
             puts "Node was not built!"
             exit
@@ -32,9 +37,22 @@ module ValveCluster
         end
     end
 
-
+    def buildHostCsvString(cluster)
+       csvString = ""
+       
+        cluster.each do |node|
+           host = "#{node[7]}"
+           
+           REPOSE_INSTANCES.each do |instanceType|
+              reposeInstance = ReposeInstance.new(host, instanceType.port(), instanceType.type())
+              csvString += "#{reposeInstance.to_s()}\n"
+           end
+        end
+        
+        csvString
+    end
+    
     def buildValveCluster(filterChain,clusterSize,jenkins=false)
-
         baseName = Time.new.strftime("%d%b%y%M")
         cluster = Array.new
 
@@ -48,42 +66,39 @@ module ValveCluster
 
         hosts = buildHostsFile(cluster)
         xml = buildPVConfig(cluster, filterChain)
-        rsInstances ="" 
-        hostsCsv ="" 
-        nodeNames ="" 
+        rsInstances = "" 
+        hostsCsv = buildHostCsvString(cluster)
+        nodeNames = "" 
         scriptDir = "#{File.expand_path(File.dirname(__FILE__))}/../"
+
         File.open("#{scriptDir}/files/power-proxy.cfg.xml", 'w'){|f| f.write(xml)}
 
         cluster.each do |node|
+            andhost = "#{node[7]}"
             rsInstances += "#{node[0]},"
-            for i in 7..9
-                hostsCsv += "\"#{node[7]}\",\"888#{i}\"\n"
-            end
             nodeNames += "#{node[2]},"
+            
             puts "Starting repose cluster..."
-            Net::SSH.start( "#{node[7]}" , "root", :password => "#{node[9]}") do |ssh|
+            
+            Net::SSH.start( "#{host}" , "root", :password => "#{node[9]}") do |ssh|
                 ssh.exec! "service repose-valve start"
             end
+            
             self.waitForRepose(node[7])
-=begin
-            Net::SCP.start( "#{node[7]}" , "root", :password => "#{node[9]}") do |scp|
-                for i in 1..3
-                    scp.upload!("#{scriptDir}/files/power-proxy.cfg.xml", "/etc/powerapi/node#{i}/power-proxy.cfg.xml")
-                end
-            end
-=end
         end
 
         hostsCsv = hostsCsv.chop # list of server ips, formatted for our jmeter tests
         rsInstances = rsInstances.chop #comma seperated list of rackspace server ids
         nodeNames =nodeNames.chop #comman seperated list of server hostnames 
-        File.open("#{scriptDir}/configs/rsInstances", 'w'){|f| f.write(rsInstances)}
-        File.open("#{scriptDir}/configs/nodeNames", 'w'){|f| f.write(nodeNames)}
-        File.open("#{scriptDir}/hosts.csv", 'w'){|f| f.write(hostsCsv)}
+        
+        File.open("#{scriptDir}/configs/rsInstances", 'w') { |f| f.write(rsInstances) }
+        File.open("#{scriptDir}/configs/nodeNames", 'w') { |f| f.write(nodeNames) }
+        File.open("#{scriptDir}/hosts.csv", 'w') { |f| f.write(hostsCsv) }
+
         if jenkins
-            File.open("/tmp/hosts.csv", 'w'){|f| f.write(hostsCsv)}
-            File.open("/tmp/nodeNames", 'w'){|f| f.write(nodeNames)}
-            File.open("/tmp/rsInstances", 'w'){|f| f.write(rsInstances)}
+            File.open("/tmp/hosts.csv", 'w') { |f| f.write(hostsCsv) }
+            File.open("/tmp/nodeNames", 'w') { |f| f.write(nodeNames) }
+            File.open("/tmp/rsInstances", 'w') { |f| f.write(rsInstances) }
         end
         return cluster
     end
@@ -98,6 +113,4 @@ module ValveCluster
             end while resp=="200"
         end
     end
-
-
 end
