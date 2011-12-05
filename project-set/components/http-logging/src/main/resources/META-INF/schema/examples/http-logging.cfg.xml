@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<http-logging xmlns="http://docs.rackspacecloud.com/power-api/http-logging/v1.0">
+        <!-- The id attribute is to help the user easily identify the log -->
+        <!-- The format includes what will be logged.  The arguments with % are a subset of the apache mod_log_config
+             found at http://httpd.apache.org/docs/2.2/mod/mod_log_config.html#formats -->
+        <http-log id="my-special-log" format="Remote IP=%a Local IP=%A Response Size(bytes)=%b Remote Host=%h Request Method=%m Server Port=%p Query String=%q Time Request Received=%t Status=%s Remote User=%u URL Path Requested=%U">
+            <targets>
+                <!-- The actual log file -->
+                <file location="/usr/local/repose.log"/>
+            </targets>
+        </http-log>
+
+        <http-log id="my-other-log" format="Remote IP=%a Local IP=%A">
+            <targets>
+                <file location="/usr/local/repose_other.log"/>
+            </targets>
+        </http-log>
+</http-logging>
