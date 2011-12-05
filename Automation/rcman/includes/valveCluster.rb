@@ -56,7 +56,7 @@ module ValveCluster
 
         cluster.each do |node|
             rsInstances += "#{node[0]},"
-            for i in 7..9
+            for i in 7..8
                 hostsCsv += "\"#{node[7]}\",\"888#{i}\"\n"
             end
             nodeNames += "#{node[2]},"
@@ -89,7 +89,7 @@ module ValveCluster
     end
 
     def waitForRepose(node)
-        for i in 7..9
+        for i in 7..8
             uri = URI("http://#{node}:888#{i}/v1/usertest1")
             begin
                 sleep 3

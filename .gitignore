@@ -20,3 +20,10 @@ catalog.xml
 *.swp
 *.out
 jmeter.log
+
+## rcman
+rcman.confg
+rcman.log
+rsInstances
+nodeNames
+hosts.csv
