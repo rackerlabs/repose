@@ -13,7 +13,7 @@ module ValveCluster
         chefRepo = getChefRepo
         image = 112
         flavor = 4
-        cmd = "knife rackspace server create -r 'recipe[java],recipe[powerapi-valve-sandbox]' --server-name #{name} --node-name #{name} --image #{image} --flavor #{flavor} --template-file #{chefRepo}/.chef/default-template.erb -c #{chefRepo}/.chef/knife.rb"
+        cmd = "knife rackspace server create -r 'recipe[java],recipe[powerapi-valve]' --server-name #{name} --node-name #{name} --image #{image} --flavor #{flavor} --template-file #{chefRepo}/.chef/default-template.erb -c #{chefRepo}/.chef/knife.rb"
 
         puts cmd
         puts "Building node #{name}..."
@@ -89,7 +89,7 @@ module ValveCluster
     end
 
     def waitForRepose(node)
-        for i in 7..8
+        for i in 7..9
             uri = URI("http://#{node}:888#{i}/v1/usertest1")
             begin
                 sleep 3
