@@ -20,15 +20,14 @@ import org.slf4j.LoggerFactory;
 /**
  * @author fran
  *
- * Cases to handle/test:
- * 1.  There are no filters in our chain but some in container's
- * 2.  There are filters in our chain and in container's
- * 3.  There are no filters in our chain or container's
- * 4.  There are filters in our chain but none in container's
- * 5.  If one of our filters breaks out of the chain (i.e. it doesn't call doFilter), then we shouldn't call
- *     doFilter on the container's filter chain.
- * 6.  If one of the container's filters breaks out of the chain then our chain should unwind correctly
- * 
+ * Cases to handle/test: 1. There are no filters in our chain but some in
+ * container's 2. There are filters in our chain and in container's 3. There are
+ * no filters in our chain or container's 4. There are filters in our chain but
+ * none in container's 5. If one of our filters breaks out of the chain (i.e. it
+ * doesn't call doFilter), then we shouldn't call doFilter on the container's
+ * filter chain. 6. If one of the container's filters breaks out of the chain
+ * then our chain should unwind correctly
+ *
  */
 public class PowerFilterChain implements FilterChain {
 
@@ -52,11 +51,11 @@ public class PowerFilterChain implements FilterChain {
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
+        final Thread currentThread = Thread.currentThread();
+        final ClassLoader previousClassLoader = currentThread.getContextClassLoader();
+
         if (position < filterChainCopy.size()) {
             final FilterContext nextFilterContext = filterChainCopy.get(position++);
-
-            final Thread currentThread = Thread.currentThread();
-            final ClassLoader previousClassLoader = currentThread.getContextClassLoader();
             final ClassLoader nextClassLoader = nextFilterContext.getFilterClassLoader();
 
             currentThread.setContextClassLoader(nextClassLoader);
@@ -70,9 +69,6 @@ public class PowerFilterChain implements FilterChain {
                 currentThread.setContextClassLoader(previousClassLoader);
             }
         } else {
-            final Thread currentThread = Thread.currentThread();
-            final ClassLoader previousClassLoader = currentThread.getContextClassLoader();
-
             currentThread.setContextClassLoader(containerClassLoader);
 
             try {
@@ -87,7 +83,7 @@ public class PowerFilterChain implements FilterChain {
     }
 
     private void route(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
-        final String routeDestination = ((HttpServletRequest) servletRequest).getHeader(PowerApiHeader.ROUTE_DESTINATION.headerKey());
+        final String routeDestination = ((HttpServletRequest) servletRequest).getHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey());
 
         if (!StringUtilities.isBlank(routeDestination)) {
             // According to the Java 6 javadocs the routeDestination passed into getContext:

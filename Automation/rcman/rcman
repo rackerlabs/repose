@@ -1,0 +1,91 @@
+#!/usr/bin/ruby
+
+require File.dirname(__FILE__) + '/includes/functions'
+require File.dirname(__FILE__) + '/includes/utilities'
+require File.dirname(__FILE__) + '/includes/configBuilder'
+require File.dirname(__FILE__) + '/includes/cluster'
+require File.dirname(__FILE__) + '/includes/valveConfigBuilder'
+require File.dirname(__FILE__) + '/includes/valveCluster'
+
+include Functions
+include Cluster
+include ValveCluster
+include Utilities
+include ConfigBuilder
+include ValveConfigBuilder
+
+require 'rubygems'
+require 'builder' 
+
+
+arg = ARGV.shift
+case arg
+when "--configure"
+    p "configure"
+    checkChefInstall
+when "--create-cluster"
+    jenkins = false
+    clusterSize=4
+    p "build"
+    if !File.exists?("#{File.dirname(__FILE__)}/configs/rcman.conf")
+        puts "RCMAN has not yet been configured"
+        configure = ask "Would you like to run the configuration setup? y/n"
+        if configure=='y'
+            checkChefInstall
+        else
+            "Unable to build cluster until configuration has been completed"
+            exit
+        end
+    end
+    if File.exists?("#{File.dirname(__FILE__)}/configs/rsInstances") || File.exists?("./configs/nodeNames")
+        puts "User cannot build more than one cluster at a time."
+        answer = ask "Delete current cluster? y/n"
+        if answer == 'y'
+            puts "Destroying current cluster"
+            destroyCluster
+        else
+            puts "Please delete current cluster if you wish to build a new one"
+            exit
+        end
+    end
+=begin
+    remote = ARGV.delete("-r")
+    if remote != nil
+        jenkins = true
+    end
+    single = ARGV.delete("-s")
+    if single != nil
+        clusterSize=1
+    end
+=end
+    if ARGV[ARGV.size-1].start_with?("-")
+        options = ARGV.pop
+        if options.include? 'r'
+            jenkins = true
+        end
+
+        if options.include? 's'
+            clusterSize=1
+        end
+    end
+
+    rcFilterChain = genRCFilterChain(ARGV)
+    cluster = buildValveCluster(rcFilterChain,clusterSize,jenkins)
+    puts "Cluster built with the nodes:"
+    cluster.each do |node|
+        puts "\t#{node[2]} : #{node[7]}"
+        puts "password : #{node[9]}"
+    end
+when "--delete-cluster"
+    destroyCluster
+when "-h"
+    puts "Valid Arguments for Repose Cluster Manager"
+    puts "\t--create-cluster [list_of_filters] [options]\t\tBuilds a 4 Node Repose cluster with the given filters"
+    puts "\t\t -r : use to drop cluster information to /tmp"
+    puts "\t\t -s : use to create only a single node deployment"
+    puts "\t--delete-cluster\t\t\t\tDeletes the active cluster"
+    puts "\t--configure\t\t\t\t\tStarts the configuration for the Repose Cluster Manager"
+else
+    p "Please provide valid arguments '-h' for list of arguments"
+end
+

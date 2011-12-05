@@ -254,7 +254,7 @@
                 <para> 
                     Limit groups identify a group of related rate limits and bind them to a series of
                     names. The names can be used to limit incoming requests using the
-                    <code>X-PP-Groups</code> header. 
+                    <code>X-PP-Groups</code> header.
                 </para>
                 <para> </para>
             </callout>
@@ -517,7 +517,7 @@
                             <programlisting>
 GET /service/limits HTTP/1.1 
 Accept: application/vnd.rackspace-v1.0+xml 
-X-PP-User: demo-username 
+X-PP-User: demo-username
 X-PP-Groups: demo-customer
                                 </programlisting>
                         </entry>
@@ -584,7 +584,7 @@ Content-Length: 538
                                 <programlisting>
 GET /service/my/resource HTTP/1.1 
 Accept: application/vnd.rackspace-v1.0+xml 
-X-PP-User: username 
+X-PP-User: username
 X-PP-Groups: customer
                                 </programlisting>
                             </entry>

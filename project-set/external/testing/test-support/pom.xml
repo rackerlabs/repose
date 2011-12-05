@@ -1,85 +1,148 @@
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+   <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>com.rackspace.papi.external</groupId>
-        <artifactId>external-lib-support</artifactId>
-        <version>1.0.3-SNAPSHOT</version>
-        <relativePath>../../pom.xml</relativePath>
-    </parent>
+   <parent>
+      <groupId>com.rackspace.papi.external</groupId>
+      <artifactId>external-lib-support</artifactId>
+      <version>1.0.3-SNAPSHOT</version>
+      <relativePath>../../pom.xml</relativePath>
+   </parent>
 
-    <groupId>com.rackspace.papi.external.testing</groupId>
-    <artifactId>test-service-mock</artifactId>
-    <packaging>war</packaging>
+   <groupId>com.rackspace.papi.external.testing</groupId>
+   <artifactId>test-service-mock</artifactId>
+   <packaging>war</packaging>
 
-    <name>Power API Test - Testing Service and Mocks</name>
+   <name>Power API Test - Testing Service and Mocks</name>
 
-    <properties>
-        <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
-    </properties>
+   <properties>
+      <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
+   </properties>
 
-    <dependencies>
-        <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-web-api</artifactId>
-        </dependency>
+   <dependencies>
+      <!--
+      <dependency>
+         <groupId>javax</groupId>
+         <artifactId>javaee-web-api</artifactId>
+      </dependency>
 
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-    </dependencies>
+      -->
+      <dependency>
+         <groupId>com.sun.jersey</groupId>
+         <artifactId>jersey-server</artifactId>
+         <version>1.9.1</version>
+      </dependency>
+        
+      <dependency>
+         <groupId>com.rackspace.cloud.services.clients</groupId>
+         <artifactId>rackspace-auth-v1.1</artifactId>
+         <version>${project.version}</version>
+      </dependency>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.2</version>
-                <configuration>
-                    <source>1.6</source>
-                    <target>1.6</target>
-                    <compilerArguments>
-                        <endorseddirs>${endorsed.dir}</endorseddirs>
-                    </compilerArguments>
-                </configuration>
-            </plugin>
+      <dependency>
+         <groupId>com.rackspace.cloud.services.clients</groupId>
+         <artifactId>openstack-ids</artifactId>
+         <version>${project.version}</version>
+      </dependency>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <version>2.1.1</version>
-                <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-                </configuration>
-            </plugin>
+      <dependency>
+         <groupId>com.sun.jersey</groupId>
+         <artifactId>jersey-client</artifactId>
+         <version>1.9.1</version>
+      </dependency>
 
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>2.1</version>
-                <executions>
-                    <execution>
-                        <phase>validate</phase>
-                        <goals>
-                            <goal>copy</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>${endorsed.dir}</outputDirectory>
-                            <silent>true</silent>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>javax</groupId>
-                                    <artifactId>javaee-endorsed-api</artifactId>
-                                    <version>6.0</version>
-                                    <type>jar</type>
-                                </artifactItem>
-                            </artifactItems>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+      <dependency>
+         <groupId>org.codehaus.jackson</groupId>
+         <artifactId>jackson-core-lgpl</artifactId>
+         <version>1.9.2</version>
+      </dependency>
+
+      <dependency>
+         <groupId>org.codehaus.jackson</groupId>
+         <artifactId>jackson-jaxrs</artifactId>
+         <version>1.9.2</version>
+      </dependency>
+
+      <dependency>
+         <groupId>org.codehaus.jackson</groupId>
+         <artifactId>jackson-xc</artifactId>
+         <version>1.9.2</version>
+      </dependency>
+
+      <dependency>
+         <groupId>junit</groupId>
+         <artifactId>junit</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>com.sun.jersey.test.framework</groupId>
+         <artifactId>jersey-test-framework</artifactId>
+         <version>1.0.3.1</version>
+         <scope>test</scope>
+      </dependency>
+      <!-- javax.mail provides a functional version of javaee jar required for tests -->
+      <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <scope>test</scope>
+      </dependency>
+      <dependency>
+         <groupId>com.rackspace.papi.components</groupId>
+         <artifactId>rate-limiting</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+   </dependencies>
+
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>2.3.2</version>
+            <configuration>
+               <source>1.6</source>
+               <target>1.6</target>
+               <compilerArguments>
+                  <endorseddirs>${endorsed.dir}</endorseddirs>
+               </compilerArguments>
+            </configuration>
+         </plugin>
+
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-war-plugin</artifactId>
+            <version>2.1.1</version>
+            <configuration>
+               <failOnMissingWebXml>false</failOnMissingWebXml>
+            </configuration>
+         </plugin>
+
+<!--
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>2.1</version>
+            <executions>
+               <execution>
+                  <phase>validate</phase>
+                  <goals>
+                     <goal>copy</goal>
+                  </goals>
+                  <configuration>
+                     <outputDirectory>${endorsed.dir}</outputDirectory>
+                     <silent>true</silent>
+                     <artifactItems>
+                        <artifactItem>
+                           <groupId>javax</groupId>
+                           <artifactId>javaee-endorsed-api</artifactId>
+                           <version>6.0</version>
+                           <type>jar</type>
+                        </artifactItem>
+                     </artifactItems>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+         -->
+      </plugins>
+   </build>
 </project>

@@ -34,8 +34,6 @@ public class DefaultEarArchiveEntryListener implements EarArchiveEntryListener {
     private static final ConfigurationObjectParser<ApplicationType> APPLICATION_XML_PARSER;
     private static final ConfigurationObjectParser<WebFragmentType> WEB_FRAGMENT_XML_PARSER;
 
-    private static final String REGEX_SINGLE_SPACE = "[ \\s]";
-
 
     static {
         ConfigurationObjectParser<ApplicationType> applicationXmlParser = null;

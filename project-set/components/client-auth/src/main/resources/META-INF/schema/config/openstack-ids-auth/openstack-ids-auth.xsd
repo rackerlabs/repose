@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.openrepose.org/power-api/client-auth/os-ids-auth/v1.0"
+           xmlns:os-ids-auth="http://docs.openrepose.org/power-api/client-auth/os-ids-auth/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">    
+
+    <!-- Configuration -->
+    <xs:element name="openstack-auth">
+        <xs:complexType>
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines an OpenStack Identity Service authentication configuration</html:p>
+                </xs:documentation>
+            </xs:annotation>
+
+            <xs:sequence>
+                <xs:element name="identity-service" type="os-ids-auth:OpenStackIdentityService" minOccurs="1" maxOccurs="1" />
+                <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="1" maxOccurs="unbounded" />
+            </xs:sequence>
+
+            <xs:attribute name="delegatable" type="xs:boolean" use="optional" default="false">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Tells the service whether or not to support auth delegation.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:complexType name="OpenStackIdentityService">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Describes an OpenStack Identity Service endpoint</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="username" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Username to use (Basic Auth Only)</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="password" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Password to use (Basic Auth Only)</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="uri" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Target URI for authentication requests</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="ClientMapping">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Describes how to extract the client id from a given URI</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="id-regex" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Regex used to extract the client id from a given URI</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+</xs:schema>

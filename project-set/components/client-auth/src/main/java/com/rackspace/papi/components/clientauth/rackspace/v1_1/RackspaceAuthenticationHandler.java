@@ -3,13 +3,8 @@ package com.rackspace.papi.components.clientauth.rackspace.v1_1;
 import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
 
 
-import com.rackspace.papi.components.clientauth.rackspace.IdentityStatus;
-
 import com.rackspace.auth.v1_1.Account;
 import com.rackspace.auth.v1_1.AuthenticationServiceClient;
-import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.components.clientauth.rackspace.config.User;
-import com.rackspace.papi.components.clientauth.rackspace.config.UserRoles;
 import com.rackspacecloud.docs.auth.api.v1.GroupsList;
 import org.slf4j.Logger;
 import com.rackspace.papi.commons.util.StringUtilities;
@@ -23,156 +18,111 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- *
  * @author jhopper
  */
 public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler implements AuthModule {
 
-   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RackspaceAuthenticationHandler.class);
-   private final AuthenticationServiceClient authenticationService;
-   private final RackspaceAuth cfg;
-   private final AccountUsernameExtractor accountUsernameExtractor;
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RackspaceAuthenticationHandler.class);
+    private final AuthenticationServiceClient authenticationService;
+    private final RackspaceAuth cfg;
+    private final AccountUsernameExtractor accountUsernameExtractor;
 
-   public RackspaceAuthenticationHandler(RackspaceAuth cfg) {
-      this.authenticationService = new AuthenticationServiceClient(cfg.getAuthenticationServer().getUri(), cfg.getAuthenticationServer().getUsername(), cfg.getAuthenticationServer().getPassword());
-      this.cfg = cfg;
-      this.accountUsernameExtractor = new AccountUsernameExtractor(cfg.getAccountMapping());
-   }
+    public RackspaceAuthenticationHandler(RackspaceAuth cfg) {
+        this.authenticationService = new AuthenticationServiceClient(cfg.getAuthenticationServer().getUri(), cfg.getAuthenticationServer().getUsername(), cfg.getAuthenticationServer().getPassword());
+        this.cfg = cfg;
+        this.accountUsernameExtractor = new AccountUsernameExtractor(cfg.getAccountMapping());
+    }
 
-   @Override
-   public String getWWWAuthenticateHeaderContents() {
-      return "RackAuth Realm=\"API Realm\"";
-   }
+    @Override
+    public String getWWWAuthenticateHeaderContents() {
+        return "RackAuth Realm=\"API Realm\"";
+    }
 
-   @Override
-   public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
-      return authenticate(request);
-   }
+    @Override
+    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
+        return authenticate(request);
+    }
 
-   @Override
-   public FilterDirector authenticate(HttpServletRequest request) {
-      final FilterDirector filterDirector = new FilterDirectorImpl();
-      filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
-      filterDirector.setFilterAction(FilterAction.USE_MESSAGE_SERVICE);
+    @Override
+    public FilterDirector authenticate(HttpServletRequest request) {
+        final FilterDirector filterDirector = new FilterDirectorImpl();
+        filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
+        filterDirector.setFilterAction(FilterAction.RETURN);
 
-      final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.headerKey());
-      final Account acct = accountUsernameExtractor.extract(request.getRequestURL().toString());
+        final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.getHeaderKey());
+        final Account acct = accountUsernameExtractor.extract(request.getRequestURL().toString());
 
-      boolean validToken = false;
+        boolean validToken = false;
 
-      if ((!StringUtilities.isBlank(authToken) && acct != null)) {
-         try {
-            validToken = authenticationService.validateToken(acct, authToken); //validateToken(acct, authToken);
-         } catch (Exception ex) {
-            LOG.error("Failure in auth: " + ex.getMessage(), ex);
-            filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-         }
-      }
-
-      setFilterDirectorValues(validToken, cfg.isDelegatable(), cfg.isKeystoneActive(), cfg.getUserRoles(), filterDirector, acct == null ? "" : acct.getUsername());
-
-      return filterDirector;
-   }
-
-    // TODO: This hold the "business rules" on how we should populate the headers.  May want to move this to some
-    // sort of business rules class just to make it a little neater.
-   private void setFilterDirectorValues(boolean validToken, boolean isDelegatable, boolean keystone, UserRoles userRoles, FilterDirector filterDirector, String accountUsername) {
-      filterDirector.requestHeaderManager().putHeader(CommonHttpHeader.EXTENDED_AUTHORIZATION.headerKey(), "proxy " + accountUsername);
-
-      if (validToken || isDelegatable) {
-         filterDirector.setFilterAction(FilterAction.PASS);
-      }
-
-      if (validToken) {
-         filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.headerKey(), getGroupsListIds(accountUsername));
-         filterDirector.requestHeaderManager().putHeader(PowerApiHeader.USER.headerKey(), accountUsername);
-
-         // This is temporary to support roles until we integrate with Auth 2.0
-         if (keystone) {
-            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.TENANT.headerKey(), accountUsername);
-            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.TENANT_ID.headerKey(), accountUsername);
-
-            List<String> roleList = new ArrayList<String>();
-
-            for (String r : userRoles.getDefault().getRoles().getRole()) {
-               roleList.add(r);
+        if ((!StringUtilities.isBlank(authToken) && acct != null)) {
+            try {
+                validToken = authenticationService.validateToken(acct, authToken);
+            } catch (Exception ex) {
+                LOG.error("Failure in auth: " + ex.getMessage(), ex);
+                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
             }
 
-            for (User user : userRoles.getUser()) {
-               if (user.getName().equalsIgnoreCase(accountUsername)) {
-                  for (String r : user.getRoles().getRole()) {
-                     roleList.add(r);
-                  }
-               }
-            }
 
-            if (roleList.size() > 0) {
-               filterDirector.requestHeaderManager().putHeader(PowerApiHeader.ROLES.headerKey(), roleList.toArray(new String[0]));
-            }
-         }
-         //  end temporary keystone support
-      }
+        }
 
-      if (isDelegatable) {
-         IdentityStatus identityStatus = IdentityStatus.Confirmed;
+        String[] groups = null;
+        if (validToken) {
+            groups = getGroupsListIds(acct.getUsername());
+        }
 
-         if (!validToken) {
-            identityStatus = IdentityStatus.Indeterminate;
-         }
+        final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(validToken, cfg, filterDirector, acct == null ? "" : acct.getUsername(), groups);
+        headerManager.setFilterDirectorValues();
 
-         filterDirector.requestHeaderManager().putHeader(CommonHttpHeader.IDENTITY_STATUS.headerKey(), identityStatus.name());
-      }
-   }
+        return filterDirector;
+    }
 
-   private String[] getGroupsListIds(String accountUsername) {
-      GroupsList groups = authenticationService.getGroups(accountUsername);
-      int groupCount = groups.getGroup().size();
+    private String[] getGroupsListIds(String accountUsername) {
+        GroupsList groups = authenticationService.getGroups(accountUsername);
+        int groupCount = groups.getGroup().size();
 
-      String[] groupsArray = new String[groupCount];
+        String[] groupsArray = new String[groupCount];
 
-      for (int i = 0; i < groupCount; i++) {
-         groupsArray[i] = groups.getGroup().get(i).getId();
-      }
+        for (int i = 0; i < groupCount; i++) {
+            groupsArray[i] = groups.getGroup().get(i).getId();
+        }
 
-      return groupsArray;
-   }
+        return groupsArray;
+    }
 
     @Override
     public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
         /// The WWW Authenticate header can be used to communicate to the client
-      // (since we are a proxy) how to correctly authenticate itself
-      final String wwwAuthenticateHeader = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.headerKey());
+        // (since we are a proxy) how to correctly authenticate itself
+        final String wwwAuthenticateHeader = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey());
 
-      switch (HttpStatusCode.fromInt(response.getStatus())) {
-         // NOTE: We should only mutate the WWW-Authenticate header on a
-         // 401 (unauthorized) or 403 (forbidden) response from the origin service
-         case UNAUTHORIZED:
-         case FORBIDDEN:
-            updateHttpResponse(response, wwwAuthenticateHeader);
-            break;
-      }
+        switch (HttpStatusCode.fromInt(response.getStatus())) {
+            // NOTE: We should only mutate the WWW-Authenticate header on a
+            // 401 (unauthorized) or 403 (forbidden) response from the origin service
+            case UNAUTHORIZED:
+            case FORBIDDEN:
+                updateHttpResponse(response, wwwAuthenticateHeader);
+                break;
+        }
 
-      // TODO: Do we need to return a valid FilterDirector here? 
-      return null;
+        // TODO: Do we need to return a valid FilterDirector here?
+        return null;
     }
 
-   private void updateHttpResponse(ReadableHttpServletResponse httpResponse, String wwwAuthenticateHeader) {
+    private void updateHttpResponse(ReadableHttpServletResponse httpResponse, String wwwAuthenticateHeader) {
 
-      // If in the case that the origin service supports delegated authentication
-      // we should then communicate to the client how to authenticate with us
-      if (!StringUtilities.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains("Delegated")) {
-         final String replacementWwwAuthenticateHeader = getWWWAuthenticateHeaderContents();
-         httpResponse.setHeader(CommonHttpHeader.WWW_AUTHENTICATE.headerKey(), replacementWwwAuthenticateHeader);
-      } else {
-         // In the case where authentication has failed and we did not receive
-         // a delegated WWW-Authenticate header, this means that our own authentication
-         // with the origin service has failed and must then be communicated as
-         // a 500 (internal server error) to the client
-         httpResponse.setStatus(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue());
-      }
-   }
+        // If in the case that the origin service supports delegated authentication
+        // we should then communicate to the client how to authenticate with us
+        if (!StringUtilities.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains("Delegated")) {
+            final String replacementWwwAuthenticateHeader = getWWWAuthenticateHeaderContents();
+            httpResponse.setHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey(), replacementWwwAuthenticateHeader);
+        } else {
+            // In the case where authentication has failed and we did not receive
+            // a delegated WWW-Authenticate header, this means that our own authentication
+            // with the origin service has failed and must then be communicated as
+            // a 500 (internal server error) to the client
+            httpResponse.setStatus(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue());
+        }
+    }
 }

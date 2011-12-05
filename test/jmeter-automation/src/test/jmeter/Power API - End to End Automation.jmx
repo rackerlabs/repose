@@ -55,7 +55,6 @@
             <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
             <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
             <stringProp name="HTTPSampler.implementation">Java</stringProp>
-            <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
             <boolProp name="HTTPSampler.monitor">false</boolProp>
             <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
           </HTTPSamplerProxy>
@@ -139,7 +138,6 @@
                   <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
                   <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                   <stringProp name="HTTPSampler.implementation">Java</stringProp>
-                  <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
                   <boolProp name="HTTPSampler.monitor">false</boolProp>
                   <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
                 </HTTPSamplerProxy>
@@ -155,7 +153,7 @@
                   <hashTree/>
                   <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Data" enabled="true">
                     <collectionProp name="Asserion.test_strings">
-                      <stringProp name="563430276">&lt;h1&gt;Servlet version at /_${version}/${username}&lt;/h1&gt;</stringProp>
+                      <stringProp name="1502556107">&lt;h1&gt;Servlet version at mockendservice/${version}/${username}&lt;/h1&gt;</stringProp>
                     </collectionProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
@@ -204,7 +202,6 @@
                   <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
                   <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                   <stringProp name="HTTPSampler.implementation">Java</stringProp>
-                  <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
                   <boolProp name="HTTPSampler.monitor">false</boolProp>
                   <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
                 </HTTPSamplerProxy>
@@ -260,7 +257,6 @@
                   <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
                   <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                   <stringProp name="HTTPSampler.implementation">Java</stringProp>
-                  <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
                   <boolProp name="HTTPSampler.monitor">false</boolProp>
                   <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
                 </HTTPSamplerProxy>
@@ -340,7 +336,6 @@
                 <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
                 <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                 <stringProp name="HTTPSampler.implementation">Java</stringProp>
-                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
                 <boolProp name="HTTPSampler.monitor">false</boolProp>
                 <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
               </HTTPSamplerProxy>
@@ -356,7 +351,7 @@
                 <hashTree/>
                 <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Data" enabled="true">
                   <collectionProp name="Asserion.test_strings">
-                    <stringProp name="563430276">&lt;h1&gt;Servlet version at /_${version}/${username}&lt;/h1&gt;</stringProp>
+                    <stringProp name="1502556107">&lt;h1&gt;Servlet version at mockendservice/${version}/${username}&lt;/h1&gt;</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                   <boolProp name="Assertion.assume_success">false</boolProp>
@@ -381,7 +376,6 @@
                 <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
                 <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                 <stringProp name="HTTPSampler.implementation">Java</stringProp>
-                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
                 <boolProp name="HTTPSampler.monitor">false</boolProp>
                 <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
               </HTTPSamplerProxy>
@@ -413,7 +407,6 @@
                 <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
                 <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                 <stringProp name="HTTPSampler.implementation">Java</stringProp>
-                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
                 <boolProp name="HTTPSampler.monitor">false</boolProp>
                 <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
               </HTTPSamplerProxy>
@@ -445,7 +438,6 @@
                 <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
                 <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                 <stringProp name="HTTPSampler.implementation">Java</stringProp>
-                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
                 <boolProp name="HTTPSampler.monitor">false</boolProp>
                 <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
               </HTTPSamplerProxy>
@@ -522,7 +514,6 @@
                 <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
                 <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                 <stringProp name="HTTPSampler.implementation">Java</stringProp>
-                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
                 <boolProp name="HTTPSampler.monitor">false</boolProp>
                 <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
               </HTTPSamplerProxy>
@@ -605,7 +596,6 @@
               <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
               <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
               <stringProp name="HTTPSampler.implementation">Java</stringProp>
-              <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
               <boolProp name="HTTPSampler.monitor">false</boolProp>
               <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
             </HTTPSamplerProxy>
@@ -637,7 +627,6 @@
               <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
               <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
               <stringProp name="HTTPSampler.implementation">Java</stringProp>
-              <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
               <boolProp name="HTTPSampler.monitor">false</boolProp>
               <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
             </HTTPSamplerProxy>
@@ -673,32 +662,32 @@
           <stringProp name="98629247">group</stringProp>
         </collectionProp>
         <collectionProp name="UserParameters.thread_values">
-          <collectionProp name="482847873">
+          <collectionProp name="2112069329">
             <stringProp name="358484212">usertest1</stringProp>
             <stringProp name="-1248326952">application/xml</stringProp>
             <stringProp name="3707">v1</stringProp>
-            <stringProp name="-925926243">asdasdasd-adsasdads-asdasdasd-adsadsasd</stringProp>
+            <stringProp name="-1058506715">358484212:1533436689</stringProp>
             <stringProp name="606175198">customer</stringProp>
           </collectionProp>
-          <collectionProp name="-31573797">
+          <collectionProp name="1853796638">
             <stringProp name="358484213">usertest2</stringProp>
             <stringProp name="-1248326952">application/xml</stringProp>
             <stringProp name="3708">v2</stringProp>
-            <stringProp name="-503241867">now-is-the-time</stringProp>
+            <stringProp name="-929423996">358484213:1533436689</stringProp>
             <stringProp name="606175198">customer</stringProp>
           </collectionProp>
-          <collectionProp name="-732114155">
+          <collectionProp name="172210202">
             <stringProp name="358484214">usertest3</stringProp>
             <stringProp name="-43840953">application/json</stringProp>
             <stringProp name="3707">v1</stringProp>
-            <stringProp name="76684575">my-third-test-user</stringProp>
+            <stringProp name="-800341277">358484214:1533436689</stringProp>
             <stringProp name="606175198">customer</stringProp>
           </collectionProp>
-          <collectionProp name="1779555244">
+          <collectionProp name="-1648049928">
             <stringProp name="358484215">usertest4</stringProp>
             <stringProp name="-43840953">application/json</stringProp>
             <stringProp name="3708">v2</stringProp>
-            <stringProp name="-1442861776">dkshk-fdjke3-fdfjdk-21342</stringProp>
+            <stringProp name="-671258558">358484215:1533436689</stringProp>
             <stringProp name="1127932692">custome</stringProp>
           </collectionProp>
         </collectionProp>
@@ -716,7 +705,7 @@
         <longProp name="ThreadGroup.start_time">1300822554000</longProp>
         <longProp name="ThreadGroup.end_time">1300822554000</longProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
-        <stringProp name="ThreadGroup.duration">300</stringProp>
+        <stringProp name="ThreadGroup.duration">60</stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
       </ThreadGroup>
       <hashTree>
@@ -734,7 +723,7 @@
         <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="End points" enabled="true">
           <stringProp name="filename">/tmp/hosts.csv</stringProp>
           <stringProp name="fileEncoding"></stringProp>
-          <stringProp name="variableNames">endpoint</stringProp>
+          <stringProp name="variableNames">endpoint,port</stringProp>
           <stringProp name="delimiter"></stringProp>
           <boolProp name="quotedData">true</boolProp>
           <boolProp name="recycle">true</boolProp>
@@ -759,7 +748,7 @@
               <collectionProp name="Arguments.arguments"/>
             </elementProp>
             <stringProp name="HTTPSampler.domain">${endpoint}</stringProp>
-            <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
+            <stringProp name="HTTPSampler.port">${port}</stringProp>
             <stringProp name="HTTPSampler.connect_timeout"></stringProp>
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
             <stringProp name="HTTPSampler.protocol">http</stringProp>
@@ -823,14 +812,14 @@
             </ModuleController>
             <hashTree/>
             <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait" enabled="true">
-              <stringProp name="ConstantTimer.delay">5000</stringProp>
+              <stringProp name="ConstantTimer.delay">6000</stringProp>
             </ConstantTimer>
             <hashTree/>
           </hashTree>
         </hashTree>
       </hashTree>
       <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
-        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <boolProp name="ResultCollector.error_logging">true</boolProp>
         <objProp>
           <name>saveConfig</name>
           <value class="SampleSaveConfiguration">
@@ -862,7 +851,7 @@
       </ResultCollector>
       <hashTree/>
       <ResultCollector guiclass="TableVisualizer" testclass="ResultCollector" testname="View Results in Table" enabled="true">
-        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <boolProp name="ResultCollector.error_logging">true</boolProp>
         <objProp>
           <name>saveConfig</name>
           <value class="SampleSaveConfiguration">

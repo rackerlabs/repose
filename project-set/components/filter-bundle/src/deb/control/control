@@ -1,0 +1,8 @@
+Package: Filter-Bundle
+Version: [[version]]
+Section: misc
+Priority: optional
+Architecture: all
+Maintainer: REPOSE <reposedev@something.com>
+Description: Debian Packge for the Repose Filter Bundle
+Distribution: development
