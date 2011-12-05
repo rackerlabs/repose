@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book [
 <!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
-<!ENTITY PRODNAME "Power API">
-<!ENTITY PRODABBREV "PAPI">
-<!ENTITY PRODEXPAND "Rackspace Cloud Power Application Program Interface (API)">
+<!ENTITY PRODNAME "Repose">
+<!ENTITY PRODABBREV "Repose">
+<!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
 ]>
 <section xmlns="http://docbook.org/ns/docbook"
     xmlns:xi="http://www.w3.org/2001/XInclude"
@@ -56,7 +56,7 @@
         </listitem> 
     </itemizedlist> 
     <para>
-        &PRODNAME; is an open-source project. Visit our GitHub repository at <link xlink:href="https://github.com/rackspace/power-api/">https://github.com/rackspace/power-api/</link>
+        &PRODNAME; is an open-source project. Visit our GitHub repository at <link xlink:href="https://github.com/rackspace/repose/">https://github.com/rackspace/repose/</link>
         for access to our source code and documentation.
     </para>
 </section>
