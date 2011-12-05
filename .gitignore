@@ -22,7 +22,7 @@ catalog.xml
 jmeter.log
 
 ## rcman
-rcman.confg
+rcman.conf
 rcman.log
 rsInstances
 nodeNames
