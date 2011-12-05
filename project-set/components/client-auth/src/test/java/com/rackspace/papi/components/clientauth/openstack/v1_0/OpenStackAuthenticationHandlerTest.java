@@ -10,8 +10,6 @@ import com.rackspace.papi.components.clientauth.openstack.config.OpenStackIdenti
 import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import java.util.Map;
-import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -70,6 +68,33 @@ public class OpenStackAuthenticationHandlerTest {
         }
     }
 
+    public static class WhenAuthenticatingDelegatableRequests extends TestParent {
+
+        @Override
+        protected boolean delegatable() {
+            return true;
+        }
+
+        @Before
+        public void standUp() {
+            when(request.getHeader(anyString())).thenReturn("some-random-auth-token");
+        }
+
+        @Test
+        public void shouldPassNullOrBlankCredentials() {
+            when(request.getRequestURI()).thenReturn("/start/");
+            final FilterDirector requestDirector = handler.handleRequest(request, response);
+            assertEquals("Auth component must pass requests with invalid credentials", FilterAction.PROCESS_RESPONSE, requestDirector.getFilterAction());
+        }
+
+        @Test
+        public void shouldRejectInvalidCredentials() {
+            when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
+            final FilterDirector requestDirector = handler.handleRequest(request, response);
+            assertEquals("Auth component must reject requests with invalid credentials", FilterAction.RETURN, requestDirector.getFilterAction());
+        }
+    }
+
     public static class WhenAuthenticatingNonDelegatableRequests extends TestParent {
 
         @Override
@@ -101,30 +126,10 @@ public class OpenStackAuthenticationHandlerTest {
         }
     }
 
-    public static class WhenAuthenticatingDelegatableRequests extends TestParent {
-
+    public static class WhenHandlingResponseFromServiceInDelegatedMode extends TestParent {
         @Override
         protected boolean delegatable() {
             return true;
-        }
-
-        @Before
-        public void standUp() {
-            when(request.getHeader(anyString())).thenReturn("some-random-auth-token");
-        }
-
-        @Test
-        public void shouldPassNullOrBlankCredentials() {
-            when(request.getRequestURI()).thenReturn("/start/");
-            final FilterDirector requestDirector = handler.handleRequest(request, response);
-            assertEquals("Auth component must pass requests with invalid credentials", FilterAction.PROCESS_RESPONSE, requestDirector.getFilterAction());
-        }
-
-        @Test
-        public void shouldRejectInvalidCredentials() {
-            when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
-            final FilterDirector requestDirector = handler.handleRequest(request, response);
-            assertEquals("Auth component must reject requests with invalid credentials", FilterAction.RETURN, requestDirector.getFilterAction());
         }
 
         @Test
@@ -136,7 +141,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             assertEquals("Auth component must pass valid, delegated responses", FilterAction.NOT_SET, responseDirector.getFilterAction());
         }
-        
+
         @Test
         public void shouldModifyDelegatedWwwAuthenticateHeaderOn401() {
             when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
@@ -144,57 +149,54 @@ public class OpenStackAuthenticationHandlerTest {
             when(response.getStatus()).thenReturn(401);
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
-            final Map<String, Set<String>> headers = responseDirector.responseHeaderManager().headersToAdd();
-
-            final Set<String> headerValues = headers.get(CommonHttpHeader.WWW_AUTHENTICATE.toString());
 
             final String expected = "Keystone uri=" + osauthConfig.getIdentityService().getUri();
 
-            assertEquals("Auth component must pass invalid requests but process their responses", expected, headerValues.iterator().next());
+            assertEquals("Auth component must pass invalid requests but process their responses", expected, responseDirector.responseHeaderManager().headersToAdd().get(CommonHttpHeader.WWW_AUTHENTICATE.toString()).iterator().next());
         }
-        
+
         @Test
         public void shouldModifyDelegatedWwwAuthenticateHeaderOn403() {
-            when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
             when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Delegated");
             when(response.getStatus()).thenReturn(403);
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
-            final Map<String, Set<String>> headers = responseDirector.responseHeaderManager().headersToAdd();
-
-            final Set<String> headerValues = headers.get(CommonHttpHeader.WWW_AUTHENTICATE.toString());
 
             final String expected = "Keystone uri=" + osauthConfig.getIdentityService().getUri();
 
-            assertEquals("Auth component must pass invalid requests but process their responses", expected, headerValues.iterator().next());
-        }
-                
-        @Test
-        public void shouldReturn501OnAuthFailureWithNonDelegatedWwwAuthenticateHeaderSet() {
-            when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
-            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Not-Delegate");
-            when(response.getStatus()).thenReturn(401);
-
-            final FilterDirector responseDirector = handler.handleResponse(request, response);
-            
-            assertEquals("Auth component must identify proxy auth failures", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
-        }
-        
-        @Test
-        public void shouldReturn501OnAuthFailureWithNoWwwAuthenticateHeaderSet() {
-            when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
-            when(response.getStatus()).thenReturn(401);
-
-            final FilterDirector responseDirector = handler.handleResponse(request, response);
-            
-            assertEquals("Auth component must identify proxy auth failures", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
+            assertEquals("Auth component must pass invalid requests but process their responses", expected, responseDirector.responseHeaderManager().headersToAdd().get(CommonHttpHeader.WWW_AUTHENTICATE.toString()).iterator().next());
         }
 
         @Test
         public void shouldReturn500OnAuth501FailureWithDelegatedWwwAuthenticateHeaderSet() {
-            when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
             when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Delegated");
             when(response.getStatus()).thenReturn(501);
+
+            final FilterDirector responseDirector = handler.handleResponse(request, response);
+
+            assertEquals("Auth component must identify proxy auth failures", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
+        }
+    }
+
+    public static class WhenHandlingResponseFromServiceNotInDelegatedMode extends TestParent {
+        @Override
+        protected boolean delegatable() {
+            return false;
+        }
+
+        @Test
+        public void shouldReturn501OnAuthFailureWithNonDelegatedWwwAuthenticateHeaderSet() {
+            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Not-Delegate");
+            when(response.getStatus()).thenReturn(401);
+
+            final FilterDirector responseDirector = handler.handleResponse(request, response);
+
+            assertEquals("Auth component must identify proxy auth failures", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
+        }
+
+        @Test
+        public void shouldReturn501OnAuthFailureWithNoWwwAuthenticateHeaderSet() {
+            when(response.getStatus()).thenReturn(401);
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
 
@@ -203,7 +205,6 @@ public class OpenStackAuthenticationHandlerTest {
 
         @Test
         public void shouldReturn501OnAuth501FailureWithDelegatedWwwAuthenticateHeaderNotSet() {
-            when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
             when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Not-Delegate");
             when(response.getStatus()).thenReturn(501);
 
@@ -212,4 +213,5 @@ public class OpenStackAuthenticationHandlerTest {
             assertEquals("Auth component must identify proxy auth failures", HttpStatusCode.NOT_IMPLEMENTED, responseDirector.getResponseStatus());
         }
     }
+
 }
