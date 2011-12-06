@@ -63,8 +63,6 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
                 LOG.error("Failure in auth: " + ex.getMessage(), ex);
                 filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
             }
-
-
         }
 
         String[] groups = null;
@@ -93,6 +91,8 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
 
     @Override
     public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
+        FilterDirector myDirector = new FilterDirectorImpl();
+        myDirector.setResponseStatus(HttpStatusCode.fromInt(response.getStatus()));
         /// The WWW Authenticate header can be used to communicate to the client
         // (since we are a proxy) how to correctly authenticate itself
         final String wwwAuthenticateHeader = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey());
@@ -102,27 +102,35 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
             // 401 (unauthorized) or 403 (forbidden) response from the origin service
             case UNAUTHORIZED:
             case FORBIDDEN:
-                updateHttpResponse(response, wwwAuthenticateHeader);
+                updateHttpResponse(myDirector, wwwAuthenticateHeader);
+                break;
+            case NOT_IMPLEMENTED:
+                if ((!StringUtilities.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains("Delegated"))) {
+                    myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                    LOG.error("Repose authentication component is configured as delegetable but origin service does not support delegated mode.");
+                } else {
+                    myDirector.setResponseStatus(HttpStatusCode.NOT_IMPLEMENTED);
+                }
                 break;
         }
 
-        // TODO: Do we need to return a valid FilterDirector here?
-        return null;
+        return myDirector;
     }
 
-    private void updateHttpResponse(ReadableHttpServletResponse httpResponse, String wwwAuthenticateHeader) {
-
+    private void updateHttpResponse(FilterDirector director, String wwwAuthenticateHeader) {
         // If in the case that the origin service supports delegated authentication
         // we should then communicate to the client how to authenticate with us
         if (!StringUtilities.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains("Delegated")) {
             final String replacementWwwAuthenticateHeader = getWWWAuthenticateHeaderContents();
-            httpResponse.setHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey(), replacementWwwAuthenticateHeader);
+            director.responseHeaderManager().putHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey(), replacementWwwAuthenticateHeader);
         } else {
             // In the case where authentication has failed and we did not receive
             // a delegated WWW-Authenticate header, this means that our own authentication
             // with the origin service has failed and must then be communicated as
             // a 500 (internal server error) to the client
-            httpResponse.setStatus(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue());
+            director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
+
+        return;
     }
 }
