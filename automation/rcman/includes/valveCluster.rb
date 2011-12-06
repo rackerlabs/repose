@@ -14,7 +14,7 @@ module ValveCluster
         # updateCookbook
         chefRepo = getChefRepo
         image = 112
-        flavor = 4
+        flavor = 3
         cmd = "knife rackspace server create -r 'recipe[java],recipe[powerapi-valve]' --server-name #{name} --node-name #{name} --image #{image} --flavor #{flavor} --template-file #{chefRepo}/.chef/default-template.erb -c #{chefRepo}/.chef/knife.rb"
 
         puts cmd
