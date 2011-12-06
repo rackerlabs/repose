@@ -1,13 +1,15 @@
 package com.rackspace.papi.components.clientauth;
 
-import com.rackspace.auth.openstack.ids.AuthenticationServiceClient;
 import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
+import com.rackspace.auth.v1_1.AuthenticationServiceClient;
 import com.rackspace.papi.auth.AuthModule;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 
 import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenStackIdentityService;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
+import com.rackspace.papi.components.clientauth.rackspace.config.RackspaceAuth;
+import com.rackspace.papi.components.clientauth.rackspace.v1_1.RackspaceAuthenticationHandler;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import java.util.HashMap;
 import java.util.Map;
@@ -56,15 +58,19 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
         }
     }
 
-    private AuthModule getAuth1_1Handler(ClientAuthConfig config) {
-        return new com.rackspace.papi.components.clientauth.rackspace.v1_1.RackspaceAuthenticationHandler(config.getRackspaceAuth());
+    private AuthModule getAuth1_1Handler(ClientAuthConfig cfg) {
+        final RackspaceAuth authConfig = cfg.getRackspaceAuth();
+            
+        final AuthenticationServiceClient serviceClient = new AuthenticationServiceClient(
+                authConfig.getAuthenticationServer().getUri(), authConfig.getAuthenticationServer().getUsername(), authConfig.getAuthenticationServer().getPassword());
+        return new com.rackspace.papi.components.clientauth.rackspace.v1_1.RackspaceAuthenticationHandler(authConfig, serviceClient);
     }
 
     private AuthModule getOpenStackAuthHandler(ClientAuthConfig config) {
         final OpenstackAuth authConfig = config.getOpenstackAuth();
         final OpenStackIdentityService ids = authConfig.getIdentityService();
 
-        final OpenStackAuthenticationService authService = new AuthenticationServiceClient(ids.getUri(), ids.getUsername(), ids.getPassword());
+        final OpenStackAuthenticationService authService = new com.rackspace.auth.openstack.ids.AuthenticationServiceClient(ids.getUri(), ids.getUsername(), ids.getPassword());
         return new com.rackspace.papi.components.clientauth.openstack.v1_0.OpenStackAuthenticationHandler(authConfig, authService);
     }
 
