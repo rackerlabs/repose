@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util.logging.apache.format.stock;
 
+import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.logging.apache.format.FormatterLogic;
 
 import javax.servlet.http.HttpServletRequest;
@@ -13,8 +14,6 @@ public class RemoteUserHandler implements FormatterLogic {
 
     @Override
     public String handle(HttpServletRequest request, HttpServletResponse response) {
-        //TODO: Find a uniform way of extracting the user
-
-        return "TODO";
+        return request.getHeader(PowerApiHeader.USER.getHeaderKey());
     }
 }

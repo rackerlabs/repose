@@ -14,7 +14,7 @@ module ValveCluster
         # updateCookbook
         chefRepo = getChefRepo
         image = 112
-        flavor = 4
+        flavor = 3
         cmd = "knife rackspace server create -r 'recipe[java],recipe[powerapi-valve]' --server-name #{name} --node-name #{name} --image #{image} --flavor #{flavor} --template-file #{chefRepo}/.chef/default-template.erb -c #{chefRepo}/.chef/knife.rb"
 
         puts cmd
@@ -55,6 +55,7 @@ module ValveCluster
     def buildValveCluster(filterChain,clusterSize,jenkins=false)
         baseName = Time.new.strftime("%d%b%y%M")
         cluster = Array.new
+        clusterSize =1 #hard setting this to one for now.
 
         for i in 0..clusterSize-1
             node = self.buildValveServer("#{baseName}#{i}")
