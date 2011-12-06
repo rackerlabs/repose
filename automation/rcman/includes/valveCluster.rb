@@ -14,7 +14,7 @@ module ValveCluster
         # updateCookbook
         chefRepo = getChefRepo
         image = 112
-        flavor = 4
+        flavor = 3
         cmd = "knife rackspace server create -r 'recipe[java],recipe[powerapi-valve]' --server-name #{name} --node-name #{name} --image #{image} --flavor #{flavor} --template-file #{chefRepo}/.chef/default-template.erb -c #{chefRepo}/.chef/knife.rb"
 
         puts cmd
@@ -55,6 +55,7 @@ module ValveCluster
     def buildValveCluster(filterChain,clusterSize,jenkins=false)
         baseName = Time.new.strftime("%d%b%y%M")
         cluster = Array.new
+        clusterSize =1 #hard setting this to one for now.
 
         for i in 0..clusterSize-1
             node = self.buildValveServer("#{baseName}#{i}")
@@ -71,10 +72,8 @@ module ValveCluster
         nodeNames = "" 
         scriptDir = "#{File.expand_path(File.dirname(__FILE__))}/../"
 
-        File.open("#{scriptDir}/files/power-proxy.cfg.xml", 'w'){|f| f.write(xml)}
-
         cluster.each do |node|
-            andhost = "#{node[7]}"
+            host = "#{node[7]}"
             rsInstances += "#{node[0]},"
             nodeNames += "#{node[2]},"
             
@@ -104,7 +103,7 @@ module ValveCluster
     end
 
     def waitForRepose(node)
-        for i in 7..9
+        for i in 7..8
             uri = URI("http://#{node}:888#{i}/v1/usertest1")
             begin
                 sleep 3
