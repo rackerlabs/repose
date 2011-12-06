@@ -55,6 +55,7 @@ module ValveCluster
     def buildValveCluster(filterChain,clusterSize,jenkins=false)
         baseName = Time.new.strftime("%d%b%y%M")
         cluster = Array.new
+        clusterSize =1 #hard setting this to one for now.
 
         for i in 0..clusterSize-1
             node = self.buildValveServer("#{baseName}#{i}")

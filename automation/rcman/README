@@ -32,10 +32,7 @@ This is a simple Ruby script which integrates with chef/knife to build Repose cl
 
              sudo gem install knife-rackspace  --no-rdoc --no-ri 
 
-        Git (working on removing this requirement)
-            Access to our git-repo required
         Add this line to your /etc/hosts file
-
          50.57.98.109    chef-server-n01.cit    chef-server-n01.cit.rackspace.com 
 
     Check that the following are present: chef, knife-rackspace, builder, highline
