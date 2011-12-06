@@ -55,7 +55,8 @@ public class RackspaceAuthenticationHandlerTest {
             authenticationServer.setUri("http://some.auth.endpoint");
             rackAuthConfig.setAuthenticationServer(authenticationServer);
 
-            handler = new RackspaceAuthenticationHandler(rackAuthConfig);
+            // TODO: Validate that null is okay for these test cases
+            handler = new RackspaceAuthenticationHandler(rackAuthConfig, null);
         }
 
         protected abstract boolean delegatable();

@@ -29,8 +29,8 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
     private final RackspaceAuth cfg;
     private final AccountUsernameExtractor accountUsernameExtractor;
 
-    public RackspaceAuthenticationHandler(RackspaceAuth cfg) {
-        this.authenticationService = new AuthenticationServiceClient(cfg.getAuthenticationServer().getUri(), cfg.getAuthenticationServer().getUsername(), cfg.getAuthenticationServer().getPassword());
+    public RackspaceAuthenticationHandler(RackspaceAuth cfg, AuthenticationServiceClient authServiceClient) {
+        this.authenticationService = authServiceClient;
         this.cfg = cfg;
         this.accountUsernameExtractor = new AccountUsernameExtractor(cfg.getAccountMapping());
     }
