@@ -186,7 +186,6 @@ public class OpenStackAuthenticationHandlerTest {
 
         @Test
         public void shouldReturn501OnAuthFailureWithNonDelegatedWwwAuthenticateHeaderSet() {
-            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Not-Delegate");
             when(response.getStatus()).thenReturn(401);
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
