@@ -24,6 +24,9 @@ public class AuthenticationHeaderManager {
     private final FilterDirector filterDirector;
     private final String accountUsername;
     private final String[] groups;
+    // Proxy is specified in the OpenStack auth blue print:
+    // http://wiki.openstack.org/openstack-authn
+    private static final String xAuthProxy = "Proxy";
 
     public AuthenticationHeaderManager(boolean validToken, RackspaceAuth cfg, FilterDirector filterDirector, String accountUsername, String[] groups) {
         this.validToken = validToken;
@@ -54,7 +57,7 @@ public class AuthenticationHeaderManager {
      * Set Identity Status and X-Authorization headers
      */
     private void setIdentityStatus() {
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.getHeaderKey(), StringUtilities.isBlank(accountUsername) ? "Proxy" : "Proxy " + accountUsername);
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.getHeaderKey(), StringUtilities.isBlank(accountUsername) ? xAuthProxy : xAuthProxy + " " + accountUsername);
 
         if (isDelegatable) {
             IdentityStatus identityStatus = IdentityStatus.Confirmed;

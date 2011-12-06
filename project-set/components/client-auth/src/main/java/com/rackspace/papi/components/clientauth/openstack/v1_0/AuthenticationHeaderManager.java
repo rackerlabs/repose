@@ -25,6 +25,9 @@ public class AuthenticationHeaderManager {
     private final String tenantId;
     private final Boolean validToken;
     private final Groups groups;
+    // Proxy is specified in the OpenStack auth blue print: 
+    // http://wiki.openstack.org/openstack-authn
+    private static final String xAuthProxy = "Proxy";
 
     public AuthenticationHeaderManager(String authToken, CachableTokenInfo cachableTokenInfo, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, Groups groups) {
         this.authToken =authToken;
@@ -66,7 +69,7 @@ public class AuthenticationHeaderManager {
      * EXTENDED AUTHORIZATION
      */
     private void setExtendedAuthorization() {
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.getHeaderKey(), StringUtilities.isBlank(tenantId) ? "Proxy" : "Proxy " + tenantId);
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.getHeaderKey(), StringUtilities.isBlank(tenantId) ? xAuthProxy : xAuthProxy + " " + tenantId);
     }
 
     /**
