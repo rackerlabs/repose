@@ -362,7 +362,7 @@
             <boolProp name="IfController.evaluateAll">false</boolProp>
           </IfController>
           <hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="NullTokenNullTenantId-401" enabled="true">
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Null User With Null Token-401" enabled="true">
               <stringProp name="TestPlan.comments">This module attempts to auth against an OpenStack IDS endpoint. The resulting auth token is stored as an internal variable callled &apos;auth-token&apos;</stringProp>
             </GenericController>
             <hashTree>
@@ -375,7 +375,7 @@
                 </collectionProp>
               </HeaderManager>
               <hashTree/>
-              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Null Token With Null Tenant Id-401" enabled="true">
+              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="NullUserNullToken-401" enabled="true">
                 <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
                   <collectionProp name="Arguments.arguments"/>
                 </elementProp>
@@ -408,7 +408,7 @@
                 <hashTree/>
               </hashTree>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="ValidUserNullToken-401" enabled="true">
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Valid User With Null Token-401" enabled="true">
               <stringProp name="TestPlan.comments">This module attempts to auth against an OpenStack IDS endpoint. The resulting auth token is stored as an internal variable callled &apos;auth-token&apos;</stringProp>
             </GenericController>
             <hashTree>
@@ -421,7 +421,7 @@
                 </collectionProp>
               </HeaderManager>
               <hashTree/>
-              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Valid User With Null Token-401" enabled="true">
+              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="ValidUserNullToken-401" enabled="true">
                 <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
                   <collectionProp name="Arguments.arguments"/>
                 </elementProp>
@@ -454,7 +454,7 @@
                 <hashTree/>
               </hashTree>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="ValidUserInvalidToken-401" enabled="true">
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Valid user with invalid token-401" enabled="true">
               <stringProp name="TestPlan.comments">This module attempts to auth against an OpenStack IDS endpoint. The resulting auth token is stored as an internal variable callled &apos;auth-token&apos;</stringProp>
             </GenericController>
             <hashTree>
@@ -471,7 +471,7 @@
                 </collectionProp>
               </HeaderManager>
               <hashTree/>
-              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Valid User With Invalid Token-401" enabled="true">
+              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="ValidUserInvalidToken-401" enabled="true">
                 <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
                   <collectionProp name="Arguments.arguments"/>
                 </elementProp>
