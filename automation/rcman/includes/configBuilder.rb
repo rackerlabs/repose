@@ -46,7 +46,6 @@ module ConfigBuilder
                     end
                 end
             end
-            p.host("id"=>"service", "hostname"=>"50.57.189.15","service-port"=>"8080")
         end
         return output
     end
@@ -70,9 +69,9 @@ module ConfigBuilder
         builder = Builder::XmlMarkup.new(:target=>output, :indent=>2)
 
         builder.tag!("rate-limiting", "xmlns"=>"http://docs.rackspacecloud.com/power-api/rate-limiting/v1.0") do |rl|
-            rl.tag!("request-endpoint", "uri-regex"=>"/mocks/resources/mockendservice/v\d/[^/]+/limits/?", "include-absolute-limits"=>includeAbs.to_s)
+            rl.tag!("request-endpoint", "uri-regex"=>"/_service/resources/mockendservice/v\d/[^/]+/limits/?", "include-absolute-limits"=>includeAbs.to_s)
             rl.tag!("limit-group", "id"=>"admin-limits", "roles"=>"Admin", "default"=>"true") do |lg|
-                lg.limit("uri"=>"/mocks/resources/mockendservice/v*", "uri-regex"=>"/mocks/resources/mockendservice/(v\d/[^/]+).*", "http-methods"=>"GET", "unit"=>"MINUTE", "value"=>value)
+                lg.limit("uri"=>"/_service/resources/mockendservice/v*", "uri-regex"=>"/_service/resources/mockendservice/(v\d/[^/]+).*", "http-methods"=>"GET", "unit"=>"MINUTE", "value"=>value)
             end
             rl.tag!("limit-group", "id"=>"customer-limits", "roles"=>"customer") do |lg|
                 lg.limit("uri"=>"/service/*", "uri-regex"=>"/service/([^/]*).*", "http-methods"=>"GET", "unit"=>"MINUTE", "value"=>value)
@@ -97,7 +96,7 @@ module ConfigBuilder
         builder.tag!("versioning", "xmlns"=>"http://docs.rackspacecloud.com/power-api/versioning/v1.0") do |rl|
             rl.tag!("service-root", "href"=>"#{hostName}:#{port}/")
 
-            rl.tag!("version-mapping", "id"=>"/v1", "pp-host-id"=>"service", "context-path"=>"/mocks/resources/mockendservice/v1","status"=>"DEPRECATED") do |vm|
+            rl.tag!("version-mapping", "id"=>"/v1", "pp-host-id"=>hostId, "context-path"=>"/_v1/resources/mockendservice/v1","status"=>"DEPRECATED") do |vm|
                 vm.tag!("media-types") do |mt|
                     for i in 1..xtype1.size-1
                         mt.tag!("media-type", "base"=>xtype1[0], "type"=>xtype1[i])
@@ -107,7 +106,7 @@ module ConfigBuilder
                     end
                 end
             end
-            rl.tag!("version-mapping", "id"=>"/v2", "pp-host-id"=>"service","context-path"=>"/mocks/resources/mockendservice/v2", "status"=>"CURRENT") do |vm|
+            rl.tag!("version-mapping", "id"=>"/v2", "pp-host-id"=>hostId,"context-path"=>"/_v2/resources/mockendservice/v2", "status"=>"CURRENT") do |vm|
                 vm.tag!("media-types") do |mt|
                     for i in 1..xtype2.size-1
                         mt.tag!("media-type", "base"=>xtype2[0], "type"=>xtype2[i])
@@ -128,8 +127,8 @@ module ConfigBuilder
 
         builder.tag!("client-auth", "xmlns"=>"http://docs.rackspacecloud.com/power-api/client-auth/v1.0") do |ca|
             ca.tag!("rackspace-auth", "delegatable"=>delegatable.to_s,"keystone-active"=>"true", "xmlns"=>"http://docs.rackspacecloud.com/power-api/client-auth/rs-auth-1.1/v1.0") do |ra|
-                ra.tag!("authentication-server", "username"=>"auth", "password"=>"auth123", "uri"=>"http://50.57.189.15:8080/resources/v1.1")
-                ra.tag!("account-mapping", "id-regex"=>"/resources/mockendservice/v\d/([\w-]+)/?", "type"=>"CLOUD")
+                ra.tag!("authentication-server", "username"=>"auth", "password"=>"auth123", "uri"=>"http://localhost:8080/_service/resources/v1.1")
+                ra.tag!("account-mapping", "id-regex"=>"/_service/resources/mockendservice/v\\d/([\\w-]+)/?", "type"=>"CLOUD")
                 ra.tag!("user-roles") do |ur|
                     ur.tag!("default") do |d|
                         d.tag!("roles") do |r|
