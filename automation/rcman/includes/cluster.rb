@@ -50,7 +50,9 @@ module Cluster
         hostsCsv ="" 
         nodeNames ="" 
         scriptDir = "#{File.expand_path(File.dirname(__FILE__))}/../"
-        getLatestMockService
+        if !File.directory?("#{File.expand_path(scriptDir)}/files")
+            Dir.mkdir("#{File.expand_path(scriptDir)}/files")
+        end
         File.open("#{scriptDir}/files/hosts", 'w'){ |f| f.write(hosts)}
         File.open("#{scriptDir}/files/power-proxy.cfg.xml", 'w'){|f| f.write(xml)}
         File.open("#{scriptDir}/files/rate-limiting.cfg.xml",'w'){|f| f.write(rl)}
@@ -74,9 +76,6 @@ module Cluster
                 scp.upload!("#{scriptDir}/files/versioning.cfg.xml", "/etc/powerapi/")
                 scp.upload!("#{scriptDir}/files/rate-limiting.cfg.xml", "/etc/powerapi/")
                 scp.upload!("#{scriptDir}/files/client-auth-n.cfg.xml", "/etc/powerapi/")
-                scp.upload!("#{scriptDir}/files/service.war", "/var/lib/tomcat7/webapps/_service.war")
-                scp.upload!("#{scriptDir}/files/service.war", "/var/lib/tomcat7/webapps/_v1.war")
-                scp.upload!("#{scriptDir}/files/service.war", "/var/lib/tomcat7/webapps/_v2.war")
             end
             Net::SSH.start( "#{node[7]}" , "root", :password => "#{node[9]}") do |ssh|
                 ssh.exec! "/etc/init.d/tomcat7 start"
