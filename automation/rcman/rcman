@@ -26,6 +26,7 @@ when "--configure"
 when "--create-cluster"
     jenkins = false
     clusterSize=4 #leaving this as 1 for now
+    rootwar = false
     p "build"
     if !File.exists?("#{File.dirname(__FILE__)}/configs/rcman.conf")
         puts "RCMAN has not yet been configured"
@@ -67,10 +68,17 @@ when "--create-cluster"
         if options.include? 's'
             clusterSize=1
         end
+        if options.include? 'w'
+            rootwar=true
+        end
     end
 
     rcFilterChain = genRCFilterChain(ARGV)
-    cluster = buildValveCluster(rcFilterChain,clusterSize,jenkins)
+    if rootwar==true
+        cluster = buildCluster(rcFilterChain,clusterSize,jenkins)
+    else
+        cluster = buildValveCluster(rcFilterChain,clusterSize,jenkins)
+    end
     puts "Cluster built with the nodes:"
     cluster.each do |node|
         puts "\t#{node[2]} : #{node[7]}"
@@ -83,6 +91,7 @@ when "-h"
     puts "\t--create-cluster [list_of_filters] [options]\t\tBuilds a 4 Node Repose cluster with the given filters"
     puts "\t\t -r : use to drop cluster information to /tmp"
     puts "\t\t -s : use to create only a single node deployment"
+    puts "\t\t -w : use to deploy cluster using tomcat7 and rootwar"
     puts "\t--delete-cluster\t\t\t\tDeletes the active cluster"
     puts "\t--configure\t\t\t\t\tStarts the configuration for the Repose Cluster Manager"
 else
