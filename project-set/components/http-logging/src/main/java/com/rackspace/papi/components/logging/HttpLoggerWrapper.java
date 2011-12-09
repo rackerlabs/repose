@@ -24,6 +24,10 @@ public class HttpLoggerWrapper {
     public HttpLogFormatter getFormatter() {
         return formatter;
     }
+    
+    protected List<SimpleLogger> getLoggers() {
+       return loggers;
+    }
 
     public void addLogger(SimpleLogger logger) {
         loggers.add(logger);
