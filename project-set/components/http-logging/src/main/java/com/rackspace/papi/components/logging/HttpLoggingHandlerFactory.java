@@ -37,6 +37,10 @@ public class HttpLoggingHandlerFactory extends AbstractConfiguredFilterHandlerFa
          }
       };
    }
+   
+   protected List<HttpLoggerWrapper> getLoggers() {
+      return loggers;
+   }
 
    private class HttpLoggingConfigurationListener implements UpdateListener<HttpLoggingConfig> {
       @Override
