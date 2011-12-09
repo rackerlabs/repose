@@ -31,6 +31,13 @@
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>utilities</artifactId>
         </dependency>
+        <dependency>
+            <groupId>ant</groupId>
+            <artifactId>ant</artifactId>
+            <version>1.6.5</version>
+            <scope>test</scope>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 
     <build>

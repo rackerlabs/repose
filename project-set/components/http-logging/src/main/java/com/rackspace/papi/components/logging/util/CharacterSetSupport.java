@@ -12,14 +12,13 @@ import org.slf4j.Logger;
  */
 public final class CharacterSetSupport {
     
-    private static final String CHAR_SET = "UTF-8";
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(CharacterSetSupport.class);
     
-    public void checkCharSet(){
+    public static void checkCharSet(String charset){
         
-        if(!Charset.isSupported(CHAR_SET)){
+        if(!Charset.isSupported(charset)){
             LOG.error("HTTP Logger only supports UTF-8 character encoding");
-            System.exit(0);
+            System.exit(1);
         }
     }
     
