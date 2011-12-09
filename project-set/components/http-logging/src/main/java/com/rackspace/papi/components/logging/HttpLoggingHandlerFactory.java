@@ -7,7 +7,7 @@ import com.rackspace.papi.components.logging.config.HttpLog;
 import com.rackspace.papi.components.logging.config.HttpLoggingConfig;
 import com.rackspace.papi.components.logging.config.Targets;
 import com.rackspace.papi.components.logging.util.FileLogger;
-import com.rackspace.papi.components.logging.util.CharacterSetSupport;
+import com.rackspace.papi.commons.util.io.charset.CharacterSetSupport;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.model.PowerProxy;
 import java.io.File;

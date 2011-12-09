@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rackspace.papi.components.logging.util;
+package com.rackspace.papi.commons.util.io.charset;
 import java.nio.charset.Charset;
 import org.slf4j.Logger;
 
