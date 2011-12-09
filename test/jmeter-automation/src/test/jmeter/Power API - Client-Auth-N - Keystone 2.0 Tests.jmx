@@ -93,13 +93,13 @@
         </Arguments>
         <hashTree/>
         <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="Hosts Configuration" enabled="true">
-          <stringProp name="filename">/tmp/hosts.csv</stringProp>
+          <stringProp name="filename">tmp/hosts.csv</stringProp>
           <stringProp name="fileEncoding"></stringProp>
           <stringProp name="variableNames">targetHost,targetPort,authtype</stringProp>
           <stringProp name="delimiter"></stringProp>
           <boolProp name="quotedData">true</boolProp>
-          <boolProp name="recycle">false</boolProp>
-          <boolProp name="stopThread">true</boolProp>
+          <boolProp name="recycle">true</boolProp>
+          <boolProp name="stopThread">false</boolProp>
           <stringProp name="shareMode">All threads</stringProp>
         </CSVDataSet>
         <hashTree/>
@@ -557,7 +557,7 @@
           </hashTree>
         </hashTree>
         <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
-          <boolProp name="ResultCollector.error_logging">false</boolProp>
+          <boolProp name="ResultCollector.error_logging">true</boolProp>
           <objProp>
             <name>saveConfig</name>
             <value class="SampleSaveConfiguration">
