@@ -22,6 +22,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(Enclosed.class)
 public class FileLoggerTest {
     public static class WhenLoggingData {
+        private static final String UTF8 = "UTF-8";
         private File file;
         private FileLogger fileLogger;
 
@@ -67,8 +68,8 @@ public class FileLoggerTest {
            int fileLen = 0;
            
            for (char c: shadyCharacters) {
-              fileLen += String.valueOf(c).getBytes("UTF8").length;
-              fileLen += "\n".getBytes("UTF8").length; // new line char
+              fileLen += String.valueOf(c).getBytes(UTF8).length;
+              fileLen += "\n".getBytes(UTF8).length; // new line char
               fileLogger.log(String.valueOf(c));
            }
            
@@ -82,8 +83,8 @@ public class FileLoggerTest {
            int fileLen = 0;
            
            for (char c: shadyCharacters) {
-              fileLen += String.valueOf(c).getBytes("UTF8").length;
-              fileLen += "\n".getBytes("UTF8").length; // new line char
+              fileLen += String.valueOf(c).getBytes(UTF8).length;
+              fileLen += "\n".getBytes(UTF8).length; // new line char
               fileLogger.log(String.valueOf(c));
            }
            
