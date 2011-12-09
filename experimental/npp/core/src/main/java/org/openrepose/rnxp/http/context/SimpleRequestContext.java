@@ -1,16 +1,11 @@
 package org.openrepose.rnxp.http.context;
 
-import java.io.IOException;
-import javax.servlet.ServletException;
+import java.util.concurrent.Future;
 import org.openrepose.rnxp.PowerProxy;
 import org.openrepose.rnxp.http.io.control.HttpConnectionController;
 import org.openrepose.rnxp.http.proxy.OriginConnectionFuture;
-import org.openrepose.rnxp.servlet.http.live.LiveHttpServletRequest;
 import org.openrepose.rnxp.servlet.http.SwitchableHttpServletResponse;
-import org.openrepose.rnxp.servlet.http.detached.DetachedHttpServletResponse;
 import org.openrepose.rnxp.servlet.http.live.UpdatableHttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -18,43 +13,22 @@ import org.slf4j.LoggerFactory;
  */
 public class SimpleRequestContext implements RequestContext {
 
-    private static final Logger LOG = LoggerFactory.getLogger(SimpleRequestContext.class);
+    private static boolean INTERRUPT_WORKER_THREAD = Boolean.TRUE;
+    
     private final PowerProxy powerProxyInstance;
     private final SwitchableHttpServletResponse response;
-    private Thread workerThread;
-    private boolean requestStarted;
+    private Future workerThreadFuture;
 
     public SimpleRequestContext(PowerProxy powerProxyInstance) {
         this.powerProxyInstance = powerProxyInstance;
+
         response = new SwitchableHttpServletResponse();
     }
 
     @Override
     public void startRequest(final HttpConnectionController updateController, final OriginConnectionFuture streamController) {
-        final LiveHttpServletRequest request = new LiveHttpServletRequest(updateController, streamController);
-
-        workerThread = new Thread(new Runnable() {
-
-            @Override
-            public void run() {
-                response.setResponseDelegate(new DetachedHttpServletResponse(updateController));
-
-                try {
-                    powerProxyInstance.handleRequest(request, response);
-                    response.flushBuffer();
-                } catch (ServletException se) {
-                    LOG.error(se.getMessage(), se);
-                } catch (IOException ioe) {
-                    LOG.error(ioe.getMessage(), ioe);
-                } finally {
-                    updateController.close();
-                    LOG.info("Requesting handling finished");
-                }
-            }
-        });
-
-        workerThread.start();
-        requestStarted = true;
+        final RequestDelegate newRequestDelegate = new RequestDelegate(response, updateController, streamController, powerProxyInstance);
+        workerThreadFuture = powerProxyInstance.getExecutorService().submit(newRequestDelegate);
     }
 
     @Override
@@ -63,7 +37,7 @@ public class SimpleRequestContext implements RequestContext {
     }
 
     @Override
-    public synchronized boolean started() {
-        return requestStarted;
+    public void conversationAborted() {
+        workerThreadFuture.cancel(INTERRUPT_WORKER_THREAD);
     }
 }

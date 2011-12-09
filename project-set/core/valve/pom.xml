@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.rackspace.papi.core</groupId>
         <artifactId>core-support</artifactId>
-        <version>1.0.3-SNAPSHOT</version>
+        <version>1.0.4-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.core</groupId>
@@ -127,15 +127,23 @@
                         
                         <configuration>
                             <dataSet>
-                                    <!-- The jar file -->
+
+                                <!-- The log directory with info file as placeholder for plugin -->
                                 <data>
-                                    <src>${project.build.directory}/${project.build.finalName}.jar</src>
-                                    <type>file</type>
+                                    <type>make-directory</type>
+
                                     <mapper>
-                                        <type>perm</type>
-                                        <prefix>/usr/share/lib</prefix>
+                                        <type>dir</type>
+                                        <prefix>/var/powerapi/logs</prefix>
+                                        <filemode>765</filemode>
                                     </mapper>
-                                </data>
+
+                                    <mapper>
+                                        <type>dir</type>
+                                        <prefix>/usr/share/lib</prefix>
+                                        <filemode>755</filemode>
+                                    </mapper>
+                                </data>                                  
 
                                     <!-- The config directory and files -->
                                 <data>
@@ -150,22 +158,17 @@
                                     </mapper>
                                 </data>
 
-                                <!-- The log directory with info file as placeholder for plugin -->
-                                <data>
-                                    <type>make-directory</type>
 
+                                    <!-- The jar file -->
+                                <data>
+                                    <src>${project.build.directory}/${project.build.finalName}.jar</src>
+                                    <type>file</type>
                                     <mapper>
-                                        <type>dir</type>
-                                        <prefix>/var/powerapi/logs</prefix>
-                                        <filemode>765</filemode>
+                                        <type>perm</type>
+                                        <prefix>/usr/share/lib</prefix>
                                     </mapper>
-                                    
-                                    <mapper>
-                                        <type>dir</type>
-                                        <prefix>/usr/share/powerapi/filters</prefix>
-                                        <filemode>755</filemode>
-                                    </mapper>
-                                </data>                                  
+                                </data>
+
                                     <!-- The start script -->
                                 <data>
                                     <src>${project.build.directory}/${project.build.finalName}.jar</src>
@@ -175,6 +178,17 @@
                                         <prefix>/usr/share/lib</prefix>
                                     </mapper>
                                 </data>
+
+                                    <!--The log file -->
+                                <data>
+                                    <src>${project.build.directory}/../src/deb/current.log</src>
+                                    <type>file</type>
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>/var/powerapi/logs</prefix>
+                                    </mapper>
+                                </data>
+
                             </dataSet>
                         </configuration>
                     </execution>

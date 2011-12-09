@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE book [
-    <!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
-    <!ENTITY PRODNAME "Power API">
-    <!ENTITY PRODABBREV "PAPI">
-    <!ENTITY PRODEXPAND "Rackspace Cloud Power Application Program Interface (API)">
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+<!ENTITY PRODNAME "Repose">
+<!ENTITY PRODABBREV "Repose">
+<!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
     <!-- Some useful entities borrowed from HTML -->
     <!ENTITY ndash  "&#x2013;">
     <!ENTITY mdash  "&#x2014;">

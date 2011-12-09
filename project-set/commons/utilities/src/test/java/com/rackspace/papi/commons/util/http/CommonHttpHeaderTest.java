@@ -18,7 +18,7 @@ public class CommonHttpHeaderTest {
     public static class WhenGettingHeaderKeys {
         @Test
         public void shouldReturnExpectedKey() {
-            assertEquals("Retry-After", CommonHttpHeader.RETRY_AFTER.headerKey());
+            assertEquals("Retry-After", CommonHttpHeader.RETRY_AFTER.getHeaderKey());
         }
     }
 }

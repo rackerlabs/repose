@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.buffer.ChannelBuffers;
 import org.openrepose.rnxp.http.proxy.InboundOutboundCoordinator;
+import org.openrepose.rnxp.logging.ThreadStamp;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,13 +27,13 @@ public class ChannelOutputStream extends OutputStream {
     
     @Override
     public void flush() throws IOException {
-        LOG.info("Flushing: " + writeBuffer.readableBytes());
+        ThreadStamp.log(LOG, "Flushing: " + writeBuffer.readableBytes());
         
         try {
-            coordinator.write(writeBuffer).await();
+            coordinator.writeOutbound(writeBuffer).await();
             writeBuffer.clear();
         } catch (InterruptedException ie) {
-            LOG.error("Interrupted while flushing!", ie);
+            LOG.error("Interrupted while flushing data to outbound channel", ie);
         }
     }
     

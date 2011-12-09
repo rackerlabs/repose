@@ -127,6 +127,6 @@ public class RateLimiter extends RateLimitingOperation {
         // We use a 413 "Request Entity Too Large" to communicate that the user
         // in question has hit their rate limit for this requested URI
         filterDirector.setResponseStatus(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE);
-        filterDirector.responseHeaderManager().putHeader(CommonHttpHeader.RETRY_AFTER.headerKey(), nextAvailableTime.toRFC1123());
+        filterDirector.responseHeaderManager().putHeader(CommonHttpHeader.RETRY_AFTER.getHeaderKey(), nextAvailableTime.toRFC1123());
     }
 }

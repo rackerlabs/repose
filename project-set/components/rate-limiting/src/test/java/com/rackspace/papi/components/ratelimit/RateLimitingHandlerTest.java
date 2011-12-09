@@ -38,9 +38,9 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             final Enumeration<String> groupHeaders = mock(Enumeration.class);
             when(groupHeaders.hasMoreElements()).thenReturn(Boolean.FALSE);
 
-            when(requestMock.getHeader(PowerApiHeader.USER.headerKey())).thenReturn("user");
-            when(requestMock.getHeader(PowerApiHeader.GROUPS.headerKey())).thenReturn("group");
-            when(requestMock.getHeaders(PowerApiHeader.GROUPS.headerKey())).thenReturn(groupHeaders);
+            when(requestMock.getHeader(PowerApiHeader.USER.getHeaderKey())).thenReturn("user");
+            when(requestMock.getHeader(PowerApiHeader.GROUPS.getHeaderKey())).thenReturn("group");
+            when(requestMock.getHeaders(PowerApiHeader.GROUPS.getHeaderKey())).thenReturn(groupHeaders);
             when(requestMock.getMethod()).thenReturn("GET");
             when(requestMock.getRequestURI()).thenReturn("/v1.0/12345/resource");
             when(requestMock.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/12345/resource"));
@@ -55,9 +55,9 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
             final Enumeration<String> groupHeaders = mock(Enumeration.class);
             when(groupHeaders.hasMoreElements()).thenReturn(Boolean.FALSE);
 
-            when(requestMock.getHeader(PowerApiHeader.USER.headerKey())).thenReturn("user");
-            when(requestMock.getHeader(PowerApiHeader.GROUPS.headerKey())).thenReturn("group");
-            when(requestMock.getHeaders(PowerApiHeader.GROUPS.headerKey())).thenReturn(groupHeaders);
+            when(requestMock.getHeader(PowerApiHeader.USER.getHeaderKey())).thenReturn("user");
+            when(requestMock.getHeader(PowerApiHeader.GROUPS.getHeaderKey())).thenReturn("group");
+            when(requestMock.getHeaders(PowerApiHeader.GROUPS.getHeaderKey())).thenReturn(groupHeaders);
             when(requestMock.getMethod()).thenReturn("GET");
             when(requestMock.getRequestURI()).thenReturn("/v1.0/limits");
             when(requestMock.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/limits"));

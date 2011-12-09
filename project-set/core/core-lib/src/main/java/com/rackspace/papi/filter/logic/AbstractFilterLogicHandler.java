@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 public class AbstractFilterLogicHandler implements FilterLogicHandler {
 
     @Override
+    // TODO: Remove the response object from this method
     public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
         return SimplePassFilterDirector.getInstance();
     }

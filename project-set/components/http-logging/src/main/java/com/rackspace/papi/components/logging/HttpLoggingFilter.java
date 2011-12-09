@@ -30,7 +30,7 @@ public class HttpLoggingFilter implements Filter {
 
     @Override
     public void destroy() {
-        manager.unsubscribeFrom("http-logging.xml", handler);
+        manager.unsubscribeFrom("http-logging.cfg.xml", handler);
     }
 
     @Override
@@ -50,6 +50,6 @@ public class HttpLoggingFilter implements Filter {
         handler = new HttpLoggingHandlerFactory();
         manager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
 
-        manager.subscribeTo("http-logging.xml", handler, HttpLoggingConfig.class);
+        manager.subscribeTo("http-logging.cfg.xml", handler, HttpLoggingConfig.class);
     }
 }

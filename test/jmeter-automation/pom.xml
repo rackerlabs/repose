@@ -79,6 +79,13 @@
                     <reportDir>${project.build.directory}/jmeter-reports</reportDir>
                     <jmeterhome>/usr/share/jmeter</jmeterhome>
                     <jmeterPreserveIncludeOrder>true</jmeterPreserveIncludeOrder>
+                    <excludes>
+                        <!--<exclude>Power API - Client-Auth-N Tests.jmx</exclude>-->
+                        <exclude>Power API - End to End Automation.jmx</exclude>
+                        <exclude>Power API - Versioning.jmx</exclude>
+                        <exclude>Power API - Rate Limiting Tests.jmx</exclude>
+                        <exclude>Power API - Valve Test.jmx</exclude>
+                    </excludes>
                 </configuration>
             </plugin>
         </plugins>

@@ -26,13 +26,12 @@ import org.slf4j.LoggerFactory;
  */
 public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
     private static final Logger LOG = LoggerFactory.getLogger(DatastoreFilterLogicHandler.class);
-    private final DatastoreService datastoreService;
+    
     private final MutableClusterView clusterView;
     private String lastLocalAddr;
     private HashedDatastore hashRingDatastore;
     
-    public DatastoreFilterLogicHandler(DatastoreService datastoreService, MutableClusterView clusterView, String lastLocalAddr, HashedDatastore hashRingDatastore) {
-       this.datastoreService = datastoreService;
+    public DatastoreFilterLogicHandler(MutableClusterView clusterView, String lastLocalAddr, HashedDatastore hashRingDatastore) {
        this.clusterView = clusterView;
        this.lastLocalAddr = lastLocalAddr;
        this.hashRingDatastore = hashRingDatastore;

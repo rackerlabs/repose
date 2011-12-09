@@ -5,12 +5,12 @@
     <parent>
         <groupId>com.rackspace.papi</groupId>
         <artifactId>papi</artifactId>
-        <version>1.0.3-SNAPSHOT</version>
+        <version>1.0.4-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi</groupId>
     <artifactId>profile-support</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
     
     <name>Power API - Build Support Profiles</name>
     
@@ -38,6 +38,21 @@
             <build>
                 <pluginManagement>
                     <plugins>
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>xml-maven-plugin</artifactId>               
+                            <version>1.0</version>
+                            
+                            <executions>
+                                <execution>
+                                    <goals>
+                                        <goal>transform</goal>
+                                    </goals>
+                                    <phase>generate-sources</phase>
+                                </execution>
+                            </executions>
+                        </plugin>         
+                        
                         <plugin>
                             <groupId>com.sun.tools.xjc.maven2</groupId>
                             <artifactId>maven-jaxb-plugin</artifactId>
@@ -77,7 +92,10 @@
                                 <execution>
                                     <id>Build RPM</id>
                         
+                                    <phase>package</phase>
+
                                     <goals>
+                                        <goal>rpm</goal>
                                         <goal>attached-rpm</goal>
                                     </goals>
                                 </execution>

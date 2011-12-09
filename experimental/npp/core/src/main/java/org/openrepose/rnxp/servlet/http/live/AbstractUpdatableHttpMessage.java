@@ -58,7 +58,7 @@ public abstract class AbstractUpdatableHttpMessage implements UpdatableHttpMessa
 
     protected void loadComponent(HttpMessageComponent requestedComponent, HttpMessageComponentOrder order) {
         while (shouldLoad(requestedComponent, order)) {
-            ThreadStamp.outputThreadStamp(LOG, "Requesting more HTTP request data up to " + requestedComponent + ". Current position: " + lastReadComponent() + ".");
+            ThreadStamp.log(LOG, "Requesting more HTTP request data up to " + requestedComponent + ". Current position: " + lastReadComponent() + ".");
 
             try {
                 applyPartial(updateController.requestUpdate());

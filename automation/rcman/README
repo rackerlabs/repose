@@ -1,0 +1,70 @@
+RCMAN
+
+This is a simple Ruby script which integrates with chef/knife to build Repose clusters using Cloud Servers.
+
+    Download and install the required application/libraries
+        Ruby
+        RubyGems
+            -highline
+
+             sudo gem install highline  --no-rdoc --no-ri 
+
+            -builder
+
+             sudo gem install builder  --no-rdoc --no-ri 
+
+            -net-ssh
+
+             sudo gem install net-ssh  --no-rdoc --no-ri 
+
+            -net-scp
+
+             sudo gem install net-scp  --no-rdoc --no-ri 
+
+            -Chef
+                Chef workstation setup 
+                    When running through the setup, it is not needed you download the opscode chef-repo to your workstation.
+            -knife-rackspace
+
+             sudo apt-get install libxslt-dev libxml2-dev 
+
+             sudo gem install net-ssh net-ssh-multi fog highline --no-rdoc --no-ri --verbose 
+
+             sudo gem install knife-rackspace  --no-rdoc --no-ri 
+
+        Add this line to your /etc/hosts file
+         50.57.98.109    chef-server-n01.cit    chef-server-n01.cit.rackspace.com 
+
+    Check that the following are present: chef, knife-rackspace, builder, highline
+
+     gem list 
+
+    Download and extract rcman
+    Obtain the proper pem files for the chef-server. Contact an admin for these files.
+    Public Key (ssh-keygen)
+    Cloud Servers Account
+        Username
+        API Key
+    When running for the first time please run
+
+    ./rcman.rb --configure
+
+Using the script
+
+    To View commands
+
+     ./rcman.rb -h 
+
+    To Create a cluster
+
+     ./rcman.rb --create-cluster [list-of-filters] 
+
+    * Available Filters
+        versioning
+        client-auth
+        rate-limiting
+    To Delete Cluster
+
+     ./rcman.rb --delete-cluster 
+
+

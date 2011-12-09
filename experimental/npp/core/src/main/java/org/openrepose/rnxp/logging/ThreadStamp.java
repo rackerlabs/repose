@@ -6,8 +6,14 @@ import org.slf4j.Logger;
  *
  * @author zinic
  */
-public class ThreadStamp {
-    public static void outputThreadStamp(Logger log, String message) {
-        log.info(System.nanoTime() + "@" + Thread.currentThread() + " :: " + message);
+public final class ThreadStamp {
+
+    private ThreadStamp() {
+    }
+
+    public static void log(Logger log, String message) {
+        if (log.isDebugEnabled()) {
+            log.debug(System.nanoTime() + "@" + Thread.currentThread() + " :: " + message);
+        }
     }
 }

@@ -50,7 +50,7 @@ public abstract class AbstractConfiguredFilterHandlerFactory<Handler extends Fil
          } finally {
             configurationLock.unlock(updateKey);
          }
-         
+
       }
 
    }

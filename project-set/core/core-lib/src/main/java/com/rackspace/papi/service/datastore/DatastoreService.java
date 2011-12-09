@@ -14,5 +14,7 @@ public interface DatastoreService {
 
     Datastore getDatastore(String datastoreName);
     
+    void unregisterDatastoreManager(String datastoreManagerName) throws NamingException;
+    
     void registerDatastoreManager(String datastoreManagerName, DatastoreManager manager) throws NamingException;
 }

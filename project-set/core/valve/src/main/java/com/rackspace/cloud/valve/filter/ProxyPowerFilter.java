@@ -4,8 +4,6 @@ import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.filter.PowerFilter;
 import com.rackspace.papi.model.Host;
-import com.rackspace.papi.service.context.jndi.ContextAdapter;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.FilterChain;
@@ -67,7 +65,7 @@ public class ProxyPowerFilter extends PowerFilter {
     // Set routeDestination to "default" route in case Versioning Filter is not running.
     // If versioning filter is running, it will replace this value.
     final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
-    mutableHttpRequest.replaceHeader(PowerApiHeader.ROUTE_DESTINATION.headerKey(), defaultRouteUrl);
+    mutableHttpRequest.replaceHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey(), defaultRouteUrl);
     
     super.doFilter(mutableHttpRequest, response, chain);
   }

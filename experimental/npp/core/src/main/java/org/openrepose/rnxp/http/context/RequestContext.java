@@ -11,8 +11,8 @@ import org.openrepose.rnxp.servlet.http.live.UpdatableHttpServletResponse;
 public interface RequestContext {
 
     void startRequest(HttpConnectionController updateController, OriginConnectionFuture streamController);
-    
+
     void responseConnected(UpdatableHttpServletResponse response);
     
-    boolean started();
+    void conversationAborted();
 }

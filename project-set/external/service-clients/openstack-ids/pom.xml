@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">         
+    
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <artifactId>service-client-support</artifactId>
+        <groupId>com.rackspace.papi.external.clients</groupId>
+        <version>1.0.4-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.rackspace.cloud.services.clients</groupId>
+    <artifactId>openstack-ids</artifactId>
+    
+    <name>Power API Service Clients - OpenStack Identity Service</name>
+
+    <packaging>jar</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>utilities</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-server</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>                
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xml-maven-plugin</artifactId>
+               
+                <configuration>
+                    <transformationSets>
+                        <transformationSet>
+                            <dir>src/main/resources/META-INF/schema/openstack</dir>
+                            <stylesheet>src/main/resources/META-INF/schema/xsl/s1.0p.xsl</stylesheet>
+                        </transformationSet>
+                    </transformationSets>                    
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>com.sun.tools.xjc.maven2</groupId>
+                <artifactId>maven-jaxb-plugin</artifactId>
+
+                <configuration>
+                    <schemaDirectory>${basedir}/target/generated-resources/xml/xslt</schemaDirectory>           
+                    
+                    <includeSchemas>
+                        <includeSchema>**/*.xsd</includeSchema>
+                    </includeSchemas>
+                    
+                    <includeBindings>
+                        <includeBinding>**/*.xjb</includeBinding>
+                    </includeBindings>
+                    
+                    <strict>true</strict>
+                    <verbose>false</verbose>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

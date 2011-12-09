@@ -1,7 +1,7 @@
 package org.openrepose.rnxp.http.proxy;
 
 import java.net.InetSocketAddress;
-import org.openrepose.rnxp.http.io.control.HttpMessageSerializer;
+import org.openrepose.rnxp.http.io.control.CommittableHttpMessage;
 
 /**
  *
@@ -9,5 +9,5 @@ import org.openrepose.rnxp.http.io.control.HttpMessageSerializer;
  */
 public interface OriginConnectionFuture {
 
-    void connect(InetSocketAddress addr, HttpMessageSerializer serializer);
+    void connect(InetSocketAddress addr, CommittableHttpMessage message);
 }

@@ -3,6 +3,7 @@ package org.openrepose.rnxp.http.proxy;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
+import org.openrepose.rnxp.servlet.http.detached.HttpErrorSerializer;
 
 /**
  *
@@ -18,7 +19,10 @@ public class InboundOutboundCoordinator {
     
     public synchronized void close() {
         inboundChannel.close();
-        outboundChannel.close();
+        
+        if (inboundChannel != outboundChannel) {
+            outboundChannel.close();
+        }
     }
 
     public synchronized boolean streamable() {
@@ -37,8 +41,16 @@ public class InboundOutboundCoordinator {
         inboundUpdate = new ChannelUpdater(channel);
     }
 
-    public synchronized ChannelFuture write(ChannelBuffer buffer) {
+    public synchronized ChannelFuture writeInbound(HttpErrorSerializer error) {
+        return error.writeTo(inboundChannel);
+    }
+
+    public synchronized ChannelFuture writeOutbound(ChannelBuffer buffer) {
         return outboundChannel.write(buffer);
+    }
+    
+    public synchronized ChannelFuture writeInbound(ChannelBuffer buffer) {
+        return inboundChannel.write(buffer);
     }
 
     public void streamOutbound(Object o) {

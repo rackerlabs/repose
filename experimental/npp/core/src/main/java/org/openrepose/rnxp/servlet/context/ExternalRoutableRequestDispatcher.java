@@ -33,7 +33,7 @@ public class ExternalRoutableRequestDispatcher implements RequestDispatcher {
             final InetSocketAddress address = new InetSocketAddress(destination.getHost(), httpPort(destination));
             
             final OriginConnectionFuture connectionFuture = httpRequest.getOriginConnectionFuture();
-            connectionFuture.connect(address, httpRequest.commitMessage());
+            connectionFuture.connect(address, httpRequest);
         }
         
         throw new IllegalArgumentException("Request opting to forward must forward to a routable destination");

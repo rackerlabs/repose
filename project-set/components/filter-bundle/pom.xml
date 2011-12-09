@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.rackspace.papi.components</groupId>
         <artifactId>components-support</artifactId>
-        <version>1.0.3-SNAPSHOT</version>
+        <version>1.0.4-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.components</groupId>
@@ -200,7 +200,7 @@
                                             <location>../versioning/src/main/resources/META-INF/schema/examples/versioning.cfg.xml</location>
                                         </source>
                                         <source>
-                                            <location>../client-auth/src/main/resources/META-INF/schema/examples/client-auth-n.cfg.xml</location>
+                                            <location>../client-auth/src/main/resources/META-INF/schema/examples/rackspace/client-auth-n.cfg.xml</location>
                                         </source>
                                         <source>
                                             <location>../rate-limiting/src/main/resources/META-INF/schema/examples/rate-limiting.cfg.xml</location>
@@ -214,6 +214,49 @@
                             </requires>
                         </configuration>
                     </plugin>
+                    <plugin>
+                        <groupId>org.vafer</groupId>
+                        <artifactId>papi-jdeb</artifactId>
+                        <version>${project.version}</version>
+                        
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                
+                                <goals>
+                                    <goal>jdeb</goal>
+                                </goals>
+                                
+                                <configuration>
+                                    <dataSet>
+
+                                        <!-- The log directory with info file as placeholder for plugin -->
+                                        <data>
+                                            <type>make-directory</type>
+
+                                            <mapper>
+                                                <type>dir</type>
+                                                <prefix>/usr/share/powerapi/filters</prefix>
+                                                <filemode>765</filemode>
+                                            </mapper>
+                                            
+                                        </data>                                  
+
+                                            <!-- The jar file -->
+                                        <data>
+                                            <src>${project.build.directory}/${project.build.finalName}.ear</src>
+                                            <type>file</type>
+                                            <mapper>
+                                                <type>perm</type>
+                                                <prefix>/usr/share/powerapi/filters</prefix>
+                                            </mapper>
+                                        </data>
+
+                                    </dataSet>
+                                </configuration>
+                            </execution>
+                        </executions>                
+                    </plugin>            
                 </plugins>
             </build>
         </profile>        

@@ -39,6 +39,7 @@ public class SchemaTest {
             jaxbUnmarshaller.setSchema(SCHEMA_FACTORY.newSchema(
                     new StreamSource[]{
                         new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/config/rackspace-auth-v1.1/rackspace-auth-v1.1.xsd")),
+                        new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/config/openstack-ids-auth/openstack-ids-auth.xsd")),                            
                         new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/config/http-basic/http-basic.xsd")),
                         new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/config/client-auth-n-configuration.xsd"))
                     }));
@@ -46,7 +47,7 @@ public class SchemaTest {
 
         @Test
         public void shouldValidateAgainstStaticExample() throws Exception {
-            final StreamSource sampleSource = new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/examples/client-auth-n.cfg.xml"));
+            final StreamSource sampleSource = new StreamSource(SchemaTest.class.getResourceAsStream("/META-INF/schema/examples/rackspace/client-auth-n.cfg.xml"));
 
             assertNotNull("Expected element should not be null", jaxbUnmarshaller.unmarshal(sampleSource, ClientAuthConfig.class).getValue().getRackspaceAuth());
         }
