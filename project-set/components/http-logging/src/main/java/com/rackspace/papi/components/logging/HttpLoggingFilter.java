@@ -30,7 +30,7 @@ public class HttpLoggingFilter implements Filter {
 
     @Override
     public void destroy() {
-        manager.unsubscribeFrom("http-logging.xml", handler);
+        manager.unsubscribeFrom("http-logging.cfg.xml", handler);
     }
 
     @Override

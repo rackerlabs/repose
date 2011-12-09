@@ -22,16 +22,25 @@ import static com.rackspace.papi.commons.util.StringUtilities.isEmpty;
 public class HttpLogFormatter {
 
     private static final Pattern INITIAL_TOKEN_RX = Pattern.compile("%(%)|%\\{([a-zA-Z0-9]*)\\}|%([!|0-9|,]*)([<>])*([a-zA-Z])");
+    private static final Pattern TABS = Pattern.compile("\\\\t+");
+    private static final Pattern NEWLINES = Pattern.compile("\\\\n+");
     private static final Pattern STATUS_CODE_RX = Pattern.compile(",");
     private static final int ESCAPED_PERCENT = 1, STATUS_CODE_MODIFIERS = 3, RESPONSE_LIFECYCLE_MODIFIER = 4, APACHE_ARGUMENT = 5;
     private final String formatTemplate;
     private final List<FormatArgumentHandler> handlerList;
 
     public HttpLogFormatter(String formatTemplate) {
-        this.formatTemplate = formatTemplate;
+        this.formatTemplate = handleTabsAndNewlines(formatTemplate);
         handlerList = new LinkedList<FormatArgumentHandler>();
 
         build();
+    }
+
+    private String handleTabsAndNewlines(String formatTemplate) {
+        Matcher tabsMatcher = TABS.matcher(formatTemplate);
+        Matcher newlinesMatcher = NEWLINES.matcher(tabsMatcher.replaceAll("\t"));
+
+        return newlinesMatcher.replaceAll("\n");
     }
 
     private void build() {
