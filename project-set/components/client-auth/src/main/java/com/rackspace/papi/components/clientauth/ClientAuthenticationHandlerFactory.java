@@ -2,6 +2,7 @@ package com.rackspace.papi.components.clientauth;
 
 import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
 import com.rackspace.auth.v1_1.AuthenticationServiceClient;
+import com.rackspace.auth.v1_1.AuthenticationServiceClientFactory;
 import com.rackspace.papi.auth.AuthModule;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 
@@ -9,7 +10,6 @@ import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenStackIdentityService;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
 import com.rackspace.papi.components.clientauth.rackspace.config.RackspaceAuth;
-import com.rackspace.papi.components.clientauth.rackspace.v1_1.RackspaceAuthenticationHandler;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import java.util.HashMap;
 import java.util.Map;
@@ -61,7 +61,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
     private AuthModule getAuth1_1Handler(ClientAuthConfig cfg) {
         final RackspaceAuth authConfig = cfg.getRackspaceAuth();
             
-        final AuthenticationServiceClient serviceClient = new AuthenticationServiceClient(
+        final AuthenticationServiceClient serviceClient = new AuthenticationServiceClientFactory().buildAuthServiceClient(
                 authConfig.getAuthenticationServer().getUri(), authConfig.getAuthenticationServer().getUsername(), authConfig.getAuthenticationServer().getPassword());
         return new com.rackspace.papi.components.clientauth.rackspace.v1_1.RackspaceAuthenticationHandler(authConfig, serviceClient);
     }
