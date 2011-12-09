@@ -5,6 +5,7 @@ import com.rackspacecloud.docs.auth.api.v1.GroupsList;
 import net.sf.ehcache.CacheManager;
 
 import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 /**
  *
@@ -17,12 +18,13 @@ public class AuthenticationServiceClient {
     private final CacheManager cacheManager;
     private final AuthenticationCache authenticationCache;
 
-    public AuthenticationServiceClient(String targetHostUri, String username, String password) {
-        this.responseUnmarshaller = new ResponseUnmarshaller();
-        this.serviceClient = new ServiceClient(username, password);
+    public AuthenticationServiceClient(String targetHostUri, ResponseUnmarshaller responseUnmarshaller, ServiceClient serviceClient,
+                                       CacheManager cacheManager, AuthenticationCache authenticationCache) {
         this.targetHostUri = targetHostUri;
-        this.cacheManager = new CacheManager();
-        this.authenticationCache = new AuthenticationCache(cacheManager);
+        this.responseUnmarshaller = responseUnmarshaller;
+        this.serviceClient = serviceClient;
+        this.cacheManager = cacheManager;
+        this.authenticationCache = authenticationCache;
     }
 
     public boolean validateToken(Account account, String token) {
@@ -37,14 +39,24 @@ public class AuthenticationServiceClient {
             switch (response) {
                 case 200:
                     final FullToken tokenResponse = responseUnmarshaller.unmarshall(validateTokenMethod.getData(), FullToken.class);
-                    final Long expireTtl = tokenResponse.getExpires().toGregorianCalendar().getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
+                    final int expireTtl = getTtl(tokenResponse.getExpires().toGregorianCalendar());
 
-                    authenticationCache.cacheUserAuthToken(account.getUsername(), expireTtl.intValue(), tokenResponse.getId());
+                    authenticationCache.cacheUserAuthToken(account.getUsername(), expireTtl, tokenResponse.getId());
                     validated = true;                    
             }
         }
 
         return validated;
+    }
+
+    /**
+     * TODO: Could there be problems with this if the Auth Service sends us an expiration date that is in a different
+     * time zone than the box on which repose is running.
+     *
+     */
+    public static int getTtl(GregorianCalendar expirationDate) {
+        final Long expireTtl = expirationDate.getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
+        return expireTtl.intValue();
     }
 
     public GroupsList getGroups(String userId) {
