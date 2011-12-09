@@ -5,6 +5,7 @@ import java.util.Set;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 import com.rackspace.papi.components.limits.schema.*;
+import com.rackspace.papi.components.ratelimit.util.*;
 
 /**
  *
@@ -56,6 +57,7 @@ public class MockServiceResource {
 
     @GET
     @Path("/{version}/{user}/limits")
+    @Produces("application/xml")
     public Response getAbsoluteLimits() {
 
         Limits limits = new Limits();
@@ -64,6 +66,20 @@ public class MockServiceResource {
 
         return Response.ok(factory.createLimits(limits)).build();
     }
+    
+    @GET
+    @Path("/{version}/{user}/limits")
+    @Produces("application/json")
+    public Response getAbsoluteLimitsJson(){
+        
+        Limits limits = new Limits();
+        AbsoluteLimitList absList = buildAbsoluteLimits();
+        limits.setAbsolute(absList);
+        
+        LimitsEntityTransformer transformer = new LimitsEntityTransformer();
+        return Response.ok(transformer.entityAsJson(limits)).build();
+    }
+    
 
     public AbsoluteLimitList buildAbsoluteLimits() {
         AbsoluteLimitList limitList = new AbsoluteLimitList();

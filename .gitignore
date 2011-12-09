@@ -27,3 +27,4 @@ rcman.log
 rsInstances
 nodeNames
 hosts.csv
+automation/rcman/files/*
