@@ -119,7 +119,7 @@ public class JsonxStreamProcessor implements InputStreamProcessor {
          transformerHandler.setResult(new StreamResult(out));
 
          processingThread = DestroyableThreadWrapper.newThread(new JsonStreamProcessor(transformerHandler, sourceStream, out));
-         processingThread.getThreadReference().start();
+         processingThread.start();
 
          return resultStream;
       } catch (IOException ex) {

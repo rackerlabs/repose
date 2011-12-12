@@ -32,9 +32,9 @@ public class EventManagerServiceContext implements ServiceContext<EventService> 
         final ThreadingService threadManager = ServletContextHelper.getPowerApiContext(sce.getServletContext()).threadingService();
 
         final PowerProxyEventKernel eventKernel = new PowerProxyEventKernel(eventManager);
-
         eventKernelThread = new DestroyableThreadWrapper(threadManager.newThread(eventKernel, "Event Kernel Thread"), eventKernel);
-        eventKernelThread.getThreadReference().start();
+        
+        eventKernelThread.start();
     }
 
     @Override

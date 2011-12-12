@@ -48,7 +48,7 @@ public class ArtifactManagerServiceContext implements ServiceContext<ArtifactMan
 
             @Override
             public void onlyOnce(Event<PowerFilterEvent, Long> e) {
-                watcherThread.getThreadReference().start();
+                watcherThread.start();
             }
         }, PowerFilterEvent.POWER_FILTER_INITIALIZED);
     }
