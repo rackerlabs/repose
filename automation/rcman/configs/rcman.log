@@ -1,1 +1,1 @@
-Building 1 node cluster with filter chain: ["dist-datastore", "versioning", "client-auth", "rate-limiting"]
+Building 1 node cluster with filter chain: ["versioning"]
