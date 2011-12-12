@@ -23,7 +23,6 @@ public class AuthenticationServiceClientTest {
     public static class WhenGettingExpireTtl {
         private final long NUMBER_OF_MILLISECONDS_IN_A_SECOND = 1000;
         private final static long MOCK_CURRENT_SYS_TIME = 1000;
-        private final static long LONG_ONE = 1;
         private Calendar expirationTime;
         private Calendar currentSystemTime;
 
@@ -38,7 +37,7 @@ public class AuthenticationServiceClientTest {
         @Test
         public void shouldReturnMaxJavaInt() throws DatatypeConfigurationException {
 
-            long mockExpirationTime = (MOCK_CURRENT_SYS_TIME + Integer.MAX_VALUE + LONG_ONE) * NUMBER_OF_MILLISECONDS_IN_A_SECOND;
+            long mockExpirationTime = (MOCK_CURRENT_SYS_TIME + Integer.MAX_VALUE + 1l) * NUMBER_OF_MILLISECONDS_IN_A_SECOND;
             when(expirationTime.getTimeInMillis()).thenReturn(mockExpirationTime);
 
             assertEquals(Integer.MAX_VALUE, AuthenticationServiceClient.getTtl((GregorianCalendar)expirationTime, currentSystemTime));
@@ -47,7 +46,7 @@ public class AuthenticationServiceClientTest {
         @Test
         public void shouldReturnPositiveTime() throws DatatypeConfigurationException {
 
-            long mockExpirationTime = MOCK_CURRENT_SYS_TIME + Integer.MAX_VALUE + LONG_ONE;
+            long mockExpirationTime = MOCK_CURRENT_SYS_TIME + Integer.MAX_VALUE + 1l;
             when(expirationTime.getTimeInMillis()).thenReturn(mockExpirationTime);
 
             assertTrue(AuthenticationServiceClient.getTtl((GregorianCalendar)expirationTime, currentSystemTime) > 0);
