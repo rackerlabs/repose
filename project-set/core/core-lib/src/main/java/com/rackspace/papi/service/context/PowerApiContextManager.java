@@ -64,7 +64,6 @@ public class PowerApiContextManager implements ServletContextListener {
         }
         
         try {
-//            if ()
             this.initialContext = new InitialServiceContextFactory().getInitialContext();
         } catch (NamingException ne) {
             handleNamingException("Failed to build initial context", ne);
