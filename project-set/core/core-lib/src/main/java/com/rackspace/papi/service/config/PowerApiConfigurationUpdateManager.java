@@ -13,65 +13,64 @@ import javax.servlet.ServletContext;
 
 public class PowerApiConfigurationUpdateManager implements ConfigurationUpdateManager {
 
-    private final Map<String, Map<Integer, ParserListenerPair>> listenerMap;
-    private final EventService eventManager;
-    private final PowerApiUpdateManagerEventListener powerApiUpdateManagerEventListener;
-    
-    private ConfigurationResourceWatcher resourceWatcher;
-    private DestroyableThreadWrapper configurationResourceWatcherThread;
+   private final Map<String, Map<Integer, ParserListenerPair>> listenerMap;
+   private final EventService eventManager;
+   private final PowerApiUpdateManagerEventListener powerApiUpdateManagerEventListener;
+   private ConfigurationResourceWatcher resourceWatcher;
+   private DestroyableThreadWrapper configurationResourceWatcherThread;
 
-    public PowerApiConfigurationUpdateManager(EventService eventManager) {
-        this.eventManager = eventManager;
-        
-        listenerMap = new HashMap<String, Map<Integer, ParserListenerPair>>();
-        powerApiUpdateManagerEventListener = new PowerApiUpdateManagerEventListener(listenerMap);
-    }
+   public PowerApiConfigurationUpdateManager(EventService eventManager) {
+      this.eventManager = eventManager;
 
-    public void initialize(ServletContext ctx) {
-        eventManager.listen(powerApiUpdateManagerEventListener, ConfigurationEvent.class);
+      listenerMap = new HashMap<String, Map<Integer, ParserListenerPair>>();
+      powerApiUpdateManagerEventListener = new PowerApiUpdateManagerEventListener(listenerMap);
+   }
 
-        resourceWatcher = new ConfigurationResourceWatcher(eventManager);
-        configurationResourceWatcherThread = new DestroyableThreadWrapper(
-                ServletContextHelper.getPowerApiContext(ctx).threadingService().newThread(resourceWatcher, "Configuration Watcher Thread"), resourceWatcher);
+   public void initialize(ServletContext ctx) {
+      eventManager.listen(powerApiUpdateManagerEventListener, ConfigurationEvent.class);
 
-        configurationResourceWatcherThread.start();
-    }
+      resourceWatcher = new ConfigurationResourceWatcher(eventManager);
+      configurationResourceWatcherThread = new DestroyableThreadWrapper(
+              ServletContextHelper.getPowerApiContext(ctx).threadingService().newThread(resourceWatcher, "Configuration Watcher Thread"), resourceWatcher);
 
-    public PowerApiUpdateManagerEventListener getPowerApiUpdateManagerEventListener() {
-        return powerApiUpdateManagerEventListener;
-    }
+      configurationResourceWatcherThread.start();
+   }
 
-    @Override
-    public synchronized void destroy() {
-        configurationResourceWatcherThread.destroy();
-        listenerMap.clear();
-    }
+   public PowerApiUpdateManagerEventListener getPowerApiUpdateManagerEventListener() {
+      return powerApiUpdateManagerEventListener;
+   }
 
-    @Override
-    public synchronized <T> void registerListener(UpdateListener<T> listener, ConfigurationResource resource, ConfigurationObjectParser<T> parser) {
-        Map<Integer, ParserListenerPair> resourceListeners = listenerMap.get(resource.name());
+   @Override
+   public synchronized void destroy() {
+      configurationResourceWatcherThread.destroy();
+      listenerMap.clear();
+   }
 
-        if (resourceListeners == null) {
-            resourceListeners = new HashMap<Integer, ParserListenerPair>();
-            
-            listenerMap.put(resource.name(), resourceListeners);
-            resourceWatcher.watch(resource);
-        }
+   @Override
+   public synchronized <T> void registerListener(UpdateListener<T> listener, ConfigurationResource resource, ConfigurationObjectParser<T> parser) {
+      Map<Integer, ParserListenerPair> resourceListeners = listenerMap.get(resource.name());
 
-        resourceListeners.put(listener.hashCode(), new ParserListenerPair(listener, parser));
-    }
+      if (resourceListeners == null) {
+         resourceListeners = new HashMap<Integer, ParserListenerPair>();
 
-    @Override
-    public synchronized <T> void unregisterListener(UpdateListener<T> listener, ConfigurationResource resource) {
-        Map<Integer, ParserListenerPair> resourceListeners = listenerMap.get(resource.name());
+         listenerMap.put(resource.name(), resourceListeners);
+         resourceWatcher.watch(resource);
+      }
 
-        if (resourceListeners != null) {
-            resourceListeners.remove(listener.hashCode());
-            
-            if (resourceListeners.isEmpty()) {
-                resourceWatcher.stopWatching(resource.name());
-                listenerMap.remove(resource.name());
-            }
-        }
-    }
+      resourceListeners.put(listener.hashCode(), new ParserListenerPair(listener, parser));
+   }
+
+   @Override
+   public synchronized <T> void unregisterListener(UpdateListener<T> listener, ConfigurationResource resource) {
+      Map<Integer, ParserListenerPair> resourceListeners = listenerMap.get(resource.name());
+
+      if (resourceListeners != null) {
+         resourceListeners.remove(listener.hashCode());
+
+         if (resourceListeners.isEmpty()) {
+            resourceWatcher.stopWatching(resource.name());
+            listenerMap.remove(resource.name());
+         }
+      }
+   }
 }

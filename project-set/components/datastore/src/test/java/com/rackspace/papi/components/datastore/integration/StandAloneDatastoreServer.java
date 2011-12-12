@@ -10,31 +10,31 @@ import com.rackspace.papi.test.DummyServlet;
 
 public class StandAloneDatastoreServer extends JettyTestingContext {
 
-    public static void main(String args[]) {
-        try {
-            new StandAloneDatastoreServer(2101);
-            new StandAloneDatastoreServer(2102);
-            new StandAloneDatastoreServer(2103);
-            new StandAloneDatastoreServer(2104);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
+   public static void main(String args[]) {
+      try {
+         new StandAloneDatastoreServer(2101);
+         new StandAloneDatastoreServer(2102);
+         new StandAloneDatastoreServer(2103);
+         new StandAloneDatastoreServer(2104);
+      } catch (Exception ex) {
+         ex.printStackTrace();
+      }
+   }
 
-    public StandAloneDatastoreServer(int port) throws Exception {
-        final JettyServerBuilder server = new JettyServerBuilder(port);
-        buildServerContext(server);
-        server.start();
+   public StandAloneDatastoreServer(int port) throws Exception {
+      final JettyServerBuilder server = new JettyServerBuilder(port);
+      buildServerContext(server);
+      server.start();
 
-        System.out.println("Server started");
-    }
+      System.out.println("Server started");
+   }
 
-    @Override
-    public final void buildServerContext(JettyServerBuilder serverBuilder) throws Exception {
-        serverBuilder.addContextListener(PowerApiContextManager.class);
-        serverBuilder.addContextInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), "/home/zinic/installed/etc/powerapi/dist-datastore");
-        serverBuilder.addFilter(PowerFilter.class, "/*");
-        serverBuilder.addFilter(DistributedDatastoreFilter.class, "/*");
-        serverBuilder.addServlet(DummyServlet.class, "/*");
-    }
+   @Override
+   public final void buildServerContext(JettyServerBuilder serverBuilder) throws Exception {
+      serverBuilder.addContextListener(PowerApiContextManager.class);
+      serverBuilder.addContextInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), "/home/zinic/installed/etc/powerapi/dist-datastore");
+      serverBuilder.addFilter(PowerFilter.class, "/*");
+      serverBuilder.addFilter(DistributedDatastoreFilter.class, "/*");
+      serverBuilder.addServlet(DummyServlet.class, "/*");
+   }
 }
