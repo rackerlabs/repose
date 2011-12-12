@@ -3,7 +3,7 @@
 
     <groupId>com.rackspace.papi.tests</groupId>
     <artifactId>TestMaster</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
     <name>TestMaster</name>
     <packaging>pom</packaging>
 
