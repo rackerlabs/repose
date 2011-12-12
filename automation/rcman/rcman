@@ -18,6 +18,7 @@ require 'rubygems'
 require 'builder' 
 
 
+defaultFilterChain = ["dist-datastore","versioning","client-auth","rate-limiting"]
 arg = ARGV.shift
 case arg
 when "--configure"
@@ -77,6 +78,9 @@ when "--create-cluster"
     if rootwar==true
         cluster = buildCluster(rcFilterChain,clusterSize,jenkins)
     else
+        if ARGV.empty?
+            rcFilterChain = defaultFilterChain
+        end
         cluster = buildValveCluster(rcFilterChain,clusterSize,jenkins)
     end
     puts "Cluster built with the nodes:"

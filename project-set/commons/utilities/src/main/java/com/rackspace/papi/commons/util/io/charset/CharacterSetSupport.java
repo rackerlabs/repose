@@ -17,7 +17,7 @@ public final class CharacterSetSupport {
     public static void checkCharSet(String charset){
         
         if(!Charset.isSupported(charset)){
-            LOG.error("HTTP Logger only supports UTF-8 character encoding");
+            LOG.error("HTTP Logger will only work if your system supports UTF-8. Please remove this filter from the Power-Proxy config and restart.");
             System.exit(1);
         }
     }
