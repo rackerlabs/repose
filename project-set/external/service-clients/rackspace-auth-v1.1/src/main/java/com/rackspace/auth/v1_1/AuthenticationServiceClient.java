@@ -39,7 +39,7 @@ public class AuthenticationServiceClient {
             switch (response) {
                 case 200:
                     final FullToken tokenResponse = responseUnmarshaller.unmarshall(validateTokenMethod.getData(), FullToken.class);
-                    final int expireTtl = getTtl(tokenResponse.getExpires().toGregorianCalendar());
+                    final int expireTtl = getTtl(tokenResponse.getExpires().toGregorianCalendar(), Calendar.getInstance());
 
                     authenticationCache.cacheUserAuthToken(account.getUsername(), expireTtl, tokenResponse.getId());
                     validated = true;                    
@@ -49,14 +49,23 @@ public class AuthenticationServiceClient {
         return validated;
     }
 
-    /**
-     * TODO: Could there be problems with this if the Auth Service sends us an expiration date that is in a different
-     * time zone than the box on which repose is running.
-     *
-     */
-    public static int getTtl(GregorianCalendar expirationDate) {
-        final Long expireTtl = expirationDate.getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
-        return expireTtl.intValue();
+    public static int getTtl(GregorianCalendar expirationDate, Calendar currentTime) {
+        int ttl = Integer.MAX_VALUE;
+
+        final Long expireTtl = convertFromMillisecondsToSeconds(expirationDate.getTimeInMillis() - currentTime.getTimeInMillis());
+
+        if (expireTtl <= Integer.MAX_VALUE && expireTtl > 0) {
+            ttl = expireTtl.intValue();
+        }
+
+        return ttl;
+    }
+
+    // ehcache expects ttl in seconds
+    private static Long convertFromMillisecondsToSeconds(long milliseconds) {
+        final long numberOfMillisecondsInASecond = 1000;
+
+        return milliseconds / numberOfMillisecondsInASecond;
     }
 
     public GroupsList getGroups(String userId) {
