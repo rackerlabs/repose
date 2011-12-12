@@ -9,67 +9,81 @@ import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractHashedDatastore implements HashedDatastore {
 
-    private final EncodingProvider encodingProvider;
-    private final HashProvider hashProvider;
-    private final String datasetPrefix;
+   private final EncodingProvider encodingProvider;
+   private final HashProvider hashProvider;
+   private final String datasetPrefix;
 
-    public AbstractHashedDatastore(String datasetPrefix, EncodingProvider encodingProvider, HashProvider hashProvider) {
-        this.encodingProvider = encodingProvider;
-        this.hashProvider = hashProvider;
-        this.datasetPrefix = datasetPrefix;
-    }
+   public AbstractHashedDatastore(String datasetPrefix, EncodingProvider encodingProvider, HashProvider hashProvider) {
+      this.encodingProvider = encodingProvider;
+      this.hashProvider = hashProvider;
+      this.datasetPrefix = datasetPrefix;
+   }
 
-    public String getDatasetPrefix() {
-        return datasetPrefix;
-    }
+   public String getDatasetPrefix() {
+      return datasetPrefix;
+   }
 
-    public EncodingProvider getEncodingProvider() {
-        return encodingProvider;
-    }
+   public EncodingProvider getEncodingProvider() {
+      return encodingProvider;
+   }
 
-    public HashProvider getHashProvider() {
-        return hashProvider;
-    }
+   public HashProvider getHashProvider() {
+      return hashProvider;
+   }
 
-    private byte[] getHash(String key) {
-        return hashProvider.hash(datasetPrefix + key);
-    }
+   private byte[] getHash(String key) {
+      return hashProvider.hash(datasetPrefix + key);
+   }
 
-    @Override
-    public StoredElement get(String key) throws DatastoreOperationException {
-        final byte[] keyHash = getHash(key);
+   @Override
+   public StoredElement get(String key) throws DatastoreOperationException {
+      final byte[] keyHash = getHash(key);
 
-        return get(encodingProvider.encode(keyHash), keyHash);
-    }
+      return get(encodingProvider.encode(keyHash), keyHash);
+   }
 
-    @Override
-    public void put(String key, byte[] value) throws DatastoreOperationException {
-        put(key, value, 5, TimeUnit.MINUTES);
-    }
+   @Override
+   public boolean remove(String key) throws DatastoreOperationException {
+      final byte[] keyHash = getHash(key);
 
-    @Override
-    public void put(String key, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
-        final byte[] keyHash = getHash(key);
+      return remove(encodingProvider.encode(keyHash), keyHash);
+   }
 
-        put(encodingProvider.encode(keyHash), keyHash, value, ttl, timeUnit);
-    }
+   @Override
+   public void put(String key, byte[] value) throws DatastoreOperationException {
+      put(key, value, 5, TimeUnit.MINUTES);
+   }
 
-    @Override
-    public StoredElement getByHash(String encodedHashString) throws DatastoreOperationException {
-        return get(encodedHashString, encodingProvider.decode(encodedHashString));
-    }
+   @Override
+   public void put(String key, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
+      final byte[] keyHash = getHash(key);
 
-    @Override
-    public void putByHash(String encodedHashString, byte[] value) {
-        put(encodedHashString, encodingProvider.decode(encodedHashString), value, 3, TimeUnit.MINUTES);
-    }
+      put(encodingProvider.encode(keyHash), keyHash, value, ttl, timeUnit);
+   }
 
-    @Override
-    public void putByHash(String encodedHashString, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
-        put(encodedHashString, encodingProvider.decode(encodedHashString), value, ttl, timeUnit);
-    }
+   @Override
+   public StoredElement getByHash(String encodedHashString) throws DatastoreOperationException {
+      return get(encodedHashString, encodingProvider.decode(encodedHashString));
+   }
 
-    protected abstract StoredElement get(String name, byte[] id) throws DatastoreOperationException;
+   @Override
+   public boolean removeByHash(String encodedHashString) throws DatastoreOperationException {
+      return remove(encodedHashString, encodingProvider.decode(encodedHashString));
+   }
+   
+   @Override
+   public void putByHash(String encodedHashString, byte[] value) {
+      put(encodedHashString, encodingProvider.decode(encodedHashString), value, 3, TimeUnit.MINUTES);
+   }
 
-    protected abstract void put(String name, byte[] id, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException;
+   @Override
+   public void putByHash(String encodedHashString, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
+      put(encodedHashString, encodingProvider.decode(encodedHashString), value, ttl, timeUnit);
+   }
+
+   protected abstract StoredElement get(String name, byte[] id) throws DatastoreOperationException;
+
+   protected abstract boolean remove(String name, byte[] id) throws DatastoreOperationException;
+   
+   protected abstract void put(String name, byte[] id, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException;
 }

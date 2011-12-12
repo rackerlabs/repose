@@ -1,0 +1,91 @@
+﻿Intro: The Repose Distributed Datastore Component
+
+Purpose:
+
+A Repose cluster may, at times, need to share information between
+cluster nodes. The distributed datastore component allows Repose to
+host a simple hash-ring object store that shares consistency between
+all of the participating cluster nodes. This, in turn, allows other
+hosted components as well as external programs to use the Repose cluster
+as a whole to store information.
+
+
+Transport:
+
+The distributed datastore uses HTTP as its transport protocol.
+
+
+Distribution:
+
+The distributed datastore shares key-space with all of the enabled
+cluster nodes.
+
+Key-space is determined by the maximum value of the distributed
+datastore's hashing algorithm. At current the only supported hashing
+algorithm is MD5.
+
+
+Key-space Addressing:
+
+Addressing a key is done by first normalizing all of the participating
+cluster nodes. This is done by an ascending sort. After the
+participating nodes have had their order normalized, the key-space is
+sliced up by dividing the maximum possible number of addresses by the
+total number of participating nodes. The given key is then reduced to
+its numeric representation and a cluster node is looked up by
+identifying the range in which the key falls into; this cluster node is
+considered that key's owner as well as any other key which falls into
+its address range.
+
+
+Encoded Object Key-space:
+
+By default, the internal Repose client implementation for the
+distributed datastore will obscure key-space by storing only the MD5 hash
+value of a given key and not the key's actual value. This is important
+to note since external gets against the distributed datastore must be
+aware of this functionality.
+
+The MD5 hash is represented as a 128bit UUID.
+
+String Key: object-key
+MD5 Hash: e0f11bfba2c36911b44160ac2878a1b6
+UUID: cecda330-5a61-26cd-1a71-d5fe34a8e302
+
+In example: if an external application makes a request for data stored
+by Repose components, it must first hash the key using MD5 before
+sending the request such that...
+
+GET /powerapi/dist-datastore/objects/object-key
+
+becomes
+
+GET /powerapi/dist-datastore/objects/cecda330-5a61-26cd-1a71-d5fe34a8e302
+
+Obscuring key-space is not a functionality of the distributed datastore
+service. This functionality is only present in the internally consumed
+java cache client. If an external application puts an object into the
+distributed datastore, the object will be stored under the value of the
+key given.
+
+
+Remote Management:
+
+The repose distributed datastore component is a filter component that
+hosts a simple RESTful API that can be contacted to perform remote
+object store operations. These operations are defined below.
+
+GET /powerapi/dist-datastore/objects/<object-key>
+
+Gets a stored object from the datastore by its key.
+
+
+PUT /powerapi/dist-datastore/objects/<object-key>
+
+Puts an object into the datastore by its key.
+
+
+DELETE /powerapi/dist-datastore/objects/<object-key-hash>
+
+Deletes an object from the datastore by its key.
+
