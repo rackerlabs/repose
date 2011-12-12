@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 
 
 /**
@@ -18,6 +19,7 @@ public class FileLogger implements SimpleLogger {
 
     private static final ByteBuffer NEWLINE = ByteBuffer.wrap("\n".getBytes());
     static final int BUFFER_LIMIT = 2048;
+    private final Charset CHAR_SET = Charset.forName("UTF-8");
 
     private final ByteBuffer buffer;
     private final File f;
@@ -30,7 +32,7 @@ public class FileLogger implements SimpleLogger {
 
     @Override
     public void log(String st) {
-        final byte[] stringBytes = st.getBytes();
+        final byte[] stringBytes = st.getBytes(CHAR_SET);
 
         try {
             final FileOutputStream fileOutputStream = new FileOutputStream(f, true);
