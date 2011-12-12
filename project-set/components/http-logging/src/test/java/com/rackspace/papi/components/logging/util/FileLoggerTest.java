@@ -64,7 +64,6 @@ public class FileLoggerTest {
            assertEquals(fileLen, file.length());
         }
 
-        @Ignore
         @Test
         public void shouldHandleUnicodeCharacters() throws FileNotFoundException, IOException {
            char[] shadyCharacters = {(char) 0x01ff, '\u00FF'};
