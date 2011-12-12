@@ -1,10 +1,6 @@
 package com.rackspace.papi.components.logging.util;
 
 import java.io.*;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
@@ -25,14 +21,6 @@ public class FileLoggerTest {
         private static final String UTF8 = "UTF-8";
         private File file;
         private FileLogger fileLogger;
-
-        @BeforeClass
-        public static void classSetup() throws IOException {
-        }
-
-        @AfterClass
-        public static void classTeardown() {
-        }
 
         @Before
         public void setup() throws IOException {
