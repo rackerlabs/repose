@@ -10,20 +10,20 @@ import org.slf4j.LoggerFactory;
 
 public class HashRingDatastore extends AbstractHashRingDatastore {
 
-    private static final Logger LOG = LoggerFactory.getLogger(HashRingDatastore.class);
+   private static final Logger LOG = LoggerFactory.getLogger(HashRingDatastore.class);
 
-    public HashRingDatastore(MutableClusterView clusterView, String datasetPrefix, Datastore localDatastore, HashProvider hashProvider, EncodingProvider encodingProvider) {
-        super(clusterView, datasetPrefix, localDatastore, hashProvider, encodingProvider);
-    }
+   public HashRingDatastore(MutableClusterView clusterView, String datasetPrefix, Datastore localDatastore, HashProvider hashProvider, EncodingProvider encodingProvider) {
+      super(clusterView, datasetPrefix, localDatastore, hashProvider, encodingProvider);
+   }
 
-    @Override
-    protected void clusterMemberDamaged(InetSocketAddress member, MutableClusterView clusterView, RemoteConnectionException ex) {
-        LOG.warn(clusterView.localMember().toString()
-                + ":: Dropping member: "
-                + member.getAddress().toString()
-                + ":" + member.getPort()
-                + " - Reason: " + ex.getCause().getClass().getName() + ": " + ex.getCause().getMessage());
+   @Override
+   protected void clusterMemberDamaged(InetSocketAddress member, MutableClusterView clusterView, RemoteConnectionException ex) {
+      LOG.warn(clusterView.localMember().toString()
+              + ":: Dropping member: "
+              + member.getAddress().toString()
+              + ":" + member.getPort()
+              + " - Reason: " + ex.getCause().getClass().getName() + ": " + ex.getCause().getMessage());
 
-        clusterView.memberDropoped(member);
-    }
+      clusterView.memberDropoped(member);
+   }
 }

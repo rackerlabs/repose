@@ -14,52 +14,52 @@ import javax.servlet.ServletContextEvent;
 
 public class ArtifactManagerServiceContext implements ServiceContext<ArtifactManager> {
 
-    public static final String SERVICE_NAME = "powerapi:/kernel/artifact-deployment";
-    private DestroyableThreadWrapper watcherThread;
-    private ArtifactManager artifactManager;
+   public static final String SERVICE_NAME = "powerapi:/kernel/artifact-deployment";
+   private DestroyableThreadWrapper watcherThread;
+   private ArtifactManager artifactManager;
 
-    @Override
-    public String getServiceName() {
-        return SERVICE_NAME;
-    }
+   @Override
+   public String getServiceName() {
+      return SERVICE_NAME;
+   }
 
-    @Override
-    public ArtifactManager getService() {
-        return artifactManager;
-    }
+   @Override
+   public ArtifactManager getService() {
+      return artifactManager;
+   }
 
-    @Override
-    public void contextInitialized(ServletContextEvent sce) {
-        final ServletContext ctx = sce.getServletContext();
-        final ContextAdapter contextAdapter = ServletContextHelper.getPowerApiContext(ctx);
+   @Override
+   public void contextInitialized(ServletContextEvent sce) {
+      final ServletContext ctx = sce.getServletContext();
+      final ContextAdapter contextAdapter = ServletContextHelper.getPowerApiContext(ctx);
 
-        final EventService eventManagerReference = contextAdapter.eventService();
+      final EventService eventManagerReference = contextAdapter.eventService();
 
-        final ContainerConfigurationListener containerCfgListener = new ContainerConfigurationListener(eventManagerReference);
-        watcherThread = new DestroyableThreadWrapper(contextAdapter.threadingService().newThread(containerCfgListener.getDirWatcher(), "Artifact Watcher Thread"), containerCfgListener.getDirWatcher());
+      final ContainerConfigurationListener containerCfgListener = new ContainerConfigurationListener(eventManagerReference);
+      watcherThread = new DestroyableThreadWrapper(contextAdapter.threadingService().newThread(containerCfgListener.getDirWatcher(), "Artifact Watcher Thread"), containerCfgListener.getDirWatcher());
 
-        contextAdapter.configurationService().subscribeTo("container.cfg.xml", containerCfgListener, ContainerConfiguration.class);
+      contextAdapter.configurationService().subscribeTo("container.cfg.xml", containerCfgListener, ContainerConfiguration.class);
 
-        artifactManager = new ArtifactManager(containerCfgListener);
+      artifactManager = new ArtifactManager(containerCfgListener);
 
-        eventManagerReference.listen(artifactManager, ApplicationArtifactEvent.class);
+      eventManagerReference.listen(artifactManager, ApplicationArtifactEvent.class);
 
-        eventManagerReference.listen(new SingleFireEventListener<PowerFilterEvent, Long>(PowerFilterEvent.class) {
+      eventManagerReference.listen(new SingleFireEventListener<PowerFilterEvent, Long>(PowerFilterEvent.class) {
 
-            @Override
-            public void onlyOnce(Event<PowerFilterEvent, Long> e) {
-                watcherThread.getThreadReference().start();
-            }
-        }, PowerFilterEvent.POWER_FILTER_INITIALIZED);
-    }
+         @Override
+         public void onlyOnce(Event<PowerFilterEvent, Long> e) {
+            watcherThread.start();
+         }
+      }, PowerFilterEvent.POWER_FILTER_INITIALIZED);
+   }
 
-    @Override
-    public void contextDestroyed(ServletContextEvent sce) {
-        try {
-            final EventService eventManagerReference = ServletContextHelper.getPowerApiContext(sce.getServletContext()).eventService();
-            eventManagerReference.squelch(artifactManager, ApplicationArtifactEvent.class);
-        } finally {
-            watcherThread.destroy();
-        }
-    }
+   @Override
+   public void contextDestroyed(ServletContextEvent sce) {
+      try {
+         final EventService eventManagerReference = ServletContextHelper.getPowerApiContext(sce.getServletContext()).eventService();
+         eventManagerReference.squelch(artifactManager, ApplicationArtifactEvent.class);
+      } finally {
+         watcherThread.destroy();
+      }
+   }
 }

@@ -51,7 +51,7 @@ public class JsonxStreamProcessor implements InputStreamProcessor {
       this.handlerFactory = handlerFactory;
       format = properties;
    }
-   
+
    private class JsonStreamProcessor implements Runnable, Destroyable {
 
       private final JsonParser jp;
@@ -64,7 +64,7 @@ public class JsonxStreamProcessor implements InputStreamProcessor {
          this.jp = jsonFactory.createJsonParser(jsonIn);
          this.out = out;
       }
-      
+
       @Override
       public void run() {
          try {
@@ -84,7 +84,7 @@ public class JsonxStreamProcessor implements InputStreamProcessor {
             LOG.error("Error processing JSON input stream", ex);
          }
       }
-      
+
       private void outputItem(JsonParser jp, ContentHandler handler) throws IOException, SAXException {
          JsonToken token = jp.getCurrentToken();
          String fieldName = jp.getCurrentName();
@@ -108,7 +108,7 @@ public class JsonxStreamProcessor implements InputStreamProcessor {
          exitThread = true;
       }
    }
-   
+
    @Override
    public InputStream process(InputStream sourceStream) throws PreProcessorException {
       try {
@@ -119,7 +119,7 @@ public class JsonxStreamProcessor implements InputStreamProcessor {
          transformerHandler.setResult(new StreamResult(out));
 
          processingThread = DestroyableThreadWrapper.newThread(new JsonStreamProcessor(transformerHandler, sourceStream, out));
-         processingThread.getThreadReference().start();
+         processingThread.start();
 
          return resultStream;
       } catch (IOException ex) {
@@ -128,5 +128,4 @@ public class JsonxStreamProcessor implements InputStreamProcessor {
          throw new PreProcessorException(ex);
       }
    }
-   
 }

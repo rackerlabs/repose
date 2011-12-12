@@ -9,6 +9,7 @@ import com.rackspace.papi.commons.util.pooling.ResourceConstructionException;
 import com.rackspace.papi.commons.util.pooling.ResourceContext;
 import com.rackspace.papi.commons.util.pooling.ResourceContextException;
 import com.rackspace.papi.commons.util.pooling.SimpleResourceContext;
+import com.rackspace.papi.components.datastore.CacheRequest;
 import com.rackspace.papi.components.datastore.DatastoreRequestHeaders;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.StoredElement;
@@ -20,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.ByteArrayEntity;
@@ -33,119 +35,142 @@ import org.slf4j.LoggerFactory;
 
 public class RemoteHttpCacheClientImpl implements RemoteCacheClient {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RemoteHttpCacheClientImpl.class);
-    private final Pool<HttpClient> httpClientPool;
-    private String hostKey;
+   private static final Logger LOG = LoggerFactory.getLogger(RemoteHttpCacheClientImpl.class);
+   private final Pool<HttpClient> httpClientPool;
+   private String hostKey;
 
-    public RemoteHttpCacheClientImpl() {
-        this(500, 2000);
-    }
-    
-    public RemoteHttpCacheClientImpl(final int connectionTimeout, final int socketTimeout) {
-        httpClientPool = new GenericBlockingResourcePool<HttpClient>(new ConstructionStrategy<HttpClient>() {
+   public RemoteHttpCacheClientImpl() {
+      this(500, 2000);
+   }
 
-            @Override
-            public HttpClient construct() throws ResourceConstructionException {
-                final HttpParams httpParams = new BasicHttpParams();
-                HttpConnectionParams.setConnectionTimeout(httpParams, connectionTimeout);
-                HttpConnectionParams.setSoTimeout(httpParams, socketTimeout);
+   public RemoteHttpCacheClientImpl(final int connectionTimeout, final int socketTimeout) {
+      httpClientPool = new GenericBlockingResourcePool<HttpClient>(new ConstructionStrategy<HttpClient>() {
 
-                final HttpClient newClient = new DefaultHttpClient(httpParams);
+         @Override
+         public HttpClient construct() throws ResourceConstructionException {
+            final HttpParams httpParams = new BasicHttpParams();
+            HttpConnectionParams.setConnectionTimeout(httpParams, connectionTimeout);
+            HttpConnectionParams.setSoTimeout(httpParams, socketTimeout);
 
-                return newClient;
-            }
-        }, 1, 15);
-    }
+            final HttpClient newClient = new DefaultHttpClient(httpParams);
 
-    public void setHostKey(String hostKey) {
-        if (hostKey == null) {
-            throw new IllegalArgumentException();
-        }
+            return newClient;
+         }
+      }, 1, 15);
+   }
 
-        this.hostKey = hostKey;
-    }
+   public void setHostKey(String hostKey) {
+      if (hostKey == null) {
+         throw new IllegalArgumentException();
+      }
 
-    @Override
-    public StoredElement get(final String key, InetSocketAddress remoteEndpoint) throws RemoteConnectionException {
-        final String targetUrl = urlFor(remoteEndpoint, key);
+      this.hostKey = hostKey;
+   }
 
-        final HttpGet cacheObjectGet = new HttpGet(targetUrl);
-        cacheObjectGet.setHeader(DatastoreRequestHeaders.DATASTORE_HOST_KEY, hostKey);
+   @Override
+   public StoredElement get(final String key, InetSocketAddress remoteEndpoint) throws RemoteConnectionException {
+      final String targetUrl = CacheRequest.urlFor(remoteEndpoint, key);
 
-        return httpClientPool.use(new ResourceContext<HttpClient, StoredElement>() {
+      final HttpGet cacheObjectGet = new HttpGet(targetUrl);
+      cacheObjectGet.setHeader(DatastoreRequestHeaders.DATASTORE_HOST_KEY, hostKey);
 
-            @Override
-            public StoredElement perform(HttpClient client) throws ResourceConstructionException {
+      return httpClientPool.use(new ResourceContext<HttpClient, StoredElement>() {
 
-                HttpEntity responseEnttiy = null;
+         @Override
+         public StoredElement perform(HttpClient client) throws ResourceConstructionException {
 
-                try {
-                    final HttpResponse response = client.execute(cacheObjectGet);
-                    final int statusCode = response.getStatusLine().getStatusCode();
+            HttpEntity responseEnttiy = null;
 
-                    responseEnttiy = response.getEntity();
-
-                    if (statusCode == HttpStatusCode.OK.intValue()) {
-                        final InputStream internalStreamReference = response.getEntity().getContent();
-
-                        return new StoredElementImpl(key, RawInputStreamReader.instance().readFully(internalStreamReference));
-                    } else if (statusCode != HttpStatusCode.NOT_FOUND.intValue()) {
-                        throw new DatastoreOperationException("Remote request failed with: " + statusCode);
-                    }
-                } catch (IOException ioe) {
-                    throw new RemoteConnectionException("Unable to perform put against target: " + targetUrl, ioe);
-                } finally {
-                    releaseEntity(responseEnttiy);
-                }
-
-                return new StoredElementImpl(key, null);
-            }
-        });
-    }
-
-    @Override
-    public void put(String key, final byte[] value, int ttl, TimeUnit timeUnit, InetSocketAddress remoteEndpoint) throws RemoteConnectionException {
-        final String targetUrl = urlFor(remoteEndpoint, key);
-
-        final HttpPut cacheObjectPut = new HttpPut(targetUrl);
-        cacheObjectPut.addHeader(DatastoreRequestHeaders.DATASTORE_HOST_KEY, hostKey);
-        cacheObjectPut.addHeader(DatastoreRequestHeaders.DATASTORE_TTL, String.valueOf(TimeUnit.SECONDS.convert(ttl, timeUnit)));
-
-        httpClientPool.use(new SimpleResourceContext<HttpClient>() {
-
-            @Override
-            public void perform(HttpClient client) throws ResourceContextException {
-                HttpEntity responseEnttiy = null;
-
-                try {
-                    cacheObjectPut.setEntity(new ByteArrayEntity(value));
-
-                    final HttpResponse response = client.execute(cacheObjectPut);
-                    responseEnttiy = response.getEntity();
-
-                    if (response.getStatusLine().getStatusCode() != HttpStatusCode.ACCEPTED.intValue()) {
-                        throw new DatastoreOperationException("Remote request failed with: " + response.getStatusLine().getStatusCode());
-                    }
-                } catch (IOException ioe) {
-                    throw new RemoteConnectionException("Unable to perform put against target: " + targetUrl, ioe);
-                } finally {
-                    releaseEntity(responseEnttiy);
-                }
-            }
-        });
-    }
-
-    private void releaseEntity(HttpEntity e) {
-        if (e != null) {
             try {
-                EntityUtils.consume(e);
-            } catch (IOException ex) {
-                LOG.error("Failure in releasing HTTPClient resources. Reason: " + ex.getMessage(), ex);
-            }
-        }
-    }
+               final HttpResponse response = client.execute(cacheObjectGet);
+               final int statusCode = response.getStatusLine().getStatusCode();
 
-    private String urlFor(InetSocketAddress remoteEndpoint, String key) {
-        return new StringBuilder("http://").append(remoteEndpoint.getAddress().getHostName()).append(":").append(remoteEndpoint.getPort()).append("/powerapi/datastore/objects/").append(key).toString();
-    }
+               responseEnttiy = response.getEntity();
+
+               if (statusCode == HttpStatusCode.OK.intValue()) {
+                  final InputStream internalStreamReference = response.getEntity().getContent();
+
+                  return new StoredElementImpl(key, RawInputStreamReader.instance().readFully(internalStreamReference));
+               } else if (statusCode != HttpStatusCode.NOT_FOUND.intValue()) {
+                  throw new DatastoreOperationException("Remote request failed with: " + statusCode);
+               }
+            } catch (IOException ioe) {
+               throw new RemoteConnectionException("Unable to perform put against target: " + targetUrl, ioe);
+            } finally {
+               releaseEntity(responseEnttiy);
+            }
+
+            return new StoredElementImpl(key, null);
+         }
+      });
+   }
+
+   @Override
+   public boolean remove(String key, InetSocketAddress remoteEndpoint) throws RemoteConnectionException {
+      final String targetUrl = CacheRequest.urlFor(remoteEndpoint, key);
+
+      final HttpDelete cacheObjectDelete = new HttpDelete(targetUrl);
+      cacheObjectDelete.addHeader(DatastoreRequestHeaders.DATASTORE_HOST_KEY, hostKey);
+
+      return httpClientPool.use(new ResourceContext<HttpClient, Boolean>() {
+
+         @Override
+         public Boolean perform(HttpClient client) throws ResourceContextException {
+            HttpEntity responseEnttiy = null;
+
+            try {
+               final HttpResponse response = client.execute(cacheObjectDelete);
+               responseEnttiy = response.getEntity();
+
+               return response.getStatusLine().getStatusCode() == HttpStatusCode.ACCEPTED.intValue();
+            } catch (IOException ioe) {
+               throw new RemoteConnectionException("Unable to perform put against target: " + targetUrl, ioe);
+            } finally {
+               releaseEntity(responseEnttiy);
+            }
+         }
+      });
+   }
+
+   @Override
+   public void put(String key, final byte[] value, int ttl, TimeUnit timeUnit, InetSocketAddress remoteEndpoint) throws RemoteConnectionException {
+      final String targetUrl = CacheRequest.urlFor(remoteEndpoint, key);
+
+      final HttpPut cacheObjectPut = new HttpPut(targetUrl);
+      cacheObjectPut.addHeader(DatastoreRequestHeaders.DATASTORE_HOST_KEY, hostKey);
+      cacheObjectPut.addHeader(DatastoreRequestHeaders.DATASTORE_TTL, String.valueOf(TimeUnit.SECONDS.convert(ttl, timeUnit)));
+
+      httpClientPool.use(new SimpleResourceContext<HttpClient>() {
+
+         @Override
+         public void perform(HttpClient client) throws ResourceContextException {
+            HttpEntity responseEnttiy = null;
+
+            try {
+               cacheObjectPut.setEntity(new ByteArrayEntity(value));
+
+               final HttpResponse response = client.execute(cacheObjectPut);
+               responseEnttiy = response.getEntity();
+
+               if (response.getStatusLine().getStatusCode() != HttpStatusCode.ACCEPTED.intValue()) {
+                  throw new DatastoreOperationException("Remote request failed with: " + response.getStatusLine().getStatusCode());
+               }
+            } catch (IOException ioe) {
+               throw new RemoteConnectionException("Unable to perform put against target: " + targetUrl, ioe);
+            } finally {
+               releaseEntity(responseEnttiy);
+            }
+         }
+      });
+   }
+
+   private void releaseEntity(HttpEntity e) {
+      if (e != null) {
+         try {
+            EntityUtils.consume(e);
+         } catch (IOException ex) {
+            LOG.error("Failure in releasing HTTPClient resources. Reason: " + ex.getMessage(), ex);
+         }
+      }
+   }
 }

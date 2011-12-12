@@ -123,7 +123,7 @@
             <stringProp name="3373707">name</stringProp>
             <stringProp name="-1423461112">accept</stringProp>
             <stringProp name="351608024">version</stringProp>
-            <stringProp name="906743188">auth-token</stringProp>
+            <stringProp name="504132983">user-token</stringProp>
             <stringProp name="98629247">group</stringProp>
             <stringProp name="-356853330">acceptHeaderVer</stringProp>
             <stringProp name="-819976989">verNum</stringProp>
@@ -179,7 +179,7 @@
           <boolProp name="UserParameters.per_iteration">true</boolProp>
         </UserParameters>
         <hashTree/>
-        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Controller" enabled="true">
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Host Auth Type is OpenStack" enabled="true">
           <stringProp name="IfController.condition">&quot;${authtype}&quot; == &quot;OpenStack Identity&quot;</stringProp>
           <boolProp name="IfController.evaluateAll">false</boolProp>
         </IfController>
@@ -198,8 +198,47 @@
             <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
           </ConfigTestElement>
           <hashTree/>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Data Fuzzing: Auth Token" enabled="false"/>
+          <hashTree>
+            <BSFSampler guiclass="BSFSamplerGui" testclass="BSFSampler" testname="JS: Generate Random Token" enabled="true">
+              <stringProp name="TestPlan.comments">Generates a random token that does not violate token format and content expectations</stringProp>
+              <stringProp name="BSFSampler.filename"></stringProp>
+              <stringProp name="BSFSampler.language">javascript</stringProp>
+              <stringProp name="BSFSampler.parameters"></stringProp>
+              <stringProp name="BSFSampler.query">var validCharacters = [&apos;0&apos;, &apos;1&apos;, &apos;2&apos;, &apos;3&apos;, &apos;4&apos;, &apos;5&apos;, &apos;6&apos;, &apos;7&apos;, &apos;8&apos;, &apos;9&apos;, &apos;a&apos;, &apos;b&apos;, &apos;c&apos;, &apos;d&apos;, &apos;e&apos;, &apos;f&apos;];
+
+function randomCharacter(characterSet) {
+   var charIndex = Math.floor(Math.random() * characterSet.length);
+
+   return characterSet[charIndex];
+}
+
+function randomString(length, characterSet) {
+   var randomString = &apos;&apos;;
+
+   for (var i = 0; i &lt; length; i++) {
+       randomString += randomCharacter(characterSet);
+   }
+
+   return randomString;
+}
+
+function randomValidToken() {
+   var authToken = randomString(9, validCharacters);
+
+   for(var group = 0; group &lt; 5; group++) {
+      authToken += &quot;-&quot; + randomString(9, validCharacters);
+   }
+
+   return authToken;
+}
+
+vars.put(&apos;user-token&apos;, randomValidToken());</stringProp>
+            </BSFSampler>
+            <hashTree/>
+          </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Get User Token" enabled="true">
-            <stringProp name="TestPlan.comments">This module attempts to auth against an OpenStack IDS endpoint. The resulting auth token is stored as an internal variable callled &apos;auth-token&apos;</stringProp>
+            <stringProp name="TestPlan.comments">This module attempts to auth against an OpenStack ID endpoint. The resulting auth token is stored as an internal variable callled &apos;user-token&apos;</stringProp>
           </GenericController>
           <hashTree>
             <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">

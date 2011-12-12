@@ -9,7 +9,6 @@ import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.StoredElement;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.hash.HashedDatastore;
