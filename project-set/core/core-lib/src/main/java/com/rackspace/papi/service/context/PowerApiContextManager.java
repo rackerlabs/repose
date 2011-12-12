@@ -56,8 +56,8 @@ public class PowerApiContextManager implements ServletContextListener {
     
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-//        final ServletContext servletContext;
-        final String showMePapi = sce.getServletContext().getInitParameter("show-me-papi");
+        final ServletContext servletContext = sce.getServletContext();
+        final String showMePapi = servletContext.getInitParameter("show-me-papi");
         
         if (showMePapi == null || showMePapi.equalsIgnoreCase("true")) {
             PapiBanner.print(LOG);
@@ -81,7 +81,7 @@ public class PowerApiContextManager implements ServletContextListener {
         // Most bootstrap steps require or will try to load some kind of
         // configuration so we need to set our naming context in the servlet context
         // first before anything else
-        ServletContextHelper.setPowerApiContext(sce.getServletContext(), initialContext);
+        ServletContextHelper.setPowerApiContext(servletContext, initialContext);
 
         // Services Bootstrap
 

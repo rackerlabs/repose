@@ -34,7 +34,7 @@ public class PowerApiConfigurationUpdateManager implements ConfigurationUpdateMa
         configurationResourceWatcherThread = new DestroyableThreadWrapper(
                 ServletContextHelper.getPowerApiContext(ctx).threadingService().newThread(resourceWatcher, "Configuration Watcher Thread"), resourceWatcher);
 
-        configurationResourceWatcherThread.getThreadReference().start();
+        configurationResourceWatcherThread.start();
     }
 
     public PowerApiUpdateManagerEventListener getPowerApiUpdateManagerEventListener() {

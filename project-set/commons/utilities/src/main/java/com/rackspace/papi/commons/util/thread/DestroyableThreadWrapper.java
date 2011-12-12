@@ -26,10 +26,6 @@ public class DestroyableThreadWrapper implements Destroyable {
         this.threadLogic = threadLogic;
     }
 
-    public Thread getThreadReference() {
-        return threadReference;
-    }
-    
     public void start() {
         // Was it started?
         if (threadReference.getState() != Thread.State.NEW) {
