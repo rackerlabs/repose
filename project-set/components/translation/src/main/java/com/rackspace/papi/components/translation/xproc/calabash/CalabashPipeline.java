@@ -144,12 +144,25 @@ public class CalabashPipeline implements Pipeline {
    
    @Override
    public List<Source> getResultPort(String name) {
+      List<Source> ret = null;
+
+      if (!legacySourceOutput) {
+         ret = getCalabashResultPort(name);
+      } else {
+         ret = getLegacyResultPort(name);
+      }
+
+      return ret;
+   }
+
+   protected List<Source> getCalabashResultPort(String name)
+      throws PipelineException {
       try {
          ReadablePipe pipe = pipeline.readFrom(name);
          List<Source> nodes = new ArrayList<Source>();
 
          while(pipe.moreDocuments()) {
-               nodes.add(pipe.read().asSource());
+            nodes.add(pipe.read().asSource());
          }
 
          return nodes;
@@ -157,4 +170,14 @@ public class CalabashPipeline implements Pipeline {
          throw new PipelineException(ex);
       }
    }
+
+   protected List<Source> getLegacyResultPort(String name)
+      throws PipelineException {
+      List<Source> standard = getCalabashResultPort (name);
+      //
+      //  Transate the sources
+      //
+      return standard;
+   }
+
 }
