@@ -32,7 +32,7 @@ public class PowerFilterChainBuilder {
             if (StringUtilities.isBlank(papiFilter.getName())) {
                 LOG.error("Filter declaration has a null or empty name value - please check your system model configuration");
                 continue;
-            }
+            }           
             
             if (classLoaderContextManager.hasFilter(papiFilter.getName())) {
                 final FilterContext context = getFilterContext(classLoaderContextManager, papiFilter);
@@ -45,7 +45,7 @@ public class PowerFilterChainBuilder {
             }
         }
 
-        return new LinkedList<FilterContext>(filterContexts);
+        return filterContexts;
     }
 
     public FilterContext getFilterContext(ApplicationClassLoaderManager classLoaderContextManager, Filter papiFilter) {
