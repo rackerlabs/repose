@@ -23,11 +23,17 @@ public class CalabashPipeline implements Pipeline {
    private final InputStreamUriParameterResolver resolver;
    private final XProcRuntime runtime;
    private final XPipeline pipeline;
+   private final boolean legacySourceOutput;
    
    public CalabashPipeline(XPipeline pipeline, XProcRuntime runtime, InputStreamUriParameterResolver resolver) {
+      this(pipeline, runtime, resolver, false);
+   }
+
+   public CalabashPipeline(XPipeline pipeline, XProcRuntime runtime, InputStreamUriParameterResolver resolver, boolean legacySourceOutput) {
       this.resolver = resolver;
       this.runtime = runtime;
       this.pipeline = pipeline;
+      this.legacySourceOutput = legacySourceOutput;
    }
    
    protected <T> void addParameter(PipelineInput<T> input) {
