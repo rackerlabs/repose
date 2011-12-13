@@ -12,7 +12,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.Source;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.dom.DOMResult;
 import net.sf.saxon.s9api.QName;
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmNode;
@@ -173,11 +179,24 @@ public class CalabashPipeline implements Pipeline {
 
    protected List<Source> getLegacyResultPort(String name)
       throws PipelineException {
-      List<Source> standard = getCalabashResultPort (name);
-      //
-      //  Transate the sources
-      //
-      return standard;
-   }
+      try {
+         List<Source> standard = getCalabashResultPort (name);
+         List<Source> ret = new ArrayList<Source>(standard.size());
 
+         TransformerFactory transFactory = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl",null);
+         Transformer transformer = transFactory.newTransformer();
+
+         for (Source s : standard) {
+            DOMResult result = new DOMResult();
+            transformer.transform (s, result);
+            ret.add (new DOMSource (result.getNode()));
+         }
+
+         return ret;
+      }catch (TransformerConfigurationException tce) {
+         throw new PipelineException (tce);
+      }catch (TransformerException te) {
+         throw new PipelineException (te);
+      }
+   }
 }
