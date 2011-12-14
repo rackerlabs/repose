@@ -4,7 +4,7 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.model.Filter;
 import com.rackspace.papi.model.Host;
 import com.rackspace.papi.model.PowerProxy;
-import com.rackspace.papi.service.classloader.ApplicationClassLoaderManager;
+import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +24,7 @@ public class FilterContextInitializer {
         filterContextManager = new FilterContextManagerImpl(filterConfig);
     }
 
-    public List<FilterContext> buildFilterContexts(ApplicationClassLoaderManager classLoaderContextManager, PowerProxy powerProxy) {
+    public List<FilterContext> buildFilterContexts(ClassLoaderManagerService classLoaderContextManager, PowerProxy powerProxy) {
         final List<FilterContext> filterContexts = new LinkedList<FilterContext>();
         final Host localHost = new SystemModelInterrogator(powerProxy).getLocalHost();
         
@@ -48,7 +48,7 @@ public class FilterContextInitializer {
         return filterContexts;
     }
 
-    public FilterContext getFilterContext(ApplicationClassLoaderManager classLoaderContextManager, Filter papiFilter) {
+    public FilterContext getFilterContext(ClassLoaderManagerService classLoaderContextManager, Filter papiFilter) {
         FilterContext context = null;
 
         try {
