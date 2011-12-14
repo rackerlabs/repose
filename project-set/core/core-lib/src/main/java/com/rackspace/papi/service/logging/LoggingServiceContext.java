@@ -4,7 +4,7 @@ import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 
-import com.rackspace.papi.container.config.SystemStateLogConfig;
+import com.rackspace.papi.container.config.LoggingConfiguration;
 import com.rackspace.papi.service.ServiceContext;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
@@ -22,7 +22,7 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
     private ConfigurationService configurationManager;
     private final ContainerConfigurationListener configurationListener;
     private final LoggingConfigurationListener loggingConfigurationListener;
-    private String systemStateLogConfig = "";
+    private String loggingConfigurationConfig = "";
 
     public LoggingServiceContext() {
         this.loggingService = new LoggingServiceImpl();
@@ -46,23 +46,23 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
         public void configurationUpdated(ContainerConfiguration configurationObject) {
 
             if (configurationObject.getDeploymentConfig() != null) {
-                final SystemStateLogConfig sysStateLogConfig = configurationObject.getDeploymentConfig().getSystemstateLog();
+                final LoggingConfiguration loggingConfig = configurationObject.getDeploymentConfig().getLoggingConfiguration();
 
-                if (sysStateLogConfig != null && !StringUtilities.isBlank(sysStateLogConfig.getValue())) {
-                    final String newSystemStateLogConfig = sysStateLogConfig.getValue();
+                if (loggingConfig != null && !StringUtilities.isBlank(loggingConfig.getValue())) {
+                    final String newLoggingConfig = loggingConfig.getValue();
 
-                    if (!systemStateLogConfig.equalsIgnoreCase(newSystemStateLogConfig)) {
-                        updateLogConfigFileSubscription(systemStateLogConfig, newSystemStateLogConfig);
-                        systemStateLogConfig = newSystemStateLogConfig;
+                    if (!loggingConfigurationConfig.equalsIgnoreCase(newLoggingConfig)) {
+                        updateLogConfigFileSubscription(loggingConfigurationConfig, newLoggingConfig);
+                        loggingConfigurationConfig = newLoggingConfig;
                     }
                 }
             }
         }
     }
 
-    private void updateLogConfigFileSubscription(String currentSystemStateLogConfig, String newSystemStateLogConfig) {
-        configurationManager.unsubscribeFrom(currentSystemStateLogConfig, loggingConfigurationListener);
-        configurationManager.subscribeTo(newSystemStateLogConfig, loggingConfigurationListener, InputStream.class);
+    private void updateLogConfigFileSubscription(String currentLoggingConfig, String loggingConfig) {
+        configurationManager.unsubscribeFrom(currentLoggingConfig, loggingConfigurationListener);
+        configurationManager.subscribeTo(loggingConfig, loggingConfigurationListener, InputStream.class);
     }
 
     private class LoggingConfigurationListener implements UpdateListener<InputStream> {
@@ -79,12 +79,17 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
         configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
 
         configurationManager.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);
-        configurationManager.subscribeTo(systemStateLogConfig, loggingConfigurationListener, InputStream.class);
+        
+        /* 
+         * TODO: Re-implement when custom parser is created
+         */
+        //configurationManager.subscribeTo(loggingFileLocation, loggingConfigurationListener, InputStream.class); 
+        configurationManager.subscribeTo(loggingConfigurationConfig, loggingConfigurationListener, InputStream.class);
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
         configurationManager.unsubscribeFrom("container.cfg.xml", configurationListener);
-        configurationManager.unsubscribeFrom(systemStateLogConfig, loggingConfigurationListener);
+        configurationManager.unsubscribeFrom(loggingConfigurationConfig, loggingConfigurationListener);
     }
 }

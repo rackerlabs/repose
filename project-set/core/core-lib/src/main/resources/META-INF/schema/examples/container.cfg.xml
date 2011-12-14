@@ -6,6 +6,6 @@
         
         <artifact-directory check-interval="60000">/usr/share/powerapi/filters</artifact-directory>
         
-        <systemstate-log>/etc/powerapi/systemstate-log.cfg</systemstate-log>
+        <logging-configuration href="/etc/powerapi/logging-configuration.cfg"/>
     </deployment-config>
 </powerapi-container>
