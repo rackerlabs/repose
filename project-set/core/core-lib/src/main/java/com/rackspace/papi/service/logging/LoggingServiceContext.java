@@ -1,8 +1,10 @@
 package com.rackspace.papi.service.logging;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 
+import com.rackspace.papi.container.config.SystemStateLogConfig;
 import com.rackspace.papi.service.ServiceContext;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
@@ -20,7 +22,7 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
     private ConfigurationService configurationManager;
     private final ContainerConfigurationListener configurationListener;
     private final LoggingConfigurationListener loggingConfigurationListener;
-    private String loggingFileLocation = "";
+    private String systemStateLogConfig = "";
 
     public LoggingServiceContext() {
         this.loggingService = new LoggingServiceImpl();
@@ -42,18 +44,32 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
 
         @Override
         public void configurationUpdated(ContainerConfiguration configurationObject) {
-            // TODO: Get the logging file location from the updated configurationObject
-            // if logging file from updated config object is the same as the one we have
-            // then don't do anything.  Otherwise, update loggingFileLocation with the value from the
-            // updated configurationObject.
+
+            if (configurationObject.getDeploymentConfig() != null) {
+                final SystemStateLogConfig sysStateLogConfig = configurationObject.getDeploymentConfig().getSystemstateLog();
+
+                if (sysStateLogConfig != null && !StringUtilities.isBlank(sysStateLogConfig.getValue())) {
+                    final String newSystemStateLogConfig = sysStateLogConfig.getValue();
+
+                    if (!systemStateLogConfig.equalsIgnoreCase(newSystemStateLogConfig)) {
+                        updateLogConfigFileSubscription(systemStateLogConfig, newSystemStateLogConfig);
+                        systemStateLogConfig = newSystemStateLogConfig;
+                    }
+                }
+            }
         }
+    }
+
+    private void updateLogConfigFileSubscription(String currentSystemStateLogConfig, String newSystemStateLogConfig) {
+        configurationManager.unsubscribeFrom(currentSystemStateLogConfig, loggingConfigurationListener);
+        configurationManager.subscribeTo(newSystemStateLogConfig, loggingConfigurationListener, InputStream.class);
     }
 
     private class LoggingConfigurationListener implements UpdateListener<InputStream> {
 
         @Override
         public void configurationUpdated(InputStream configurationObject) {
-            loggingService.updateLoggingConfiguration(configurationObject);           
+            loggingService.updateLoggingConfiguration(configurationObject);
         }
     }
 
@@ -63,15 +79,20 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
         configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
 
         configurationManager.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);
+<<<<<<< HEAD
         
         /* 
          * TODO: Re-implement when custom parser is created
          */
         //configurationManager.subscribeTo(loggingFileLocation, loggingConfigurationListener, InputStream.class); 
+=======
+        configurationManager.subscribeTo(systemStateLogConfig, loggingConfigurationListener, InputStream.class);
+>>>>>>> ea527626c313ced028090ff945c3b9c68004337c
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
         configurationManager.unsubscribeFrom("container.cfg.xml", configurationListener);
+        configurationManager.unsubscribeFrom(systemStateLogConfig, loggingConfigurationListener);
     }
 }
