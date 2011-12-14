@@ -7,7 +7,7 @@ import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.service.event.EventService;
 import com.rackspace.papi.service.context.jndi.ContextAdapter;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
-import com.rackspace.papi.service.thread.ThreadingService;
+import com.rackspace.papi.service.threading.ThreadingService;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import org.junit.Before;

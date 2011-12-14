@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.thread;
+package com.rackspace.papi.service.threading;
 
 public interface ThreadingService {
 

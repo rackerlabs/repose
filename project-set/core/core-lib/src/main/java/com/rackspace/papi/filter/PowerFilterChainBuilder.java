@@ -1,63 +1,40 @@
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
 package com.rackspace.papi.filter;
 
-import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.model.Filter;
-import com.rackspace.papi.model.Host;
-import com.rackspace.papi.model.PowerProxy;
-import com.rackspace.papi.service.classloader.ApplicationClassLoaderManager;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.FilterConfig;
-import java.util.LinkedList;
+import com.rackspace.papi.filter.resource.ResourceConsumerMonitor;
+import com.rackspace.papi.commons.util.Destroyable;
 import java.util.List;
+import javax.servlet.*;
 
 /**
- * @author fran
+ *
+ * @author zinic
  */
-public class PowerFilterChainBuilder {
+public class PowerFilterChainBuilder implements Destroyable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PowerFilterChainBuilder.class);
-    private final FilterContextManager filterContextManager;
+   private final ResourceConsumerMonitor resourceConsumerMonitor;
+   private final List<FilterContext> currentFilterChain;
 
-    public PowerFilterChainBuilder(FilterConfig filterConfig) {
-        filterContextManager = new FilterContextManagerImpl(filterConfig);
-    }
+   public PowerFilterChainBuilder(List<FilterContext> currentFilterChain) {
+      this.currentFilterChain = currentFilterChain;
+      resourceConsumerMonitor = new ResourceConsumerMonitor();
+   }
 
-    public List<FilterContext> build(ApplicationClassLoaderManager classLoaderContextManager, PowerProxy powerProxy) {
-        final List<FilterContext> filterContexts = new LinkedList<FilterContext>();
-        final Host localHost = new SystemModelInterrogator(powerProxy).getLocalHost();
-        
-        for (com.rackspace.papi.model.Filter papiFilter : localHost.getFilters().getFilter()) {
-            if (StringUtilities.isBlank(papiFilter.getName())) {
-                LOG.error("Filter declaration has a null or empty name value - please check your system model configuration");
-                continue;
-            }           
-            
-            if (classLoaderContextManager.hasFilter(papiFilter.getName())) {
-                final FilterContext context = getFilterContext(classLoaderContextManager, papiFilter);
+   public ResourceConsumerMonitor getResourceConsumerMonitor() {
+      return resourceConsumerMonitor;
+   }
+   
+   public PowerFilterChain newPowerFilterChain(FilterChain containerFilterChain, ServletContext servletContext) {
+      return new PowerFilterChain(currentFilterChain, containerFilterChain, servletContext, resourceConsumerMonitor);
+   }
 
-                if (context != null) {
-                    filterContexts.add(context);
-                }
-            } else {
-                LOG.error("Unable to satisfy requested filter chain - none of the loaded artifacts supply a filter named " + papiFilter.getName());
-            }
-        }
-
-        return filterContexts;
-    }
-
-    public FilterContext getFilterContext(ApplicationClassLoaderManager classLoaderContextManager, Filter papiFilter) {
-        FilterContext context = null;
-
-        try {
-            context = filterContextManager.loadFilterContext(papiFilter.getName(),
-                    classLoaderContextManager.getLoadedApplications());
-        } catch (Exception e) {
-            LOG.info("Problem loading the filter class. Just process the next filter.", e);
-        }
-
-        return context;
-    }
+   @Override
+   public void destroy() {
+      for (FilterContext context : currentFilterChain) {
+         context.destroy();
+      }
+   }
 }

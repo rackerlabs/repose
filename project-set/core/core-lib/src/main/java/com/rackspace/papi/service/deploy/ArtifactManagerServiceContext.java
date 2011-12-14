@@ -50,7 +50,7 @@ public class ArtifactManagerServiceContext implements ServiceContext<ArtifactMan
          public void onlyOnce(Event<PowerFilterEvent, Long> e) {
             watcherThread.start();
          }
-      }, PowerFilterEvent.POWER_FILTER_INITIALIZED);
+      }, PowerFilterEvent.POWER_FILTER_CONFIGURED);
    }
 
    @Override

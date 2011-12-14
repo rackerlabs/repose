@@ -1,5 +1,6 @@
 package com.rackspace.papi.filter;
 
+import com.rackspace.papi.filter.resource.ResourceMonitor;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
@@ -36,7 +37,7 @@ public class RequestFilterChainStateTest {
             filterContextList.add(mockedFilterContext);
             FilterChain mockedFilterChain = mock(FilterChain.class);
 
-            PowerFilterChain powerFilterChainState = new PowerFilterChain(filterContextList, mockedFilterChain, mock(ServletContext.class));
+            PowerFilterChain powerFilterChainState = new PowerFilterChain(filterContextList, mockedFilterChain, mock(ServletContext.class), mock(ResourceMonitor.class));
 
             HttpServletRequest mockedServletRequest = mock(HttpServletRequest.class);
             HttpServletResponse mockedServletResponse = mock(HttpServletResponse.class);
