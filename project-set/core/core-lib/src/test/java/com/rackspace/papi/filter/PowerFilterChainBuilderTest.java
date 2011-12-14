@@ -6,7 +6,7 @@ import com.rackspace.papi.commons.util.classloader.ear.EarDescriptor;
 import com.rackspace.papi.model.Filter;
 import com.rackspace.papi.model.Host;
 import com.rackspace.papi.model.PowerProxy;
-import com.rackspace.papi.service.classloader.ApplicationClassLoaderManager;
+import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -39,7 +39,7 @@ public class PowerFilterChainBuilderTest {
 
         @Test
         public void shouldBuild() throws ClassNotFoundException {
-            ApplicationClassLoaderManager mockedEarClassLoaderContextManager = mock(ApplicationClassLoaderManager.class);
+            ClassLoaderManagerService mockedEarClassLoaderContextManager = mock(ClassLoaderManagerService.class);
 
             EarClassLoaderContext mockedEarClassLoaderContext = mock(EarClassLoaderContext.class);
             EarDescriptor mockedEarDescriptor = mock(EarDescriptor.class);
@@ -73,7 +73,7 @@ public class PowerFilterChainBuilderTest {
 
         @Test
         public void shouldReturnEmptyList() throws ClassNotFoundException {
-            ApplicationClassLoaderManager mockedEarClassLoaderContextManager = mock(ApplicationClassLoaderManager.class);
+            ClassLoaderManagerService mockedEarClassLoaderContextManager = mock(ClassLoaderManagerService.class);
 
             EarClassLoaderContext mockedEarClassLoaderContext = mock(EarClassLoaderContext.class);
             EarDescriptor mockedEarDescriptor = mock(EarDescriptor.class);

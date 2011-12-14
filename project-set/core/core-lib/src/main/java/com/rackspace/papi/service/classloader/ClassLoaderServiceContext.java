@@ -9,7 +9,7 @@ import com.rackspace.papi.service.deploy.ApplicationDeploymentEvent;
 import com.rackspace.papi.service.event.EventService;
 import javax.servlet.ServletContextEvent;
 
-public class ClassLoaderServiceContext implements ServiceContext<ApplicationClassLoaderManager> {
+public class ClassLoaderServiceContext implements ServiceContext<ClassLoaderManagerService> {
 
     public static final String SERVICE_NAME = "powerapi:/kernel/classloader";
     private final ApplicationClassLoaderManagerImpl classLoaderContext;
@@ -24,7 +24,7 @@ public class ClassLoaderServiceContext implements ServiceContext<ApplicationClas
     }
 
     @Override
-    public ApplicationClassLoaderManager getService() {
+    public ClassLoaderManagerService getService() {
         return classLoaderContext;
     }
 

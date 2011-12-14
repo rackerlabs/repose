@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.datastore;
 
-import com.rackspace.papi.components.datastore.hash.HashRingDatastoreManager;
 import com.rackspace.papi.service.ServiceContext;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.config.ConfigurationServiceContext;
@@ -21,7 +20,7 @@ import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
 public class DatastoreDatastoreFilterTest {
-   
+
    public static final String DATASTORE_MANAGER_NAME = "name";
 
    @Ignore
@@ -47,10 +46,10 @@ public class DatastoreDatastoreFilterTest {
 
          when(context.lookup(ConfigurationServiceContext.SERVICE_NAME)).thenReturn(configurationServiceContext);
          when(context.lookup(DatastoreServiceContext.SERVICE_NAME)).thenReturn(datastoreServiceContext);
-         
+
          when(configurationServiceContext.getService()).thenReturn(configurationService);
          when(datastoreServiceContext.getService()).thenReturn(datastoreService);
-         
+
          filter = new DistributedDatastoreFilter(DATASTORE_MANAGER_NAME);
       }
    }
@@ -68,7 +67,7 @@ public class DatastoreDatastoreFilterTest {
       public void shouldUnRegisterDatastore() throws Exception {
          filter.init(mockFilterConfig);
          filter.destroy();
-         
+
          verify(datastoreService, times(1)).registerDatastoreManager(eq(DATASTORE_MANAGER_NAME), any(DatastoreManager.class));
          verify(datastoreService, times(1)).unregisterDatastoreManager(DATASTORE_MANAGER_NAME);
       }
