@@ -9,6 +9,7 @@ import com.rackspace.papi.service.datastore.DatastoreServiceContext;
 import com.rackspace.papi.service.deploy.ArtifactManagerServiceContext;
 import com.rackspace.papi.service.event.EventManagerServiceContext;
 import com.rackspace.papi.service.filterchain.FilterChainGCServiceContext;
+import com.rackspace.papi.service.logging.LoggingServiceContext;
 import com.rackspace.papi.service.naming.InitialServiceContextFactory;
 import com.rackspace.papi.service.threading.ThreadingServiceContext;
 import com.rackspace.papi.servlet.PowerApiContextException;
@@ -101,6 +102,9 @@ public class PowerApiContextManager implements ServletContextListener {
 
         // Configuration Services
         initService(new ConfigurationServiceContext(), sce);
+
+        // Logging Service
+        initService(new LoggingServiceContext(), sce);
 
         // Response message service
         initService(new ResponseMessageServiceContext(), sce);
