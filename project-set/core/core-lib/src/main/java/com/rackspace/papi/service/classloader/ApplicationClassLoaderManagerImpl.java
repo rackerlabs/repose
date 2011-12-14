@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ApplicationClassLoaderManagerImpl implements ApplicationClassLoaderManager, Destroyable {
+public class ApplicationClassLoaderManagerImpl implements ClassLoaderManagerService, Destroyable {
 
     private final Map<String, EarClassLoaderContext> classLoaderMap;
 
