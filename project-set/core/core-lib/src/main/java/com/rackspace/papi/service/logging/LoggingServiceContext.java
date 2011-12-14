@@ -63,7 +63,11 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
         configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
 
         configurationManager.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);
-        configurationManager.subscribeTo(loggingFileLocation, loggingConfigurationListener, InputStream.class);
+        
+        /* 
+         * TODO: Re-implement when custom parser is created
+         */
+        //configurationManager.subscribeTo(loggingFileLocation, loggingConfigurationListener, InputStream.class); 
     }
 
     @Override

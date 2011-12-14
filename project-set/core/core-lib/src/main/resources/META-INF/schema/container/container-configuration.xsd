@@ -28,7 +28,7 @@
         <xs:sequence>
             <xs:element name="deployment-directory" type="papic:DeploymentDirectory" minOccurs="1" maxOccurs="1" />
             <xs:element name="artifact-directory" type="papic:ArtifactDirectory" minOccurs="1" maxOccurs="1" />
-            <xs:element name="systemstate-log" type="papic:SystemStateLogConfig" minOccurs="0" maxOccurs="1" />
+            <xs:element name="logging-configuration" type="papic:LoggingConfiguration" minOccurs="0" maxOccurs="1" />
         </xs:sequence>
     </xs:complexType>
 
@@ -65,16 +65,16 @@
         </xs:simpleContent>
     </xs:complexType>
     
-    <xs:complexType name="SystemStateLogConfig">
+    <xs:complexType name="LoggingConfiguration">
         <xs:simpleContent>
             <xs:extension base="xs:string">
-           
+                <xs:attribute name="href" type="xs:string" use="required">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>Location for system state log config</html:p>
                         </xs:documentation>
                     </xs:annotation>
-        
+                </xs:attribute>
             </xs:extension>    
         </xs:simpleContent>
     </xs:complexType>
