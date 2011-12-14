@@ -21,6 +21,8 @@ import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
 public class DatastoreDatastoreFilterTest {
+   
+   public static final String DATASTORE_MANAGER_NAME = "name";
 
    @Ignore
    public static class TestParent {
@@ -49,7 +51,7 @@ public class DatastoreDatastoreFilterTest {
          when(configurationServiceContext.getService()).thenReturn(configurationService);
          when(datastoreServiceContext.getService()).thenReturn(datastoreService);
          
-         filter = new DistributedDatastoreFilter();
+         filter = new DistributedDatastoreFilter(DATASTORE_MANAGER_NAME);
       }
    }
 
@@ -59,7 +61,7 @@ public class DatastoreDatastoreFilterTest {
       public void shouldRegisterDatastore() throws Exception {
          filter.init(mockFilterConfig);
 
-         verify(datastoreService).registerDatastoreManager(eq(HashRingDatastoreManager.DATASTORE_MANAGER_NAME), any(DatastoreManager.class));
+         verify(datastoreService).registerDatastoreManager(eq(DATASTORE_MANAGER_NAME), any(DatastoreManager.class));
       }
 
       @Test
@@ -67,8 +69,8 @@ public class DatastoreDatastoreFilterTest {
          filter.init(mockFilterConfig);
          filter.destroy();
          
-         verify(datastoreService, times(1)).registerDatastoreManager(eq(HashRingDatastoreManager.DATASTORE_MANAGER_NAME), any(DatastoreManager.class));
-         verify(datastoreService, times(1)).unregisterDatastoreManager(HashRingDatastoreManager.DATASTORE_MANAGER_NAME);
+         verify(datastoreService, times(1)).registerDatastoreManager(eq(DATASTORE_MANAGER_NAME), any(DatastoreManager.class));
+         verify(datastoreService, times(1)).unregisterDatastoreManager(DATASTORE_MANAGER_NAME);
       }
    }
 }

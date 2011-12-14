@@ -24,17 +24,17 @@ public class ExternalRoutableRequestDispatcher implements RequestDispatcher {
         final LiveHttpServletRequest httpRequest = (LiveHttpServletRequest) request;
         
         // So you want to go somewhere with this request? Okay, where to, boss?
-        final Enumeration<String> possibleRoutes = httpRequest.getHeaders(PowerApiHeader.ROUTE_DESTINATION.headerKey());
+        // final Enumeration<String> possibleRoutes = httpRequest.getHeaders(PowerApiHeader.ROUTE_DESTINATION.headerKey());
 
-        if (possibleRoutes.hasMoreElements()) {
+        //if (possibleRoutes.hasMoreElements()) {
             // TODO:Implement - Use quality parameter for routing
-            final URL destination = asURL(possibleRoutes.nextElement());
+            //final URL destination = asURL(possibleRoutes.nextElement());
             
-            final InetSocketAddress address = new InetSocketAddress(destination.getHost(), httpPort(destination));
+            //final InetSocketAddress address = new InetSocketAddress(destination.getHost(), httpPort(destination));
             
-            final OriginConnectionFuture connectionFuture = httpRequest.getOriginConnectionFuture();
-            connectionFuture.connect(address, httpRequest);
-        }
+            //final OriginConnectionFuture connectionFuture = httpRequest.getOriginConnectionFuture();
+            //connectionFuture.connect(address, httpRequest);
+        //}
         
         throw new IllegalArgumentException("Request opting to forward must forward to a routable destination");
     }

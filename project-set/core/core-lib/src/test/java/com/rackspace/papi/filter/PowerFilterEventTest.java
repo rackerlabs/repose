@@ -15,8 +15,8 @@ public class PowerFilterEventTest {
     public static class WhenUsingPowerFilterEvent {
         @Test
         public void shouldBeUsable() {
-            PowerFilterEvent filterEvent = PowerFilterEvent.POWER_FILTER_INITIALIZED;
-            assertEquals(PowerFilterEvent.POWER_FILTER_INITIALIZED, filterEvent);
+            PowerFilterEvent filterEvent = PowerFilterEvent.POWER_FILTER_CONFIGURED;
+            assertEquals(PowerFilterEvent.POWER_FILTER_CONFIGURED, filterEvent);
         }
     }
 }

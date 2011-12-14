@@ -1,5 +1,6 @@
 package com.rackspace.papi.filter;
 
+import com.rackspace.papi.filter.resource.ResourceMonitor;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 
@@ -31,74 +32,82 @@ import org.slf4j.LoggerFactory;
  */
 public class PowerFilterChain implements FilterChain {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PowerFilterChain.class);
-    private final List<FilterContext> filterChainCopy;
-    private final FilterChain containerFilterChain;
-    private final ClassLoader containerClassLoader;
-    private final ServletContext context;
-    private int position;
+   private static final Logger LOG = LoggerFactory.getLogger(PowerFilterChain.class);
+   private final ResourceMonitor resourceMonitor;
+   private final List<FilterContext> filterChainCopy;
+   private final FilterChain containerFilterChain;
+   private final ClassLoader containerClassLoader;
+   private final ServletContext context;
+   private int position;
 
-    public PowerFilterChain(List<FilterContext> filterChainCopy, FilterChain containerFilterChain, ServletContext context) {
-        this.filterChainCopy = new LinkedList<FilterContext>(filterChainCopy);
-        this.containerFilterChain = containerFilterChain;
-        this.context = context;
-        this.containerClassLoader = Thread.currentThread().getContextClassLoader();
-    }
+   public PowerFilterChain(List<FilterContext> filterChainCopy, FilterChain containerFilterChain, ServletContext context, ResourceMonitor resourceMontior) {
+      this.filterChainCopy = new LinkedList<FilterContext>(filterChainCopy);
+      this.containerFilterChain = containerFilterChain;
+      this.context = context;
+      this.containerClassLoader = Thread.currentThread().getContextClassLoader();
+      this.resourceMonitor = resourceMontior;
+   }
 
-    public void startFilterChain(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
-        doFilter(servletRequest, servletResponse);
-    }
+   public void startFilterChain(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
+      resourceMonitor.inUse();
 
-    @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
-        final Thread currentThread = Thread.currentThread();
-        final ClassLoader previousClassLoader = currentThread.getContextClassLoader();
+      try {
+         doFilter(servletRequest, servletResponse);
+      } finally {
+         resourceMonitor.released();
+      }
+   }
 
-        if (position < filterChainCopy.size()) {
-            final FilterContext nextFilterContext = filterChainCopy.get(position++);
-            final ClassLoader nextClassLoader = nextFilterContext.getFilterClassLoader();
+   @Override
+   public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
+      final Thread currentThread = Thread.currentThread();
+      final ClassLoader previousClassLoader = currentThread.getContextClassLoader();
 
-            currentThread.setContextClassLoader(nextClassLoader);
+      if (position < filterChainCopy.size()) {
+         final FilterContext nextFilterContext = filterChainCopy.get(position++);
+         final ClassLoader nextClassLoader = nextFilterContext.getFilterClassLoader();
 
-            try {
-                nextFilterContext.getFilter().doFilter(servletRequest, servletResponse, this);
-            } catch (Exception ex) {
-                LOG.error("Failure in filter: " + nextFilterContext.getFilter().getClass().getSimpleName()
-                        + "  -  Reason: " + ex.getMessage(), ex);
-            } finally {
-                currentThread.setContextClassLoader(previousClassLoader);
+         currentThread.setContextClassLoader(nextClassLoader);
+
+         try {
+            nextFilterContext.getFilter().doFilter(servletRequest, servletResponse, this);
+         } catch (Exception ex) {
+            LOG.error("Failure in filter: " + nextFilterContext.getFilter().getClass().getSimpleName()
+                    + "  -  Reason: " + ex.getMessage(), ex);
+         } finally {
+            currentThread.setContextClassLoader(previousClassLoader);
+         }
+      } else {
+         currentThread.setContextClassLoader(containerClassLoader);
+
+         try {
+            containerFilterChain.doFilter(servletRequest, servletResponse);
+            route(servletRequest, servletResponse);
+         } catch (Exception ex) {
+            LOG.error("Failure in filter within container filter chain. Please debug.", ex);
+         } finally {
+            currentThread.setContextClassLoader(previousClassLoader);
+         }
+      }
+   }
+
+   private void route(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
+      final String routeDestination = ((HttpServletRequest) servletRequest).getHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey());
+
+      if (!StringUtilities.isBlank(routeDestination)) {
+         // According to the Java 6 javadocs the routeDestination passed into getContext:
+         // "The given path [routeDestination] must begin with /, is interpreted relative to the server's document root
+         // and is matched against the context roots of other web applications hosted on this container."
+         final ServletContext targetContext = context.getContext(routeDestination);
+
+         if (targetContext != null) {
+            final RequestDispatcher dispatcher = targetContext.getRequestDispatcher(
+                    new DispatchPathBuilder(servletRequest, routeDestination).build());
+
+            if (dispatcher != null) {
+               dispatcher.forward(servletRequest, servletResponse);
             }
-        } else {
-            currentThread.setContextClassLoader(containerClassLoader);
-
-            try {
-                containerFilterChain.doFilter(servletRequest, servletResponse);
-                route(servletRequest, servletResponse);
-            } catch (Exception ex) {
-                LOG.error("Failure in filter within container filter chain. Please debug.", ex);
-            } finally {
-                currentThread.setContextClassLoader(previousClassLoader);
-            }
-        }
-    }
-
-    private void route(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
-        final String routeDestination = ((HttpServletRequest) servletRequest).getHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey());
-
-        if (!StringUtilities.isBlank(routeDestination)) {
-            // According to the Java 6 javadocs the routeDestination passed into getContext:
-            // "The given path [routeDestination] must begin with /, is interpreted relative to the server's document root
-            // and is matched against the context roots of other web applications hosted on this container."
-            final ServletContext targetContext = context.getContext(routeDestination);
-
-            if (targetContext != null) {
-                final RequestDispatcher dispatcher = targetContext.getRequestDispatcher(
-                        new DispatchPathBuilder(servletRequest, routeDestination).build());
-
-                if (dispatcher != null) {
-                    dispatcher.forward(servletRequest, servletResponse);
-                }
-            }
-        }
-    }
+         }
+      }
+   }
 }

@@ -28,7 +28,7 @@ public class PowerFilterChainBuilderTest {
         @Test
         public void shouldInitialize() {
             FilterConfig mockedFilterConfig = mock(FilterConfig.class);
-            PowerFilterChainBuilder powerFilterChainBuilder = new PowerFilterChainBuilder(mockedFilterConfig);
+            FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig);
 
             assertNotNull(powerFilterChainBuilder);
         }        
@@ -60,13 +60,13 @@ public class PowerFilterChainBuilderTest {
             Filter mockedFilter = mock(Filter.class);
             when(mockedFilter.getName()).thenReturn("filterName");
 
-            PowerFilterChainBuilder powerFilterChainBuilder = new PowerFilterChainBuilder(mockedFilterConfig);
+            FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig);
 
             PowerProxy mockedPowerProxy = mock(PowerProxy.class);
             List<Host> hosts = createTestHosts();
             when(mockedPowerProxy.getHost()).thenReturn(hosts);
 
-            List<FilterContext> powerFilterChain = powerFilterChainBuilder.build(mockedEarClassLoaderContextManager, mockedPowerProxy);
+            List<FilterContext> powerFilterChain = powerFilterChainBuilder.buildFilterContexts(mockedEarClassLoaderContextManager, mockedPowerProxy);
 
             assertNotNull(powerFilterChain);
         }
@@ -94,13 +94,13 @@ public class PowerFilterChainBuilderTest {
             Filter mockedFilter = mock(Filter.class);
             when(mockedFilter.getName()).thenReturn("filterName");
 
-            PowerFilterChainBuilder powerFilterChainBuilder = new PowerFilterChainBuilder(mockedFilterConfig);
+            FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig);
 
             PowerProxy mockedPowerProxy = mock(PowerProxy.class);
             List<Host> hosts = createTestHosts();
             when(mockedPowerProxy.getHost()).thenReturn(hosts);
 
-            List<FilterContext> powerFilterChain = powerFilterChainBuilder.build(mockedEarClassLoaderContextManager, mockedPowerProxy);
+            List<FilterContext> powerFilterChain = powerFilterChainBuilder.buildFilterContexts(mockedEarClassLoaderContextManager, mockedPowerProxy);
 
             assertEquals(0, powerFilterChain.size());
         }

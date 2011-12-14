@@ -10,21 +10,21 @@ import static org.junit.Assert.*;
 
 @RunWith(Enclosed.class)
 public class UUIDHelperTest {
-    public static class WhenConvertingUUIDStringsToBytes {
-        @Test
-        public void shouldConvertWellFormedUUIDStrings() {
-            final byte[] expectedBytes = new byte[16];
-            
-            for (int i = 0; i < expectedBytes.length; i++) {
-                expectedBytes[i] = 1;
-            }
-            
-            final UUID uuid = UUIDHelper.bytesToUUID(expectedBytes);
-            System.out.println(uuid.toString());
-            
-            final byte[] actualBytes = UUIDHelper.stringToUUIDBytes(uuid.toString());
-            
-            assertTrue(new ByteArrayComparator(expectedBytes, actualBytes).arraysAreEqual());
-        }
-    }
+
+   public static class WhenConvertingUUIDStringsToBytes {
+
+      @Test
+      public void shouldConvertWellFormedUUIDStrings() {
+         final byte[] expectedBytes = new byte[16];
+
+         for (int i = 0; i < expectedBytes.length; i++) {
+            expectedBytes[i] = 1;
+         }
+
+         final UUID uuid = UUIDHelper.bytesToUUID(expectedBytes);
+         final byte[] actualBytes = UUIDHelper.stringToUUIDBytes(uuid.toString());
+
+         assertTrue(new ByteArrayComparator(expectedBytes, actualBytes).arraysAreEqual());
+      }
+   }
 }

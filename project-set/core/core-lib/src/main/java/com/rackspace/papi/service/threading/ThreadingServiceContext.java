@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.thread;
+package com.rackspace.papi.service.threading;
 
 import com.rackspace.papi.service.ServiceContext;
 import java.lang.ref.WeakReference;
