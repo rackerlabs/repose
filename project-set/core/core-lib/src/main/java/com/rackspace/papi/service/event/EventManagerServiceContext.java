@@ -3,7 +3,7 @@ package com.rackspace.papi.service.event;
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
 import com.rackspace.papi.service.ServiceContext;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
-import com.rackspace.papi.service.thread.ThreadingService;
+import com.rackspace.papi.service.threading.ThreadingService;
 import javax.servlet.ServletContextEvent;
 
 public class EventManagerServiceContext implements ServiceContext<EventService> {

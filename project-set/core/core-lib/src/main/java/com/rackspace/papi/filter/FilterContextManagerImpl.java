@@ -9,54 +9,55 @@ import javax.servlet.FilterConfig;
 import java.util.Collection;
 
 public class FilterContextManagerImpl implements FilterContextManager {
-    private static final Logger LOG = LoggerFactory.getLogger(PowerFilterChainBuilder.class);
-    private final FilterConfig filterConfig;
 
-    public FilterContextManagerImpl(FilterConfig filterConfig) {
-        this.filterConfig = filterConfig;
-    }
+   private static final Logger LOG = LoggerFactory.getLogger(FilterContextInitializer.class);
+   private final FilterConfig filterConfig;
 
-    @Override
-    public FilterContext loadFilterContext(String filterName, Collection<EarClassLoaderContext> loadedApplications) throws ClassNotFoundException {
-        FilterClassFactory filterClassFactory = FilterContextManagerImpl.getFilterClassFactory(filterName, loadedApplications);
+   public FilterContextManagerImpl(FilterConfig filterConfig) {
+      this.filterConfig = filterConfig;
+   }
 
-        return initializeFilter(filterClassFactory);
-    }
+   @Override
+   public FilterContext loadFilterContext(String filterName, Collection<EarClassLoaderContext> loadedApplications) throws ClassNotFoundException {
+      FilterClassFactory filterClassFactory = FilterContextManagerImpl.getFilterClassFactory(filterName, loadedApplications);
 
-    public static FilterClassFactory getFilterClassFactory(String filterName, Collection<EarClassLoaderContext> loadedApplications) {
-        for (EarClassLoaderContext classLoaderCtx : loadedApplications) {
-            final String filterClassName = classLoaderCtx.getEarDescriptor().getRegisteredFilters().get(filterName);
+      return initializeFilter(filterClassFactory);
+   }
 
-            if (filterClassName != null) {
-                return new FilterClassFactory(filterClassName, classLoaderCtx.getClassLoader());
-            }
-        }
+   public static FilterClassFactory getFilterClassFactory(String filterName, Collection<EarClassLoaderContext> loadedApplications) {
+      for (EarClassLoaderContext classLoaderCtx : loadedApplications) {
+         final String filterClassName = classLoaderCtx.getEarDescriptor().getRegisteredFilters().get(filterName);
 
-        throw new IllegalStateException("Unable to look up filter " + filterName + " - this is protected by a validation guard in a higher level of the architecture and should be logged as a defect");
-    }
+         if (filterClassName != null) {
+            return new FilterClassFactory(filterClassName, classLoaderCtx.getClassLoader());
+         }
+      }
 
-    public FilterContext initializeFilter(FilterClassFactory filterClassFactory) {
-        final Thread currentThread = Thread.currentThread();
-        final ClassLoader previousClassLoader = currentThread.getContextClassLoader();
-        final ClassLoader nextClassLoader = filterClassFactory.getClassLoader();
+      throw new IllegalStateException("Unable to look up filter " + filterName + " - this is protected by a validation guard in a higher level of the architecture and should be logged as a defect");
+   }
 
-        try {
-            currentThread.setContextClassLoader(nextClassLoader);
-            final javax.servlet.Filter newFilterInstance = filterClassFactory.newInstance();
+   public FilterContext initializeFilter(FilterClassFactory filterClassFactory) {
+      final Thread currentThread = Thread.currentThread();
+      final ClassLoader previousClassLoader = currentThread.getContextClassLoader();
+      final ClassLoader nextClassLoader = filterClassFactory.getClassLoader();
 
-            newFilterInstance.init(filterConfig);
+      try {
+         currentThread.setContextClassLoader(nextClassLoader);
+         final javax.servlet.Filter newFilterInstance = filterClassFactory.newInstance();
 
-            LOG.info("Filter: " + newFilterInstance + " successfully created");
-            
-            return new FilterContext(newFilterInstance, filterClassFactory.getClassLoader());
-        } catch (ClassNotFoundException e) {
-            LOG.error("Failed to initialize filter " + filterClassFactory + ".");
-            throw new FilterInitializationException(e.getMessage(), e);
-        } catch (ServletException e) {
-            LOG.error("Failed to initialize filter " + filterClassFactory + ".");
-            throw new FilterInitializationException(e.getMessage(), e);
-        } finally {
-            currentThread.setContextClassLoader(previousClassLoader);
-        }
-    }
+         newFilterInstance.init(filterConfig);
+
+         LOG.info("Filter: " + newFilterInstance + " successfully created");
+
+         return new FilterContext(newFilterInstance, filterClassFactory.getClassLoader());
+      } catch (ClassNotFoundException e) {
+         LOG.error("Failed to initialize filter " + filterClassFactory + ".");
+         throw new FilterInitializationException(e.getMessage(), e);
+      } catch (ServletException e) {
+         LOG.error("Failed to initialize filter " + filterClassFactory + ".");
+         throw new FilterInitializationException(e.getMessage(), e);
+      } finally {
+         currentThread.setContextClassLoader(previousClassLoader);
+      }
+   }
 }

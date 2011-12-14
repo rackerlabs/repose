@@ -27,13 +27,23 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.util.UUID;
 import javax.naming.NamingException;
 
 public class DistributedDatastoreFilter implements Filter {
 
    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(DistributedDatastoreFilter.class);
+   private final String datastoreId;
    private DatastoreFilterLogicHandlerFactory handlerFactory;
    private DatastoreService datastoreService;
+
+   public DistributedDatastoreFilter() {
+      this(HashRingDatastoreManager.DATASTORE_MANAGER_NAME + "-" + UUID.randomUUID().toString());
+   }
+
+   public DistributedDatastoreFilter(String datastoreId) {
+      this.datastoreId = datastoreId;
+   }
 
    @Override
    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -71,7 +81,7 @@ public class DistributedDatastoreFilter implements Filter {
          final HashRingDatastoreManager hashRingDatastoreManager = new HashRingDatastoreManager("temp-host-key", UUIDEncodingProvider.getInstance(), hashProvider, clusterView, datastoreService.defaultDatastore());
          hashRingDatastore = hashRingDatastoreManager.newDatastoreServer("default");
 
-         datastoreService.registerDatastoreManager(HashRingDatastoreManager.DATASTORE_MANAGER_NAME, hashRingDatastoreManager);
+         datastoreService.registerDatastoreManager(datastoreId, hashRingDatastoreManager);
 
          handlerFactory = new DatastoreFilterLogicHandlerFactory(clusterView, hashRingDatastore);
          contextAdapter.configurationService().subscribeTo("power-proxy.cfg.xml", handlerFactory, PowerProxy.class);
@@ -87,7 +97,7 @@ public class DistributedDatastoreFilter implements Filter {
    @Override
    public void destroy() {
       try {
-         datastoreService.unregisterDatastoreManager(HashRingDatastoreManager.DATASTORE_MANAGER_NAME);
+         datastoreService.unregisterDatastoreManager(datastoreId);
       } catch (NamingException ne) {
          LOG.error("Unable to unregister hash-ring datastore service. This may cause problems in component re-loads. Please log this as a bug. Reason: " + ne.getMessage(), ne);
       }

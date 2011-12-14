@@ -41,7 +41,7 @@ public class PowerFilterTest {
             powerFilter.destroy();
         }
 
-        @Test
+        @Test @Ignore("There aren't any assertions in this test so I'm going to disable it for review")
         public void shouldDoFilter() throws IOException, ServletException, NamingException {
             ResponseMessageService mockedResponseMessageService = mock(ResponseMessageService.class);
             Context mockedContext = mock(Context.class);
