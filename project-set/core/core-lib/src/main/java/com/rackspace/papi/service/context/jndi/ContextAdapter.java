@@ -2,6 +2,7 @@ package com.rackspace.papi.service.context.jndi;
 
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.datastore.DatastoreService;
+import com.rackspace.papi.service.logging.LoggingService;
 import com.rackspace.papi.service.rms.ResponseMessageService;
 import com.rackspace.papi.service.ServiceUnavailableException;
 import com.rackspace.papi.service.event.EventService;
@@ -24,4 +25,6 @@ public interface ContextAdapter {
     FilterChainGarbageCollectorService filterChainGarbageCollectorService() throws ServiceUnavailableException;
 
     ResponseMessageService responseMessageService() throws ServiceUnavailableException;
+
+    LoggingService loggingService() throws ServiceUnavailableException;
 }
