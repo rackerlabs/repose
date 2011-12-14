@@ -12,7 +12,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.Source;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.dom.DOMResult;
 import net.sf.saxon.s9api.QName;
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmNode;
@@ -23,11 +29,17 @@ public class CalabashPipeline implements Pipeline {
    private final InputStreamUriParameterResolver resolver;
    private final XProcRuntime runtime;
    private final XPipeline pipeline;
+   private final boolean legacySourceOutput;
    
    public CalabashPipeline(XPipeline pipeline, XProcRuntime runtime, InputStreamUriParameterResolver resolver) {
+      this(pipeline, runtime, resolver, false);
+   }
+
+   public CalabashPipeline(XPipeline pipeline, XProcRuntime runtime, InputStreamUriParameterResolver resolver, boolean legacySourceOutput) {
       this.resolver = resolver;
       this.runtime = runtime;
       this.pipeline = pipeline;
+      this.legacySourceOutput = legacySourceOutput;
    }
    
    protected <T> void addParameter(PipelineInput<T> input) {
@@ -138,17 +150,53 @@ public class CalabashPipeline implements Pipeline {
    
    @Override
    public List<Source> getResultPort(String name) {
+      List<Source> ret = null;
+
+      if (!legacySourceOutput) {
+         ret = getCalabashResultPort(name);
+      } else {
+         ret = getLegacyResultPort(name);
+      }
+
+      return ret;
+   }
+
+   protected List<Source> getCalabashResultPort(String name)
+      throws PipelineException {
       try {
          ReadablePipe pipe = pipeline.readFrom(name);
          List<Source> nodes = new ArrayList<Source>();
 
          while(pipe.moreDocuments()) {
-               nodes.add(pipe.read().asSource());
+            nodes.add(pipe.read().asSource());
          }
 
          return nodes;
       } catch (SaxonApiException ex) {
          throw new PipelineException(ex);
+      }
+   }
+
+   protected List<Source> getLegacyResultPort(String name)
+      throws PipelineException {
+      try {
+         List<Source> standard = getCalabashResultPort (name);
+         List<Source> ret = new ArrayList<Source>(standard.size());
+
+         TransformerFactory transFactory = TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl",null);
+         Transformer transformer = transFactory.newTransformer();
+
+         for (Source s : standard) {
+            DOMResult result = new DOMResult();
+            transformer.transform (s, result);
+            ret.add (new DOMSource (result.getNode()));
+         }
+
+         return ret;
+      }catch (TransformerConfigurationException tce) {
+         throw new PipelineException (tce);
+      }catch (TransformerException te) {
+         throw new PipelineException (te);
       }
    }
 }

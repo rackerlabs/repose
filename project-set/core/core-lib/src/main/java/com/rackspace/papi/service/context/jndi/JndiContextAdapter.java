@@ -3,6 +3,8 @@ package com.rackspace.papi.service.context.jndi;
 import com.rackspace.papi.service.ServiceContext;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.datastore.DatastoreService;
+import com.rackspace.papi.service.logging.LoggingService;
+import com.rackspace.papi.service.logging.LoggingServiceContext;
 import com.rackspace.papi.service.rms.ResponseMessageService;
 import com.rackspace.papi.service.ServiceUnavailableException;
 import com.rackspace.papi.service.event.EventService;
@@ -12,8 +14,11 @@ import com.rackspace.papi.service.classloader.ClassLoaderServiceContext;
 import com.rackspace.papi.service.config.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.ResponseMessageServiceContext;
 import com.rackspace.papi.service.datastore.DatastoreServiceContext;
-import com.rackspace.papi.service.thread.ThreadingServiceContext;
-import com.rackspace.papi.service.thread.ThreadingService;
+import com.rackspace.papi.service.filterchain.FilterChainGCServiceContext;
+import com.rackspace.papi.service.filterchain.FilterChainGarbageCollectorService;
+import com.rackspace.papi.service.threading.ThreadingServiceContext;
+import com.rackspace.papi.service.threading.ThreadingService;
+
 import javax.naming.Context;
 import javax.naming.NamingException;
 
@@ -62,6 +67,15 @@ public class JndiContextAdapter implements ContextAdapter {
     @Override
     public ThreadingService threadingService() throws ServiceUnavailableException {
         return lookup(ThreadingServiceContext.SERVICE_NAME, namingContext);
+    }
 
+    @Override
+    public FilterChainGarbageCollectorService filterChainGarbageCollectorService() throws ServiceUnavailableException {
+        return lookup(FilterChainGCServiceContext.SERVICE_NAME, namingContext);
+    }
+
+    @Override
+    public LoggingService loggingService() throws ServiceUnavailableException {
+        return lookup(LoggingServiceContext.SERVICE_NAME, namingContext);
     }
 }

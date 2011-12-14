@@ -12,13 +12,19 @@ import net.sf.saxon.s9api.SaxonApiException;
 
 public class CalabashPipelineBuilder implements PipelineBuilder {
    private final boolean schemaAware;
+   private final boolean legacySourceOutput;
    
    public CalabashPipelineBuilder() {
-      this(true);
+      this(true, false);
    }
    
    public CalabashPipelineBuilder(boolean schemaAware) {
+      this(schemaAware, false);
+   }
+
+   public CalabashPipelineBuilder(boolean schemaAware, boolean legacySourceOutput) {
       this.schemaAware = schemaAware;
+      this.legacySourceOutput = legacySourceOutput;
    }
    
    @Override
@@ -29,7 +35,7 @@ public class CalabashPipelineBuilder implements PipelineBuilder {
          XPipeline pipeline = runtime.load(pipelineUri);
          InputStreamUriParameterResolver resolver = new InputStreamUriParameterResolver(new XProcURIResolver(runtime));
          runtime.setURIResolver(resolver);
-         return new CalabashPipeline(pipeline, runtime, resolver);
+         return new CalabashPipeline(pipeline, runtime, resolver, legacySourceOutput);
       } catch (SaxonApiException ex) {
          throw new PipelineException(ex);
       }

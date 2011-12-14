@@ -8,8 +8,10 @@ import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.service.datastore.DatastoreServiceContext;
 import com.rackspace.papi.service.deploy.ArtifactManagerServiceContext;
 import com.rackspace.papi.service.event.EventManagerServiceContext;
+import com.rackspace.papi.service.filterchain.FilterChainGCServiceContext;
+import com.rackspace.papi.service.logging.LoggingServiceContext;
 import com.rackspace.papi.service.naming.InitialServiceContextFactory;
-import com.rackspace.papi.service.thread.ThreadingServiceContext;
+import com.rackspace.papi.service.threading.ThreadingServiceContext;
 import com.rackspace.papi.servlet.PowerApiContextException;
 
 import java.util.Iterator;
@@ -32,6 +34,14 @@ public class PowerApiContextManager implements ServletContextListener {
     
     public PowerApiContextManager() {
         boundServiceContextNames = new LinkedList<String>();
+    }
+    
+    private <T extends ServiceContext> void initService(T resource, ServletContextEvent sce) {
+       // Bind the service first
+       bindServletContextBoundService(resource);
+       
+       // Initialize the service after binding it in our naming context
+       resource.contextInitialized(sce);
     }
     
     private <T extends ServiceContext> T bindServletContextBoundService(T resource) {
@@ -85,32 +95,31 @@ public class PowerApiContextManager implements ServletContextListener {
         // Services Bootstrap
 
         // Threading Service
-        final ServiceContext threadManagerContext = bindServletContextBoundService(new ThreadingServiceContext());
-        threadManagerContext.contextInitialized(sce);
+        initService(new ThreadingServiceContext(), sce);
 
         // Event kernel init
-        final ServiceContext eventKernelContext = bindServletContextBoundService(new EventManagerServiceContext());
-        eventKernelContext.contextInitialized(sce);
+        initService(new EventManagerServiceContext(), sce);
 
         // Configuration Services
-        final ConfigurationServiceContext configurationManager = bindServletContextBoundService(new ConfigurationServiceContext());
-        configurationManager.contextInitialized(sce);
+        initService(new ConfigurationServiceContext(), sce);
+
+        // Logging Service
+        initService(new LoggingServiceContext(), sce);
 
         // Response message service
-        final ResponseMessageServiceContext responseMessageServiceManager = bindServletContextBoundService(new ResponseMessageServiceContext());
-        responseMessageServiceManager.contextInitialized(sce);
+        initService(new ResponseMessageServiceContext(), sce);
 
         // Datastore Service
-        final DatastoreServiceContext datastoreServiceContext = bindServletContextBoundService(new DatastoreServiceContext());
-        datastoreServiceContext.contextInitialized(sce);
+        initService(new DatastoreServiceContext(), sce);
 
         // Start up the class loader manager
-        final ClassLoaderServiceContext clManager = bindServletContextBoundService(new ClassLoaderServiceContext());
-        clManager.contextInitialized(sce);
+        initService(new ClassLoaderServiceContext(), sce);
 
         /// Start the deployment manager
-        final ArtifactManagerServiceContext artifactManager = bindServletContextBoundService(new ArtifactManagerServiceContext());
-        artifactManager.contextInitialized(sce);
+        initService(new ArtifactManagerServiceContext(), sce);
+
+        /// Start the filter chain garbage collector
+        initService(new FilterChainGCServiceContext(), sce);
     }
     
     @Override

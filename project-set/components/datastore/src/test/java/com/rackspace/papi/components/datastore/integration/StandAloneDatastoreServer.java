@@ -1,7 +1,6 @@
 package com.rackspace.papi.components.datastore.integration;
 
 import com.rackspace.papi.servlet.InitParameter;
-import com.rackspace.papi.components.datastore.DistributedDatastoreFilter;
 import com.rackspace.papi.filter.PowerFilter;
 import com.rackspace.papi.service.context.PowerApiContextManager;
 import com.rackspace.papi.jetty.JettyServerBuilder;
@@ -32,9 +31,8 @@ public class StandAloneDatastoreServer extends JettyTestingContext {
    @Override
    public final void buildServerContext(JettyServerBuilder serverBuilder) throws Exception {
       serverBuilder.addContextListener(PowerApiContextManager.class);
-      serverBuilder.addContextInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), "/home/zinic/installed/etc/powerapi/dist-datastore");
+      serverBuilder.addContextInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), "/home/zinic/ulocal/local/etc/powerapi/dist-datastore");
       serverBuilder.addFilter(PowerFilter.class, "/*");
-      serverBuilder.addFilter(DistributedDatastoreFilter.class, "/*");
       serverBuilder.addServlet(DummyServlet.class, "/*");
    }
 }

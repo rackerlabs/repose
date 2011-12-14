@@ -8,7 +8,10 @@ import com.rackspace.papi.commons.util.servlet.filter.ApplicationContextAwareFil
 import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
 import com.rackspace.papi.commons.util.thread.KeyedStackLock;
+import com.rackspace.papi.filter.resource.PowerFilterChainReclaimer;
+import com.rackspace.papi.filter.resource.PowerFilterChainGarbageCollector;
 import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.service.context.jndi.ContextAdapter;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
@@ -36,6 +39,9 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     private final EventListener<ApplicationDeploymentEvent, String> applicationDeploymentListener;
     private final UpdateListener<PowerProxy> systemModelConfigurationListener;
     private boolean firstInitialization;
+    private PowerFilterChainBuilder powerFilterChainBuilder;
+    private PowerFilterChainGarbageCollector filterChainGarbageCollector;
+    private DestroyableThreadWrapper filterChainGarbageCollectorThread;
     private List<FilterContext> filterChain;
     private ContextAdapter papiContext;
     private PowerProxy currentSystemModel;
@@ -63,10 +69,10 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                 synchronized (internalLock) {
                     if (firstInitialization) {
                         firstInitialization = false;
-                        papiContext.eventService().newEvent(PowerFilterEvent.POWER_FILTER_INITIALIZED, System.currentTimeMillis());
+                        papiContext.eventService().newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
                     } else {
-                        final List<FilterContext> newFilterChain = new PowerFilterChainBuilder(filterConfig).build(papiContext.classLoader(), currentSystemModel);
-                        updateFilterList(newFilterChain);
+                        final List<FilterContext> newFilterChain = new FilterContextInitializer(filterConfig).buildFilterContexts(papiContext.classLoader(), currentSystemModel);
+                        updateFilterChainBuilder(newFilterChain);
                     }
                 }
             }
@@ -79,9 +85,9 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                 LOG.info("Application collection has been modified. Application that changed: " + e.payload());
 
                 if (currentSystemModel != null) {
-                    final List<FilterContext> newFilterChain = new PowerFilterChainBuilder(filterConfig).build(papiContext.classLoader(), currentSystemModel);
+                    final List<FilterContext> newFilterChain = new FilterContextInitializer(filterConfig).buildFilterContexts(papiContext.classLoader(), currentSystemModel);
 
-                    updateFilterList(newFilterChain);
+                    updateFilterChainBuilder(newFilterChain);
                 }
             }
         };
@@ -91,9 +97,12 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     // existing filterChain.  If that is the case we create a new one for the deployment
     // update but the old list stays in memory as the garbage collector won't clean
     // it up until all RequestFilterChainState objects are no longer referencing it.
-
-    private synchronized void updateFilterList(List<FilterContext> newFilterChain) {
-        this.filterChain = new LinkedList<FilterContext>(newFilterChain);
+    private synchronized void updateFilterChainBuilder(List<FilterContext> newFilterChain) {
+        if (powerFilterChainBuilder != null) {
+           papiContext.filterChainGarbageCollectorService().retireFilterChainBuilder(powerFilterChainBuilder);
+        }
+        
+        powerFilterChainBuilder = new PowerFilterChainBuilder(newFilterChain);
     }
 
     protected PowerProxy getCurrentSystemModel() {
@@ -106,7 +115,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         this.filterConfig = filterConfig;
 
         papiContext = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext());
-
+        
         papiContext.eventService().listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
         papiContext.configurationService().subscribeTo("power-proxy.cfg.xml", systemModelConfigurationListener, PowerProxy.class);
     }
@@ -121,7 +130,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
-        final PowerFilterChain requestFilterChainState = new PowerFilterChain(Collections.unmodifiableList(this.filterChain), chain, filterConfig.getServletContext());
+        final PowerFilterChain requestFilterChainState = powerFilterChainBuilder.newPowerFilterChain(chain, filterConfig.getServletContext());
 
         mutableHttpResponse.setHeader(CommonHttpHeader.CONTENT_TYPE.getHeaderKey(), mutableHttpRequest.getHeader(CommonHttpHeader.ACCEPT.getHeaderKey()));
 
