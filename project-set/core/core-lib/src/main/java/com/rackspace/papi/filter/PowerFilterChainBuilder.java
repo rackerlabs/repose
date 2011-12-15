@@ -4,7 +4,7 @@
  */
 package com.rackspace.papi.filter;
 
-import com.rackspace.papi.filter.resource.ResourceConsumerMonitor;
+import com.rackspace.papi.filter.resource.ResourceConsumerCounter;
 import com.rackspace.papi.commons.util.Destroyable;
 import java.util.List;
 import javax.servlet.*;
@@ -15,15 +15,15 @@ import javax.servlet.*;
  */
 public class PowerFilterChainBuilder implements Destroyable {
 
-   private final ResourceConsumerMonitor resourceConsumerMonitor;
+   private final ResourceConsumerCounter resourceConsumerMonitor;
    private final List<FilterContext> currentFilterChain;
 
    public PowerFilterChainBuilder(List<FilterContext> currentFilterChain) {
       this.currentFilterChain = currentFilterChain;
-      resourceConsumerMonitor = new ResourceConsumerMonitor();
+      resourceConsumerMonitor = new ResourceConsumerCounter();
    }
 
-   public ResourceConsumerMonitor getResourceConsumerMonitor() {
+   public ResourceConsumerCounter getResourceConsumerMonitor() {
       return resourceConsumerMonitor;
    }
    

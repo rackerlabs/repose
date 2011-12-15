@@ -1,8 +1,6 @@
 package com.rackspace.papi.commons.util.thread;
 
 import com.rackspace.papi.commons.util.Destroyable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -12,10 +10,10 @@ import org.slf4j.LoggerFactory;
  */
 public class Poller implements Runnable, Destroyable {
 
-   private static final Logger LOG = LoggerFactory.getLogger(Poller.class);
    private volatile boolean shouldContinue;
    private final long interval;
    private final RecurringTask task;
+   private Thread taskThread;
 
    public Poller(RecurringTask task, long interval) {
       this.interval = interval;
@@ -26,7 +24,9 @@ public class Poller implements Runnable, Destroyable {
 
    @Override
    public void run() {
-      while (shouldContinue) {
+      taskThread = Thread.currentThread();
+      
+      while (shouldContinue && !taskThread.isInterrupted()) {
          try {
             task.run();
 
@@ -43,6 +43,9 @@ public class Poller implements Runnable, Destroyable {
    @Override
    public synchronized void destroy() {
       shouldContinue = false;
+      
+      // Notify and interrupt the task thread
       notify();
+      taskThread.interrupt();
    }
 }

@@ -3,20 +3,20 @@ package com.rackspace.papi.service.filterchain;
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
 import com.rackspace.papi.commons.util.thread.Poller;
 import com.rackspace.papi.commons.util.thread.RecurringTask;
-import com.rackspace.papi.filter.resource.PowerFilterChainGarbageCollector;
+import com.rackspace.papi.filter.resource.SweepingGarbageCollector;
 import com.rackspace.papi.service.ServiceContext;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.service.threading.ThreadingService;
 import javax.servlet.ServletContextEvent;
 
-public class FilterChainGCServiceContext implements ServiceContext<FilterChainGarbageCollectorService> {
+public class FilterChainGCServiceContext implements ServiceContext<GarbageCollectionService> {
 
    public static final String SERVICE_NAME = "powerapi:/services/filter-chain-gc";
-   private final PowerFilterChainGarbageCollector filterChainGarbageCollector;
+   private final SweepingGarbageCollector filterChainGarbageCollector;
    private DestroyableThreadWrapper gcThread;
 
    public FilterChainGCServiceContext() {
-      filterChainGarbageCollector = new PowerFilterChainGarbageCollector();
+      filterChainGarbageCollector = new SweepingGarbageCollector();
    }
 
    @Override
@@ -25,7 +25,7 @@ public class FilterChainGCServiceContext implements ServiceContext<FilterChainGa
    }
 
    @Override
-   public FilterChainGarbageCollectorService getService() {
+   public GarbageCollectionService getService() {
       return filterChainGarbageCollector;
    }
 
