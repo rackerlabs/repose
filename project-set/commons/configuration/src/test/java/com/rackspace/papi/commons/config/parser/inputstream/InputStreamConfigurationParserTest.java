@@ -35,7 +35,7 @@ public class InputStreamConfigurationParserTest {
       }
 
       @Test
-      public void testRead() throws IOException {
+      public void shouldGetInputStream() throws IOException {
          InputStream actual = instance.read(cr);
          verify(cr, times(1)).newInputStream();
          assertTrue("Should get input stream", actual == stream);
