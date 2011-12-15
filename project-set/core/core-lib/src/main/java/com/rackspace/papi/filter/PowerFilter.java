@@ -8,10 +8,7 @@ import com.rackspace.papi.commons.util.servlet.filter.ApplicationContextAwareFil
 import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
-import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
 import com.rackspace.papi.commons.util.thread.KeyedStackLock;
-import com.rackspace.papi.filter.resource.PowerFilterChainReclaimer;
-import com.rackspace.papi.filter.resource.PowerFilterChainGarbageCollector;
 import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.service.context.jndi.ContextAdapter;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
@@ -24,8 +21,6 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -40,9 +35,6 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     private final UpdateListener<PowerProxy> systemModelConfigurationListener;
     private boolean firstInitialization;
     private PowerFilterChainBuilder powerFilterChainBuilder;
-    private PowerFilterChainGarbageCollector filterChainGarbageCollector;
-    private DestroyableThreadWrapper filterChainGarbageCollectorThread;
-    private List<FilterContext> filterChain;
     private ContextAdapter papiContext;
     private PowerProxy currentSystemModel;
     private FilterConfig filterConfig;
@@ -51,8 +43,6 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         KeyedStackLock updateLock = new KeyedStackLock();
         Object updateKey = new Object();
         firstInitialization = true;
-
-        filterChain = new LinkedList<FilterContext>();
 
         systemModelConfigurationListener = new LockedConfigurationUpdater<PowerProxy>(updateLock, updateKey) {
 
@@ -99,7 +89,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     // it up until all RequestFilterChainState objects are no longer referencing it.
     private synchronized void updateFilterChainBuilder(List<FilterContext> newFilterChain) {
         if (powerFilterChainBuilder != null) {
-           papiContext.filterChainGarbageCollectorService().retireFilterChainBuilder(powerFilterChainBuilder);
+           papiContext.filterChainGarbageCollectorService().reclaimDestroyable(powerFilterChainBuilder, powerFilterChainBuilder.getResourceConsumerMonitor());
         }
         
         powerFilterChainBuilder = new PowerFilterChainBuilder(newFilterChain);

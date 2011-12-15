@@ -4,20 +4,21 @@ package com.rackspace.papi.filter.resource;
  *
  * @author zinic
  */
-public class ResourceConsumerMonitor implements ResourceMonitor {
+public class ResourceConsumerCounter implements ResourceMonitor {
 
    private int resourceConsumers;
 
-   public ResourceConsumerMonitor() {
+   public ResourceConsumerCounter() {
       resourceConsumers = 0;
    }
 
-   public int currentConsumerCount() {
-      return resourceConsumers;
+   @Override
+   public boolean inUse() {
+      return resourceConsumers > 0;
    }
 
    @Override
-   public void inUse() {
+   public void use() {
       resourceConsumers++;
    }
 

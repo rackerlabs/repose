@@ -49,7 +49,7 @@ public class PowerFilterChain implements FilterChain {
    }
 
    public void startFilterChain(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
-      resourceMonitor.inUse();
+      resourceMonitor.use();
 
       try {
          doFilter(servletRequest, servletResponse);
