@@ -5,6 +5,7 @@ require 'rubygems'
 require 'net/ssh'
 require 'net/scp'
 require 'net/http'
+require 'etc'
 
 require File.join(File.dirname(__FILE__), 'InstanceConstants.rb')
 require File.join(File.dirname(__FILE__), 'ReposeInstance.rb')
@@ -53,7 +54,7 @@ module ValveCluster
     end
     
     def buildValveCluster(filterChain,clusterSize,jenkins=false)
-        baseName = Time.new.strftime("%d%b%y%M")
+        baseName = Time.new.strftime("%d%b%y%M-#{Etc.getlogin}")
         cluster = Array.new
         clusterSize =1 #hard setting this to one for now.
 
