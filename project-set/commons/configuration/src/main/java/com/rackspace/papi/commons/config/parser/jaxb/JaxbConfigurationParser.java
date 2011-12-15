@@ -8,11 +8,11 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.Unmarshaller;
 
-public class JaxbConfigurationObjectParser <T> extends AbstractConfigurationObjectParser<T> {
+public class JaxbConfigurationParser <T> extends AbstractConfigurationObjectParser<T> {
 
     private final Pool<Unmarshaller> marshallerPool;
 
-    public JaxbConfigurationObjectParser(Class<T> configurationClass, JAXBContext jaxbContext) {
+    public JaxbConfigurationParser(Class<T> configurationClass, JAXBContext jaxbContext) {
         super(configurationClass);
 
         marshallerPool = new GenericBlockingResourcePool<Unmarshaller>(

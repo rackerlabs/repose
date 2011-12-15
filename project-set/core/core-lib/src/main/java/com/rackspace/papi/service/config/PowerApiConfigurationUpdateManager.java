@@ -2,7 +2,7 @@ package com.rackspace.papi.service.config;
 
 import com.rackspace.papi.commons.config.manager.ConfigurationUpdateManager;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.config.parser.ConfigurationObjectParser;
+import com.rackspace.papi.commons.config.parser.ConfigurationParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
 import com.rackspace.papi.commons.util.thread.Poller;
@@ -55,7 +55,7 @@ public class PowerApiConfigurationUpdateManager implements ConfigurationUpdateMa
    }
 
    @Override
-   public synchronized <T> void registerListener(UpdateListener<T> listener, ConfigurationResource resource, ConfigurationObjectParser<T> parser) {
+   public synchronized <T> void registerListener(UpdateListener<T> listener, ConfigurationResource resource, ConfigurationParser<T> parser) {
       Map<Integer, ParserListenerPair> resourceListeners = listenerMap.get(resource.name());
 
       if (resourceListeners == null) {

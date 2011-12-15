@@ -1,0 +1,52 @@
+package com.rackspace.papi.commons.config.parser.properties;
+
+import com.rackspace.papi.commons.config.resource.ConfigurationResource;
+import com.rackspace.papi.commons.config.resource.ResourceResolutionException;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.util.Properties;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
+
+@RunWith(Enclosed.class)
+public class PropertiesFileConfigurationParserTest {
+
+   public static class WhenReadingPropertiesFile {
+
+      private PropertiesFileConfigurationParser instance;
+      private ConfigurationResource cr;
+      private ConfigurationResource badCr;
+      private Properties props;
+
+      @Before
+      public void setUp() throws IOException {
+         ByteArrayOutputStream out = new ByteArrayOutputStream();
+         instance = new PropertiesFileConfigurationParser();
+
+         props = new Properties();
+         props.setProperty("key", "value");
+         props.setProperty("key2", "some other value");
+         props.store(out, "TEST");
+         cr = mock(ConfigurationResource.class);
+         when(cr.newInputStream()).thenReturn(new ByteArrayInputStream(out.toByteArray()));
+         badCr = mock(ConfigurationResource.class);
+         when(badCr.newInputStream()).thenThrow(new IOException());
+      }
+
+      @Test
+      public void shouldReturnValidPropertiesFile() {
+         Properties actual = instance.read(cr);
+         assertEquals("Should get properties file", props, actual);
+      }
+      
+      @Test(expected=ResourceResolutionException.class)
+      public void shouldThrowResourceResolutionException() {
+         instance.read(badCr);
+      }
+   }
+}

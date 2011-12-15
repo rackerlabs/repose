@@ -4,8 +4,8 @@ import com.oracle.javaee6.ApplicationType;
 import com.oracle.javaee6.FilterType;
 import com.oracle.javaee6.ObjectFactory;
 import com.oracle.javaee6.WebFragmentType;
-import com.rackspace.papi.commons.config.parser.ConfigurationObjectParser;
-import com.rackspace.papi.commons.config.parser.jaxb.JaxbConfigurationObjectParser;
+import com.rackspace.papi.commons.config.parser.ConfigurationParser;
+import com.rackspace.papi.commons.config.parser.jaxb.JaxbConfigurationParser;
 import com.rackspace.papi.commons.config.resource.impl.ByteArrayConfigurationResource;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.classloader.ResourceDescriptor;
@@ -31,19 +31,19 @@ public class DefaultEarArchiveEntryListener implements EarArchiveEntryListener {
     private static final Logger LOG = LoggerFactory.getLogger(DefaultEarArchiveEntryListener.class);
     private static final List<String> DEFAULT_ACCEPTED_RESOURCE_EXTENSIONS = Arrays.asList("xml", "properties");
     
-    private static final ConfigurationObjectParser<ApplicationType> APPLICATION_XML_PARSER;
-    private static final ConfigurationObjectParser<WebFragmentType> WEB_FRAGMENT_XML_PARSER;
+    private static final ConfigurationParser<ApplicationType> APPLICATION_XML_PARSER;
+    private static final ConfigurationParser<WebFragmentType> WEB_FRAGMENT_XML_PARSER;
 
 
     static {
-        ConfigurationObjectParser<ApplicationType> applicationXmlParser = null;
-        ConfigurationObjectParser<WebFragmentType> webFragmentXmlParser = null;
+        ConfigurationParser<ApplicationType> applicationXmlParser = null;
+        ConfigurationParser<WebFragmentType> webFragmentXmlParser = null;
 
         try {
             final JAXBContext jaxbContext = JAXBContext.newInstance(ObjectFactory.class);
 
-            applicationXmlParser = new JaxbConfigurationObjectParser<ApplicationType>(ApplicationType.class, jaxbContext);
-            webFragmentXmlParser = new JaxbConfigurationObjectParser<WebFragmentType>(WebFragmentType.class, jaxbContext);
+            applicationXmlParser = new JaxbConfigurationParser<ApplicationType>(ApplicationType.class, jaxbContext);
+            webFragmentXmlParser = new JaxbConfigurationParser<WebFragmentType>(WebFragmentType.class, jaxbContext);
         } catch (JAXBException jaxbe) {
             LOG.error("Fatal error while trying to stand up the Ear Classloader JAXB parsers", jaxbe);
         }

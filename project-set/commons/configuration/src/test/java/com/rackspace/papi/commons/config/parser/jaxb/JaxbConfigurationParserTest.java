@@ -1,6 +1,6 @@
 package com.rackspace.papi.commons.config.parser.jaxb;
 
-import com.rackspace.papi.commons.config.parser.ConfigurationObjectParser;
+import com.rackspace.papi.commons.config.parser.ConfigurationParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -15,14 +15,14 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(Enclosed.class)
-public class JaxbConfigurationObjectParserTest {
+public class JaxbConfigurationParserTest {
 
     public static class WhenUsingJaxbConfigurationObjectParser {
 
         @Test
         public void shouldReadConfigurationResource() throws JAXBException, IOException {
             final JAXBContext jaxbContext = JAXBContext.newInstance(Element.class);
-            ConfigurationObjectParser<Element> parser = new JaxbConfigurationObjectParser<Element>(Element.class, jaxbContext);
+            ConfigurationParser<Element> parser = new JaxbConfigurationParser<Element>(Element.class, jaxbContext);
 
             ConfigurationResource cfgResource = mock(ConfigurationResource.class);
             when(cfgResource.newInputStream()).thenReturn(ConfigurationResource.class.getResourceAsStream("/META-INF/test/element.xml"));
@@ -35,7 +35,7 @@ public class JaxbConfigurationObjectParserTest {
         @Test(expected=ClassCastException.class)
         public void shouldThrowClassCastException() throws JAXBException, IOException {
             final JAXBContext jaxbContext = JAXBContext.newInstance(Element.class);
-            ConfigurationObjectParser<String> parser = new JaxbConfigurationObjectParser<String>(String.class, jaxbContext);
+            ConfigurationParser<String> parser = new JaxbConfigurationParser<String>(String.class, jaxbContext);
 
             ConfigurationResource cfgResource = mock(ConfigurationResource.class);
             when(cfgResource.newInputStream()).thenReturn(ConfigurationResource.class.getResourceAsStream("/META-INF/test/element.xml"));

@@ -3,7 +3,7 @@ package com.rackspace.papi.servlet.boot.service.config;
 import com.rackspace.papi.service.config.PowerApiConfigurationUpdateManager;
 import org.junit.Ignore;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.config.parser.ConfigurationObjectParser;
+import com.rackspace.papi.commons.config.parser.ConfigurationParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.service.event.EventService;
@@ -71,7 +71,7 @@ public class PowerApiConfigurationUpdateManagerTest {
             updateManger.initialize(context);
 
             updateManger.registerListener(listener, resource,
-                    new ConfigurationObjectParser<String>() {
+                    new ConfigurationParser<String>() {
 
                         @Override
                         public String read(ConfigurationResource cr) {
@@ -96,7 +96,7 @@ public class PowerApiConfigurationUpdateManagerTest {
             updateManger.initialize(context);
 
             updateManger.registerListener(listener, resource,
-                    new ConfigurationObjectParser<String>() {
+                    new ConfigurationParser<String>() {
 
                         @Override
                         public String read(ConfigurationResource cr) {

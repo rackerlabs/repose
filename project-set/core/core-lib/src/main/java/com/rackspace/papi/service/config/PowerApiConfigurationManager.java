@@ -1,28 +1,29 @@
 package com.rackspace.papi.service.config;
 
+import com.rackspace.papi.commons.config.ConfigurationResourceException;
 import com.rackspace.papi.commons.config.manager.ConfigurationUpdateManager;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.config.parser.ConfigurationObjectParser;
-import com.rackspace.papi.commons.config.parser.jaxb.JaxbConfigurationObjectParser;
+import com.rackspace.papi.commons.config.parser.ConfigurationParser;
+import com.rackspace.papi.commons.config.parser.ConfigurationParserFactory;
+import com.rackspace.papi.commons.config.parser.ConfigurationParserType;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.config.resource.ConfigurationResourceResolver;
+import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class PowerApiConfigurationManager implements ConfigurationService {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerApiConfigurationManager.class);
-    private final Map<Class, WeakReference<ConfigurationObjectParser>> parserLookaside;
+    private final Map<Class, WeakReference<ConfigurationParser>> parserLookaside;
     private ConfigurationUpdateManager updateManager;
     private ConfigurationResourceResolver resourceResolver;
 
     public PowerApiConfigurationManager() {
-        parserLookaside = new HashMap<Class, WeakReference<ConfigurationObjectParser>>();
+        parserLookaside = new HashMap<Class, WeakReference<ConfigurationParser>>();
     }
 
     public void destroy() {
@@ -40,14 +41,17 @@ public class PowerApiConfigurationManager implements ConfigurationService {
 
     @Override
     public <T> void subscribeTo(String configurationName, UpdateListener<T> listener, Class<T> configurationClass) {
-        final ConfigurationObjectParser<T> parser = getJaxbConfigurationParser(configurationClass);
-        final ConfigurationResource resource = resourceResolver.resolve(configurationName);
+       subscribeTo(configurationName, listener, getPooledJaxbConfigurationParser(configurationClass));
+    }
 
-        updateManager.registerListener(listener, resource, parser);
+   @Override
+    public <T> void subscribeTo(String configurationName, UpdateListener<T> listener, ConfigurationParser<T> customParser) {
+        final ConfigurationResource resource = resourceResolver.resolve(configurationName);
+        updateManager.registerListener(listener, resource, customParser);
 
         // Initial load of the cfg object
         try {
-            listener.configurationUpdated(parser.read(resource));
+            listener.configurationUpdated(customParser.read(resource));
         } catch (Exception ex) {
             LOG.error("Configuration update error: " + ex.getMessage(), ex);
         }
@@ -58,19 +62,18 @@ public class PowerApiConfigurationManager implements ConfigurationService {
         updateManager.unregisterListener(listener, resourceResolver.resolve(configurationName));
     }
 
-    public <T> ConfigurationObjectParser<T> getJaxbConfigurationParser(Class<T> configurationClass) {
-        final WeakReference<ConfigurationObjectParser> parserReference = parserLookaside.get(configurationClass);
-        ConfigurationObjectParser<T> parser = parserReference != null ? parserReference.get() : null;
+    public <T> ConfigurationParser<T> getPooledJaxbConfigurationParser(Class<T> configurationClass) {
+        final WeakReference<ConfigurationParser> parserReference = parserLookaside.get(configurationClass);
+        ConfigurationParser<T> parser = parserReference != null ? parserReference.get() : null;
 
         if (parser == null) {
             try {
-                final JAXBContext jaxbCtx = JAXBContext.newInstance(configurationClass.getPackage().getName());
-                parser = new JaxbConfigurationObjectParser<T>(configurationClass, jaxbCtx);
-            } catch (JAXBException jaxbe) {
-                throw new ConfigurationServiceException("Failed to create a JAXB context for a configuration parser. Reason: " + jaxbe.getMessage(), jaxbe);
+                parser = ConfigurationParserFactory.getXmlConfigurationParser(configurationClass);
+            } catch (ConfigurationResourceException cre) {
+                throw new ConfigurationServiceException("Failed to create a JAXB context for a configuration parser. Reason: " + cre.getMessage(), cre);
             }
 
-            parserLookaside.put(configurationClass, new WeakReference<ConfigurationObjectParser>(parser));
+            parserLookaside.put(configurationClass, new WeakReference<ConfigurationParser>(parser));
         }
 
         return parser;
