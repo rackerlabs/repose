@@ -25,7 +25,7 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
     private String loggingConfigurationConfig = "";
 
     public LoggingServiceContext() {
-        this.loggingService = new LoggingServiceImpl();
+        this.loggingService = new LoggingServiceImpl(LogFrameworks.LOG4J);
         this.configurationListener = new ContainerConfigurationListener();
         this.loggingConfigurationListener = new LoggingConfigurationListener();
     }
@@ -48,8 +48,8 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
             if (configurationObject.getDeploymentConfig() != null) {
                 final LoggingConfiguration loggingConfig = configurationObject.getDeploymentConfig().getLoggingConfiguration();
 
-                if (loggingConfig != null && !StringUtilities.isBlank(loggingConfig.getValue())) {
-                    final String newLoggingConfig = loggingConfig.getValue();
+                if (loggingConfig != null && !StringUtilities.isBlank(loggingConfig.getHref())) {
+                    final String newLoggingConfig = loggingConfig.getHref();
 
                     if (!loggingConfigurationConfig.equalsIgnoreCase(newLoggingConfig)) {
                         updateLogConfigFileSubscription(loggingConfigurationConfig, newLoggingConfig);
@@ -60,9 +60,10 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
         }
     }
 
+    // TODO: Uncomment out all subscribes and unsubscribes once the parser gets updated
     private void updateLogConfigFileSubscription(String currentLoggingConfig, String loggingConfig) {
-        configurationManager.unsubscribeFrom(currentLoggingConfig, loggingConfigurationListener);
-        configurationManager.subscribeTo(loggingConfig, loggingConfigurationListener, InputStream.class);
+//        configurationManager.unsubscribeFrom(currentLoggingConfig, loggingConfigurationListener);
+//        configurationManager.subscribeTo(loggingConfig, loggingConfigurationListener, InputStream.class);
     }
 
     private class LoggingConfigurationListener implements UpdateListener<InputStream> {
@@ -79,17 +80,13 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
         configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
 
         configurationManager.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);
-        
-        /* 
-         * TODO: Re-implement when custom parser is created
-         */
-        //configurationManager.subscribeTo(loggingFileLocation, loggingConfigurationListener, InputStream.class); 
-        configurationManager.subscribeTo(loggingConfigurationConfig, loggingConfigurationListener, InputStream.class);
+
+//        configurationManager.subscribeTo(loggingConfigurationConfig, loggingConfigurationListener, InputStream.class);
     }
 
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
         configurationManager.unsubscribeFrom("container.cfg.xml", configurationListener);
-        configurationManager.unsubscribeFrom(loggingConfigurationConfig, loggingConfigurationListener);
+//        configurationManager.unsubscribeFrom(loggingConfigurationConfig, loggingConfigurationListener);
     }
 }
