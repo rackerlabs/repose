@@ -1,7 +1,9 @@
 package com.rackspace.papi.components.translation.util;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
@@ -12,10 +14,17 @@ public class InputStreamUriParameterResolver implements URIResolver {
 
     private final static String PREFIX = "reference:jio:";
     private final Map<String, InputStream> streams = new HashMap<String, InputStream>();
-    private final URIResolver parent;
+    private final List<URIResolver> resolvers = new ArrayList<URIResolver>();
+    
+    public InputStreamUriParameterResolver() {
+    }
     
     public InputStreamUriParameterResolver(URIResolver parent) {
-        this.parent = parent;
+        resolvers.add(parent);
+    }
+    
+    public void addResolver(URIResolver resolver) {
+       resolvers.add(resolver);
     }
     
     public String addStream(InputStream inputStreamReference) {
@@ -40,8 +49,15 @@ public class InputStreamUriParameterResolver implements URIResolver {
            return new StreamSource(stream);
         }
         
-        if (parent != null && href != null && !href.startsWith("reference")) {
-           return parent.resolve(href, base);
+        if (!resolvers.isEmpty()) {
+           for (URIResolver resolver: resolvers) {
+              Source source = resolver.resolve(href, base);
+              if (source != null) {
+                 return source;
+              }
+           }
+
+           return null;
         }
         
         throw new RuntimeException("Failed to resolve href: " + href);

@@ -1,16 +1,10 @@
-/*
- *
- */
 package com.rackspace.papi.components.translation.xproc;
 
-import com.rackspace.papi.components.translation.xproc.Pipeline;
+import javax.xml.transform.URIResolver;
 
-/**
- *
- * @author Dan Daley
- */
 public interface PipelineBuilder {
 
    Pipeline build(String pipelineUri);
+   public Pipeline build(String pipelineUri, URIResolver... resolvers);
    
 }

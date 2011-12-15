@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.translation.xproc.calabash;
 
 import com.rackspace.papi.components.translation.util.InputStreamUriParameterResolver;
+import com.rackspace.papi.components.translation.xproc.AbstractPipeline;
 import com.rackspace.papi.components.translation.xproc.Pipeline;
 import com.rackspace.papi.components.translation.xproc.PipelineException;
 import com.rackspace.papi.components.translation.xproc.PipelineInput;
@@ -8,7 +9,6 @@ import com.xmlcalabash.core.XProcRuntime;
 import com.xmlcalabash.io.ReadablePipe;
 import com.xmlcalabash.model.RuntimeValue;
 import com.xmlcalabash.runtime.XPipeline;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,9 +24,8 @@ import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmNode;
 import org.xml.sax.InputSource;
 
-public class CalabashPipeline implements Pipeline {
+public class CalabashPipeline extends AbstractPipeline implements Pipeline {
    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(CalabashPipeline.class);
-   private final InputStreamUriParameterResolver resolver;
    private final XProcRuntime runtime;
    private final XPipeline pipeline;
    private final boolean legacySourceOutput;
@@ -36,27 +35,46 @@ public class CalabashPipeline implements Pipeline {
    }
 
    public CalabashPipeline(XPipeline pipeline, XProcRuntime runtime, InputStreamUriParameterResolver resolver, boolean legacySourceOutput) {
-      this.resolver = resolver;
+      super(resolver);
       this.runtime = runtime;
       this.pipeline = pipeline;
       this.legacySourceOutput = legacySourceOutput;
    }
    
-   protected <T> void addParameter(PipelineInput<T> input) {
-      RuntimeValue runtimeParam;
+   protected <T> RuntimeValue getRuntimeValue(PipelineInput<T> input) {
+      RuntimeValue runtimeValue;
       T source = input.getSource();
       
       if (source instanceof InputStream) {
-         runtimeParam =  new RuntimeValue(resolver.addStream((InputStream)source));
+         runtimeValue =  new RuntimeValue(getUriResolver().addStream((InputStream)source));
       } else if (source instanceof String) {
-         runtimeParam =  new RuntimeValue(source.toString());
+         runtimeValue =  new RuntimeValue(source.toString());
       } else {
          // TODO: handle other types?
-         throw new IllegalArgumentException("Illegal parameter type: " + source.getClass().getName());
+         throw new IllegalArgumentException("Illegal input type: " + source.getClass().getName());
       }
-      pipeline.setParameter(new QName("", input.getName()), runtimeParam);
+      
+      return runtimeValue;
    }
    
+   @Override
+   protected <T> void addParameter(PipelineInput<T> input) {
+      RuntimeValue runtimeParam = getRuntimeValue(input);
+      T source = input.getSource();
+      
+      if (pipeline.getInputs().contains("parameters")) {
+         pipeline.setParameter("parameters", new QName("", input.getName()), runtimeParam);
+      } else {
+         pipeline.setParameter(new QName("", input.getName()), runtimeParam);
+      }
+   }
+   
+   @Override
+   protected void addOption(PipelineInput input) {
+      pipeline.setOption(new QName(input.getName()), getRuntimeValue(input));
+   }
+   
+   @Override
    protected <T> void addPort(PipelineInput<T> input) {
       XdmNode node;
       T source = input.getSource();
@@ -71,58 +89,6 @@ public class CalabashPipeline implements Pipeline {
       }
       
       pipeline.writeTo(input.getName(), node);
-   }
-   
-   protected void addOption(PipelineInput input) {
-      // TODO: Implement this
-      throw new UnsupportedOperationException();
-   }
-   
-   protected void handleInputs(List<PipelineInput> inputs) {
-      for (PipelineInput input: inputs) {
-         switch (input.getType()) {
-            case PORT:
-               addPort(input);
-               break;
-               
-            case PARAMETER:
-               addParameter(input);
-               break;
-               
-            case OPTION:
-               addOption(input);
-               break;
-               
-            default:
-               throw new IllegalArgumentException("Input type not supported: " + input.getType());
-         }
-      }
-   }
-   
-   protected <T> void clearParameter(PipelineInput<T> input) {
-      T source = input.getSource();
-      
-      if (source instanceof InputStream) {
-         try {
-            ((InputStream)source).close();
-         } catch (IOException ex) {
-            LOG.error("Unable to close input stream", ex);
-         }
-         resolver.removeStream((InputStream)source);
-      }
-   }
-   
-   protected void clearParameters(List<PipelineInput> inputs) {
-      
-      for (PipelineInput input: inputs) {
-         switch (input.getType()) {
-            case PARAMETER:
-               clearParameter(input);
-               break;
-            default:
-               break;
-         }
-      }
    }
    
    @Override
