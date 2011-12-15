@@ -6,7 +6,9 @@ package com.rackspace.papi.filter.resource;
  */
 public interface ResourceMonitor {
 
-   void inUse();
+   boolean inUse();
+   
+   void use();
 
    void released();
 }

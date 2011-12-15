@@ -15,7 +15,7 @@ import com.rackspace.papi.service.config.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.ResponseMessageServiceContext;
 import com.rackspace.papi.service.datastore.DatastoreServiceContext;
 import com.rackspace.papi.service.filterchain.FilterChainGCServiceContext;
-import com.rackspace.papi.service.filterchain.FilterChainGarbageCollectorService;
+import com.rackspace.papi.service.filterchain.GarbageCollectionService;
 import com.rackspace.papi.service.threading.ThreadingServiceContext;
 import com.rackspace.papi.service.threading.ThreadingService;
 
@@ -70,7 +70,7 @@ public class JndiContextAdapter implements ContextAdapter {
     }
 
     @Override
-    public FilterChainGarbageCollectorService filterChainGarbageCollectorService() throws ServiceUnavailableException {
+    public GarbageCollectionService filterChainGarbageCollectorService() throws ServiceUnavailableException {
         return lookup(FilterChainGCServiceContext.SERVICE_NAME, namingContext);
     }
 
