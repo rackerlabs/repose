@@ -6,7 +6,7 @@
     <parent>
         <artifactId>service-client-support</artifactId>
         <groupId>com.rackspace.papi.external.clients</groupId>
-        <version>1.0.4-SNAPSHOT</version>
+        <version>1.0.4</version>
     </parent>
 
     <groupId>com.rackspace.cloud.services.clients</groupId>
