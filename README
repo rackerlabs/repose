@@ -16,9 +16,9 @@ Completed Repose components include:
     Client Authentication
     Rate Limiting
     Versioning
+    HTTP Logging
 
 Repose components that are currently being developed include:
-    HTTP Logging
     Service Authentication
     Content Normalization
     Translation
