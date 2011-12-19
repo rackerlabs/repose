@@ -155,21 +155,6 @@
                     </modules>
                 </configuration>
             </plugin>
-        </plugins>
-    </build>
-    
-    <profiles>
-        <profile>
-            <id>Build Filter Bundle RPM</id>
-                        
-            <activation>
-                <property>
-                    <name>build-system-packages</name>
-                </property>
-            </activation>
-        
-            <build>
-                <plugins>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
@@ -257,8 +242,6 @@
                             </execution>
                         </executions>                
                     </plugin>            
-                </plugins>
-            </build>
-        </profile>        
-    </profiles>
+        </plugins>
+    </build>
 </project>
