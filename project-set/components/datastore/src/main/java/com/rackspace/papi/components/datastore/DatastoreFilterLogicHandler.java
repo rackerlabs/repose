@@ -24,92 +24,95 @@ import org.slf4j.LoggerFactory;
  * @author Dan Daley
  */
 public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
-    private static final Logger LOG = LoggerFactory.getLogger(DatastoreFilterLogicHandler.class);
-    
-    private final MutableClusterView clusterView;
-    private String lastLocalAddr;
-    private HashedDatastore hashRingDatastore;
-    
-    public DatastoreFilterLogicHandler(MutableClusterView clusterView, String lastLocalAddr, HashedDatastore hashRingDatastore) {
-       this.clusterView = clusterView;
-       this.lastLocalAddr = lastLocalAddr;
-       this.hashRingDatastore = hashRingDatastore;
-    }
 
-    @Override
-    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
-        final FilterDirector director = new FilterDirectorImpl();
-        director.setFilterAction(FilterAction.PASS);
+   private static final Logger LOG = LoggerFactory.getLogger(DatastoreFilterLogicHandler.class);
+   private final MutableClusterView clusterView;
+   private String lastLocalAddr;
+   private HashedDatastore hashRingDatastore;
 
-        updateClusterViewLocalAddress(request.getLocalAddr(), request.getLocalPort());
+   public DatastoreFilterLogicHandler(MutableClusterView clusterView, String lastLocalAddr, HashedDatastore hashRingDatastore) {
+      this.clusterView = clusterView;
+      this.lastLocalAddr = lastLocalAddr;
+      this.hashRingDatastore = hashRingDatastore;
+   }
 
-        if (CacheRequest.isCacheRequest(request)) {
-            final String requestMethod = request.getMethod();
+   @Override
+   public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
+      final FilterDirector director = new FilterDirectorImpl();
+      director.setFilterAction(FilterAction.PASS);
 
-            try {
-                if (requestMethod.equalsIgnoreCase("GET")) {
-                    onCacheGet(CacheRequest.marshallCacheGetRequest(request), director);
-                } else if (requestMethod.equalsIgnoreCase("PUT")) {
-                    final CacheRequest cachePut = CacheRequest.marshallCachePutRequest(request);
-                    hashRingDatastore.putByHash(cachePut.getCacheKey(), cachePut.getPayload(), cachePut.getTtlInSeconds(), TimeUnit.SECONDS);
+      updateClusterViewLocalAddress(request.getLocalAddr(), request.getLocalPort());
 
-                    director.setResponseStatus(HttpStatusCode.ACCEPTED);
-                    director.setFilterAction(FilterAction.RETURN);
-                } else if (requestMethod.equalsIgnoreCase("DELETE")) {
-                    director.setResponseStatus(HttpStatusCode.NOT_IMPLEMENTED);
-                    director.setFilterAction(FilterAction.RETURN);
-                } else {
-                    director.setResponseStatus(HttpStatusCode.NOT_IMPLEMENTED);
-                    director.setFilterAction(FilterAction.RETURN);
-                }
-            } catch (MalformedCacheRequestException mcre) {
-                LOG.error(mcre.getMessage(), mcre);
+      if (CacheRequest.isCacheRequest(request)) {
+         final String requestMethod = request.getMethod();
 
-                director.getResponseWriter().write(mcre.getMessage() == null ? "" : mcre.getMessage());
-                director.setResponseStatus(HttpStatusCode.BAD_REQUEST);
-                director.setFilterAction(FilterAction.RETURN);
-            } catch (Exception ex) {
-                LOG.error(ex.getMessage(), ex);
+         try {
+            if (requestMethod.equalsIgnoreCase("GET")) {
+               onCacheGet(CacheRequest.marshallCacheGetRequest(request), director);
+            } else if (requestMethod.equalsIgnoreCase("PUT")) {
+               final CacheRequest cachePut = CacheRequest.marshallCachePutRequest(request);
+               hashRingDatastore.putByHash(cachePut.getCacheKey(), cachePut.getPayload(), cachePut.getTtlInSeconds(), TimeUnit.SECONDS);
 
-                director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                director.setFilterAction(FilterAction.RETURN);
+               director.setResponseStatus(HttpStatusCode.ACCEPTED);
+               director.setFilterAction(FilterAction.RETURN);
+            } else if (requestMethod.equalsIgnoreCase("DELETE")) {
+               final CacheRequest cacheDelete = CacheRequest.marshallCacheGetRequest(request);
+               hashRingDatastore.removeByHash(cacheDelete.getCacheKey());
+
+               director.setResponseStatus(HttpStatusCode.ACCEPTED);
+               director.setFilterAction(FilterAction.RETURN);
+            } else {
+               director.setResponseStatus(HttpStatusCode.NOT_IMPLEMENTED);
+               director.setFilterAction(FilterAction.RETURN);
             }
-        }
+         } catch (MalformedCacheRequestException mcre) {
+            LOG.error(mcre.getMessage(), mcre);
 
-        return director;
-    }
-   
-    public void updateClusterViewLocalAddress(String newLocalAddr, int newLocalPort) {
-        if (lastLocalAddr == null || !lastLocalAddr.equals(newLocalAddr)) {
-            // String immutability should make this assignment safe
-            lastLocalAddr = newLocalAddr;
-
-            final InetSocketAddress localInetSocketAddress = new InetSocketAddress(newLocalAddr, newLocalPort);
-
-            if (!localInetSocketAddress.equals(clusterView.localMember())) {
-                clusterView.updateLocal(localInetSocketAddress);
-            }
-        }
-    }
-
-    public void onCacheGet(CacheRequest cacheGet, FilterDirector director) {
-        final StoredElement element = hashRingDatastore.getByHash(cacheGet.getCacheKey());
-
-        if (!element.elementIsNull()) {
-            try {
-                director.getResponseOutputStream().write(element.elementBytes());
-
-                director.setResponseStatus(HttpStatusCode.OK);
-                director.setFilterAction(FilterAction.RETURN);
-            } catch (IOException ioe) {
-                LOG.error(ioe.getMessage(), ioe);
-
-                director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                director.setFilterAction(FilterAction.RETURN);
-            }
-        } else {
-            director.setResponseStatus(HttpStatusCode.NOT_FOUND);
+            director.getResponseWriter().write(mcre.getMessage() == null ? "" : mcre.getMessage());
+            director.setResponseStatus(HttpStatusCode.BAD_REQUEST);
             director.setFilterAction(FilterAction.RETURN);
-        }
-    }
+         } catch (Exception ex) {
+            LOG.error(ex.getMessage(), ex);
+
+            director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+            director.setFilterAction(FilterAction.RETURN);
+         }
+      }
+
+      return director;
+   }
+
+   public void updateClusterViewLocalAddress(String newLocalAddr, int newLocalPort) {
+      if (lastLocalAddr == null || !lastLocalAddr.equals(newLocalAddr)) {
+         // String immutability should make this assignment safe
+         lastLocalAddr = newLocalAddr;
+
+         final InetSocketAddress localInetSocketAddress = new InetSocketAddress(newLocalAddr, newLocalPort);
+
+         if (!localInetSocketAddress.equals(clusterView.localMember())) {
+            clusterView.updateLocal(localInetSocketAddress);
+         }
+      }
+   }
+
+   public void onCacheGet(CacheRequest cacheGet, FilterDirector director) {
+      final StoredElement element = hashRingDatastore.getByHash(cacheGet.getCacheKey());
+
+      if (!element.elementIsNull()) {
+         try {
+            director.getResponseOutputStream().write(element.elementBytes());
+
+            director.setResponseStatus(HttpStatusCode.OK);
+            director.setFilterAction(FilterAction.RETURN);
+         } catch (IOException ioe) {
+            LOG.error(ioe.getMessage(), ioe);
+
+            director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+            director.setFilterAction(FilterAction.RETURN);
+         }
+      } else {
+         director.setResponseStatus(HttpStatusCode.NOT_FOUND);
+         director.setFilterAction(FilterAction.RETURN);
+      }
+   }
 }
