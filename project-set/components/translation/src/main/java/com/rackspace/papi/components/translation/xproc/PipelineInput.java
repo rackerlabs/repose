@@ -13,6 +13,10 @@ public class PipelineInput<T> {
       return new PipelineInput<P>(name, PipelineInputType.PORT, source);
    }
    
+   public static <P> PipelineInput option(String name, P source) {
+      return new PipelineInput<P>(name, PipelineInputType.OPTION, source);
+   }
+
    public PipelineInput(String name, PipelineInputType type, T source) {
       this.name = name;
       this.type = type;
