@@ -3,6 +3,7 @@ package com.rackspace.papi.components.translation.xproc;
 import com.rackspace.papi.components.translation.util.InputStreamUriParameterResolver;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class AbstractPipeline implements Pipeline {
@@ -13,12 +14,15 @@ public abstract class AbstractPipeline implements Pipeline {
       this.resolver = resolver;
    }
    
-   
    protected abstract <T> void addParameter(PipelineInput<T> input);
    
    protected abstract <T>void addPort(PipelineInput<T> input);
    
    protected abstract <T>void addOption(PipelineInput<T> input);
+   
+   protected void handleInputs(PipelineInput... inputs) {
+      handleInputs(Arrays.asList(inputs));
+   }
    
    protected void handleInputs(List<PipelineInput> inputs) {
       for (PipelineInput input: inputs) {
@@ -58,6 +62,10 @@ public abstract class AbstractPipeline implements Pipeline {
       }
    }
    
+   protected void clearParameters(PipelineInput... inputs) {
+      clearParameters(Arrays.asList(inputs));
+   }
+   
    protected void clearParameters(List<PipelineInput> inputs) {
       
       for (PipelineInput input: inputs) {
@@ -69,6 +77,11 @@ public abstract class AbstractPipeline implements Pipeline {
                break;
          }
       }
+   }
+   
+   @Override
+   public void run(PipelineInput... inputs) {
+      run(Arrays.asList(inputs));
    }
    
 }
