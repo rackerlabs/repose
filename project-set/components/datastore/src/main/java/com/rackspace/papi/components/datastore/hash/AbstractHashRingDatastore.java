@@ -5,7 +5,7 @@ import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.StoredElement;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
-import com.rackspace.papi.service.datastore.hash.HashProvider;
+import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
 import com.rackspace.papi.service.datastore.impl.AbstractHashedDatastore;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
@@ -20,7 +20,7 @@ public abstract class AbstractHashRingDatastore extends AbstractHashedDatastore 
    private final Datastore localDatastore;
    private RemoteCacheClient remoteCache;
 
-   public AbstractHashRingDatastore(MutableClusterView clusterView, String datastorePrefix, Datastore localDatastore, HashProvider hashProvider, EncodingProvider encodingProvider) {
+   public AbstractHashRingDatastore(MutableClusterView clusterView, String datastorePrefix, Datastore localDatastore, MessageDigestFactory hashProvider, EncodingProvider encodingProvider) {
       super(datastorePrefix, encodingProvider, hashProvider);
 
       this.clusterView = clusterView;
@@ -42,7 +42,7 @@ public abstract class AbstractHashRingDatastore extends AbstractHashedDatastore 
          return clusterView.localMember();
       }
 
-      final BigInteger ringSliceSize = getHashProvider().maxValue().divide(BigInteger.valueOf(ringMembers.length));
+      final BigInteger ringSliceSize = getHashProvider().largestDigestValue().divide(BigInteger.valueOf(ringMembers.length));
       final int memberAddress = new BigInteger(hashBytes).divide(ringSliceSize).abs().intValue();
 
       if (memberAddress > ringMembers.length) {

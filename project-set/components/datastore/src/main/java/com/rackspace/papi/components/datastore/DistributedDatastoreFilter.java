@@ -7,14 +7,12 @@ import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.service.context.jndi.ContextAdapter;
-import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
 import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
-import com.rackspace.papi.service.datastore.hash.HashProvider;
 import com.rackspace.papi.service.datastore.hash.HashedDatastore;
-import com.rackspace.papi.service.datastore.hash.MD5HashProvider;
+import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
 import org.slf4j.Logger;
 
 import javax.servlet.Filter;
@@ -26,7 +24,6 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
 import java.util.UUID;
 import javax.naming.NamingException;
 
@@ -76,19 +73,13 @@ public class DistributedDatastoreFilter implements Filter {
       final HashedDatastore hashRingDatastore;
 
       try {
-         final HashProvider hashProvider = new MD5HashProvider();
-
-         final HashRingDatastoreManager hashRingDatastoreManager = new HashRingDatastoreManager("temp-host-key", UUIDEncodingProvider.getInstance(), hashProvider, clusterView, datastoreService.defaultDatastore());
+         final HashRingDatastoreManager hashRingDatastoreManager = new HashRingDatastoreManager("temp-host-key", UUIDEncodingProvider.getInstance(), MD5MessageDigestFactory.getInstance(), clusterView, datastoreService.defaultDatastore());
          hashRingDatastore = hashRingDatastoreManager.newDatastoreServer("default");
 
          datastoreService.registerDatastoreManager(datastoreId, hashRingDatastoreManager);
 
          handlerFactory = new DatastoreFilterLogicHandlerFactory(clusterView, hashRingDatastore);
          contextAdapter.configurationService().subscribeTo("power-proxy.cfg.xml", handlerFactory, PowerProxy.class);
-      } catch (NoSuchAlgorithmException algorithmException) {
-         LOG.error("Unable to create hash-ring datastore. Hashing algorithm is missing. Reason: " + algorithmException.getMessage(), algorithmException);
-
-         throw new DatastoreOperationException("Unable to create hash-ring datastore. Hashing algorithm is missing. Reason: " + algorithmException.getMessage(), algorithmException);
       } catch (NamingException ne) {
          LOG.error(ne.getExplanation(), ne);
       }

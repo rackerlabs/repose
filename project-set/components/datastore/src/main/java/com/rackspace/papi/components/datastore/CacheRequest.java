@@ -2,6 +2,7 @@ package com.rackspace.papi.components.datastore;
 
 import com.rackspace.papi.commons.util.ArrayUtilities;
 import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import java.net.InetSocketAddress;
 
@@ -58,7 +59,7 @@ public class CacheRequest {
       final String hostKey = getHostKey(request);
 
       try {
-         final String ttlHeader = request.getHeader(DatastoreRequestHeaders.DATASTORE_TTL);
+         final String ttlHeader = request.getHeader(ExtendedHttpHeader.X_TTL.getHeaderKey());
          final int ttlInSeconds = StringUtilities.isBlank(ttlHeader) ? -1 : Integer.parseInt(ttlHeader);
 
          return new CacheRequest(cacheKey, hostKey, ttlInSeconds, RawInputStreamReader.instance().readFully(request.getInputStream()));

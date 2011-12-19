@@ -3,19 +3,20 @@ package com.rackspace.papi.service.datastore.impl;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.StoredElement;
 import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
-import com.rackspace.papi.service.datastore.hash.HashProvider;
 import com.rackspace.papi.service.datastore.hash.HashedDatastore;
+import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
+import java.security.NoSuchAlgorithmException;
 import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractHashedDatastore implements HashedDatastore {
 
    private final EncodingProvider encodingProvider;
-   private final HashProvider hashProvider;
+   private final MessageDigestFactory hashProvider;
    private final String datasetPrefix;
 
-   public AbstractHashedDatastore(String datasetPrefix, EncodingProvider encodingProvider, HashProvider hashProvider) {
+   public AbstractHashedDatastore(String datasetPrefix, EncodingProvider encodingProvider, MessageDigestFactory digestProvider) {
       this.encodingProvider = encodingProvider;
-      this.hashProvider = hashProvider;
+      this.hashProvider = digestProvider;
       this.datasetPrefix = datasetPrefix;
    }
 
@@ -27,12 +28,18 @@ public abstract class AbstractHashedDatastore implements HashedDatastore {
       return encodingProvider;
    }
 
-   public HashProvider getHashProvider() {
+   public MessageDigestFactory getHashProvider() {
       return hashProvider;
    }
 
    private byte[] getHash(String key) {
-      return hashProvider.hash(datasetPrefix + key);
+      final byte[] stringBytes = (datasetPrefix + key).getBytes();
+
+      try {
+         return hashProvider.newMessageDigest().digest(stringBytes);
+      } catch(NoSuchAlgorithmException algorithmException) {
+         throw new DatastoreOperationException("Failed to hash key. Reason: " + algorithmException.getMessage());
+      }
    }
 
    @Override
@@ -70,7 +77,7 @@ public abstract class AbstractHashedDatastore implements HashedDatastore {
    public boolean removeByHash(String encodedHashString) throws DatastoreOperationException {
       return remove(encodedHashString, encodingProvider.decode(encodedHashString));
    }
-   
+
    @Override
    public void putByHash(String encodedHashString, byte[] value) {
       put(encodedHashString, encodingProvider.decode(encodedHashString), value, 3, TimeUnit.MINUTES);
@@ -84,6 +91,6 @@ public abstract class AbstractHashedDatastore implements HashedDatastore {
    protected abstract StoredElement get(String name, byte[] id) throws DatastoreOperationException;
 
    protected abstract boolean remove(String name, byte[] id) throws DatastoreOperationException;
-   
+
    protected abstract void put(String name, byte[] id, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException;
 }

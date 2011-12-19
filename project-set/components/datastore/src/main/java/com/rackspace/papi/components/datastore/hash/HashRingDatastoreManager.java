@@ -3,8 +3,8 @@ package com.rackspace.papi.components.datastore.hash;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
-import com.rackspace.papi.service.datastore.hash.HashProvider;
 import com.rackspace.papi.service.datastore.hash.HashedDatastore;
+import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
 import com.rackspace.papi.service.datastore.impl.AbstractMapDatastoreManager;
 
 import java.util.HashMap;
@@ -16,9 +16,9 @@ public class HashRingDatastoreManager extends AbstractMapDatastoreManager<Hashed
    private final MutableClusterView clusterView;
    private final RemoteCacheClient datastoreClientRemote, datastoreServerRemote;
    private final EncodingProvider encodingProvider;
-   private final HashProvider hashProvider;
+   private final MessageDigestFactory hashProvider;
 
-   public HashRingDatastoreManager(String hostKey, EncodingProvider encodingProvider, HashProvider hashProvider, MutableClusterView clusterView, Datastore localDatastore) {
+   public HashRingDatastoreManager(String hostKey, EncodingProvider encodingProvider, MessageDigestFactory hashProvider, MutableClusterView clusterView, Datastore localDatastore) {
       super(new HashMap<String, HashedDatastore>());
 
       this.localDatastore = localDatastore;
