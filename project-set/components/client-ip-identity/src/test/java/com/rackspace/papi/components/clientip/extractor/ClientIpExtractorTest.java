@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.clientip.extractor;
 
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.components.clientip.config.HttpHeader;
 import java.util.ArrayList;
 import java.util.List;

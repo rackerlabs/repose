@@ -1,8 +1,6 @@
 package com.rackspace.papi.components.clientip.extractor;
 
 import com.rackspace.papi.components.clientip.config.HttpHeader;
-import com.rackspace.papi.components.clientip.config.HttpHeaderList;
-import com.rackspace.papi.filter.logic.FilterDirector;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
