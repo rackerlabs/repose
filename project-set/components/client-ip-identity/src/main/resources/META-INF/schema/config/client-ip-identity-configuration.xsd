@@ -19,6 +19,7 @@
         
         <xs:all>
             <xs:element name="source-headers" type="clientip:HttpHeaderList" minOccurs="1" maxOccurs="1" />
+            <xs:element name="quality" type="xs:string" minOccurs="0" maxOccurs="1" default="0.1" />
         </xs:all>
     </xs:complexType>
 

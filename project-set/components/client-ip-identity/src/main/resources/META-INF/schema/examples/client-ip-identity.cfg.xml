@@ -8,4 +8,6 @@
       <header id="X-Forwarded-For"/>
    </source-headers>
    
+   <quality>0.2</quality>
+   
 </client-ip-identity>
