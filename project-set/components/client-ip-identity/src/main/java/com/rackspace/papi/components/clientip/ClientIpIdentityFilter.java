@@ -36,7 +36,7 @@ public class ClientIpIdentityFilter implements Filter {
                 break;
 
             case PASS:
-                chain.doFilter(mutableHttpRequest, response);
+                chain.doFilter(mutableHttpRequest, mutableHttpResponse);
                 break;
         }
     }
