@@ -107,12 +107,12 @@
         </xs:annotation>
         
         <xs:choice >
-            <xs:element name="whitelist" type="cnorm:HttpHeaaderList" />
-            <xs:element name="blacklist" type="cnorm:HttpHeaaderList" />
+            <xs:element name="whitelist" type="cnorm:HttpHeaderList" />
+            <xs:element name="blacklist" type="cnorm:HttpHeaderList" />
         </xs:choice>
     </xs:complexType>
     
-    <xs:complexType name="HttpHeaaderList">
+    <xs:complexType name="HttpHeaderList">
         <xs:annotation>
             <xs:documentation>
                 <html:p></html:p>
