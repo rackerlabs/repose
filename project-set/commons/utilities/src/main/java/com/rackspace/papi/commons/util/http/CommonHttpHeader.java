@@ -14,6 +14,7 @@ public enum CommonHttpHeader implements HttpHeader {
     //Standards
     HOST("Host"),
     RETRY_AFTER("Retry-After"),
+    EXPIRES("Expires"),
     
     //Content specific
     ACCEPT("Accept"),

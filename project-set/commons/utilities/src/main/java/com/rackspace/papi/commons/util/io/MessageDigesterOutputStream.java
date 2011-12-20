@@ -9,29 +9,29 @@ import java.security.MessageDigest;
  */
 public class MessageDigesterOutputStream extends OneTimeUseOutputStream {
 
-    private final MessageDigest digest;
-    private byte[] digestBytes;
-    
-    public MessageDigesterOutputStream(MessageDigest digest) {
-        this.digest = digest;
-    }
-    
-    public byte[] getDigest() {
-        return digestBytes;
-    }
+   private final MessageDigest digest;
+   private byte[] digestBytes;
 
-    @Override
-    public void writeByte(int b) throws IOException {
-        digest.update((byte) b);
-    }
+   public MessageDigesterOutputStream(MessageDigest digest) {
+      this.digest = digest;
+   }
 
-    @Override
-    public void closeStream() throws IOException {
-        digestBytes = digest.digest();
-    }
+   public byte[] getDigest() {
+      return digestBytes;
+   }
 
-    @Override
-    public void flushStream() throws IOException {
-        digest.reset();
-    }
+   @Override
+   public void writeByte(int b) throws IOException {
+      digest.update((byte) b);
+   }
+
+   @Override
+   public void closeStream() throws IOException {
+      digestBytes = digest.digest();
+   }
+
+   @Override
+   public void flushStream() throws IOException {
+      digest.reset();
+   }
 }

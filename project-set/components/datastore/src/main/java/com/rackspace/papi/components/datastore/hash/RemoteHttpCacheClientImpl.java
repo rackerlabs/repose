@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.datastore.hash;
 
+import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.pooling.ConstructionStrategy;
@@ -138,7 +139,7 @@ public class RemoteHttpCacheClientImpl implements RemoteCacheClient {
 
       final HttpPut cacheObjectPut = new HttpPut(targetUrl);
       cacheObjectPut.addHeader(DatastoreRequestHeaders.DATASTORE_HOST_KEY, hostKey);
-      cacheObjectPut.addHeader(DatastoreRequestHeaders.DATASTORE_TTL, String.valueOf(TimeUnit.SECONDS.convert(ttl, timeUnit)));
+      cacheObjectPut.addHeader(ExtendedHttpHeader.X_TTL.getHeaderKey(), String.valueOf(TimeUnit.SECONDS.convert(ttl, timeUnit)));
 
       httpClientPool.use(new SimpleResourceContext<HttpClient>() {
 
