@@ -2,7 +2,6 @@ package com.rackspace.papi.components.clientip;
 
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.clientip.config.ClientIpIdentityConfig;
-import com.rackspace.papi.components.clientip.config.HttpHeader;
 import com.rackspace.papi.components.clientip.config.HttpHeaderList;
 import com.rackspace.papi.components.clientip.extractor.ClientIpExtractor;
 import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
