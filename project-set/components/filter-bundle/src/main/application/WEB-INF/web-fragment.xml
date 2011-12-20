@@ -17,6 +17,11 @@
     </filter>
 
     <filter>
+        <filter-name>client-ip-identity</filter-name>
+        <filter-class>com.rackspace.papi.components.clientip.ClientIpIdentityFilter</filter-class>
+    </filter>
+
+    <filter>
         <filter-name>content-negotiation</filter-name>
         <filter-class>com.rackspace.papi.components.cneg.ContentNegotiationFilter</filter-class>
     </filter>
