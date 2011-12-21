@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.translation.xproc.calabash;
 
+import com.rackspace.papi.components.translation.util.ClassPathUriResolver;
 import com.rackspace.papi.components.translation.util.InputStreamUriParameterResolver;
 import com.rackspace.papi.components.translation.xproc.Pipeline;
 import com.rackspace.papi.components.translation.xproc.PipelineBuilder;
@@ -33,9 +34,10 @@ public class CalabashPipelineBuilder implements PipelineBuilder {
       try {
          XProcConfiguration config = new XProcConfiguration(schemaAware);
          XProcRuntime runtime = new XProcRuntime(config);
-         XPipeline pipeline = runtime.load(pipelineUri);
          InputStreamUriParameterResolver resolver = new InputStreamUriParameterResolver(new XProcURIResolver(runtime));
+         resolver.addResolver(new ClassPathUriResolver());
          runtime.setURIResolver(resolver);
+         XPipeline pipeline = runtime.load(pipelineUri);
          return new CalabashPipeline(pipeline, runtime, resolver, legacySourceOutput);
       } catch (SaxonApiException ex) {
          throw new PipelineException(ex);
@@ -47,12 +49,13 @@ public class CalabashPipelineBuilder implements PipelineBuilder {
       try {
          XProcConfiguration config = new XProcConfiguration(schemaAware);
          XProcRuntime runtime = new XProcRuntime(config);
-         XPipeline pipeline = runtime.load(pipelineUri);
          InputStreamUriParameterResolver streamResolver = new InputStreamUriParameterResolver(new XProcURIResolver(runtime));
+         streamResolver.addResolver(new ClassPathUriResolver());
          for (URIResolver resolver: resolvers) {
             streamResolver.addResolver(resolver);
          }
          runtime.setURIResolver(streamResolver);
+         XPipeline pipeline = runtime.load(pipelineUri);
          return new CalabashPipeline(pipeline, runtime, streamResolver);
       } catch (SaxonApiException ex) {
          throw new PipelineException(ex);
