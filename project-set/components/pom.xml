@@ -58,6 +58,12 @@
             
             <dependency>
                 <groupId>com.rackspace.papi.commons</groupId>
+                <artifactId>ip-utilities</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            
+            <dependency>
+                <groupId>com.rackspace.papi.commons</groupId>
                 <artifactId>jetty-container</artifactId>
                 <version>${project.version}</version>
             </dependency>
