@@ -131,4 +131,48 @@ public class MediaTypeNormalizerTest {
             }
         }
     }
+
+    /**
+     * Test of normalizeContentMediaType method, of class MediaTypeNormalizer.
+     */
+    @Test
+    public void testNormalizeContentMediaType() {
+        System.out.println("normalizeContentMediaType");
+        HttpServletRequest request = null;
+        FilterDirector director = null;
+        MediaTypeNormalizer instance = null;
+        instance.normalizeContentMediaType(request, director);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of getMediaTypeForVariant method, of class MediaTypeNormalizer.
+     */
+    @Test
+    public void testGetMediaTypeForVariant() {
+        System.out.println("getMediaTypeForVariant");
+        HttpServletRequest request = null;
+        FilterDirector director = null;
+        MediaTypeNormalizer instance = null;
+        MediaType expResult = null;
+        MediaType result = instance.getMediaTypeForVariant(request, director);
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
+
+    /**
+     * Test of formatVariant method, of class MediaTypeNormalizer.
+     */
+    @Test
+    public void testFormatVariant() {
+        System.out.println("formatVariant");
+        String variant = "";
+        String expResult = "";
+        String result = MediaTypeNormalizer.formatVariant(variant);
+        assertEquals(expResult, result);
+        // TODO review the generated test code and remove the default call to fail.
+        fail("The test case is a prototype.");
+    }
 }
