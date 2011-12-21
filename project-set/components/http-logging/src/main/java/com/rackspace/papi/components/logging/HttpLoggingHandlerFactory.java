@@ -7,7 +7,7 @@ import com.rackspace.papi.components.logging.config.HttpLog;
 import com.rackspace.papi.components.logging.config.HttpLoggingConfig;
 import com.rackspace.papi.components.logging.config.Targets;
 import com.rackspace.papi.components.logging.util.FileLogger;
-import com.rackspace.papi.commons.util.io.charset.CharacterSetSupport;
+import com.rackspace.papi.commons.util.io.charset.CharacterSets;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.model.PowerProxy;
 import java.io.File;
@@ -23,7 +23,6 @@ import java.util.Map;
 public class HttpLoggingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<HttpLoggingHandler> {
 
    private final List<HttpLoggerWrapper> loggers;
-   private final String CHAR_SET = "UTF-8";
 
    public HttpLoggingHandlerFactory() {
       loggers = new LinkedList<HttpLoggerWrapper>();
@@ -32,22 +31,23 @@ public class HttpLoggingHandlerFactory extends AbstractConfiguredFilterHandlerFa
    @Override
    protected Map<Class, UpdateListener<?>> getListeners() {
       return new HashMap<Class, UpdateListener<?>>() {
+
          {
             put(HttpLoggingConfig.class, new HttpLoggingConfigurationListener());
          }
       };
    }
-   
+
    protected List<HttpLoggerWrapper> getLoggers() {
       return loggers;
    }
 
    private class HttpLoggingConfigurationListener implements UpdateListener<HttpLoggingConfig> {
+
       @Override
       public void configurationUpdated(HttpLoggingConfig modifiedConfig) {
          //Clean up~
          destroy();
-         CharacterSetSupport.checkCharSet(CHAR_SET);
 
          for (HttpLog log : modifiedConfig.getHttpLog()) {
             final HttpLoggerWrapper loggerWrapper = new HttpLoggerWrapper(new HttpLogFormatter(log.getFormat()));
@@ -70,12 +70,10 @@ public class HttpLoggingHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
          loggers.clear();
       }
-
    }
 
    @Override
    protected HttpLoggingHandler buildHandler() {
       return new HttpLoggingHandler(new LinkedList<HttpLoggerWrapper>(loggers));
    }
-
 }

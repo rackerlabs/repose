@@ -20,7 +20,7 @@
         <module>http-logging</module>
         <module>client-auth</module>
         <module>service-auth</module>
-        <module>content-negotiation</module>
+        <module>cli-utils</module>
         <module>content-normalization</module>
         <module>rate-limiting</module>
         <module>versioning</module>

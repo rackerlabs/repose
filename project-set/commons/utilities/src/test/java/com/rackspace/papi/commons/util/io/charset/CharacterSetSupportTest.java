@@ -1,60 +1,42 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.rackspace.papi.commons.util.io.charset;
 
-import com.rackspace.papi.commons.util.io.charset.CharacterSetSupport;
 import java.security.Permission;
 import junit.framework.TestCase;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
+
 /**
  *
  * @author malconis
  */
-public class CharacterSetSupportTest extends TestCase{
-    
-    @Before
-    public void setUp(){
-    }
-    
-    @After
-    public void tearDown() {
-    }
+@RunWith(Enclosed.class)
+public class CharacterSetSupportTest extends TestCase {
 
-    /**
-     * Test of checkCharSet method, of class CharacterSetSupport.
-     */
-    @Test
-    public void testCheckCharSet() {
-        final SecurityManager catchManager = new SecurityManager() {
+   public static class WhenCheckingForCharacterSets {
 
-                @Override
-                public void checkPermission(Permission prmsn) {
-                    if (prmsn.getName().contains("exitVM")) {
-                        throw new SecurityException();
+      @Test(expected = RuntimeException.class)
+      public void shouldCallSystemExitWhenCharacterSetIsUnsupported() {
+         final SecurityManager catchManager = new SecurityManager() {
 
-                    }
-                }
-                
-            };
-        final SecurityManager originalManager = System.getSecurityManager();
-        String unsupportedCharSet = "UFT-33";
-        boolean exitCaught = false;
-        try{
+            @Override
+            public void checkPermission(Permission prmsn) {
+               if (prmsn.getName().contains("exitVM")) {
+                  throw new RuntimeException();
+               }
+            }
+         };
+
+         final SecurityManager originalManager = System.getSecurityManager();
+         final String unsupportedCharSet = "UFT-33";
+
+         try {
             System.setSecurityManager(catchManager);
-            CharacterSetSupport.checkCharSet(unsupportedCharSet);
-        }catch(SecurityException e){
-            exitCaught = true;
-        }finally{
+            CharacterSets.checkForCharacterSetSupport(unsupportedCharSet);
+         } finally {
             System.setSecurityManager(originalManager);
-            assertTrue(exitCaught);
-        }
-
-    }
+         }
+      }
+   }
 }
