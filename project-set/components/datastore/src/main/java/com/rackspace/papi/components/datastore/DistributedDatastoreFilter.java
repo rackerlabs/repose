@@ -26,6 +26,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.UUID;
 import javax.naming.NamingException;
+import org.openrepose.components.datastore.config.DistributedDatastoreConfiguration;
 
 public class DistributedDatastoreFilter implements Filter {
 
@@ -80,6 +81,7 @@ public class DistributedDatastoreFilter implements Filter {
 
          handlerFactory = new DatastoreFilterLogicHandlerFactory(clusterView, hashRingDatastore);
          contextAdapter.configurationService().subscribeTo("power-proxy.cfg.xml", handlerFactory, PowerProxy.class);
+         contextAdapter.configurationService().subscribeTo("dist-datastore.cfg.xml", handlerFactory, DistributedDatastoreConfiguration.class);
       } catch (NamingException ne) {
          LOG.error(ne.getExplanation(), ne);
       }
