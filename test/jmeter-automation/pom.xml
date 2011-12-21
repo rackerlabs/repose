@@ -86,6 +86,7 @@
                         <exclude>Power API - Rate Limiting Tests.jmx</exclude>
                         <exclude>Power API - Valve Test.jmx</exclude>
                         <exclude>Power API - Client IP Tests.jmx</exclude>
+                        <exclude>Power API - Content-Normalization Test.jmx</exclude>
                     </excludes>
                 </configuration>
             </plugin>
