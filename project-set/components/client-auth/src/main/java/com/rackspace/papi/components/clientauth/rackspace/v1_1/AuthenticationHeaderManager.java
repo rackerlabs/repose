@@ -9,6 +9,7 @@ import com.rackspace.papi.components.clientauth.rackspace.config.User;
 import com.rackspace.papi.components.clientauth.rackspace.config.UserRoles;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import com.rackspacecloud.docs.auth.api.v1.GroupsList;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,12 +24,12 @@ public class AuthenticationHeaderManager {
     private final UserRoles userRoles;
     private final FilterDirector filterDirector;
     private final String accountUsername;
-    private final String[] groups;
+    private final GroupsList groups;
     // Proxy is specified in the OpenStack auth blue print:
     // http://wiki.openstack.org/openstack-authn
     private static final String xAuthProxy = "Proxy";
 
-    public AuthenticationHeaderManager(boolean validToken, RackspaceAuth cfg, FilterDirector filterDirector, String accountUsername, String[] groups) {
+    public AuthenticationHeaderManager(boolean validToken, RackspaceAuth cfg, FilterDirector filterDirector, String accountUsername, GroupsList groups) {
         this.validToken = validToken;
         this.isDelegatable = cfg.isDelegatable();
         this.keystone = cfg.isKeystoneActive();
@@ -47,10 +48,22 @@ public class AuthenticationHeaderManager {
         }
 
         if (validToken) {
-            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.getHeaderKey(), groups);
+            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.getHeaderKey(), getGroupsListIds());
             filterDirector.requestHeaderManager().putHeader(PowerApiHeader.USER.getHeaderKey(), accountUsername);
             setRoles();
         }
+    }
+
+    private String[] getGroupsListIds() {
+        int groupCount = groups.getGroup().size();
+
+        String[] groupsArray = new String[groupCount];
+
+        for (int i = 0; i < groupCount; i++) {
+            groupsArray[i] = groups.getGroup().get(i).getId();
+        }
+
+        return groupsArray;
     }
 
     /**
