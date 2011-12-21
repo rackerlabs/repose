@@ -21,7 +21,7 @@
         <module>client-auth</module>
         <module>client-ip-identity</module>
         <module>service-auth</module>
-        <module>content-negotiation</module>
+        <module>cli-utils</module>
         <module>content-normalization</module>
         <module>rate-limiting</module>
         <module>versioning</module>

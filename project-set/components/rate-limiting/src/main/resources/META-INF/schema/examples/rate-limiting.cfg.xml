@@ -41,9 +41,16 @@
         <limit uri="/servers/*" uri-regex="\/servers\/.*" http-methods="PUT" unit="HOUR" value="5" />
     </limit-group>
 
-    <limit-group id="customer-limits" groups="test">
+    <limit-group id="test-limits" groups="test">
         <limit uri="/servers/*" uri-regex="/loadbalancing/(.*)" http-methods="GET" unit="SECOND" value="3" />
         
+        <limit uri="/servers/*" uri-regex="\/servers\/.*" http-methods="POST" unit="DAY" value="10"/>
+        <limit uri="/servers/*" uri-regex="\/servers\/.*" http-methods="PUT" unit="HOUR" value="5" />
+    </limit-group>
+
+    <limit-group id="standard-ip-limits" groups="IP_Standard">
+        <limit uri="/servers/*" uri-regex="/loadbalancing/(.*)" http-methods="GET" unit="SECOND" value="3" />
+
         <limit uri="/servers/*" uri-regex="\/servers\/.*" http-methods="POST" unit="DAY" value="10"/>
         <limit uri="/servers/*" uri-regex="\/servers\/.*" http-methods="PUT" unit="HOUR" value="5" />
     </limit-group>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<distirubted-datastore xmlns='http://openrepose.org/repose/distributed-datastore/v1.0'>
+   <allowed-hosts>
+      <host host="10.1.1.1" />
+      <host host="10.1.1.2" />
+      <host host="10.1.1.3" />
+      <host host="10.1.1.4" />
+   </allowed-hosts>
+</distirubted-datastore>
