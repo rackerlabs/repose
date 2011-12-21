@@ -15,15 +15,13 @@
         <collectionProp name="UserParameters.names">
           <stringProp name="104426">ip1</stringProp>
           <stringProp name="-1423461112">accept</stringProp>
-          <stringProp name="1746327202">sourceIp</stringProp>
           <stringProp name="104427">ip2</stringProp>
           <stringProp name="-1883078023">bogusValue</stringProp>
         </collectionProp>
         <collectionProp name="UserParameters.thread_values">
-          <collectionProp name="-932656241">
+          <collectionProp name="733339637">
             <stringProp name="-1149796508">10.6.60.1</stringProp>
             <stringProp name="-1248326952">application/xml</stringProp>
-            <stringProp name="-1149796509">10.6.60.0</stringProp>
             <stringProp name="-1149796507">10.6.60.2</stringProp>
             <stringProp name="-284840886">unknown</stringProp>
           </collectionProp>
@@ -35,13 +33,13 @@
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
-          <intProp name="LoopController.loops">-1</intProp>
+          <stringProp name="LoopController.loops">1</stringProp>
         </elementProp>
         <stringProp name="ThreadGroup.num_threads">1</stringProp>
         <stringProp name="ThreadGroup.ramp_time">2</stringProp>
         <longProp name="ThreadGroup.start_time">1300822554000</longProp>
         <longProp name="ThreadGroup.end_time">1300822554000</longProp>
-        <boolProp name="ThreadGroup.scheduler">true</boolProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
         <stringProp name="ThreadGroup.duration">300</stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
       </ThreadGroup>
@@ -49,7 +47,7 @@
         <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="hosts info" enabled="true">
           <stringProp name="filename">/tmp/hosts.csv</stringProp>
           <stringProp name="fileEncoding"></stringProp>
-          <stringProp name="variableNames">endpoint,port,authType</stringProp>
+          <stringProp name="variableNames">endpoint,port,authType,sourceIp</stringProp>
           <stringProp name="delimiter">,</stringProp>
           <boolProp name="quotedData">true</boolProp>
           <boolProp name="recycle">true</boolProp>
@@ -69,7 +67,7 @@
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
             <stringProp name="HTTPSampler.protocol">http</stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-            <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="HTTPSampler.path">/p1/ss</stringProp>
             <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
           </ConfigTestElement>
           <hashTree/>
@@ -126,11 +124,10 @@
               <hashTree>
                 <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="should return only ip address" enabled="true">
                   <collectionProp name="Asserion.test_strings">
-                    <stringProp name="1295237923">X-PP-User</stringProp>
-                    <stringProp name="-1218299092">X-PP-Groups</stringProp>
-                    <stringProp name="1147479850">${ip1}</stringProp>
+                    <stringProp name="32561690">x-pp-user : ${ip1};q=</stringProp>
+                    <stringProp name="-1737561236">x-pp-groups : IP_Standard;q=</stringProp>
                   </collectionProp>
-                  <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
+                  <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                   <boolProp name="Assertion.assume_success">false</boolProp>
                   <intProp name="Assertion.test_type">2</intProp>
                 </ResponseAssertion>
@@ -171,11 +168,10 @@
               <hashTree>
                 <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="should return first ip address in the list" enabled="true">
                   <collectionProp name="Asserion.test_strings">
-                    <stringProp name="1295237923">X-PP-User</stringProp>
-                    <stringProp name="-1218299092">X-PP-Groups</stringProp>
-                    <stringProp name="1147479881">${ip2}</stringProp>
+                    <stringProp name="33485211">x-pp-user : ${ip2};q=</stringProp>
+                    <stringProp name="-1737561236">x-pp-groups : IP_Standard;q=</stringProp>
                   </collectionProp>
-                  <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
+                  <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                   <boolProp name="Assertion.assume_success">false</boolProp>
                   <intProp name="Assertion.test_type">2</intProp>
                 </ResponseAssertion>
@@ -220,13 +216,12 @@
                 <stringProp name="HTTPSampler.ipSource">${sourceIp}</stringProp>
               </HTTPSamplerProxy>
               <hashTree>
-                <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="should return source Ip" enabled="true">
+                <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="should return source ip" enabled="true">
                   <collectionProp name="Asserion.test_strings">
-                    <stringProp name="1295237923">X-PP-User</stringProp>
-                    <stringProp name="-1218299092">X-PP-Groups</stringProp>
-                    <stringProp name="-365528284">${sourceIp}</stringProp>
+                    <stringProp name="-121316922">x-pp-user : ${sourceIp};q=</stringProp>
+                    <stringProp name="-1737561236">x-pp-groups : IP_Standard;q=</stringProp>
                   </collectionProp>
-                  <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
+                  <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                   <boolProp name="Assertion.assume_success">false</boolProp>
                   <intProp name="Assertion.test_type">2</intProp>
                 </ResponseAssertion>
@@ -263,13 +258,13 @@
                 <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
                 <boolProp name="HTTPSampler.monitor">false</boolProp>
                 <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+                <stringProp name="HTTPSampler.ipSource">${sourceIp}</stringProp>
               </HTTPSamplerProxy>
               <hashTree>
-                <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="should return bogus value passed in" enabled="true">
+                <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="should return source ip" enabled="true">
                   <collectionProp name="Asserion.test_strings">
-                    <stringProp name="1295237923">X-PP-User</stringProp>
-                    <stringProp name="-1218299092">X-PP-Groups</stringProp>
-                    <stringProp name="-1521144851">${bogusValue}</stringProp>
+                    <stringProp name="-121316922">x-pp-user : ${sourceIp};q=</stringProp>
+                    <stringProp name="-1737561236">x-pp-groups : IP_Standard;q=</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                   <boolProp name="Assertion.assume_success">false</boolProp>
