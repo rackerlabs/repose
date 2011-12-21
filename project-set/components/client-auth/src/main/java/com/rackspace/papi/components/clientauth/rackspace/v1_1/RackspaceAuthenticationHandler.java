@@ -65,29 +65,16 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
             }
         }
 
-        String[] groups = null;
+        GroupsList groups = null;
         if (validToken) {
-            groups = getGroupsListIds(acct.getUsername());
+            groups = authenticationService.getGroups(acct.getUsername());
         }
 
         final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(validToken, cfg, filterDirector, acct == null ? "" : acct.getUsername(), groups);
         headerManager.setFilterDirectorValues();
 
         return filterDirector;
-    }
-
-    private String[] getGroupsListIds(String accountUsername) {
-        GroupsList groups = authenticationService.getGroups(accountUsername);
-        int groupCount = groups.getGroup().size();
-
-        String[] groupsArray = new String[groupCount];
-
-        for (int i = 0; i < groupCount; i++) {
-            groupsArray[i] = groups.getGroup().get(i).getId();
-        }
-
-        return groupsArray;
-    }
+    }    
 
     @Override
     public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
@@ -130,7 +117,5 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
             // a 500 (internal server error) to the client
             director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
-
-        return;
     }
 }

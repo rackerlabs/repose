@@ -29,6 +29,11 @@
 
         <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>ip-utilities</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>utilities</artifactId>
         </dependency>
     </dependencies>
