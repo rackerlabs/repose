@@ -13,7 +13,9 @@ import com.rackspace.papi.service.datastore.StoredElement;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.hash.HashedDatastore;
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -27,58 +29,94 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
 
    private static final Logger LOG = LoggerFactory.getLogger(DatastoreFilterLogicHandler.class);
    private final MutableClusterView clusterView;
+   private final DatastoreAccessControl hostAcl;
    private String lastLocalAddr;
    private HashedDatastore hashRingDatastore;
 
-   public DatastoreFilterLogicHandler(MutableClusterView clusterView, String lastLocalAddr, HashedDatastore hashRingDatastore) {
+   public DatastoreFilterLogicHandler(MutableClusterView clusterView, String lastLocalAddr, HashedDatastore hashRingDatastore, DatastoreAccessControl hostAcl) {
       this.clusterView = clusterView;
+      this.hostAcl = hostAcl;
       this.lastLocalAddr = lastLocalAddr;
       this.hashRingDatastore = hashRingDatastore;
    }
 
    @Override
    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
-      final FilterDirector director = new FilterDirectorImpl();
+      FilterDirector director = new FilterDirectorImpl();
       director.setFilterAction(FilterAction.PASS);
 
-      updateClusterViewLocalAddress(request.getLocalAddr(), request.getLocalPort());
+      if (isAllowed(request)) {
+         // TODO: Get rid of this monstrosity :x
+         updateClusterViewLocalAddress(request.getLocalAddr(), request.getLocalPort());
 
-      if (CacheRequest.isCacheRequest(request)) {
-         final String requestMethod = request.getMethod();
+         if (CacheRequest.isCacheRequest(request)) {
+            director = performCacheRequest(request);
+         }
+      } else {
+         director.setResponseStatus(HttpStatusCode.FORBIDDEN);
+         director.setFilterAction(FilterAction.RETURN);
+      }
 
+      return director;
+   }
+
+   public boolean isAllowed(HttpServletRequest request) {
+      boolean allowed = hostAcl.shouldAllowAll();
+
+      if (!allowed) {
          try {
-            if (requestMethod.equalsIgnoreCase("GET")) {
-               onCacheGet(CacheRequest.marshallCacheGetRequest(request), director);
-            } else if (requestMethod.equalsIgnoreCase("PUT")) {
-               final CacheRequest cachePut = CacheRequest.marshallCachePutRequest(request);
-               hashRingDatastore.putByHash(cachePut.getCacheKey(), cachePut.getPayload(), cachePut.getTtlInSeconds(), TimeUnit.SECONDS);
+            final InetAddress remoteClient = InetAddress.getByName(request.getRemoteHost());
 
-               director.setResponseStatus(HttpStatusCode.ACCEPTED);
-               director.setFilterAction(FilterAction.RETURN);
-            } else if (requestMethod.equalsIgnoreCase("DELETE")) {
-               final CacheRequest cacheDelete = CacheRequest.marshallCacheGetRequest(request);
-               hashRingDatastore.removeByHash(cacheDelete.getCacheKey());
-
-               director.setResponseStatus(HttpStatusCode.ACCEPTED);
-               director.setFilterAction(FilterAction.RETURN);
-            } else {
-               director.setResponseStatus(HttpStatusCode.NOT_IMPLEMENTED);
-               director.setFilterAction(FilterAction.RETURN);
+            for (InetAddress allowedAddress : hostAcl.getAllowedHosts()) {
+               if (remoteClient.equals(allowedAddress)) {
+                  allowed = true;
+                  break;
+               }
             }
-         } catch (MalformedCacheRequestException mcre) {
-            LOG.error(mcre.getMessage(), mcre);
-
-            director.getResponseWriter().write(mcre.getMessage() == null ? "" : mcre.getMessage());
-            director.setResponseStatus(HttpStatusCode.BAD_REQUEST);
-            director.setFilterAction(FilterAction.RETURN);
-         } catch (Exception ex) {
-            LOG.error(ex.getMessage(), ex);
-
-            director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-            director.setFilterAction(FilterAction.RETURN);
+         } catch (UnknownHostException uhe) {
+            LOG.error("Unknown host exception caught while trying to resolve host: " + request.getRemoteHost());
          }
       }
 
+      return allowed;
+   }
+
+   public FilterDirector performCacheRequest(HttpServletRequest request) {
+      final FilterDirector director = new FilterDirectorImpl();
+      final String requestMethod = request.getMethod();
+
+      try {
+         if (requestMethod.equalsIgnoreCase("GET")) {
+            onCacheGet(CacheRequest.marshallCacheGetRequest(request), director);
+         } else if (requestMethod.equalsIgnoreCase("PUT")) {
+            final CacheRequest cachePut = CacheRequest.marshallCachePutRequest(request);
+            hashRingDatastore.putByHash(cachePut.getCacheKey(), cachePut.getPayload(), cachePut.getTtlInSeconds(), TimeUnit.SECONDS);
+
+            director.setResponseStatus(HttpStatusCode.ACCEPTED);
+            director.setFilterAction(FilterAction.RETURN);
+         } else if (requestMethod.equalsIgnoreCase("DELETE")) {
+            final CacheRequest cacheDelete = CacheRequest.marshallCacheGetRequest(request);
+            hashRingDatastore.removeByHash(cacheDelete.getCacheKey());
+
+            director.setResponseStatus(HttpStatusCode.ACCEPTED);
+            director.setFilterAction(FilterAction.RETURN);
+         } else {
+            director.setResponseStatus(HttpStatusCode.NOT_IMPLEMENTED);
+            director.setFilterAction(FilterAction.RETURN);
+         }
+      } catch (MalformedCacheRequestException mcre) {
+         LOG.error(mcre.getMessage(), mcre);
+
+         director.getResponseWriter().write(mcre.getMessage() == null ? "" : mcre.getMessage());
+         director.setResponseStatus(HttpStatusCode.BAD_REQUEST);
+         director.setFilterAction(FilterAction.RETURN);
+      } catch (Exception ex) {
+         LOG.error(ex.getMessage(), ex);
+
+         director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+         director.setFilterAction(FilterAction.RETURN);
+      }
+      
       return director;
    }
 
