@@ -26,7 +26,7 @@ public class CommandDriver {
 
    public CommandDriver(Command command, String[] args) {
       this.myCommand = command;
-      this.args = args;
+      this.args = Arrays.copyOf(args, args.length);
    }
 
    public CommandResult go() {
