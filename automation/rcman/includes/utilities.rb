@@ -57,8 +57,9 @@ module Utilities
         defaultChefRepo = File.expand_path("~/.rcman/rc-chef")
         requiredCookbooks = ["java","tomcat7","powerapiroot"]
 
-        if open("/etc/hosts").grep(/chef\-server\-n01\.cit\.rackspace\.com/).empty?
-            File.open("/etc/hosts",'a'){ |f| f.write("\n50.57.98.109\tchef-server-n01.cit\tchef-server-n01.cit.rackspace.com")}
+        if open("/etc/hosts").grep(/chef\-server\-n01.rcloudtech/).empty?
+            puts "This box will not be able to communicate with the chef server. Please add the path to your /etc/hosts file"
+            exit
         end
 
         if `which knife`.to_s.empty?
@@ -166,7 +167,7 @@ module Utilities
         conf += "node_name\t'#{userKey[0..userKey.size-5]}'\n" #removes the .pem from the username
         conf += "client_key\t\"\#{current_dir}/#{userKey}\"\n"
         conf += "validation_client_name\t'chef-validator'\nvalidation_key\t\"\#{current_dir}/#{validateKey}\"\n"
-        conf += "chef_server_url\t'http://chef-server-n01.cit.rackspace.com:4000'\n"
+        conf += "chef_server_url\t'http://chef-server-n01.rcloudtech:4000'\n"
         conf += "cache_type\t'BasicFile'\n"
         conf += "cache_options( :path => \"\#{ENV['HOME']}/.rcman/.chef/checksums\" )\n"
         conf += "cookbook_path\t[\"\#{current_dir}/../cookbooks\"]\n"
