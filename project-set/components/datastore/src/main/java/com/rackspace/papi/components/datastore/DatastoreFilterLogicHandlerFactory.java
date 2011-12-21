@@ -13,30 +13,33 @@ import org.slf4j.LoggerFactory;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import org.openrepose.components.datastore.config.DistributedDatastoreConfiguration;
+import org.openrepose.components.datastore.config.HostAccessControl;
 
 public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilterHandlerFactory<DatastoreFilterLogicHandler> {
 
    private static final Logger LOG = LoggerFactory.getLogger(DatastoreFilterLogicHandlerFactory.class);
-
    private final MutableClusterView clusterView;
    private final HashedDatastore hashRingDatastore;
-   
+   private DatastoreAccessControl hostACL;
    private String lastLocalAddr;
 
    public DatastoreFilterLogicHandlerFactory(MutableClusterView clusterView, HashedDatastore hashRingDatastore) {
       this.clusterView = clusterView;
       this.hashRingDatastore = hashRingDatastore;
+      
+      hostACL = new DatastoreAccessControl(Collections.EMPTY_LIST, true);
+      
+      LOG.warn("The distributed datastore component starts in allow-all mode, meaning that any host can access, store and delete cached objects. Please configure this component if you wish to restrict access.");
    }
-   
+
    @Override
    protected Map<Class, UpdateListener<?>> getListeners() {
       final Map<Class, UpdateListener<?>> listeners = new HashMap<Class, UpdateListener<?>>();
       listeners.put(PowerProxy.class, new SystemModelUpdateListener());
-      
+      listeners.put(DistributedDatastoreConfiguration.class, new DistributedDatastoreConfigurationListener());
+
       return listeners;
    }
 
@@ -63,6 +66,27 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
       }
    }
 
+   private class DistributedDatastoreConfigurationListener implements UpdateListener<DistributedDatastoreConfiguration> {
+
+      @Override
+      public void configurationUpdated(DistributedDatastoreConfiguration configurationObject) {
+         if (configurationObject.getAllowedHosts() != null) {
+            final List<InetAddress> newHostList = new LinkedList<InetAddress>();
+            
+            for (HostAccessControl host : configurationObject.getAllowedHosts().getAllow()) {
+               try {
+                  final InetAddress hostAddress = InetAddress.getByName(host.getHost());
+                  newHostList.add(hostAddress);
+               } catch(UnknownHostException uhe) {
+                  LOG.error("Unable to resolve name: " + host.getHost() + " - Ignoring this host.");
+               }
+            }
+            
+            hostACL = new DatastoreAccessControl(newHostList, configurationObject.getAllowedHosts().isAllowAll());
+         }
+      }
+   }
+
    private class SystemModelUpdateListener implements UpdateListener<PowerProxy> {
 
       @Override
@@ -78,6 +102,6 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
 
    @Override
    protected DatastoreFilterLogicHandler buildHandler() {
-      return new DatastoreFilterLogicHandler(clusterView, lastLocalAddr, hashRingDatastore);
+      return new DatastoreFilterLogicHandler(clusterView, lastLocalAddr, hashRingDatastore, hostACL);
    }
 }
