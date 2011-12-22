@@ -30,7 +30,7 @@ public class RequestNode extends ObjectFactoryUser implements ComplexNode {
 
     @Override
     public void build() {
-        Request messageRequest = objectFactory.createRequest();
+        Request messageRequest = getObjectFactory().createRequest();
 
         Method method = Method.fromValue(request.getMethod());
 

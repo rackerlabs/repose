@@ -24,12 +24,12 @@ public class PowerApiValveServerControl {
    public void startPowerApiValve() {
 
         try {
-            serverInstance = new ValveJettyServerBuilder(commandLineArgs.port, commandLineArgs.configDirectory).newServer();
+            serverInstance = new ValveJettyServerBuilder(commandLineArgs.getPort(), commandLineArgs.getConfigDirectory()).newServer();
             serverInstance.setStopAtShutdown(true);
             serverInstance.start();
-            Thread monitor = new MonitorThread(serverInstance, commandLineArgs.stopport, LOCALHOST_IP);
+            Thread monitor = new MonitorThread(serverInstance, commandLineArgs.getStopPort(), LOCALHOST_IP);
             monitor.start();
-            LOG.info("Power API Valve running and listening on port: " + Integer.toString(commandLineArgs.port));
+            LOG.info("Power API Valve running and listening on port: " + Integer.toString(commandLineArgs.getPort()));
         } catch (Exception e) {
             LOG.error("Power API Valve could not be started: " + e.getMessage());
         }
@@ -37,7 +37,7 @@ public class PowerApiValveServerControl {
 
     public void stopPowerApiValve() {
         try {
-            Socket s = new Socket(InetAddress.getByName(LOCALHOST_IP), commandLineArgs.stopport);
+            Socket s = new Socket(InetAddress.getByName(LOCALHOST_IP), commandLineArgs.getStopPort());
             OutputStream out = s.getOutputStream();
             System.out.println("Sending Power API Valve stop request");
             out.write(("\r\n").getBytes());

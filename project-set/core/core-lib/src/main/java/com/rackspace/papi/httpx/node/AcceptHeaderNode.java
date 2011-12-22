@@ -25,19 +25,19 @@ public class AcceptHeaderNode extends ObjectFactoryUser implements Node {
 
     @Override
     public void build() {
-        AcceptHeader acceptHeader = objectFactory.createAcceptHeader();
+        AcceptHeader acceptHeader = getObjectFactory().createAcceptHeader();
 
         if (StringUtilities.isNotBlank((requestAcceptHeader))) {
             final List<MediaRange> mediaRanges = MediaRangeParser.getMediaRangesFromAcceptHeader(requestAcceptHeader);
 
             for (com.rackspace.papi.commons.util.http.media.MediaRange range : mediaRanges) {
-                com.rackspace.httpx.MediaRange mediaRange = objectFactory.createMediaRange();
+                com.rackspace.httpx.MediaRange mediaRange = getObjectFactory().createMediaRange();
 
                 mediaRange.setType(range.getMediaType().getType());
                 mediaRange.setSubtype(range.getMediaType().getSubtype());
 
                 for (Map.Entry<String, String> entry : range.getParameters().entrySet()) {
-                    SimpleParameter simpleParameter = objectFactory.createSimpleParameter();
+                    SimpleParameter simpleParameter = getObjectFactory().createSimpleParameter();
 
                     simpleParameter.setName(entry.getKey());
                     simpleParameter.setValue(entry.getValue());

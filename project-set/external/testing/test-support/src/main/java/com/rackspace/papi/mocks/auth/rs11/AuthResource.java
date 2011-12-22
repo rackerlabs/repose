@@ -17,7 +17,6 @@ import javax.xml.datatype.DatatypeConfigurationException;
 @Singleton
 public class AuthResource extends BaseResource {
    private static final String DEFAULT_PROPS = "/auth1_1.properties";
-   private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthResource.class);
 
    public AuthResource() throws DatatypeConfigurationException, IOException {
       this(DEFAULT_PROPS);

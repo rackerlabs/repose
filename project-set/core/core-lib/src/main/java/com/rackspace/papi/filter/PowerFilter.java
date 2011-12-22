@@ -46,7 +46,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
         systemModelConfigurationListener = new LockedConfigurationUpdater<PowerProxy>(updateLock, updateKey) {
 
-            final Object internalLock = new Object();
+            private final Object internalLock = new Object();
 
             // TODO:Review - There's got to be a better way of initializing PowerFilter. Maybe the app management service could be queryable.
             @Override

@@ -22,7 +22,7 @@ public class ResponseBodyNode extends ObjectFactoryUser implements Node {
 
     @Override
     public void build() {
-        Body body = objectFactory.createBody();
+        Body body = getObjectFactory().createBody();
 
         // TODO: Need to determine how we want to handle the response data and if it needs any processing
         

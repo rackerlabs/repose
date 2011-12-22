@@ -34,7 +34,7 @@ public class UnmarshallerResourceContext implements ResourceContext<Unmarshaller
                  + " - Reason: "
                  + jaxbe.getMessage(), jaxbe.getLinkedException());
       } catch (IOException ioe) {
-         throw new ResourceContextException("An I/O error has occured while trying to read resource " + cfgResource.name() + " - Reason: " + ioe.getMessage());
+         throw new ResourceContextException("An I/O error has occured while trying to read resource " + cfgResource.name() + " - Reason: " + ioe.getMessage(), ioe);
       } catch (Exception ex) {
          throw new ResourceContextException("Failed to unmarshall resource " + cfgResource.name() + " - Reason: " + ex.getMessage(), ex);
       }

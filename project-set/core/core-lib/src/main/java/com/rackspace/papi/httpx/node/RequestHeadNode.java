@@ -28,7 +28,7 @@ public class RequestHeadNode extends ObjectFactoryUser implements ComplexNode {
 
     @Override
     public void build() {
-        RequestHead head = objectFactory.createRequestHead();
+        RequestHead head = getObjectFactory().createRequestHead();
         
         head.getFidelity().addAll(headFidelity);
 

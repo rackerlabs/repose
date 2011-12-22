@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.rackspace.papi.mocks.auth;
 
 import java.io.IOException;
@@ -19,14 +15,16 @@ import javax.servlet.http.HttpServletResponse;
  * @author malconis
  */
 public class KeyStoneTokenServlet extends HttpServlet {
+   private static final String CLOUD = "CLOUD";
+   private static final String USER = "usertest%s";
 
     // Need to move these somewhere else where they won't be re-initialized everytime we auth
-    User user1 = new User("usertest1", "CLOUD", "/asdasdasd-adsasdads-asdasdasd-adsadsasd");
-    User user2 = new User("usertest2", "CLOUD", "/now-is-the-time");
-    User user3 = new User("usertest3", "CLOUD", "/my-third-test-user");
-    User user4 = new User("usertest4", "CLOUD", "/dkshk-fdjke3-fdfjdk-21342");
-    User[] testUsers = {user1, user2, user3, user4}; // new ArrayList<MockUser>();
-    User passedUser;
+    private User user1 = new User(String.format(USER, 1), CLOUD, "/asdasdasd-adsasdads-asdasdasd-adsadsasd");
+    private User user2 = new User(String.format(USER, 2), CLOUD, "/now-is-the-time");
+    private User user3 = new User(String.format(USER, 3), CLOUD, "/my-third-test-user");
+    private User user4 = new User(String.format(USER, 4), CLOUD, "/dkshk-fdjke3-fdfjdk-21342");
+    private User[] testUsers = {user1, user2, user3, user4}; // new ArrayList<MockUser>();
+    private User passedUser;
 
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
