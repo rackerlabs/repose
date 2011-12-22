@@ -9,7 +9,7 @@ import java.util.Calendar;
  */
 public class User {
 
-   private String name, group, token, password;
+   private String name, group, token;
    private SimpleDateFormat format;
    private final Calendar cal = Calendar.getInstance();
    private boolean keystone;

@@ -25,7 +25,6 @@ import net.sf.saxon.s9api.XdmNode;
 import org.xml.sax.InputSource;
 
 public class CalabashPipeline extends AbstractPipeline implements Pipeline {
-   private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(CalabashPipeline.class);
    private final XProcRuntime runtime;
    private final XPipeline pipeline;
    private final boolean legacySourceOutput;

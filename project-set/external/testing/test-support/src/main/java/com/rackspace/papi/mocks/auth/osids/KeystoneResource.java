@@ -19,7 +19,7 @@ import org.openstack.docs.identity.api.v2.*;
 @Singleton
 public class KeystoneResource extends BaseResource {
    private static final String DEFAULT_PROPS = "/keystone.properties";
-   private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(KeystoneResource.class);
+   //private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(KeystoneResource.class);
    
    public KeystoneResource() throws DatatypeConfigurationException, IOException {
       this(DEFAULT_PROPS);

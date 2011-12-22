@@ -38,7 +38,7 @@ public abstract class AbstractHashedDatastore implements HashedDatastore {
       try {
          return hashProvider.newMessageDigest().digest(stringBytes);
       } catch(NoSuchAlgorithmException algorithmException) {
-         throw new DatastoreOperationException("Failed to hash key. Reason: " + algorithmException.getMessage());
+         throw new DatastoreOperationException("Failed to hash key. Reason: " + algorithmException.getMessage(), algorithmException);
       }
    }
 
