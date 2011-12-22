@@ -31,7 +31,7 @@ public class ResponseNode extends ObjectFactoryUser implements ComplexNode {
 
     @Override
     public void build() {
-        Response messageResponse = objectFactory.createResponse();
+        Response messageResponse = getObjectFactory().createResponse();
 
         messageResponse.setStatusCode(BigInteger.valueOf(response.getStatus()));
         messageResponse.setVersion("HTTP/1.1");
