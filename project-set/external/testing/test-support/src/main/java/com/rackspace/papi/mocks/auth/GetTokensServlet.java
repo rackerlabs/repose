@@ -28,11 +28,11 @@ public class GetTokensServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    User user1 = new User(String.format(USER, 1), CLOUD, "asdasdasd-adsasdads-asdasdasd-adsadsasd");
-    User user2 = new User(String.format(USER, 2), CLOUD, "now-is-the-time");
-    User user3 = new User(String.format(USER, 3), CLOUD, "my-third-test-user");
-    User user4 = new User(String.format(USER, 4), CLOUD, "dkshk-fdjke3-fdfjdk-21342");
-    User[] testUsers = {user1, user2, user3, user4}; // new ArrayList<MockUser>();
+    private User user1 = new User(String.format(USER, 1), CLOUD, "asdasdasd-adsasdads-asdasdasd-adsadsasd");
+    private User user2 = new User(String.format(USER, 2), CLOUD, "now-is-the-time");
+    private User user3 = new User(String.format(USER, 3), CLOUD, "my-third-test-user");
+    private User user4 = new User(String.format(USER, 4), CLOUD, "dkshk-fdjke3-fdfjdk-21342");
+    private User[] testUsers = {user1, user2, user3, user4}; // new ArrayList<MockUser>();
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {

@@ -18,12 +18,12 @@ public class TokenServlet extends HttpServlet {
    private static final String USER = "usertest%s";
 
     // Need to move these somewhere else where they won't be re-initialized everytime we auth
-    User user1 = new User(String.format(USER, 1), CLOUD, "/asdasdasd-adsasdads-asdasdasd-adsadsasd");
-    User user2 = new User(String.format(USER, 2), CLOUD, "/now-is-the-time");
-    User user3 = new User(String.format(USER, 3), CLOUD, "/my-third-test-user");
-    User user4 = new User(String.format(USER, 4), CLOUD, "/dkshk-fdjke3-fdfjdk-21342");
-    User[] testUsers = {user1, user2, user3, user4}; // new ArrayList<MockUser>();
-    User passedUser;
+    private User user1 = new User(String.format(USER, 1), CLOUD, "/asdasdasd-adsasdads-asdasdasd-adsadsasd");
+    private User user2 = new User(String.format(USER, 2), CLOUD, "/now-is-the-time");
+    private User user3 = new User(String.format(USER, 3), CLOUD, "/my-third-test-user");
+    private User user4 = new User(String.format(USER, 4), CLOUD, "/dkshk-fdjke3-fdfjdk-21342");
+    private User[] testUsers = {user1, user2, user3, user4}; // new ArrayList<MockUser>();
+    private User passedUser;
 
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
