@@ -18,6 +18,11 @@ import java.util.List;
  * @author fran
  */
 public class AuthenticationHeaderManager {
+
+    // Proxy is specified in the OpenStack auth blue print:
+    // http://wiki.openstack.org/openstack-authn
+    private static final String X_AUTH_PROXY = "Proxy";
+    
     private final boolean validToken;
     private final boolean isDelegatable;
     private final boolean keystone;
@@ -25,9 +30,10 @@ public class AuthenticationHeaderManager {
     private final FilterDirector filterDirector;
     private final String accountUsername;
     private final GroupsList groups;
-    // Proxy is specified in the OpenStack auth blue print:
-    // http://wiki.openstack.org/openstack-authn
-    private static final String X_AUTH_PROXY = "Proxy";
+
+    // Hard code quality for now as the auth component will have
+    // the highest quality in terms of using the user it supplies for rate limiting
+    private final String quality = ";q=1";
 
     public AuthenticationHeaderManager(boolean validToken, RackspaceAuth cfg, FilterDirector filterDirector, String accountUsername, GroupsList groups) {
         this.validToken = validToken;
@@ -49,7 +55,7 @@ public class AuthenticationHeaderManager {
 
         if (validToken) {
             filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.getHeaderKey(), getGroupsListIds());
-            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.USER.getHeaderKey(), accountUsername);
+            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.USER.getHeaderKey(), accountUsername + quality);
             setRoles();
         }
     }
