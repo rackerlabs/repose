@@ -3,14 +3,7 @@ package com.rackspace.cloud.valve.http.proxy.httpcomponent;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import org.apache.http.client.methods.HttpDelete;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpHead;
-import org.apache.http.client.methods.HttpOptions;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.methods.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,6 +17,7 @@ public enum HttpComponentFactory {
   OPTIONS ("OPTIONS", HttpOptions.class);
   
   private static final Logger LOG = LoggerFactory.getLogger(HttpComponentFactory.class);
+  private static final String CONSTRUCTION_ERROR = "Unable to construct HttpMethod";
   private final String method;
   private final Class<? extends HttpRequestBase> httpClass;
   private final Class<? extends HttpComponentProcessableRequest> wrapperClass;
@@ -51,13 +45,13 @@ public enum HttpComponentFactory {
         Constructor<? extends HttpComponentProcessableRequest> constructor = (Constructor<? extends HttpComponentProcessableRequest>)methodFactory.wrapperClass.getConstructors()[0];
         request = constructor.newInstance(httpMethod);
       } catch (InvocationTargetException ex) {
-        LOG.error("Unable to construct HttpMethod", ex);
+        LOG.error(CONSTRUCTION_ERROR, ex);
       } catch (NoSuchMethodException ex) {
-        LOG.error("Unable to construct HttpMethod", ex);
+        LOG.error(CONSTRUCTION_ERROR, ex);
       } catch (InstantiationException ex) {
-        LOG.error("Unable to construct HttpMethod", ex);
+        LOG.error(CONSTRUCTION_ERROR, ex);
       } catch (IllegalAccessException ex) {
-        LOG.error("Unable to construct HttpMethod", ex);
+        LOG.error(CONSTRUCTION_ERROR, ex);
       }
     }
     

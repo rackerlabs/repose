@@ -4,8 +4,8 @@ import org.kohsuke.args4j.*;
 
 public class CommandLineArguments {
     private final String defaultPortInfo = "(Default is port 8080, range is 1024 to 49150)";
-    protected final String ACTION_START = "start";
-    protected final String ACTION_STOP = "stop";
+    public static final String ACTION_START = "start";
+    public static final String ACTION_STOP = "stop";
 
     @Option(name = "-p", aliases = {"--port"},
             usage = "Power API Valve port number " + defaultPortInfo)
