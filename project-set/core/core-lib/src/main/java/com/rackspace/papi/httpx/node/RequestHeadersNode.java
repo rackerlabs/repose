@@ -27,7 +27,7 @@ public class RequestHeadersNode extends ObjectFactoryUser implements Node {
 
     @Override
     public void build() {
-        RequestHeaders requestHeaders = objectFactory.createRequestHeaders();
+        RequestHeaders requestHeaders = getObjectFactory().createRequestHeaders();
 
         requestHeaders.getFidelity().addAll(fidelity);
 
@@ -39,7 +39,7 @@ public class RequestHeadersNode extends ObjectFactoryUser implements Node {
                 if (CommonHttpHeader.ACCEPT.matches(headerName) && fidelityValidator.hasAcceptFidelity()) {
                     new AcceptHeaderNode(request.getHeader(CommonHttpHeader.ACCEPT.getHeaderKey()), requestHeaders).build();
                 } else if (fidelityValidator.hasStarFidelity()){
-                    ComplexParameter complexParameter = objectFactory.createComplexParameter();
+                    ComplexParameter complexParameter = getObjectFactory().createComplexParameter();
                     complexParameter.setName(headerName);
 
                     while (request.getHeaders(headerName).hasMoreElements()) {

@@ -24,6 +24,7 @@ public enum HttpMethodFactory {
   OPTIONS ("OPTIONS", OptionsMethod.class);
   
   private static final Logger LOG = LoggerFactory.getLogger(HttpMethodFactory.class);
+  private static final String CONSTRUCTION_ERROR = "Unable to construct HttpMethod";
   private final String method;
   private final Class<? extends HttpMethodBase> httpClass;
   private final Class<? extends ProcessableRequest> wrapperClass;
@@ -51,13 +52,13 @@ public enum HttpMethodFactory {
         Constructor<? extends ProcessableRequest> constructor = (Constructor<? extends ProcessableRequest>)methodFactory.wrapperClass.getConstructors()[0];
         request = constructor.newInstance(httpMethod);
       } catch (InvocationTargetException ex) {
-        LOG.error("Unable to construct HttpMethod", ex);
+        LOG.error(CONSTRUCTION_ERROR, ex);
       } catch (NoSuchMethodException ex) {
-        LOG.error("Unable to construct HttpMethod", ex);
+        LOG.error(CONSTRUCTION_ERROR, ex);
       } catch (InstantiationException ex) {
-        LOG.error("Unable to construct HttpMethod", ex);
+        LOG.error(CONSTRUCTION_ERROR, ex);
       } catch (IllegalAccessException ex) {
-        LOG.error("Unable to construct HttpMethod", ex);
+        LOG.error(CONSTRUCTION_ERROR, ex);
       }
     }
     
