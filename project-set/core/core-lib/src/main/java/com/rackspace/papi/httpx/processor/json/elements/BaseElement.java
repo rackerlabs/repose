@@ -4,8 +4,8 @@ import org.xml.sax.helpers.AttributesImpl;
 
 public class BaseElement {
 
-   public static String QNAME_PREFIX = "json";
-   public static String JSONX_URI = "http://www.ibm.com/xmlns/prod/2009/jsonx";
+   public static final String QNAME_PREFIX = "json";
+   public static final String JSONX_URI = "http://www.ibm.com/xmlns/prod/2009/jsonx";
    private final AttributesImpl attrs;
    private final String element;
 

@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.rackspace.papi.mocks.auth;
 
 import java.io.IOException;
@@ -22,6 +18,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet(name = "GetTokensServlet", urlPatterns = {"/GetTokensServlet"})
 public class GetTokensServlet extends HttpServlet {
+   private static final String CLOUD = "CLOUD";
+   private static final String USER = "usertest%s";
 
     /** 
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code> methods.
@@ -30,10 +28,10 @@ public class GetTokensServlet extends HttpServlet {
      * @throws ServletException if a servlet-specific error occurs
      * @throws IOException if an I/O error occurs
      */
-    User user1 = new User("usertest1", "CLOUD", "asdasdasd-adsasdads-asdasdasd-adsadsasd");
-    User user2 = new User("usertest2", "CLOUD", "now-is-the-time");
-    User user3 = new User("usertest3", "CLOUD", "my-third-test-user");
-    User user4 = new User("usertest4", "CLOUD", "dkshk-fdjke3-fdfjdk-21342");
+    User user1 = new User(String.format(USER, 1), CLOUD, "asdasdasd-adsasdads-asdasdasd-adsadsasd");
+    User user2 = new User(String.format(USER, 2), CLOUD, "now-is-the-time");
+    User user3 = new User(String.format(USER, 3), CLOUD, "my-third-test-user");
+    User user4 = new User(String.format(USER, 4), CLOUD, "dkshk-fdjke3-fdfjdk-21342");
     User[] testUsers = {user1, user2, user3, user4}; // new ArrayList<MockUser>();
 
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
