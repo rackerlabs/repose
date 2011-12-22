@@ -18,6 +18,10 @@ import java.util.List;
  */
 public class AuthenticationHeaderManager {
 
+    // Proxy is specified in the OpenStack auth blue print:
+    // http://wiki.openstack.org/openstack-authn
+    private static final String X_AUTH_PROXY = "Proxy";
+
     private final String authToken;
     private final CachableTokenInfo cachableTokenInfo;
     private final Boolean isDelegatable;
@@ -25,9 +29,10 @@ public class AuthenticationHeaderManager {
     private final String tenantId;
     private final Boolean validToken;
     private final Groups groups;
-    // Proxy is specified in the OpenStack auth blue print: 
-    // http://wiki.openstack.org/openstack-authn
-    private static final String xAuthProxy = "Proxy";
+
+    // Hard code quality for now as the auth component will have
+    // the highest quality in terms of using the user it supplies for rate limiting
+    private final String quality = ";q=1";
 
     public AuthenticationHeaderManager(String authToken, CachableTokenInfo cachableTokenInfo, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, Groups groups) {
         this.authToken =authToken;
@@ -52,12 +57,10 @@ public class AuthenticationHeaderManager {
             if (isDelegatable) {
                 setIdentityStatus();
             }
-        } else if (isDelegatable) {
-            if (nullCredentials()) {
-                filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
-                setExtendedAuthorization();
-                setIdentityStatus();
-            }
+        } else if (isDelegatable && nullCredentials()) {
+            filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
+            setExtendedAuthorization();
+            setIdentityStatus();
         }
     }
 
@@ -69,7 +72,7 @@ public class AuthenticationHeaderManager {
      * EXTENDED AUTHORIZATION
      */
     private void setExtendedAuthorization() {
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.getHeaderKey(), StringUtilities.isBlank(tenantId) ? xAuthProxy : xAuthProxy + " " + tenantId);
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.getHeaderKey(), StringUtilities.isBlank(tenantId) ? X_AUTH_PROXY : X_AUTH_PROXY + " " + tenantId);
     }
 
     /**
@@ -99,7 +102,7 @@ public class AuthenticationHeaderManager {
      * The OpenStackServiceHeader is used for an OpenStack service
      */
     private void setUser() {
-        filterDirector.requestHeaderManager().putHeader(PowerApiHeader.USER.getHeaderKey(), cachableTokenInfo.getUsername());
+        filterDirector.requestHeaderManager().putHeader(PowerApiHeader.USER.getHeaderKey(), cachableTokenInfo.getUsername() + quality);
 
         filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_NAME.getHeaderKey(), cachableTokenInfo.getUsername());
         filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_ID.getHeaderKey(), cachableTokenInfo.getUserId());
