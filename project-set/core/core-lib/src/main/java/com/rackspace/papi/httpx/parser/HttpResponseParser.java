@@ -16,7 +16,7 @@ public class HttpResponseParser extends ObjectFactoryUser implements Parser<Http
 
     @Override
     public InputStream parse(HttpServletResponse response, List<MessageDetail> responseFidelity, List<ResponseHeadDetail> headFidelity, List<String> headersFidelity, boolean jsonProcessing) {
-        MessageEnvelope messageEnvelope = objectFactory.createMessageEnvelope();
+        MessageEnvelope messageEnvelope = getObjectFactory().createMessageEnvelope();
 
         ComplexNode responseNode = new ResponseNode(response, messageEnvelope, responseFidelity, headFidelity, headersFidelity, jsonProcessing);
 

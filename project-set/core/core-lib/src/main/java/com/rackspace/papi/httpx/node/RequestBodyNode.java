@@ -24,7 +24,7 @@ public class RequestBodyNode extends ObjectFactoryUser implements Node {
 
     @Override
     public void build() {
-        Body body = objectFactory.createBody();
+        Body body = getObjectFactory().createBody();
 
         TranslationRequestPreProcessor processor = new TranslationRequestPreProcessor(request, jsonProcessing);
 

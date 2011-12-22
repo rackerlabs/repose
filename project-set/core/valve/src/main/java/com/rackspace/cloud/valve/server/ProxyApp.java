@@ -24,7 +24,7 @@ public class ProxyApp {
             return;
         }
 
-        if( (!(portIsInRange(commandLineArgs.port))) || (!(portIsInRange(commandLineArgs.stopport))) ) {
+        if( (!(portIsInRange(commandLineArgs.getPort()))) || (!(portIsInRange(commandLineArgs.getStopPort()))) ) {
             LOG.info("Invalid Power API Valve port setting, use a value between 1024 and 49150");
             return;
         }
@@ -33,15 +33,15 @@ public class ProxyApp {
 
         final PowerApiValveServerControl serverControl = new PowerApiValveServerControl(commandLineArgs);
 
-        if (commandLineArgs.action.equalsIgnoreCase(commandLineArgs.ACTION_START))
+        if (commandLineArgs.getAction().equalsIgnoreCase(commandLineArgs.ACTION_START))
             serverControl.startPowerApiValve();
-        if (commandLineArgs.action.equalsIgnoreCase(commandLineArgs.ACTION_STOP))
+        if (commandLineArgs.getAction().equalsIgnoreCase(commandLineArgs.ACTION_STOP))
             serverControl.stopPowerApiValve();
     }
 
     private static void validateConfigDirectory(CommandLineArguments commandLineArgs) {
-        if(commandLineArgs.configDirectory == null || commandLineArgs.configDirectory.length() <= 0) {
-            commandLineArgs.configDirectory = DEFAULT_CFG_DIR;
+        if(commandLineArgs.getConfigDirectory() == null || commandLineArgs.getConfigDirectory().length() <= 0) {
+            commandLineArgs.setConfigDirectory(DEFAULT_CFG_DIR);
         }
     }
 

@@ -6,7 +6,7 @@ package com.rackspace.papi.commons.util.string;
  */
 public class StringBuilderWrapper implements JCharSequence {
 
-    final StringBuilder stringBuilder;
+    private final StringBuilder stringBuilder;
 
     public StringBuilderWrapper(StringBuilder stringBuilder) {
         this.stringBuilder = stringBuilder;

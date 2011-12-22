@@ -14,7 +14,7 @@ import com.rackspace.papi.components.ratelimit.util.*;
 @Path("/mockendservice/")
 public class MockServiceResource {
 
-    protected ObjectFactory factory;
+    private ObjectFactory factory;
     private String[] absNames = {"Admin", "Tech", "Demo"};
 
     public MockServiceResource() {

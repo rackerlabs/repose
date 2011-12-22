@@ -24,7 +24,7 @@ public class ResponseHeadersNode extends ObjectFactoryUser implements Node {
 
     @Override
     public void build() {
-        ResponseHeaders responseHeaders = objectFactory.createResponseHeaders();
+        ResponseHeaders responseHeaders = getObjectFactory().createResponseHeaders();
 
         responseHeaders.getFidelity().addAll(fidelity);
 
@@ -33,7 +33,7 @@ public class ResponseHeadersNode extends ObjectFactoryUser implements Node {
             for (String headerName : response.getHeaderNames()) {
 
                 if (fidelityValidator.hasStarFidelity()){
-                    ComplexParameter complexParameter = objectFactory.createComplexParameter();
+                    ComplexParameter complexParameter = getObjectFactory().createComplexParameter();
                     complexParameter.setName(headerName);
 
                     for (String nextElement : response.getHeaders(headerName)) {

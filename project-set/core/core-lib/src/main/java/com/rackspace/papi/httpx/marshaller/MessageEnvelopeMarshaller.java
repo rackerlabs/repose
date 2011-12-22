@@ -24,7 +24,7 @@ public class MessageEnvelopeMarshaller extends ObjectFactoryUser implements com.
             javax.xml.bind.Marshaller marshaller = jaxbContext.createMarshaller();
             marshaller.setProperty(javax.xml.bind.Marshaller.JAXB_SCHEMA_LOCATION, HTTPX_SCHEMA_LOCATION);
 
-            marshaller.marshal(objectFactory.createHttpx(messageEnvelope), outputStream);
+            marshaller.marshal(getObjectFactory().createHttpx(messageEnvelope), outputStream);
         } catch (JAXBException e) {
             throw new MarshallerException("An exception occurred when attempting to marshal the http message envelope.", e);
         }

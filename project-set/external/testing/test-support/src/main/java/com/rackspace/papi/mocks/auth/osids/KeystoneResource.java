@@ -10,6 +10,7 @@ import java.io.IOException;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.datatype.DatatypeConfigurationException;
 import org.openstack.docs.identity.api.v2.*;
@@ -30,8 +31,8 @@ public class KeystoneResource extends BaseResource {
    
    @POST
    @Path("/tokens")
-   @Consumes("application/xml")
-   @Produces("application/xml")
+   @Consumes(MediaType.APPLICATION_XML)
+   @Produces(MediaType.APPLICATION_XML)
    public Response getToken(AuthenticationRequest authRequest, @Context UriInfo context) throws DatatypeConfigurationException {
       KeystoneProvider p = getProvider();
       ResponseWrapper wrapper = new JaxbElementWrapper();
@@ -57,7 +58,7 @@ public class KeystoneResource extends BaseResource {
    
    @GET
    @Path("/tokens/{token}")
-   @Produces("application/xml")
+   @Produces(MediaType.APPLICATION_XML)
    public Response validateToken(@PathParam("token") String userToken, @HeaderParam("X-Auth-Token") String authToken, @Context UriInfo context) {
       KeystoneProvider p = getProvider();
       ResponseWrapper wrapper = new JaxbElementWrapper();
@@ -90,7 +91,7 @@ public class KeystoneResource extends BaseResource {
    
    @GET
    @Path("/users/{userId}/RAX-KSGRP")
-   @Produces("application/xml")
+   @Produces(MediaType.APPLICATION_XML)
    public Response getGroups(@PathParam("userId") String userId, @HeaderParam("X-Auth-Token") String authToken) {
       KeystoneProvider p = getProvider();
       ResponseWrapper wrapper = new JaxbElementWrapper();
