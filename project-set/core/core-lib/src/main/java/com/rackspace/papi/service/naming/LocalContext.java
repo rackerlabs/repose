@@ -1,9 +1,6 @@
 package com.rackspace.papi.service.naming;
 
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import javax.naming.Context;
 import javax.naming.InvalidNameException;
 import javax.naming.LinkRef;
@@ -18,6 +15,11 @@ import javax.naming.spi.NamingManager;
 @SuppressWarnings("UseOfObsoleteCollectionType")
 public abstract class LocalContext extends AbstractContext {
 
+    private static final String NOT_A_SUBCONTEXT = "Intermediate name %s is already bound and is not a subcontext";
+    private static final String ALREADY_BOUND = "Name %s is already bound";
+    private static final String INTERMEDIATE_NAME_NOT_BOUNT = "Intermediate name %s is not bound";
+    private static final String NAME_IN_NAMESPACE_NOT_BOUND = "Name %s/%s is not bound";
+    
     private final Map<String, Object> bindingsMap;
 
     public LocalContext(String contextName, Hashtable environment) {
@@ -64,14 +66,14 @@ public abstract class LocalContext extends AbstractContext {
                 if (boundObject instanceof Context) {
                     ((Context) boundObject).bind(nameCopy, obj);
                 } else {
-                    throw new InvalidNameException("Intermediate name " + intermediateName + " is already bound and is not a subcontext");
+                    throw new InvalidNameException(String.format(NOT_A_SUBCONTEXT, intermediateName));
                 }
             } else {
                 createSubcontext(intermediateName).bind(nameCopy, obj);
             }
         } else {
             if (bindingsMap.containsKey(nameCopy.toString())) {
-                throw new NameAlreadyBoundException("Name " + nameCopy + " is already bound");
+                throw new NameAlreadyBoundException(String.format(ALREADY_BOUND, nameCopy));
             }
 
             bindingsMap.put(nameCopy.toString(), obj);
@@ -100,16 +102,16 @@ public abstract class LocalContext extends AbstractContext {
                 if (boundObject instanceof Context) {
                     ((Context) boundObject).unbind(nameCopy);
                 } else {
-                    throw new InvalidNameException("Intermediate name " + intermediateName + " is bound and is not a subcontext");
+                    throw new InvalidNameException(String.format(NOT_A_SUBCONTEXT, intermediateName));
                 }
             } else {
-                throw new NameNotFoundException("Intermediate name " + intermediateName + " is not bound");
+                throw new NameNotFoundException(String.format(INTERMEDIATE_NAME_NOT_BOUNT, intermediateName));
             }
         } else {
             final Object unboundObject = bindingsMap.remove(nameCopy.toString());
 
             if (unboundObject == null) {
-                throw new NameNotFoundException("Name " + getNameInNamespace() + "/" + nameCopy + " is not bound");
+                throw new NameNotFoundException(String.format(NAME_IN_NAMESPACE_NOT_BOUND, getNameInNamespace(), nameCopy));
             }
 
             if (unboundObject instanceof Context) {
@@ -133,14 +135,14 @@ public abstract class LocalContext extends AbstractContext {
                 if (boundObject instanceof Context) {
                     ((Context) boundObject).rebind(nameCopy, obj);
                 } else {
-                    throw new InvalidNameException("Intermediate name " + intermediateName + " is already bound and is not a subcontext");
+                    throw new InvalidNameException(String.format(NOT_A_SUBCONTEXT, intermediateName));
                 }
             } else {
-                throw new NameNotFoundException("Intermediate name " + intermediateName + " is not bound");
+                throw new NameNotFoundException(String.format(INTERMEDIATE_NAME_NOT_BOUNT, intermediateName));
             }
         } else {
             if (!bindingsMap.containsKey(nameCopy.toString())) {
-                throw new NameNotFoundException("Name " + getNameInNamespace() + "/" + nameCopy + " is not bound");
+                throw new NameNotFoundException(String.format(NAME_IN_NAMESPACE_NOT_BOUND, getNameInNamespace(), nameCopy));
             }
 
             bindingsMap.put(nameCopy.toString(), obj);
