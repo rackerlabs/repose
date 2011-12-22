@@ -16,5 +16,11 @@ describe InstanceInfo do
         REPOSE_INST_OS_IDENTITY.type().should eq("OpenStack Identity")
      end
   end
+  describe "#REPOSE_INST_CLIENT_IP" do
+     it "OpenStack Identity should return expected values" do
+        REPOSE_INST_CLIENT_IP.port().should eq(8889)
+        REPOSE_INST_CLIENT_IP.type().should eq("Client-Ip")
+     end
+  end
 end
 
