@@ -77,7 +77,7 @@
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
               <stringProp name="HTTPSampler.protocol">http</stringProp>
               <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-              <stringProp name="HTTPSampler.path">/p1/ss</stringProp>
+              <stringProp name="HTTPSampler.path">/resources/mockendservice</stringProp>
               <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
             </ConfigTestElement>
             <hashTree/>
@@ -189,7 +189,7 @@
                 </hashTree>
               </hashTree>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Unhappy Path" enabled="true">
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Unhappy Path" enabled="false">
               <stringProp name="TestPlan.comments">The tests under this controller test the unhappy paths of the client IP filter.</stringProp>
             </GenericController>
             <hashTree>
