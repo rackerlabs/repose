@@ -31,17 +31,15 @@ Repose components that are planned for future development include:
 
 Benefits:
 
-- Simple. Repose is easy to use. It can be used out-of-the-box as an executable JAR. 
-For more flexibility, it can be deployed as a WAR file into any Servlet container 
-(i.e., Tomcat, Jetty, etc.). Most applications can use Repose with minimal configuration 
-to specify which Repose components should be used and the options for each.
-- Scalable. Repose is very scalable because it is designed to be stateless, allowing state 
-to be distributed across the web.
-- Flexible. Repose's configuration allows it to be run in multiple ways and include only 
-the components needed by a specific application.
+- Scalable. Repose is incredibly scalable because it is designed to be stateless, allowing state to be 
+  distributed across the web.
+- Flexible. Repose can be run as an executable JAR, deployed as a WAR file in any Servlet container, or 
+  deployed on a separate server. Repose's configuration allows a user to define which components to use 
+  and details for each component.
 - Extensible. New components can easily be added to Repose.
 - High performance. Repose can handle high loads with high accuracy.
 - Improving. Repose is under development and actively being worked on.
+
 
 
 You can install/run Repose by several methods:
