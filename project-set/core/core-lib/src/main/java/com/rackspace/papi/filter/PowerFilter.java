@@ -1,14 +1,11 @@
 package com.rackspace.papi.filter;
 
-import com.rackspace.papi.commons.config.manager.LockedConfigurationUpdater;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.filter.ApplicationContextAwareFilter;
 import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
-import com.rackspace.papi.commons.util.thread.KeyedStackLock;
 import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.service.context.jndi.ContextAdapter;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
@@ -30,114 +27,109 @@ import javax.servlet.ServletResponse;
 
 public class PowerFilter extends ApplicationContextAwareFilter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
-    private final EventListener<ApplicationDeploymentEvent, String> applicationDeploymentListener;
-    private final UpdateListener<PowerProxy> systemModelConfigurationListener;
-    private boolean firstInitialization;
-    private PowerFilterChainBuilder powerFilterChainBuilder;
-    private ContextAdapter papiContext;
-    private PowerProxy currentSystemModel;
-    private FilterConfig filterConfig;
+   private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
+   private final EventListener<ApplicationDeploymentEvent, String> applicationDeploymentListener;
+   private final UpdateListener<PowerProxy> systemModelConfigurationListener;
+   private boolean firstInitialization;
+   private PowerFilterChainBuilder powerFilterChainBuilder;
+   private ContextAdapter papiContext;
+   private PowerProxy currentSystemModel;
+   private FilterConfig filterConfig;
 
-    public PowerFilter() {
-        KeyedStackLock updateLock = new KeyedStackLock();
-        Object updateKey = new Object();
-        firstInitialization = true;
+   public PowerFilter() {
+      firstInitialization = true;
 
-        systemModelConfigurationListener = new LockedConfigurationUpdater<PowerProxy>(updateLock, updateKey) {
+      systemModelConfigurationListener = new UpdateListener<PowerProxy>() {
 
-            private final Object internalLock = new Object();
+         private final Object internalLock = new Object();
 
-            // TODO:Review - There's got to be a better way of initializing PowerFilter. Maybe the app management service could be queryable.
-            @Override
-            public void onConfigurationUpdated(PowerProxy configurationObject) {
-                currentSystemModel = configurationObject;
+         // TODO:Review - There's got to be a better way of initializing PowerFilter. Maybe the app management service could be queryable.
+         @Override
+         public void configurationUpdated(PowerProxy configurationObject) {
+            currentSystemModel = configurationObject;
 
-                // This event must be fired only after we have finished configuring the system.
-                // This prevents a race condition illustrated below where the application
-                // deployment event is caught but does nothing due to a null configuration
-                synchronized (internalLock) {
-                    if (firstInitialization) {
-                        firstInitialization = false;
-                        papiContext.eventService().newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
-                    } else {
-                        final List<FilterContext> newFilterChain = new FilterContextInitializer(filterConfig).buildFilterContexts(papiContext.classLoader(), currentSystemModel);
-                        updateFilterChainBuilder(newFilterChain);
-                    }
-                }
+            // This event must be fired only after we have finished configuring the system.
+            // This prevents a race condition illustrated below where the application
+            // deployment event is caught but does nothing due to a null configuration
+            synchronized (internalLock) {
+               if (firstInitialization) {
+                  firstInitialization = false;
+                  papiContext.eventService().newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
+               } else {
+                  final List<FilterContext> newFilterChain = new FilterContextInitializer(filterConfig).buildFilterContexts(papiContext.classLoader(), currentSystemModel);
+                  updateFilterChainBuilder(newFilterChain);
+               }
             }
-        };
+         }
+      };
 
-        applicationDeploymentListener = new EventListener<ApplicationDeploymentEvent, String>() {
+      applicationDeploymentListener = new EventListener<ApplicationDeploymentEvent, String>() {
 
-            @Override
-            public void onEvent(Event<ApplicationDeploymentEvent, String> e) {
-                LOG.info("Application collection has been modified. Application that changed: " + e.payload());
+         @Override
+         public void onEvent(Event<ApplicationDeploymentEvent, String> e) {
+            LOG.info("Application collection has been modified. Application that changed: " + e.payload());
 
-                if (currentSystemModel != null) {
-                    final List<FilterContext> newFilterChain = new FilterContextInitializer(filterConfig).buildFilterContexts(papiContext.classLoader(), currentSystemModel);
+            if (currentSystemModel != null) {
+               final List<FilterContext> newFilterChain = new FilterContextInitializer(filterConfig).buildFilterContexts(papiContext.classLoader(), currentSystemModel);
 
-                    updateFilterChainBuilder(newFilterChain);
-                }
+               updateFilterChainBuilder(newFilterChain);
             }
-        };
-    }
-    
-    // This is written like this in case requests are already processing against the
-    // existing filterChain.  If that is the case we create a new one for the deployment
-    // update but the old list stays in memory as the garbage collector won't clean
-    // it up until all RequestFilterChainState objects are no longer referencing it.
-    private synchronized void updateFilterChainBuilder(List<FilterContext> newFilterChain) {
-        if (powerFilterChainBuilder != null) {
-           papiContext.filterChainGarbageCollectorService().reclaimDestroyable(powerFilterChainBuilder, powerFilterChainBuilder.getResourceConsumerMonitor());
-        }
-        
-        powerFilterChainBuilder = new PowerFilterChainBuilder(newFilterChain);
-    }
+         }
+      };
+   }
 
-    protected PowerProxy getCurrentSystemModel() {
-        return currentSystemModel;
-    }
+   // This is written like this in case requests are already processing against the
+   // existing filterChain.  If that is the case we create a new one for the deployment
+   // update but the old list stays in memory as the garbage collector won't clean
+   // it up until all RequestFilterChainState objects are no longer referencing it.
+   private synchronized void updateFilterChainBuilder(List<FilterContext> newFilterChain) {
+      if (powerFilterChainBuilder != null) {
+         papiContext.filterChainGarbageCollectorService().reclaimDestroyable(powerFilterChainBuilder, powerFilterChainBuilder.getResourceConsumerMonitor());
+      }
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        super.init(filterConfig);
-        this.filterConfig = filterConfig;
+      powerFilterChainBuilder = new PowerFilterChainBuilder(newFilterChain);
+   }
 
-        papiContext = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext());
-        
-        papiContext.eventService().listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
-        papiContext.configurationService().subscribeTo("power-proxy.cfg.xml", systemModelConfigurationListener, PowerProxy.class);
-    }
+   protected PowerProxy getCurrentSystemModel() {
+      return currentSystemModel;
+   }
 
-    @Override
-    public void destroy() {
-    }
+   @Override
+   public void init(FilterConfig filterConfig) throws ServletException {
+      super.init(filterConfig);
+      this.filterConfig = filterConfig;
 
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
+      papiContext = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext());
 
-        final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
-        final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
-        final PowerFilterChain requestFilterChainState = powerFilterChainBuilder.newPowerFilterChain(chain, filterConfig.getServletContext());
+      papiContext.eventService().listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
+      papiContext.configurationService().subscribeTo("power-proxy.cfg.xml", systemModelConfigurationListener, PowerProxy.class);
+   }
 
-        mutableHttpResponse.setHeader(CommonHttpHeader.CONTENT_TYPE.getHeaderKey(), mutableHttpRequest.getHeader(CommonHttpHeader.ACCEPT.getHeaderKey()));
+   @Override
+   public void destroy() {
+   }
 
-        try {
-            requestFilterChainState.startFilterChain(mutableHttpRequest, mutableHttpResponse);
-        } catch (IOException t) {
-            mutableHttpResponse.setStatus(HttpStatusCode.BAD_GATEWAY.intValue());
+   @Override
+   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+      HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
 
-            LOG.error("Exception encountered while processing filter chain", t);
-        } catch (ServletException t) {
-            mutableHttpResponse.setStatus(HttpStatusCode.BAD_GATEWAY.intValue());
+      final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
+      final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
+      final PowerFilterChain requestFilterChainState = powerFilterChainBuilder.newPowerFilterChain(chain, filterConfig.getServletContext());
+      
+      // TODO:Review - Should this be set for all filters regardless of what they return?
+//      mutableHttpResponse.setHeader(CommonHttpHeader.CONTENT_TYPE.getHeaderKey(), mutableHttpRequest.getHeader(CommonHttpHeader.ACCEPT.getHeaderKey()));
 
-            LOG.error("Exception encountered while processing filter chain", t);
-        } finally {
-            papiContext.responseMessageService().handle(mutableHttpRequest, mutableHttpResponse);
+      try {
+         requestFilterChainState.startFilterChain(mutableHttpRequest, mutableHttpResponse);
+      } catch (Exception ex) {
+         mutableHttpResponse.setStatus(HttpStatusCode.BAD_GATEWAY.intValue());
 
-            mutableHttpResponse.commitBufferToServletOutputStream();
-        }
-    }
+         LOG.error("Exception encountered while processing filter chain", ex);
+      } finally {
+         papiContext.responseMessageService().handle(mutableHttpRequest, mutableHttpResponse);
+         
+         mutableHttpResponse.commitBufferToServletOutputStream();
+      }
+   }
 }
