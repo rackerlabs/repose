@@ -1,4 +1,6 @@
-REPOSE - The REstful PrOxy Service Engine 
+<pre>
+</pre>
+#REPOSE - The REstful PrOxy Service Engine#
 
 Repose is an open-source platform that you can use to build stacks of reusable software
 components. These components can be leveraged by service developers to perform
@@ -10,35 +12,36 @@ more separate servers as a proxy to one or more services. At its core, Repose is
 that allows services to use Enterprise Integration Patterns (EIP).
 
 
-Repose Components
+##Repose Components##
 
 Completed Repose components include:
-    Client Authentication
-    Rate Limiting
-    Versioning
-    HTTP Logging
+
+ * Client Authentication
+ * Rate Limiting
+ * Versioning
+ * HTTP Logging
 
 Repose components that are currently being developed include:
-    Service Authentication
-    Content Normalization
-    Translation
+ * Service Authentication
+ * Content Normalization
+ * Translation
 
 Repose components that are planned for future development include:
-    Content Negotiation
-    Contract Scope Filter
-    Client Authorization
+ * Content Negotiation
+ * Contract Scope Filter
+ * Client Authorization
 
 
 Benefits:
 
-- Scalable. Repose is incredibly scalable because it is designed to be stateless, allowing state to be 
+ * **Scalable**. Repose is incredibly scalable because it is designed to be stateless, allowing state to be 
   distributed across the web.
-- Flexible. Repose can be run as an executable JAR, deployed as a WAR file in any Servlet container, or 
+ * **Flexible**. Repose can be run as an executable JAR, deployed as a WAR file in any Servlet container, or 
   deployed on a separate server. Repose's configuration allows a user to define which components to use 
   and details for each component.
-- Extensible. New components can easily be added to Repose.
-- High performance. Repose can handle high loads with high accuracy.
-- Improving. Repose is under development and actively being worked on.
+ * **Extensible**. New components can easily be added to Repose.
+ * **High performance**. Repose can handle high loads with high accuracy.
+ * **Improving**. Repose is under development and actively being worked on.
 
 
 
