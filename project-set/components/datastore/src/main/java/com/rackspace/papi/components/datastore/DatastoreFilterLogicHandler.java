@@ -9,6 +9,7 @@ import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.StoredElement;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.hash.HashedDatastore;
@@ -45,16 +46,16 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
       FilterDirector director = new FilterDirectorImpl();
       director.setFilterAction(FilterAction.PASS);
 
-      if (isAllowed(request)) {
-         // TODO: Get rid of this monstrosity :x
-         updateClusterViewLocalAddress(request.getLocalAddr(), request.getLocalPort());
+      if (CacheRequest.isCacheRequest(request)) {
+         if (isAllowed(request)) {
+            // TODO: Get rid of this monstrosity :x
+            updateClusterViewLocalAddress(request.getLocalAddr(), request.getLocalPort());
 
-         if (CacheRequest.isCacheRequest(request)) {
             director = performCacheRequest(request);
+         } else {
+            director.setResponseStatus(HttpStatusCode.FORBIDDEN);
+            director.setFilterAction(FilterAction.RETURN);
          }
-      } else {
-         director.setResponseStatus(HttpStatusCode.FORBIDDEN);
-         director.setFilterAction(FilterAction.RETURN);
       }
 
       return director;
@@ -83,26 +84,20 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
 
    public FilterDirector performCacheRequest(HttpServletRequest request) {
       final FilterDirector director = new FilterDirectorImpl();
-      final String requestMethod = request.getMethod();
+      
+      // Defaults to return not-implemented
+      director.setResponseStatus(HttpStatusCode.NOT_IMPLEMENTED);
+      director.setFilterAction(FilterAction.RETURN);
 
       try {
-         if (requestMethod.equalsIgnoreCase("GET")) {
+         final String requestMethod = request.getMethod();
+         
+         if ("GET".equalsIgnoreCase(requestMethod)) {
             onCacheGet(CacheRequest.marshallCacheGetRequest(request), director);
-         } else if (requestMethod.equalsIgnoreCase("PUT")) {
-            final CacheRequest cachePut = CacheRequest.marshallCachePutRequest(request);
-            hashRingDatastore.putByHash(cachePut.getCacheKey(), cachePut.getPayload(), cachePut.getTtlInSeconds(), TimeUnit.SECONDS);
-
-            director.setResponseStatus(HttpStatusCode.ACCEPTED);
-            director.setFilterAction(FilterAction.RETURN);
-         } else if (requestMethod.equalsIgnoreCase("DELETE")) {
-            final CacheRequest cacheDelete = CacheRequest.marshallCacheGetRequest(request);
-            hashRingDatastore.removeByHash(cacheDelete.getCacheKey());
-
-            director.setResponseStatus(HttpStatusCode.ACCEPTED);
-            director.setFilterAction(FilterAction.RETURN);
-         } else {
-            director.setResponseStatus(HttpStatusCode.NOT_IMPLEMENTED);
-            director.setFilterAction(FilterAction.RETURN);
+         } else if ("PUT".equalsIgnoreCase(requestMethod)) {
+            onCachePut(request, director);
+         } else if ("DELETE".equalsIgnoreCase(requestMethod)) {
+            onCacheDelete(request, director);
          }
       } catch (MalformedCacheRequestException mcre) {
          LOG.error(mcre.getMessage(), mcre);
@@ -116,8 +111,24 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
          director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
          director.setFilterAction(FilterAction.RETURN);
       }
-      
+
       return director;
+   }
+
+   public void onCacheDelete(HttpServletRequest request, final FilterDirector director) throws DatastoreOperationException, MalformedCacheRequestException {
+      final CacheRequest cacheDelete = CacheRequest.marshallCacheGetRequest(request);
+      hashRingDatastore.removeByHash(cacheDelete.getCacheKey());
+
+      director.setResponseStatus(HttpStatusCode.ACCEPTED);
+      director.setFilterAction(FilterAction.RETURN);
+   }
+
+   public void onCachePut(HttpServletRequest request, final FilterDirector director) throws MalformedCacheRequestException, DatastoreOperationException {
+      final CacheRequest cachePut = CacheRequest.marshallCachePutRequest(request);
+      hashRingDatastore.putByHash(cachePut.getCacheKey(), cachePut.getPayload(), cachePut.getTtlInSeconds(), TimeUnit.SECONDS);
+
+      director.setResponseStatus(HttpStatusCode.ACCEPTED);
+      director.setFilterAction(FilterAction.RETURN);
    }
 
    public void updateClusterViewLocalAddress(String newLocalAddr, int newLocalPort) {
