@@ -162,8 +162,8 @@
             </plugin>
                     <plugin>
                         <groupId>org.vafer</groupId>
-                        <artifactId>papi-jdeb</artifactId>
-                        <version>${project.version}</version>
+                        <artifactId>jdeb</artifactId>
+                        <version>0.8</version>
                         
                         <executions>
                             <execution>
@@ -177,16 +177,6 @@
                                     <dataSet>
 
                                         <!-- The log directory with info file as placeholder for plugin -->
-                                        <data>
-                                            <type>make-directory</type>
-
-                                            <mapper>
-                                                <type>dir</type>
-                                                <prefix>/usr/share/powerapi/filters</prefix>
-                                                <filemode>765</filemode>
-                                            </mapper>
-                                            
-                                        </data>                                  
 
                                             <!-- The jar file -->
                                         <data>
