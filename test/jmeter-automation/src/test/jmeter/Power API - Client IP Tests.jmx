@@ -17,16 +17,16 @@
           <stringProp name="-1423461112">accept</stringProp>
           <stringProp name="104427">ip2</stringProp>
           <stringProp name="-1883078023">bogusValue</stringProp>
-          <stringProp name="1746327202">sourceIp</stringProp>
+          <stringProp name="-1698431536">sourceIp2</stringProp>
           <stringProp name="98629247">group</stringProp>
         </collectionProp>
         <collectionProp name="UserParameters.thread_values">
-          <collectionProp name="-1288647666">
+          <collectionProp name="-1476379258">
             <stringProp name="-1149796508">10.6.60.1</stringProp>
             <stringProp name="-1248326952">application/xml</stringProp>
             <stringProp name="-1149796507">10.6.60.2</stringProp>
             <stringProp name="-284840886">unknown</stringProp>
-            <stringProp name="1505998205">127.0.0.1</stringProp>
+            <stringProp name="1980046654">64.39.4.132</stringProp>
             <stringProp name="598148853">IP_Standard</stringProp>
           </collectionProp>
         </collectionProp>
@@ -189,10 +189,31 @@
                 </hashTree>
               </hashTree>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Unhappy Path" enabled="false">
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Unhappy Path" enabled="true">
               <stringProp name="TestPlan.comments">The tests under this controller test the unhappy paths of the client IP filter.</stringProp>
             </GenericController>
             <hashTree>
+              <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Get Source IP" enabled="true">
+                <stringProp name="TestPlan.comments">This pings whatismyip.com to get the external IP address of the JMeter box so we can validate this is the IP the client IP filter sets.</stringProp>
+              </GenericController>
+              <hashTree>
+                <BSFSampler guiclass="BSFSamplerGui" testclass="BSFSampler" testname="Get the External IP of the JMeter box" enabled="true">
+                  <stringProp name="BSFSampler.filename"></stringProp>
+                  <stringProp name="BSFSampler.language">javascript</stringProp>
+                  <stringProp name="BSFSampler.parameters"></stringProp>
+                  <stringProp name="BSFSampler.query">
+function getSourceIp() {
+   var whatismyip = new java.net.URL(&quot;http://automation.whatismyip.com/n09230945.asp&quot;);
+   var inputStreamReader = new java.io.InputStreamReader(whatismyip.openStream());
+   var bufferedReader = new java.io.BufferedReader(inputStreamReader);
+
+   return bufferedReader.readLine();		
+}
+
+vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
+                </BSFSampler>
+                <hashTree/>
+              </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When X-Forwarded-For has no value" enabled="true"/>
               <hashTree>
                 <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
@@ -223,7 +244,6 @@
                   <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
                   <boolProp name="HTTPSampler.monitor">false</boolProp>
                   <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-                  <stringProp name="HTTPSampler.ipSource">${sourceIp}</stringProp>
                 </HTTPSamplerProxy>
                 <hashTree>
                   <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="should return source ip" enabled="true">
@@ -268,7 +288,6 @@
                   <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
                   <boolProp name="HTTPSampler.monitor">false</boolProp>
                   <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-                  <stringProp name="HTTPSampler.ipSource">${sourceIp}</stringProp>
                 </HTTPSamplerProxy>
                 <hashTree>
                   <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="should return source ip" enabled="true">
