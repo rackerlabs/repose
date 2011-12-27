@@ -22,11 +22,13 @@ Completed Repose components include:
  * HTTP Logging
 
 Repose components that are currently being developed include:
+
  * Service Authentication
  * Content Normalization
  * Translation
 
 Repose components that are planned for future development include:
+
  * Content Negotiation
  * Contract Scope Filter
  * Client Authorization
@@ -43,7 +45,7 @@ Repose components that are planned for future development include:
  * **High performance**. Repose can handle high loads with high accuracy.
  * **Improving**. Repose is under development and actively being worked on.
 
-
+ 
 ##Installation##
 You can install/run Repose by several methods:
 
