@@ -1,34 +1,24 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.rackspace.papi.commons.util.regex;
-
-import java.util.regex.Pattern;
 
 /**
  *
  * @author malconis
  */
-public class ExtractorResult {
-    private final Pattern pattern;
-    private final String result;
+public class ExtractorResult<K> {
 
-    public ExtractorResult(Pattern pattern, String result) {
-        this.pattern = pattern;
-        this.result = result;
-    }
-    
-    
+   private final String result;
+   private final K key;
 
-    public Pattern getPattern() {
-        return pattern;
-    }
+   public ExtractorResult(String result, K key) {
+      this.result = result;
+      this.key = key;
+   }
 
-    public String getResult() {
-        return result;
-    }
-    
-    
-    
+   public K getKey() {
+      return key;
+   }
+
+   public String getResult() {
+      return result;
+   }
 }
