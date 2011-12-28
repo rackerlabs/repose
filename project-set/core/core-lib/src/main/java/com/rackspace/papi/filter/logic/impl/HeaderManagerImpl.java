@@ -1,12 +1,14 @@
 package com.rackspace.papi.filter.logic.impl;
 
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
+import com.rackspace.papi.filter.logic.HeaderApplicationLogic;
 import com.rackspace.papi.filter.logic.HeaderManager;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -22,19 +24,6 @@ public class HeaderManagerImpl implements HeaderManager {
         headersToAdd = new HashMap<String, Set<String>>();
         headersToRemove = new HashSet<String>();
     }
-
-    /**
-     * Copy constructor. Provides a safe copy mechanism for cloning another header manager
-     * 
-     * @param managerToCopy 
-     */
-    public HeaderManagerImpl(HeaderManager managerToCopy) {
-        headersToAdd = new HashMap<String, Set<String>>();
-        headersToAdd.putAll(managerToCopy.headersToAdd());
-        
-        headersToRemove = new HashSet<String>();
-        headersToRemove.addAll(managerToCopy.headersToRemove());
-    }
     
     private void applyTo(HeaderApplicationLogic applier) {
         for (String header : headersToRemove()) {
@@ -48,40 +37,14 @@ public class HeaderManagerImpl implements HeaderManager {
     
     @Override
     public void applyTo(final MutableHttpServletRequest request) {
-        applyTo(new HeaderApplicationLogic() {
-            
-            @Override
-            public void removeHeader(String headerName) {
-                request.removeHeader(headerName);
-            }
-            
-            @Override
-            public void addHeader(String key, Set<String> values) {
-                request.removeHeader(key);
-                
-                for (String value : values) {
-                    request.addHeader(key, value);
-                }
-            }
-        });
+        final HeaderApplicationLogic applicationLogic = new RequestHeaderApplicationLogic(request);
+        applyTo(applicationLogic);
     }
     
     @Override
     public void applyTo(final HttpServletResponse response) {
-        applyTo(new HeaderApplicationLogic() {
-            
-            @Override
-            public void removeHeader(String headerName) {
-                throw new UnsupportedOperationException("Responses do not support header removal");
-            }
-            
-            @Override
-            public void addHeader(String key, Set<String> values) {
-                for (String value : values) {
-                    response.addHeader(key, value);
-                }
-            }
-        });
+        final ResponseHeaderApplicationLogic applicationLogic = new ResponseHeaderApplicationLogic(response);
+        applyTo(applicationLogic);
     }
     
     @Override
@@ -110,5 +73,16 @@ public class HeaderManagerImpl implements HeaderManager {
     @Override
     public void removeHeader(String key) {
         headersToRemove.add(key.toLowerCase());
+    }
+
+    @Override
+    public void appendToHeader(HttpServletRequest request, String key, String value) {
+        final String currentHeaderValue = request.getHeader(key);
+
+        if (currentHeaderValue != null) {
+            this.putHeader(key, currentHeaderValue + "," + value);
+        } else {
+            this.putHeader(key, value);
+        }
     }
 }

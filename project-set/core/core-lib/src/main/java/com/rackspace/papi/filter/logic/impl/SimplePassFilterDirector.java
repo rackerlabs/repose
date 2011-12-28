@@ -9,6 +9,7 @@ import com.rackspace.papi.filter.logic.HeaderManager;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public final class SimplePassFilterDirector extends AbstractFilterDirector {
@@ -85,4 +86,8 @@ class EmptyHeaderManager implements HeaderManager {
     @Override
     public void applyTo(HttpServletResponse response) {
     }
-};
+
+    @Override
+    public void appendToHeader(HttpServletRequest request, String key, String value) {
+    }
+}
