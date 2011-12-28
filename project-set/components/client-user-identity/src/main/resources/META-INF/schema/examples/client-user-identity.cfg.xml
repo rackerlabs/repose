@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<client-user-identity  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+   xmlns='http://docs.api.rackspacecloud.com/powerapi/client-user-identity/v1.0'
+   xsi:schemaLocation='http://docs.api.rackspacecloud.com/powerapi/client-user-identity/v1.0 ../config/client-user-identity.xsd'>
+   
+   <user-mappings>
+      <mapping user-regex=".*/servers/(\w*)/.*"/>
+      <mapping user-regex=".*/servers/(\w*)/.*"/>
+   </user-mappings>
+   
+   <group>User_Standard</group>
+   <quality>0.5</quality>
+   
+</client-user-identity>
