@@ -16,7 +16,6 @@ import javax.servlet.http.HttpServletRequest;
 
 public class ClientIpIdentityHandler extends AbstractFilterLogicHandler {
 
-   
    private final ClientIpIdentityConfig config;
    private final String quality;
    private final List<HttpHeader> sourceHeaders;
@@ -38,7 +37,7 @@ public class ClientIpIdentityHandler extends AbstractFilterLogicHandler {
 
       if(!address.isEmpty()) {
          String group = new ClientGroupExtractor(request, config).determineIpGroup(address);
-         headerManager.putHeader(PowerApiHeader.USER.getHeaderKey(), address + quality);
+         headerManager.appendToHeader(request, PowerApiHeader.USER.getHeaderKey(), address + quality);
          headerManager.putHeader(PowerApiHeader.GROUPS.getHeaderKey(), group);
       }
       

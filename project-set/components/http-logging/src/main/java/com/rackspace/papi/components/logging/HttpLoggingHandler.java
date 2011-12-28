@@ -22,7 +22,9 @@ public class HttpLoggingHandler extends AbstractFilterLogicHandler {
 
     @Override
     public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
-        FilterDirector filterDirector = new FilterDirectorImpl(HttpStatusCode.fromInt(response.getStatus()), FilterAction.PASS);
+        FilterDirector filterDirector = new FilterDirectorImpl();
+        filterDirector.setResponseStatus(HttpStatusCode.fromInt(response.getStatus()));
+        filterDirector.setFilterAction(FilterAction.PASS);
 
         for (HttpLoggerWrapper loggerWrapper : loggers) {
             loggerWrapper.handle(request, response);

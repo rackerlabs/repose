@@ -3,6 +3,7 @@ package com.rackspace.papi.filter.logic;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import java.util.Map;
 import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -11,14 +12,9 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface HeaderManager {
 
-    public interface HeaderApplicationLogic {
-
-        void removeHeader(String headerName);
-
-        void addHeader(String key, Set<String> values);
-    }
-
     void putHeader(String key, String... values);
+
+    void appendToHeader(HttpServletRequest request, String key, String value);
 
     Map<String, Set<String>> headersToAdd();
 

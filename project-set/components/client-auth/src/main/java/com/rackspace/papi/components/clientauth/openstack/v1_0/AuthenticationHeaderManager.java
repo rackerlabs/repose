@@ -9,6 +9,7 @@ import com.rackspace.papi.components.clientauth.rackspace.IdentityStatus;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,12 +30,13 @@ public class AuthenticationHeaderManager {
     private final String tenantId;
     private final Boolean validToken;
     private final Groups groups;
+    private final HttpServletRequest request;
 
     // Hard code quality for now as the auth component will have
     // the highest quality in terms of using the user it supplies for rate limiting
     private final String quality = ";q=1";
 
-    public AuthenticationHeaderManager(String authToken, CachableTokenInfo cachableTokenInfo, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, Groups groups) {
+    public AuthenticationHeaderManager(String authToken, CachableTokenInfo cachableTokenInfo, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, Groups groups, HttpServletRequest request) {
         this.authToken =authToken;
         this.cachableTokenInfo = cachableTokenInfo;
         this.isDelegatable = isDelegatable;
@@ -42,6 +44,7 @@ public class AuthenticationHeaderManager {
         this.tenantId = tenantId;
         this.validToken = cachableTokenInfo != null && cachableTokenInfo.getTokenId() != null;       
         this.groups = groups;
+        this.request = request;
     }
 
     public void setFilterDirectorValues() {
@@ -102,7 +105,7 @@ public class AuthenticationHeaderManager {
      * The OpenStackServiceHeader is used for an OpenStack service
      */
     private void setUser() {
-        filterDirector.requestHeaderManager().putHeader(PowerApiHeader.USER.getHeaderKey(), cachableTokenInfo.getUsername() + quality);
+        filterDirector.requestHeaderManager().appendToHeader(request, PowerApiHeader.USER.getHeaderKey(), cachableTokenInfo.getUsername() + quality);
 
         filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_NAME.getHeaderKey(), cachableTokenInfo.getUsername());
         filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_ID.getHeaderKey(), cachableTokenInfo.getUserId());

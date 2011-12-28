@@ -71,7 +71,7 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
             groups = authenticationService.getGroups(cachableTokenInfo.getUserId());
         }
 
-        final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(authToken, cachableTokenInfo, delegatable, filterDirector, account == null ? "" : account.getUsername(), groups);
+        final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(authToken, cachableTokenInfo, delegatable, filterDirector, account == null ? "" : account.getUsername(), groups, request);
         headerManager.setFilterDirectorValues();
 
         return filterDirector;
@@ -106,21 +106,19 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
     }
 
     private FilterDirector updateHttpResponse(FilterDirector director, String wwwAuthenticateHeader) {
-        final FilterDirector myDirector = new FilterDirectorImpl(director);
-
         // If in the case that the origin service supports delegated authentication
         // we should then communicate to the client how to authenticate with us
         if (!StringUtilities.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains("Delegated")) {
             final String replacementWwwAuthenticateHeader = getWWWAuthenticateHeaderContents();
-            myDirector.responseHeaderManager().putHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey(), replacementWwwAuthenticateHeader);
+            director.responseHeaderManager().putHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey(), replacementWwwAuthenticateHeader);
         } else {
             // In the case where authentication has failed and we did not receive
             // a delegated WWW-Authenticate header, this means that our own authentication
             // with the origin service has failed and must then be communicated as
             // a 500 (internal server error) to the client
-            myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+            director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
         }
         
-        return myDirector;
+        return director;
     }
 }
