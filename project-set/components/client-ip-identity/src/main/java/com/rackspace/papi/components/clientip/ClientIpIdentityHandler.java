@@ -39,7 +39,7 @@ public class ClientIpIdentityHandler extends AbstractFilterLogicHandler {
       if(!address.isEmpty()) {
          String group = new ClientGroupExtractor(request, config).determineIpGroup(address);
          headerManager.putHeader(PowerApiHeader.USER.getHeaderKey(), address + quality);
-         headerManager.putHeader(PowerApiHeader.GROUPS.getHeaderKey(), group + quality);
+         headerManager.putHeader(PowerApiHeader.GROUPS.getHeaderKey(), group);
       }
       
       return filterDirector;
