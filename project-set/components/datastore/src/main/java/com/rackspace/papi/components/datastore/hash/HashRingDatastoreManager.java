@@ -1,55 +1,46 @@
 package com.rackspace.papi.components.datastore.hash;
 
 import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
 import com.rackspace.papi.service.datastore.hash.HashedDatastore;
 import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
-import com.rackspace.papi.service.datastore.impl.AbstractMapDatastoreManager;
 
-import java.util.HashMap;
-
-public class HashRingDatastoreManager extends AbstractMapDatastoreManager<HashedDatastore> {
+public class HashRingDatastoreManager implements DatastoreManager {
 
    public static final String DATASTORE_MANAGER_NAME = "distributed/hash-ring";
-   private final Datastore localDatastore;
-   private final MutableClusterView clusterView;
-   private final RemoteCacheClient datastoreClientRemote, datastoreServerRemote;
-   private final EncodingProvider encodingProvider;
-   private final MessageDigestFactory hashProvider;
+   private final HashedDatastore datastore;
+   private boolean available;
 
    public HashRingDatastoreManager(String hostKey, EncodingProvider encodingProvider, MessageDigestFactory hashProvider, MutableClusterView clusterView, Datastore localDatastore) {
-      super(new HashMap<String, HashedDatastore>());
+      final HashRingDatastore newHashRingDatastore = new HashRingDatastore(clusterView, hostKey, localDatastore, hashProvider, encodingProvider);
+      newHashRingDatastore.setRemoteCacheClient(newRemoteHttpCacheClient(hostKey, 300, 5000));
 
-      this.localDatastore = localDatastore;
-      this.clusterView = clusterView;
-      this.encodingProvider = encodingProvider;
-      this.hashProvider = hashProvider;
+      datastore = newHashRingDatastore;
+      available = true;
+   }
 
-      RemoteHttpCacheClientImpl newClient = new RemoteHttpCacheClientImpl();
-      newClient.setHostKey(hostKey);
+   private RemoteCacheClient newRemoteHttpCacheClient(String hostKey, int connectionTimeout, int socketTimeout) {
+      final RemoteHttpCacheClientImpl newRemoteHttpCacheClient = new RemoteHttpCacheClientImpl(connectionTimeout, socketTimeout);
+      newRemoteHttpCacheClient.setHostKey(hostKey);
 
-      datastoreServerRemote = newClient;
-
-      newClient = new RemoteHttpCacheClientImpl(1000, 10000);
-      newClient.setHostKey(hostKey);
-
-      datastoreClientRemote = newClient;
+      return newRemoteHttpCacheClient;
    }
 
    @Override
-   protected HashedDatastore newDatastore(String key) {
-      final HashRingDatastore datastore = new HashRingDatastore(clusterView, key, localDatastore, hashProvider, encodingProvider);
-      datastore.setRemoteCacheClient(datastoreClientRemote);
-
+   public Datastore getDatastore() {
       return datastore;
    }
+   
+   @Override
+   public boolean isAvailable() {
+      return available;
+   }
 
-   public HashedDatastore newDatastoreServer(String key) {
-      final HashRingDatastore datastore = new HashRingDatastore(clusterView, key, localDatastore, hashProvider, encodingProvider);
-      datastore.setRemoteCacheClient(datastoreServerRemote);
-
-      return datastore;
+   @Override
+   public void destroy() {
+      available = false;
    }
 
    @Override

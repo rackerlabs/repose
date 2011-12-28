@@ -137,7 +137,7 @@ public class RackspaceAuthenticationHandlerTest {
 
         @Test
         public void shouldPassValidCredentials() {
-            when(request.getHeader(anyString())).thenReturn("some-random-auth-token");
+            when(request.getHeader(CommonHttpHeader.AUTH_TOKEN.getHeaderKey())).thenReturn("some-random-auth-token");
             when(request.getRequestURI()).thenReturn("/start/accountId/resource");
             when(authServiceClient.validateToken(any(Account.class), anyString())).thenReturn(Boolean.TRUE);
             when(authServiceClient.getGroups(anyString())).thenReturn(groups);
@@ -217,7 +217,7 @@ public class RackspaceAuthenticationHandlerTest {
 
         @Test
         public void shouldPassValidCredentials() {
-            when(request.getHeader(anyString())).thenReturn("some-random-auth-token");
+            when(request.getHeader(CommonHttpHeader.AUTH_TOKEN.getHeaderKey())).thenReturn("some-random-auth-token");
             when(request.getRequestURI()).thenReturn("/start/accountId/resource");
             when(authServiceClient.validateToken(any(Account.class), anyString())).thenReturn(Boolean.TRUE);
             when(authServiceClient.getGroups(anyString())).thenReturn(groups);
