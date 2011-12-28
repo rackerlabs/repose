@@ -38,7 +38,7 @@ public class DistributedDatastoreFilter implements Filter {
    private DatastoreService datastoreService;
 
    public DistributedDatastoreFilter() {
-      this(HashRingDatastoreManager.DATASTORE_MANAGER_NAME + "-" + UUID.randomUUID().toString());
+      this(HashRingDatastoreManager.DATASTORE_MANAGER_NAME);
    }
 
    public DistributedDatastoreFilter(String datastoreId) {

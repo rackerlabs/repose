@@ -5,7 +5,6 @@ import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.clientip.config.ClientIpIdentityConfig;
 import com.rackspace.papi.components.clientip.config.HttpHeader;
 import com.rackspace.papi.components.clientip.config.HttpHeaderList;
-import com.rackspace.papi.components.clientip.extractor.ClientGroupExtractor;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
@@ -68,17 +67,6 @@ public class ClientIpIdentityHandlerTest {
          assertEquals("Should find IP address in header", IP_HEADER_1 + QUALITY_VALUE, ip);
       }
 
-      @Test
-      public void shouldSetTheGroupHeader() {
-         FilterDirector result = handler.handleRequest(request, response);
-         
-         Set<String> values = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.GROUPS.getHeaderKey().toLowerCase());
-         assertFalse("Should have " + PowerApiHeader.GROUPS.getHeaderKey() + " header set.", values.isEmpty());
-         
-         String group = values.iterator().next();
-         
-         assertEquals("Should find group in header", ClientGroupExtractor.DEST_GROUP + QUALITY_VALUE, group);
-      }
 
       @Test
       public void shouldSetTheUserHeaderToThe2ndHeaderIpValue() {
