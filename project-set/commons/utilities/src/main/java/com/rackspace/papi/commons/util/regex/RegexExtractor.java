@@ -20,12 +20,12 @@ public class RegexExtractor {
       compiledPatterns.add(Pattern.compile(regexString));
    }
 
-   public String extract(String target) {
+   public ExtractorResult extract(String target) {
       for (Pattern p : compiledPatterns) {
          final Matcher matcher = p.matcher(target);
 
          if (matcher.find() && matcher.groupCount() > 0) {
-            return matcher.group(1);
+            return new ExtractorResult(p, matcher.group(1));
          }
       }
 
