@@ -58,7 +58,7 @@ public class PowerAPICacheInserter {
         final HashRingDatastoreManager remoteManager = new HashRingDatastoreManager("temp-host-key", UUIDEncodingProvider.getInstance(), MD5MessageDigestFactory.getInstance(), view, localManager.getDatastore());
         final Datastore datastore = remoteManager.getDatastore();
 
-        view.updateLocal(new InetSocketAddress(InetAddress.getLocalHost(), 20000));
+        view.updateLocalAddress(new InetSocketAddress(InetAddress.getLocalHost(), 20000));
         view.updateMembers(new InetSocketAddress[]{
                     new InetSocketAddress(InetAddress.getLocalHost(), 2101),
                     new InetSocketAddress(InetAddress.getLocalHost(), 2102),
