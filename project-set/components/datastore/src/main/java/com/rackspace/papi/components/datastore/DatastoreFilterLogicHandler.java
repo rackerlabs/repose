@@ -31,13 +31,11 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
    private static final Logger LOG = LoggerFactory.getLogger(DatastoreFilterLogicHandler.class);
    private final MutableClusterView clusterView;
    private final DatastoreAccessControl hostAcl;
-   private String lastLocalAddr;
    private HashedDatastore hashRingDatastore;
 
    public DatastoreFilterLogicHandler(MutableClusterView clusterView, String lastLocalAddr, HashedDatastore hashRingDatastore, DatastoreAccessControl hostAcl) {
       this.clusterView = clusterView;
       this.hostAcl = hostAcl;
-      this.lastLocalAddr = lastLocalAddr;
       this.hashRingDatastore = hashRingDatastore;
    }
 
@@ -48,9 +46,7 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
 
       if (CacheRequest.isCacheRequest(request)) {
          if (isAllowed(request)) {
-            // TODO: Get rid of this monstrosity :x
-            updateClusterViewLocalAddress(request.getLocalAddr(), request.getLocalPort());
-
+            clusterView.updateLocalAddress(new InetSocketAddress(request.getLocalAddr(), request.getLocalPort()));
             director = performCacheRequest(request);
          } else {
             director.setResponseStatus(HttpStatusCode.FORBIDDEN);
@@ -84,14 +80,14 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
 
    public FilterDirector performCacheRequest(HttpServletRequest request) {
       final FilterDirector director = new FilterDirectorImpl();
-      
+
       // Defaults to return not-implemented
       director.setResponseStatus(HttpStatusCode.NOT_IMPLEMENTED);
       director.setFilterAction(FilterAction.RETURN);
 
       try {
          final String requestMethod = request.getMethod();
-         
+
          if ("GET".equalsIgnoreCase(requestMethod)) {
             onCacheGet(CacheRequest.marshallCacheGetRequest(request), director);
          } else if ("PUT".equalsIgnoreCase(requestMethod)) {
@@ -129,19 +125,6 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
 
       director.setResponseStatus(HttpStatusCode.ACCEPTED);
       director.setFilterAction(FilterAction.RETURN);
-   }
-
-   public void updateClusterViewLocalAddress(String newLocalAddr, int newLocalPort) {
-      if (lastLocalAddr == null || !lastLocalAddr.equals(newLocalAddr)) {
-         // String immutability should make this assignment safe
-         lastLocalAddr = newLocalAddr;
-
-         final InetSocketAddress localInetSocketAddress = new InetSocketAddress(newLocalAddr, newLocalPort);
-
-         if (!localInetSocketAddress.equals(clusterView.localMember())) {
-            clusterView.updateLocal(localInetSocketAddress);
-         }
-      }
    }
 
    public void onCacheGet(CacheRequest cacheGet, FilterDirector director) {
