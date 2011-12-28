@@ -1,8 +1,12 @@
 package com.rackspace.papi.service.datastore;
 
-public interface DatastoreManager {
+import com.rackspace.papi.commons.util.Destroyable;
 
-    Datastore getDatastore(String key);
-        
-    boolean isDistributed();
+public interface DatastoreManager extends Destroyable {
+
+   Datastore getDatastore();
+   
+   boolean isAvailable();
+
+   boolean isDistributed();
 }

@@ -15,47 +15,40 @@ import javax.servlet.ServletContextEvent;
 
 public class DatastoreServiceContext implements ServiceContext<DatastoreService> {
 
-    public static final String DATASTORE_NAME = "powerapi:/datastore";
-    public static final String SERVICE_NAME = "powerapi:/datastore/service";
-    
-    private DatastoreService datastoreService;
-    
-    @Override
-    public DatastoreService getService() {
-        return datastoreService;
-    }
+   public static final String DATASTORE_NAME = "powerapi:/datastore";
+   public static final String SERVICE_NAME = "powerapi:/datastore/service";
+   private DatastoreService datastoreService;
 
-    @Override
-    public String getServiceName() {
-        return SERVICE_NAME;
-    }
+   @Override
+   public DatastoreService getService() {
+      return datastoreService;
+   }
 
-    @Override
-    public void contextDestroyed(ServletContextEvent sce) {
-        final Context namingContext = ServletContextHelper.namingContext(sce.getServletContext());
+   @Override
+   public String getServiceName() {
+      return SERVICE_NAME;
+   }
 
-        try {
-            namingContext.destroySubcontext(SERVICE_NAME);
-        } catch (NamingException ne) {
-        }
-    }
+   @Override
+   public void contextDestroyed(ServletContextEvent sce) {
+      final Context namingContext = ServletContextHelper.namingContext(sce.getServletContext());
 
-    @Override
-    public void contextInitialized(ServletContextEvent sce) {
-        final Context namingContext = ServletContextHelper.namingContext(sce.getServletContext());
+      try {
+         namingContext.destroySubcontext(SERVICE_NAME);
+      } catch (NamingException ne) {
+      }
+   }
 
-        final Configuration defaultConfiguration = new Configuration();
-        defaultConfiguration.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
+   @Override
+   public void contextInitialized(ServletContextEvent sce) {
+      // Init our local default cache and a new service object to hold it
+      final Configuration defaultConfiguration = new Configuration();
+      defaultConfiguration.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
+      defaultConfiguration.setUpdateCheck(false);
 
-        final CacheManager ehCacheManager = new CacheManager(defaultConfiguration);
+      final CacheManager ehCacheManager = new CacheManager(defaultConfiguration);
 
-        try {
-            final DatastoreNamingContext datastoreNamingContext = new DatastoreNamingContext("default", namingContext.getEnvironment(), new EHCacheDatastoreManager(ehCacheManager));
-            namingContext.bind(DATASTORE_NAME + "/local/default", datastoreNamingContext);
-        } catch (NamingException ne) {
-            throw new PowerApiContextException(ne.getExplanation(), ne);
-        }
-        
-        datastoreService = new PowerApiDatastoreService(namingContext, DATASTORE_NAME);
-    }
+      datastoreService = new PowerApiDatastoreService();
+      datastoreService.registerDatastoreManager(DatastoreService.DEFAULT_LOCAL, new EHCacheDatastoreManager(ehCacheManager));
+   }
 }

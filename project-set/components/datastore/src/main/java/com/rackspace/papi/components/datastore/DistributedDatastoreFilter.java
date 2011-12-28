@@ -7,6 +7,7 @@ import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.service.context.jndi.ContextAdapter;
+import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
@@ -24,6 +25,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.UUID;
 import javax.naming.NamingException;
 import org.openrepose.components.datastore.config.DistributedDatastoreConfiguration;
@@ -73,26 +75,31 @@ public class DistributedDatastoreFilter implements Filter {
       final MutableClusterView clusterView = new ThreadSafeClusterView();
       final HashedDatastore hashRingDatastore;
 
-      try {
-         final HashRingDatastoreManager hashRingDatastoreManager = new HashRingDatastoreManager("temp-host-key", UUIDEncodingProvider.getInstance(), MD5MessageDigestFactory.getInstance(), clusterView, datastoreService.defaultDatastore());
-         hashRingDatastore = hashRingDatastoreManager.newDatastoreServer("default");
+      DatastoreManager localDatastoreManager = datastoreService.defaultDatastore();
 
-         datastoreService.registerDatastoreManager(datastoreId, hashRingDatastoreManager);
+      if (localDatastoreManager == null || !localDatastoreManager.isAvailable()) {
+         final Collection<DatastoreManager> availableLocalDatstores = datastoreService.availableLocalDatastores();
 
-         handlerFactory = new DatastoreFilterLogicHandlerFactory(clusterView, hashRingDatastore);
-         contextAdapter.configurationService().subscribeTo("power-proxy.cfg.xml", handlerFactory, PowerProxy.class);
-         contextAdapter.configurationService().subscribeTo("dist-datastore.cfg.xml", handlerFactory, DistributedDatastoreConfiguration.class);
-      } catch (NamingException ne) {
-         LOG.error(ne.getExplanation(), ne);
+         if (!availableLocalDatstores.isEmpty()) {
+            localDatastoreManager = availableLocalDatstores.iterator().next();
+         } else {
+            throw new ServletException("Unable to start DistributedDatastoreFilter. Reason: no available local datastores to persist distributed data.");
+         }
       }
+
+      final HashRingDatastoreManager hashRingDatastoreManager = new HashRingDatastoreManager("temp-host-key", UUIDEncodingProvider.getInstance(), MD5MessageDigestFactory.getInstance(), clusterView, localDatastoreManager.getDatastore());
+      hashRingDatastore = (HashedDatastore) hashRingDatastoreManager.getDatastore();
+
+      datastoreService.registerDatastoreManager(datastoreId, hashRingDatastoreManager);
+
+      handlerFactory = new DatastoreFilterLogicHandlerFactory(clusterView, hashRingDatastore);
+
+      contextAdapter.configurationService().subscribeTo("power-proxy.cfg.xml", handlerFactory, PowerProxy.class);
+      contextAdapter.configurationService().subscribeTo("dist-datastore.cfg.xml", handlerFactory, DistributedDatastoreConfiguration.class);
    }
 
    @Override
    public void destroy() {
-      try {
-         datastoreService.unregisterDatastoreManager(datastoreId);
-      } catch (NamingException ne) {
-         LOG.error("Unable to unregister hash-ring datastore service. This may cause problems in component re-loads. Please log this as a bug. Reason: " + ne.getMessage(), ne);
-      }
+      datastoreService.unregisterDatastoreManager(datastoreId);
    }
 }

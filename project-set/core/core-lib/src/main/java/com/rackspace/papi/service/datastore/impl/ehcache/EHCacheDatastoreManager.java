@@ -2,31 +2,51 @@ package com.rackspace.papi.service.datastore.impl.ehcache;
 
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreManager;
+import java.util.UUID;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
 public class EHCacheDatastoreManager implements DatastoreManager {
 
-    private final CacheManager cacheManagerInstance;
+   private static final String CACHE_NAME_PREFIX = "PAPI_LOCAL";
+   private final CacheManager cacheManagerInstance;
+   private final String cacheName;
+   private boolean available;
 
-    public EHCacheDatastoreManager(CacheManager cacheManagerInstance) {
-        this.cacheManagerInstance = cacheManagerInstance;
-    }
+   public EHCacheDatastoreManager(CacheManager cacheManagerInstance) {
+      this.cacheManagerInstance = cacheManagerInstance;
 
-    @Override
-    public Datastore getDatastore(String key) {
-        Cache cache = cacheManagerInstance.getCache(key);
-        
-        if (cache == null) {
-            cache = new Cache(key, 20000, false, false, 5, 2);
-            cacheManagerInstance.addCache(cache);
-        }
-        
-        return new EHCacheDatastore(cache);
-    }
+      cacheName = CACHE_NAME_PREFIX + UUID.randomUUID().toString();
 
-    @Override
-    public boolean isDistributed() {
-        return false;
-    }
+      init();
+   }
+
+   private void init() {
+      final Cache cache = new Cache(cacheName, 20000, false, false, 5, 2);
+      cacheManagerInstance.addCache(cache);
+
+      available = true;
+   }
+
+   @Override
+   public boolean isAvailable() {
+      return available;
+   }
+
+   @Override
+   public void destroy() {
+      available = false;
+      
+      cacheManagerInstance.removeCache(cacheName);
+   }
+
+   @Override
+   public Datastore getDatastore() {
+      return new EHCacheDatastore(cacheManagerInstance.getCache(cacheName));
+   }
+
+   @Override
+   public boolean isDistributed() {
+      return false;
+   }
 }

@@ -40,6 +40,7 @@ public class DatastoreDatastoreFilterTest {
          final ConfigurationService configurationService = mock(ConfigurationService.class);
          final ServiceContext<ConfigurationService> configurationServiceContext = mock(ServiceContext.class);
          final ServiceContext<DatastoreService> datastoreServiceContext = mock(ServiceContext.class);
+         final DatastoreManager localManager = mock(DatastoreManager.class);
 
          when(mockFilterConfig.getServletContext()).thenReturn(servletContext);
          when(servletContext.getAttribute(ServletContextHelper.SERVLET_CONTEXT_ATTRIBUTE_NAME)).thenReturn(context);
@@ -49,6 +50,9 @@ public class DatastoreDatastoreFilterTest {
 
          when(configurationServiceContext.getService()).thenReturn(configurationService);
          when(datastoreServiceContext.getService()).thenReturn(datastoreService);
+
+         when(datastoreService.defaultDatastore()).thenReturn(localManager);
+         when(localManager.isAvailable()).thenReturn(true);
 
          filter = new DistributedDatastoreFilter(DATASTORE_MANAGER_NAME);
       }

@@ -1,66 +1,76 @@
 package com.rackspace.papi.service.datastore.impl;
 
-import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreManager;
-import com.rackspace.papi.service.datastore.DatastoreNamingContext;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import javax.naming.Context;
-import javax.naming.NamingException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.*;
 
 public class PowerApiDatastoreService implements DatastoreService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PowerApiDatastoreService.class);
-    private final Context namingContext;
-    private final String servicePrefix;
+   private final Map<String, DatastoreManager> localManagers;
+   private final Map<String, DatastoreManager> distributedManagers;
 
-    public PowerApiDatastoreService(Context namingContext, String servicePrefix) {
-        this.namingContext = namingContext;
-        this.servicePrefix = servicePrefix;
-    }
+   public PowerApiDatastoreService() {
+      localManagers = new HashMap<String, DatastoreManager>();
+      distributedManagers = new HashMap<String, DatastoreManager>();
+   }
 
-    @Override
-    public Datastore defaultDatastore() {
-        try {
-            return (Datastore) namingContext.lookup(servicePrefix + "/" + DEFAULT_LOCAL);
-        } catch (Exception ex) {
-            LOG.error(ex.getMessage(), ex);
-            return null;
-        }
-    }
+   @Override
+   public DatastoreManager defaultDatastore() {
+      return localManagers.get(DatastoreService.DEFAULT_LOCAL);
+   }
 
-    @Override
-    public Datastore getDatastore(String datastoreName) {
-        try {
-            return (Datastore) namingContext.lookup(servicePrefix + datastoreName);
-        } catch (Exception ex) {
-            LOG.error(ex.getMessage(), ex);
-            return null;
-        }
-    }
+   @Override
+   public DatastoreManager getDatastore(String datastoreName) {
+      final DatastoreManager localManager = getLocalDatastore(datastoreName);
 
-    @Override
-    public void unregisterDatastoreManager(String datastoreManagerName) throws NamingException {
-        final String nameInContext = servicePrefix + datastoreManagerName;
-        
-        try {
-            namingContext.unbind(nameInContext);
-        } catch (NamingException ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw ex;
-        }
-    }
+      return localManager == null ? getDistributedDatastore(datastoreName) : localManager;
+   }
 
-    @Override
-    public void registerDatastoreManager(String datastoreManagerName, DatastoreManager manager) throws NamingException {
-        final String nameInContext = servicePrefix + datastoreManagerName;
-        
-        try {
-            namingContext.bind(nameInContext, new DatastoreNamingContext(nameInContext, namingContext.getEnvironment(), manager));
-        } catch (NamingException ex) {
-            LOG.error(ex.getMessage(), ex);
-            throw ex;
-        }
-    }
+   private DatastoreManager availableOrNull(DatastoreManager manager) {
+      return manager.isAvailable() ? manager : null;
+   }
+
+   private DatastoreManager getLocalDatastore(String datastoreName) {
+      return availableOrNull(localManagers.get(datastoreName));
+   }
+
+   private DatastoreManager getDistributedDatastore(String datastoreName) {
+      return availableOrNull(distributedManagers.get(datastoreName));
+   }
+
+   @Override
+   public Collection<DatastoreManager> availableLocalDatastores() {
+      return filterAvailableDatastoreManagers(localManagers.values());
+   }
+
+   @Override
+   public Collection<DatastoreManager> availableDistirbutedDatastores() {
+      return filterAvailableDatastoreManagers(distributedManagers.values());
+   }
+
+   private Collection<DatastoreManager> filterAvailableDatastoreManagers(Collection<DatastoreManager> managers) {
+      final Set<DatastoreManager> availableDistributedDatastores = new HashSet<DatastoreManager>();
+
+      for (DatastoreManager manager : managers) {
+         if (manager.isAvailable()) {
+            availableDistributedDatastores.add(manager);
+         }
+      }
+
+      return availableDistributedDatastores;
+   }
+
+   @Override
+   public void unregisterDatastoreManager(String datastoreManagerName) {
+      if (localManagers.remove(datastoreManagerName) == null) {
+         distributedManagers.remove(datastoreManagerName);
+      }
+   }
+
+   @Override
+   public void registerDatastoreManager(String datastoreManagerName, DatastoreManager manager) {
+      final Map<String, DatastoreManager> registerTo = manager.isDistributed() ? distributedManagers : localManagers;
+
+      registerTo.put(datastoreManagerName, manager);
+   }
 }
