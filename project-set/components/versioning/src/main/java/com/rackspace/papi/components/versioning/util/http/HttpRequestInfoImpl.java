@@ -13,6 +13,7 @@ public class HttpRequestInfoImpl implements HttpRequestInfo {
     private static List<MediaRange> getMediaRanges(HttpServletRequest request) {
         return RequestMediaRangeInterrogator.interrogate(request.getRequestURI(), request.getHeader(CommonHttpHeader.ACCEPT.getHeaderKey()));
     }
+    
     private final List<MediaRange> acceptMediaRange;
     private final MediaRange preferedMediaRange;
     private final String uri;

@@ -103,7 +103,7 @@ public class RemoteHttpCacheClientImpl implements RemoteCacheClient {
    }
 
    @Override
-   public boolean remove(String key, InetSocketAddress remoteEndpoint) throws RemoteConnectionException {
+   public boolean delete(String key, InetSocketAddress remoteEndpoint) throws RemoteConnectionException {
       final String targetUrl = CacheRequest.urlFor(remoteEndpoint, key);
 
       final HttpDelete cacheObjectDelete = new HttpDelete(targetUrl);

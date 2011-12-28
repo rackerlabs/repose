@@ -8,7 +8,7 @@ public interface RemoteCacheClient {
 
    StoredElement get(String key, InetSocketAddress remoteEndpoint) throws RemoteConnectionException;
 
-   boolean remove(String key, InetSocketAddress remoteEndpoint) throws RemoteConnectionException;
+   boolean delete(String key, InetSocketAddress remoteEndpoint) throws RemoteConnectionException;
    
    void put(String key, byte[] value, int ttl, TimeUnit timeUnit, InetSocketAddress remoteEndpoint) throws RemoteConnectionException;
 }

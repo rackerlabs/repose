@@ -54,52 +54,73 @@ public abstract class AbstractHashRingDatastore extends AbstractHashedDatastore 
 
    @Override
    protected StoredElement get(String name, byte[] id) throws DatastoreOperationException {
-      InetSocketAddress target;
+      boolean retry;
 
-      while (!(target = getTarget(id)).equals(clusterView.localMember())) {
-         LOG.debug(clusterView.localMember().toString() + ":: Routing datastore get request for, \"" + name + "\" to: " + target.toString());
+      do {
+         retry = false;
 
-         try {
-            return remoteCache.get(name, target);
-         } catch (RemoteConnectionException rce) {
-            clusterMemberDamaged(target, clusterView, rce);
+         final InetSocketAddress target = getTarget(id);
+
+         if (target != null && !target.equals(clusterView.localMember())) {
+            LOG.debug(clusterView.localMember() + ":: Routing datastore get request for, \"" + name + "\" to: " + target.toString());
+
+            try {
+               return remoteCache.get(name, target);
+            } catch (RemoteConnectionException rce) {
+               clusterMemberDamaged(target, clusterView, rce);
+               retry = true;
+            }
          }
-      }
+      } while (retry);
 
       return localDatastore.get(name);
    }
 
    @Override
    protected boolean remove(String name, byte[] id) throws DatastoreOperationException {
-      InetSocketAddress target;
+      boolean retry;
 
-      while (!(target = getTarget(id)).equals(clusterView.localMember())) {
-         LOG.debug(clusterView.localMember().toString() + ":: Routing datastore delete request for, \"" + name + "\" to: " + target.toString());
+      do {
+         retry = false;
 
-         try {
-            return remoteCache.remove(name, target);
-         } catch (RemoteConnectionException rce) {
-            clusterMemberDamaged(target, clusterView, rce);
+         final InetSocketAddress target = getTarget(id);
+
+         if (target != null && !target.equals(clusterView.localMember())) {
+            LOG.debug(clusterView.localMember() + ":: Routing datastore delete request for, \"" + name + "\" to: " + target.toString());
+
+            try {
+               return remoteCache.delete(name, target);
+            } catch (RemoteConnectionException rce) {
+               clusterMemberDamaged(target, clusterView, rce);
+               retry = true;
+            }
          }
-      }
+      } while (retry);
 
       return localDatastore.remove(name);
    }
 
    @Override
    protected void put(String name, byte[] id, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
-      InetSocketAddress target;
+      boolean retry;
 
-      while (!(target = getTarget(id)).equals(clusterView.localMember())) {
-         LOG.debug(clusterView.localMember().toString() + ":: Routing datastore get request for, \"" + name + "\" to: " + target.toString());
+      do {
+         retry = false;
 
-         try {
-            remoteCache.put(name, value, ttl, timeUnit, target);
-            return;
-         } catch (RemoteConnectionException rce) {
-            clusterMemberDamaged(target, clusterView, rce);
+         final InetSocketAddress target = getTarget(id);
+
+         if (target != null && !target.equals(clusterView.localMember())) {
+            LOG.debug(clusterView.localMember() + ":: Routing datastore put request for, \"" + name + "\" to: " + target.toString());
+
+            try {
+               remoteCache.put(name, value, ttl, timeUnit, target);
+               return;
+            } catch (RemoteConnectionException rce) {
+               clusterMemberDamaged(target, clusterView, rce);
+               retry = true;
+            }
          }
-      }
+      } while (retry);
 
       localDatastore.put(name, value, ttl, timeUnit);
    }
