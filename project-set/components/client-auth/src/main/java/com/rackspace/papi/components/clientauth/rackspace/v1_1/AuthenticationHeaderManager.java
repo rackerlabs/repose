@@ -11,6 +11,7 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspacecloud.docs.auth.api.v1.GroupsList;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,12 +31,13 @@ public class AuthenticationHeaderManager {
     private final FilterDirector filterDirector;
     private final String accountUsername;
     private final GroupsList groups;
+    private final HttpServletRequest request;
 
     // Hard code quality for now as the auth component will have
     // the highest quality in terms of using the user it supplies for rate limiting
     private final String quality = ";q=1";
 
-    public AuthenticationHeaderManager(boolean validToken, RackspaceAuth cfg, FilterDirector filterDirector, String accountUsername, GroupsList groups) {
+    public AuthenticationHeaderManager(boolean validToken, RackspaceAuth cfg, FilterDirector filterDirector, String accountUsername, GroupsList groups, HttpServletRequest request) {
         this.validToken = validToken;
         this.isDelegatable = cfg.isDelegatable();
         this.keystone = cfg.isKeystoneActive();
@@ -43,6 +45,7 @@ public class AuthenticationHeaderManager {
         this.filterDirector = filterDirector;
         this.accountUsername = accountUsername;
         this.groups = groups;
+        this.request = request;
     }
 
     public void setFilterDirectorValues() {
@@ -55,7 +58,7 @@ public class AuthenticationHeaderManager {
 
         if (validToken) {
             filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.getHeaderKey(), getGroupsListIds());
-            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.USER.getHeaderKey(), accountUsername + quality);
+            filterDirector.requestHeaderManager().appendToHeader(request, PowerApiHeader.USER.getHeaderKey(), accountUsername + quality);
             setRoles();
         }
     }
