@@ -44,6 +44,11 @@
         
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>client-user-identity</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
             <artifactId>content-negotiation</artifactId>
         </dependency>
 
