@@ -40,10 +40,6 @@ public class RemoteHttpCacheClientImpl implements RemoteCacheClient {
    private final Pool<HttpClient> httpClientPool;
    private String hostKey;
 
-   public RemoteHttpCacheClientImpl() {
-      this(500, 2000);
-   }
-
    public RemoteHttpCacheClientImpl(final int connectionTimeout, final int socketTimeout) {
       httpClientPool = new GenericBlockingResourcePool<HttpClient>(new ConstructionStrategy<HttpClient>() {
 

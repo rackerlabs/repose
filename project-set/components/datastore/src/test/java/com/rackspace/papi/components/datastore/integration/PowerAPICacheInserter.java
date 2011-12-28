@@ -55,8 +55,8 @@ public class PowerAPICacheInserter {
     public static void main(String[] args) throws Exception {
         final MutableClusterView view = new ThreadSafeClusterView();
         final EHCacheDatastoreManager localManager = new EHCacheDatastoreManager(new CacheManager());
-        final HashRingDatastoreManager remoteManager = new HashRingDatastoreManager("temp-host-key", UUIDEncodingProvider.getInstance(), MD5MessageDigestFactory.getInstance(), view, localManager.getDatastore("ds"));
-        final Datastore datastore = remoteManager.getDatastore("papi:datastore/distributed/default");
+        final HashRingDatastoreManager remoteManager = new HashRingDatastoreManager("temp-host-key", UUIDEncodingProvider.getInstance(), MD5MessageDigestFactory.getInstance(), view, localManager.getDatastore());
+        final Datastore datastore = remoteManager.getDatastore();
 
         view.updateLocal(new InetSocketAddress(InetAddress.getLocalHost(), 20000));
         view.updateMembers(new InetSocketAddress[]{

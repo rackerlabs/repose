@@ -1,20 +1,25 @@
 package com.rackspace.papi.service.datastore;
 
-import javax.naming.NamingException;
+import java.util.Collection;
 
 public interface DatastoreService {
 
-    public static final String DEFAULT_LOCAL = "local/default";
+   public static final String DEFAULT_LOCAL = "local/default";
 
-    /**
-     * Always returns the default, local (read L1) cache that has been registered
-     * with the datastore service.
-     */
-    Datastore defaultDatastore();
+   /**
+    * Always returns the default, local (read L1) cache that has been registered
+    * with the datastore service.
+    */
+   DatastoreManager defaultDatastore();
 
-    Datastore getDatastore(String datastoreName);
-    
-    void unregisterDatastoreManager(String datastoreManagerName) throws NamingException;
-    
-    void registerDatastoreManager(String datastoreManagerName, DatastoreManager manager) throws NamingException;
+   DatastoreManager getDatastore(String datastoreName);
+
+   Collection<DatastoreManager> availableLocalDatastores();
+
+   Collection<DatastoreManager> availableDistirbutedDatastores();
+
+   // TODO:Enhancement - Use a future object here to communicate committal of the datastore being unregistered
+   void unregisterDatastoreManager(String datastoreManagerName);
+
+   void registerDatastoreManager(String datastoreManagerName, DatastoreManager manager);
 }
