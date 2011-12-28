@@ -28,19 +28,12 @@ public class FilterDirectorImpl implements FilterDirector {
         this(HttpStatusCode.INTERNAL_SERVER_ERROR, FilterAction.NOT_SET);
     }
 
-    public FilterDirectorImpl(HttpStatusCode delegatedStatus, FilterAction delegatedAction) {
+    private FilterDirectorImpl(HttpStatusCode delegatedStatus, FilterAction delegatedAction) {
         this.delegatedStatus = delegatedStatus;
         this.delegatedAction = delegatedAction;
 
         directorOutputStream = new ByteArrayOutputStream();
         responsePrintWriter = new PrintWriter(directorOutputStream);
-    }
-
-    public FilterDirectorImpl(FilterDirector directorToCopy) {
-        this(directorToCopy.getResponseStatus(), directorToCopy.getFilterAction());
-
-        requestHeaderManager = new HeaderManagerImpl(directorToCopy.requestHeaderManager());
-        responseHeaderManager = new HeaderManagerImpl(directorToCopy.responseHeaderManager());
     }
 
     @Override
