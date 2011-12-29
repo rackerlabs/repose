@@ -31,13 +31,10 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
     private final RackspaceAuth cfg;
     private final KeyedRegexExtractor<String> keyedRegexExtractor;
 
-    public RackspaceAuthenticationHandler(RackspaceAuth cfg, AuthenticationServiceClient authServiceClient) {
+    public RackspaceAuthenticationHandler(RackspaceAuth cfg, AuthenticationServiceClient authServiceClient, KeyedRegexExtractor keyedRegexExtractor) {
         this.authenticationService = authServiceClient;
         this.cfg = cfg;
-        this.keyedRegexExtractor = new KeyedRegexExtractor<String>();
-        for(AccountMapping accountMapping: cfg.getAccountMapping()){
-            keyedRegexExtractor.addPattern(accountMapping.getIdRegex(), accountMapping.getType().value());
-        }
+        this.keyedRegexExtractor = keyedRegexExtractor;
     }
 
     @Override

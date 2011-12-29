@@ -52,6 +52,14 @@ public final class StringUtilities {
       return defaultValue;
     }
 
+    public static String getNonBlankValue(String string, String defaultValue) {
+      if (!isBlank(string)) {
+        return string;
+      }
+      
+      return defaultValue;
+    }
+
     public static boolean nullSafeEqualsIgnoreCase(String one, String two) {
         return one == null ? (two == null) : (two != null) && one.equalsIgnoreCase(two);
     }

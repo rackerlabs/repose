@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.clientauth.rackspace.v1_1;
 
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
+import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.auth.v1_1.AuthenticationServiceClient;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
@@ -47,6 +48,8 @@ public class RackspaceAuthenticationHandlerTest {
         protected RackspaceAuthenticationHandler handler;
         protected RackspaceAuth rackAuthConfig;
         protected GroupsList groups;
+        protected KeyedRegexExtractor keyedRegexExtractor;
+        
 
         @Before
         public void beforeAny() {
@@ -65,19 +68,23 @@ public class RackspaceAuthenticationHandlerTest {
             // Setup config
             rackAuthConfig = new RackspaceAuth();
             rackAuthConfig.setDelegatable(delegatable());
+            
+            keyedRegexExtractor = new KeyedRegexExtractor();
 
             final AccountMapping mapping = new AccountMapping();
             mapping.setIdRegex("/start/(.*)/");
             mapping.setType(AccountType.CLOUD);
 
             rackAuthConfig.getAccountMapping().add(mapping);
+            
+            keyedRegexExtractor.addPattern(mapping.getIdRegex(),mapping.getType());
 
             final AuthenticationServer authenticationServer = new AuthenticationServer();
             authenticationServer.setUri("http://some.auth.endpoint");
             rackAuthConfig.setAuthenticationServer(authenticationServer);
 
             authServiceClient = mock(AuthenticationServiceClient.class);
-            handler = new RackspaceAuthenticationHandler(rackAuthConfig, authServiceClient);
+            handler = new RackspaceAuthenticationHandler(rackAuthConfig, authServiceClient,keyedRegexExtractor);
         }
 
         protected abstract boolean delegatable();
