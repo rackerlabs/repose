@@ -72,7 +72,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
 
         GroupsList groups = null;
         if (validToken) {
-            groups = authenticationService.getGroups(extractedResult.getKey());
+            groups = authenticationService.getGroups(extractedResult.getResult());
         }
 
         final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(validToken, cfg, filterDirector, extractedResult == null ? "" : extractedResult.getResult(), groups, request);
