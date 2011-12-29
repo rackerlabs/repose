@@ -32,14 +32,12 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
     private final String authServiceUri;
     private final KeyedRegexExtractor<Object> keyedRegexExtractor;
 
-    public OpenStackAuthenticationHandler(OpenstackAuth cfg, OpenStackAuthenticationService serviceClient) {
+    public OpenStackAuthenticationHandler(OpenstackAuth cfg, OpenStackAuthenticationService serviceClient, KeyedRegexExtractor keyedRegexExtractor) {
         this.authenticationService = serviceClient;
         delegatable = cfg.isDelegatable();
         this.authServiceUri = cfg.getIdentityService().getUri();
-        this.keyedRegexExtractor = new KeyedRegexExtractor<Object>();
-        for(ClientMapping clientMapping: cfg.getClientMapping()){
-            keyedRegexExtractor.addPattern(clientMapping.getIdRegex(), null);
-        }
+        this.keyedRegexExtractor = keyedRegexExtractor;
+        
     }
 
     @Override
