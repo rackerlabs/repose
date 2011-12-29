@@ -4,7 +4,7 @@ package com.rackspace.papi.commons.util.http;
  *
  * @author jhopper
  */
-public enum PowerApiHeader implements HttpHeader {
+public enum PowerApiHeader implements HeaderConstant {
 
     NEXT_ROUTE("X-PP-Next-Route"),
     USER("X-PP-User"),
