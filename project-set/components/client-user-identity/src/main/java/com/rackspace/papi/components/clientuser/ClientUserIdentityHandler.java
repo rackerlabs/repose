@@ -1,8 +1,13 @@
 package com.rackspace.papi.components.clientuser;
 
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
+import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.commons.util.regex.ExtractorResult;
+import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.clientuser.config.ClientUserIdentityConfig;
+import com.rackspace.papi.components.clientuser.config.UserMapping;
 import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -12,35 +17,37 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 public class ClientUserIdentityHandler extends AbstractFilterLogicHandler {
-
-   
+   private final static String DEFAULT_GROUP = "User_Standard";
    private final ClientUserIdentityConfig config;
    private final String quality;
+   private final KeyedRegexExtractor<Object> keyedRegexExtractor;
+   private final String group;
 
    public ClientUserIdentityHandler(ClientUserIdentityConfig config, String quality) {
       this.config = config;
       this.quality = quality;
+      this.group = StringUtilities.getNonBlankValue(config.getGroup(), DEFAULT_GROUP);
+      this.keyedRegexExtractor = new KeyedRegexExtractor<Object>();
+      for (UserMapping userMapping : config.getUserMappings().getMapping()) {
+         keyedRegexExtractor.addPattern(userMapping.getUserRegex(), null);
+      }
    }
    
    @Override
    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
-      
+
       final FilterDirector filterDirector = new FilterDirectorImpl();
-      HeaderManager headerManager = filterDirector.requestHeaderManager();
+      final HeaderManager headerManager = filterDirector.requestHeaderManager();
+      final ExtractorResult<Object> userResult = keyedRegexExtractor.extract(request.getRequestURI());
       filterDirector.setFilterAction(FilterAction.PASS);
 
-      // TODO extract user name from request and put in proper header
-      /*
-      String address = new ClientIpExtractor(request).extractIpAddress(sourceHeaders);
-
-      if(!address.isEmpty()) {
-         String group = new ClientUserExtractor(request, config).determineIpGroup(address);
-         headerManager.putHeader(PowerApiHeader.USER.getHeaderKey(), address + quality);
-         headerManager.putHeader(PowerApiHeader.GROUPS.getHeaderKey(), group + quality);
+      if (userResult != null && !userResult.getResult().isEmpty()) {
+         final String user = userResult.getResult();
+         
+         headerManager.putHeader(PowerApiHeader.USER.getHeaderKey(), user + quality);
+         headerManager.putHeader(PowerApiHeader.GROUPS.getHeaderKey(), group);
       }
-      * 
-      */
-      
+
       return filterDirector;
    }
 }
