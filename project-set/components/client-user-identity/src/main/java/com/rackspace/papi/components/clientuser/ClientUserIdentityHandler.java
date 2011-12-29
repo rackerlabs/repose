@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.clientuser;
 
-import com.rackspace.papi.commons.util.http.HttpHeader;
+import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.clientuser.config.ClientUserIdentityConfig;
 import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
