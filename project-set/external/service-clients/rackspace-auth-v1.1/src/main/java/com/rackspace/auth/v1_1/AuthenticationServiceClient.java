@@ -1,5 +1,6 @@
 package com.rackspace.auth.v1_1;
 
+import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspacecloud.docs.auth.api.v1.FullToken;
 import com.rackspacecloud.docs.auth.api.v1.GroupsList;
 import net.sf.ehcache.CacheManager;
@@ -12,6 +13,7 @@ import java.util.GregorianCalendar;
  * @author jhopper
  */
 public class AuthenticationServiceClient {
+
     private final String targetHostUri;
     private final ServiceClient serviceClient;
     private final ResponseUnmarshaller responseUnmarshaller;
@@ -19,7 +21,7 @@ public class AuthenticationServiceClient {
     private final AuthenticationCache authenticationCache;
 
     public AuthenticationServiceClient(String targetHostUri, ResponseUnmarshaller responseUnmarshaller, ServiceClient serviceClient,
-                                       CacheManager cacheManager, AuthenticationCache authenticationCache) {
+            CacheManager cacheManager, AuthenticationCache authenticationCache) {
         this.targetHostUri = targetHostUri;
         this.responseUnmarshaller = responseUnmarshaller;
         this.serviceClient = serviceClient;
@@ -27,22 +29,22 @@ public class AuthenticationServiceClient {
         this.authenticationCache = authenticationCache;
     }
 
-    public boolean validateToken(Account account, String token) {
-        boolean validated = authenticationCache.tokenIsCached(account.getUsername(), token);
+    public boolean validateToken(ExtractorResult<String> account, String token) {
+        boolean validated = authenticationCache.tokenIsCached(account.getResult(), token);
 
         if (!validated) {
 
-            final ServiceClientResponse<FullToken> validateTokenMethod = serviceClient.get(targetHostUri + "/token/" + token, 
-                    "belongsTo", account.getUsername(),
-                    "type", account.getType());
+            final ServiceClientResponse<FullToken> validateTokenMethod = serviceClient.get(targetHostUri + "/token/" + token,
+                    "belongsTo", account.getResult(),
+                    "type", account.getKey());
             final int response = validateTokenMethod.getStatusCode();
             switch (response) {
                 case 200:
                     final FullToken tokenResponse = responseUnmarshaller.unmarshall(validateTokenMethod.getData(), FullToken.class);
                     final int expireTtl = getTtl(tokenResponse.getExpires().toGregorianCalendar(), Calendar.getInstance());
 
-                    authenticationCache.cacheUserAuthToken(account.getUsername(), expireTtl, tokenResponse.getId());
-                    validated = true;                    
+                    authenticationCache.cacheUserAuthToken(account.getResult(), expireTtl, tokenResponse.getId());
+                    validated = true;
             }
         }
 
@@ -86,7 +88,7 @@ public class AuthenticationServiceClient {
         try {
             if (cacheManager != null) {
                 cacheManager.shutdown();
-            }   
+            }
         } finally {
             super.finalize();
         }
