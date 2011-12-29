@@ -4,7 +4,7 @@ package com.rackspace.papi.commons.util.http;
  * The HttpHeader interface represents a strongly-typed, normalized way of
  * describing an HttpHeader and its key.
  */
-public interface HttpHeader {
+public interface HeaderConstant {
 
     /**
      * Header keys are always represented as their human readable variant.

@@ -1,11 +1,11 @@
 package com.rackspace.papi.components.clientauth.openstack.v1_0;
 
-import com.rackspace.papi.commons.util.http.HttpHeader;
+import com.rackspace.papi.commons.util.http.HeaderConstant;
 
 /**
  * @author fran
  */
-public enum OpenStackServiceHeader implements HttpHeader {
+public enum OpenStackServiceHeader implements HeaderConstant {
     /**
      * The client identity being passed in
      */

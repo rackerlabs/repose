@@ -4,7 +4,7 @@ package com.rackspace.papi.commons.util.http;
  *
  * 
  */
-public enum CommonHttpHeader implements HttpHeader {
+public enum CommonHttpHeader implements HeaderConstant {
     
     //Auth specific
     AUTH_TOKEN("X-Auth-Token"),

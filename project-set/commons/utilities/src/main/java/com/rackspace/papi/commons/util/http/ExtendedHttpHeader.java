@@ -4,7 +4,7 @@ package com.rackspace.papi.commons.util.http;
  *
  * @author zinic
  */
-public enum ExtendedHttpHeader implements HttpHeader {
+public enum ExtendedHttpHeader implements HeaderConstant {
 
    //Caching specific
    X_TTL("X-TTL");

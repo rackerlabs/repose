@@ -3,7 +3,6 @@ package com.rackspace.papi.components.clientauth.rackspace.v1_1;
 import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
 
 
-import com.rackspace.auth.v1_1.Account;
 import com.rackspace.auth.v1_1.AuthenticationServiceClient;
 import com.rackspacecloud.docs.auth.api.v1.GroupsList;
 import org.slf4j.Logger;
@@ -12,11 +11,14 @@ import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.auth.AuthModule;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
+import com.rackspace.papi.components.clientauth.rackspace.config.AccountMapping;
 import com.rackspace.papi.components.clientauth.rackspace.config.RackspaceAuth;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 
+import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
+import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -27,12 +29,15 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RackspaceAuthenticationHandler.class);
     private final AuthenticationServiceClient authenticationService;
     private final RackspaceAuth cfg;
-    private final AccountUsernameExtractor accountUsernameExtractor;
+    private final KeyedRegexExtractor<String> keyedRegexExtractor;
 
     public RackspaceAuthenticationHandler(RackspaceAuth cfg, AuthenticationServiceClient authServiceClient) {
         this.authenticationService = authServiceClient;
         this.cfg = cfg;
-        this.accountUsernameExtractor = new AccountUsernameExtractor(cfg.getAccountMapping());
+        this.keyedRegexExtractor = new KeyedRegexExtractor<String>();
+        for(AccountMapping accountMapping: cfg.getAccountMapping()){
+            keyedRegexExtractor.addPattern(accountMapping.getIdRegex(), accountMapping.getType().value());
+        }
     }
 
     @Override
@@ -52,13 +57,13 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
         filterDirector.setFilterAction(FilterAction.RETURN);
 
         final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.getHeaderKey());
-        final Account acct = accountUsernameExtractor.extract(request.getRequestURI());
+        final ExtractorResult<String> extractedResult = keyedRegexExtractor.extract(request.getRequestURI());        
 
         boolean validToken = false;
 
-        if ((!StringUtilities.isBlank(authToken) && acct != null)) {
+        if ((!StringUtilities.isBlank(authToken) && extractedResult != null)) {
             try {
-                validToken = authenticationService.validateToken(acct, authToken);
+                validToken = authenticationService.validateToken(extractedResult, authToken);
             } catch (Exception ex) {
                 LOG.error("Failure in auth: " + ex.getMessage(), ex);
                 filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -67,10 +72,10 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
 
         GroupsList groups = null;
         if (validToken) {
-            groups = authenticationService.getGroups(acct.getUsername());
+            groups = authenticationService.getGroups(extractedResult.getKey());
         }
 
-        final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(validToken, cfg, filterDirector, acct == null ? "" : acct.getUsername(), groups, request);
+        final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(validToken, cfg, filterDirector, extractedResult == null ? "" : extractedResult.getResult(), groups, request);
         headerManager.setFilterDirectorValues();
 
         return filterDirector;
