@@ -1,9 +1,9 @@
 package com.rackspace.papi.components.versioning.util;
 
-import com.rackspace.papi.commons.util.http.media.MediaRange;
+import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.components.versioning.schema.VersionChoice;
 import com.rackspace.papi.components.versioning.schema.VersionChoiceList;
-import com.rackspace.papi.commons.util.http.media.MediaType;
+import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.io.FilePathReaderImpl;
 import com.rackspace.papi.commons.util.io.FileReader;
 import com.rackspace.papi.commons.util.transform.Transform;
@@ -64,7 +64,7 @@ public class ContentTransformerTest {
             final JAXBElement jaxbElement
                     = xmlTransformer.transform(((FilePathReaderImpl)versionXmlFileReader).getResourceAsStream());
 
-            assertEquals(expected, contentTransformer.transform(jaxbElement, new MediaRange(MediaType.APPLICATION_JSON)));
+            assertEquals(expected, contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON)));
         }
 
         @Test
@@ -76,7 +76,7 @@ public class ContentTransformerTest {
             final JAXBElement jaxbElement
                     = xmlTransformer.transform(((FilePathReaderImpl)versionXmlFileReader).getResourceAsStream());
 
-            assertEquals(expected, contentTransformer.transform(jaxbElement, new MediaRange(MediaType.APPLICATION_XML)));
+            assertEquals(expected, contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_XML)));
         }
 
         @Test
@@ -88,7 +88,7 @@ public class ContentTransformerTest {
             final JAXBElement jaxbElement
                     = xmlTransformer.transform(((FilePathReaderImpl)versionXmlFileReader).getResourceAsStream());
 
-            assertEquals(expected, contentTransformer.transform(jaxbElement, new MediaRange(MediaType.APPLICATION_JSON)));
+            assertEquals(expected, contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON)));
         }
 
         @Test
@@ -100,7 +100,7 @@ public class ContentTransformerTest {
             final JAXBElement jaxbElement
                     = xmlTransformer.transform(((FilePathReaderImpl)choicesXmlFileReader).getResourceAsStream());
 
-            assertEquals(expected, contentTransformer.transform(jaxbElement, new MediaRange(MediaType.APPLICATION_JSON)));
+            assertEquals(expected, contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON)));
         }
     }
 

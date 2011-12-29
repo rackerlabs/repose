@@ -1,13 +1,13 @@
 package com.rackspace.papi.components.versioning.util.http;
 
-import com.rackspace.papi.commons.util.http.media.MediaRange;
+import com.rackspace.papi.commons.util.http.media.MediaType;
 
 // NOTE: This does not belong in util - this is a domain object for versioning only
 public interface RequestHeaderInfo {
 
-    MediaRange getPreferedMediaRange();
+    MediaType getPreferedMediaRange();
 
-    boolean hasMediaRange(MediaRange targetRange);
+    boolean hasMediaRange(MediaType targetRange);
     
     String getHost();
 }

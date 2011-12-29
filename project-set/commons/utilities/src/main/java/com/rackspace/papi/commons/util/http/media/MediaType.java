@@ -1,61 +1,57 @@
 package com.rackspace.papi.commons.util.http.media;
 
-/**
- *
- * 
- */
-public enum MediaType {
+import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
+import java.util.Collections;
+import java.util.Map;
 
-    APPLICATION_XML("application/xml"),
-    APPLICATION_JSON("application/json"),
-    APPLICATION_ATOM_XML("application/atom+xml"),
-    APPLICATION_XHTML_XML("application/xhtml+xml"),
-    TEXT_HTML("text/html"),
-    TEXT_PLAIN("text/plain"),
-    WILDCARD("*/*"),
-    UNKNOWN(""),
-    UNSPECIFIED("");
+public class MediaType extends HeaderValueImpl {
 
-    public static MediaType fromMediaTypeString(String mimeType) {
-        for (MediaType ct : values()) {
-            if (ct.toString().equalsIgnoreCase(mimeType)) {
-                return ct;
-            }
-        }
-                
-        return UNKNOWN;
-    }
+   private final MimeType mediaType;
 
-    private final String mimeType;
+   public MediaType(MimeType mimeType) {
+      this(mimeType.getMimeType(), mimeType);
+   }
 
-    private MediaType(String mimeType) {
-        this.mimeType = mimeType;
-    }
+   public MediaType(String value, MimeType mimeTYpe) {
+      super(value, Collections.EMPTY_MAP);
 
-    @Override
-    public String toString() {
-        return mimeType;
-    }
+      this.mediaType = mimeTYpe;
+   }
 
-    public String getType() {
-        String type = "";
-        String[] parts = this.mimeType.split("/");
+   public MediaType(String value, MimeType mediaType, Map<String, String> parameters) {
+      super(value, parameters);
 
-        if (parts.length > 1) {
-            type = parts[0];
-        }
+      this.mediaType = mediaType;
+   }
 
-        return type;
-    }
+   public MimeType getMimeType() {
+      return mediaType;
+   }
 
-    public String getSubtype() {
-        String subtype = "";
-        String[] parts = this.mimeType.split("/");
+   @Override
+   public boolean equals(Object obj) {
+      if (obj == null) {
+         return false;
+      }
+      
+      if (getClass() != obj.getClass()) {
+         return false;
+      }
+      
+      final MediaType other = (MediaType) obj;
+      
+      if (this.mediaType != other.mediaType) {
+         return false;
+      }
+      
+      return super.equals(obj);
+   }
 
-        if (parts.length > 1) {
-            subtype = parts[1];    
-        }
-
-        return subtype;
-    }
+   @Override
+   public int hashCode() {
+      int hash = 3;
+      hash = 79 * hash + (this.mediaType != null ? this.mediaType.hashCode() : 0);
+      
+      return hash + super.hashCode();
+   }
 }
