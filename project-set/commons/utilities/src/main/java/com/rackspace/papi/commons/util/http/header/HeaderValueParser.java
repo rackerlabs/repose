@@ -26,7 +26,7 @@ public class HeaderValueParser {
          }
       }
 
-      return new ParsedHeaderImpl(parameterSplit[0].trim(), parameters);
+      return new HeaderValueImpl(parameterSplit[0].trim(), parameters);
    }
 
    private void parseParameter(Map<String, String> parameters, String unparsedParameter) {

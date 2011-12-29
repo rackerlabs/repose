@@ -1,8 +1,8 @@
 package com.rackspace.papi.commons.util.http.media.servlet;
 
-import com.rackspace.papi.commons.util.http.media.MediaType;
+import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.http.media.VariantParser;
-import com.rackspace.papi.commons.util.http.media.MediaRange;
+import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
 
 import java.util.LinkedList;
@@ -10,26 +10,24 @@ import java.util.List;
 
 public abstract class RequestMediaRangeInterrogator {
 
-    private RequestMediaRangeInterrogator() {
-        
-    }
-    
-    public static List<MediaRange> interrogate(String requestUri, String acceptHeader) {
-        final List<MediaRange> ranges = new LinkedList<MediaRange>();
-        
-        final MediaType mediaType = VariantParser.getMediaTypeFromVariant(requestUri);
+   private RequestMediaRangeInterrogator() {
+   }
 
-        if (mediaType == null) {
-            ranges.addAll(MediaRangeParser.getMediaRangesFromAcceptHeader(acceptHeader));
+   public static List<MediaType> interrogate(String requestUri, String acceptHeader) {
+      final List<MediaType> ranges = new LinkedList<MediaType>();
 
-        } else {
-            ranges.add(new MediaRange(mediaType));
-        }
-        
-        if (ranges.isEmpty()) {
-            ranges.add(new MediaRange(MediaType.UNSPECIFIED));
-        }
+      final MimeType mediaType = VariantParser.getMediaTypeFromVariant(requestUri);
 
-        return ranges;
-    }
+      if (mediaType == null) {
+         ranges.addAll(new MediaRangeParser(acceptHeader).parse());
+      } else {
+         ranges.add(new MediaType(mediaType.getMimeType(), mediaType));
+      }
+
+      if (ranges.isEmpty()) {
+         ranges.add(new MediaType(MimeType.UNSPECIFIED.getMimeType(), MimeType.UNSPECIFIED));
+      }
+
+      return ranges;
+   }
 }

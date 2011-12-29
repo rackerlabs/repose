@@ -26,11 +26,11 @@ public class HeaderFieldParser {
       }
    }
 
-   public HeaderFieldParser(Enumeration<String> headerValues) {
+   public HeaderFieldParser(Enumeration<String> headerValueEnumeration) {
       this();
       
-      while(headerValues.hasMoreElements()) {
-         this.headerValueStrings.add(headerValues.nextElement());
+      while(headerValueEnumeration.hasMoreElements()) {
+         this.headerValueStrings.add(headerValueEnumeration.nextElement());
       }
    }
    

@@ -11,13 +11,13 @@ public final class QualityFactorUtility {
    private QualityFactorUtility() {
    }
    
-   public static HeaderValue choosePreferedHeaderValue(Iterable<HeaderValue> headerValues) {
-      final Iterator<HeaderValue> headerValueIterator = headerValues.iterator();
+   public static <T extends HeaderValue> T choosePreferedHeaderValue(Iterable<T> headerValues) {
+      final Iterator<T> headerValueIterator = headerValues.iterator();
       
-      HeaderValue prefered = headerValueIterator.hasNext() ? headerValueIterator.next() : null;
+      T prefered = headerValueIterator.hasNext() ? headerValueIterator.next() : null;
       
       while (headerValueIterator.hasNext()) {
-         final HeaderValue next = headerValueIterator.next();
+         final T next = headerValueIterator.next();
          
          if (next.getQualityFactor() > prefered.getQualityFactor()) {
             prefered = next;

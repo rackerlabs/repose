@@ -2,12 +2,13 @@ package com.rackspace.papi.components.versioning.domain;
 
 import com.rackspace.papi.components.versioning.util.http.HttpRequestInfo;
 import com.rackspace.papi.components.versioning.util.http.UniformResourceInfo;
-import com.rackspace.papi.commons.util.http.media.MediaRange;
+import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
 import com.rackspace.papi.commons.util.StringUriUtilities;
 
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
-import com.rackspace.papi.components.versioning.config.MediaType;
+import com.rackspace.papi.commons.util.http.header.QualityFactorUtility;
+import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.components.versioning.config.MediaTypeList;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 import com.rackspace.papi.components.versioning.schema.VersionChoice;
@@ -57,11 +58,11 @@ public class ConfigurationData {
 
         // If version info not in URI look in accept header
         if (destination == null) {
-            final MediaRange range = requestInfo.getPreferedMediaRange();
+            final MediaType range = requestInfo.getPreferedMediaRange();
             final ServiceVersionMapping currentServiceVersion = getServiceVersionForMediaRange(range);
 
             if (currentServiceVersion != null) {
-                director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.getHeaderKey(), range.getMediaType().toString());
+                director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.getHeaderKey(), range.getMimeType().toString());
                 destination = new VersionedOriginService(currentServiceVersion, getHostForVersionMapping(currentServiceVersion));
             }
         }
@@ -99,7 +100,7 @@ public class ConfigurationData {
         return versionChoices;
     }
 
-    public ServiceVersionMapping getServiceVersionForMediaRange(MediaRange preferedMediaRange) {
+    public ServiceVersionMapping getServiceVersionForMediaRange(MediaType preferedMediaRange) {
         for (Map.Entry<String, ServiceVersionMapping> serviceMapping : serviceMappings.entrySet()) {
             if (mediaTypeMatchesVersionConfigServiceMapping((ServiceVersionMapping) serviceMapping.getValue(), preferedMediaRange)) {
                 return serviceMapping.getValue();
@@ -109,13 +110,13 @@ public class ConfigurationData {
         return null;
     }
 
-    public boolean mediaTypeMatchesVersionConfigServiceMapping(ServiceVersionMapping serviceVersionMapping, MediaRange preferedMediaRange) {
+    public boolean mediaTypeMatchesVersionConfigServiceMapping(ServiceVersionMapping serviceVersionMapping, MediaType preferedMediaType) {
         final MediaTypeList configuredMediaTypes = serviceVersionMapping.getMediaTypes();
 
-        for (MediaType configuredMediaType : configuredMediaTypes.getMediaType()) {
-            final MediaRange configuredMediaRange = MediaRangeParser.parseMediaRange(configuredMediaType.getType());
-
-            if (preferedMediaRange.equals(configuredMediaRange)) {
+        for (com.rackspace.papi.components.versioning.config.MediaType configuredMediaType : configuredMediaTypes.getMediaType()) {
+            final MimeType configuredMimeType = MimeType.getMatchingMimeType(configuredMediaType.getType());
+            
+            if (preferedMediaType.getMimeType() == configuredMimeType) {
                 return true;
             }
         }

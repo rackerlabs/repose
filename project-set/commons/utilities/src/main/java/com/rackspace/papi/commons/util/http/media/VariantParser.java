@@ -14,15 +14,15 @@ public abstract class VariantParser {
         
     }
 
-    public static MediaType getMediaTypeFromVariant(String variant) {
+    public static MimeType getMediaTypeFromVariant(String variant) {
         final Matcher matcher = VARIANT_REGEX.matcher(variant);
-        MediaType mediaType = null;
+        MimeType mediaType = null;
         
         if (matcher.matches()) {
             if (variant.toLowerCase().contains("xml")) {
-                mediaType = MediaType.APPLICATION_XML;
+                mediaType = MimeType.APPLICATION_XML;
             } else if (variant.toLowerCase().contains("json")) {
-                mediaType = MediaType.APPLICATION_JSON;
+                mediaType = MimeType.APPLICATION_JSON;
             }
         }
 

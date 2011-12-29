@@ -8,14 +8,13 @@ import java.util.Map;
  *
  * @author zinic
  */
-public class ParsedHeaderImpl implements HeaderValue {
+public class HeaderValueImpl implements HeaderValue {
 
    public static final String QUALITY_FACTOR_PARAM_NAME = "q";
-   
    private final Map<String, String> parameters;
    private final String value;
 
-   public ParsedHeaderImpl(String value, Map<String, String> parameters) {
+   public HeaderValueImpl(String value, Map<String, String> parameters) {
       this.parameters = parameters;
       this.value = value;
    }
@@ -24,7 +23,7 @@ public class ParsedHeaderImpl implements HeaderValue {
    public String getValue() {
       return value;
    }
-   
+
    @Override
    public Map<String, String> getParameters() {
       return Collections.unmodifiableMap(parameters);
@@ -49,5 +48,37 @@ public class ParsedHeaderImpl implements HeaderValue {
       }
 
       return qualityFactor;
+   }
+
+   @Override
+   public boolean equals(Object obj) {
+      if (obj == null) {
+         return false;
+      }
+      
+      if (getClass() != obj.getClass()) {
+         return false;
+      }
+      
+      final HeaderValueImpl other = (HeaderValueImpl) obj;
+      
+      if (this.parameters != other.parameters && (this.parameters == null || !this.parameters.equals(other.parameters))) {
+         return false;
+      }
+      
+      if ((this.value == null) ? (other.value != null) : !this.value.equals(other.value)) {
+         return false;
+      }
+      
+      return true;
+   }
+
+   @Override
+   public int hashCode() {
+      int hash = 5;
+      hash = 43 * hash + (this.parameters != null ? this.parameters.hashCode() : 0);
+      hash = 43 * hash + (this.value != null ? this.value.hashCode() : 0);
+      
+      return hash;
    }
 }
