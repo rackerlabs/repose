@@ -3,6 +3,8 @@ package com.rackspace.papi.components.datastore;
 import com.rackspace.papi.commons.util.ArrayUtilities;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
+import com.rackspace.papi.commons.util.http.HeaderConstant;
+import com.rackspace.papi.commons.util.io.BufferCapacityException;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import java.net.InetSocketAddress;
 
@@ -12,6 +14,8 @@ import javax.servlet.http.HttpServletRequest;
 public class CacheRequest {
 
    public static final String CACHE_URI_PATH = "/powerapi/dist-datastore/objects/";
+   public static final int TWO_MEGABYTES_IN_BYTES = 2097152;
+   public static final HeaderConstant TTL_HEADER = ExtendedHttpHeader.X_TTL;
 
    private static String getCacheKey(HttpServletRequest request) {
       final String requestUri = request.getRequestURI();
@@ -59,12 +63,18 @@ public class CacheRequest {
       final String hostKey = getHostKey(request);
 
       try {
-         final String ttlHeader = request.getHeader(ExtendedHttpHeader.X_TTL.getHeaderKey());
-         final int ttlInSeconds = StringUtilities.isBlank(ttlHeader) ? -1 : Integer.parseInt(ttlHeader);
+         final String ttlHeader = request.getHeader(TTL_HEADER.getHeaderKey());
+         final int ttlInSeconds = StringUtilities.isBlank(ttlHeader) ? 60 : Integer.parseInt(ttlHeader);
 
-         return new CacheRequest(cacheKey, hostKey, ttlInSeconds, RawInputStreamReader.instance().readFully(request.getInputStream()));
+         if (ttlInSeconds <= 0) {
+            throw new MalformedCacheRequestException(TTL_HEADER.getHeaderKey() + " must be a valid, positive integer number");
+         }
+
+         return new CacheRequest(cacheKey, hostKey, ttlInSeconds, RawInputStreamReader.instance().readFully(request.getInputStream(), TWO_MEGABYTES_IN_BYTES));
       } catch (NumberFormatException nfe) {
-         throw new MalformedCacheRequestException("Cache object TTL 'X-PP-Datastore-TTL' must be a valid integer number", nfe);
+         throw new MalformedCacheRequestException(TTL_HEADER.getHeaderKey() + " must be a valid, positive integer number", nfe);
+      } catch (BufferCapacityException bce) {
+         throw new MalformedCacheRequestException("Object is too large to store into the cache.", bce);
       } catch (Exception ex) {
          throw new MalformedCacheRequestException("Unable to parse object stream contents", ex);
       }
