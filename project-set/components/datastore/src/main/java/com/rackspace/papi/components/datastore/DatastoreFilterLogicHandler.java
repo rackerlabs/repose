@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
  * @author Dan Daley
  */
 public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
+   
 
    private static final Logger LOG = LoggerFactory.getLogger(DatastoreFilterLogicHandler.class);
    private final MutableClusterView clusterView;
