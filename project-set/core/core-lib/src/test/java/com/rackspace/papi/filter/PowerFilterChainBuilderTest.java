@@ -10,6 +10,7 @@ import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import com.rackspace.papi.commons.util.net.NetUtilities;
 
 import javax.servlet.FilterConfig;
 
@@ -113,7 +114,7 @@ public class PowerFilterChainBuilderTest {
             filterListClass.addFilter(mockedFilter);
 
             Host host = new Host();
-            host.setHostname(SystemModelInterrogator.getLocalHostName());
+            host.setHostname(NetUtilities.getLocalHostName());
             host.setFilters(filterListClass);
 
             hostList.add(host);
