@@ -6,6 +6,7 @@ import com.rackspace.papi.model.PowerProxy;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import com.rackspace.papi.commons.util.net.NetUtilities;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +46,7 @@ public class LocalhostFilterListTest {
             List<Host> hostList = new ArrayList<Host>();
 
             Host host = new Host();
-            host.setHostname(SystemModelInterrogator.getLocalHostName());
+            host.setHostname(NetUtilities.getLocalHostName());
             host.setFilters(mock(FilterList.class));
 
             hostList.add(host);
