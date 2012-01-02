@@ -3,7 +3,8 @@ package com.rackspace.papi.service.rms;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
-import com.rackspace.papi.commons.util.http.media.MediaRange;
+import com.rackspace.papi.commons.util.http.header.QualityFactorUtility;
+import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
 import com.rackspace.papi.commons.util.io.FileReader;
 import com.rackspace.papi.commons.util.io.FileReaderImpl;
@@ -97,8 +98,8 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         final StatusCodeMatcher matchedCode = getMatchingStatusCode(String.valueOf(response.getStatus()));
 
         if (matchedCode != null) {
-            final List<MediaRange> mediaRanges = MediaRangeParser.getMediaRangesFromAcceptHeader(request.getHeader(CommonHttpHeader.ACCEPT.getHeaderKey()));
-            final MediaRange preferedMediaRange = MediaRangeParser.getPerferedMediaRange(mediaRanges);
+            final List<MediaType> mediaRanges = new MediaRangeParser(request.getHeaders(CommonHttpHeader.ACCEPT.getHeaderKey())).parse();
+            final MediaType preferedMediaRange = QualityFactorUtility.choosePreferedHeaderValue(mediaRanges);
             
             final Message statusCodeMessage = getMatchingStatusCodeMessage(matchedCode, preferedMediaRange);
 
@@ -113,7 +114,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
                     final String formattedOutput = formatter.format(message, request, response).trim();
                     
                     //Write the content type header and then write out our content
-                    response.setHeader(CommonHttpHeader.CONTENT_TYPE.getHeaderKey(), preferedMediaRange.getMediaType().toString());
+                    response.setHeader(CommonHttpHeader.CONTENT_TYPE.getHeaderKey(), preferedMediaRange.getMimeType().toString());
                     
                     // TODO:Enhancement - Update formatter logic for streaming
                     // TODO:Enhancement - Update getBytes(...) to use requested content encoding
@@ -200,9 +201,9 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         return f;
     }
 
-    private Message getMatchingStatusCodeMessage(StatusCodeMatcher code, MediaRange requestedMediaType) {
+    private Message getMatchingStatusCodeMessage(StatusCodeMatcher code, MediaType requestedMediaType) {
         for (Message message : code.getMessage()) {
-            final List<MediaRange> configurationRanges = MediaRangeParser.getMediaRangesFromAcceptHeader(message.getMediaType());
+            final List<MediaType> configurationRanges = new MediaRangeParser(message.getMediaType()).parse();
 
             if (configurationRanges.contains(requestedMediaType)) {
                 return message;

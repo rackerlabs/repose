@@ -1,7 +1,7 @@
 package com.rackspace.papi.commons.util.http.media;
 
 import com.rackspace.papi.commons.util.http.media.VariantParser;
-import com.rackspace.papi.commons.util.http.media.MediaType;
+import com.rackspace.papi.commons.util.http.media.MimeType;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -74,19 +74,19 @@ public class VariantParserTest {
 
         @Test
         public void shouldReturnMediaType() {
-            MediaType mediaType = VariantParser.getMediaTypeFromVariant(URI_WITH_JSON_MEDIA_TYPE);
+            MimeType mediaType = VariantParser.getMediaTypeFromVariant(URI_WITH_JSON_MEDIA_TYPE);
 
-            assertEquals(MediaType.APPLICATION_JSON, mediaType);
+            assertEquals(MimeType.APPLICATION_JSON, mediaType);
         }
 
         @Test
         public void shouldMatchLastVariant() {
-            assertEquals(MediaType.APPLICATION_XML, VariantParser.getMediaTypeFromVariant(URI_WITH_MULTIPLE_MEDIA_TYPE));
+            assertEquals(MimeType.APPLICATION_XML, VariantParser.getMediaTypeFromVariant(URI_WITH_MULTIPLE_MEDIA_TYPE));
         }
 
         @Test
         public void shouldIgnoreQueryParameters() {
-            assertEquals(MediaType.APPLICATION_XML, VariantParser.getMediaTypeFromVariant(URI_WITH_PARAMS));
+            assertEquals(MimeType.APPLICATION_XML, VariantParser.getMediaTypeFromVariant(URI_WITH_PARAMS));
         }
 
         @Test

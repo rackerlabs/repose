@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.clientauth.openstack.v1_0;
 
+import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.auth.openstack.ids.CachableTokenInfo;
 import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
@@ -34,6 +35,8 @@ public class OpenStackAuthenticationHandlerTest {
         protected OpenStackAuthenticationService authService;
         protected OpenStackAuthenticationHandler handler;
         protected OpenstackAuth osauthConfig;
+        protected KeyedRegexExtractor keyedRegexExtractor;
+                
 
         @Before
         public void beforeAny() {
@@ -42,18 +45,21 @@ public class OpenStackAuthenticationHandlerTest {
 
             osauthConfig = new OpenstackAuth();
             osauthConfig.setDelegatable(delegatable());
+            
+            keyedRegexExtractor = new KeyedRegexExtractor();
 
             final ClientMapping mapping = new ClientMapping();
             mapping.setIdRegex("/start/(.*)/");
 
             osauthConfig.getClientMapping().add(mapping);
+            keyedRegexExtractor.addPattern(mapping.getIdRegex());
 
             final OpenStackIdentityService openStackIdentityService = new OpenStackIdentityService();
             openStackIdentityService.setUri("http://some.auth.endpoint");
             osauthConfig.setIdentityService(openStackIdentityService);
 
             authService = mock(OpenStackAuthenticationService.class);
-            handler = new OpenStackAuthenticationHandler(osauthConfig, authService);
+            handler = new OpenStackAuthenticationHandler(osauthConfig, authService,keyedRegexExtractor);
         }
 
         protected abstract boolean delegatable();

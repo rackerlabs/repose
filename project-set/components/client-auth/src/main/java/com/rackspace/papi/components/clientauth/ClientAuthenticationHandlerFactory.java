@@ -6,9 +6,12 @@ import com.rackspace.auth.v1_1.AuthenticationServiceClientFactory;
 import com.rackspace.papi.auth.AuthModule;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 
+import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenStackIdentityService;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
+import com.rackspace.papi.components.clientauth.openstack.config.ClientMapping;
+import com.rackspace.papi.components.clientauth.rackspace.config.AccountMapping;
 import com.rackspace.papi.components.clientauth.rackspace.config.RackspaceAuth;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import java.util.HashMap;
@@ -28,6 +31,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ClientAuthenticationHandlerFactory.class);
     private AuthModule authenticationModule;
+    private KeyedRegexExtractor<String> accountRegexExtractor = new KeyedRegexExtractor<String>();
 
     public ClientAuthenticationHandlerFactory() {
     }
@@ -36,7 +40,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
     protected Map<Class, UpdateListener<?>> getListeners() {
         final Map<Class, UpdateListener<?>> listenerMap = new HashMap<Class, UpdateListener<?>>();
         listenerMap.put(ClientAuthConfig.class, new ClientAuthConfigurationListener());
-        
+
         return listenerMap;
     }
 
@@ -47,8 +51,14 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
 
             if (modifiedConfig.getRackspaceAuth() != null) {
                 authenticationModule = getAuth1_1Handler(modifiedConfig);
+                for (AccountMapping accountMapping : modifiedConfig.getRackspaceAuth().getAccountMapping()) {
+                    accountRegexExtractor.addPattern(accountMapping.getIdRegex(), accountMapping.getType().value());
+                }
             } else if (modifiedConfig.getOpenstackAuth() != null) {
                 authenticationModule = getOpenStackAuthHandler(modifiedConfig);
+                for (ClientMapping clientMapping : modifiedConfig.getOpenstackAuth().getClientMapping()) {
+                    accountRegexExtractor.addPattern(clientMapping.getIdRegex());
+                }
             } else if (modifiedConfig.getHttpBasicAuth() != null) {
                 // TODO: Create handler for HttpBasic
                 authenticationModule = null;
@@ -60,10 +70,10 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
 
     private AuthModule getAuth1_1Handler(ClientAuthConfig cfg) {
         final RackspaceAuth authConfig = cfg.getRackspaceAuth();
-            
+
         final AuthenticationServiceClient serviceClient = new AuthenticationServiceClientFactory().buildAuthServiceClient(
                 authConfig.getAuthenticationServer().getUri(), authConfig.getAuthenticationServer().getUsername(), authConfig.getAuthenticationServer().getPassword());
-        return new com.rackspace.papi.components.clientauth.rackspace.v1_1.RackspaceAuthenticationHandler(authConfig, serviceClient);
+        return new com.rackspace.papi.components.clientauth.rackspace.v1_1.RackspaceAuthenticationHandler(authConfig, serviceClient, accountRegexExtractor);
     }
 
     private AuthModule getOpenStackAuthHandler(ClientAuthConfig config) {
@@ -71,7 +81,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
         final OpenStackIdentityService ids = authConfig.getIdentityService();
 
         final OpenStackAuthenticationService authService = new com.rackspace.auth.openstack.ids.AuthenticationServiceClient(ids.getUri(), ids.getUsername(), ids.getPassword());
-        return new com.rackspace.papi.components.clientauth.openstack.v1_0.OpenStackAuthenticationHandler(authConfig, authService);
+        return new com.rackspace.papi.components.clientauth.openstack.v1_0.OpenStackAuthenticationHandler(authConfig, authService, accountRegexExtractor);
     }
 
     @Override

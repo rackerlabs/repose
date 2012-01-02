@@ -20,6 +20,7 @@
         <module>http-logging</module>
         <module>client-auth</module>
         <module>client-ip-identity</module>
+        <module>client-user-identity</module>
         <module>service-auth</module>
         <module>cli-utils</module>
         <module>content-normalization</module>
@@ -149,6 +150,12 @@
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>client-ip-identity</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>client-user-identity</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

@@ -1,8 +1,8 @@
 package com.rackspace.papi.components.versioning.util.http;
 
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
-import com.rackspace.papi.commons.util.http.media.MediaRange;
-import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
+import com.rackspace.papi.commons.util.http.header.QualityFactorUtility;
+import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.servlet.RequestMediaRangeInterrogator;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -10,11 +10,12 @@ import javax.servlet.http.HttpServletRequest;
 // NOTE: This does not belong in util - this is a domain object for versioning only
 public class HttpRequestInfoImpl implements HttpRequestInfo {
 
-    private static List<MediaRange> getMediaRanges(HttpServletRequest request) {
+    private static List<MediaType> getMediaRanges(HttpServletRequest request) {
         return RequestMediaRangeInterrogator.interrogate(request.getRequestURI(), request.getHeader(CommonHttpHeader.ACCEPT.getHeaderKey()));
     }
-    private final List<MediaRange> acceptMediaRange;
-    private final MediaRange preferedMediaRange;
+    
+    private final List<MediaType> acceptMediaRange;
+    private final MediaType preferedMediaRange;
     private final String uri;
     private final String url;
     private final String host;
@@ -23,8 +24,8 @@ public class HttpRequestInfoImpl implements HttpRequestInfo {
         this(getMediaRanges(request), request.getRequestURI(), request.getRequestURL().toString(), request.getHeader(CommonHttpHeader.HOST.getHeaderKey()));
     }
 
-    public HttpRequestInfoImpl(List<MediaRange> acceptMediaRange, String uri, String url, String host) {
-        this.preferedMediaRange = MediaRangeParser.getPerferedMediaRange(acceptMediaRange);
+    public HttpRequestInfoImpl(List<MediaType> acceptMediaRange, String uri, String url, String host) {
+        this.preferedMediaRange = QualityFactorUtility.choosePreferedHeaderValue(acceptMediaRange);
         this.acceptMediaRange = acceptMediaRange;
         this.uri = uri;
         this.url = url;
@@ -42,13 +43,13 @@ public class HttpRequestInfoImpl implements HttpRequestInfo {
     }
 
     @Override
-    public MediaRange getPreferedMediaRange() {
+    public MediaType getPreferedMediaRange() {
         return preferedMediaRange;
     }
 
     @Override
-    public boolean hasMediaRange(MediaRange targetRange) {
-        for (MediaRange requestedRange : acceptMediaRange) {
+    public boolean hasMediaRange(MediaType targetRange) {
+        for (MediaType requestedRange : acceptMediaRange) {
             if (requestedRange.equals(targetRange)) {
                 return true;
             }

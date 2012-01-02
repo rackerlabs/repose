@@ -3,7 +3,7 @@ package com.rackspace.papi.filter;
 import com.rackspace.papi.model.Host;
 import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.servlet.PowerApiContextException;
-
+import com.rackspace.papi.commons.util.net.NetUtilities;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Iterator;
@@ -21,7 +21,7 @@ public class SystemModelInterrogator {
     }
 
     public Host getLocalHost() {
-        final String myHostname = getLocalHostName();
+        final String myHostname = NetUtilities.getLocalHostName();
         Host localhost = null;
 
         for (Host powerProxyHost : systemModel.getHost()) {
@@ -36,7 +36,7 @@ public class SystemModelInterrogator {
 
     // TODO: Enhancement - Explore using service domains to better handle routing identification logic
     public Host getNextRoutableHost() {
-        final String myHostname = getLocalHostName();
+        final String myHostname = NetUtilities.getLocalHostName();
         final List<Host> hosts = systemModel.getHost();
         Host nextRoutableHost = null;
         
@@ -52,15 +52,6 @@ public class SystemModelInterrogator {
         return nextRoutableHost;
     }
 
-    // Note: If this has reuse value it should probably be a utility method in
-    // a utility class; for now it's been assigned package visibility to hide it
-    // from consuming classes.
-    static String getLocalHostName() {
-        try {
-            final InetAddress addr = InetAddress.getLocalHost();
-            return addr.getHostName();
-        } catch (UnknownHostException e) {
-            throw new PowerApiContextException("Failed to get hostname. Something weird is going on.", e);
-        }
-    }
+    // Moved getLocalHostName method to com.rackspace.papi.commons.util.net.NetUtilities;
+    
 }

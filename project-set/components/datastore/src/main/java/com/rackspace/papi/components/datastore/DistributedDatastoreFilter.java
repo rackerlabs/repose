@@ -26,8 +26,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.UUID;
-import javax.naming.NamingException;
 import org.openrepose.components.datastore.config.DistributedDatastoreConfiguration;
 
 public class DistributedDatastoreFilter implements Filter {

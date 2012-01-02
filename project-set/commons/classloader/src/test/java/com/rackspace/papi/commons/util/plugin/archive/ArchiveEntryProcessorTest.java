@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util.plugin.archive;
 
+import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -16,36 +17,36 @@ import static org.mockito.Mockito.*;
  */
 @RunWith(Enclosed.class)
 public class ArchiveEntryProcessorTest {
-    public static class WhenProcessingEntry {
-        static final int BUFFER_READ_LENGTH_IN_BYTES = 1024;
 
-        @Test
-        public void shouldInstantiate () {
-            ArchiveEntryDescriptor mockedArchiveEntryDescriptor = mock(ArchiveEntryDescriptor.class);
-            File mockedFile = mock(File.class);
-            ArchiveEntryListener mockedListener = mock(ArchiveEntryListener.class);
+   public static class WhenProcessingEntry {
 
-            ArchiveEntryProcessor archiveEntryProcessor = new ArchiveEntryProcessor(mockedArchiveEntryDescriptor, mockedFile, mockedListener);
+      @Test
+      public void shouldInstantiate() {
+         ArchiveEntryDescriptor mockedArchiveEntryDescriptor = mock(ArchiveEntryDescriptor.class);
+         File mockedFile = mock(File.class);
+         ArchiveEntryListener mockedListener = mock(ArchiveEntryListener.class);
 
-            assertNotNull(archiveEntryProcessor);
-        }
+         ArchiveEntryProcessor archiveEntryProcessor = new ArchiveEntryProcessor(mockedArchiveEntryDescriptor, mockedFile, mockedListener);
 
-        @Test
-        public void shouldNotUnpackOnLoadNextEntry() throws IOException {
-            ArchiveEntryDescriptor mockedArchiveEntryDescriptor = mock(ArchiveEntryDescriptor.class);
-            File mockedFile = mock(File.class);
-            ArchiveEntryListener mockedListener = mock(ArchiveEntryListener.class);
-            JarInputStream mockedInputStream = mock(JarInputStream.class);
-            when(mockedInputStream.read(new byte[BUFFER_READ_LENGTH_IN_BYTES])).thenReturn(-1);
+         assertNotNull(archiveEntryProcessor);
+      }
 
-            ArchiveEntryProcessor archiveEntryProcessor = new ArchiveEntryProcessor(mockedArchiveEntryDescriptor, mockedFile, mockedListener);
+      @Test
+      public void shouldNotUnpackOnLoadNextEntry() throws IOException {
+         ArchiveEntryDescriptor mockedArchiveEntryDescriptor = mock(ArchiveEntryDescriptor.class);
+         File mockedFile = mock(File.class);
+         ArchiveEntryListener mockedListener = mock(ArchiveEntryListener.class);
+         JarInputStream mockedInputStream = mock(JarInputStream.class);
+         when(mockedInputStream.read(any(byte[].class))).thenReturn(-1);
 
-            byte[] bytes = archiveEntryProcessor.loadNextEntry(mockedInputStream, DeploymentAction.DO_NOT_UNPACK_ENTRY);
+         ArchiveEntryProcessor archiveEntryProcessor = new ArchiveEntryProcessor(mockedArchiveEntryDescriptor, mockedFile, mockedListener);
 
-            assertEquals(0, bytes.length);
-        }
+         byte[] bytes = archiveEntryProcessor.loadNextEntry(mockedInputStream, DeploymentAction.DO_NOT_UNPACK_ENTRY);
 
-        // TODO: Finish full testing of ArchiveEntryProcessor
+         assertEquals(0, bytes.length);
+      }
+      
+      // TODO: Finish full testing of ArchiveEntryProcessor
 //        Pulled in from another class during refactor.       
 //        @Test
 //        public void shouldUnpackDirectoryStructure() throws Exception {
@@ -64,5 +65,5 @@ public class ArchiveEntryProcessorTest {
 //
 //            assertTrue("Should delete deployment directory", deleteDirectory(getDeploymentDestination()));
 //        }
-    }
+   }
 }

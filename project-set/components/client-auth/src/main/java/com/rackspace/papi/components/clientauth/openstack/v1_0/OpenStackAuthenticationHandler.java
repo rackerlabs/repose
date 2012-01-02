@@ -1,11 +1,13 @@
 package com.rackspace.papi.components.clientauth.openstack.v1_0;
 
-import com.rackspace.auth.openstack.ids.Account;
+import com.rackspace.papi.commons.util.regex.ExtractorResult;
+import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.auth.openstack.ids.CachableTokenInfo;
 import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
 
+import com.rackspace.papi.components.clientauth.openstack.config.ClientMapping;
 import com.rackspace.papi.auth.AuthModule;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
@@ -26,15 +28,16 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(OpenStackAuthenticationHandler.class);
     private final OpenStackAuthenticationService authenticationService;
-    private final AccountUsernameExtractor accountUsernameExtractor;
     private boolean delegatable;
     private final String authServiceUri;
+    private final KeyedRegexExtractor<Object> keyedRegexExtractor;
 
-    public OpenStackAuthenticationHandler(OpenstackAuth cfg, OpenStackAuthenticationService serviceClient) {
+    public OpenStackAuthenticationHandler(OpenstackAuth cfg, OpenStackAuthenticationService serviceClient, KeyedRegexExtractor keyedRegexExtractor) {
         this.authenticationService = serviceClient;
-        this.accountUsernameExtractor = new AccountUsernameExtractor(cfg.getClientMapping());
         delegatable = cfg.isDelegatable();
         this.authServiceUri = cfg.getIdentityService().getUri();
+        this.keyedRegexExtractor = keyedRegexExtractor;
+        
     }
 
     @Override
@@ -54,12 +57,12 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
         filterDirector.setFilterAction(FilterAction.RETURN);
 
         final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.getHeaderKey());
-        final Account account = accountUsernameExtractor.extract(request.getRequestURI());
+        final ExtractorResult<Object> account = keyedRegexExtractor.extract(request.getRequestURI());
         CachableTokenInfo cachableTokenInfo = null;
 
         if ((!StringUtilities.isBlank(authToken) && account != null)) {
             try {
-                cachableTokenInfo = authenticationService.validateToken(account.getUsername(), authToken);
+                cachableTokenInfo = authenticationService.validateToken(account.getResult(), authToken);
             } catch (Exception ex) {
                 LOG.error("Failure in auth: " + ex.getMessage(), ex);
                 filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -71,7 +74,7 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
             groups = authenticationService.getGroups(cachableTokenInfo.getUserId());
         }
 
-        final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(authToken, cachableTokenInfo, delegatable, filterDirector, account == null ? "" : account.getUsername(), groups, request);
+        final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(authToken, cachableTokenInfo, delegatable, filterDirector, account == null ? "" : account.getResult(), groups, request);
         headerManager.setFilterDirectorValues();
 
         return filterDirector;

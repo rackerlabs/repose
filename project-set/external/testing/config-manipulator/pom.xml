@@ -94,6 +94,12 @@
             <artifactId>client-ip-identity</artifactId>
             <version>${project.version}</version>
         </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>client-user-identity</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
