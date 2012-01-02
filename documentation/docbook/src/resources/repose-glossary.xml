@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+<!ENTITY PRODNAME "Repose">
+<!ENTITY PRODABBREV "Repose">
+<!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
+    <!-- Some useful entities borrowed from HTML -->
+    <!ENTITY ndash  "&#x2013;">
+    <!ENTITY mdash  "&#x2014;">
+    <!ENTITY hellip "&#x2026;">
+
+    <!-- Useful for describing APIs -->
+    <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
+    <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
+    <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
+    <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
+
+    <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Check_mark_23x20_02.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+
+    <!ENTITY ARROW  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Arrow_east.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+]>
+<!-- in BOOK below, add status="draft" to set watermark on cover and left margin -->
+<book version="5.0" xmlns="http://docbook.org/ns/docbook"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:svg="http://www.w3.org/2000/svg"
+      xmlns:m="http://www.w3.org/1998/Math/MathML"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      xmlns:db="http://docbook.org/ns/docbook" >
+    <?rax pdf.url="../../papi-glossary.pdf"?>
+    <title>&PRODNAME; Glossary</title>
+    <!-- set watermark on cover and left margin 
+        <?rax status.bar.text="CONFIDENTIAL"?>
+    -->
+    <?rax title.font.size="35px" subtitle.font.size="24px"?>
+    <titleabbrev>&PRODABBREV; Glossary</titleabbrev>
+    <info>
+        <author>
+            <personname>
+                <firstname/>
+                <surname/>
+            </personname>
+            <affiliation>
+                <orgname>Rackspace Cloud</orgname>
+            </affiliation>
+        </author>
+        <copyright>
+            <year>2010</year>
+            <year>2011</year>
+            <holder>Rackspace US, Inc.</holder>
+        </copyright>
+        <releaseinfo>v0.9</releaseinfo>
+        <productname>&PRODNAME;</productname>
+        <pubdate>2011-09-28</pubdate>
+        <legalnotice role="apache2">
+            <annotation>
+                <remark>Copyright details are filled in by the template.</remark>
+            </annotation>
+        </legalnotice>
+        <abstract>
+            <para>This document is intended for anyone seeking basic information about &PRODNAME;. </para>
+        </abstract>
+    </info>
+    <chapter xml:id="Vocabulary-d1e100">
+        <title>&PRODNAME; Vocabulary</title>
+        <annotation>
+            <remark>
+                Source for this chapter is https://wiki.mosso.com/display/CT/PAPI+Glossary
+            </remark>
+        </annotation>
+            <note>
+                <para> Below, we have explained what we mean when we use some basic &PRODNAME;
+                terms. Terms not defined here are not unique to &PRODNAME; and are used in
+                industry-standard ways. Many such terms are defined in the sources listed in <xref
+                    linkend="References-d1e994"/>. </para>
+            </note>
+            <glossary>
+                <title>&PRODNAME; Components</title>
+                <para>
+                    <emphasis>
+                        Components described here may not yet be available; 
+                        familiarity with their basic ideas will help you plan for future
+                        uses of &PRODNAME;.
+                    </emphasis>
+                </para>
+                <glossentry xml:id="Client-AuthN-d1e015">
+                <glossterm><emphasis role="bold">Client Authentication</emphasis></glossterm>
+                <glossdef>
+                    <para> The client authentication component is a client-side authentication component supporting
+                        Rackspace Authentication Service v1.1. It manages caches and tokens.</para>
+                </glossdef>
+            </glossentry>
+                <glossentry xml:id="Client-AuthZ-d1e020">
+                <glossterm><emphasis role="bold">Client Authorization</emphasis></glossterm>
+                <glossdef>
+                    <para> The client Authorization component is a client-side authorization component supporting
+                        Rackspace Authentication Service v1.1. It simply checks that this endpoint
+                        is in the endpoint. </para>
+                </glossdef>
+            </glossentry>
+                <glossentry xml:id="Content_Normalization1-d1e040">
+                    <glossterm><emphasis role="bold">Content Normalization</emphasis></glossterm>
+                    <glossdef>
+                        <para> The normalization component normalizes requests so that requests with
+                            similar meaning are formatted consistently. </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Contract_Scope_Filtering-d1e045">
+                <glossterm><emphasis role="bold">Contract Scope Filtering</emphasis></glossterm>
+                <glossdef>
+                    <para> Given a WADL, the contract scope filtering component ensures that all requests
+                        adhere to the WADL. </para>
+                </glossdef>
+                </glossentry>
+                <glossentry xml:id="Rate_Limiting-d1e025">
+                    <glossterm><emphasis role="bold">Rate Limiting</emphasis></glossterm>
+                    <glossdef>
+                        <para> The rate limiting component protects the origin service from being
+                        bombarded by client requests. It accomplishes this by specifying limits for
+                        the number of times a client may request a given resource. This provides
+                        essential protection to any public-facing API.</para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Service_Authentication-d1e005">
+                    <glossterm><emphasis role="bold">Service Authentication</emphasis></glossterm>
+                    <glossdef>
+                        <para>
+                            The service authentication component allows &PRODNAME; to authenticate against a service.
+                            It works with a
+                            service-side authentication component that selects the authentication plan.
+                        </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Translation1-d1e035">
+                    <glossterm><emphasis role="bold">Translation</emphasis></glossterm>
+                    <glossdef>
+                        <para> The translation component allows conversion between MIME types. </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Versioning-d1e030">
+                    <glossterm><emphasis role="bold">Versioning</emphasis></glossterm>
+                    <glossdef>
+                        <para> The versioning component describes the current version and any
+                            available versions. It allows choosing versions by URI or MIME type; it
+                            supports permalinks and multiple choices.</para>
+                    </glossdef>
+                </glossentry>
+            </glossary>
+            <glossary>
+                <title>&PRODNAME; Internals</title>
+                <para>
+                    <emphasis>
+                        These are not &PRODNAME; components but
+                        are essential to the structure of &PRODNAME;.
+                    </emphasis>
+                </para>
+                <glossentry xml:id="Basic_Auth-d1e010">
+                    <glossterm><emphasis role="bold">Basic Authentication</emphasis></glossterm>
+                    <glossdef>
+                        <para> The basic authentication method is HTTP's standard service-side authentication. It manages
+                            caches and tokens and supports Rackspace Authentication Service v1.1. </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Message_Service-d1e065">
+                    <glossterm><emphasis role="bold">Message Service</emphasis></glossterm>
+                    <glossdef>
+                        <para> The message service allows customization of messages and error
+                            conditions so that &PRODNAME; never violates a service contract. </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Power_Filter-d1e070">
+                    <glossterm><emphasis role="bold">Power Filter</emphasis></glossterm>
+                    <glossdef>
+                        <para>
+                            The power filter is responsible for loading all other components
+                            and handling the request-and-response lifecycle.
+                        </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Root-d1e080">
+                    <glossterm><emphasis role="bold">Root.WAR</emphasis></glossterm>
+                    <glossdef>
+                        <para>
+                            Root.WAR is a deployment artifact that launches &PRODNAME; in an application
+                            server without requiring direct integration with the underlying service.
+                        </para>
+                    </glossdef>
+                    <glossdef>
+                        <para> </para>
+                    </glossdef>
+                </glossentry>
+            </glossary>
+            <glossary>
+                <title>Other Key Ideas</title>
+                <para>
+                    <emphasis>
+                        Understanding these ideas will help you follow the explanations and examples in &PRODNAME; documentation and more fully appreciate the possibilities of &PRODNAME;.
+                    </emphasis>
+                </para>
+                <glossentry xml:id="Artifact-d1e085">
+                    <glossterm><emphasis role="bold">Artifact</emphasis></glossterm>
+                    <glossdef>
+                        <para>An artifact may be a bundle of one or more components.</para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Contract_Scope-d1e087">
+                    <glossterm><emphasis role="bold">Contract Scope</emphasis></glossterm>
+                    <glossdef>
+                        <para>The contract scope is the portion of a contract that an authorized user can see and use.</para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Filter-d1e090">
+                    <glossterm><emphasis role="bold">Filter</emphasis></glossterm>
+                    <glossdef>
+                        <para> A filter accepts incoming data, applies a specific kind of
+                            processing, and passes the data along. A chain of filters can be
+                            assembled into a pipeline. </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Router-d1e095">
+                    <glossterm><emphasis role="bold">Message Router</emphasis></glossterm>
+                    <glossdef>
+                        <para>  A message router is a type of filter that consumes messages from a
+                            single consumer endpoint and then redirects them to the appropriate
+                            target endpoint, based on a specific decision criterion.  </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Origin-d1e100">
+                    <glossterm><emphasis role="bold">Origin Service</emphasis></glossterm>
+                    <glossdef>
+                        <para>  The origin service is the service that is enhanced by &PRODNAME;.  </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Pluggable_Compoment-d1e105">
+                    <glossterm><emphasis role="bold">Pluggable Component</emphasis></glossterm>
+                    <glossdef>
+                        <para>  A pluggable component can be installed or deinstalled without affecting the system state.  </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="Service_Versions-d1e110">
+                    <glossterm><emphasis role="bold">Service Versions Catalog</emphasis></glossterm>
+                    <glossdef>
+                        <para>  The service versions catalog lists all available service versions.  </para>
+                    </glossdef>
+                </glossentry>
+                <glossentry xml:id="System_Model-d1e115">
+                    <glossterm><emphasis role="bold">System Model</emphasis></glossterm>
+                    <glossdef>
+                        <para>  The system model defines the entire cluster.  </para>
+                    </glossdef>
+                </glossentry>
+            </glossary>    
+    </chapter>
+    <xi:include href="chapters/afterword.xml"/>
+</book>

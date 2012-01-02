@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+<!ENTITY PRODNAME "Repose">
+<!ENTITY PRODABBREV "Repose">
+<!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
+    <!-- Some useful entities borrowed from HTML -->
+    <!ENTITY ndash  "&#x2013;">
+    <!ENTITY mdash  "&#x2014;">
+    <!ENTITY hellip "&#x2026;">
+
+    <!-- Useful for describing APIs -->
+    <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
+    <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
+    <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
+    <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
+
+    <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Check_mark_23x20_02.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+
+    <!ENTITY ARROW  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Arrow_east.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+]>
+<!-- in BOOK below, add status="draft" to set watermark on cover and left margin -->
+<book version="5.0" xmlns="http://docbook.org/ns/docbook"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:svg="http://www.w3.org/2000/svg"
+      xmlns:m="http://www.w3.org/1998/Math/MathML"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      xmlns:db="http://docbook.org/ns/docbook" >
+    <?rax pdf.url="../../papi-intro.pdf"?>
+    <title>&PRODNAME; Getting Started</title>
+    <!-- set watermark on cover and left margin 
+        <?rax status.bar.text="CONFIDENTIAL"?>
+    -->
+    <?rax title.font.size="35px" subtitle.font.size="24px"?>
+    <titleabbrev>&PRODABBREV; Getting Started</titleabbrev>
+    <info>
+        <author>
+            <personname>
+                <firstname/>
+                <surname/>
+            </personname>
+            <affiliation>
+                <orgname>Rackspace Cloud</orgname>
+            </affiliation>
+        </author>
+        <copyright>
+            <year>2010</year>
+            <year>2011</year>
+            <holder>Rackspace US, Inc.</holder>
+        </copyright>
+        <releaseinfo>v0.9</releaseinfo>
+        <productname>&PRODNAME;</productname>
+        <pubdate>2011-09-24</pubdate>
+        <legalnotice role="apache2">
+            <annotation>
+                <remark>Copyright details are filled in by the template.</remark>
+            </annotation>
+        </legalnotice>
+        <abstract>
+            <para>This document is intended for anyone seeking basic information about &PRODNAME;. </para>
+        </abstract>
+    </info>
+    <chapter xml:id="Overview-d1e85">
+        <title>Overview</title>
+        <section xml:id="Purpose-d1e90">
+            <title>Purpose of This Document</title>
+            <para> The purpose of this introductory Getting Started document is to answer several
+                basic questions about &PRODNAME;: </para>
+            <itemizedlist spacing="normal">
+                <listitem>
+                    <para>
+                        <link linkend="Define-d1e365">What is &PRODNAME;?</link>
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <link linkend="Design-d1e665">How does &PRODNAME; work?</link>
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <link linkend="Try-d1e731">How can I try &PRODNAME;?</link>
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <link linkend="Available_Doc-d1e140">Where can I learn more about &PRODNAME;?</link>
+                    </para>
+                </listitem>
+            </itemizedlist>   
+        </section>
+        <section xml:id="Document_Change_History-d1e102">
+            <title>Document Change History</title>
+            <para>This version of Getting Started replaces and obsoletes all previous versions. The
+                most recent changes are described in the table below: </para>
+            <informaltable rules="all">
+                <thead>
+                    <tr align="center">
+                        <td colspan="1">Revision Date</td>
+                        <td colspan="4">Summary of Changes</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr align="left">
+                        <td colspan="1" align="center">Sep 26, 2011</td>
+                        <td colspan="4" align="left">
+                            <itemizedlist spacing="compact">
+                                <listitem>
+                                    <para>Initial release.</para>
+                                </listitem>
+                            </itemizedlist>
+                        </td>
+                    </tr>
+                </tbody>
+            </informaltable>
+        </section>
+        <xi:include href="chapters/available-doc.xml"/>
+    </chapter>
+    <chapter xml:id="Define-d1e365">
+        <title>What is &PRODNAME;?</title>
+        <annotation>
+            <remark>
+                Source for this chapter is https://wiki.mosso.com/display/CT/Cloud+Service+Bus
+            </remark>
+        </annotation>
+        <para> &PRODNAME; is an open-source platform that you can use to build stacks of reusable
+            software components. These components can be leveraged by service developers to perform
+            common API processing tasks. By using &PRODNAME;'s components rather than creating their
+            own, service developers can focus on the unique features of their services. </para>
+        <para> 
+            &PRODNAME; can be used inside a service to perform API operations.
+            It can also run on one or more separate servers as a proxy to one or more services.
+            At its core, &PRODNAME; is a proxy that allows services to use             
+            <link linkend="Design-d1e665">Enterprise Integration Patterns</link> (EIP).
+        </para>
+        <para> 
+            Available &PRODNAME; components include:
+        </para>
+        <itemizedlist spacing="compact">
+            <listitem>
+                <para>
+                    Client Authentication
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Rate Limiting
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Versioning
+                </para>
+            </listitem>
+        </itemizedlist>
+        <para> 
+            Additional &PRODNAME; components being designed or planned include:
+        </para>
+        <itemizedlist spacing="compact">
+            <listitem>
+                <para>
+                    Client Authorization
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Content Negotiation
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Content Normalization
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Contract Scope Filtering
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    HTTP Logging
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Service Authentication
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    Translation
+                </para>
+            </listitem>
+        </itemizedlist>
+        <note>
+            <para>
+                See <xref linkend="Available_Doc-d1e140"></xref> for a list of documentation about these components.
+            </para>
+        </note>
+    </chapter>
+    <chapter xml:id="Design-d1e665">
+        <title>How Does &PRODNAME; Work?</title>
+        <annotation>
+            <remark>
+                Source for this chapter is https://wiki.mosso.com/display/CT/PAPI+Components+and+Enterprise+Integration+Patterns
+            </remark>
+        </annotation>
+        <para> A good way to understand &PRODNAME; is to think of it as a platform that can be used
+            to implement integration patterns. &PRODABBREV;'s two core patterns are: </para>
+        <itemizedlist>
+            <listitem>
+                <para>
+                    <link linkend="Pattern_Pipes-d1e667">pipes and filters</link>
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    <link linkend="Pattern_Message-d1e669">message router</link>
+                </para>
+            </listitem>
+        </itemizedlist>
+        <para> To learn more about these and other integration patterns, visit Enterprise
+            Integration Patterns at <link xlink:href="http://www.eaipatterns.com/toc.html"
+                >http://www.eaipatterns.com/toc.html</link>. </para>
+        <section xml:id="Pattern_Pipes-d1e667">
+            <title>Pattern: Pipes and Filters</title>
+            <para>  
+                &PRODNAME; implements the <firstterm>pipes and filters</firstterm> pattern by providing a way of constructing a route by
+                creating a chain of filters. Requests are passed through the chain so that one filter's output becomes the next filter's input.
+                This pipeline structure is analogous to the UNIX <code>pipe</code> command. 
+                The advantage
+                of the pipeline approach is that it enables you to combine services, some of which
+                can be external to the application, to create more complex
+                forms of message processing. 
+            </para>
+            <para>
+                &PRODNAME; components each provide their own filter; by assembling your choice of components into a filtered pipeline, 
+                you create your custom implementation of &PRODNAME;.
+            </para>
+        </section>
+        <section xml:id="Pattern_Message-d1e669">
+            <title>Pattern: Message Router</title>
+            <para>
+                &PRODNAME; implements the <firstterm>message router</firstterm> pattern as a filter that consumes messages from a single consumer endpoint 
+                and then redirects them to the appropriate target endpoint, based on a specific decision criterion. 
+                A message router is concerned only with redirecting messages; it does not modify the message content.
+            </para>
+            <para>
+                &PRODNAME; acts as an intermediate proxy and routes accordingly. Any component can make &PRODNAME; route.  
+            </para>
+        </section>
+    </chapter>
+    <chapter xml:id="Try-d1e731">
+        <title>How Can I Try &PRODNAME;?</title>
+        <annotation>
+            <remark>
+                Source for this chapter is https://wiki.mosso.com/display/CT/Deployment
+            </remark>
+        </annotation>
+        <para>
+            &PRODNAME; is distributed as a filter bundle, containing all available components. 
+            You can choose which components to implement in your configuration.            
+        </para>
+        <figure xml:id="Filter-Bundle">
+            <title>Multiple &PRODNAME; Components in Filter Bundle</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="figures/papi-intro-filterBundle.png" format="PNG" align="center"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>
+            You can edit your <code>power-proxy.xml</code> to identify &PRODNAME; components to be loaded into the Power Proxy filter.
+            You can configure the Power Proxy to use one or multiple &PRODNAME; components as additional filters, as shown below.
+        </para>
+        <figure xml:id="Power-Proxy">
+            <title>Loading Multiple &PRODNAME; Components into Power Proxy</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="figures/papi-intro-powerproxy.png" format="PNG" align="center"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>
+            &PRODNAME;'s components may be integrated with other services in several ways, including:
+        </para> 
+        <itemizedlist spacing="compact">
+            <listitem>
+                <para>
+                    <link linkend="Embedded-d1e111">Embedded</link>
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    <link linkend="Root-d1e222">Root.WAR</link>
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    <link linkend="Valve-d1e333">Valve</link>
+                    Valve
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    <link linkend="ProxyServer-d1e444">Proxy Server</link>
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    <link linkend="ProxyCluster-d1e555">Proxy Cluster</link>
+                </para>
+            </listitem>
+        </itemizedlist>   
+        <section xml:id="Embedded-d1e111">
+            <title>Deployment Method: Embedded</title>
+            <warning>
+                <para> 
+                    Early adopters of &PRODNAME; used this method. 
+                    If you are developing a new service, do not use Embedded deployment.
+                    This method will be deprecated soon.
+                </para>
+            </warning>
+            <para>
+                <firstterm>Embedded</firstterm> deployment means that the Power Filter is embedded in a service's WAR. 
+                The service's host must also host all of the &PRODNAME; components in the same app container.
+                Artifacts are loaded from the &PRODABBREV; filter bundle into the Power Filter.
+                Requests pass through the Power Filter before continuing to the service-specific filters.
+                The servlet container may be Tomcat, Jetty, GlassFish, or similar products.
+            </para>
+            <figure xml:id="Embed-d1e112">
+                <title>Deployment by Embedding into WAR</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="figures/papi-intro-deploy-embedded.png" format="PNG" align="center"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <para>
+                To use this deployment method, configure <code>power-proxy.xml</code> as follows:
+            </para>
+            <example>
+                <title>Configuring power-proxy.xml for Embedded Deployment</title>
+                <programlisting language="xml">
+<xi:include href="samples/papi-deploy-embedded.xml" parse="text"/>
+                    </programlisting>
+            </example>
+        </section>
+        <section xml:id="Root-d1e222">
+            <title>Deployment Method: Root.WAR</title>
+            <para> In <firstterm>Root.War</firstterm> deployment, the <code>root.war</code> supplied by &PRODNAME; replaces
+                the root component of the servlet container. The servlet container may be Tomcat,
+                Jetty, GlassFish, or similar products. </para>
+            <note>
+                <para>
+                    This deployment method is discussed in more detail in the Root.WAR Deployment Handbook.
+                </para>
+            </note>    
+            <figure xml:id="Root-Replace-d1e111">
+                <title>Deployment by Replacing the Root Component</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="figures/papi-intro-deploy-root.png" format="PNG" align="center"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <example>
+                <title>Configuring power-proxy.xml for Root.WAR Deployment</title>
+                <programlisting language="xml">
+<xi:include href="samples/papi-deploy-root.xml" parse="text"/>
+                    </programlisting>
+            </example>
+        </section>
+        <section xml:id="Valve-d1e333">
+            <title>Deployment Method: Valve</title>
+            <para>
+                In <firstterm>Valve</firstterm> deployment, Power API is in an external servlet container and acts as a second client, 
+                replicating each client request. 
+                A client sends a request to Valve, then Valve sends the request to Power Filter to processes the request. 
+                Valve also sends the modified request to the origin service, which may be a Python service. 
+                The origin service sends a response to Valve, which passes that response back to the client.
+            </para>
+            <figure xml:id="Valve-d1e334">
+                <title>Deployment as Client Replica</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="figures/papi-intro-deploy-valve.png" format="PNG" align="center"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+        </section>
+        <section xml:id="ProxyServer-d1e444">
+            <title>Deployment Method: Proxy Server</title>
+            <para>
+                In <firstterm>Proxy Server</firstterm> deployment, &PRODNAME; is in an external servlet container. 
+                This allows host-level routing over the network, so a non-Java service can take advantage of &PRODABBREV; features.
+            </para>
+            <figure xml:id="ProxyServer-d1e445">
+                <title>Deployment as External Servlet Container</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="figures/papi-intro-deploy-proxyServer.png" format="PNG" align="center"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <example>
+                <title>Configuring power-proxy.xml for Proxy Server Deployment</title>
+                <programlisting language="xml">
+<xi:include href="samples/papi-deploy-proxyServer.xml" parse="text"/>
+                    </programlisting>
+            </example>
+        </section>
+        <section xml:id="ProxyCluster-d1e555">
+            <title>Deployment Method: Proxy Cluster</title>
+            <para>  
+                Using <firstterm>Proxy Cluster</firstterm> deployment, &PRODNAME; may be scaled across multiple hosts.
+                Auto-balance caching between the cluster's nodes will occur on
+                the basis of resources and requests. 
+                This allows faster processing. 
+            </para>
+            <note>
+                <para>
+                    Only the Rate Limiting component is able to take advantage of auto-balance caching's performance improvement.
+                </para>
+            </note>
+            <figure xml:id="ProxyCluster-d1e556">
+                <title>Deployment Across Multiple Hosts</title>
+                <mediaobject>
+                    <imageobject>
+                        <imagedata fileref="figures/papi-intro-deploy-proxyCluster.png" format="PNG" align="center"/>
+                    </imageobject>
+                </mediaobject>
+            </figure>
+            <example>
+                <title>Configuring power-proxy.xml for Proxy Cluster Deployment</title>
+                <programlisting language="xml">
+<xi:include href="samples/papi-deploy-proxyCluster.xml" parse="text"/>
+                    </programlisting>
+            </example>
+        </section>
+    </chapter>
+    <xi:include href="chapters/afterword.xml"/>
+</book>

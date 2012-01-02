@@ -37,7 +37,7 @@
       xmlns:m="http://www.w3.org/1998/Math/MathML"
       xmlns:html="http://www.w3.org/1999/xhtml"
       xmlns:db="http://docbook.org/ns/docbook" 
-      xml:id="Versioning-Deployment-Guide">
+      xml:id="Repose-Logging-Deploy">
     <?rax pdf.url="../../repose-logging-deploy.pdf"?>
     <title>&PRODNAME; Logging Component Deployment Handbook</title>
     <!-- set watermark on cover and left margin 
@@ -56,12 +56,14 @@
             </affiliation>
         </author>
         <copyright>
+            <year>2010</year>
             <year>2011</year>
+            <year>2012</year>
             <holder>Rackspace US, Inc.</holder>
         </copyright>
         <releaseinfo>v1.0</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2011-12-31</pubdate>
+        <pubdate>2012-01-06</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -71,16 +73,6 @@
             <para>This document is intended for systems administrators interested in configuring
                 their service to use the logging component of the &PRODEXPAND;. </para>
         </abstract>
-        <revhistory>
-            <revision>
-                <date>2011-12-31</date>
-                <revdescription>
-                    <itemizedlist spacing="compact">
-                        <listitem><para>Initial release.</para></listitem>
-                    </itemizedlist>
-                </revdescription>
-            </revision>
-        </revhistory>
     </info>
     <chapter xml:id="Overview-d1e85">
         <title>Overview</title>
@@ -106,7 +98,26 @@
             <title>Document Change History</title>
             <para>This version of the guide replaces and obsoletes all previous versions.
                 The most recent changes are described in the table below: </para>
-            <?rax revhistory?>
+            <informaltable rules="all">
+                <thead>
+                    <tr align="center">
+                        <td colspan="1">Revision Date</td>
+                        <td colspan="4">Summary of Changes</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr align="left">
+                        <td colspan="1" align="center">Jun 30, 2011</td>
+                        <td colspan="4" align="left">
+                            <itemizedlist spacing="compact">
+                                <listitem>
+                                    <para>Initial release.</para>
+                                </listitem>
+                            </itemizedlist>
+                        </td>
+                    </tr>
+                </tbody>
+            </informaltable>
         </section>
         <xi:include href="chapters/available-doc.xml"/>
     </chapter>
@@ -119,7 +130,7 @@
                 <code>X-PP-Service-Origin</code>. This header can be used by components further down
             the stack to perform routing. </para>
         <figure xml:id="Overview">
-            <title>Overview of &PRODNAME; Logging</title>
+            <title>Overview of &PRODNAME; Versioning</title>
             <mediaobject>
                 <imageobject>
                     <imagedata fileref="figures/papi-versioning-overview.png" format="PNG" align="center"/>
