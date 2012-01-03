@@ -163,6 +163,16 @@
                     Versioning
                 </para>
             </listitem>
+            <listitem>
+                <para>
+                    Content Normalization
+                </para>
+            </listitem>
+            <listitem>
+                <para>
+                    HTTP Logging
+                </para>
+            </listitem>
         </itemizedlist>
         <para> 
             Additional &PRODNAME; components being designed or planned include:
@@ -180,17 +190,7 @@
             </listitem>
             <listitem>
                 <para>
-                    Content Normalization
-                </para>
-            </listitem>
-            <listitem>
-                <para>
                     Contract Scope Filtering
-                </para>
-            </listitem>
-            <listitem>
-                <para>
-                    HTTP Logging
                 </para>
             </listitem>
             <listitem>

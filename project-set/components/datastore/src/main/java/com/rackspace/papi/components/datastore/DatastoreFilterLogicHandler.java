@@ -1,10 +1,9 @@
-/*
- *
- */
 package com.rackspace.papi.components.datastore;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
+import com.rackspace.papi.components.datastore.common.CacheRequest;
+import com.rackspace.papi.components.datastore.common.MalformedCacheRequestException;
 import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -27,7 +26,6 @@ import org.slf4j.LoggerFactory;
  * @author Dan Daley
  */
 public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
-   
 
    private static final Logger LOG = LoggerFactory.getLogger(DatastoreFilterLogicHandler.class);
    private final MutableClusterView clusterView;

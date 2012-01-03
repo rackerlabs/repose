@@ -29,7 +29,7 @@ import javax.servlet.ServletContextListener;
 public class PowerApiContextManager implements ServletContextListener {
     
     private static final Logger LOG = LoggerFactory.getLogger(PowerApiContextManager.class);
-    private final List<String> boundServiceContextNames;
+    private final LinkedList<String> boundServiceContextNames;
     private Context initialContext;
     
     public PowerApiContextManager() {
@@ -110,6 +110,7 @@ public class PowerApiContextManager implements ServletContextListener {
         initService(new ResponseMessageServiceContext(), sce);
 
         // Datastore Service
+        // TODO:Refactor - This service should be bound to a fitler-chain specific JNDI context
         initService(new DatastoreServiceContext(), sce);
 
         // Start up the class loader manager
@@ -124,7 +125,8 @@ public class PowerApiContextManager implements ServletContextListener {
     
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        Iterator<String> iterator = ((LinkedList<String>)boundServiceContextNames).descendingIterator();
+        final Iterator<String> iterator = boundServiceContextNames.descendingIterator();
+        
         while (iterator.hasNext()) {
             final String ctxName = iterator.next();
 
