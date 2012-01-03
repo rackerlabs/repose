@@ -3,7 +3,7 @@ package org.openrepose.cli;
 import com.rackspace.papi.commons.util.StringUtilities;
 import java.util.Arrays;
 import org.openrepose.cli.command.Command;
-import org.openrepose.cli.command.common.CommandResult;
+import org.openrepose.cli.command.results.CommandResult;
 
 /**
  *
