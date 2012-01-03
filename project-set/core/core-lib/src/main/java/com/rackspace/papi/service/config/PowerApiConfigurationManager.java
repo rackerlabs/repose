@@ -7,7 +7,6 @@ import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
 import com.rackspace.papi.commons.config.parser.ConfigurationParserFactory;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.config.resource.ConfigurationResourceResolver;
-import com.rackspace.papi.commons.util.pooling.ResourceContextException;
 import java.io.FileNotFoundException;
 
 import java.lang.ref.WeakReference;
@@ -54,6 +53,8 @@ public class PowerApiConfigurationManager implements ConfigurationService {
       try {
          listener.configurationUpdated(customParser.read(resource));
       } catch (Exception ex) {
+         
+         // TODO:Refactor - Introduce a helper method so that this logic can be centralized and reused
          if (ex.getCause() instanceof FileNotFoundException) {
             LOG.error("An I/O error has occured while trying to read resource " + configurationName + " - Reason: file not found.");
          } else {
