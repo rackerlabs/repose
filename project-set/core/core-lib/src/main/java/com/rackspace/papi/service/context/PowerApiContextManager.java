@@ -2,21 +2,17 @@ package com.rackspace.papi.service.context;
 
 import com.rackspace.papi.service.context.banner.PapiBanner;
 import com.rackspace.papi.service.ServiceContext;
-import com.rackspace.papi.service.classloader.ClassLoaderServiceContext;
-import com.rackspace.papi.service.config.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.service.datastore.DatastoreServiceContext;
 import com.rackspace.papi.service.deploy.ArtifactManagerServiceContext;
 import com.rackspace.papi.service.event.EventManagerServiceContext;
-import com.rackspace.papi.service.filterchain.FilterChainGCServiceContext;
-import com.rackspace.papi.service.logging.LoggingServiceContext;
 import com.rackspace.papi.service.naming.InitialServiceContextFactory;
 import com.rackspace.papi.service.threading.ThreadingServiceContext;
 import com.rackspace.papi.servlet.PowerApiContextException;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

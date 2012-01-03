@@ -1,6 +1,6 @@
 package com.rackspace.papi.servlet.boot.service.config;
 
-import com.rackspace.papi.service.config.ConfigurationServiceContext;
+import com.rackspace.papi.service.context.ConfigurationServiceContext;
 import org.junit.Ignore;
 import com.rackspace.papi.servlet.PowerApiContextException;
 import com.rackspace.papi.servlet.InitParameter;
