@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.datastore;
+package com.rackspace.papi.components.datastore.common;
 
 import com.rackspace.papi.commons.util.ArrayUtilities;
 import com.rackspace.papi.commons.util.StringUtilities;
@@ -6,6 +6,8 @@ import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
 import com.rackspace.papi.commons.util.http.HeaderConstant;
 import com.rackspace.papi.commons.util.io.BufferCapacityException;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
+import com.rackspace.papi.components.datastore.MalformedCacheRequestException;
+
 import java.net.InetSocketAddress;
 
 
