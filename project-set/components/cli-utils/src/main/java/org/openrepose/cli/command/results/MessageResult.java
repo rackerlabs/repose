@@ -1,6 +1,6 @@
 package org.openrepose.cli.command.results;
 
-import org.openrepose.cli.command.CommandResult;
+import org.openrepose.cli.command.common.CommandResult;
 
 /**
  *

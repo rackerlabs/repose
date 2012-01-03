@@ -1,5 +1,7 @@
 package org.openrepose.cli.command;
 
+import org.openrepose.cli.command.common.CommandResult;
+
 /**
  *
  * @author zinic
