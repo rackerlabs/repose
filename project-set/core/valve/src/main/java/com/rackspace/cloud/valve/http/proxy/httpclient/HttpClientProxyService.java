@@ -16,9 +16,9 @@
  */
 package com.rackspace.cloud.valve.http.proxy.httpclient;
 
+import com.rackspace.cloud.valve.http.proxy.common.ProxyService;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
-import com.rackspace.cloud.valve.http.proxy.ProxyService;
 import org.apache.commons.httpclient.*;
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;

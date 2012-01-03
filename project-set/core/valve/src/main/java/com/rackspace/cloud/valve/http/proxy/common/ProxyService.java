@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-package com.rackspace.cloud.valve.http.proxy;
+package com.rackspace.cloud.valve.http.proxy.common;
 
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
