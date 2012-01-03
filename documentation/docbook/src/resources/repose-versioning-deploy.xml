@@ -310,7 +310,7 @@
             <para> The versioning component supports two methods of requesting a service version in
             the HTTP request. </para>
             
-            <table>
+            <table border="1" frame="box">
                 <caption>Request Methods</caption>
                 <thead>
                     <tr>

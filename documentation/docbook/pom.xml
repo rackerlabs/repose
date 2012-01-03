@@ -49,7 +49,7 @@
                 <!-- this <version> relates only to the *plugin* used for document formatting -->
                 <!-- the version of the *API* that is the subject of the document is indicated within each document -->
                 <!-- 1.0.8 of the plugin supports <revhistory> as an Atom feed -->
-                <version>1.0.8</version>
+                <version>1.0.6</version>
                 <executions>
                     <execution>
                         <id>g1</id>
@@ -80,8 +80,8 @@
                             <calloutsExtension>1</calloutsExtension>
                             <textinsertExtension>1</textinsertExtension>
                             <!-- use this .XML as the source for the books to be generated as .PDF & .HTML -->
-                            <!-- if not specified, generate for all -->
-                            <!-- <includes>papi-rootwar-deploy.xml,papi-versioning-deploy.xml,papi-ratelimiting-deploy.xml,papi-authn-deploy.xml</includes> -->
+                            <!-- to generate for all, comment out this <includes> -->
+                            <!-- <includes>repose-rootwar-deploy.xml</includes> -->
                             <!--  -->
                             <!-- I think the intention of this postProcess is to generate consistent SVGs & PNGs; I don't think it's accomplishing anything now -->
                             <!-- ask David Cramer -->
