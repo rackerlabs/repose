@@ -37,7 +37,7 @@
       xmlns:m="http://www.w3.org/1998/Math/MathML"
       xmlns:html="http://www.w3.org/1999/xhtml"
       xmlns:db="http://docbook.org/ns/docbook" 
-      xml:id="Versioning-Deployment-Guide">
+      xml:id="Repose-Logging-Deployment-Guide">
     <?rax pdf.url="../../repose-logging-deploy.pdf"?>
     <title>&PRODNAME; Logging Component Deployment Handbook</title>
     <!-- set watermark on cover and left margin 
@@ -57,6 +57,7 @@
         </author>
         <copyright>
             <year>2011</year>
+            <year>2012</year>
             <holder>Rackspace US, Inc.</holder>
         </copyright>
         <releaseinfo>v1.0</releaseinfo>

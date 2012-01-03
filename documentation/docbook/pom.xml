@@ -10,9 +10,9 @@
     </parent>
 
     <groupId>com.rackspace.papi.documentation</groupId>
-    <artifactId>papi-documentation</artifactId>
+    <artifactId>repose-documentation</artifactId>
 
-    <name>Power API - Documentation</name>
+    <name>Repose - Documentation</name>
     <packaging>jar</packaging>
     
     <pluginRepositories>
@@ -37,7 +37,7 @@
                         <configuration>
                             <!-- identify locations of figures -->
                             <srcDir>${basedir}/src/resources/figures</srcDir>
-                            <destDir>${basedir}/target/docbkx/webhelp/papi/content/figures</destDir>
+                            <destDir>${basedir}/target/docbkx/webhelp/repose/content/figures</destDir>
                         </configuration>
                     </execution>
                 </executions>
@@ -48,8 +48,8 @@
                 <artifactId>clouddocs-maven-plugin</artifactId>
                 <!-- this <version> relates only to the *plugin* used for document formatting -->
                 <!-- the version of the *API* that is the subject of the document is indicated within each document -->
-                <!-- 1.0.4 of the plugin supports yyyy-mm-dd pubdate, OpenStack branding -->
-                <version>1.0.4</version>
+                <!-- 1.0.8 of the plugin supports <revhistory> as an Atom feed -->
+                <version>1.0.8</version>
                 <executions>
                     <execution>
                         <id>g1</id>
@@ -86,22 +86,37 @@
                             <!-- I think the intention of this postProcess is to generate consistent SVGs & PNGs; I don't think it's accomplishing anything now -->
                             <!-- ask David Cramer -->
                             <postProcess>
-                                <copy todir="target/docbkx/webhelp/papi-authn-deploy/content/figures">
+                                <copy todir="target/docbkx/webhelp/repose-authn-deploy/content/figures">
                                     <fileset dir="src/resources/figures">
                                         <include name="**/*.png" />
                                     </fileset>
                                 </copy>
-                                <copy todir="target/docbkx/webhelp/papi-ratelimiting-deploy/content/figures">
+                                <copy todir="target/docbkx/webhelp/repose-glossary/content/figures">
                                     <fileset dir="src/resources/figures">
                                         <include name="**/*.png" />
                                     </fileset>
                                 </copy>
-                                <copy todir="target/docbkx/webhelp/papi-rootwar-deploy/content/figures">
+                                <copy todir="target/docbkx/webhelp/repose-intro/content/figures">
                                     <fileset dir="src/resources/figures">
                                         <include name="**/*.png" />
                                     </fileset>
                                 </copy>
-                                <copy todir="target/docbkx/webhelp/papi-versioning-deploy/content/figures">
+                                <copy todir="target/docbkx/webhelp/repose-logging-deploy/content/figures">
+                                    <fileset dir="src/resources/figures">
+                                        <include name="**/*.png" />
+                                    </fileset>
+                                </copy>
+                                <copy todir="target/docbkx/webhelp/repose-ratelimiting-deploy/content/figures">
+                                    <fileset dir="src/resources/figures">
+                                        <include name="**/*.png" />
+                                    </fileset>
+                                </copy>
+                                <copy todir="target/docbkx/webhelp/repose-rootwar-deploy/content/figures">
+                                    <fileset dir="src/resources/figures">
+                                        <include name="**/*.png" />
+                                    </fileset>
+                                </copy>
+                                <copy todir="target/docbkx/webhelp/repose-versioning-deploy/content/figures">
                                     <fileset dir="src/resources/figures">
                                         <include name="**/*.png" />
                                     </fileset>

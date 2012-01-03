@@ -36,8 +36,9 @@
       xmlns:svg="http://www.w3.org/2000/svg"
       xmlns:m="http://www.w3.org/1998/Math/MathML"
       xmlns:html="http://www.w3.org/1999/xhtml"
-      xmlns:db="http://docbook.org/ns/docbook" >
-    <?rax pdf.url="../../papi-glossary.pdf"?>
+      xmlns:db="http://docbook.org/ns/docbook" 
+      xml:id="Repose-Glossary">
+    <?rax pdf.url="../../repose-glossary.pdf"?>
     <title>&PRODNAME; Glossary</title>
     <!-- set watermark on cover and left margin 
         <?rax status.bar.text="CONFIDENTIAL"?>
