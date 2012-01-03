@@ -6,7 +6,6 @@ import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
 import com.rackspace.papi.commons.util.http.HeaderConstant;
 import com.rackspace.papi.commons.util.io.BufferCapacityException;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
-import com.rackspace.papi.components.datastore.MalformedCacheRequestException;
 
 import java.net.InetSocketAddress;
 
