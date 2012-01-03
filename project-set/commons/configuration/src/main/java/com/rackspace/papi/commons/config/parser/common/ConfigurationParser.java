@@ -1,4 +1,4 @@
-package com.rackspace.papi.commons.config.parser;
+package com.rackspace.papi.commons.config.parser.common;
 
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 

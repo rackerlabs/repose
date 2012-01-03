@@ -3,12 +3,11 @@ package com.rackspace.papi.service.config;
 import com.rackspace.papi.commons.config.ConfigurationResourceException;
 import com.rackspace.papi.commons.config.manager.ConfigurationUpdateManager;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.config.parser.ConfigurationParser;
+import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
 import com.rackspace.papi.commons.config.parser.ConfigurationParserFactory;
-import com.rackspace.papi.commons.config.parser.ConfigurationParserType;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.config.resource.ConfigurationResourceResolver;
-import java.io.InputStream;
+
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;

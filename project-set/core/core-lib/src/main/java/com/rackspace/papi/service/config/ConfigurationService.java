@@ -1,8 +1,7 @@
 package com.rackspace.papi.service.config;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.config.parser.ConfigurationParser;
-import java.io.InputStream;
+import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
 
 public interface ConfigurationService {
 
