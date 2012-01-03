@@ -3,7 +3,7 @@ package com.rackspace.papi.servlet.boot.service.config;
 import com.rackspace.papi.service.config.PowerApiConfigurationUpdateManager;
 import org.junit.Ignore;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.config.parser.ConfigurationParser;
+import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.service.event.EventService;

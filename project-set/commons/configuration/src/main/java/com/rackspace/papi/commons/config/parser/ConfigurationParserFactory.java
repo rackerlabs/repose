@@ -1,6 +1,7 @@
 package com.rackspace.papi.commons.config.parser;
 
 import com.rackspace.papi.commons.config.ConfigurationResourceException;
+import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
 import com.rackspace.papi.commons.config.parser.inputstream.InputStreamConfigurationParser;
 import com.rackspace.papi.commons.config.parser.jaxb.JaxbConfigurationParser;
 import com.rackspace.papi.commons.config.parser.properties.PropertiesFileConfigurationParser;
