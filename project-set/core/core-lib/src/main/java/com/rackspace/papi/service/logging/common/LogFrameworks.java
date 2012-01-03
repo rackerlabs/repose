@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.logging;
+package com.rackspace.papi.service.logging.common;
 
 /**
  * @author fran
