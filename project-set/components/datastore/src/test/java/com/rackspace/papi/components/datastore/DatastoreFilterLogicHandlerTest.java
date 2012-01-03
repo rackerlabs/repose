@@ -3,6 +3,8 @@ package com.rackspace.papi.components.datastore;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.io.stream.ServletInputStreamWrapper;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
+import com.rackspace.papi.components.datastore.common.CacheRequest;
+import com.rackspace.papi.components.datastore.common.DatastoreRequestHeaders;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
@@ -15,7 +17,7 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

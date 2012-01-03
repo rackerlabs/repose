@@ -5,7 +5,7 @@ import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
 import java.security.NoSuchAlgorithmException;
 import org.openrepose.cli.command.AbstractCommand;
-import org.openrepose.cli.command.CommandResult;
+import org.openrepose.cli.command.results.CommandResult;
 import org.openrepose.cli.command.results.CommandFailure;
 import org.openrepose.cli.command.results.InvalidArguments;
 import org.openrepose.cli.command.results.MessageResult;
