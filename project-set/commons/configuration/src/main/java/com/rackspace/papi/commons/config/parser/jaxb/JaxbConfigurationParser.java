@@ -1,6 +1,6 @@
 package com.rackspace.papi.commons.config.parser.jaxb;
 
-import com.rackspace.papi.commons.config.parser.AbstractConfigurationObjectParser;
+import com.rackspace.papi.commons.config.parser.common.AbstractConfigurationObjectParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.pooling.GenericBlockingResourcePool;
 import com.rackspace.papi.commons.util.pooling.Pool;

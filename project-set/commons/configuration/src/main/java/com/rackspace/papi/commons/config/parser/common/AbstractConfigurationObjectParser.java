@@ -1,4 +1,6 @@
-package com.rackspace.papi.commons.config.parser;
+package com.rackspace.papi.commons.config.parser.common;
+
+import com.rackspace.papi.commons.config.parser.ConfigurationParser;
 
 public abstract class AbstractConfigurationObjectParser<T> implements ConfigurationParser<T> {
 
