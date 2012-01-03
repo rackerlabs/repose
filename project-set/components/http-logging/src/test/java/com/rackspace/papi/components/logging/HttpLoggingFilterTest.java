@@ -2,7 +2,7 @@ package com.rackspace.papi.components.logging;
 
 import com.rackspace.papi.service.ServiceContext;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.config.ConfigurationServiceContext;
+import com.rackspace.papi.service.context.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import java.io.IOException;
 import java.util.Hashtable;

@@ -1,7 +1,10 @@
-package com.rackspace.papi.service.config;
+package com.rackspace.papi.service.context;
 
 import com.rackspace.papi.commons.config.resource.impl.DirectoryResourceResolver;
 import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.service.config.ConfigurationService;
+import com.rackspace.papi.service.config.PowerApiConfigurationManager;
+import com.rackspace.papi.service.config.PowerApiConfigurationUpdateManager;
 import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.service.ServiceContext;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
