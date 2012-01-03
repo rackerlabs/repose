@@ -4,6 +4,7 @@ import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.pooling.ResourceContext;
 import com.rackspace.papi.commons.util.pooling.ResourceContextException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -11,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 public class UnmarshallerResourceContext implements ResourceContext<Unmarshaller, Object> {
 
-   private static boolean log = false;
+//   private static boolean log = false;
    private final ConfigurationResource cfgResource;
 
    public UnmarshallerResourceContext(ConfigurationResource cfgResource) {
@@ -21,10 +22,12 @@ public class UnmarshallerResourceContext implements ResourceContext<Unmarshaller
    @Override
    public Object perform(Unmarshaller resource) throws ResourceContextException {
       try {
-         if (log) {
-            LoggerFactory.getLogger(UnmarshallerResourceContext.class).error(
-                    new String(RawInputStreamReader.instance().readFully(cfgResource.newInputStream())));
-         }
+         // This should not belong in production code. The boolean value that controls this is switchable only at compile time.
+         
+//         if (log) {
+//            LoggerFactory.getLogger(UnmarshallerResourceContext.class).error(
+//                    new String(RawInputStreamReader.instance().readFully(cfgResource.newInputStream())));
+//         }
 
          return resource.unmarshal(cfgResource.newInputStream());
       } catch (JAXBException jaxbe) {

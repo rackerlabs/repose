@@ -7,6 +7,8 @@ import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
 import com.rackspace.papi.commons.config.parser.ConfigurationParserFactory;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.config.resource.ConfigurationResourceResolver;
+import com.rackspace.papi.commons.util.pooling.ResourceContextException;
+import java.io.FileNotFoundException;
 
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -16,65 +18,69 @@ import org.slf4j.LoggerFactory;
 
 public class PowerApiConfigurationManager implements ConfigurationService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PowerApiConfigurationManager.class);
-    private final Map<Class, WeakReference<ConfigurationParser>> parserLookaside;
-    private ConfigurationUpdateManager updateManager;
-    private ConfigurationResourceResolver resourceResolver;
+   private static final Logger LOG = LoggerFactory.getLogger(PowerApiConfigurationManager.class);
+   private final Map<Class, WeakReference<ConfigurationParser>> parserLookaside;
+   private ConfigurationUpdateManager updateManager;
+   private ConfigurationResourceResolver resourceResolver;
 
-    public PowerApiConfigurationManager() {
-        parserLookaside = new HashMap<Class, WeakReference<ConfigurationParser>>();
-    }
+   public PowerApiConfigurationManager() {
+      parserLookaside = new HashMap<Class, WeakReference<ConfigurationParser>>();
+   }
 
-    public void destroy() {
-        parserLookaside.clear();
-        updateManager.destroy();
-    }
+   public void destroy() {
+      parserLookaside.clear();
+      updateManager.destroy();
+   }
 
-    public void setResourceResolver(ConfigurationResourceResolver resourceResolver) {
-        this.resourceResolver = resourceResolver;
-    }
+   public void setResourceResolver(ConfigurationResourceResolver resourceResolver) {
+      this.resourceResolver = resourceResolver;
+   }
 
-    public void setUpdateManager(ConfigurationUpdateManager updateManager) {
-        this.updateManager = updateManager;
-    }
-
-    @Override
-    public <T> void subscribeTo(String configurationName, UpdateListener<T> listener, Class<T> configurationClass) {
-       subscribeTo(configurationName, listener, getPooledJaxbConfigurationParser(configurationClass));
-    }
+   public void setUpdateManager(ConfigurationUpdateManager updateManager) {
+      this.updateManager = updateManager;
+   }
 
    @Override
-    public <T> void subscribeTo(String configurationName, UpdateListener<T> listener, ConfigurationParser<T> customParser) {
-        final ConfigurationResource resource = resourceResolver.resolve(configurationName);
-        updateManager.registerListener(listener, resource, customParser);
+   public <T> void subscribeTo(String configurationName, UpdateListener<T> listener, Class<T> configurationClass) {
+      subscribeTo(configurationName, listener, getPooledJaxbConfigurationParser(configurationClass));
+   }
 
-        // Initial load of the cfg object
-        try {
-            listener.configurationUpdated(customParser.read(resource));
-        } catch (Exception ex) {
+   @Override
+   public <T> void subscribeTo(String configurationName, UpdateListener<T> listener, ConfigurationParser<T> customParser) {
+      final ConfigurationResource resource = resourceResolver.resolve(configurationName);
+      updateManager.registerListener(listener, resource, customParser);
+
+      // Initial load of the cfg object
+      try {
+         listener.configurationUpdated(customParser.read(resource));
+      } catch (Exception ex) {
+         if (ex.getCause() instanceof FileNotFoundException) {
+            LOG.error("An I/O error has occured while trying to read resource " + configurationName + " - Reason: file not found.");
+         } else {
             LOG.error("Configuration update error: " + ex.getMessage(), ex);
-        }
-    }
+         }
+      }
+   }
 
-    @Override
-    public void unsubscribeFrom(String configurationName, UpdateListener listener) {
-        updateManager.unregisterListener(listener, resourceResolver.resolve(configurationName));
-    }
+   @Override
+   public void unsubscribeFrom(String configurationName, UpdateListener listener) {
+      updateManager.unregisterListener(listener, resourceResolver.resolve(configurationName));
+   }
 
-    public <T> ConfigurationParser<T> getPooledJaxbConfigurationParser(Class<T> configurationClass) {
-        final WeakReference<ConfigurationParser> parserReference = parserLookaside.get(configurationClass);
-        ConfigurationParser<T> parser = parserReference != null ? parserReference.get() : null;
+   public <T> ConfigurationParser<T> getPooledJaxbConfigurationParser(Class<T> configurationClass) {
+      final WeakReference<ConfigurationParser> parserReference = parserLookaside.get(configurationClass);
+      ConfigurationParser<T> parser = parserReference != null ? parserReference.get() : null;
 
-        if (parser == null) {
-            try {
-                parser = ConfigurationParserFactory.getXmlConfigurationParser(configurationClass);
-            } catch (ConfigurationResourceException cre) {
-                throw new ConfigurationServiceException("Failed to create a JAXB context for a configuration parser. Reason: " + cre.getMessage(), cre);
-            }
+      if (parser == null) {
+         try {
+            parser = ConfigurationParserFactory.getXmlConfigurationParser(configurationClass);
+         } catch (ConfigurationResourceException cre) {
+            throw new ConfigurationServiceException("Failed to create a JAXB context for a configuration parser. Reason: " + cre.getMessage(), cre);
+         }
 
-            parserLookaside.put(configurationClass, new WeakReference<ConfigurationParser>(parser));
-        }
+         parserLookaside.put(configurationClass, new WeakReference<ConfigurationParser>(parser));
+      }
 
-        return parser;
-    }
+      return parser;
+   }
 }
