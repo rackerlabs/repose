@@ -6,10 +6,12 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.test.framework.JerseyTest;
 import javax.ws.rs.core.Response.Status;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+@Ignore
 @RunWith(Enclosed.class)
 public class AuthResourceTest {
    

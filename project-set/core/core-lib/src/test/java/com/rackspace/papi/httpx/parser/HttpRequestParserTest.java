@@ -13,9 +13,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
+import org.custommonkey.xmlunit.Diff;
 
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 import static org.mockito.Mockito.*;
+import org.xml.sax.SAXException;
 
 /**
  * @author fran
@@ -81,7 +84,7 @@ public class HttpRequestParserTest {
         }
 
         @Test
-        public void shouldParse() throws IOException {
+        public void shouldParse() throws IOException, SAXException {
             Parser parser = RequestParserFactory.newInstance();
             String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><httpx xmlns=\"http://docs.rackspace.com/httpx/v1.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://docs.rackspace.com/httpx/v1.0 ./httpx.xsd\"><request fidelity=\"BODY HEAD\" uri=\"/request\" method=\"POST\" version=\"HTTP/1.1\"><head fidelity=\"URI_DETAIL HEADERS\"><uri-detail fragment=\"where do we get this?\"><query-parameter name=\"A\"><value>1</value><value>2</value></query-parameter><query-parameter name=\"B\"><value>1</value><value>2</value></query-parameter></uri-detail><headers fidelity=\"* ACCEPT\"><accept><media-range subtype=\"xml\" type=\"application\"><parameter value=\"0.8\" name=\"q\"/></media-range><media-range subtype=\"html\" type=\"text\"/></accept><header name=\"Content-Type\"><value>application/xml</value></header></headers></head><body/></request></httpx>";
 
@@ -89,8 +92,11 @@ public class HttpRequestParserTest {
 
             InputStreamReader reader = new InputStreamReader(actual);
             BufferedReader bufReader = new BufferedReader(reader);
+            
+            Diff diff = new Diff(expected, bufReader.readLine());
 
-            assertEquals(expected, bufReader.readLine());
+            assertTrue("XML should be equivalent", diff.similar());
+            //assertEquals(expected, bufReader.readLine());
         }
     }
 }

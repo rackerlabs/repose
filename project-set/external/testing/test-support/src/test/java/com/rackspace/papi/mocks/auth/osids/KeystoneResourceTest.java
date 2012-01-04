@@ -9,11 +9,13 @@ import javax.xml.bind.JAXBException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.parsers.ParserConfigurationException;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openstack.docs.identity.api.v2.*;
 
+@Ignore
 @RunWith(Enclosed.class)
 public class KeystoneResourceTest {
    

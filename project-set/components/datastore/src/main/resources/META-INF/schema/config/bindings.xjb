@@ -5,6 +5,7 @@
         xsi:schemaLocation="http://java.sun.com/xml/ns/jaxb http://java.sun.com/xml/ns/jaxb/bindingschema_2_0.xsd"
         schemaLocation="dist-datastore-configuration.xsd">
             
+    <globalBindings generateIsSetMethod="true"/>
     <schemaBindings>
         <package name="org.openrepose.components.datastore.config" />
     </schemaBindings>
