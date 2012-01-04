@@ -56,13 +56,14 @@
             </affiliation>
         </author>
         <copyright>
+            <year>2010</year>
             <year>2011</year>
             <year>2012</year>
             <holder>Rackspace US, Inc.</holder>
         </copyright>
         <releaseinfo>v1.0</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2011-12-31</pubdate>
+        <pubdate>2012-01-11</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -74,7 +75,7 @@
         </abstract>
         <revhistory>
             <revision>
-                <date>2011-12-31</date>
+                <date>2012-01-11</date>
                 <revdescription>
                     <itemizedlist spacing="compact">
                         <listitem><para>Initial release.</para></listitem>
