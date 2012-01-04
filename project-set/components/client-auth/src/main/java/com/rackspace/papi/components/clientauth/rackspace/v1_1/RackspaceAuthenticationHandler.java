@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.clientauth.rackspace.v1_1;
 
-import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
+import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 
 
 import com.rackspace.auth.v1_1.AuthenticationServiceClient;
@@ -11,7 +11,6 @@ import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.auth.AuthModule;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.clientauth.rackspace.config.AccountMapping;
 import com.rackspace.papi.components.clientauth.rackspace.config.RackspaceAuth;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;

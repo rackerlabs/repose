@@ -1,4 +1,4 @@
-package com.rackspace.papi.httpx.processor;
+package com.rackspace.papi.httpx.processor.common;
 
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;

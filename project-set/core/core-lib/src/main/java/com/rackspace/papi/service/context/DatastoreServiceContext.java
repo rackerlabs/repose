@@ -1,7 +1,8 @@
-package com.rackspace.papi.service.datastore;
+package com.rackspace.papi.service.context;
 
 import com.rackspace.papi.service.ServiceContext;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.impl.PowerApiDatastoreService;
 import com.rackspace.papi.service.datastore.impl.ehcache.EHCacheDatastoreManager;
 import net.sf.ehcache.CacheManager;

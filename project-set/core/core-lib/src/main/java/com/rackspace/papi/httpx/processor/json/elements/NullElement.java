@@ -1,6 +1,6 @@
 package com.rackspace.papi.httpx.processor.json.elements;
 
-import com.rackspace.papi.httpx.processor.Element;
+import com.rackspace.papi.httpx.processor.common.Element;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
 
