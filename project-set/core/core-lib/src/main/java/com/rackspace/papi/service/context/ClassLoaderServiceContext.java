@@ -4,11 +4,11 @@ import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.service.ServiceContext;
 import com.rackspace.papi.service.classloader.ApplicationClassLoaderManagerImpl;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
-import com.rackspace.papi.service.event.Event;
+import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.listener.EventListener;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.service.deploy.ApplicationDeploymentEvent;
-import com.rackspace.papi.service.event.EventService;
+import com.rackspace.papi.service.event.common.EventService;
 import javax.servlet.ServletContextEvent;
 
 public class ClassLoaderServiceContext implements ServiceContext<ClassLoaderManagerService> {

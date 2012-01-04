@@ -8,7 +8,7 @@ import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.logging.LoggingService;
 import com.rackspace.papi.service.rms.ResponseMessageService;
 import com.rackspace.papi.service.ServiceUnavailableException;
-import com.rackspace.papi.service.event.EventService;
+import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.context.EventManagerServiceContext;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import com.rackspace.papi.service.context.ConfigurationServiceContext;
