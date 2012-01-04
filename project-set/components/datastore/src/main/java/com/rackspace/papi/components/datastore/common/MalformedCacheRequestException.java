@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.datastore;
+package com.rackspace.papi.components.datastore.common;
 
 public class MalformedCacheRequestException extends RuntimeException {
 

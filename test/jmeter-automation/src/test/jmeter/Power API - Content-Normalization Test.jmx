@@ -154,7 +154,7 @@
             <stringProp name="HTTPSampler.protocol">http</stringProp>
             <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
             <stringProp name="HTTPSampler.path">/v1/${user}/ss.${media-type}</stringProp>
-            <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+            <stringProp name="HTTPSampler.implementation">Java</stringProp>
             <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
           </ConfigTestElement>
           <hashTree/>
@@ -219,7 +219,7 @@
             <stringProp name="HTTPSampler.protocol">http</stringProp>
             <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
             <stringProp name="HTTPSampler.path">/v1/${user}/ss.${media-type}</stringProp>
-            <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+            <stringProp name="HTTPSampler.implementation">Java</stringProp>
             <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
           </ConfigTestElement>
           <hashTree/>

@@ -1,7 +1,7 @@
 package org.openrepose.rnxp.io.push;
 
 import org.jboss.netty.buffer.ChannelBuffer;
-import org.openrepose.rnxp.http.proxy.InboundOutboundCoordinator;
+import org.jboss.netty.channel.Channel;
 import org.openrepose.rnxp.pipe.MessagePipe;
 
 /**
@@ -10,7 +10,7 @@ import org.openrepose.rnxp.pipe.MessagePipe;
  */
 public interface ChannelEventListener {
 
-    void channelOpen(MessagePipe<ChannelBuffer> messagePipe, InboundOutboundCoordinator coordinator);
+    void channelOpen(Channel channel, MessagePipe<ChannelBuffer> messagePipe);
     
     void exception(Throwable cause);
 }

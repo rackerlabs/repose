@@ -1,4 +1,4 @@
-package org.openrepose.cli.command;
+package org.openrepose.cli.command.results;
 
 /**
  *

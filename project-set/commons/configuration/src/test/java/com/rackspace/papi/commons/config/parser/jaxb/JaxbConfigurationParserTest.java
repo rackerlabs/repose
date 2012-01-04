@@ -1,6 +1,6 @@
 package com.rackspace.papi.commons.config.parser.jaxb;
 
-import com.rackspace.papi.commons.config.parser.ConfigurationParser;
+import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

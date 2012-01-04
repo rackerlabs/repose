@@ -71,6 +71,6 @@ public class PowerApiDatastoreService implements DatastoreService {
    public void registerDatastoreManager(String datastoreManagerName, DatastoreManager manager) {
       final Map<String, DatastoreManager> registerTo = manager.isDistributed() ? distributedManagers : localManagers;
 
-      registerTo.put(datastoreManagerName, manager);
+      registerTo.put(datastoreManagerName, new AvailablityGuard(manager, this));
    }
 }

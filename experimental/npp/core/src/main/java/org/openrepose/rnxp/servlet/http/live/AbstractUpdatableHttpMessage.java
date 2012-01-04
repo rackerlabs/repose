@@ -1,16 +1,13 @@
 package org.openrepose.rnxp.servlet.http.live;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import org.openrepose.rnxp.logging.ThreadStamp;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
 import org.openrepose.rnxp.http.io.control.UpdatableHttpMessage;
 import org.openrepose.rnxp.http.io.control.HttpConnectionController;
 import org.openrepose.rnxp.http.HttpMessageComponent;
 import org.openrepose.rnxp.http.HttpMessageComponentOrder;
-import org.openrepose.rnxp.servlet.http.ServletInputStream;
-import org.openrepose.rnxp.servlet.http.ServletOutputStreamWrapper;
+import org.openrepose.rnxp.http.proxy.InboundOutboundCoordinator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,73 +17,60 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractUpdatableHttpMessage implements UpdatableHttpMessage {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractUpdatableHttpMessage.class);
-    private InputStream connectedInputStream;
-    private OutputStream connectedOutputStream;
-    private HttpConnectionController updateController;
-    private HttpMessageComponent lastReadComponent;
+   private static final Logger LOG = LoggerFactory.getLogger(AbstractUpdatableHttpMessage.class);
+   private HttpConnectionController updateController;
+   private HttpMessageComponent lastReadComponent;
 
-    // TODO:Review - Visibility
-    protected void setUpdateController(HttpConnectionController updateController) {
-        this.updateController = updateController;
+   protected InboundOutboundCoordinator getInboundOutboundCoordinator() {
+      return updateController.getCoordinator();
+   }
 
-        lastReadComponent = HttpMessageComponent.MESSAGE_START;
-    }
+   // TODO:Review - Visibility
+   protected void setUpdateController(HttpConnectionController updateController) {
+      this.updateController = updateController;
 
-    public synchronized ServletInputStream getInputStream() {
-        if (connectedInputStream == null) {
-            connectedInputStream = updateController.connectInputStream();
-        }
+      lastReadComponent = HttpMessageComponent.MESSAGE_START;
+   }
 
-        return new ServletInputStream(connectedInputStream);
-    }
+   @Override
+   public final void applyPartial(HttpMessagePartial partial) {
+      lastReadComponent = partial.getHttpMessageComponent();
 
-    public synchronized ServletOutputStreamWrapper getOutputStream() throws IOException {
-        if (connectedOutputStream == null) {
-            connectedOutputStream = updateController.connectOutputStream();
-        }
+      mergeWithPartial(partial);
+   }
 
-        return new ServletOutputStreamWrapper(connectedOutputStream);
-    }
+   protected void loadComponent(HttpMessageComponent requestedComponent, HttpMessageComponentOrder order) {
+      while (shouldLoad(requestedComponent, order)) {
+         ThreadStamp.log(LOG, "Requesting more HTTP request data up to " + requestedComponent + ". Current position: " + lastReadComponent() + ".");
 
-    @Override
-    public final void applyPartial(HttpMessagePartial partial) {
-        lastReadComponent = partial.getHttpMessageComponent();
+         try {
+            applyPartial(updateController.requestUpdate());
+         } catch (InterruptedException ie) {
+            LOG.error("EXPLODE");
+         }
+      }
+   }
 
-        mergeWithPartial(partial);
-    }
+   private boolean shouldLoad(HttpMessageComponent requestedComponent, HttpMessageComponentOrder order) {
+      final HttpMessageComponent lastReadPart = lastReadComponent();
 
-    protected void loadComponent(HttpMessageComponent requestedComponent, HttpMessageComponentOrder order) {
-        while (shouldLoad(requestedComponent, order)) {
-            ThreadStamp.log(LOG, "Requesting more HTTP request data up to " + requestedComponent + ". Current position: " + lastReadComponent() + ".");
+      switch (lastReadPart) {
+         case HEADER:
+            // Always read all of the headers
+            return true;
 
-            try {
-                applyPartial(updateController.requestUpdate());
-            } catch (InterruptedException ie) {
-                LOG.error("EXPLODE");
-            }
-        }
-    }
+         default:
+            return order.isBefore(lastReadPart, requestedComponent);
+      }
+   }
 
-    private boolean shouldLoad(HttpMessageComponent requestedComponent, HttpMessageComponentOrder order) {
-        final HttpMessageComponent lastReadPart = lastReadComponent();
+   protected boolean hasHeaders(HttpMessageComponentOrder order) {
+      return !order.isAfter(lastReadComponent, HttpMessageComponent.HEADER);
+   }
 
-        switch (lastReadPart) {
-            case HEADER:
-                return true;
+   protected HttpMessageComponent lastReadComponent() {
+      return lastReadComponent;
+   }
 
-            default:
-                return order.isBefore(lastReadPart, requestedComponent);
-        }
-    }
-
-    protected boolean hasHeaders(HttpMessageComponentOrder order) {
-        return !order.isAfter(lastReadComponent, HttpMessageComponent.HEADER);
-    }
-
-    protected HttpMessageComponent lastReadComponent() {
-        return lastReadComponent;
-    }
-
-    protected abstract void mergeWithPartial(HttpMessagePartial partial);
+   protected abstract void mergeWithPartial(HttpMessagePartial partial);
 }

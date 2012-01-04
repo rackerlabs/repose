@@ -9,7 +9,7 @@ import org.openrepose.rnxp.netty.HttpProxyPipelineFactory;
 import org.openrepose.rnxp.http.proxy.OriginChannelFactory;
 
 /**
- * RNGP
+ * RNxP
  * Repose Next Generation Proxy
  * 
  * @author zinic

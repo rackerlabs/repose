@@ -2,7 +2,7 @@ package com.rackspace.papi.components.datastore;
 
 import com.rackspace.papi.service.ServiceContext;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.config.ConfigurationServiceContext;
+import com.rackspace.papi.service.context.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;

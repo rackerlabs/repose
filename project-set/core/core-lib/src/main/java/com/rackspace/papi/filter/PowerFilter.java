@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -39,6 +40,9 @@ public class PowerFilter extends ApplicationContextAwareFilter {
    public PowerFilter() {
       firstInitialization = true;
 
+      // Default to an empty filter chain so that artifact deployment doesn't gum up the works with a null pointer
+      powerFilterChainBuilder = new PowerFilterChainBuilder(Collections.EMPTY_LIST);
+
       systemModelConfigurationListener = new UpdateListener<PowerProxy>() {
 
          private final Object internalLock = new Object();
@@ -54,6 +58,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
             synchronized (internalLock) {
                if (firstInitialization) {
                   firstInitialization = false;
+
                   papiContext.eventService().newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
                } else {
                   final List<FilterContext> newFilterChain = new FilterContextInitializer(filterConfig).buildFilterContexts(papiContext.classLoader(), currentSystemModel);
@@ -116,7 +121,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
       final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
       final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
       final PowerFilterChain requestFilterChainState = powerFilterChainBuilder.newPowerFilterChain(chain, filterConfig.getServletContext());
-      
+
       // TODO:Review - Should this be set for all filters regardless of what they return?
 //      mutableHttpResponse.setHeader(CommonHttpHeader.CONTENT_TYPE.getHeaderKey(), mutableHttpRequest.getHeader(CommonHttpHeader.ACCEPT.getHeaderKey()));
 
@@ -128,7 +133,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
          LOG.error("Exception encountered while processing filter chain", ex);
       } finally {
          papiContext.responseMessageService().handle(mutableHttpRequest, mutableHttpResponse);
-         
+
          mutableHttpResponse.commitBufferToServletOutputStream();
       }
    }

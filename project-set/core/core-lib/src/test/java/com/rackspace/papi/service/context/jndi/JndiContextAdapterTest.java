@@ -3,9 +3,8 @@ package com.rackspace.papi.service.context.jndi;
 import com.rackspace.papi.service.ServiceContext;
 import com.rackspace.papi.service.ServiceUnavailableException;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
-import com.rackspace.papi.service.classloader.ClassLoaderServiceContext;
-import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.datastore.DatastoreService;
+import com.rackspace.papi.service.context.ClassLoaderServiceContext;
+
 import javax.naming.Context;
 import javax.naming.NamingException;
 import org.junit.Before;
