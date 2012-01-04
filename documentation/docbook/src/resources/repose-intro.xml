@@ -58,11 +58,12 @@
         <copyright>
             <year>2010</year>
             <year>2011</year>
+            <year>2012</year>
             <holder>Rackspace US, Inc.</holder>
         </copyright>
         <releaseinfo>v1.0</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2011-09-24</pubdate>
+        <pubdate>2012-01-11</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -71,6 +72,24 @@
         <abstract>
             <para>This document is intended for anyone seeking basic information about &PRODNAME;. </para>
         </abstract>
+        <revhistory>
+            <revision>
+                <date>2012-01-11</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem><para>Initial release for Repose v1.0.</para></listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
+        <revision>
+            <date>2011-09-26</date>
+            <revdescription>
+                <itemizedlist spacing="compact">
+                    <listitem><para>Initial release as internal draft.</para></listitem>
+                </itemizedlist>
+            </revdescription>
+        </revision>
+        </revhistory>
     </info>
     <chapter xml:id="Overview-d1e85">
         <title>Overview</title>
@@ -104,27 +123,8 @@
         <section xml:id="Document_Change_History-d1e102">
             <title>Document Change History</title>
             <para>This version of Getting Started replaces and obsoletes all previous versions. The
-                most recent changes are described in the table below: </para>
-            <informaltable rules="all">
-                <thead>
-                    <tr align="center">
-                        <td colspan="1">Revision Date</td>
-                        <td colspan="4">Summary of Changes</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr align="left">
-                        <td colspan="1" align="center">Sep 26, 2011</td>
-                        <td colspan="4" align="left">
-                            <itemizedlist spacing="compact">
-                                <listitem>
-                                    <para>Initial release.</para>
-                                </listitem>
-                            </itemizedlist>
-                        </td>
-                    </tr>
-                </tbody>
-            </informaltable>
+            most recent changes are described in the table below: </para>
+            <?rax revhistory?>
         </section>
         <xi:include href="chapters/available-doc.xml"/>
     </chapter>
