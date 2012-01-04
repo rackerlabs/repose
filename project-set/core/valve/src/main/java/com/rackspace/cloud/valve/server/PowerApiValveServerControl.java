@@ -21,7 +21,7 @@ public class PowerApiValveServerControl {
         this.commandLineArgs = commandLineArgs;
     }
 
-   public void startPowerApiValve() {
+   public void startPowerApiValve() throws Exception {
 
         try {
             serverInstance = new ValveJettyServerBuilder(commandLineArgs.getPort(), commandLineArgs.getConfigDirectory()).newServer();
@@ -32,6 +32,10 @@ public class PowerApiValveServerControl {
             LOG.info("Power API Valve running and listening on port: " + Integer.toString(commandLineArgs.getPort()));
         } catch (Exception e) {
             LOG.error("Power API Valve could not be started: " + e.getMessage());
+            
+            // Stopping the service completely as even if the user fixes their configurations the proxy will not work as the serverInstance was never started
+            LOG.error("Power API Valve will now stop");
+            serverInstance.stop(); 
         }
     }
 
