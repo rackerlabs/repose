@@ -19,13 +19,13 @@ import org.openrepose.rnxp.servlet.http.serializer.ResponseHeadSerializer;
 public class LiveHttpServletResponse extends AbstractHttpServletResponse implements UpdatableHttpServletResponse {
 
    private final ServletOutputStream outputStream;
-   private boolean comitted;
+   private boolean committed;
    private HttpStatusCode statusCode;
 
    public LiveHttpServletResponse(HttpConnectionController updateController) {
       super(updateController, HttpMessageComponentOrder.responseOrderInstance());
 
-      comitted = false;
+      committed = false;
       outputStream = new ServletOutputStreamWrapper(updateController.getCoordinator().getClientOutputStream());
    }
 
@@ -38,34 +38,39 @@ public class LiveHttpServletResponse extends AbstractHttpServletResponse impleme
    public int getStatus() {
       return statusCode.intValue();
    }
-   
+
    @Override
    public void setStatus(int sc) {
       statusCode = HttpStatusCode.fromInt(sc);
    }
 
+   @Override
+   public boolean isCommitted() {
+      return committed;
+   }
+
    private void commit() throws IOException {
-      if (!comitted) {
+      if (!committed) {
          final ResponseHeadSerializer serializer = new ResponseHeadSerializer(this);
-         
+
          int read;
-         while((read = serializer.read()) != -1) {
+         while ((read = serializer.read()) != -1) {
             outputStream.write(read);
          }
-         
+
          outputStream.flush();
-         comitted = true;
+         committed = true;
       }
    }
-   
+
    @Override
    public void flushBuffer() throws IOException {
       commit();
-      
+
       final InputStream inputStream = getPushInputStream();
-      
+
       RawInputStreamReader.instance().copyTo(inputStream, outputStream);
-      
+
       outputStream.flush();
    }
 

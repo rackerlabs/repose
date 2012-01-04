@@ -46,6 +46,11 @@ public class ClientHttpServletResponse extends AbstractHttpServletResponse {
       statusCode = HttpStatusCode.fromInt(sc);
    }
 
+   @Override
+   public boolean isCommitted() {
+      return committed;
+   }
+
    private void commit() throws IOException {
       if (!committed) {
          final ResponseHeadSerializer serializer = new ResponseHeadSerializer(this);

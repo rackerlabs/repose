@@ -85,11 +85,17 @@ public class RequestDelegate implements Runnable {
       try {
          servletContext.setDispatchThreadLocal(new ExternalRoutableRequestDispatcher(originConnectionFuture));
          
-         response.setResponseDelegate(new ClientHttpServletResponse(updateController));
+         final ClientHttpServletResponse clientResponse = new ClientHttpServletResponse(updateController);
+         
+         response.setResponseDelegate(clientResponse);
          final RequestResponsePair pair = powerProxyInstance.handleRequest(originConnectionFuture, request, response);
 
          // the road ends here
-         pair.getHttpServletResponse().flushBuffer();
+         if (pair.hasResponse()) {
+            pair.getHttpServletResponse().flushBuffer();
+         } else {
+            clientResponse.flushBuffer();
+         }
       } catch (ServletException se) {
          LOG.error(se.getMessage(), se);
       } catch (IOException ioe) {

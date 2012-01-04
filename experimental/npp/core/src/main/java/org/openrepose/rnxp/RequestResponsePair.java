@@ -16,6 +16,14 @@ public class RequestResponsePair {
       this.httpServletRequest = httpServletRequest;
       this.httpServletResponse = httpServletResponse;
    }
+   
+   public boolean hasResponse() {
+      return httpServletResponse != null;
+   }
+   
+   public boolean hasRequest() {
+      return httpServletRequest != null;
+   }
 
    public HttpServletRequest getHttpServletRequest() {
       return httpServletRequest;
