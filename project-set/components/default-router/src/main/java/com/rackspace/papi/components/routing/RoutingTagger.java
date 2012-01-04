@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RoutingTagger extends AbstractFilterLogicHandler {
-
+      
     private static final Logger LOG = LoggerFactory.getLogger(RoutingTagger.class);
     private PowerProxy systemModel;
 

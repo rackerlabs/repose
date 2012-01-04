@@ -9,5 +9,5 @@ import org.openrepose.rnxp.http.io.control.CommittableHttpMessage;
  */
 public interface OriginConnectionFuture {
 
-    void connect(InetSocketAddress addr, CommittableHttpMessage message);
+    void connect(InetSocketAddress addr);
 }

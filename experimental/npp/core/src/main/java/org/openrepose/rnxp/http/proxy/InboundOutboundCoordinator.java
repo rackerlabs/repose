@@ -1,8 +1,9 @@
 package org.openrepose.rnxp.http.proxy;
 
-import org.jboss.netty.buffer.ChannelBuffer;
+import java.io.OutputStream;
 import org.jboss.netty.channel.Channel;
 import org.jboss.netty.channel.ChannelFuture;
+import org.openrepose.rnxp.http.io.netty.ChannelOutputStream;
 import org.openrepose.rnxp.servlet.http.detached.HttpErrorSerializer;
 
 /**
@@ -11,62 +12,47 @@ import org.openrepose.rnxp.servlet.http.detached.HttpErrorSerializer;
  */
 public class InboundOutboundCoordinator {
 
-    private ChannelUpdater inboundUpdate, outboundUpdate;
-    private Channel inboundChannel, outboundChannel;
+   private Channel clientChannel, originChannel;
+   private boolean originConnected;
 
-    public InboundOutboundCoordinator() {
-    }
-    
-    public synchronized void close() {
-        inboundChannel.close();
-        
-        if (inboundChannel != outboundChannel) {
-            outboundChannel.close();
-        }
-    }
+   public InboundOutboundCoordinator() {
+   }
 
-    public synchronized boolean streamable() {
-        return inboundChannel != null && outboundChannel != null;
-    }
+   public synchronized OutputStream getClientOutputStream() {
+      return new ChannelOutputStream(clientChannel);
+   }
+   
+   public synchronized Channel getClientChannel() {
+      return clientChannel;
+   }
 
-    public synchronized void setInboundChannel(Channel channel) {
-        inboundChannel = channel;
+   public synchronized void setClientChannel(Channel clientChannel) {
+      this.clientChannel = clientChannel;
+   }
 
-        outboundUpdate = new ChannelUpdater(channel);
-    }
+   public synchronized Channel getOriginChannel() {
+      return originChannel;
+   }
 
-    public synchronized void setOutboundChannel(Channel channel) {
-        outboundChannel = channel;
+   public synchronized void setOriginChannel(Channel originChannel) {
+      originConnected = true;
 
-        inboundUpdate = new ChannelUpdater(channel);
-    }
+      this.originChannel = originChannel;
+   }
 
-    public synchronized ChannelFuture writeInbound(HttpErrorSerializer error) {
-        return error.writeTo(inboundChannel);
-    }
+   public boolean isOriginConnected() {
+      return originConnected;
+   }
 
-    public synchronized ChannelFuture writeOutbound(ChannelBuffer buffer) {
-        return outboundChannel.write(buffer);
-    }
-    
-    public synchronized ChannelFuture writeInbound(ChannelBuffer buffer) {
-        return inboundChannel.write(buffer);
-    }
+   public synchronized void close() {
+      clientChannel.close();
 
-    public void streamOutbound(Object o) {
-        write(outboundChannel, inboundChannel, outboundUpdate, o);
-    }
+      if (originConnected) {
+         originChannel.close();
+      }
+   }
 
-    public void streamInbound(Object o) {
-        write(inboundChannel, outboundChannel, inboundUpdate, o);
-    }
-
-    private synchronized void write(Channel destination, Channel source, ChannelUpdater updateMe, Object o) {
-        final ChannelFuture future = destination.write(o);
-
-        if (destination.isWritable()) {
-            source.setReadable(false);
-            future.addListener(updateMe);
-        }
-    }
+   public ChannelFuture writeClient(HttpErrorSerializer serializer) {
+      return serializer.writeTo(clientChannel);
+   }
 }

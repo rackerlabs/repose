@@ -2,7 +2,6 @@ package org.openrepose.rnxp.http.proxy;
 
 import java.net.InetSocketAddress;
 import org.jboss.netty.channel.ChannelPipelineFactory;
-import org.openrepose.rnxp.http.io.control.CommittableHttpMessage;
 
 /**
  *
@@ -24,8 +23,7 @@ public class NettyOriginConnectionFuture implements OriginConnectionFuture {
     }
 
     @Override
-    public void connect(InetSocketAddress addr, CommittableHttpMessage message) {
-        // TODO: Connect serializer as initial payload
+    public void connect(InetSocketAddress addr) {
         channelFactory.connect(addr, channelPipelineFactory);
     }
 }

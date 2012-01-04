@@ -39,11 +39,7 @@ public class PushChannelUpstreamHandler extends SimpleChannelUpstreamHandler imp
         channelPushController = new SimplePushController(channel);
         messagePipe.setPushController(channelPushController);
         
-        final InboundOutboundCoordinator coordinator = new InboundOutboundCoordinator();
-        coordinator.setInboundChannel(channel);
-        coordinator.setOutboundChannel(channel);
-        
-        channelEventListener.channelOpen(messagePipe, coordinator);
+        channelEventListener.channelOpen(channel, messagePipe);
     }
 
     @Override

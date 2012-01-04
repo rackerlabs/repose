@@ -2,6 +2,7 @@ package org.openrepose.rnxp.http;
 
 import org.openrepose.rnxp.io.push.ChannelEventListener;
 import org.jboss.netty.buffer.ChannelBuffer;
+import org.jboss.netty.channel.Channel;
 import org.openrepose.rnxp.http.context.RequestContext;
 import org.openrepose.rnxp.http.io.control.BlockingConnectionController;
 import org.openrepose.rnxp.PowerProxy;
@@ -25,24 +26,29 @@ public class HttpRequestHandler implements ChannelEventListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(HttpRequestHandler.class);
     
+    private final InboundOutboundCoordinator coordinator;
     private final OriginChannelFactory proxyChannelFactory;
     private final RequestContext requestContext;
 
-    public HttpRequestHandler(PowerProxy powerProxyInstance, OriginChannelFactory proxyChannelFactory) {
-        requestContext = new SimpleRequestContext(powerProxyInstance);
+    public HttpRequestHandler(PowerProxy powerProxyInstance, InboundOutboundCoordinator coordinator, OriginChannelFactory proxyChannelFactory) {
+        requestContext = new SimpleRequestContext(powerProxyInstance, coordinator);
 
         this.proxyChannelFactory = proxyChannelFactory;
+        this.coordinator = coordinator;
     }
 
     @Override
-    public void channelOpen(MessagePipe<ChannelBuffer> messagePipe, InboundOutboundCoordinator coordinator) {
+    public void channelOpen(Channel channel, MessagePipe<ChannelBuffer> messagePipe) {
         // Set up the origin connection future for initiating conversations with the origin server
         final OriginConnectionFuture originConnectionFuture = new NettyOriginConnectionFuture(
-                new ClientPipelineFactory(requestContext, coordinator), proxyChannelFactory);
+                new ClientPipelineFactory(requestContext), proxyChannelFactory);
 
         // Set up our update controller for Request < -- > Channel communication
         final HttpConnectionController updateController = new BlockingConnectionController(coordinator, messagePipe, new HttpRequestDecoder());
 
+        // Update the coordinator with our channel
+        coordinator.setClientChannel(channel);
+        
         // Let's kick off the worker thread
         requestContext.startRequest(updateController, originConnectionFuture);
     }

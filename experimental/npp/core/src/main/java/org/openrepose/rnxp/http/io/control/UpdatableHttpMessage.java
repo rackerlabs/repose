@@ -1,7 +1,6 @@
 package org.openrepose.rnxp.http.io.control;
 
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
-import org.openrepose.rnxp.http.proxy.OriginConnectionFuture;
 
 /**
  *
@@ -9,7 +8,5 @@ import org.openrepose.rnxp.http.proxy.OriginConnectionFuture;
  */
 public interface UpdatableHttpMessage extends CommittableHttpMessage {
 
-    void applyPartial(HttpMessagePartial partial);
-
-    OriginConnectionFuture getOriginConnectionFuture();
+   void applyPartial(HttpMessagePartial partial);
 }

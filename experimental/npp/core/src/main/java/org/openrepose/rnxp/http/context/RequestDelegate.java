@@ -18,35 +18,35 @@ import org.slf4j.LoggerFactory;
  */
 public class RequestDelegate implements Runnable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RequestDelegate.class);
-    
-    private final SwitchableHttpServletResponse response;
-    private final HttpConnectionController updateController;
-    private final PowerProxy powerProxyInstance;
-    private final LiveHttpServletRequest request;
+   private static final Logger LOG = LoggerFactory.getLogger(RequestDelegate.class);
+   private final SwitchableHttpServletResponse response;
+   private final OriginConnectionFuture originConnectionFuture;
+   private final HttpConnectionController updateController;
+   private final PowerProxy powerProxyInstance;
+   private final LiveHttpServletRequest request;
 
-    public RequestDelegate(SwitchableHttpServletResponse response, HttpConnectionController updateController, OriginConnectionFuture originConnectionFuture, PowerProxy powerProxyInstance) {
-        request = new LiveHttpServletRequest(updateController, originConnectionFuture);
+   public RequestDelegate(SwitchableHttpServletResponse response, HttpConnectionController updateController, OriginConnectionFuture originConnectionFuture, PowerProxy powerProxyInstance) {
+      request = new LiveHttpServletRequest(updateController);
 
-        this.response = response;
-        this.updateController = updateController;
-        this.powerProxyInstance = powerProxyInstance;
-    }
+      this.originConnectionFuture = originConnectionFuture;
+      this.response = response;
+      this.updateController = updateController;
+      this.powerProxyInstance = powerProxyInstance;
+   }
 
-    @Override
-    public void run() {
-        response.setResponseDelegate(new DetachedHttpServletResponse(updateController));
-
-        try {
-            powerProxyInstance.handleRequest(request, response);
-            response.flushBuffer();
-        } catch (ServletException se) {
-            LOG.error(se.getMessage(), se);
-        } catch (IOException ioe) {
-            LOG.error(ioe.getMessage(), ioe);
-        } finally {
-            updateController.close();
-            ThreadStamp.log(LOG, "Requesting handling finished");
-        }
-    }
+   @Override
+   public void run() {
+      try {
+         response.setResponseDelegate(new DetachedHttpServletResponse(updateController));
+         powerProxyInstance.handleRequest(originConnectionFuture, request, response);
+         response.flushBuffer();
+      } catch (ServletException se) {
+         LOG.error(se.getMessage(), se);
+      } catch (IOException ioe) {
+         LOG.error(ioe.getMessage(), ioe);
+      } finally {
+         updateController.close();
+         ThreadStamp.log(LOG, "Requesting handling finished");
+      }
+   }
 }
