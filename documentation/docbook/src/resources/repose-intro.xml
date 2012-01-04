@@ -214,9 +214,8 @@
     <chapter xml:id="Design-d1e665">
         <title>How Does &PRODNAME; Work?</title>
         <annotation>
-            <remark>
-                Source for this chapter is https://wiki.mosso.com/display/CT/PAPI+Components+and+Enterprise+Integration+Patterns
-            </remark>
+            <remark> Source for this chapter is
+                https://wiki.mosso.com/display/CT/Repose+Components+and+Enterprise+Integration+Patterns </remark>
         </annotation>
         <para> A good way to understand &PRODNAME; is to think of it as a platform that can be used
             to implement integration patterns. &PRODABBREV;'s two core patterns are: </para>
