@@ -1,5 +1,6 @@
-package com.rackspace.papi.filter.resource;
+package com.rackspace.papi.service.filterchain;
 
+import com.rackspace.papi.filter.resource.ResourceMonitor;
 import com.rackspace.papi.filter.resource.reclaim.ResourceUseConstrainedReclaimer;
 import com.rackspace.papi.filter.resource.reclaim.UnconstrainedReclaimer;
 import com.rackspace.papi.filter.resource.reclaim.ObjectReclaimer;
