@@ -1,10 +1,13 @@
-package com.rackspace.papi.service.deploy;
+package com.rackspace.papi.service.context;
 
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.filter.PowerFilterEvent;
 import com.rackspace.papi.service.ServiceContext;
 import com.rackspace.papi.service.context.jndi.ContextAdapter;
+import com.rackspace.papi.service.deploy.ApplicationArtifactEvent;
+import com.rackspace.papi.service.deploy.ArtifactManager;
+import com.rackspace.papi.service.deploy.ContainerConfigurationListener;
 import com.rackspace.papi.service.event.Event;
 import com.rackspace.papi.service.event.EventService;
 import com.rackspace.papi.service.event.listener.SingleFireEventListener;

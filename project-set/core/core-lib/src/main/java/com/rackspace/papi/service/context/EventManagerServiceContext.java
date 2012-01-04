@@ -1,8 +1,11 @@
-package com.rackspace.papi.service.event;
+package com.rackspace.papi.service.context;
 
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
 import com.rackspace.papi.service.ServiceContext;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.event.EventService;
+import com.rackspace.papi.service.event.PowerProxyEventKernel;
+import com.rackspace.papi.service.event.PowerProxyEventManager;
 import com.rackspace.papi.service.threading.ThreadingService;
 import javax.servlet.ServletContextEvent;
 
