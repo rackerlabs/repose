@@ -1,7 +1,8 @@
 package com.rackspace.papi.service.deploy;
 
 import com.rackspace.papi.commons.util.Destroyable;
-import com.rackspace.papi.service.event.EventService;
+import com.rackspace.papi.service.event.common.EventService;
+
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;

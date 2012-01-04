@@ -6,7 +6,7 @@ import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
 import com.rackspace.papi.commons.util.thread.Poller;
-import com.rackspace.papi.service.event.EventService;
+import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.service.threading.ThreadingService;
 import java.util.HashMap;
