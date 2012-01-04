@@ -3,8 +3,6 @@ package com.rackspace.papi.service.context;
 import com.rackspace.papi.service.context.banner.PapiBanner;
 import com.rackspace.papi.service.ServiceContext;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
-import com.rackspace.papi.service.deploy.ArtifactManagerServiceContext;
-import com.rackspace.papi.service.event.EventManagerServiceContext;
 import com.rackspace.papi.service.naming.InitialServiceContextFactory;
 import com.rackspace.papi.service.threading.ThreadingServiceContext;
 import com.rackspace.papi.servlet.PowerApiContextException;
