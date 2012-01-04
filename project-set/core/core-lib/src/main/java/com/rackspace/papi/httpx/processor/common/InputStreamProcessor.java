@@ -1,4 +1,4 @@
-package com.rackspace.papi.httpx.processor;
+package com.rackspace.papi.httpx.processor.common;
 
 import java.io.InputStream;
 

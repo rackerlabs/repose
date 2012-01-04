@@ -12,7 +12,7 @@ import com.rackspace.papi.components.translation.config.TranslationConfig;
 import com.rackspace.papi.components.translation.postprocessor.RequestStreamPostProcessor;
 import com.rackspace.papi.components.translation.xproc.Pipeline;
 import com.rackspace.papi.components.translation.xproc.PipelineInput;
-import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
+import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
