@@ -1,8 +1,5 @@
 package com.rackspace.papi.service.datastore;
 
-import com.rackspace.papi.service.datastore.common.DatastoreOperationException;
-import com.rackspace.papi.service.datastore.common.StoredElement;
-
 import java.util.concurrent.TimeUnit;
 
 public interface Datastore {
