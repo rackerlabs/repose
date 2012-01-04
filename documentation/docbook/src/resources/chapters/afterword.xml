@@ -19,9 +19,12 @@
     </para>
     <section xml:id="Feedback-d1e992">
         <title>Feedback</title>
+        <annotation>
+            <remark>synch human-readable contact info here with feedbackemail in pom.xml, telling Disqus whom to notify about comments</remark>
+        </annotation>
         <para> If you find errors in this document or have suggestions
             about how to improve it, please let us know. You can
-            contact the maintainer directly at
+            contact the document maintainer directly at
                 <emphasis>rose.coste@rackspace.com</emphasis>. </para>
     </section> 
     <section xml:id="References-d1e994">
