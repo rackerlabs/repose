@@ -5,6 +5,7 @@ import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
 import org.openrepose.rnxp.decoder.partial.impl.StatusCodePartial;
 import org.openrepose.rnxp.http.HttpMessageComponentOrder;
@@ -27,6 +28,11 @@ public class LiveHttpServletResponse extends AbstractHttpServletResponse impleme
 
       committed = false;
       outputStream = new ServletOutputStreamWrapper(updateController.getCoordinator().getClientOutputStream());
+   }
+   
+   // TODO: Connect this sucker to the right spot - man is this ugly
+   public void delegateStreaToResponse(HttpServletResponse response) throws IOException {
+      RawInputStreamReader.instance().copyTo(getPushInputStream(), response.getOutputStream());
    }
 
    @Override
@@ -52,13 +58,10 @@ public class LiveHttpServletResponse extends AbstractHttpServletResponse impleme
    private void commit() throws IOException {
       if (!committed) {
          final ResponseHeadSerializer serializer = new ResponseHeadSerializer(this);
-
-         int read;
-         while ((read = serializer.read()) != -1) {
-            outputStream.write(read);
-         }
-
+         
+         serializer.writeTo(outputStream);
          outputStream.flush();
+         
          committed = true;
       }
    }
