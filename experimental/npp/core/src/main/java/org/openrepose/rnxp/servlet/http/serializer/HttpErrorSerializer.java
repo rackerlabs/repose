@@ -1,4 +1,4 @@
-package org.openrepose.rnxp.servlet.http.detached;
+package org.openrepose.rnxp.servlet.http.serializer;
 
 import org.jboss.netty.channel.ChannelFuture;
 import org.jboss.netty.buffer.ChannelBuffer;

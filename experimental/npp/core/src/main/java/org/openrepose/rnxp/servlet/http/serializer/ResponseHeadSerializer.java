@@ -1,53 +1,41 @@
-package org.openrepose.rnxp.servlet.http.detached;
+package org.openrepose.rnxp.servlet.http.serializer;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Iterator;
 import javax.servlet.http.HttpServletResponse;
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.openrepose.rnxp.http.HttpMessageComponent;
-import org.openrepose.rnxp.http.io.control.HttpMessageSerializer;
 import org.openrepose.rnxp.http.util.StringCharsetEncoder;
 
 import static org.jboss.netty.buffer.ChannelBuffers.*;
 import static org.openrepose.rnxp.http.io.control.HttpControlSequence.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author zinic
  */
-public class ResponseHeadSerializer implements HttpMessageSerializer {
+public class ResponseHeadSerializer extends AbstractHttpMessageSerializer {
 
-   private static final StringCharsetEncoder ASCII_ENCODER = StringCharsetEncoder.asciiEncoder();
    private final HttpServletResponse response;
-   private final ChannelBuffer buffer;
+   private final Iterator<String> headerKeys;
    private byte[] currentHeaderKeyBytes;
-   private Iterator<String> headerKeysRemaining;
-   private Iterator<String> headerValuesRemaining;
+   private Iterator<String> headerValues;
    private HttpMessageComponent nextComponent;
 
    public ResponseHeadSerializer(HttpServletResponse response) {
       this.response = response;
 
+      headerKeys = response.getHeaderNames().iterator();
       nextComponent = HttpMessageComponent.HTTP_VERSION;
-      buffer = buffer(16384);
    }
 
    @Override
-   public int read() {
-      try {
-         if (!buffer.readable()) {
-            if (loadNextComponent()) {
-               return -1;
-            }
-         }
-
-         return buffer.readByte();
-      } catch (Exception ex) {
-         ex.printStackTrace();
-         return -1;
-      }
-   }
-
-   public boolean loadNextComponent() {
+   public void serializeNext() {
+      final ChannelBuffer buffer = getBuffer();
+      
       switch (nextComponent) {
          case HTTP_VERSION:
             buffer.writeBytes(HTTP_VERSION.getBytes());
@@ -65,23 +53,17 @@ public class ResponseHeadSerializer implements HttpMessageSerializer {
             break;
 
          case HEADER:
-            if (headerKeysRemaining == null) {
-               headerKeysRemaining = response.getHeaderNames().iterator();
-            }
-
-            if (headerValuesRemaining == null || !headerValuesRemaining.hasNext()) {
-               if (headerKeysRemaining.hasNext()) {
-                  final String headerKey = headerKeysRemaining.next();
+            if (headerValues == null || !headerValues.hasNext()) {
+               if (headerKeys.hasNext()) {
+                  final String headerKey = headerKeys.next();
                   currentHeaderKeyBytes = ASCII_ENCODER.encode(headerKey);
 
-                  headerValuesRemaining = response.getHeaders(headerKey).iterator();
+                  headerValues = response.getHeaders(headerKey).iterator();
                } else {
-                  return true;
+                  serializationFinished();
                }
-            }
-
-            if (headerValuesRemaining.hasNext()) {
-               final String nextVal = headerValuesRemaining.next();
+            } else {
+               final String nextVal = headerValues.next();
 
                if (nextVal != null) {
                   buffer.writeBytes(currentHeaderKeyBytes);
@@ -92,7 +74,5 @@ public class ResponseHeadSerializer implements HttpMessageSerializer {
             }
             break;
       }
-
-      return false;
    }
 }

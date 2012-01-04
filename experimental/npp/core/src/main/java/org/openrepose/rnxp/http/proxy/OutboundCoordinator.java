@@ -2,26 +2,25 @@ package org.openrepose.rnxp.http.proxy;
 
 import java.io.OutputStream;
 import org.jboss.netty.channel.Channel;
-import org.jboss.netty.channel.ChannelFuture;
 import org.openrepose.rnxp.http.io.netty.ChannelOutputStream;
-import org.openrepose.rnxp.servlet.http.detached.HttpErrorSerializer;
 
 /**
  *
  * @author zinic
  */
-public class InboundOutboundCoordinator {
+public class OutboundCoordinator {
 
    private Channel clientChannel, originChannel;
    private boolean originConnected;
 
-   public InboundOutboundCoordinator() {
-   }
-
    public synchronized OutputStream getClientOutputStream() {
       return new ChannelOutputStream(clientChannel);
    }
-   
+
+   public synchronized OutputStream getOriginOutputStream() {
+      return new ChannelOutputStream(originChannel);
+   }
+
    public synchronized Channel getClientChannel() {
       return clientChannel;
    }
@@ -50,9 +49,5 @@ public class InboundOutboundCoordinator {
       if (originConnected) {
          originChannel.close();
       }
-   }
-
-   public ChannelFuture writeClient(HttpErrorSerializer serializer) {
-      return serializer.writeTo(clientChannel);
    }
 }

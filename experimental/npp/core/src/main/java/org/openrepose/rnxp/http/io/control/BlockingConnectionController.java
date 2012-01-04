@@ -8,11 +8,11 @@ import org.slf4j.LoggerFactory;
 
 import org.openrepose.rnxp.decoder.HttpMessageDecoder;
 import org.openrepose.rnxp.decoder.partial.impl.HttpErrorPartial;
-import org.openrepose.rnxp.http.proxy.InboundOutboundCoordinator;
+import org.openrepose.rnxp.http.proxy.OutboundCoordinator;
 import org.openrepose.rnxp.pipe.MessagePipe;
 import org.openrepose.rnxp.pipe.PipeOperationInterruptedException;
 import org.openrepose.rnxp.pipe.PipeOperationTimeoutException;
-import org.openrepose.rnxp.servlet.http.detached.HttpErrorSerializer;
+import org.openrepose.rnxp.servlet.http.serializer.HttpErrorSerializer;
 
 /**
  * This controller assumes that the channel is blocked for the duration of logic
@@ -24,12 +24,12 @@ public class BlockingConnectionController implements HttpConnectionController {
 
    private static final int CONNECTION_TIMEOUT_IN_MILLISECONDS = 30000;
    private static final Logger LOG = LoggerFactory.getLogger(BlockingConnectionController.class);
-   private final InboundOutboundCoordinator coordinator;
+   private final OutboundCoordinator coordinator;
    private final MessagePipe<ChannelBuffer> messagePipe;
    private final HttpMessageDecoder decoder;
    private ChannelBuffer remainingData;
 
-   public BlockingConnectionController(InboundOutboundCoordinator coordinator, MessagePipe<ChannelBuffer> messagePipe, HttpMessageDecoder decoder) {
+   public BlockingConnectionController(OutboundCoordinator coordinator, MessagePipe<ChannelBuffer> messagePipe, HttpMessageDecoder decoder) {
       this.coordinator = coordinator;
       this.messagePipe = messagePipe;
       this.decoder = decoder;
@@ -53,7 +53,7 @@ public class BlockingConnectionController implements HttpConnectionController {
 
          if (messagePartial.isError()) {
             final HttpErrorSerializer serializer = new HttpErrorSerializer((HttpErrorPartial) messagePartial);
-            coordinator.writeClient(serializer).await();
+            serializer.writeTo(coordinator.getClientChannel());
             close();
          }
       } catch (PipeOperationInterruptedException poie) {
@@ -73,7 +73,7 @@ public class BlockingConnectionController implements HttpConnectionController {
    }
 
    @Override
-   public InboundOutboundCoordinator getCoordinator() {
+   public OutboundCoordinator getCoordinator() {
       return coordinator;
    }
 }

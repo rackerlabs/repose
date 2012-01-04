@@ -1,6 +1,10 @@
 package org.openrepose.rnxp.servlet.http.detached;
 
+import org.openrepose.rnxp.servlet.http.serializer.ResponseHeadSerializer;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import com.rackspace.papi.commons.util.io.RawInputStreamReader;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
@@ -10,28 +14,24 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.ServletOutputStream;
-import org.openrepose.rnxp.http.io.control.HttpMessageSerializer;
 import org.openrepose.rnxp.http.io.control.HttpConnectionController;
-import org.openrepose.rnxp.servlet.http.CommittableHttpServletResponse;
 import org.openrepose.rnxp.servlet.http.ServletOutputStreamWrapper;
 
 /**
  *
  * @author zinic
  */
-public class DetachedHttpServletResponse extends AbstractHttpServletResponse implements CommittableHttpServletResponse {
+public class ClientHttpServletResponse extends AbstractHttpServletResponse {
 
-   private final HttpConnectionController updateController;
    private final Map<String, List<String>> headerMap;
+   private final ServletOutputStreamWrapper<OutputStream> outputStream;
    private HttpStatusCode statusCode;
-   private final ServletOutputStream outputStream;
-   private volatile boolean committed;
+   private boolean committed;
 
-   public DetachedHttpServletResponse(HttpConnectionController updateController) throws IOException {
-      this.updateController = updateController;
-      outputStream = new ServletOutputStreamWrapper(updateController.getCoordinator().getClientOutputStream());
+   public ClientHttpServletResponse(HttpConnectionController connectionController) throws IOException {
+      outputStream = new ServletOutputStreamWrapper<OutputStream>(connectionController.getCoordinator().getClientOutputStream());
 
-      statusCode = HttpStatusCode.BAD_GATEWAY; // TODO:Review - Don't know if this is sane or not for a proxy
+      statusCode = HttpStatusCode.NOT_FOUND;
       headerMap = new HashMap<String, List<String>>();
       committed = false;
    }
@@ -46,48 +46,32 @@ public class DetachedHttpServletResponse extends AbstractHttpServletResponse imp
       statusCode = HttpStatusCode.fromInt(sc);
    }
 
-   @Override
-   public synchronized void flushBuffer() throws IOException {
-      final OutputStream os = getOutputStream();
-
+   private void commit() throws IOException {
       if (!committed) {
-         commitMessage();
-      }
+         final ResponseHeadSerializer serializer = new ResponseHeadSerializer(this);
+         int read;
+         
+         while ((read = serializer.read()) != -1) {
+            outputStream.write(read);
+         }
 
-      os.flush();
+         outputStream.flush();
+         committed = true;
+      }
    }
 
    @Override
-   public synchronized ServletOutputStream getOutputStream() throws IOException {
-      // TODO:Implement - Delegate this to an output stream that commits on write
-      commitMessage();
+   public void flushBuffer() throws IOException {
+      commit();
+      
+      outputStream.flush();
+   }
+
+   @Override
+   public ServletOutputStream getOutputStream() throws IOException {
+      commit();
       
       return outputStream;
-   }
-
-   @Override
-   public boolean isCommitted() {
-      return committed;
-   }
-
-   @Override
-   public synchronized void commitMessage() throws IOException {
-      if (committed) {
-         throw new IllegalStateException("Response has already been committed");
-      }
-
-      final OutputStream os = getOutputStream();
-
-      // This commits the message - opening the output stream is serious business
-      final HttpMessageSerializer serializer = new ResponseHeadSerializer(this);
-      int read;
-
-      while ((read = serializer.read()) != -1) {
-         os.write(read);
-      }
-
-      os.flush();
-      committed = true;
    }
 
    @Override

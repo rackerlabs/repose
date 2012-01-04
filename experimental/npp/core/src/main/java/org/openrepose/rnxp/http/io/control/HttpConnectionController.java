@@ -3,7 +3,7 @@ package org.openrepose.rnxp.http.io.control;
 import java.io.InputStream;
 import java.io.OutputStream;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
-import org.openrepose.rnxp.http.proxy.InboundOutboundCoordinator;
+import org.openrepose.rnxp.http.proxy.OutboundCoordinator;
 
 /**
  *
@@ -15,5 +15,5 @@ public interface HttpConnectionController {
     
     void close();
     
-    InboundOutboundCoordinator getCoordinator();
+    OutboundCoordinator getCoordinator();
 }

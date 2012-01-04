@@ -28,24 +28,26 @@ public class LiveHttpServletRequest extends AbstractHttpServletRequest implement
    private final Map<String, List<String>> headerMap;
    private final StringBuffer requestUrl;
    private HttpMethod requestMethod;
+   private ServletInputStream servletInputSTream;
    private String requestUri;
    private String httpVersion;
 
    public LiveHttpServletRequest(HttpConnectionController updateController) {
+      super(updateController, HttpMessageComponentOrder.requestOrderInstance());
+
       headerMap = new HashMap<String, List<String>>();
       requestUrl = new StringBuffer("http://localhost:8080");
-
-      setUpdateController(updateController);
    }
 
    @Override
    public ServletInputStream getInputStream() throws IOException {
-      throw new UnsupportedOperationException("Not supported yet.");
+      if (servletInputSTream == null) {
+         servletInputSTream = new org.openrepose.rnxp.servlet.http.ServletInputStream(getPushInputStream());
+      }
+
+      return servletInputSTream;
    }
-   
-   @Override
-   public void commitMessage() throws IOException {
-   }
+
 
    @Override
    public void mergeWithPartial(HttpMessagePartial partial) {
@@ -75,29 +77,34 @@ public class LiveHttpServletRequest extends AbstractHttpServletRequest implement
    }
 
    @Override
+   public String getProtocol() {
+      return httpVersion;
+   }
+
+   @Override
    public String getMethod() {
-      loadComponent(HttpMessageComponent.REQUEST_METHOD, HttpMessageComponentOrder.requestOrderInstance());
+      loadComponent(HttpMessageComponent.REQUEST_METHOD);
 
       return requestMethod.name();
    }
 
    @Override
    public String getRequestURI() {
-      loadComponent(HttpMessageComponent.REQUEST_URI, HttpMessageComponentOrder.requestOrderInstance());
+      loadComponent(HttpMessageComponent.REQUEST_URI);
 
       return requestUri;
    }
 
    @Override
    public StringBuffer getRequestURL() {
-      loadComponent(HttpMessageComponent.REQUEST_URI, HttpMessageComponentOrder.requestOrderInstance());
+      loadComponent(HttpMessageComponent.REQUEST_URI);
 
       return requestUrl;
    }
 
    @Override
    public String getHeader(String name) {
-      loadComponent(HttpMessageComponent.HEADER, HttpMessageComponentOrder.requestOrderInstance());
+      loadComponent(HttpMessageComponent.HEADER);
 
       final List<String> headerValues = headerMap.get(name);
       return headerValues != null && headerValues.size() > 0 ? headerValues.get(0) : null;
@@ -105,14 +112,14 @@ public class LiveHttpServletRequest extends AbstractHttpServletRequest implement
 
    @Override
    public Enumeration<String> getHeaderNames() {
-      loadComponent(HttpMessageComponent.HEADER, HttpMessageComponentOrder.requestOrderInstance());
+      loadComponent(HttpMessageComponent.HEADER);
 
       return Collections.enumeration(headerMap.keySet());
    }
 
    @Override
    public Enumeration<String> getHeaders(String name) {
-      loadComponent(HttpMessageComponent.HEADER, HttpMessageComponentOrder.requestOrderInstance());
+      loadComponent(HttpMessageComponent.HEADER);
 
       final List<String> headerValues = headerMap.get(name);
       return headerValues != null && headerValues.size() > 0 ? Collections.enumeration(headerValues) : null;

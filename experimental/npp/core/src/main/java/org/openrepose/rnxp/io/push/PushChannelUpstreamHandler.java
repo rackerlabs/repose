@@ -2,7 +2,7 @@ package org.openrepose.rnxp.io.push;
 
 import org.jboss.netty.buffer.ChannelBuffer;
 import org.jboss.netty.channel.*;
-import org.openrepose.rnxp.http.proxy.InboundOutboundCoordinator;
+import org.openrepose.rnxp.http.proxy.OutboundCoordinator;
 import org.openrepose.rnxp.logging.ThreadStamp;
 import org.openrepose.rnxp.pipe.BlockingMessagePipe;
 import org.openrepose.rnxp.pipe.MessagePipe;

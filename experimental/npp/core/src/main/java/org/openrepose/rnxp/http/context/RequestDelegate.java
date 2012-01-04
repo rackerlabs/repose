@@ -1,13 +1,22 @@
 package org.openrepose.rnxp.http.context;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import javax.servlet.ServletException;
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.openrepose.rnxp.PowerProxy;
+import org.openrepose.rnxp.RequestResponsePair;
 import org.openrepose.rnxp.http.io.control.HttpConnectionController;
 import org.openrepose.rnxp.http.proxy.OriginConnectionFuture;
 import org.openrepose.rnxp.logging.ThreadStamp;
+import org.openrepose.rnxp.servlet.context.ExternalRoutableRequestDispatcher;
+import org.openrepose.rnxp.servlet.context.NXPServletContext;
 import org.openrepose.rnxp.servlet.http.SwitchableHttpServletResponse;
-import org.openrepose.rnxp.servlet.http.detached.DetachedHttpServletResponse;
+import org.openrepose.rnxp.servlet.http.detached.ClientHttpServletResponse;
+import org.openrepose.rnxp.servlet.http.serializer.RequestHeadSerializer;
+import org.openrepose.rnxp.servlet.http.serializer.ResponseHeadSerializer;
 import org.openrepose.rnxp.servlet.http.live.LiveHttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,12 +43,53 @@ public class RequestDelegate implements Runnable {
       this.powerProxyInstance = powerProxyInstance;
    }
 
+   public void writeRequest(HttpServletRequest request) throws IOException {
+      final RequestHeadSerializer serializer = new RequestHeadSerializer(request);
+
+      final OutputStream clientOut = updateController.getCoordinator().getClientOutputStream();
+      int read;
+
+      while ((read = serializer.read()) != -1) {
+         clientOut.write(read);
+      }
+
+      clientOut.flush();
+
+      final ServletInputStream inputStream = request.getInputStream();
+
+      while ((read = inputStream.read()) != -1) {
+         clientOut.write(read);
+      }
+      
+      clientOut.flush();
+   }
+
+   public void writeResponse(HttpServletResponse response) throws IOException {
+      final ResponseHeadSerializer serializer = new ResponseHeadSerializer(response);
+
+      final OutputStream clientOut = updateController.getCoordinator().getClientOutputStream();
+      int read;
+
+      while ((read = serializer.read()) != -1) {
+         clientOut.write(read);
+      }
+
+      clientOut.flush();
+      response.flushBuffer();
+   }
+
    @Override
    public void run() {
+      final NXPServletContext servletContext = powerProxyInstance.getServletContext();
+      
       try {
-         response.setResponseDelegate(new DetachedHttpServletResponse(updateController));
-         powerProxyInstance.handleRequest(originConnectionFuture, request, response);
-         response.flushBuffer();
+         servletContext.setDispatchThreadLocal(new ExternalRoutableRequestDispatcher(originConnectionFuture));
+         
+         response.setResponseDelegate(new ClientHttpServletResponse(updateController));
+         final RequestResponsePair pair = powerProxyInstance.handleRequest(originConnectionFuture, request, response);
+
+         // the road ends here
+         pair.getHttpServletResponse().flushBuffer();
       } catch (ServletException se) {
          LOG.error(se.getMessage(), se);
       } catch (IOException ioe) {

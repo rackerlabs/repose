@@ -20,12 +20,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.http.Part;
+import org.openrepose.rnxp.http.HttpMessageComponentOrder;
+import org.openrepose.rnxp.http.io.control.HttpConnectionController;
 
 /**
  *
  * @author zinic
  */
 public abstract class AbstractHttpServletRequest extends AbstractUpdatableHttpMessage implements HttpServletRequest {
+
+   public AbstractHttpServletRequest(HttpConnectionController updateController, HttpMessageComponentOrder componentOrder) {
+      super(updateController, componentOrder);
+   }
 
    @Override
    public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
@@ -228,7 +234,10 @@ public abstract class AbstractHttpServletRequest extends AbstractUpdatableHttpMe
    }
 
    @Override
-   public Locale getLocale() {
+   public Locale getLocale
+      // This commits the message
+      // This commits the message
+      () {
       throw new UnsupportedOperationException("Not supported yet.");
    }
 

@@ -19,6 +19,7 @@ import org.openrepose.rnxp.servlet.context.ExternalRoutableRequestDispatcher;
 import org.openrepose.rnxp.servlet.context.NXPServletContext;
 import org.openrepose.rnxp.servlet.context.filter.NXPFilterConfig;
 import org.openrepose.rnxp.servlet.filter.EmptyFilterChain;
+import org.openrepose.rnxp.servlet.filter.LastCallFilterChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,7 +40,7 @@ public class PowerProxy {
       ctxManager = new PowerApiContextManager();
       powerFilterInstance = new PowerFilter();
       servletContext = new NXPServletContext(new HashMap<String, Object>());
-      
+
       executorService = Executors.newCachedThreadPool();
    }
 
@@ -60,18 +61,22 @@ public class PowerProxy {
       }
    }
 
-   public void handleRequest(OriginConnectionFuture connectionFuture, HttpServletRequest request, HttpServletResponse response) throws ServletException {
-      servletContext.setDispatchThreadLocal(new ExternalRoutableRequestDispatcher(connectionFuture));
-      
+   public NXPServletContext getServletContext() {
+      return servletContext;
+   }
+
+   public RequestResponsePair handleRequest(OriginConnectionFuture connectionFuture, HttpServletRequest request, HttpServletResponse response) throws ServletException {
+      final LastCallFilterChain rootFilterChain = new LastCallFilterChain();
+
       try {
-         powerFilterInstance.doFilter(request, response, EmptyFilterChain.getInstance());
+         powerFilterInstance.doFilter(request, response, rootFilterChain);
       } catch (IOException ioe) {
          LOG.error(ioe.getMessage(), ioe);
       } catch (ServletException se) {
          LOG.error(se.getMessage(), se);
-      } finally {
-         servletContext.unsetDispatchThreadLocal();
       }
+
+      return new RequestResponsePair(rootFilterChain.getLastRequestObjectPassed(), rootFilterChain.getLastResponseObjectPassed());
    }
 
    public ExecutorService getExecutorService() {
