@@ -1,11 +1,9 @@
 package com.rackspace.papi.service.config;
 
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
-import com.rackspace.papi.commons.util.Destroyable;
-import com.rackspace.papi.commons.util.thread.Poller;
 import com.rackspace.papi.commons.util.thread.RecurringTask;
-import com.rackspace.papi.service.event.EventService;
-import java.io.IOException;
+import com.rackspace.papi.service.event.common.EventService;
+
 import java.util.HashMap;
 import java.util.Map;
 

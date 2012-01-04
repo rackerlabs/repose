@@ -2,12 +2,12 @@ package com.rackspace.papi.filter.resource;
 
 import com.rackspace.papi.commons.util.Destroyable;
 import com.rackspace.papi.filter.resource.reclaim.ResourceUseConstrainedReclaimer;
+import com.rackspace.papi.service.filterchain.SweepingGarbageCollector;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 /**
