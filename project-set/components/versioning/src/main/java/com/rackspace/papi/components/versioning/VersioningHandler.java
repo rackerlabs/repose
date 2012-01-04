@@ -16,7 +16,7 @@ import com.rackspace.papi.components.versioning.util.ContentTransformer;
 import com.rackspace.papi.components.versioning.util.VersionChoiceFactory;
 import com.rackspace.papi.domain.HostComparator;
 import com.rackspace.papi.domain.HostUtilities;
-import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
+import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
@@ -27,7 +27,7 @@ import javax.xml.bind.JAXBElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class VersioningHandler extends AbstractFilterLogicHandler  {
+public class VersioningHandler extends AbstractFilterLogicHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(VersioningHandler.class);
     private static final ObjectFactory VERSIONING_OBJECT_FACTORY = new ObjectFactory();

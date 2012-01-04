@@ -13,7 +13,7 @@ import com.rackspace.papi.service.event.EventManagerServiceContext;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import com.rackspace.papi.service.context.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.ResponseMessageServiceContext;
-import com.rackspace.papi.service.datastore.DatastoreServiceContext;
+import com.rackspace.papi.service.context.DatastoreServiceContext;
 import com.rackspace.papi.service.context.FilterChainGCServiceContext;
 import com.rackspace.papi.service.filterchain.GarbageCollectionService;
 import com.rackspace.papi.service.threading.ThreadingServiceContext;

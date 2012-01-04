@@ -6,10 +6,11 @@ import com.rackspace.papi.service.context.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.service.datastore.DatastoreServiceContext;
+import com.rackspace.papi.service.context.DatastoreServiceContext;
 import javax.naming.Context;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
