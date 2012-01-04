@@ -6,7 +6,7 @@ import com.rackspace.papi.components.clientip.config.ClientIpIdentityConfig;
 import com.rackspace.papi.components.clientip.config.HttpHeader;
 import com.rackspace.papi.components.clientip.extractor.ClientGroupExtractor;
 import com.rackspace.papi.components.clientip.extractor.ClientIpExtractor;
-import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
+import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.HeaderManager;

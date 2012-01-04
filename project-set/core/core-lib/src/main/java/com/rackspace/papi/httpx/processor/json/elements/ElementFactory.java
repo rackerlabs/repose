@@ -1,6 +1,6 @@
 package com.rackspace.papi.httpx.processor.json.elements;
 
-import com.rackspace.papi.httpx.processor.Element;
+import com.rackspace.papi.httpx.processor.common.Element;
 import org.codehaus.jackson.JsonToken;
 
 public enum ElementFactory {

@@ -2,8 +2,8 @@ package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import org.junit.Ignore;
 import com.rackspace.papi.service.datastore.Datastore;
+import org.junit.Ignore;
 import com.rackspace.papi.service.datastore.impl.StoredElementImpl;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;

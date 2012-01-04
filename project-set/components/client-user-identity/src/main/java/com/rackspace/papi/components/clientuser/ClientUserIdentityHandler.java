@@ -1,19 +1,18 @@
 package com.rackspace.papi.components.clientuser;
 
 import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.clientuser.config.ClientUserIdentityConfig;
 import com.rackspace.papi.components.clientuser.config.UserMapping;
-import com.rackspace.papi.filter.logic.AbstractFilterLogicHandler;
+import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.HeaderManager;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 
 public class ClientUserIdentityHandler extends AbstractFilterLogicHandler {

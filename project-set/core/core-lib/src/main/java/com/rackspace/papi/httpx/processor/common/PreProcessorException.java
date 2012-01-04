@@ -1,4 +1,4 @@
-package com.rackspace.papi.httpx.processor;
+package com.rackspace.papi.httpx.processor.common;
 
 public class PreProcessorException extends RuntimeException {
    public PreProcessorException(String message) {
