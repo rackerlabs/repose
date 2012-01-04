@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.ServletInputStream;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
 import org.openrepose.rnxp.decoder.partial.impl.HeaderPartial;
 import org.openrepose.rnxp.decoder.partial.impl.HttpVersionPartial;
@@ -17,7 +18,6 @@ import org.openrepose.rnxp.decoder.partial.impl.RequestMethodPartial;
 import org.openrepose.rnxp.decoder.partial.impl.RequestUriPartial;
 import org.openrepose.rnxp.http.HttpMethod;
 import org.openrepose.rnxp.http.io.control.HttpConnectionController;
-import org.openrepose.rnxp.http.proxy.OriginConnectionFuture;
 
 /**
  *
@@ -25,126 +25,129 @@ import org.openrepose.rnxp.http.proxy.OriginConnectionFuture;
  */
 public class LiveHttpServletRequest extends AbstractHttpServletRequest implements UpdatableHttpServletRequest {
 
-    private final OriginConnectionFuture streamController;
-    private final Map<String, List<String>> headerMap;
-    private final StringBuffer requestUrl;
-    private HttpMethod requestMethod;
-    private String requestUri;
-    private String httpVersion;
+   private final Map<String, List<String>> headerMap;
+   private final StringBuffer requestUrl;
+   private HttpMethod requestMethod;
+   private ServletInputStream servletInputSTream;
+   private String requestUri;
+   private String httpVersion;
 
-    public LiveHttpServletRequest(HttpConnectionController updateController, OriginConnectionFuture streamController) {
-        this.streamController = streamController;
+   public LiveHttpServletRequest(HttpConnectionController updateController) {
+      super(updateController, HttpMessageComponentOrder.requestOrderInstance());
 
-        headerMap = new HashMap<String, List<String>>();
-        requestUrl = new StringBuffer("http://localhost:8080");
-        
-        setUpdateController(updateController);
-    }
+      headerMap = new HashMap<String, List<String>>();
+      requestUrl = new StringBuffer("http://localhost:8080");
+   }
 
-    @Override
-    public void commitMessage() throws IOException {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
+   @Override
+   public ServletInputStream getInputStream() throws IOException {
+      if (servletInputSTream == null) {
+         servletInputSTream = new org.openrepose.rnxp.servlet.http.ServletInputStream(getPushInputStream());
+      }
 
-    @Override
-    public OriginConnectionFuture getOriginConnectionFuture() {
-        return streamController;
-    }
+      return servletInputSTream;
+   }
 
-    @Override
-    public void mergeWithPartial(HttpMessagePartial partial) {
-        switch (partial.getHttpMessageComponent()) {
-            case REQUEST_METHOD:
-                requestMethod = ((RequestMethodPartial) partial).getHttpMethod();
-                break;
 
-            case REQUEST_URI:
-                requestUri = ((RequestUriPartial) partial).getRequestUri();
+   @Override
+   public void mergeWithPartial(HttpMessagePartial partial) {
+      switch (partial.getHttpMessageComponent()) {
+         case REQUEST_METHOD:
+            requestMethod = ((RequestMethodPartial) partial).getHttpMethod();
+            break;
 
-                final int indexOfQueryDelim = requestUri.indexOf("?");
-                requestUrl.append(indexOfQueryDelim > 0 ? requestUri.substring(0, indexOfQueryDelim) : requestUri);
+         case REQUEST_URI:
+            requestUri = ((RequestUriPartial) partial).getRequestUri();
 
-                break;
+            final int indexOfQueryDelim = requestUri.indexOf("?");
+            requestUrl.append(indexOfQueryDelim > 0 ? requestUri.substring(0, indexOfQueryDelim) : requestUri);
 
-            case HTTP_VERSION:
-                httpVersion = ((HttpVersionPartial) partial).getHttpVersion();
-                break;
+            break;
 
-            case HEADER:
-                addHeader(((HeaderPartial) partial).getHeaderKey(), ((HeaderPartial) partial).getHeaderValue());
-                break;
-                
-            default:
-        }
-    }
+         case HTTP_VERSION:
+            httpVersion = ((HttpVersionPartial) partial).getHttpVersion();
+            break;
 
-    @Override
-    public String getMethod() {
-        loadComponent(HttpMessageComponent.REQUEST_METHOD, HttpMessageComponentOrder.requestOrderInstance());
+         case HEADER:
+            addHeader(((HeaderPartial) partial).getHeaderKey(), ((HeaderPartial) partial).getHeaderValue());
+            break;
 
-        return requestMethod.name();
-    }
+         default:
+      }
+   }
 
-    @Override
-    public String getRequestURI() {
-        loadComponent(HttpMessageComponent.REQUEST_URI, HttpMessageComponentOrder.requestOrderInstance());
+   @Override
+   public String getProtocol() {
+      return httpVersion;
+   }
 
-        return requestUri;
-    }
+   @Override
+   public String getMethod() {
+      loadComponent(HttpMessageComponent.REQUEST_METHOD);
 
-    @Override
-    public StringBuffer getRequestURL() {
-        loadComponent(HttpMessageComponent.REQUEST_URI, HttpMessageComponentOrder.requestOrderInstance());
+      return requestMethod.name();
+   }
 
-        return requestUrl;
-    }
+   @Override
+   public String getRequestURI() {
+      loadComponent(HttpMessageComponent.REQUEST_URI);
 
-    @Override
-    public String getHeader(String name) {
-        loadComponent(HttpMessageComponent.HEADER, HttpMessageComponentOrder.requestOrderInstance());
+      return requestUri;
+   }
 
-        final List<String> headerValues = headerMap.get(name);
-        return headerValues != null && headerValues.size() > 0 ? headerValues.get(0) : null;
-    }
+   @Override
+   public StringBuffer getRequestURL() {
+      loadComponent(HttpMessageComponent.REQUEST_URI);
 
-    @Override
-    public Enumeration<String> getHeaderNames() {
-        loadComponent(HttpMessageComponent.HEADER, HttpMessageComponentOrder.requestOrderInstance());
+      return requestUrl;
+   }
 
-        return Collections.enumeration(headerMap.keySet());
-    }
+   @Override
+   public String getHeader(String name) {
+      loadComponent(HttpMessageComponent.HEADER);
 
-    @Override
-    public Enumeration<String> getHeaders(String name) {
-        loadComponent(HttpMessageComponent.HEADER, HttpMessageComponentOrder.requestOrderInstance());
+      final List<String> headerValues = headerMap.get(name);
+      return headerValues != null && headerValues.size() > 0 ? headerValues.get(0) : null;
+   }
 
-        final List<String> headerValues = headerMap.get(name);
-        return headerValues != null && headerValues.size() > 0 ? Collections.enumeration(headerValues) : null;
-    }
+   @Override
+   public Enumeration<String> getHeaderNames() {
+      loadComponent(HttpMessageComponent.HEADER);
 
-    private List<String> newHeaderList(String headerKey) {
-        final List<String> newList = new LinkedList<String>();
-        headerMap.put(headerKey, newList);
+      return Collections.enumeration(headerMap.keySet());
+   }
 
-        return newList;
-    }
+   @Override
+   public Enumeration<String> getHeaders(String name) {
+      loadComponent(HttpMessageComponent.HEADER);
 
-    private List<String> getHeaderList(String headerKey) {
-        final List<String> list = headerMap.get(headerKey);
+      final List<String> headerValues = headerMap.get(name);
+      return headerValues != null && headerValues.size() > 0 ? Collections.enumeration(headerValues) : null;
+   }
 
-        return list != null ? list : newHeaderList(headerKey);
-    }
+   private List<String> newHeaderList(String headerKey) {
+      final List<String> newList = new LinkedList<String>();
+      headerMap.put(headerKey, newList);
 
-    public void addHeader(String headerKey, String... values) {
-        final List<String> headerList = getHeaderList(headerKey);
+      return newList;
+   }
 
-        headerList.addAll(Arrays.asList(values));
-    }
+   private List<String> getHeaderList(String headerKey) {
+      final List<String> list = headerMap.get(headerKey);
 
-    public void putHeader(String headerKey, String... values) {
-        final List<String> headerList = getHeaderList(headerKey);
-        headerList.clear();
+      return list != null ? list : newHeaderList(headerKey);
+   }
 
-        headerList.addAll(Arrays.asList(values));
-    }
+   public void addHeader(String headerKey, String... values) {
+      final List<String> headerList = getHeaderList(headerKey);
+
+      headerList.addAll(Arrays.asList(values));
+   }
+
+   public void putHeader(String headerKey, String... values) {
+      final List<String> headerList = getHeaderList(headerKey);
+      headerList.clear();
+
+      headerList.addAll(Arrays.asList(values));
+   }
 }

@@ -2,21 +2,17 @@ package com.rackspace.papi.service.context;
 
 import com.rackspace.papi.service.context.banner.PapiBanner;
 import com.rackspace.papi.service.ServiceContext;
-import com.rackspace.papi.service.classloader.ClassLoaderServiceContext;
-import com.rackspace.papi.service.config.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.service.datastore.DatastoreServiceContext;
 import com.rackspace.papi.service.deploy.ArtifactManagerServiceContext;
 import com.rackspace.papi.service.event.EventManagerServiceContext;
-import com.rackspace.papi.service.filterchain.FilterChainGCServiceContext;
-import com.rackspace.papi.service.logging.LoggingServiceContext;
 import com.rackspace.papi.service.naming.InitialServiceContextFactory;
 import com.rackspace.papi.service.threading.ThreadingServiceContext;
 import com.rackspace.papi.servlet.PowerApiContextException;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +25,7 @@ import javax.servlet.ServletContextListener;
 public class PowerApiContextManager implements ServletContextListener {
     
     private static final Logger LOG = LoggerFactory.getLogger(PowerApiContextManager.class);
-    private final List<String> boundServiceContextNames;
+    private final LinkedList<String> boundServiceContextNames;
     private Context initialContext;
     
     public PowerApiContextManager() {
@@ -110,6 +106,7 @@ public class PowerApiContextManager implements ServletContextListener {
         initService(new ResponseMessageServiceContext(), sce);
 
         // Datastore Service
+        // TODO:Refactor - This service should be bound to a fitler-chain specific JNDI context
         initService(new DatastoreServiceContext(), sce);
 
         // Start up the class loader manager
@@ -124,7 +121,8 @@ public class PowerApiContextManager implements ServletContextListener {
     
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-        Iterator<String> iterator = ((LinkedList<String>)boundServiceContextNames).descendingIterator();
+        final Iterator<String> iterator = boundServiceContextNames.descendingIterator();
+        
         while (iterator.hasNext()) {
             final String ctxName = iterator.next();
 

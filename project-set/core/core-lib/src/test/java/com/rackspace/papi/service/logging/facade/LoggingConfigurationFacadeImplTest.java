@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.logging.facade;
 
-import com.rackspace.papi.service.logging.LogFrameworks;
+import com.rackspace.papi.service.logging.common.LogFrameworks;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

@@ -14,62 +14,72 @@ import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.openrepose.rnxp.http.proxy.OriginConnectionFuture;
+import org.openrepose.rnxp.servlet.context.ExternalRoutableRequestDispatcher;
 import org.openrepose.rnxp.servlet.context.NXPServletContext;
 import org.openrepose.rnxp.servlet.context.filter.NXPFilterConfig;
 import org.openrepose.rnxp.servlet.filter.EmptyFilterChain;
+import org.openrepose.rnxp.servlet.filter.LastCallFilterChain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Thread safe PowerFilter container class.
- * 
+ *
  * @author zinic
  */
 public class PowerProxy {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PowerProxy.class);
-    private final Map<String, Object> containerAttributes;
-    private final PowerApiContextManager ctxManager;
-    private final PowerFilter powerFilterInstance;
-    private final ExecutorService executorService;
+   private static final Logger LOG = LoggerFactory.getLogger(PowerProxy.class);
+   private final NXPServletContext servletContext;
+   private final PowerApiContextManager ctxManager;
+   private final PowerFilter powerFilterInstance;
+   private final ExecutorService executorService;
 
-    public PowerProxy() {
-        containerAttributes = new HashMap<String, Object>();
-        ctxManager = new PowerApiContextManager();
-        powerFilterInstance = new PowerFilter();
+   public PowerProxy() {
+      ctxManager = new PowerApiContextManager();
+      powerFilterInstance = new PowerFilter();
+      servletContext = new NXPServletContext(new HashMap<String, Object>());
 
-        executorService = Executors.newCachedThreadPool();
-    }
+      executorService = Executors.newCachedThreadPool();
+   }
 
-    public void init() {
-        final ServletContext sc = new NXPServletContext(containerAttributes);
-        sc.setInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), "/etc/powerapi");
+   public void init() {
+      servletContext.setInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), "/etc/powerapi");
 
-        // Show me Papi!
-        sc.setInitParameter("show-me-papi", "true");
+      // Show me Papi!
+      servletContext.setInitParameter("show-me-papi", "true");
 
-        final Map<String, String> powerFilterParams = new HashMap<String, String>();
-        final FilterConfig fc = new NXPFilterConfig("power-filter", sc, powerFilterParams);
+      final Map<String, String> powerFilterParams = new HashMap<String, String>();
+      final FilterConfig fc = new NXPFilterConfig("power-filter", servletContext, powerFilterParams);
 
-        try {
-            ctxManager.contextInitialized(new ServletContextEvent(sc));
-            powerFilterInstance.init(fc);
-        } catch (ServletException servletException) {
-            LOG.error(servletException.getMessage(), servletException);
-        }
-    }
+      try {
+         ctxManager.contextInitialized(new ServletContextEvent(servletContext));
+         powerFilterInstance.init(fc);
+      } catch (ServletException servletException) {
+         LOG.error(servletException.getMessage(), servletException);
+      }
+   }
 
-    public void handleRequest(HttpServletRequest request, HttpServletResponse response) throws ServletException {
-        try {
-            powerFilterInstance.doFilter(request, response, EmptyFilterChain.getInstance());
-        } catch (IOException ioe) {
-            LOG.error(ioe.getMessage(), ioe);
-        } catch (ServletException se) {
-            LOG.error(se.getMessage(), se);
-        }
-    }
+   public NXPServletContext getServletContext() {
+      return servletContext;
+   }
 
-    public ExecutorService getExecutorService() {
-        return executorService;
-    }
+   public RequestResponsePair handleRequest(OriginConnectionFuture connectionFuture, HttpServletRequest request, HttpServletResponse response) throws ServletException {
+      final LastCallFilterChain rootFilterChain = new LastCallFilterChain();
+
+      try {
+         powerFilterInstance.doFilter(request, response, rootFilterChain);
+      } catch (IOException ioe) {
+         LOG.error(ioe.getMessage(), ioe);
+      } catch (ServletException se) {
+         LOG.error(se.getMessage(), se);
+      }
+
+      return new RequestResponsePair(rootFilterChain.getLastRequestObjectPassed(), rootFilterChain.getLastResponseObjectPassed());
+   }
+
+   public ExecutorService getExecutorService() {
+      return executorService;
+   }
 }

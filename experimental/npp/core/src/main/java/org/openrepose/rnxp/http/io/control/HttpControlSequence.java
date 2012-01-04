@@ -11,6 +11,7 @@ public enum HttpControlSequence {
     HTTP_VERSION("HTTP/1.1"),
     LINE_END("\r\n"),
     SPACE(" "),
+    QUERY_PARAMETER_SEPERATOR("?"),
     HEADER_SEPERATOR(":");
     
     // Class contents

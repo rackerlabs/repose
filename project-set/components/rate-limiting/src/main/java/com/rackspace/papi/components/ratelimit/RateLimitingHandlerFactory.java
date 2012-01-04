@@ -23,20 +23,21 @@ public final class RateLimitingHandlerFactory extends AbstractConfiguredFilterHa
    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingHandlerFactory.class);
    private final Map<String, Map<String, Pattern>> regexCache;
    private final RateLimitCache rateLimitCache;
+   
    //Volatile
    private Pattern describeLimitsUriRegex;
    private RateLimitingConfiguration rateLimitingConfig;
 
    @Override
    protected Map<Class, UpdateListener<?>> getListeners() {
-      return new HashMap<Class, UpdateListener<?>>() {
-         {
-            put(RateLimitingConfiguration.class, new RateLimitingConfigurationListener());
-         }
-      };
+      final Map<Class, UpdateListener<?>> listenerMap = new HashMap<Class, UpdateListener<?>>();
+      listenerMap.put(RateLimitingConfiguration.class, new RateLimitingConfigurationListener());
+
+      return listenerMap;
    }
 
    private class RateLimitingConfigurationListener implements UpdateListener<RateLimitingConfiguration> {
+
       @Override
       public void configurationUpdated(RateLimitingConfiguration configurationObject) {
 
@@ -78,6 +79,4 @@ public final class RateLimitingHandlerFactory extends AbstractConfiguredFilterHa
    protected RateLimitingHandler buildHandler() {
       return new RateLimitingHandler(regexCache, rateLimitCache, describeLimitsUriRegex, rateLimitingConfig);
    }
-
-
 }

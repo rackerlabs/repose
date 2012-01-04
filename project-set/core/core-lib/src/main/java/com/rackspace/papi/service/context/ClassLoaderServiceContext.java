@@ -1,7 +1,9 @@
-package com.rackspace.papi.service.classloader;
+package com.rackspace.papi.service.context;
 
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.service.ServiceContext;
+import com.rackspace.papi.service.classloader.ApplicationClassLoaderManagerImpl;
+import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import com.rackspace.papi.service.event.Event;
 import com.rackspace.papi.service.event.listener.EventListener;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;

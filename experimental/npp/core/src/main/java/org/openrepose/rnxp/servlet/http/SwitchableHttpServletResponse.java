@@ -12,21 +12,16 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author zinic
  */
-public class SwitchableHttpServletResponse implements CommittableHttpServletResponse {
+public class SwitchableHttpServletResponse implements HttpServletResponse {
 
-    private CommittableHttpServletResponse responseDelegate;
+    private HttpServletResponse responseDelegate;
 
-    public synchronized void setResponseDelegate(CommittableHttpServletResponse responseDelegate) {
+    public synchronized void setResponseDelegate(HttpServletResponse responseDelegate) {
         this.responseDelegate = responseDelegate;
     }
 
     public synchronized HttpServletResponse getResponseDelegate() {
         return responseDelegate;
-    }
-
-    @Override
-    public void commitMessage() throws IOException {
-        responseDelegate.commitMessage();
     }
 
     @Override

@@ -4,6 +4,7 @@
  */
 package com.rackspace.papi.components.routing;
 
+import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.domain.HostUtilities;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -13,6 +14,7 @@ import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.model.Host;
 import com.rackspace.papi.commons.util.net.NetUtilities;
+import com.rackspace.papi.filter.logic.FilterAction;
 
 
 import com.rackspace.papi.model.FilterList;
@@ -36,7 +38,7 @@ public class RoutingTaggerTest {
     public void setUp() {
         
         requestUri = "/mock/request/uri";
-        nextHostName = "nextHostToRoute";
+        
         
         request = mock(HttpServletRequest.class);
         response = mock(ReadableHttpServletResponse.class);
@@ -69,6 +71,7 @@ public class RoutingTaggerTest {
     @Test
     public void shouldRouteToNextNonLocalHost() throws MalformedURLException{
         
+        nextHostName = "nextHostToRoute";
         final Host nextHost = new Host();
         nextHost.setHostname(nextHostName);
         nextHost.setFilters(mock(FilterList.class));
@@ -79,5 +82,6 @@ public class RoutingTaggerTest {
         assertTrue("Should route to next non-localhost host",result.requestHeaderManager().headersToAdd().get(PowerApiHeader.NEXT_ROUTE.getHeaderKey().toLowerCase()).contains(nextRoute));
         
     }
+    
 
 }

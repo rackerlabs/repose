@@ -1,11 +1,11 @@
 package org.openrepose.rnxp.servlet.http.live;
 
+import javax.servlet.http.HttpServletRequest;
 import org.openrepose.rnxp.http.io.control.UpdatableHttpMessage;
-import org.openrepose.rnxp.servlet.http.CommittableHttpServletRequest;
 
 /**
  *
  * @author zinic
  */
-public interface UpdatableHttpServletRequest extends UpdatableHttpMessage, CommittableHttpServletRequest {
+public interface UpdatableHttpServletRequest extends UpdatableHttpMessage, HttpServletRequest {
 }

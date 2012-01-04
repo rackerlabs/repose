@@ -4,7 +4,6 @@ import com.rackspace.papi.service.ServiceContext;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.service.datastore.impl.PowerApiDatastoreService;
 import com.rackspace.papi.service.datastore.impl.ehcache.EHCacheDatastoreManager;
-import com.rackspace.papi.servlet.PowerApiContextException;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;

@@ -36,8 +36,9 @@
       xmlns:svg="http://www.w3.org/2000/svg"
       xmlns:m="http://www.w3.org/1998/Math/MathML"
       xmlns:html="http://www.w3.org/1999/xhtml"
-      xmlns:db="http://docbook.org/ns/docbook" >
-    <?rax pdf.url="../../papi-rootwar-deploy.pdf"?>
+      xmlns:db="http://docbook.org/ns/docbook" 
+      xml:id="Repose-RootWAR-Deployment-Guide">
+    <?rax pdf.url="../../repose-rootwar-deploy.pdf"?>
     <title>&PRODNAME; Root.WAR Deployment Handbook</title>
     <!-- set watermark on cover and left margin 
         <?rax status.bar.text="CONFIDENTIAL"?>
@@ -59,7 +60,7 @@
             <year>2011</year>
             <holder>Rackspace US, Inc.</holder>
         </copyright>
-        <releaseinfo>v0.9</releaseinfo>
+        <releaseinfo>v1.0</releaseinfo>
         <productname>&PRODNAME;</productname>
         <pubdate>2011-09-21</pubdate>
         <legalnotice role="apache2">

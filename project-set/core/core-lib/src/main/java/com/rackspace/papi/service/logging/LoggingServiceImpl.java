@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.logging;
 
+import com.rackspace.papi.service.logging.common.LogFrameworks;
 import com.rackspace.papi.service.logging.facade.LoggingConfigurationFacade;
 import com.rackspace.papi.service.logging.facade.LoggingConfigurationFacadeImpl;
 

@@ -17,10 +17,12 @@
 package com.rackspace.cloud.valve.http.proxy.httpcomponent;
 
 import java.net.URISyntaxException;
+
+import com.rackspace.cloud.valve.http.proxy.common.ProxyService;
 import org.apache.http.HttpException;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
-import com.rackspace.cloud.valve.http.proxy.ProxyService;
+
 import java.io.IOException;
 import java.net.URI;
 import javax.servlet.http.HttpServletRequest;
