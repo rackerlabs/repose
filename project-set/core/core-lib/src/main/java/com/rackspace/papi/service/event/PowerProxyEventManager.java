@@ -1,5 +1,7 @@
 package com.rackspace.papi.service.event;
 
+import com.rackspace.papi.service.event.common.Event;
+import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.event.impl.SimpleEvent;
 import com.rackspace.papi.service.event.listener.EventListener;
 import com.rackspace.papi.service.event.listener.EventListenerDescriptor;

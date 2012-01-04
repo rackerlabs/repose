@@ -1,5 +1,6 @@
-package com.rackspace.papi.service.event;
+package com.rackspace.papi.service.event.common;
 
+import com.rackspace.papi.service.event.EventDispatcher;
 import com.rackspace.papi.service.event.listener.EventListener;
 
 public interface EventService {

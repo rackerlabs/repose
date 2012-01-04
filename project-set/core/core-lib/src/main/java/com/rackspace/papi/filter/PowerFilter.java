@@ -10,7 +10,7 @@ import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.service.context.jndi.ContextAdapter;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.service.deploy.ApplicationDeploymentEvent;
-import com.rackspace.papi.service.event.Event;
+import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.listener.EventListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
