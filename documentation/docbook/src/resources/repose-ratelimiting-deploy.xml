@@ -155,48 +155,53 @@
     <chapter xml:id="Msg_Requirements-d1e172">
         <title>HTTP Message Requirements</title>
         <para> To correctly rate limit a requested resource, the rate limiting component uses one
-            required HTTP header precondition and one optional HTTP header precondition. </para>
-        <table frame="all">
+        required HTTP header precondition and one optional HTTP header precondition. </para>
+        
+        <table border="1" frame="box">
             <?dbfo keep-together="always"?>
-            <title>HTTP Request Headers</title>
-            <tgroup cols="2">
-                <colspec colname="c1" colnum="1" />
-                <colspec colname="c2" colnum="2" />
-                <thead>
-                    <row>
-                        <entry>Header</entry>
-                        <entry>Purpose</entry>
-                    </row>
-                </thead>
-                <tbody>
-                    <row>
-                        <entry>                         
-                             <para>
-                                 <code>X-PP-User</code>
-                             </para>    
-                             <para>
-                                 <emphasis>Required</emphasis>
-                             </para>
-                        </entry>
-                        <entry><code>X-PP-User</code> is a single-value header. This header is used to
-                            describe the unique name of the client making the request. This name is
-                            used in part to cache and store request hits.</entry>
-                    </row>
-                    <row>
-                        <entry>
-                            <para>
-                                <code>X-PP-Groups</code>
-                            </para>
-                            <para>
-                                <emphasis>Optional</emphasis>
-                            </para>
-                        </entry>    
-                        <entry><code>X-PP-Groups</code> is a list of string values. This header is used to
-                            describe all of the limit groups the client belongs to. A client may
-                            belong to multiple limit groups or to none.</entry>
-                    </row>
-                </tbody>
-            </tgroup>
+            <caption>HTTP Request Headers</caption>
+            <thead>
+                <tr>
+                    <td>Header</td>
+                    <td>Purpose</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <para>
+                            <code>X-PP-User</code>
+                        </para>    
+                        <para>
+                            <emphasis>Required</emphasis>
+                        </para>
+                    </td>
+                    <td>
+                        <para>
+                        <code>X-PP-User</code> is a single-value header. This header is used to
+                        describe the unique name of the client making the request. This name is
+                        used in part to cache and store request hits.
+                        </para>    
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <para>
+                            <code>X-PP-Groups</code>
+                        </para>
+                        <para>
+                            <emphasis>Optional</emphasis>
+                        </para>
+                    </td>
+                    <td>
+                        <para>
+                        <code>X-PP-Groups</code> is a list of string values. This header is used to
+                        describe all of the limit groups the client belongs to. A client may
+                        belong to multiple limit groups or to none.
+                        </para>
+                    </td>
+                </tr>
+            </tbody>
         </table>
     </chapter>
     <chapter xml:id="Configuration-d1e365">
@@ -289,73 +294,85 @@
                 attributes shown in the code sample introducing <xref linkend="Configuration-d1e365"
                 />
             </para>
-            <table frame="all">
+            
+            <table border="1" frame="box">
                 <?dbfo keep-together="always"?>
-                <title>Configuring Limits</title>
-                <tgroup cols="3">
-                    <colspec colname="c1" colnum="1" />
-                    <colspec colname="c2" colnum="2" />
-                    <colspec colname="c3" colnum="3" />
-                    <thead>
-                        <row>
-                            <entry>Attribute</entry>
-                            <entry>Description</entry>
-                            <entry>Acceptable Values</entry>
-                        </row>
-                    </thead>
-                    <tbody>
-                        <row>
-                            <entry><code>uri</code></entry>
-                            <entry>The <code>uri</code> attribute of a given limit should be a
-                                human-readable representation of the regular expression used to
-                                match this limit. The URI is useful for client end-user interfaces
-                                as well as for documentation purposes.</entry>
-                            <entry><emphasis>any valid URI</emphasis></entry>
-                        </row>
-                        <row>
-                            <entry><code>uri-regex</code></entry>
-                            <entry>The <code>uri-regex</code> attribute must be a regular expression
-                                and should match all request resource representations to which the
-                                given limit should apply.</entry>
-                            <entry><emphasis>any valid regex</emphasis></entry>
-                        </row>
-                        <row>
-                            <entry><code>http-methods</code></entry>
-                            <entry>Limits can trigger on specific HTTP methods. These trigger
-                                methods must be specified by the <code>http-methods</code>
-                                attribute. As the name implies, the attribute may contain more than
-                                one value; multiple values are delimited by spaces. The rate
-                                limiting component supports all valid HTTP methods as described by
-                                RFC 2616 at 
-                                <link xlink:href="http://www.ietf.org/rfc/rfc2616.txt">http://www.ietf.org/rfc/rfc2616.txt</link>.
-                                If the configuration
-                                specifies <code>ALL</code> for the <code>http-methods</code>
-                                attribute, this informs the rate limiting component that rate
-                                limiting should occur on all HTTP requests. </entry>
-                            <entry><code>GET</code>, <code>DELETE</code>, <code>POST</code>, <code>PUT</code>, <code>HEAD</code>, <code>TRACE</code>, <code>OPTIONS</code>, <code>CONNECT</code>,
-                            <code>ALL</code></entry>
-                        </row>
-                        <row>
-                            <entry><code>unit</code></entry>
-                            <entry>Every limit must specify a time unit specified by the
-                                    <code>unit</code> attribute. The valid values for this attribute
-                                are also enumerated in the OpenStack limits XML Schema Definition
-                                (XSD) at <link
-                                    xlink:href="http://docs.openstack.org/common/api/v1.0"
-                                    >http://docs.openstack.org/common/api/v1.0</link>. </entry>
-                            <entry><code>SECOND</code>, <code>MINUTE</code>, <code>HOUR</code>, <code>DAY</code></entry>
-                        </row>
-                        <row>
-                            <entry><code>value</code></entry>
-                            <entry>A limit's <code>value</code> attribute is an integer which
-                                describes the number of requests the limit allows. In combination
-                                with the <code>unit</code> attribute, the number of requests within
-                                a slice of time describes the rate for the given limit. The rate is
-                                then used to perform rate limiting.</entry>
-                            <entry><emphasis>any integer</emphasis></entry>
-                        </row>
-                    </tbody>
-                </tgroup>
+                <caption>Configuring Limits</caption>
+                <thead>
+                    <tr>
+                        <td>Attribute</td>
+                        <td>Description</td>
+                        <th>Acceptable Values</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>uri</code>
+                        </td>
+                        <td>
+                            The <code>uri</code> attribute of a given limit should be a
+                            human-readable representation of the regular expression used to
+                            match this limit. The URI is useful for client end-user interfaces
+                            as well as for documentation purposes.
+                        </td>
+                        <td><emphasis>any valid URI</emphasis></td>
+                    </tr>
+                    <tr>
+                        <td><code>uri-regex</code></td>
+                        <td>The <code>uri-regex</code> attribute must be a regular expression
+                            and should match all request resource representations to which the
+                            given limit should apply.
+                        </td>
+                        <td><emphasis>any valid regex</emphasis></td>
+                    </tr>
+                    <tr>
+                        <td><code>http-methods</code></td>
+                        <td>
+                            Limits can trigger on specific HTTP methods. These trigger
+                            methods must be specified by the <code>http-methods</code>
+                            attribute. As the name implies, the attribute may contain more than
+                            one value; multiple values are delimited by spaces. The rate
+                            limiting component supports all valid HTTP methods as described by
+                            RFC 2616 at 
+                            <link xlink:href="http://www.ietf.org/rfc/rfc2616.txt">http://www.ietf.org/rfc/rfc2616.txt</link>.
+                            If the configuration
+                            specifies <code>ALL</code> for the <code>http-methods</code>
+                            attribute, this informs the rate limiting component that rate
+                            limiting should occur on all HTTP requests.
+                        </td>
+                        <td><code>GET</code>, <code>DELETE</code>,
+                                <code>POST</code>, <code>PUT</code>,
+                                <code>HEAD</code>, <code>TRACE</code>,
+                                <code>OPTIONS</code>,
+                                <code>CONNECT</code>,
+                            <code>ALL</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>unit</code></td>
+                        <td>
+                            Every limit must specify a time unit specified by the
+                            <code>unit</code> attribute. The valid values for this attribute
+                            are also enumerated in the OpenStack limits XML Schema Definition
+                            (XSD) at <link
+                                xlink:href="http://docs.openstack.org/common/api/v1.0"
+                                >http://docs.openstack.org/common/api/v1.0</link>. 
+                        </td>
+                        <td><code>SECOND</code>, <code>MINUTE</code>,
+                                <code>HOUR</code>,
+                            <code>DAY</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>value</code></td>
+                        <td>
+                            A limit's <code>value</code> attribute is an integer which
+                            describes the number of requests the limit allows. In combination
+                            with the <code>unit</code> attribute, the number of requests within
+                            a slice of time describes the rate for the given limit. The rate is
+                            then used to perform rate limiting.
+                        </td>
+                        <td><emphasis>any integer</emphasis></td>
+                    </tr>
+                </tbody>
             </table>
             <important>
                 <para>
@@ -383,14 +400,63 @@
             </warning>
             <para>As you plan your own regular expressions, consider the following examples: </para>
             <annotation>
-                <remark> The ampersand character is used in regular expressions but it's also used
-                    in DocBook XML, and not ignored even inside code wrappers, so it's problematic
-                    to include in these examples. RegEx uses so many characters I can't guess any I
-                    could assign as escapes, even if I was sure escaping would work; for now, an
-                    ampersand to be displayed in the RegEx sample is coded as
-                    ampersand+a+m+p+semicolon. Check for similar complications if you add any other
-                    RegEx examples. </remark>
+                <remark> The ampersand character is used in regular
+                    expressions but it's also used in DocBook XML
+                    entities, and not ignored even inside code
+                    wrappers, so it's problematic to include in these
+                    examples. RegEx uses so many characters I can't
+                    guess any I could assign as escapes, even if I was
+                    sure escaping would work; for now, an ampersand to
+                    be displayed in the RegEx sample is coded as
+                    ampersand+a+m+p+semicolon. Check for similar
+                    complications if you add any other RegEx examples. </remark>
             </annotation>
+            
+            <table border="1" frame="box">
+                <?dbfo keep-together="always"?>
+                <caption>Sample Regular Expressions</caption>
+                <thead>
+                    <tr>
+                        <td>RegEx</td>
+                        <td>Discussion</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <code>/service/.*</code>
+                        </td>
+                        <td>
+                            <para> This is a blanket regular expression that recognizes a parent
+                                resource, <code>service</code>, and catches any request against a
+                                resource that falls under the parent. </para>
+                            <para> The rate limiting component cannot detect whether the service
+                                implementer is requesting that each resource request be tracked
+                                separately or as part of a group; the component defaults to tracking
+                                limited requests under unique keys. </para> 
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <code>/service/([^!*'();:@&amp;=+$,/?#\\[\\]]*)/.*</code> 
+                        </td>
+                        <td>
+                            <para> This regular expression generates cache keys from the second-tier
+                                resource in a given request URI. This is useful for grouping child
+                                resources under a shared rate limit. </para>
+                            <para> A service can require clients to use their account numbers as
+                                part of the resource tree to their service resources. For a client
+                                request formed like
+                                <code>http://demo.com/service/12345-account/resource</code>,
+                                executing this regular expression against the client request
+                                extracts <code>12345-account</code>. The Rate Limiting component can
+                                use this extracted information as a unique identifier to ensure that
+                                all of the recorded rate limits belong only to this client. </para>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+<!--            
             <table frame="all">
                 <?dbhtml table-width="85%" ?>
                 <?dbfo table-width="100%" ?>
@@ -440,6 +506,7 @@
                     </tbody>
                 </tgroup>
             </table>
+            -->
             <note>
                 <para> Service implementers should use capture groups in their regular expressions.
                     In addition, the performance of the regular expression should be taken into
@@ -500,48 +567,46 @@
                 </listitem>
             </itemizedlist>
         </para>
-        <table frame="all">
+        
+        <table border="1" frame="box">
             <?dbfo keep-together="always"?>
-            <title>Sample Request/Response Conversation: Request Limits</title>
-            <tgroup cols="2">
-                <colspec colname="c1" colnum="1" />
-                <colspec colname="c2" colnum="2" />
-                <thead>
-                    <row>
-                        <entry>Request</entry>
-                        <entry>Response</entry>
-                    </row>
-                </thead>
-                <tbody>
-                    <row>
-                        <entry>
-                            <programlisting>
+            <caption>Sample Request/Response Conversation: Request
+                Limits</caption>
+            <thead>
+                <tr>
+                    <td>Request</td>
+                    <td>Response</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+<programlisting>
 GET /service/limits HTTP/1.1 
 Accept: application/vnd.rackspace-v1.0+xml 
 X-PP-User: demo-username
 X-PP-Groups: demo-customer
-                                </programlisting>
-                        </entry>
-                        <entry/>
-                    </row>
-                    <row>
-                        <entry/>
-                        <entry>
-                            <informalexample>
-                                <literallayout class="monospaced">
+</programlisting>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+<informalexample>
+<literallayout class="monospaced">
 HTTP/1.1 200 OK
 Content-Length: 538
-                </literallayout>
-                            </informalexample>
-                            <informalexample>
-                                <programlisting language="xml">
+</literallayout>
+</informalexample>
+<informalexample>
+<programlisting language="xml">
 <xi:include href="samples/papi-ratelimit-response.xml" parse="text"/>
-                    </programlisting>
-                            </informalexample>
-                        </entry>
-                    </row>
-                </tbody>
-            </tgroup>
+</programlisting>
+</informalexample>
+                    </td>
+                </tr>
+            </tbody>
         </table>
     </chapter>
     <chapter xml:id="Absolute-d1e631">
@@ -567,42 +632,38 @@ Content-Length: 538
         <para>
             When this occurs, the response's <code>Retry-After</code> HTTP header contains HTTP-encoded data that the client can use to plan a retry. 
         </para>
-            <table frame="all">
-                <?dbfo keep-together="always"?>
-                <title>Sample Request/Response Conversation: Rate Exceeded</title>
-                <tgroup cols="2">
-                    <colspec colname="c1" colnum="1" />
-                    <colspec colname="c2" colnum="2" />
-                    <thead>
-                        <row>
-                            <entry>Request</entry>
-                            <entry>Response</entry>
-                        </row>
-                    </thead>
-                    <tbody>
-                        <row>
-                            <entry>
-                                <programlisting>
+        <table border="1" frame="box">
+            <?dbfo keep-together="always"?>
+            <caption>Sample Request/Response Conversation: Rate Exceeded</caption>
+            <thead>
+                <tr>
+                    <td>Request</td>
+                    <td>Response</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+<programlisting>
 GET /service/my/resource HTTP/1.1 
 Accept: application/vnd.rackspace-v1.0+xml 
 X-PP-User: username
 X-PP-Groups: customer
-                                </programlisting>
-                            </entry>
-                            <entry/>
-                        </row>
-                        <row>
-                            <entry/>
-                            <entry>
-                                <programlisting>
+</programlisting>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+<programlisting>
 HTTP/1.1 413 Request Entity Too Large
 Retry-After: Thu, 30 Jun 2011 20:24:39 GMT
-                                </programlisting>
-                            </entry>
-                        </row>
-                    </tbody>
-                </tgroup>
-            </table>
-    </chapter>
+</programlisting>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+     </chapter>
     <xi:include href="chapters/afterword.xml"/>
 </book>
