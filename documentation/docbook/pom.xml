@@ -48,8 +48,8 @@
                 <artifactId>clouddocs-maven-plugin</artifactId>
                 <!-- this <version> relates only to the *plugin* used for document formatting -->
                 <!-- the version of the *API* that is the subject of the document is indicated within each document -->
-                <!-- 1.0.8 of the plugin supports <revhistory> as an Atom feed -->
-                <version>1.0.6</version>
+                <!-- 1.0.8 of the plugin supports <revhistory> as an Atom feed, requires <feedmackEmail> for Disqus -->
+                <version>1.0.8</version>
                 <executions>
                     <execution>
                         <id>g1</id>
@@ -69,8 +69,9 @@
                             <!-- disqusShortname = Disqus account where moderator is collecting this feedback -->
                             <enableDisqus>intranet</enableDisqus>
                             <disqusShortname>rc-integration</disqusShortname>
+                            <feedbackEmail>rose.coste@rackspace.com</feedbackEmail>
                             <!-- open Webhelp at the front matter: copyright page, list of tables, list of figures, list of examples -->
-                            <htmlhelpDefaultTopic>index.html</htmlhelpDefaultTopic>
+                            <webhelpDefaultTopic>index.html</webhelpDefaultTopic>
                             <!-- look here for the .xml and everything to include such as samples and figures -->
                             <sourceDirectory>src/resources</sourceDirectory>
                             <!-- highlightSource bolds some elements of sample code but disables linewrapping -->

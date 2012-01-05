@@ -8,7 +8,7 @@ import com.rackspace.papi.commons.util.classloader.ear.EarUnpacker;
 import com.rackspace.papi.container.config.ArtifactDirectory;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.DeploymentDirectory;
-import com.rackspace.papi.service.event.EventService;
+import com.rackspace.papi.service.event.common.EventService;
 
 import java.io.File;
 

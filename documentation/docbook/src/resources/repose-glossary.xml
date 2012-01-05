@@ -58,11 +58,12 @@
         <copyright>
             <year>2010</year>
             <year>2011</year>
+            <year>2012</year>
             <holder>Rackspace US, Inc.</holder>
         </copyright>
         <releaseinfo>v1.0</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2011-09-28</pubdate>
+        <pubdate>2012-01-11</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -71,12 +72,49 @@
         <abstract>
             <para>This document is intended for anyone seeking basic information about &PRODNAME;. </para>
         </abstract>
+        <revhistory>
+            <revision>
+                <date>2012-01-11</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem><para>Initial release for Repose v1.0.</para></listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
+            <revision>
+                <date>2011-09-28</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem>
+                            <para>Initial release as internal draft.</para>
+                        </listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
+        </revhistory>
     </info>
+    <chapter xml:id="Overview-d1e85">
+        <title>Overview</title>
+        <section xml:id="Purpose-d1e90">
+            <title>Purpose</title>
+            <para>
+                The purpose of this glossary is to explain basic vocabulary and key concepts useful in understanding &PRODNAME; and some or all of its components. 
+                This glossary is not a tutorial.
+            </para>
+        </section>
+        <section xml:id="Document_Change_History-d1e102">
+            <title>Document Change History</title>
+            <para>This version of the glossary replaces and obsoletes all previous versions.
+                The most recent changes are described in the table below: </para>
+            <?rax revhistory?>
+        </section>
+        <xi:include href="chapters/available-doc.xml"/>
+    </chapter>
     <chapter xml:id="Vocabulary-d1e100">
         <title>&PRODNAME; Vocabulary</title>
         <annotation>
             <remark>
-                Source for this chapter is https://wiki.mosso.com/display/CT/PAPI+Glossary
+                Source for this chapter is https://wiki.mosso.com/display/CT/Repose+Glossary
             </remark>
         </annotation>
             <note>
