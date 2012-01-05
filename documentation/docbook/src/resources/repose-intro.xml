@@ -269,10 +269,9 @@
                 Source for this chapter is https://wiki.mosso.com/display/CT/Deployment
             </remark>
         </annotation>
-        <para>
-            &PRODNAME; is distributed as a filter bundle, containing all available components. 
-            You can choose which components to implement in your configuration.            
-        </para>
+        <para> &PRODNAME; is distributed as a filter bundle containing
+            all available components. You can choose which components
+            to implement in your configuration. </para>
         <figure xml:id="Filter-Bundle">
             <title>Multiple &PRODNAME; Components in Filter Bundle</title>
             <mediaobject>
@@ -292,164 +291,87 @@
                     <imagedata fileref="figures/papi-intro-powerproxy.png" format="PNG" align="center"/>
                 </imageobject>
             </mediaobject>
-        </figure>
-        <para>
-            &PRODNAME;'s components may be integrated with other services in several ways, including:
-        </para> 
-        <itemizedlist spacing="compact">
-            <listitem>
-                <para>
-                    <link linkend="Embedded-d1e111">Embedded</link>
-                </para>
-            </listitem>
-            <listitem>
-                <para>
-                    <link linkend="Root-d1e222">Root.WAR</link>
-                </para>
-            </listitem>
-            <listitem>
-                <para>
-                    <link linkend="Valve-d1e333">Valve</link>
-                    Valve
-                </para>
-            </listitem>
-            <listitem>
-                <para>
-                    <link linkend="ProxyServer-d1e444">Proxy Server</link>
-                </para>
-            </listitem>
-            <listitem>
-                <para>
-                    <link linkend="ProxyCluster-d1e555">Proxy Cluster</link>
-                </para>
-            </listitem>
-        </itemizedlist>   
-        <section xml:id="Embedded-d1e111">
-            <title>Deployment Method: Embedded</title>
-            <warning>
-                <para> 
-                    Early adopters of &PRODNAME; used this method. 
-                    If you are developing a new service, do not use Embedded deployment.
-                    This method will be deprecated soon.
-                </para>
-            </warning>
+        </figure>     
+        <section xml:id="Deploying-d1e101">
+            <title>Deploying &PRODNAME;</title>
             <para>
-                <firstterm>Embedded</firstterm> deployment means that the Power Filter is embedded in a service's WAR. 
-                The service's host must also host all of the &PRODNAME; components in the same app container.
-                Artifacts are loaded from the &PRODABBREV; filter bundle into the Power Filter.
-                Requests pass through the Power Filter before continuing to the service-specific filters.
-                The servlet container may be Tomcat, Jetty, GlassFish, or similar products.
+                We recommend that you deploy &PRODNAME; as a <link linkend="Deployment_Method_Preferred-d1e122">proxy server</link>. 
+                To support a large workload, you can then scale the proxy server to a <link linkend="Scaling-d1e102">proxy cluster</link>.
             </para>
-            <figure xml:id="Embed-d1e112">
-                <title>Deployment by Embedding into WAR</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="figures/papi-intro-deploy-embedded.png" format="PNG" align="center"/>
-                    </imageobject>
-                </mediaobject>
-            </figure>
             <para>
-                To use this deployment method, configure <code>power-proxy.xml</code> as follows:
+                Alternatively, you can deploy &PRODNAME; using the <link linkend="Deployment_Method_Alternate-d1e124">Root.WAR</link> method.
             </para>
-            <example>
-                <title>Configuring power-proxy.xml for Embedded Deployment</title>
-                <programlisting language="xml">
-<xi:include href="samples/papi-deploy-embedded.xml" parse="text"/>
-                    </programlisting>
-            </example>
-        </section>
-        <section xml:id="Root-d1e222">
-            <title>Deployment Method: Root.WAR</title>
-            <para> In <firstterm>Root.War</firstterm> deployment, the <code>root.war</code> supplied by &PRODNAME; replaces
-                the root component of the servlet container. The servlet container may be Tomcat,
-                Jetty, GlassFish, or similar products. </para>
-            <note>
-                <para>
-                    This deployment method is discussed in more detail in the Root.WAR Deployment Handbook.
-                </para>
-            </note>    
-            <figure xml:id="Root-Replace-d1e111">
-                <title>Deployment by Replacing the Root Component</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="figures/papi-intro-deploy-root.png" format="PNG" align="center"/>
-                    </imageobject>
-                </mediaobject>
-            </figure>
-            <example>
-                <title>Configuring power-proxy.xml for Root.WAR Deployment</title>
-                <programlisting language="xml">
+            <section xml:id="Deployment_Method_Preferred-d1e122">
+                <title>Recommended Deployment Method: Proxy Server</title>
+                    <para>
+                        In <firstterm>proxy server</firstterm> deployment, Power API is in an external servlet container and acts as a second client, 
+                        replicating each client request. 
+                        A client sends a request to the proxy server; the proxy server then sends the request to Power Filter for processing. 
+                        The proxy server also sends the modified request to the origin service, which may be a Python service. 
+                        The origin service sends a response to the proxy server, which passes that response back to the client.
+                    </para>
+                <figure xml:id="ProxyServer-d1e445">
+                    <title>Deployment as External Servlet Container</title>
+                    <mediaobject>
+                        <imageobject>
+                            <imagedata fileref="figures/papi-intro-deploy-proxyServer.png" format="PNG" align="center"/>
+                        </imageobject>
+                    </mediaobject>
+                </figure>
+            </section>
+            <section xml:id="Deployment_Method_Alternate-d1e124">
+                <title>Alternate Deployment Method: Root.WAR</title>
+                    <para> In <firstterm>Root.WAR</firstterm> deployment, the <code>root.war</code> supplied by &PRODNAME; replaces
+                        the root component of the servlet container. The servlet container may be Tomcat,
+                        Jetty, GlassFish, or similar products. </para>
+                    <note>
+                        <para>
+                            This deployment method is discussed in more detail in the Root.WAR Deployment Handbook.
+                        </para>
+                    </note>    
+                    <figure xml:id="Root-Replace-d1e111">
+                        <title>Deployment by Replacing the Root Component</title>
+                        <mediaobject>
+                            <imageobject>
+                                <imagedata fileref="figures/papi-intro-deploy-root.png" format="PNG" align="center"/>
+                            </imageobject>
+                        </mediaobject>
+                    </figure>
+                    <example>
+                        <title>Configuring power-proxy.xml for Root.WAR Deployment</title>
+                        <programlisting language="xml">
 <xi:include href="samples/papi-deploy-root.xml" parse="text"/>
                     </programlisting>
-            </example>
+                    </example>
+            </section>
         </section>
-        <section xml:id="Valve-d1e333">
-            <title>Deployment Method: Valve</title>
-            <para>
-                In <firstterm>Valve</firstterm> deployment, Power API is in an external servlet container and acts as a second client, 
-                replicating each client request. 
-                A client sends a request to Valve, then Valve sends the request to Power Filter to processes the request. 
-                Valve also sends the modified request to the origin service, which may be a Python service. 
-                The origin service sends a response to Valve, which passes that response back to the client.
-            </para>
-            <figure xml:id="Valve-d1e334">
-                <title>Deployment as Client Replica</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="figures/papi-intro-deploy-valve.png" format="PNG" align="center"/>
-                    </imageobject>
-                </mediaobject>
-            </figure>
-        </section>
-        <section xml:id="ProxyServer-d1e444">
-            <title>Deployment Method: Proxy Server</title>
-            <para>
-                In <firstterm>Proxy Server</firstterm> deployment, &PRODNAME; is in an external servlet container. 
-                This allows host-level routing over the network, so a non-Java service can take advantage of &PRODABBREV; features.
-            </para>
-            <figure xml:id="ProxyServer-d1e445">
-                <title>Deployment as External Servlet Container</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="figures/papi-intro-deploy-proxyServer.png" format="PNG" align="center"/>
-                    </imageobject>
-                </mediaobject>
-            </figure>
-            <example>
-                <title>Configuring power-proxy.xml for Proxy Server Deployment</title>
-                <programlisting language="xml">
-<xi:include href="samples/papi-deploy-proxyServer.xml" parse="text"/>
-                    </programlisting>
-            </example>
-        </section>
-        <section xml:id="ProxyCluster-d1e555">
-            <title>Deployment Method: Proxy Cluster</title>
-            <para>  
-                Using <firstterm>Proxy Cluster</firstterm> deployment, &PRODNAME; may be scaled across multiple hosts.
-                Auto-balance caching between the cluster's nodes will occur on
-                the basis of resources and requests. 
-                This allows faster processing. 
-            </para>
-            <note>
-                <para>
-                    Only the Rate Limiting component is able to take advantage of auto-balance caching's performance improvement.
-                </para>
-            </note>
-            <figure xml:id="ProxyCluster-d1e556">
-                <title>Deployment Across Multiple Hosts</title>
-                <mediaobject>
-                    <imageobject>
-                        <imagedata fileref="figures/papi-intro-deploy-proxyCluster.png" format="PNG" align="center"/>
-                    </imageobject>
-                </mediaobject>
-            </figure>
-            <example>
-                <title>Configuring power-proxy.xml for Proxy Cluster Deployment</title>
-                <programlisting language="xml">
+        <section xml:id="Scaling-d1e102">
+            <title>Scaling &PRODNAME;: Proxy Cluster</title>
+                <para> By deploying &PRODNAME; as a <firstterm>proxy
+                    cluster</firstterm>, you can divide its workload
+                across multiple hosts. Auto-balance caching between
+                the cluster's nodes will occur on the basis of
+                resources and requests. This allows faster processing. </para>
+                <note>
+                    <para>
+                        Only the Rate Limiting component is able to take advantage of auto-balance caching's performance improvement.
+                    </para>
+                </note>
+                <figure xml:id="ProxyCluster-d1e556">
+                    <title>Deployment Across Multiple Hosts</title>
+                    <mediaobject>
+                        <imageobject>
+                            <imagedata fileref="figures/papi-intro-deploy-proxyCluster.png" format="PNG" align="center"/>
+                        </imageobject>
+                    </mediaobject>
+                </figure>
+                <example>
+                    <title>Configuring power-proxy.xml for Proxy Cluster Deployment</title>
+                    <programlisting language="xml">
 <xi:include href="samples/papi-deploy-proxyCluster.xml" parse="text"/>
                     </programlisting>
-            </example>
-        </section>
+                </example>
+        </section>      
     </chapter>
     <xi:include href="chapters/afterword.xml"/>
 </book>
