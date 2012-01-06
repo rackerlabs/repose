@@ -25,7 +25,7 @@ public class LocalhostFilterListTest {
         @Test
         public void shouldInstantiate() {
             PowerProxy powerProxy = new PowerProxy();
-            SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(powerProxy);
+            SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(powerProxy, 8080);
 
             assertNotNull(localhostFilterList);
         }
@@ -36,7 +36,7 @@ public class LocalhostFilterListTest {
             List<Host> hosts = createTestHosts();
             when(mockedPowerProxy.getHost()).thenReturn(hosts);
 
-            SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(mockedPowerProxy);
+            SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(mockedPowerProxy, 8080);
             List<com.rackspace.papi.model.Filter> filters = localhostFilterList.getLocalHost().getFilters().getFilter();
 
             assertNotNull(filters);
@@ -48,6 +48,7 @@ public class LocalhostFilterListTest {
             Host host = new Host();
             host.setHostname(NetUtilities.getLocalHostName());
             host.setFilters(mock(FilterList.class));
+            host.setServicePort(8080);
 
             hostList.add(host);
 
@@ -60,7 +61,7 @@ public class LocalhostFilterListTest {
             List<Host> hosts = new ArrayList<Host>();
             when(mockedPowerProxy.getHost()).thenReturn(hosts);
 
-            SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(mockedPowerProxy);
+            SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(mockedPowerProxy, 8080);
             List<com.rackspace.papi.model.Filter> filters = localhostFilterList.getLocalHost().getFilters().getFilter();
 
             assertNotNull(filters);

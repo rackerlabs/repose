@@ -17,41 +17,43 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RoutingTagger extends AbstractFilterLogicHandler {
-      
-    private static final Logger LOG = LoggerFactory.getLogger(RoutingTagger.class);
-    private PowerProxy systemModel;
 
-    public RoutingTagger(PowerProxy systemModel) {
-       this.systemModel = systemModel;
-    }
+   private static final Logger LOG = LoggerFactory.getLogger(RoutingTagger.class);
+   private final int port;
+   private PowerProxy systemModel;
 
-    @Override
-    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
-        final FilterDirector myDirector = new FilterDirectorImpl();
-        myDirector.setFilterAction(FilterAction.PASS);
+   public RoutingTagger(PowerProxy systemModel, int port) {
+      this.port = port;
+      this.systemModel = systemModel;
+   }
 
-        final String firstRoutingDestination = request.getHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey());
+   @Override
+   public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
+      final FilterDirector myDirector = new FilterDirectorImpl();
+      myDirector.setFilterAction(FilterAction.PASS);
 
-        if (firstRoutingDestination == null) {
-            final SystemModelInterrogator interrogator = new SystemModelInterrogator(systemModel);
-            final Host nextRoutableHost = interrogator.getNextRoutableHost();
+      final String firstRoutingDestination = request.getHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey());
 
-            try {
-                myDirector.requestHeaderManager().putHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey(), HostUtilities.asUrl(nextRoutableHost, request.getRequestURI()));
-            } catch (MalformedURLException murle) {
-                // Malformed URL Expcetions are unexpected and should return as a 502
-                LOG.error(murle.getMessage(), murle);
-                
-                myDirector.setFilterAction(FilterAction.RETURN);
-                myDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
-            }
-        }
+      if (firstRoutingDestination == null) {
+         final SystemModelInterrogator interrogator = new SystemModelInterrogator(systemModel, port);
+         final Host nextRoutableHost = interrogator.getNextRoutableHost();
 
-        return myDirector;
-    }
+         try {
+            myDirector.requestHeaderManager().putHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey(), HostUtilities.asUrl(nextRoutableHost, request.getRequestURI()));
+         } catch (MalformedURLException murle) {
+            // Malformed URL Expcetions are unexpected and should return as a 502
+            LOG.error(murle.getMessage(), murle);
 
-    @Override
-    public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
-        return super.handleResponse(request, response);
-    }
+            myDirector.setFilterAction(FilterAction.RETURN);
+            myDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
+         }
+      }
+
+      return myDirector;
+   }
+
+   @Override
+   public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
+      return super.handleResponse(request, response);
+   }
 }

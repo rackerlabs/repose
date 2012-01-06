@@ -22,66 +22,59 @@ import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
+
 /**
  *
  * @author malconis
  */
 public class RoutingTaggerTest {
-    
-    HttpServletRequest request;
-    ReadableHttpServletResponse response;
-    RoutingTagger routingTagger;
-    PowerProxy systemModel;
-    String myHostName, requestUri, nextHostName;
 
-    @Before
-    public void setUp() {
-        
-        requestUri = "/mock/request/uri";
-        
-        
-        request = mock(HttpServletRequest.class);
-        response = mock(ReadableHttpServletResponse.class);
-        systemModel = new PowerProxy();
-        
-        when(request.getRequestURI()).thenReturn(requestUri);
-        
-        Host localHost = new Host();
-        localHost.setHostname(NetUtilities.getLocalHostName());
-        localHost.setFilters(mock(FilterList.class));
-        systemModel.getHost().add(localHost);
-        
-        
-        
-    }
-    
- 
-    /**
-     * Test of handleRequest method, of class RoutingTagger.
-     */
-    @Test
-    public void shouldNotChangeNextRouteWhenValueIsPresent() {
-        routingTagger = new RoutingTagger(systemModel);
-        when(request.getHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey())).thenReturn("http://mockendservice.com:8082");
-        FilterDirector result = routingTagger.handleRequest(request, response);
-        assertTrue("Should not change route destination",request.getHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey()).equals("http://mockendservice.com:8082"));
-        
-    }
-    
-    @Test
-    public void shouldRouteToNextNonLocalHost() throws MalformedURLException{
-        
-        nextHostName = "nextHostToRoute";
-        final Host nextHost = new Host();
-        nextHost.setHostname(nextHostName);
-        nextHost.setFilters(mock(FilterList.class));
-        systemModel.getHost().add(nextHost);
-        routingTagger = new RoutingTagger(systemModel);
-        FilterDirector result = routingTagger.handleRequest(request, response);
-        final String nextRoute = HostUtilities.asUrl(nextHost, requestUri);
-        assertTrue("Should route to next non-localhost host",result.requestHeaderManager().headersToAdd().get(PowerApiHeader.NEXT_ROUTE.getHeaderKey().toLowerCase()).contains(nextRoute));
-        
-    }
-    
+   HttpServletRequest request;
+   ReadableHttpServletResponse response;
+   RoutingTagger routingTagger;
+   PowerProxy systemModel;
+   String myHostName, requestUri, nextHostName;
 
+   @Before
+   public void setUp() {
+      requestUri = "/mock/request/uri";
+
+      request = mock(HttpServletRequest.class);
+      response = mock(ReadableHttpServletResponse.class);
+      systemModel = new PowerProxy();
+
+      when(request.getRequestURI()).thenReturn(requestUri);
+
+      Host localHost = new Host();
+      localHost.setHostname(NetUtilities.getLocalHostName());
+      localHost.setFilters(mock(FilterList.class));
+      systemModel.getHost().add(localHost);
+   }
+
+   /**
+    * Test of handleRequest method, of class RoutingTagger.
+    */
+   @Test
+   public void shouldNotChangeNextRouteWhenValueIsPresent() {
+      routingTagger = new RoutingTagger(systemModel, 8080);
+      when(request.getHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey())).thenReturn("http://mockendservice.com:8082");
+      FilterDirector result = routingTagger.handleRequest(request, response);
+      assertTrue("Should not change route destination", request.getHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey()).equals("http://mockendservice.com:8082"));
+
+   }
+
+   @Test
+   public void shouldRouteToNextNonLocalHost() throws MalformedURLException {
+
+      nextHostName = "nextHostToRoute";
+      final Host nextHost = new Host();
+      nextHost.setHostname(nextHostName);
+      nextHost.setFilters(mock(FilterList.class));
+      systemModel.getHost().add(nextHost);
+      routingTagger = new RoutingTagger(systemModel, 8080);
+      FilterDirector result = routingTagger.handleRequest(request, response);
+      final String nextRoute = HostUtilities.asUrl(nextHost, requestUri);
+      assertTrue("Should route to next non-localhost host", result.requestHeaderManager().headersToAdd().get(PowerApiHeader.NEXT_ROUTE.getHeaderKey().toLowerCase()).contains(nextRoute));
+
+   }
 }
