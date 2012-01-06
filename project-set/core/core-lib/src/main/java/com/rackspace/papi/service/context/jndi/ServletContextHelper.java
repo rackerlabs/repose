@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.context.jndi;
 
+import com.rackspace.papi.servlet.InitParameter;
 import javax.naming.Context;
 import javax.servlet.ServletContext;
 
@@ -34,5 +35,9 @@ public final class ServletContextHelper {
 
     public static void setPowerApiContext(ServletContext ctx, Context namingContext) {
         ctx.setAttribute(SERVLET_CONTEXT_ATTRIBUTE_NAME, namingContext);
+    }
+    
+    public static int getServerPort(ServletContext ctx) {
+       return (Integer) ctx.getAttribute(InitParameter.PORT.getParameterName());
     }
 }

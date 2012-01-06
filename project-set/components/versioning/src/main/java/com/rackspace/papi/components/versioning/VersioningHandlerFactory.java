@@ -20,10 +20,13 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
    private final Map<String, ServiceVersionMapping> configuredMappings = new HashMap<String, ServiceVersionMapping>();
    private final Map<String, Host> configuredHosts = new HashMap<String, Host>();
    private final ContentTransformer transformer;
+   private final int port;
    private Host localHost;
    private ServiceVersionMappingList config;
 
-   public VersioningHandlerFactory() {
+   public VersioningHandlerFactory(int port) {
+      this.port = port;
+      
       transformer = new ContentTransformer();
    }
 
@@ -41,7 +44,7 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
       @Override
       public void configurationUpdated(PowerProxy configurationObject) {
-         localHost = new SystemModelInterrogator(configurationObject).getLocalHost();
+         localHost = new SystemModelInterrogator(configurationObject, port).getLocalHost();
 
          for (Host powerApiHost : configurationObject.getHost()) {
             configuredHosts.put(powerApiHost.getId(), powerApiHost);
