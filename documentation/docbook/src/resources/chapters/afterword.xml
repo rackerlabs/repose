@@ -198,6 +198,69 @@
                     </para>
                 </abstract>
             </biblioentry>
+            <biblioentry xml:id="REPOSEREPO">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    Repose
+                </orgname>
+                <title>Repose GitHub Repository
+                    <link xlink:href="https://github.com/rackspace/repose/">https://github.com/rackspace/repose/</link>
+                </title>    
+                <abstract>
+                    <para>
+                        This software repository is maintained by the Repose project team. 
+                        Its contents include source code for Repose itself as well as Repose's supporting automation, documentation, and testing.
+                    </para>
+                </abstract>
+            </biblioentry>
+            <biblioentry xml:id="REPOSEWEB">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    Repose
+                </orgname>
+                <title>Repose - The REstful PrOxy Service Engine
+                    <link xlink:href="http://openrepose.org/">http://openrepose.org/</link>
+                </title>    
+                <abstract>
+                    <para>
+                        This website is maintained by the Repose project team. 
+                        Its contents include links to documentation, mailing lists, and downloads.
+                    </para>
+                </abstract>
+            </biblioentry>
+            <biblioentry xml:id="REPOSEWIKI">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    Repose
+                </orgname>
+                <title>Repose Wiki
+                    <link xlink:href="http://wiki.openrepose.org/">http://wiki.openrepose.org/</link>
+                </title>    
+                <abstract>
+                    <para>
+                        This knowledge base is maintained by the Repose project team. 
+                        Its contents include general background information, release notes, an FAQ, notes on components and utilities, and instructions to contributors.
+                    </para>
+                </abstract>
+            </biblioentry>
             <biblioentry xml:id="OSXSD">
                 <author>
                     <personname>

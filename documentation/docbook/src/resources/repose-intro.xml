@@ -128,7 +128,8 @@
         </section>
         <xi:include href="chapters/available-doc.xml"/>
     </chapter>
-    <chapter xml:id="Define-d1e365">
+    <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
+    <chapter xml:id="Introduction-000">
         <title>What is &PRODNAME;?</title>
         <annotation>
             <remark>
