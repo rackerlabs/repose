@@ -12,6 +12,7 @@ target
 
 ## Netbeans
 catalog.xml
+nbactions.xml
 
 ## generic files to ignore
 *~
