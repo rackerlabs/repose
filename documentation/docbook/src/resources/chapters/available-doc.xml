@@ -55,8 +55,18 @@
             </para>
         </listitem> 
     </itemizedlist> 
-    <para>
-        &PRODNAME; is an open-source project. Visit our GitHub repository at <link xlink:href="https://github.com/rackspace/repose/">https://github.com/rackspace/repose/</link>
-        for access to our source code and documentation.
-    </para>
+    <tip>
+        <para>
+            For the latest information about &PRODNAME;, 
+            visit 
+            the &PRODNAME; website at <link xlink:href="http://openrepose.org/">http://openrepose.org/</link>
+            and 
+            the &PRODNAME; wiki at <link xlink:href="http://wiki.openrepose.org/">http://wiki.openrepose.org/</link>.
+        </para>
+        <para> &PRODNAME; is an open-source project. You are
+            welcome to examine and contribute to our GitHub source
+            repository at <link
+                xlink:href="https://github.com/rackspace/repose/"
+                >https://github.com/rackspace/repose/</link>. </para>
+    </tip>
 </section>

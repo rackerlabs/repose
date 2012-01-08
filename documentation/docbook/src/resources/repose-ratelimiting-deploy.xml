@@ -157,20 +157,6 @@
             therefore only provided by the origin service. 
             However, &PRODABBREV; will integrate absolute and current limits as they apply to a client.
         </para>
-        <tip>
-            <para>
-                For the latest information about &PRODNAME; generally and this component specifically, 
-                visit 
-                the &PRODNAME; website at <link xlink:href="http://openrepose.org/">http://openrepose.org/</link>
-                and 
-                the &PRODNAME; wiki at <link xlink:href="http://wiki.openrepose.org/">http://wiki.openrepose.org/</link>.
-            </para>
-            <para> &PRODNAME; is an open-source project. You are
-                welcome to examine and contribute to our source
-                repository at <link
-                    xlink:href="https://github.com/rackspace/repose/"
-                    >https://github.com/rackspace/repose/</link>. </para>
-        </tip>
     </chapter>
     <chapter xml:id="HTTP_Message_Requirements-d1e222">
         <title>HTTP Message Requirements</title>
