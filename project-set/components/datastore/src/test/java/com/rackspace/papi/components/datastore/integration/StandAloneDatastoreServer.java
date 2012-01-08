@@ -12,9 +12,9 @@ public class StandAloneDatastoreServer extends JettyTestingContext {
    public static void main(String args[]) {
       try {
          new StandAloneDatastoreServer(2101);
-         new StandAloneDatastoreServer(2102);
-         new StandAloneDatastoreServer(2103);
-         new StandAloneDatastoreServer(2104);
+//         new StandAloneDatastoreServer(2102);
+//         new StandAloneDatastoreServer(2103);
+//         new StandAloneDatastoreServer(2104);
       } catch (Exception ex) {
          ex.printStackTrace();
       }
@@ -31,7 +31,7 @@ public class StandAloneDatastoreServer extends JettyTestingContext {
    @Override
    public final void buildServerContext(JettyServerBuilder serverBuilder) throws Exception {
       serverBuilder.addContextListener(PowerApiContextManager.class);
-      serverBuilder.addContextInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), "/home/zinic/ulocal/local/etc/powerapi/dist-datastore");
+      serverBuilder.addContextInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), "/home/zinic/ulocal/local/etc/powerapi/test");
       serverBuilder.addFilter(PowerFilter.class, "/*");
       serverBuilder.addServlet(DummyServlet.class, "/*");
    }

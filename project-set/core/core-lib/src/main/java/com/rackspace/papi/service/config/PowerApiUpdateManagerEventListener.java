@@ -2,7 +2,7 @@ package com.rackspace.papi.service.config;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
-import com.rackspace.papi.service.event.Event;
+import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.listener.EventListener;
 
 import java.util.Collections;

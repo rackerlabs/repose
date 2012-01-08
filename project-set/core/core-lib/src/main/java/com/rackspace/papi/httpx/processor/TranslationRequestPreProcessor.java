@@ -1,6 +1,7 @@
 package com.rackspace.papi.httpx.processor;
 
 import com.rackspace.papi.httpx.processor.cdata.UnknownContentStreamProcessor;
+import com.rackspace.papi.httpx.processor.common.InputStreamProcessor;
 import com.rackspace.papi.httpx.processor.json.JsonxStreamProcessor;
 import com.rackspace.papi.httpx.processor.util.BodyContentMediaType;
 import java.io.IOException;

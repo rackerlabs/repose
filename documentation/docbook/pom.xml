@@ -48,8 +48,8 @@
                 <artifactId>clouddocs-maven-plugin</artifactId>
                 <!-- this <version> relates only to the *plugin* used for document formatting -->
                 <!-- the version of the *API* that is the subject of the document is indicated within each document -->
-                <!-- 1.0.8 of the plugin supports <revhistory> as an Atom feed, requires <feedmackEmail> for Disqus -->
-                <version>1.0.8</version>
+                <!-- 1.0.9 of the plugin, released 2012-01-06, corrects HTML search behavior so words previously not searchable, such as "key", are processed normally -->
+                <version>1.0.9</version>
                 <executions>
                     <execution>
                         <id>g1</id>

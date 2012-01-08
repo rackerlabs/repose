@@ -3,7 +3,7 @@ package com.rackspace.papi.service.context;
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
 import com.rackspace.papi.commons.util.thread.Poller;
 import com.rackspace.papi.commons.util.thread.RecurringTask;
-import com.rackspace.papi.filter.resource.SweepingGarbageCollector;
+import com.rackspace.papi.service.filterchain.SweepingGarbageCollector;
 import com.rackspace.papi.service.ServiceContext;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.service.filterchain.GarbageCollectionService;

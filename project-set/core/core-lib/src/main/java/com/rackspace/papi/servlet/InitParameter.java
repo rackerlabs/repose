@@ -22,7 +22,8 @@ package com.rackspace.papi.servlet;
  * @author jhopper
  */
 public enum InitParameter {
-    POWER_API_CONFIG_DIR("powerapi-config-directory");
+    POWER_API_CONFIG_DIR("powerapi-config-directory"),
+    PORT("repose-bound-port");
 
     private final String initParameterName;
 
