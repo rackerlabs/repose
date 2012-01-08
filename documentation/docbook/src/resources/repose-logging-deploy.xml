@@ -92,12 +92,6 @@
                 It provides basic information that will help you understand and deploy this &PRODNAME; component, but you must adapt this information to suit your own configuration.
             </para>
             <para>
-                Versioning enables ReST services to roll out updates and changes without causing end-client breakage.
-                A new version of the service API can be released, but clients who are not ready to use the new version can specify a preference for the old version.
-                Clients can also request a catalog of available versions; 
-                each version in the catalog is marked with a status, such as <code>CURRENT</code> or <code>DEPRECATED</code>, which the client can use for guidance in deciding which version to use.
-            </para>
-            <para>
                 This handbook is focused on one &PRODNAME; component.
                 Other &PRODNAME; components are documented in companion handbooks.
             </para>
@@ -111,6 +105,12 @@
     </chapter>
     <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
     <chapter xml:id="Introduction-000">
+        <title>Introduction to the Logging Component of &PRODNAME;</title>
+        <para>
+            Clients can use &PRODNAME;'s logging component to create a record of requests and responses. Say more soon.
+        </para>
+    </chapter>
+    <chapter xml:id="Demo-Temp-d1e220">
         <title>Message Enhancement and Routing</title>
         <para> The versioning component does not route requests, nor is it responsible for routing.
             The versioning component's purpose is to annotate incoming requests with their intended

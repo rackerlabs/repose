@@ -70,8 +70,9 @@
             </annotation>
         </legalnotice>
         <abstract>
-            <para>This document is intended for systems administrators interested in configuring
-                their service to use the Root.WAR of the &PRODEXPAND;. </para>
+            <para>This document is intended for systems administrators
+                interested in configuring their service to use the
+                Root.WAR method of deploying the &PRODEXPAND;. </para>
         </abstract>
         <revhistory>
             <revision>
