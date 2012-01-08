@@ -140,7 +140,7 @@
     </chapter>
     <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
     <chapter xml:id="Introduction-000">
-        <title>Introducing the Rate Limiting Component of &PRODNAME;</title>
+        <title>Introduction to the Rate Limiting Component of &PRODNAME;</title>
         <para> &PRODNAME;'s rate limiting service filter protects
             the origin service from being bombarded by client
             requests. It accomplishes this by specifying limits for
