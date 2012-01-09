@@ -44,6 +44,9 @@
                                 <para>Authentication</para>
                             </listitem>
                             <listitem>
+                                <para>Logging</para>
+                            </listitem>
+                            <listitem>
                                 <para>Rate Limiting</para>
                             </listitem>
                             <listitem>
