@@ -67,7 +67,7 @@ public class PowerFilterChainBuilderTest {
             List<Host> hosts = createTestHosts();
             when(mockedPowerProxy.getHost()).thenReturn(hosts);
 
-            List<FilterContext> powerFilterChain = powerFilterChainBuilder.buildFilterContexts(mockedEarClassLoaderContextManager, mockedPowerProxy);
+            List<FilterContext> powerFilterChain = powerFilterChainBuilder.buildFilterContexts(mockedEarClassLoaderContextManager, mockedPowerProxy, 8080);
 
             assertNotNull(powerFilterChain);
         }
@@ -101,7 +101,7 @@ public class PowerFilterChainBuilderTest {
             List<Host> hosts = createTestHosts();
             when(mockedPowerProxy.getHost()).thenReturn(hosts);
 
-            List<FilterContext> powerFilterChain = powerFilterChainBuilder.buildFilterContexts(mockedEarClassLoaderContextManager, mockedPowerProxy);
+            List<FilterContext> powerFilterChain = powerFilterChainBuilder.buildFilterContexts(mockedEarClassLoaderContextManager, mockedPowerProxy, 8080);
 
             assertEquals(0, powerFilterChain.size());
         }
@@ -116,6 +116,7 @@ public class PowerFilterChainBuilderTest {
             Host host = new Host();
             host.setHostname(NetUtilities.getLocalHostName());
             host.setFilters(filterListClass);
+            host.setServicePort(8080);
 
             hostList.add(host);
 

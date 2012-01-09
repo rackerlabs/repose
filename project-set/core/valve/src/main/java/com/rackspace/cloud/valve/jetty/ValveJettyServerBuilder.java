@@ -36,6 +36,7 @@ public class ValveJettyServerBuilder {
     private ServletContextHandler buildRootContext(Server serverReference) {
         final ServletContextHandler servletContext = new ServletContextHandler(serverReference, "/");
         servletContext.getInitParams().put(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), configurationPathAndFile);
+        servletContext.getAttributes().setAttribute(InitParameter.PORT.getParameterName(), portNumber);
         
         try {
             servletContext.addEventListener(PowerApiContextManager.class.newInstance());
