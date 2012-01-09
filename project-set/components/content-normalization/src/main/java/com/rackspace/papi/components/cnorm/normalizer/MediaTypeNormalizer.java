@@ -30,13 +30,13 @@ public class MediaTypeNormalizer {
         MediaType preferredMediaType = mediaTypes.size() > 0 ? mediaTypes.get(0) : null;
 
         for (MediaType mediaType : configuredMediaTypes) {
-            if (mediaType.isPreferred()) {
+            if (mediaType.isSetPreferred()) {
                 preferredMediaType = mediaType;
                 break;
             }
         }
 
-        if (preferredMediaType != null && !preferredMediaType.isPreferred()) {
+        if (preferredMediaType != null && !preferredMediaType.isSetPreferred()) {
             LOG.info("No preferred media type specified in the content normalization configuration.  Using the first in the list.");
         }
 

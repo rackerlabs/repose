@@ -1,25 +1,27 @@
 package com.rackspace.papi.components.versioning.util;
 
+
+
 import com.rackspace.papi.commons.util.http.media.MediaType;
-import com.rackspace.papi.components.versioning.schema.VersionChoice;
-import com.rackspace.papi.components.versioning.schema.VersionChoiceList;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.io.FilePathReaderImpl;
 import com.rackspace.papi.commons.util.io.FileReader;
 import com.rackspace.papi.commons.util.transform.Transform;
 import com.rackspace.papi.commons.util.transform.jaxb.StreamToJaxbTransform;
+import com.rackspace.papi.components.versioning.schema.VersionChoice;
+import com.rackspace.papi.components.versioning.schema.VersionChoiceList;
+import java.io.InputStream;
+import java.util.Map;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import org.custommonkey.xmlunit.Diff;
+import static org.junit.Assert.*;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import java.io.InputStream;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  *
@@ -45,9 +47,11 @@ public class ContentTransformerTest {
 
         private ContentTransformer contentTransformer;
         private FileReader versionJsonFileReader, versionXmlFileReader, choicesJsonFileReader, choicesXmlFileReader;
+        private ObjectMapper mapper;
 
         @Before
         public void standUp() {
+            mapper = new ObjectMapper();
             contentTransformer = new ContentTransformer();
             versionJsonFileReader = new FilePathReaderImpl("/META-INF/schema/examples/json/version.json");
             versionXmlFileReader = new FilePathReaderImpl("/META-INF/schema/examples/xml/version.xml");
@@ -57,14 +61,19 @@ public class ContentTransformerTest {
 
         @Test
         public void shouldTransformVersionToJson() throws Exception {
+            
             String expected;
             expected = versionJsonFileReader.read();
             assertNotNull("no expected string value found!", expected);
 
             final JAXBElement jaxbElement
                     = xmlTransformer.transform(((FilePathReaderImpl)versionXmlFileReader).getResourceAsStream());
-
-            assertEquals(expected, contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON)));
+            String actual = contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON));
+            
+            Map<String, Object> expectedMap = mapper.readValue(expected, Map.class);
+            Map<String, Object> actualMap = mapper.readValue(actual, Map.class);
+            
+            assertEquals("Objects should be equivalent", expectedMap, actualMap);
         }
 
         @Test
@@ -75,8 +84,9 @@ public class ContentTransformerTest {
 
             final JAXBElement jaxbElement
                     = xmlTransformer.transform(((FilePathReaderImpl)versionXmlFileReader).getResourceAsStream());
-
-            assertEquals(expected, contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_XML)));
+            String actual = contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_XML));
+            Diff diff = new Diff(expected, actual);
+            assertTrue("XML Should be equivalent", diff.similar());
         }
 
         @Test
@@ -87,8 +97,14 @@ public class ContentTransformerTest {
 
             final JAXBElement jaxbElement
                     = xmlTransformer.transform(((FilePathReaderImpl)versionXmlFileReader).getResourceAsStream());
-
-            assertEquals(expected, contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON)));
+            
+            String actual = contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON));
+            
+            Map<String, Object> expectedMap = mapper.readValue(expected, Map.class);
+            Map<String, Object> actualMap = mapper.readValue(actual, Map.class);
+            
+            assertEquals("Objects should be equivalent", expectedMap, actualMap);
+            //assertEquals(expected, contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON)));
         }
 
         @Test
@@ -99,8 +115,14 @@ public class ContentTransformerTest {
 
             final JAXBElement jaxbElement
                     = xmlTransformer.transform(((FilePathReaderImpl)choicesXmlFileReader).getResourceAsStream());
-
-            assertEquals(expected, contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON)));
+            
+            String actual = contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON));
+            Map<String, Object> expectedMap = mapper.readValue(expected, Map.class);
+            Map<String, Object> actualMap = mapper.readValue(actual, Map.class);
+            
+            assertEquals("Objects should be equivalent", expectedMap, actualMap);
+            
+            //assertEquals(expected, contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON)));
         }
     }
 
