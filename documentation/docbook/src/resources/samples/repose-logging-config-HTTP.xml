@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<http-logging xmlns="http://docs.rackspacecloud.com/power-api/http-logging/v1.0">
+<http-logging
+    xmlns="http://docs.rackspacecloud.com/power-api/http-logging/v1.0">
 
     <http-log 
         id="detailed-log" 
         format="Response Code Modifiers=%200,201U\tModifier Negation=%!401a\tRemote IP=%a\tLocal IP=%A\tResponse Size(bytes)=%b\tRemote Host=%h\tRequest Method=%m\tServer Port=%p\tQuery String=%q\tTime Request Received=%t\tStatus=%s\tRemote User=%u\tURL Path Requested=%U\n">
         <targets>
-            <file location="/usr/local/logs/repose.log"/>
+            <file 
+                location="/usr/local/logs/repose.log"/>
         </targets>
     </http-log>
     
@@ -14,7 +16,8 @@
         id="IP-log" 
         format="Remote IP=%a Local IP=%A">
         <targets>
-            <file location="/usr/local/logs/repose_IP.log"/>
+            <file 
+                location="/usr/local/logs/repose_IP.log"/>
         </targets>
     </http-log>
     

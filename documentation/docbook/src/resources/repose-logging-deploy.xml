@@ -137,19 +137,15 @@
                 If the system does not support UTF-8, an error will be thrown at startup and &PRODNAME; will exit. 
             </para>
         </important>
-        <!-- replace below with example and callouts relevant to HTTP logging -->
         <example>
-            <title>Versioning Configuration: XML</title>
+            <title>HTTP Logging Configuration: XML</title>
             <programlistingco>
                 <areaspec>
-                    <area xml:id="versioning.xml.service-root" units="linecolumn" coords="5 18"/>
-                    <area xml:id="versioning.xml.version-mapping" units="linecolumn" coords="7 21"/>
-                    <area xml:id="versioning.xml.id" units="linecolumn" coords="7 24"/>
-                    <area xml:id="versioning.xml.pp-host-id" units="linecolumn" coords="7 43"/>
-                    <area xml:id="versioning.xml.context-path" units="linecolumn" coords="8 21"/>
-                    <area xml:id="versioning.xml.status" units="linecolumn" coords="8 40"/>
-                    <area xml:id="versioning.xml.media-types" units="linecolumn" coords="9 21"/>
-                    <area xml:id="versioning.xml.atom-links" units="linecolumn" coords="21 19"/>
+                    <area xml:id="logging-config-HTTP.xml.http-logging" units="linecolumn" coords="3 14"/>
+                    <area xml:id="logging-config-HTTP.xml.id" units="linecolumn" coords="7 9"/>
+                    <area xml:id="logging-config-HTTP.xml.format-detailed" units="linecolumn" coords="8 9"/>
+                    <area xml:id="logging-config-HTTP.xml.location" units="linecolumn" coords="11 17"/>
+                    <area xml:id="logging-config-HTTP.xml.format-IP" units="linecolumn" coords="17 9"/>
                 </areaspec>
             <programlisting language="xml">
 <xi:include href="samples/repose-logging-config-HTTP.xml" parse="text"/>
@@ -161,116 +157,60 @@
         </para>
         
         <calloutlist>
-            <callout arearefs="versioning.xml.service-root">
+            <callout arearefs="logging-config-HTTP.xml.http-logging">
                 <para>
-                    The configuration's service root describes the base URL of the origin service without any versioning information in the URI variant. 
-                    This value is used to identify requests against the origin service's resource root as well as construct valid, versioned URIs for the origin service.   
+                    <code>http-logging</code> can have multiple children, 
+                    each defined by <code>http-log</code>.
                 </para>
                 <para> </para>
             </callout>
-            <callout arearefs="versioning.xml.version-mapping">
+            <callout arearefs="logging-config-HTTP.xml.id">
                 <para>
-                    Version mappings describe the available versions to the requester.
-                </para>
-                <para>
-                    A version mapping must include <code>id</code>, <code>pp-host-id</code>, <code>context-path</code>, <code>status</code>, and <code>media-types</code>.
+                    <code>id</code> assigns a label to this log.
                 </para>
                 <para> </para>
             </callout>
-            <callout arearefs="versioning.xml.id">
+            <callout arearefs="logging-config-HTTP.xml.format-detailed">
+                <para>
+                    <code>format</code> identifies what to record in this log. 
+                    See <xref linkend="Formatting_Log-d1e431"></xref> for help in interpreting <code>format</code>.
+                </para>
+                 <para>
+                    In this example, a tab (<code>/t</code>) separates every item within the record; every record ends by forcing a new line (<code>/n</code>).
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="logging-config-HTTP.xml.location">
+                <para>
+                    <code>location</code> identifies a file in which to store this log
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="logging-config-HTTP.xml.format-IP">
+                <para>
+                    <code>format</code> identifies what to record in this log. 
+                    See <xref linkend="Formatting_Log-d1e431"></xref> for help in interpreting <code>format</code>.
+                    As specified by <code>format</code> in this example, a
+                    log record will look like this: 
+                    <itemizedlist spacing="compact">
+                        <listitem>
+                            <para>
+                                <code>Remote IP=</code><parameter>value</parameter>
+                                <code>Local IP=</code><parameter>value</parameter>
+                            </para>
+                        </listitem>
+                    </itemizedlist> 
+                    </para>
                 <para> 
-                    <code>id</code>: The ID is responsible for two things. 
-                    First, a service version's ID must uniquely identify the version mapping within the configuration:  
-                    no two service versions may share the same ID. 
-                    In addition, the ID must be the resource variant that follows the service root which identifies this version. 
-                    For example, in <code>http://service.api.vendor.com/root/[v1.0/]path/to/resource</code>, the version variant is within square brackets.
-                </para>
-                <para> </para>
-            </callout>
-            <callout arearefs="versioning.xml.pp-host-id">
-                <para>
-                    <code>pp-host-id</code>: The power proxy host ID is used to identify 
-                    which power proxy host will answer to versioned requests that match this version mapping. 
-                    The power proxy host is defined in the <link linkend="Configuration-d1e365">system model</link>.
-                </para>
-                <para> </para>
-            </callout>
-            <callout arearefs="versioning.xml.context-path">
-                <para>
-                    <code>context-path</code>: The context path attribute is used to indicate that the external mapping for this version, 
-                    for example the <code>id</code> attribute, is not the internal mapping.
-                    The versioning component will then use this path to route the request to its intended destination.
-                </para>
-                <para> </para>
-            </callout>
-            <callout arearefs="versioning.xml.status">
-                <para>
-                    <code>status</code>: A version mapping's status can be either of four
-                    strings: 
-                    <itemizedlist spacing="compact">
-                        <listitem>
-                            <para>
-                                <code>DEPRECATED</code>
-                            </para>
-                        </listitem>
-                        <listitem>
-                            <para>
-                                <code>ALPHA</code>
-                            </para>
-                        </listitem>
-                        <listitem>
-                            <para>
-                                <code>BETA</code>
-                            </para>
-                        </listitem>
-                        <listitem>
-                            <para>
-                                <code>CURRENT</code>
-                            </para>
-                        </listitem>
-                    </itemizedlist>
-                </para>
-                <para>
-                    This status may be interpreted by the requester without
-                    restriction.
-                </para>
-                <para> </para>
-            </callout>
-            <callout arearefs="versioning.xml.media-types">
-                <para>
-                    <code>media-types</code>: A version mapping must describe the types of content it can understand and return. 
-                    These media types must include as human-readable attributes both their base type and the complex type.
-                    <itemizedlist spacing="compact">
-                        <listitem>
-                            <para>
-                                The <firstterm>base type</firstterm> is a MIME type without versioning or vendor information.
-                            </para>
-                        </listitem>
-                        <listitem>
-                            <para>
-                                The <firstterm>complex type</firstterm> is a MIME type with versioning and/or vendor information.
-                            </para>
-                        </listitem>
-                    </itemizedlist>
-                </para>
-                <para>
-                    RFC 2046 at <link xlink:href="http://tools.ietf.org/html/rfc2046/">http://tools.ietf.org/html/rfc2046/</link> describes MIME types.
-                </para>
-                <para> </para>
-            </callout>
-            <callout arearefs="versioning.xml.atom-links">
-                <para>
-                    Atom links are used to richly describe any links that are identified in any returned service version. 
-                    RFC 4287 
-                    at <link xlink:href="http://tools.ietf.org/html/rfc4287/">http://tools.ietf.org/html/rfc4287/</link> 
-                    defines the Atom syndication format.
+                    In this example, no tabs and no new lines are
+                    specified, so the log will consist of a single
+                    line which contains all the log's records. 
                 </para>
                 <para> </para>
             </callout>
         </calloutlist>
-        <!-- replace above with example and callouts relevant to HTTP logging -->
     </chapter>
-    <chapter xml:id="Handling_Requests-d1e431">
+    <chapter xml:id="Formatting_Log-d1e431">
         <title>Choosing What to Log</title>
         <para> 
             You can configure &PRODNAME; to log information from a request's URI and headers. 
