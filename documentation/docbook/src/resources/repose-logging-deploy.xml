@@ -139,12 +139,6 @@
         </important>
         <!-- replace below with example and callouts relevant to HTTP logging -->
         <example>
-            <title>System Model: XML</title>
-            <programlisting language="xml">
-<xi:include href="samples/papi-powerproxy-versioning.xml" parse="text"/>
-                    </programlisting>
-        </example>
-        <example>
             <title>Versioning Configuration: XML</title>
             <programlistingco>
                 <areaspec>
@@ -158,7 +152,7 @@
                     <area xml:id="versioning.xml.atom-links" units="linecolumn" coords="21 19"/>
                 </areaspec>
             <programlisting language="xml">
-<xi:include href="samples/papi-versioning-versioning.xml" parse="text"/>
+<xi:include href="samples/repose-logging-config-HTTP.xml" parse="text"/>
             </programlisting>
             </programlistingco>
         </example>
