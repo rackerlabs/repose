@@ -5,8 +5,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.bind.JAXBElement;
 import javax.xml.datatype.DatatypeConfigurationException;
-
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -14,6 +12,7 @@ import org.openstack.docs.identity.api.v2.*;
 
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
+import org.junit.Before;
 import org.junit.Ignore;
 
 @RunWith(Enclosed.class)

@@ -13,9 +13,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
+import org.custommonkey.xmlunit.Diff;
 
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 import static org.mockito.Mockito.*;
+import org.xml.sax.SAXException;
 
 /**
  * @author fran
@@ -53,7 +56,7 @@ public class HttpResponseParserTest {
         }
         
         @Test
-        public void shouldParse() throws IOException {
+        public void shouldParse() throws IOException, SAXException {
             Parser parser = ResponseParserFactory.newInstance();
             String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><httpx xmlns=\"http://docs.rackspace.com/httpx/v1.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://docs.rackspace.com/httpx/v1.0 ./httpx.xsd\"><response fidelity=\"BODY HEAD\" status-code=\"200\" version=\"HTTP/1.1\"><head fidelity=\"HEADERS\"><headers fidelity=\"*\"><header name=\"Retry-After\"><value>This is a valid date</value></header></headers></head><body/></response></httpx>";
             String alternate = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><httpx xmlns=\"http://docs.rackspace.com/httpx/v1.0\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://docs.rackspace.com/httpx/v1.0 ./httpx.xsd\"><response fidelity=\"BODY HEAD\" reason=\"\" status-code=\"200\" version=\"HTTP/1.1\"><head fidelity=\"HEADERS\"><headers fidelity=\"*\"><header name=\"Retry-After\"><value>This is a valid date</value></header></headers></head><body/></response></httpx>";
@@ -64,8 +67,11 @@ public class HttpResponseParserTest {
             BufferedReader bufReader = new BufferedReader(reader);
             
             String actual = bufReader.readLine();
-            
-            assertTrue(expected.equals(actual) || alternate.equals(actual));
+
+            Diff diff1 = new Diff(expected, actual);
+            Diff diff2 = new Diff(alternate, actual);
+            assertTrue("XML Should be equivalent", diff1.similar() || diff2.similar());
+            //assertTrue(expected.equals(actual) || alternate.equals(actual));
         }
     }
 }

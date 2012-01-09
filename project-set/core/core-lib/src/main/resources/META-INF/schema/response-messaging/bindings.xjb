@@ -4,7 +4,9 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://java.sun.com/xml/ns/jaxb http://java.sun.com/xml/ns/jaxb/bindingschema_2_0.xsd"
         schemaLocation="response-messaging.xsd">
-            
+          
+  <globalBindings generateIsSetMethod="true"/>
+  
     <schemaBindings>
         <package name="com.rackspace.papi.service.rms.config" />
     </schemaBindings>
