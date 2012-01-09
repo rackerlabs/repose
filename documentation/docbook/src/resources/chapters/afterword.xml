@@ -37,6 +37,27 @@
             bibliography is alphabetized according to the title of the document.</para>
         <bibliography>
             <title>Bibliography</title>
+            <biblioentry xml:id="APACHELOG">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    The Apache Software Foundation
+                </orgname>
+                <title>Apache Module mod_log_config<link
+                    xlink:href="http://httpd.apache.org/docs/2.2/mod/mod_log_config.html"
+                    >http://httpd.apache.org/docs/2.2/mod/mod_log_config.html</link>
+                </title>   
+                <abstract>
+                    <para>
+                        The HTTP logging component is based on the Apache HTTPD Logging Standard, defined here.
+                    </para>
+                </abstract>
+            </biblioentry>
             <biblioentry xml:id="RFC4287">
                 <author>
                     <personname>
@@ -61,7 +82,7 @@
                 </title>   
                 <abstract>
                     <para>
-                        The Versioning component uses Atom links to richly describe any links that are identified in any returned service version.
+                        The versioning component uses Atom links to richly describe any links that are identified in any returned service version.
                     </para>
                 </abstract>
             </biblioentry>
@@ -198,27 +219,6 @@
                     </para>
                 </abstract>
             </biblioentry>
-            <biblioentry xml:id="REPOSEREPO">
-                <author>
-                    <personname>
-                        <firstname></firstname>
-                        <surname></surname>
-                        <othername role="mi"></othername>
-                    </personname>
-                </author>
-                <orgname>
-                    Repose
-                </orgname>
-                <title>Repose GitHub Repository
-                    <link xlink:href="https://github.com/rackspace/repose/">https://github.com/rackspace/repose/</link>
-                </title>    
-                <abstract>
-                    <para>
-                        This software repository is maintained by the Repose project team. 
-                        Its contents include source code for Repose itself as well as Repose's supporting automation, documentation, and testing.
-                    </para>
-                </abstract>
-            </biblioentry>
             <biblioentry xml:id="REPOSEWEB">
                 <author>
                     <personname>
@@ -237,6 +237,27 @@
                     <para>
                         This website is maintained by the Repose project team. 
                         Its contents include links to documentation, mailing lists, and downloads.
+                    </para>
+                </abstract>
+            </biblioentry>
+            <biblioentry xml:id="REPOSEREPO">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    Repose
+                </orgname>
+                <title>Repose GitHub Repository
+                    <link xlink:href="https://github.com/rackspace/repose/">https://github.com/rackspace/repose/</link>
+                </title>    
+                <abstract>
+                    <para>
+                        This software repository is maintained by the Repose project team. 
+                        Its contents include source code for Repose itself as well as Repose's supporting automation, documentation, and testing.
                     </para>
                 </abstract>
             </biblioentry>
