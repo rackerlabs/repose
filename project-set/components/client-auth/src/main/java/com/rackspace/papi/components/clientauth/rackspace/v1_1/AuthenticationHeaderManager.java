@@ -39,8 +39,8 @@ public class AuthenticationHeaderManager {
 
     public AuthenticationHeaderManager(boolean validToken, RackspaceAuth cfg, FilterDirector filterDirector, String accountUsername, GroupsList groups, HttpServletRequest request) {
         this.validToken = validToken;
-        this.isDelegatable = cfg.isDelegatable();
-        this.keystone = cfg.isKeystoneActive();
+        this.isDelegatable = cfg.isSetDelegatable();
+        this.keystone = cfg.isSetKeystoneActive();
         this.userRoles = cfg.getUserRoles();
         this.filterDirector = filterDirector;
         this.accountUsername = accountUsername;
