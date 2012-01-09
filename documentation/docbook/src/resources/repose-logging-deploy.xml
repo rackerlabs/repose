@@ -141,11 +141,11 @@
             <title>HTTP Logging Configuration: XML</title>
             <programlistingco>
                 <areaspec>
-                    <area xml:id="logging-config-HTTP.xml.http-logging" units="linecolumn" coords="3 14"/>
-                    <area xml:id="logging-config-HTTP.xml.id" units="linecolumn" coords="7 9"/>
-                    <area xml:id="logging-config-HTTP.xml.format-detailed" units="linecolumn" coords="8 9"/>
-                    <area xml:id="logging-config-HTTP.xml.location" units="linecolumn" coords="11 17"/>
-                    <area xml:id="logging-config-HTTP.xml.format-IP" units="linecolumn" coords="17 9"/>
+                    <area xml:id="logging-config-HTTP.xml.http-logging" units="linecolumn" coords="4 14"/>
+                    <area xml:id="logging-config-HTTP.xml.id" units="linecolumn" coords="8 9"/>
+                    <area xml:id="logging-config-HTTP.xml.format-detailed" units="linecolumn" coords="9 9"/>
+                    <area xml:id="logging-config-HTTP.xml.location" units="linecolumn" coords="12 17"/>
+                    <area xml:id="logging-config-HTTP.xml.format-IP" units="linecolumn" coords="18 9"/>
                 </areaspec>
             <programlisting language="xml">
 <xi:include href="samples/repose-logging-config-HTTP.xml" parse="text"/>
@@ -175,9 +175,10 @@
                     <code>format</code> identifies what to record in this log. 
                     See <xref linkend="Formatting_Log-d1e431"></xref> for help in interpreting <code>format</code>.
                 </para>
-                 <para>
-                    In this example, a tab (<code>/t</code>) separates every item within the record; every record ends by forcing a new line (<code>/n</code>).
-                </para>
+                 <para> In this example, a tab (<code>\t</code>)
+                    separates every item within the record; every
+                    record ends by forcing a new line
+                    (<code>\n</code>). </para>
                 <para> </para>
             </callout>
             <callout arearefs="logging-config-HTTP.xml.location">
@@ -190,16 +191,11 @@
                 <para>
                     <code>format</code> identifies what to record in this log. 
                     See <xref linkend="Formatting_Log-d1e431"></xref> for help in interpreting <code>format</code>.
+                </para>
+                <para>
                     As specified by <code>format</code> in this example, a
                     log record will look like this: 
-                    <itemizedlist spacing="compact">
-                        <listitem>
-                            <para>
-                                <code>Remote IP=</code><parameter>value</parameter>
-                                <code>Local IP=</code><parameter>value</parameter>
-                            </para>
-                        </listitem>
-                    </itemizedlist> 
+                    <code>Remote IP=</code><parameter>value</parameter> <code>Local IP=</code><parameter>value</parameter>
                     </para>
                 <para> 
                     In this example, no tabs and no new lines are
