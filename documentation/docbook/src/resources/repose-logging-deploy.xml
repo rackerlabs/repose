@@ -137,8 +137,16 @@
                 If the system does not support UTF-8, an error will be thrown at startup and &PRODNAME; will exit. 
             </para>
         </important>
+        <para> To configure the &PRODNAME; HTTP logging component,
+            edit the <code>http-logging.cfg.xml</code> file. Within
+                <code>http-logging.cfg.xml</code>, you can specify
+            multiple logs by repeating the <code>http-log</code>
+            element; within each <code>http-log</code>, use
+                <code>format</code> to specify what to log for each
+            request and response; use <code>location</code> to specify
+            where the log should be stored.</para>
         <example>
-            <title>HTTP Logging Configuration: XML</title>
+            <title>HTTP Logging Configured for Two Logs</title>
             <programlistingco>
                 <areaspec>
                     <area xml:id="logging-config-HTTP.xml.http-logging" units="linecolumn" coords="4 14"/>
