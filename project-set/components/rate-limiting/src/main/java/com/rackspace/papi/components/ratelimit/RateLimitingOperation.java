@@ -24,7 +24,7 @@ public abstract class RateLimitingOperation {
         // Check each configured rate limit group
         for (ConfiguredLimitGroup rates : cfg.getLimitGroup()) {
 
-            if (rates.isSetDefault() || rates.getGroups().contains(role)) {
+            if (rates.isDefault() || rates.getGroups().contains(role)) {
                 validLimitGroupsForRole.add(rates);
             }
         }

@@ -82,7 +82,7 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
                }
             }
             
-            hostACL = new DatastoreAccessControl(newHostList, configurationObject.getAllowedHosts().isSetAllowAll());
+            hostACL = new DatastoreAccessControl(newHostList, configurationObject.getAllowedHosts().isAllowAll());
          }
       }
    }
