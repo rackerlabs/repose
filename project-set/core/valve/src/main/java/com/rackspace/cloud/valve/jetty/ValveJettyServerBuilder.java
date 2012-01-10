@@ -1,7 +1,7 @@
 package com.rackspace.cloud.valve.jetty;
 
+import com.rackspace.cloud.valve.filter.ValvePowerFilter;
 import com.rackspace.cloud.valve.jetty.servlet.ProxyServlet;
-import com.rackspace.papi.filter.PowerFilter;
 import com.rackspace.papi.service.context.PowerApiContextManager;
 import com.rackspace.papi.servlet.InitParameter;
 import org.eclipse.jetty.server.Server;
@@ -24,10 +24,9 @@ public class ValveJettyServerBuilder {
     public Server newServer() {
         final Server jettyServerReference = new Server(portNumber);
         final ServletContextHandler rootContext = buildRootContext(jettyServerReference);
-
         final ServletHolder valveServer = new ServletHolder(new ProxyServlet());
 
-        rootContext.addFilter(new FilterHolder(PowerFilter.class), "/*", EnumSet.allOf(DispatcherType.class));
+        rootContext.addFilter(new FilterHolder(ValvePowerFilter.class), "/*", EnumSet.allOf(DispatcherType.class));
         rootContext.addServlet(valveServer, "/*");
 
         return jettyServerReference;

@@ -7,6 +7,10 @@ target
 */target
 */*/target
 
+## vim objects
+*.swo
+*.swp
+
 ## Build helper scripts
 *.bhs
 
