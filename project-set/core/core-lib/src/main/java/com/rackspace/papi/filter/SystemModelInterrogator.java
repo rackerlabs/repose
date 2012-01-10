@@ -1,13 +1,15 @@
 package com.rackspace.papi.filter;
 
+import com.rackspace.papi.commons.util.net.StaticNetworkNameResolver;
 import com.rackspace.papi.model.Host;
 import com.rackspace.papi.model.PowerProxy;
-import com.rackspace.papi.commons.util.net.NetUtilities;
+import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
+import com.rackspace.papi.commons.util.net.NetworkNameResolver;
+import com.rackspace.papi.commons.util.net.StaticNetworkInterfaceProvider;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,33 +22,45 @@ import org.slf4j.LoggerFactory;
 public class SystemModelInterrogator {
 
    private static final Logger LOG = LoggerFactory.getLogger(SystemModelInterrogator.class);
+   
+   private final NetworkInterfaceProvider networkInterfaceProvider;
+   private final NetworkNameResolver nameResolver;
    private final PowerProxy systemModel;
-   private final int port;
+   private final int localPort;
 
    public SystemModelInterrogator(PowerProxy powerProxy, int port) {
-      this.systemModel = powerProxy;
-      this.port = port;
+      this(StaticNetworkNameResolver.getInstance(), StaticNetworkInterfaceProvider.getInstance(), powerProxy, port);
+   }
+
+   public SystemModelInterrogator(NetworkNameResolver nameResolver, NetworkInterfaceProvider nip, PowerProxy systemModel, int port) {
+      this.nameResolver = nameResolver;
+      this.networkInterfaceProvider = nip;
+      this.systemModel = systemModel;
+      this.localPort = port;
    }
 
    public Host getLocalHost() {
       Host localHost = null;
-      
+
       final List<Host> possibleHosts = new LinkedList<Host>();
-      
+
       for (Host powerProxyHost : systemModel.getHost()) {
-         if (powerProxyHost.getServicePort() == port) {
+         if (powerProxyHost.getServicePort() == localPort) {
             possibleHosts.add(powerProxyHost);
          }
       }
 
       try {
-         final Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-
-         while (localHost == null && interfaces.hasMoreElements()) {
-            final NetworkInterface networkInterface = interfaces.nextElement();
+         for (Host powerProxyHost : possibleHosts) {
+            final InetAddress hostAddress = nameResolver.lookupName(powerProxyHost.getHostname());
             
-            localHost = findHost(possibleHosts, networkInterface.getInetAddresses());
+            if (networkInterfaceProvider.hasInterfaceFor(hostAddress)) {
+               localHost = powerProxyHost;
+               break;
+            }
          }
+      } catch (UnknownHostException uhe) {
+         LOG.error("Unable to look up network host name. Reason: " + uhe.getMessage(), uhe);
       } catch (SocketException socketException) {
          LOG.error(socketException.getMessage(), socketException);
       }
@@ -54,36 +68,16 @@ public class SystemModelInterrogator {
       return localHost;
    }
 
-   private Host findHost(List<Host> hosts, Enumeration<InetAddress> interfaceAddresses) {
-      try {
-         while (interfaceAddresses.hasMoreElements()) {
-            final InetAddress interfaceAddress = interfaceAddresses.nextElement();
-
-            for (Host powerProxyHost : hosts) {
-               final InetAddress hostAddress = InetAddress.getByName(powerProxyHost.getHostname());
-
-               if (hostAddress.equals(interfaceAddress)) {
-                  return powerProxyHost;
-               }
-            }
-         }
-      } catch (UnknownHostException uhe) {
-         LOG.error(uhe.getMessage(), uhe);
-      }
-
-      return null;
-   }
-
    // TODO: Enhancement - Explore using service domains to better handle routing identification logic
    public Host getNextRoutableHost() {
-      final String myHostname = NetUtilities.getLocalHostName();
-      final List<Host> hosts = systemModel.getHost();
+      final Host localHost = getLocalHost();
+
       Host nextRoutableHost = null;
 
-      for (Iterator<Host> hostIterator = hosts.iterator(); hostIterator.hasNext();) {
+      for (Iterator<Host> hostIterator = systemModel.getHost().iterator(); hostIterator.hasNext();) {
          final Host currentHost = hostIterator.next();
 
-         if (currentHost.getHostname().equals(myHostname)) {
+         if (currentHost.equals(localHost)) {
             nextRoutableHost = hostIterator.hasNext() ? hostIterator.next() : null;
             break;
          }
@@ -91,5 +85,4 @@ public class SystemModelInterrogator {
 
       return nextRoutableHost;
    }
-   // Moved getLocalHostName method to com.rackspace.papi.commons.util.net.NetUtilities;
 }

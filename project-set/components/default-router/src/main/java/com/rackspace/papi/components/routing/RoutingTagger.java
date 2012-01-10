@@ -10,7 +10,6 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.model.Host;
-import com.rackspace.papi.model.PowerProxy;
 import java.net.MalformedURLException;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -19,12 +18,10 @@ import org.slf4j.LoggerFactory;
 public class RoutingTagger extends AbstractFilterLogicHandler {
 
    private static final Logger LOG = LoggerFactory.getLogger(RoutingTagger.class);
-   private final int port;
-   private PowerProxy systemModel;
+   private final SystemModelInterrogator modelInterrogator;
 
-   public RoutingTagger(PowerProxy systemModel, int port) {
-      this.port = port;
-      this.systemModel = systemModel;
+   public RoutingTagger(SystemModelInterrogator modelInterrogator) {
+      this.modelInterrogator = modelInterrogator;
    }
 
    @Override
@@ -35,8 +32,7 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
       final String firstRoutingDestination = request.getHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey());
 
       if (firstRoutingDestination == null) {
-         final SystemModelInterrogator interrogator = new SystemModelInterrogator(systemModel, port);
-         final Host nextRoutableHost = interrogator.getNextRoutableHost();
+         final Host nextRoutableHost = modelInterrogator.getNextRoutableHost();
 
          try {
             myDirector.requestHeaderManager().putHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey(), HostUtilities.asUrl(nextRoutableHost, request.getRequestURI()));

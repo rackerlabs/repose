@@ -2,6 +2,7 @@ package com.rackspace.papi.components.routing;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.thread.KeyedStackLock;
+import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.model.PowerProxy;
 import java.util.HashMap;
@@ -29,7 +30,7 @@ public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactor
 
    @Override
    protected RoutingTagger buildHandler() {
-      return new RoutingTagger(systemModel, port);
+      return new RoutingTagger(new SystemModelInterrogator(systemModel, port));
    }
 
    @Override
