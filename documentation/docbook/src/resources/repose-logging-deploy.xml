@@ -155,7 +155,6 @@
         <para>
         Key elements of the preceding example are labeled with callouts and explained below: 
         </para>
-        
         <calloutlist>
             <callout arearefs="logging-config-HTTP.xml.http-logging">
                 <para>
@@ -218,7 +217,8 @@
             <link xlink:href="http://httpd.apache.org/docs/2.2/mod/mod_log_config.html">http://httpd.apache.org/docs/2.2/mod/mod_log_config.html</link>.
             The table below lists the request and response information you may choose to log:
         </para>
-        <table border="1" frame="box" width="700">
+        <table border="1" frame="box">
+            
             <caption>Apache Logging Functionality Implemented by
                 &PRODNAME; HTTP Logging Component</caption>
             <col width="25%"/>
@@ -376,7 +376,7 @@
      For responses with specific HTTP status codes, you can restrict what is logged. 
      The table below shows examples of format strings using this functionality:
  </para>     
-        <table border="1" frame="box" width="700">
+        <table border="1" frame="box">
             <caption>Examples of Logging Restricted By HTTP Status
                 Code</caption>
             <col width="25%"/>
@@ -408,29 +408,37 @@
                 </tr>
             </tbody>
         </table>        
-        
-        
-        
-        
     </chapter>
     <chapter xml:id="Using_Log-d1e531">
         <title>Using the Log</title>
-        <para> The log file is a text file, so it can be viewed with
+        <para> 
+            The log file is a text file, so it can be viewed with
             any text viewer. An example of a text viewer that you can
-            use is <emphasis role="bold">Notepad</emphasis>. </para>
-        <para> The log file can be formatted as a tab-delimited file,
+            use is <emphasis role="bold">Notepad</emphasis>. 
+        </para>
+        <para>
+            You control the location of the log file by specifying its <code>location</code> in the logging configuration.
+            See <xref linkend="Configuration-d1e365"></xref> for examples of specifying <code>location</code>.
+        </para>
+        <para> 
+            The log file can be formatted as a tab-delimited file,
             so it can be opened and manipulated as a spreadsheet.
             Examples of spreadsheet software you can use are <emphasis
                 role="bold">OpenOffice.org Calc</emphasis> and
-                <emphasis role="bold">Microsoft Excel</emphasis>. </para>
-        <para> The log file can be huge, so you may wish to examine it
+                <emphasis role="bold">Microsoft Excel</emphasis>. 
+        </para>
+        <para> 
+            The log file can be huge, so you may wish to examine it
             via an external parser. An example of an external parser
             that you can use is <emphasis role="bold"
-            >Flume</emphasis>. </para>
-        <para> The log file will grow until it is rotated, moved, or
+            >Flume</emphasis>. 
+        </para>
+        <para> 
+            The log file will grow until it is rotated, moved, or
             deleted. An example of a utility that you can configure to
             rotate and archive the log file is <emphasis role="bold"
-                >logrotate</emphasis>. </para>
+                >logrotate</emphasis>. 
+        </para>
     </chapter>
     <xi:include href="chapters/afterword.xml"/>
 </book>
