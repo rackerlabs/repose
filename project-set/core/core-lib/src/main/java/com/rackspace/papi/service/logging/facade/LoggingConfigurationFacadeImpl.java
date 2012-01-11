@@ -2,11 +2,9 @@ package com.rackspace.papi.service.logging.facade;
 
 import com.rackspace.papi.service.logging.common.LogFrameworks;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.Properties;
 
-//import org.apache.log4j.PropertyConfigurator;
+import org.apache.log4j.PropertyConfigurator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,22 +22,10 @@ public class LoggingConfigurationFacadeImpl implements LoggingConfigurationFacad
     }
 
     @Override
-    public void configure(InputStream configurationProperties) {
+    public void configure(Properties logProperties) {
         switch (logFramework) {
             case LOG4J :
-                configureLog4JFramework(configurationProperties);
+                PropertyConfigurator.configure(logProperties);
         }
-    }
-
-    private void configureLog4JFramework(InputStream configurationProperties) {
-        Properties properties = new Properties();
-
-        try {
-            properties.load(configurationProperties);
-        } catch (IOException e) {
-            LOG.error("An IOException occurred when attempting to read the Repose system logging configuration file.");
-        }
-
-//        PropertyConfigurator.configure(properties);
     }
 }
