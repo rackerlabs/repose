@@ -28,6 +28,7 @@
         <module>versioning</module>
         <module>translation</module>
         <module>default-router</module>
+        <module>servlet-context-router</module>
         <module>echo</module>
     </modules>
     

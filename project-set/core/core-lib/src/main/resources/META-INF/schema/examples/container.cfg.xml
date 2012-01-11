@@ -6,6 +6,6 @@
         
         <artifact-directory check-interval="60000">/usr/share/powerapi/filters</artifact-directory>
         
-        <logging-configuration href="/etc/powerapi/logging-configuration.cfg"/>
+        <logging-configuration href="log4j.properties"/>
     </deployment-config>
 </powerapi-container>
