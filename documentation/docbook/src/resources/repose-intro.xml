@@ -92,15 +92,13 @@
         </revhistory>
     </info>
     <chapter xml:id="Overview-d1e85">
-        <title>Overview</title>
-        <section xml:id="Purpose-d1e90">
-            <title>Purpose of This Document</title>
+        <title>About This Document</title>
             <para> The purpose of this introductory Getting Started document is to answer several
                 basic questions about &PRODNAME;: </para>
             <itemizedlist spacing="normal">
                 <listitem>
                     <para>
-                        <link linkend="Define-d1e365">What is &PRODNAME;?</link>
+                        <link linkend="Introduction-000">What is &PRODNAME;?</link>
                     </para>
                 </listitem>
                 <listitem>
@@ -119,7 +117,6 @@
                     </para>
                 </listitem>
             </itemizedlist>   
-        </section>
         <section xml:id="Document_Change_History-d1e102">
             <title>Document Change History</title>
             <para>This version of Getting Started replaces and obsoletes all previous versions. The
@@ -128,7 +125,8 @@
         </section>
         <xi:include href="chapters/available-doc.xml"/>
     </chapter>
-    <chapter xml:id="Define-d1e365">
+    <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
+    <chapter xml:id="Introduction-000">
         <title>What is &PRODNAME;?</title>
         <annotation>
             <remark>

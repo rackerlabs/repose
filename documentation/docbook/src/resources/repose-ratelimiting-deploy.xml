@@ -116,34 +116,17 @@
         </revhistory>
     </info>
     <chapter xml:id="Overview-d1e85">
-        <title>Overview</title>
-        <section xml:id="Purpose-d1e90">
-            <title>Purpose</title>
+        <title>About This Document</title>
             <para> 
                 The purpose of this handbook is to facilitate deployment of &PRODNAME;'s rate
                 limiting component. This handbook is not a tutorial. It provides basic information
                 that will help you understand and deploy this &PRODNAME; component, but you must
                 adapt this information to suit your own configuration. 
-            </para>
-            <para> The origin service is the source of all data processed by &PRODNAME;. For example, if
-                &PRODNAME; is used to provide rate limiting to a load-balancing service, then the
-                load-balancing service is &PRODNAME;'s origin service.
-             </para>   
-                <para>The rate limiting service filter
-                protects the origin service from being bombarded by client requests. It accomplishes
-                this by specifying limits for the number of times a client may request a given
-                resource. This provides essential protection to any public-facing API. </para>
-            <para>
-                A client's current limits may include the
-                client's absolute limits. Absolute limits are specific to a service domain and are
-                therefore only provided by the origin service. 
-                However, &PRODABBREV; will integrate absolute and current limits as they apply to a client.
-            </para>
+            </para>  
             <para>
                 This handbook is focused on one &PRODNAME; component.
                 Other &PRODNAME; components are documented in companion handbooks.
             </para>
-        </section>
         <section xml:id="Document_Change_History-d1e102">
             <title>Document Change History</title>
             <para>This version of the guide replaces and obsoletes all previous versions.
@@ -152,7 +135,27 @@
         </section>
         <xi:include href="chapters/available-doc.xml"/>
     </chapter>
-    <chapter xml:id="Msg_Requirements-d1e172">
+    <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
+    <chapter xml:id="Introduction-000">
+        <title>Introduction to the Rate Limiting Component of &PRODNAME;</title>
+        <para> &PRODNAME;'s rate limiting service filter protects
+            the origin service from being bombarded by client
+            requests. It accomplishes this by specifying limits for
+            the number of times a client may request a given resource.
+            This provides essential protection to any public-facing
+            API. </para>
+        <para> The origin service is the source of all data processed by &PRODNAME;. For example, if
+            &PRODNAME; is used to provide rate limiting to a load-balancing service, then the
+            load-balancing service is &PRODNAME;'s origin service.
+        </para> 
+        <para>
+            A client's current limits may include the
+            client's absolute limits. Absolute limits are specific to a service domain and are
+            therefore only provided by the origin service. 
+            However, &PRODABBREV; will integrate absolute and current limits as they apply to a client.
+        </para>
+    </chapter>
+    <chapter xml:id="HTTP_Message_Requirements-d1e222">
         <title>HTTP Message Requirements</title>
         <para> To correctly rate limit a requested resource, the rate limiting component uses one
         required HTTP header precondition and one optional HTTP header precondition. </para>
