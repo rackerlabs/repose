@@ -1,6 +1,7 @@
 package com.rackspace.papi.filter.logic.impl;
 
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import java.util.Iterator;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -9,7 +10,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -18,32 +19,51 @@ import static org.mockito.Mockito.when;
  */
 @RunWith(Enclosed.class)
 public class HeaderManagerImplTest {
-    public static class WhenAppendingToHeader{
 
-        private HeaderManagerImpl headerManagerImpl = new HeaderManagerImpl();
-        private HttpServletRequest mockRequest = mock(HttpServletRequest.class);
+   public static class WhenAppendingToHeader {
 
+      private HeaderManagerImpl headerManagerImpl = new HeaderManagerImpl();
+      private HttpServletRequest mockRequest = mock(HttpServletRequest.class);
 
-        @Test
-        public void shouldAppendWhenHeaderAlreadyPresent() {
-            when(mockRequest.getHeader(PowerApiHeader.USER.getHeaderKey())).thenReturn("127.0.0.0;q=.3");
+      @Test
+      public void shouldAppendToHeadersAlreadyInSet() {
+         final String key = "key";
 
-            headerManagerImpl.appendToHeader(mockRequest, PowerApiHeader.USER.getHeaderKey(), "username;q=1" );
+         headerManagerImpl.putHeader(key, "1");
+         headerManagerImpl.appendHeader(key, "2");
 
-            Set<String> values = headerManagerImpl.headersToAdd().get(PowerApiHeader.USER.getHeaderKey().toLowerCase());
+         final Iterator<String> valueIterator = headerManagerImpl.headersToAdd().get(key).iterator();
+         final String firstValue = valueIterator.next();
 
-            assertEquals("Should append header value if header already present.","127.0.0.0;q=.3,username;q=1", values.iterator().next());
-        }
+         if ("1".equals(firstValue)) {
+            assertEquals("Should append header values already present in the value set.", "2", valueIterator.next());
+         } else if ("2".equals(firstValue)) {
+            assertEquals("Should append header values already present in the value set.", "1", valueIterator.next());
+         } else {
+            fail("Header manager should allow values to be appended to the same header key");
+         }
+      }
 
-        @Test
-        public void shouldPutHeaderWhenHeaderNotPresent() {
-            when(mockRequest.getHeader(PowerApiHeader.USER.getHeaderKey())).thenReturn(null);
+      @Test
+      public void shouldAppendWhenHeaderAlreadyPresent() {
+         when(mockRequest.getHeader(PowerApiHeader.USER.getHeaderKey())).thenReturn("127.0.0.0;q=.3");
 
-            headerManagerImpl.appendToHeader(mockRequest, PowerApiHeader.USER.getHeaderKey(), "username;q=1" );
+         headerManagerImpl.appendToHeader(mockRequest, PowerApiHeader.USER.getHeaderKey(), "username;q=1");
 
-            Set<String> values = headerManagerImpl.headersToAdd().get(PowerApiHeader.USER.getHeaderKey().toLowerCase());
+         Set<String> values = headerManagerImpl.headersToAdd().get(PowerApiHeader.USER.getHeaderKey().toLowerCase());
 
-            assertEquals("Should put header value if header not present.","username;q=1", values.iterator().next());
-        }        
-    }
+         assertEquals("Should append header value if header already present.", "127.0.0.0;q=.3,username;q=1", values.iterator().next());
+      }
+
+      @Test
+      public void shouldPutHeaderWhenHeaderNotPresent() {
+         when(mockRequest.getHeader(PowerApiHeader.USER.getHeaderKey())).thenReturn(null);
+
+         headerManagerImpl.appendToHeader(mockRequest, PowerApiHeader.USER.getHeaderKey(), "username;q=1");
+
+         Set<String> values = headerManagerImpl.headersToAdd().get(PowerApiHeader.USER.getHeaderKey().toLowerCase());
+
+         assertEquals("Should put header value if header not present.", "username;q=1", values.iterator().next());
+      }
+   }
 }

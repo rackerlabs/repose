@@ -13,7 +13,10 @@ import javax.servlet.http.HttpServletResponse;
 public interface HeaderManager {
 
     void putHeader(String key, String... values);
+    
+    void appendHeader(String key, String... values);
 
+    @Deprecated // TODO: Review if we still need this with the recent append changes to the manager
     void appendToHeader(HttpServletRequest request, String key, String value);
 
     Map<String, Set<String>> headersToAdd();
