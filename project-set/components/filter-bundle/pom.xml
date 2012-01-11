@@ -120,11 +120,6 @@
 
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
-                            <artifactId>content-negotiation</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>content-normalization</artifactId>
                         </jarModule>
 
