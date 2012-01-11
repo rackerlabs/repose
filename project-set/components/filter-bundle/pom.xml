@@ -49,11 +49,6 @@
         
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>content-negotiation</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
             <artifactId>client-auth</artifactId>
         </dependency>
 
