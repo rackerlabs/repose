@@ -70,4 +70,19 @@ public class ServiceClient {
       return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
    }
 
+   public ClientResponse getClientResponse(String uri, String... queryParameters) throws AuthServiceException {
+      WebResource resource = client.resource(uri);
+
+      if (queryParameters.length % 2 != 0) {
+         throw new IllegalArgumentException("Query parameters must be in pairs.");
+      }
+
+      for (int index = 0; index < queryParameters.length; index = index + 2) {
+         resource = resource.queryParam(queryParameters[index], queryParameters[index + 1]);
+      }
+
+      ClientResponse response = resource.header("Accept", "application/xml").get(ClientResponse.class);
+      return response;
+   }
+
 }
