@@ -98,5 +98,12 @@ public class AuthPropertiesProvider extends UserDataPropertiesProviderImpl imple
       return providedToken.equals(validToken);
    }
    
+   @Override
+   public String getUsername(String userId){
+       
+       String username = getProperties().getProperty("username."+userId);
+       return username;
+   }
+   
    
 }
