@@ -4,7 +4,7 @@ import com.rackspace.papi.service.logging.common.LogFrameworks;
 import com.rackspace.papi.service.logging.facade.LoggingConfigurationFacade;
 import com.rackspace.papi.service.logging.facade.LoggingConfigurationFacadeImpl;
 
-import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * @author fran
@@ -17,7 +17,7 @@ public class LoggingServiceImpl implements LoggingService {
     }
 
     @Override
-    public void updateLoggingConfiguration(InputStream loggingConfigFile) {
+    public void updateLoggingConfiguration(Properties loggingConfigFile) {
         loggingConfigurationFacade.configure(loggingConfigFile);
     }
 }

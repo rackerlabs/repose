@@ -1,5 +1,6 @@
 package com.rackspace.cloud.valve.server;
 
+import org.apache.log4j.BasicConfigurator;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.slf4j.Logger;
@@ -14,6 +15,8 @@ public class ProxyApp {
     private static final String DEFAULT_CFG_DIR = "/etc/powerapi";
 
     public static void main(String[] args) throws Exception {
+        BasicConfigurator.configure();
+
         final CommandLineArguments commandLineArgs = new CommandLineArguments();
         final CmdLineParser cmdLineParser = new CmdLineParser(commandLineArgs);
 
