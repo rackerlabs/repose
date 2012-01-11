@@ -3,6 +3,7 @@ package com.rackspace.papi.components.clientauth.rackspace.v1_1;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.auth.v1_1.AuthenticationServiceClient;
+import com.rackspace.auth.v1_1.CachableTokenInfo;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
@@ -135,7 +136,7 @@ public class RackspaceAuthenticationHandlerTest {
         public void shouldRejectInvalidCredentials() {
             when(request.getHeader(anyString())).thenReturn("some-random-auth-token");
             when(request.getRequestURI()).thenReturn("/start/accountId/resource");
-            when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(Boolean.FALSE);
+            when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(null);
 
             final FilterDirector requestDirector = handler.handleRequest(request, response);
 
@@ -144,9 +145,12 @@ public class RackspaceAuthenticationHandlerTest {
 
         @Test
         public void shouldPassValidCredentials() {
+            String tokenId = "some-random-auth-token";
+            String userName = "userName";
+            CachableTokenInfo token = new CachableTokenInfo(userName, tokenId);
             when(request.getHeader(CommonHttpHeader.AUTH_TOKEN.getHeaderKey())).thenReturn("some-random-auth-token");
             when(request.getRequestURI()).thenReturn("/start/accountId/resource");
-            when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(Boolean.TRUE);
+            when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(token);
             when(authServiceClient.getGroups(anyString())).thenReturn(groups);
 
             final FilterDirector requestDirector = handler.handleRequest(request, response);
@@ -215,7 +219,7 @@ public class RackspaceAuthenticationHandlerTest {
         public void shouldRejectInvalidCredentials() {
             when(request.getHeader(anyString())).thenReturn("some-random-auth-token");
             when(request.getRequestURI()).thenReturn("/start/accountId/resource");
-            when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(Boolean.FALSE);
+            when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(null);
 
             final FilterDirector requestDirector = handler.handleRequest(request, response);
 
@@ -224,9 +228,12 @@ public class RackspaceAuthenticationHandlerTest {
 
         @Test
         public void shouldPassValidCredentials() {
-            when(request.getHeader(CommonHttpHeader.AUTH_TOKEN.getHeaderKey())).thenReturn("some-random-auth-token");
+            String tokenId = "some-random-auth-token";
+            String userName = "userName";
+            CachableTokenInfo token = new CachableTokenInfo(userName, tokenId);
+            when(request.getHeader(CommonHttpHeader.AUTH_TOKEN.getHeaderKey())).thenReturn(tokenId);
             when(request.getRequestURI()).thenReturn("/start/accountId/resource");
-            when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(Boolean.TRUE);
+            when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(token);
             when(authServiceClient.getGroups(anyString())).thenReturn(groups);
 
             final FilterDirector requestDirector = handler.handleRequest(request, response);

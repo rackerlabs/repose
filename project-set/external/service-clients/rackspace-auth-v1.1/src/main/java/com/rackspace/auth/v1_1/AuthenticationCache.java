@@ -15,17 +15,19 @@ public class AuthenticationCache {
         this.authTokenCache = new TokenCache(cache);
     }
 
-    public void cacheUserAuthToken(String accountUsername, int ttl, String authToken) {
-        final Element newCacheElement = new Element(accountUsername, authToken);
+    public CachableTokenInfo cacheUserAuthToken(String accountUserId, int ttl, String userName, String authToken) {
+        final CachableTokenInfo token = new CachableTokenInfo(userName, authToken);
+        final Element newCacheElement = new Element(accountUserId, token);
         newCacheElement.setTimeToLive(ttl);
 
         authTokenCache.put(newCacheElement);
+        return token;
     }
+    
+    public CachableTokenInfo tokenIsCached(String accountUserId, String headerAuthToken) {
+        final Element element = authTokenCache.get(accountUserId);
+        CachableTokenInfo token = element != null && !element.isExpired()? (CachableTokenInfo)element.getValue(): null;
 
-    public boolean tokenIsCached(String accountUsername, String headerAuthToken) {
-        final Element cachedTokenElement = authTokenCache.get(accountUsername);
-
-        return cachedTokenElement != null && !cachedTokenElement.isExpired() &&
-               cachedTokenElement.getValue().equals(headerAuthToken);
+        return token != null && token.getTokenId().equals(headerAuthToken)? token: null;
     }
 }

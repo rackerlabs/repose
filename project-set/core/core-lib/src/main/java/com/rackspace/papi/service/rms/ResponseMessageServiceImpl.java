@@ -104,7 +104,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
             final Message statusCodeMessage = getMatchingStatusCodeMessage(matchedCode, preferedMediaRange);
 
             if (statusCodeMessage != null) {
-                if (!statusCodeMessage.isSetPrependOrigin()) {
+                if (!statusCodeMessage.isPrependOrigin()) {
                     response.resetBuffer();
                 }
 

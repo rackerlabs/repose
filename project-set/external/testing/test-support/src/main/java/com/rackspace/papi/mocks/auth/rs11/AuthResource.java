@@ -131,4 +131,20 @@ public class AuthResource extends BaseResource {
       }
       return Response.ok(wrapper.wrapElement(p.getGroups(userName))).build();
    }
+   
+   @GET
+   @Path("/mosso/{userId}")
+   public Response geMossoUserName(@PathParam("userId") String userId){
+       AuthProvider p = getProvider();
+       String location = "/v1.1/users/"+p.getUsername(userId);
+       return Response.status(Status.MOVED_PERMANENTLY)
+               .header("Location",location)
+               .build();
+   }
+   
+   @GET
+   @Path("/users/{userId}")
+   public Response getCloudUsername(@PathParam("userId") String userId){
+       return geMossoUserName(userId);
+   }
 }

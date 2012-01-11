@@ -5,7 +5,6 @@
         xsi:schemaLocation="http://java.sun.com/xml/ns/jaxb http://java.sun.com/xml/ns/jaxb/bindingschema_2_0.xsd"
         schemaLocation="rate-limiting-configuration.xsd">
             
-    <globalBindings generateIsSetMethod="true"/>
     <schemaBindings>
         <package name="com.rackspace.papi.components.ratelimit.config" />
     </schemaBindings>

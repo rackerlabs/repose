@@ -26,13 +26,14 @@ public class AuthenticationCacheTest {
 
         @Test
         public void shouldCacheAuthToken() {
+            String userId = "1234";
             String username = "username";
             int ttl = 60000;
             String authToken = "1234567";
 
-            authenticationCache.cacheUserAuthToken(username, ttl, authToken);
+            authenticationCache.cacheUserAuthToken(userId, ttl, username, authToken);
 
-            assertTrue(authenticationCache.tokenIsCached(username, authToken));
+            assertTrue(authenticationCache.tokenIsCached(userId, authToken) != null);
         }        
     }
 }
