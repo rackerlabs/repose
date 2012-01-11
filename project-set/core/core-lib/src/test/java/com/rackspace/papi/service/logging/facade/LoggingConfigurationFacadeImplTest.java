@@ -28,8 +28,6 @@ public class LoggingConfigurationFacadeImplTest {
 
          LoggingConfigurationFacade loggingConfigurationFacade = new LoggingConfigurationFacadeImpl(LogFrameworks.LOG4J);
 
-         System.out.println(new File(".").getAbsolutePath());
-
          Properties properties = new Properties();
 
          loggingConfigurationFacade.configure(properties);

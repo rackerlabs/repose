@@ -15,8 +15,12 @@ public class ProxyApp {
     private static final String DEFAULT_CFG_DIR = "/etc/powerapi";
 
     public static void main(String[] args) throws Exception {
+        // Use default logging confg which sets to DEBUG
         BasicConfigurator.configure();
 
+        // Turn off Jetty logging
+        org.apache.log4j.Logger.getLogger("org.eclipse.jetty").setLevel(org.apache.log4j.Level.OFF);
+       
         final CommandLineArguments commandLineArgs = new CommandLineArguments();
         final CmdLineParser cmdLineParser = new CmdLineParser(commandLineArgs);
 
