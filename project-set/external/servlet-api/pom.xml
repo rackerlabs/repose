@@ -6,6 +6,7 @@
       <groupId>com.rackspace.papi</groupId>
       <artifactId>profile-support</artifactId>
       <version>1.0.6-SNAPSHOT</version>
+      <relativePath>../../pom.xml</relativePath>
    </parent>
 
    <groupId>org.openrepose.servlet</groupId>

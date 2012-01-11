@@ -33,7 +33,7 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
 
     public OpenStackAuthenticationHandler(OpenstackAuth cfg, OpenStackAuthenticationService serviceClient, KeyedRegexExtractor keyedRegexExtractor) {
         this.authenticationService = serviceClient;
-        delegatable = cfg.isSetDelegatable();
+        delegatable = cfg.isDelegatable();
         this.authServiceUri = cfg.getIdentityService().getUri();
         this.keyedRegexExtractor = keyedRegexExtractor;
         
