@@ -63,11 +63,8 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
 
             if (loggingConfig != null && !StringUtilities.isBlank(loggingConfig.getHref())) {
                final String newLoggingConfig = loggingConfig.getHref();
-
-               if (!loggingConfigurationConfig.equalsIgnoreCase(newLoggingConfig)) {
-                  updateLogConfigFileSubscription(loggingConfigurationConfig, newLoggingConfig);
-                  loggingConfigurationConfig = newLoggingConfig;
-               }
+               loggingConfigurationConfig = newLoggingConfig;
+               updateLogConfigFileSubscription(loggingConfigurationConfig, newLoggingConfig);                             
             }
          }
       }
