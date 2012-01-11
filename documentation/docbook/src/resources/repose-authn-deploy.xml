@@ -110,22 +110,15 @@
         </revhistory>
     </info>
     <chapter xml:id="Overview-d1e85">
-        <title>Overview</title>
-        <section xml:id="Purpose-d1e90">
-            <title>Purpose</title>
+        <title>About This Document</title>
             <para> The purpose of this handbook is to facilitate deployment of &PRODNAME;'s client
                 authentication component. This handbook is not a tutorial. It provides basic
                 information that will help you understand and deploy this &PRODNAME; component, but
                 you must adapt this information to suit your own configuration. </para>
-            <para> The client authentication service filter enables the origin service to
-                communicate with the authentication service implemented in its environment. It
-                accomplishes this by delegating authentication requests to the authentication
-                service and returning the results of those requests to the origin service.</para>
             <para>
                 This handbook is focused on one &PRODNAME; component.
                 Other &PRODNAME; components are documented in companion handbooks.
             </para>
-        </section>
         <section xml:id="Document_Change_History-d1e102">
             <title>Document Change History</title>
             <para>This version of the guide replaces and obsoletes all previous versions.
@@ -134,7 +127,16 @@
         </section>
         <xi:include href="chapters/available-doc.xml"/>
     </chapter>
-    <chapter xml:id="Configuration-d1e365">
+    <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
+    <chapter xml:id="Introduction-000">
+        <title>Introduction to the Client Authentication Component of &PRODNAME;</title>
+        <para> The client authentication service filter enables the origin service to
+            communicate with the authentication service implemented in its environment. It
+            accomplishes this by delegating authentication requests to the authentication
+            service and returning the results of those requests to the origin service.
+        </para>
+    </chapter>
+    <chapter xml:id="Configuration-d1e220">
         <title>Configuration</title>
         <para> 
             Client Authentication is divided into interchangable modules which represent different authentication schemes. 
