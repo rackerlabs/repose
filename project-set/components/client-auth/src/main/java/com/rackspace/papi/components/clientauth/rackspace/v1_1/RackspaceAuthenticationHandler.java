@@ -4,6 +4,7 @@ import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 
 
 import com.rackspace.auth.v1_1.AuthenticationServiceClient;
+import com.rackspace.auth.v1_1.CachableTokenInfo;
 import com.rackspacecloud.docs.auth.api.v1.GroupsList;
 import org.slf4j.Logger;
 import com.rackspace.papi.commons.util.StringUtilities;
@@ -55,11 +56,11 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
         final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.getHeaderKey());
         final ExtractorResult<String> extractedResult = keyedRegexExtractor.extract(request.getRequestURI());        
 
-        boolean validToken = false;
+        CachableTokenInfo token = null;
 
         if ((!StringUtilities.isBlank(authToken) && extractedResult != null)) {
             try {
-                validToken = authenticationService.validateToken(extractedResult, authToken);
+                token = authenticationService.validateToken(extractedResult, authToken);
             } catch (Exception ex) {
                 LOG.error("Failure in auth: " + ex.getMessage(), ex);
                 filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -67,11 +68,11 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
         }
 
         GroupsList groups = null;
-        if (validToken) {
-            groups = authenticationService.getGroups(extractedResult.getResult());
+        if (token != null) {
+            groups = authenticationService.getGroups(token.getUserName());
         }
 
-        final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(validToken, cfg, filterDirector, extractedResult == null ? "" : extractedResult.getResult(), groups, request);
+        final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(token != null, cfg, filterDirector, extractedResult == null ? "" : extractedResult.getResult(), groups, request);
         headerManager.setFilterDirectorValues();
 
         return filterDirector;

@@ -1,10 +1,10 @@
 package com.rackspace.papi.service.logging.facade;
 
-import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * @author fran
  */
 public interface LoggingConfigurationFacade {
-    public void configure(InputStream configurationProperties);
+    public void configure(Properties configurationProperties);
 }

@@ -57,13 +57,15 @@ public class AuthenticationHeaderManager {
         }
 
         if (validToken) {
-            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.getHeaderKey(), getGroupsListIds());
+         getGroupsListIds();
             filterDirector.requestHeaderManager().appendToHeader(request, PowerApiHeader.USER.getHeaderKey(), accountUsername + quality);
             setRoles();
         }
     }
 
-    private String[] getGroupsListIds() {
+   private void getGroupsListIds() {
+
+      if (groups != null) {
         int groupCount = groups.getGroup().size();
 
         String[] groupsArray = new String[groupCount];
@@ -72,8 +74,9 @@ public class AuthenticationHeaderManager {
             groupsArray[i] = groups.getGroup().get(i).getId();
         }
 
-        return groupsArray;
+         filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.getHeaderKey(), groupsArray);
     }
+   }
 
     /**
      * Set Identity Status and X-Authorization headers

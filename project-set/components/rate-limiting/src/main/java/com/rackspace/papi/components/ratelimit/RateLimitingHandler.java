@@ -77,7 +77,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
 
    private void describeLimitsForRequest(final FilterDirector director, HttpServletRequest request) {
       // Should we include the absolute limits from the service origin?
-      if (rateLimitingConfig.getRequestEndpoint().isSetIncludeAbsoluteLimits()) {
+      if (rateLimitingConfig.getRequestEndpoint().isIncludeAbsoluteLimits()) {
 
          // Process the response on the way back up the filter chain
          director.setFilterAction(FilterAction.PROCESS_RESPONSE);

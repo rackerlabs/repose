@@ -1,10 +1,10 @@
 package com.rackspace.papi.service.logging;
 
-import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * @author fran
  */
 public interface LoggingService {
-    public void updateLoggingConfiguration(InputStream loggingConfigFile);
+    public void updateLoggingConfiguration(Properties loggingConfigFile);
 }

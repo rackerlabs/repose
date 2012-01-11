@@ -70,8 +70,9 @@
             </annotation>
         </legalnotice>
         <abstract>
-            <para>This document is intended for systems administrators interested in configuring
-                their service to use the Root.WAR of the &PRODEXPAND;. </para>
+            <para>This document is intended for systems administrators
+                interested in configuring their service to use the
+                Root.WAR method of deploying the &PRODEXPAND;. </para>
         </abstract>
         <revhistory>
             <revision>
@@ -106,27 +107,38 @@
         </revhistory>
     </info>
     <chapter xml:id="Overview-d1e85">
-        <title>Overview</title>
-        <section xml:id="Purpose-d1e90">
-            <title>Purpose</title>
-            <para> The purpose of this handbook is to facilitate deployment of &PRODNAME; as the
-                root web application in a JEE container. This handbook is not a tutorial. It
+        <title>About This Document</title>
+            <para> 
+                The purpose of this handbook is to facilitate deployment of &PRODNAME; as the
+                root web application in a JEE container. 
+            </para>
+            <para>
+                This handbook is not a tutorial. It
                 provides basic information that will help you understand and deploy this &PRODNAME;
-                component, but you must adapt this information to suit your own configuration. </para>
-            <para> Root.WAR is a default package that makes it easy to load &PRODNAME;'s components.
-                In addition to simplifying deployment, Root.WAR provides centralized authorization
-                and control. This handbook is focused only on the Root.WAR deployment strategy.
-                &PRODNAME; components are documented in companion handbooks. </para>
-        </section>
+                component, but you must adapt this information to suit your own configuration. 
+            </para>
         <section xml:id="Document_Change_History-d1e102">
             <title>Document Change History</title>
-            <para>This version of the guide replaces and obsoletes all previous versions.
+            <para>This version replaces and obsoletes all previous versions.
             The most recent changes are described in the table below: </para>
             <?rax revhistory?>
         </section>
         <xi:include href="chapters/available-doc.xml"/>
+    </chapter>    
+    <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
+    <chapter xml:id="Introduction-000">
+        <title>Introduction to the Root.WAR Deployment Method for &PRODNAME;</title>
+        <para> 
+            Root.WAR is a default package that makes it easy to load &PRODNAME;'s components.
+            In addition to simplifying deployment, Root.WAR provides centralized authorization
+            and control. 
+        </para>
+        <para>
+            This handbook is focused only on the Root.WAR deployment strategy.
+            &PRODNAME; components are documented in companion handbooks. 
+        </para>
     </chapter>
-    <chapter xml:id="Default_Configuration_Model-d1e172">
+    <chapter xml:id="Default_Configuration_Model-d1e220">
         <title>Default Configuration Model</title>
         <para>We recommend that you deploy &PRODNAME; using the following operating systems, user and
             group configurations, and directories for configuration, artifacts, and deployment. </para>

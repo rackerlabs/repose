@@ -92,34 +92,35 @@
         </revhistory>
     </info>
     <chapter xml:id="Overview-d1e85">
-        <title>Overview</title>
-        <section xml:id="Purpose-d1e90">
-            <title>Purpose</title>
+        <title>About This Document</title>
             <para>
                 The purpose of this handbook is to facilitate deployment of &PRODNAME;'s versioning component. 
                 This handbook is not a tutorial.
                 It provides basic information that will help you understand and deploy this &PRODNAME; component, but you must adapt this information to suit your own configuration.
             </para>
             <para>
-                Versioning enables ReST services to roll out updates and changes without causing end-client breakage.
-                A new version of the service API can be released, but clients who are not ready to use the new version can specify a preference for the old version.
-                Clients can also request a catalog of available versions; 
-                each version in the catalog is marked with a status, such as <code>CURRENT</code> or <code>DEPRECATED</code>, which the client can use for guidance in deciding which version to use.
-            </para>
-            <para>
                 This handbook is focused on one &PRODNAME; component.
                 Other &PRODNAME; components are documented in companion handbooks.
             </para>
-        </section>
         <section xml:id="Document_Change_History-d1e102">
             <title>Document Change History</title>
-            <para>This version of the guide replaces and obsoletes all previous versions.
+            <para>This version replaces and obsoletes all previous versions.
             The most recent changes are described in the table below: </para>
             <?rax revhistory?>
         </section>
         <xi:include href="chapters/available-doc.xml"/>
     </chapter>
-    <chapter xml:id="Msg_Enhancement-d1e172">
+    <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
+    <chapter xml:id="Introduction-000">
+        <title>Introduction to the Versioning Component of &PRODNAME;</title>
+        <para>
+            Versioning enables ReST services to roll out updates and changes without causing end-client breakage.
+            A new version of the service API can be released, but clients who are not ready to use the new version can specify a preference for the old version.
+            Clients can also request a catalog of available versions; 
+            each version in the catalog is marked with a status, such as <code>CURRENT</code> or <code>DEPRECATED</code>, which the client can use for guidance in deciding which version to use.
+        </para>
+    </chapter>
+    <chapter xml:id="Message_Routing-d1e222">
         <title>Message Enhancement and Routing</title>
         <para> The versioning component does not route requests, nor is it responsible for routing.
             The versioning component's purpose is to annotate incoming requests with their intended
