@@ -64,7 +64,7 @@ public class AuthenticationServiceClient {
     public CachableTokenInfo validateToken(ExtractorResult<String> account, String token) {
         CachableTokenInfo tokenInfo = authenticationCache.tokenIsCached(account.getResult(), token);
 
-        if (token == null) {
+        if (tokenInfo == null) {
 
             final ServiceClientResponse<FullToken> validateTokenMethod = serviceClient.get(targetHostUri + "/token/" + token,
                     "belongsTo", account.getResult(),
