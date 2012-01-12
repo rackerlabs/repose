@@ -74,9 +74,9 @@ public class AuthenticationServiceClient {
                 case 200:
                     final FullToken tokenResponse = responseUnmarshaller.unmarshall(validateTokenMethod.getData(), FullToken.class);
                     final int expireTtl = getTtl(tokenResponse.getExpires().toGregorianCalendar(), Calendar.getInstance());
-                    final String userName = getUserNameForUserId(account.getResult(), account.getKey());
+                    //final String userName = getUserNameForUserId(account.getResult(), account.getKey());
                     
-                    tokenInfo = authenticationCache.cacheUserAuthToken(account.getResult(), expireTtl, userName, tokenResponse.getId());
+                    tokenInfo = authenticationCache.cacheUserAuthToken(account.getResult(), expireTtl, tokenResponse.getUserId(), tokenResponse.getId());
                     
             }
         }
