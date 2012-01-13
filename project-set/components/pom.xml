@@ -30,6 +30,7 @@
         <module>default-router</module>
         <module>servlet-context-router</module>
         <module>echo</module>
+        <module>client-authorization</module>
     </modules>
     
     <dependencyManagement>
