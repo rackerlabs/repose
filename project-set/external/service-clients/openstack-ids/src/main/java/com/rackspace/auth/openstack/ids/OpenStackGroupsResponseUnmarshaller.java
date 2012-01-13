@@ -14,7 +14,8 @@ import java.io.InputStreamReader;
  * @author fran
  */
 public class OpenStackGroupsResponseUnmarshaller {
-    private final JAXBContext jaxbContext;
+
+   private final JAXBContext jaxbContext;
    private final Pool<Unmarshaller> pool;
 
    public OpenStackGroupsResponseUnmarshaller() {
