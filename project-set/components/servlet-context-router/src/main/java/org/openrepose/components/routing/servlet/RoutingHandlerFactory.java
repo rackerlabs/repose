@@ -2,20 +2,13 @@ package org.openrepose.components.routing.servlet;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import com.rackspace.papi.model.PowerProxy;
 import java.util.HashMap;
 import java.util.Map;
 import org.openrepose.components.routing.servlet.config.ServletContextRouterConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RoutingTagger> {
 
-   private static final Logger LOG = LoggerFactory.getLogger(RoutingHandlerFactory.class);
    private ServletContextRouterConfiguration contextRouterConfiguration;
-
-   public RoutingHandlerFactory() {
-   }
 
    private class RoutingConfigurationListener implements UpdateListener<ServletContextRouterConfiguration> {
 
@@ -32,11 +25,9 @@ public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactor
 
    @Override
    protected Map<Class, UpdateListener<?>> getListeners() {
-      return new HashMap<Class, UpdateListener<?>>() {
+      final Map<Class, UpdateListener<?>> updateListeners = new HashMap<Class, UpdateListener<?>>();
+      updateListeners.put(ServletContextRouterConfiguration.class, new RoutingConfigurationListener());
 
-         {
-            put(PowerProxy.class, new RoutingConfigurationListener());
-         }
-      };
+      return updateListeners;
    }
 }

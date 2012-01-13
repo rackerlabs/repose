@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://openrepose.org/power-api/rackspace-auth-2.0/auth-z/v1.0"
+           xmlns:rs-auth-z="http://openrepose.org/power-api/rackspace-auth-2.0/auth-z/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    
+    <!-- Configuration -->
+   <xs:element name="rackspace-authorization">
+      <xs:complexType>
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Defines a Rackspace Auth 2.0 Authorization configuration</html:p>
+            </xs:documentation>
+         </xs:annotation>
+
+         <xs:sequence>
+            <xs:element name="authentication-server" type="rs-auth-z:AuthenticationServer" minOccurs="1" maxOccurs="1" />
+            <xs:element name="service-endpoint" type="rs-auth-z:ServiceEndpoint" minOccurs="1" maxOccurs="1" />
+         </xs:sequence>  
+      </xs:complexType>
+   </xs:element>
+    
+   <xs:complexType name="AuthenticationServer">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>Describes an authorization endpoint</html:p>
+         </xs:documentation>
+      </xs:annotation>
+
+      <xs:attribute name="username" type="xs:string" use="required">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Username to use (Basic Auth Only)</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+
+      <xs:attribute name="password" type="xs:string" use="required">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Password to use (Basic Auth Only)</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+
+      <xs:attribute name="href" type="xs:anyURI" use="required">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Target URI for authentication requests</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+   </xs:complexType>
+    
+   <xs:complexType name="ServiceEndpoint">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>Describes the service mapping for the Origin Service</html:p>
+         </xs:documentation>
+      </xs:annotation>
+
+      <xs:attribute name="href" type="xs:anyURI" use="required">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Service Mapping for the Origin Service</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+   </xs:complexType>
+</xs:schema>
