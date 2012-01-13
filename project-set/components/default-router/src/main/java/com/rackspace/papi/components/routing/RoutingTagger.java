@@ -29,13 +29,13 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
       final FilterDirector myDirector = new FilterDirectorImpl();
       myDirector.setFilterAction(FilterAction.PASS);
 
-      final String firstRoutingDestination = request.getHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey());
+      final String firstRoutingDestination = request.getHeader(PowerApiHeader.NEXT_ROUTE.toString());
 
       if (firstRoutingDestination == null) {
          final Host nextRoutableHost = modelInterrogator.getNextRoutableHost();
 
          try {
-            myDirector.requestHeaderManager().putHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey(), HostUtilities.asUrl(nextRoutableHost, request.getRequestURI()));
+            myDirector.requestHeaderManager().putHeader(PowerApiHeader.NEXT_ROUTE.toString(), HostUtilities.asUrl(nextRoutableHost, request.getRequestURI()));
          } catch (MalformedURLException murle) {
             // Malformed URL Expcetions are unexpected and should return as a 502
             LOG.error(murle.getMessage(), murle);

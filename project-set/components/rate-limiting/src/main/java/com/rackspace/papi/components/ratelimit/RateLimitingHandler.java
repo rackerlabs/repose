@@ -25,6 +25,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingHandler.class);
    private final Map<String, Map<String, Pattern>> regexCache;
    private final RateLimitCache rateLimitCache;
+   
    //Volatile
    private Pattern describeLimitsUriRegex;
    private RateLimitingConfiguration rateLimitingConfig;
@@ -56,7 +57,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
             newRateLimiter().recordLimitedRequest(new RateLimitingRequestInfo(request), director);
          }
       } else {
-         LOG.warn("Expected header: " + PowerApiHeader.USER.getHeaderKey()
+         LOG.warn("Expected header: " + PowerApiHeader.USER.toString()
                  + " was not supplied in the request. Rate limiting requires this header to operate.");
 
          // Auto return a 401 if the request does not meet expectations
@@ -68,11 +69,11 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
    }
    
    private RateLimiter newRateLimiter() {
-      return new RateLimiter(rateLimitCache, rateLimitingConfig, regexCache);
+      return new RateLimiter(rateLimitCache, regexCache, rateLimitingConfig);
    }
 
    public boolean requestHasExpectedHeaders(HttpServletRequest request) {
-      return request.getHeader(PowerApiHeader.USER.getHeaderKey()) != null;
+      return request.getHeader(PowerApiHeader.USER.toString()) != null;
    }
 
    private void describeLimitsForRequest(final FilterDirector director, HttpServletRequest request) {

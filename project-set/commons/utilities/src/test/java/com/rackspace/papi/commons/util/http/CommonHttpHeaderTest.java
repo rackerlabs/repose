@@ -8,17 +8,17 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.assertEquals;
 
 /**
- * Created by IntelliJ IDEA.
- * User: joshualockwood
- * Date: Apr 21, 2011
- * Time: 11:50:58 AM
+ * Created by IntelliJ IDEA. User: joshualockwood Date: Apr 21, 2011 Time:
+ * 11:50:58 AM
  */
 @RunWith(Enclosed.class)
 public class CommonHttpHeaderTest {
-    public static class WhenGettingHeaderKeys {
-        @Test
-        public void shouldReturnExpectedKey() {
-            assertEquals("Retry-After", CommonHttpHeader.RETRY_AFTER.getHeaderKey());
-        }
-    }
+
+   public static class WhenGettingHeaderKeys {
+
+      @Test
+      public void shouldReturnExpectedKey() {
+         assertEquals("retry-after", CommonHttpHeader.RETRY_AFTER.toString());
+      }
+   }
 }

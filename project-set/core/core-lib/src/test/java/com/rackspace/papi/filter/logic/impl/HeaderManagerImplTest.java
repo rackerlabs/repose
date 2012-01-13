@@ -46,22 +46,22 @@ public class HeaderManagerImplTest {
 
       @Test
       public void shouldAppendWhenHeaderAlreadyPresent() {
-         when(mockRequest.getHeader(PowerApiHeader.USER.getHeaderKey())).thenReturn("127.0.0.0;q=.3");
+         when(mockRequest.getHeader(PowerApiHeader.USER.toString())).thenReturn("127.0.0.0;q=.3");
 
-         headerManagerImpl.appendToHeader(mockRequest, PowerApiHeader.USER.getHeaderKey(), "username;q=1");
+         headerManagerImpl.appendToHeader(mockRequest, PowerApiHeader.USER.toString(), "username;q=1");
 
-         Set<String> values = headerManagerImpl.headersToAdd().get(PowerApiHeader.USER.getHeaderKey().toLowerCase());
+         Set<String> values = headerManagerImpl.headersToAdd().get(PowerApiHeader.USER.toString().toLowerCase());
 
          assertEquals("Should append header value if header already present.", "127.0.0.0;q=.3,username;q=1", values.iterator().next());
       }
 
       @Test
       public void shouldPutHeaderWhenHeaderNotPresent() {
-         when(mockRequest.getHeader(PowerApiHeader.USER.getHeaderKey())).thenReturn(null);
+         when(mockRequest.getHeader(PowerApiHeader.USER.toString())).thenReturn(null);
 
-         headerManagerImpl.appendToHeader(mockRequest, PowerApiHeader.USER.getHeaderKey(), "username;q=1");
+         headerManagerImpl.appendToHeader(mockRequest, PowerApiHeader.USER.toString(), "username;q=1");
 
-         Set<String> values = headerManagerImpl.headersToAdd().get(PowerApiHeader.USER.getHeaderKey().toLowerCase());
+         Set<String> values = headerManagerImpl.headersToAdd().get(PowerApiHeader.USER.toString().toLowerCase());
 
          assertEquals("Should put header value if header not present.", "username;q=1", values.iterator().next());
       }

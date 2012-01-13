@@ -21,12 +21,12 @@ public class RateLimitingRequestInfo {
 
       allUserGroups = new LinkedList<String>();
 
-      for (Enumeration<String> groupHeaders = request.getHeaders(PowerApiHeader.GROUPS.getHeaderKey()); groupHeaders.hasMoreElements();) {
+      for (Enumeration<String> groupHeaders = request.getHeaders(PowerApiHeader.GROUPS.toString()); groupHeaders.hasMoreElements();) {
          allUserGroups.add(groupHeaders.nextElement());
       }
 
       // TODO: Update this to call the quality utility and then set userName with user with highest quality value
-      userName = request.getHeader(PowerApiHeader.USER.getHeaderKey());
+      userName = request.getHeader(PowerApiHeader.USER.toString());
       requestMethod = HttpMethod.fromValue(request.getMethod().toUpperCase());
 
    }
