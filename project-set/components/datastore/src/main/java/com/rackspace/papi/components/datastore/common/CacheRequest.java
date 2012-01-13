@@ -64,16 +64,16 @@ public class CacheRequest {
       final String hostKey = getHostKey(request);
 
       try {
-         final String ttlHeader = request.getHeader(TTL_HEADER.getHeaderKey());
+         final String ttlHeader = request.getHeader(TTL_HEADER.toString());
          final int ttlInSeconds = StringUtilities.isBlank(ttlHeader) ? 60 : Integer.parseInt(ttlHeader);
 
          if (ttlInSeconds <= 0) {
-            throw new MalformedCacheRequestException(TTL_HEADER.getHeaderKey() + " must be a valid, positive integer number");
+            throw new MalformedCacheRequestException(TTL_HEADER.toString() + " must be a valid, positive integer number");
          }
 
          return new CacheRequest(cacheKey, hostKey, ttlInSeconds, RawInputStreamReader.instance().readFully(request.getInputStream(), TWO_MEGABYTES_IN_BYTES));
       } catch (NumberFormatException nfe) {
-         throw new MalformedCacheRequestException(TTL_HEADER.getHeaderKey() + " must be a valid, positive integer number", nfe);
+         throw new MalformedCacheRequestException(TTL_HEADER.toString() + " must be a valid, positive integer number", nfe);
       } catch (BufferCapacityException bce) {
          throw new MalformedCacheRequestException("Object is too large to store into the cache.", bce);
       } catch (Exception ex) {

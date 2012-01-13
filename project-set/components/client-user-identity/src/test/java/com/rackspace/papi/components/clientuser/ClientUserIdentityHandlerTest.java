@@ -66,8 +66,8 @@ public class ClientUserIdentityHandlerTest {
          
          FilterDirector result = handler.handleRequest(request, response);
          
-         Set<String> values = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.getHeaderKey().toLowerCase());
-         assertFalse("Should have " + PowerApiHeader.USER.getHeaderKey() + " header set.", values == null || values.isEmpty());
+         Set<String> values = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.toString().toLowerCase());
+         assertFalse("Should have " + PowerApiHeader.USER.toString() + " header set.", values == null || values.isEmpty());
          
          String userName = values.iterator().next();
          
@@ -80,8 +80,8 @@ public class ClientUserIdentityHandlerTest {
          
          FilterDirector result = handler.handleRequest(request, response);
          
-         Set<String> values = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.getHeaderKey().toLowerCase());
-         assertFalse("Should have " + PowerApiHeader.USER.getHeaderKey() + " header set.", values == null || values.isEmpty());
+         Set<String> values = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.toString().toLowerCase());
+         assertFalse("Should have " + PowerApiHeader.USER.toString() + " header set.", values == null || values.isEmpty());
          
          String userName = values.iterator().next();
          
@@ -94,8 +94,8 @@ public class ClientUserIdentityHandlerTest {
          
          FilterDirector result = handler.handleRequest(request, response);
          
-         Set<String> values = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.getHeaderKey().toLowerCase());
-         assertTrue("Should not have " + PowerApiHeader.USER.getHeaderKey() + " header set.", values == null || values.isEmpty());
+         Set<String> values = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.toString().toLowerCase());
+         assertTrue("Should not have " + PowerApiHeader.USER.toString() + " header set.", values == null || values.isEmpty());
          
       }
    }

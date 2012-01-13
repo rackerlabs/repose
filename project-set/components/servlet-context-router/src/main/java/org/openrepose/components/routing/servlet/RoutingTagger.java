@@ -32,7 +32,7 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
       myDirector.setFilterAction(FilterAction.PASS);
 
       for (HeaderValue route : headerValues) {
-         myDirector.requestHeaderManager().appendHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey(), route.toString());
+         myDirector.requestHeaderManager().appendHeader(PowerApiHeader.NEXT_ROUTE.toString(), route.toString());
       }
       
       return myDirector;

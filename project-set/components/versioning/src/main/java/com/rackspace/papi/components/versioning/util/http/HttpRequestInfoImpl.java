@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 public class HttpRequestInfoImpl implements HttpRequestInfo {
 
     private static List<MediaType> getMediaRanges(HttpServletRequest request) {
-        return RequestMediaRangeInterrogator.interrogate(request.getRequestURI(), request.getHeader(CommonHttpHeader.ACCEPT.getHeaderKey()));
+        return RequestMediaRangeInterrogator.interrogate(request.getRequestURI(), request.getHeader(CommonHttpHeader.ACCEPT.toString()));
     }
     
     private final List<MediaType> acceptMediaRange;
@@ -21,7 +21,7 @@ public class HttpRequestInfoImpl implements HttpRequestInfo {
     private final String host;
 
     public HttpRequestInfoImpl(HttpServletRequest request) {
-        this(getMediaRanges(request), request.getRequestURI(), request.getRequestURL().toString(), request.getHeader(CommonHttpHeader.HOST.getHeaderKey()));
+        this(getMediaRanges(request), request.getRequestURI(), request.getRequestURL().toString(), request.getHeader(CommonHttpHeader.HOST.toString()));
     }
 
     public HttpRequestInfoImpl(List<MediaType> acceptMediaRange, String uri, String url, String host) {
