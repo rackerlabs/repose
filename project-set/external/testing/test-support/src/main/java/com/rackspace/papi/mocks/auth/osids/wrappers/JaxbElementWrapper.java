@@ -5,6 +5,7 @@ import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 import org.openstack.docs.identity.api.v2.ItemNotFoundFault;
 import org.openstack.docs.identity.api.v2.ObjectFactory;
 import org.openstack.docs.identity.api.v2.UnauthorizedFault;
+import org.openstack.docs.identity.api.v2.EndpointList;
 
 public class JaxbElementWrapper implements ResponseWrapper {
    private final ObjectFactory objectFactory;
@@ -34,6 +35,11 @@ public class JaxbElementWrapper implements ResponseWrapper {
    @Override
    public Object wrapElement(AuthenticateResponse response) {
       return objectFactory.createAccess(response);
+   }
+   
+   @Override
+   public Object wrapElement(EndpointList endpointList){
+       return objectFactory.createEndpoints(endpointList);
    }
    
 }
