@@ -11,57 +11,60 @@ import org.slf4j.LoggerFactory;
  * @author zinic
  */
 public class ProxyApp {
-    private static final Logger LOG = LoggerFactory.getLogger(ProxyApp.class);
-    private static final String DEFAULT_CFG_DIR = "/etc/powerapi";
 
-    public static void main(String[] args) throws Exception {
-        // Use default logging confg which sets to DEBUG
-        BasicConfigurator.configure();
+   private static final Logger LOG = LoggerFactory.getLogger(ProxyApp.class);
+   private static final String DEFAULT_CFG_DIR = "/etc/powerapi";
 
-        // Turn off Jetty logging
-        org.apache.log4j.Logger.getLogger("org.eclipse.jetty").setLevel(org.apache.log4j.Level.OFF);
-       
-        final CommandLineArguments commandLineArgs = new CommandLineArguments();
-        final CmdLineParser cmdLineParser = new CmdLineParser(commandLineArgs);
+   public static void main(String[] args) throws Exception {
+      // Use default logging confg which sets to DEBUG
+      BasicConfigurator.configure();
 
-        try {
-            cmdLineParser.parseArgument(args);
-        } catch (CmdLineException e) {
-            displayUsage(cmdLineParser, e);
-            return;
-        }
+      // Turn off Jetty logging
+      org.apache.log4j.Logger.getLogger("org.eclipse.jetty").setLevel(org.apache.log4j.Level.OFF);
 
-        if( (!(portIsInRange(commandLineArgs.getPort()))) || (!(portIsInRange(commandLineArgs.getStopPort()))) ) {
-            LOG.info("Invalid Power API Valve port setting, use a value between 1024 and 49150");
-            return;
-        }
+      final CommandLineArguments commandLineArgs = new CommandLineArguments();
+      final CmdLineParser cmdLineParser = new CmdLineParser(commandLineArgs);
 
-        validateConfigDirectory(commandLineArgs);
+      try {
+         cmdLineParser.parseArgument(args);
+      } catch (CmdLineException e) {
+         displayUsage(cmdLineParser, e);
+         return;
+      }
 
-        final PowerApiValveServerControl serverControl = new PowerApiValveServerControl(commandLineArgs);
+      if ((!(portIsInRange(commandLineArgs.getPort()))) || (!(portIsInRange(commandLineArgs.getStopPort())))) {
+         LOG.info("Invalid Power API Valve port setting, use a value between 1024 and 49150");
+         return;
+      }
 
-        if (commandLineArgs.getAction().equalsIgnoreCase(commandLineArgs.ACTION_START))
-            serverControl.startPowerApiValve();
-        if (commandLineArgs.getAction().equalsIgnoreCase(commandLineArgs.ACTION_STOP))
-            serverControl.stopPowerApiValve();
-    }
+      validateConfigDirectory(commandLineArgs);
 
-    private static void validateConfigDirectory(CommandLineArguments commandLineArgs) {
-        if(commandLineArgs.getConfigDirectory() == null || commandLineArgs.getConfigDirectory().length() <= 0) {
-            commandLineArgs.setConfigDirectory(DEFAULT_CFG_DIR);
-        }
-    }
+      final PowerApiValveServerControl serverControl = new PowerApiValveServerControl(commandLineArgs);
 
-    private static void displayUsage(CmdLineParser cmdLineParser, Exception e) {
-        System.err.println(e.getMessage());
-        System.err.println("java -jar PowerApiServer.jar [options...] arguments...");
-        cmdLineParser.printUsage(System.err);
-    }
+      if (commandLineArgs.getAction().equalsIgnoreCase(CommandLineArguments.ACTION_START)) {
+         serverControl.startPowerApiValve();
+      }
+      if (commandLineArgs.getAction().equalsIgnoreCase(CommandLineArguments.ACTION_STOP)) {
+         serverControl.stopPowerApiValve();
+      }
+   }
 
-    private static boolean portIsInRange(int portNum) {
-        if((portNum < 49150) && (portNum > 1024)) {
-            return true;
-        }
-        return false;
-    }
+   private static void validateConfigDirectory(CommandLineArguments commandLineArgs) {
+      if (commandLineArgs.getConfigDirectory() == null || commandLineArgs.getConfigDirectory().length() <= 0) {
+         commandLineArgs.setConfigDirectory(DEFAULT_CFG_DIR);
+      }
+   }
+
+   private static void displayUsage(CmdLineParser cmdLineParser, Exception e) {
+      System.err.println(e.getMessage());
+      System.err.println("java -jar PowerApiServer.jar [options...] arguments...");
+      cmdLineParser.printUsage(System.err);
+   }
+
+   private static boolean portIsInRange(int portNum) {
+      if ((portNum < 49150) && (portNum > 1024)) {
+         return true;
+      }
+      return false;
+   }
 }
