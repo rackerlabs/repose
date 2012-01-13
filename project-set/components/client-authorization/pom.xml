@@ -1,61 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-<<<<<<< HEAD
-    <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>com.rackspace.papi.components</groupId>
-        <artifactId>components-support</artifactId>
-        <version>1.0.7-SNAPSHOT</version>
-    </parent>
-
-    <groupId>com.rackspace.papi.components</groupId>
-    <artifactId>client-authorization</artifactId>
-
-    <name>Power API Components - Client Authorization</name>
-    <description>TODO</description>
-
-    <packaging>jar</packaging>
-    
-    <dependencies>
-        <dependency>
-            <groupId>com.rackspace.papi.core</groupId>
-            <artifactId>core-lib</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>configuration</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>utilities</artifactId>
-        </dependency>
-    </dependencies>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>com.sun.tools.xjc.maven2</groupId>
-                <artifactId>maven-jaxb-plugin</artifactId>
-                
-                <configuration>                    
-                    <includeSchemas>
-                        <includeSchema>**/*.xsd</includeSchema>
-                    </includeSchemas>
-                    
-                    <includeBindings>
-                        <includeBinding>**/*.xjb</includeBinding>
-                    </includeBindings>
-                    
-                    <strict>true</strict>
-                    <verbose>false</verbose>
-                </configuration>
-            </plugin>            
-        </plugins>
-    </build>
-=======
    <modelVersion>4.0.0</modelVersion>
 
    <parent>
@@ -115,5 +60,4 @@
          </plugin>            
       </plugins>
    </build>
->>>>>>> 7966a9a57b83b711ab347dc334f690eaa5519268
 </project>

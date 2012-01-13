@@ -28,8 +28,10 @@ public class RequestAuthroizationHandlerFactory extends AbstractConfiguredFilter
 
          final AuthenticationServer serverInfo = authorizationConfiguration.getAuthenticationServer();
 
-         if (serverInfo != null) {
+         if (serverInfo != null && authorizationConfiguration.getServiceEndpoint() != null) {
             authenticationService = new AuthenticationServiceClient(serverInfo.getHref(), serverInfo.getUsername(), serverInfo.getPassword());
+         } else {
+            LOG.error("Errors detected in rackspace authorization configuration. Please check configurations.");
          }
       }
    }
@@ -41,7 +43,7 @@ public class RequestAuthroizationHandlerFactory extends AbstractConfiguredFilter
          throw new IllegalStateException("Component has not been initialized yet");
       }
 
-      return new RequestAuthroizationHandler(authenticationService);
+      return new RequestAuthroizationHandler(authenticationService, authorizationConfiguration.getServiceEndpoint());
    }
 
    @Override
