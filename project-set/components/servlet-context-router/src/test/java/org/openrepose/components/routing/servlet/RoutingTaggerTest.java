@@ -35,7 +35,7 @@ public class RoutingTaggerTest {
          final RoutingTagger tagger = new RoutingTagger(configuredContextRoutes);
          final FilterDirector filterDirector = tagger.handleRequest(null, null);
 
-         final Set<String> writtenRoutes = filterDirector.requestHeaderManager().headersToAdd().get(PowerApiHeader.NEXT_ROUTE.getHeaderKey().toLowerCase());
+         final Set<String> writtenRoutes = filterDirector.requestHeaderManager().headersToAdd().get(PowerApiHeader.NEXT_ROUTE.toString().toLowerCase());
 
          assertNotNull("Next route header must not be null", writtenRoutes);
          assertEquals("Next route header must have 4 values", (Integer)4, (Integer)writtenRoutes.size());

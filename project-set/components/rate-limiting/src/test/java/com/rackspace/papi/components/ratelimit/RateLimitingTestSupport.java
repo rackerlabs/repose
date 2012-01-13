@@ -38,6 +38,9 @@ public abstract class RateLimitingTestSupport {
         final ConfiguredRatelimit rateLimit = new ConfiguredRatelimit();
         rateLimit.setUnit(TimeUnit.MINUTE);
         rateLimit.getHttpMethods().add(HttpMethod.GET);
+        rateLimit.getHttpMethods().add(HttpMethod.PUT);
+        rateLimit.getHttpMethods().add(HttpMethod.POST);
+        rateLimit.getHttpMethods().add(HttpMethod.DELETE);
         rateLimit.setUri(rateLimitUri);
         rateLimit.setUriRegex(uriRegex);
         rateLimit.setValue(3);

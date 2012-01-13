@@ -47,21 +47,16 @@ public enum OpenStackServiceHeader implements HeaderConstant {
     private final String headerKey;
 
     private OpenStackServiceHeader(String headerKey) {
-        this.headerKey = headerKey;
+        this.headerKey = headerKey.toLowerCase();
     }
 
     @Override
-    public String getHeaderKey() {
+    public String toString() {
         return headerKey;
     }
     
     @Override
     public boolean matches(String st) {
         return headerKey.equalsIgnoreCase(st);
-    }
-    
-    @Override
-    public String toString() {
-        return headerKey.toLowerCase();
     }
 }

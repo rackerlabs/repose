@@ -64,10 +64,10 @@ public class HttpRequestParserTest {
             mockedRequest = mock(HttpServletRequest.class);
 
             when(mockedRequest.getHeaderNames()).thenReturn(headerNames);
-            when(mockedRequest.getHeaders("Accept")).thenReturn(acceptHeaderValues);
+            when(mockedRequest.getHeaders("accept")).thenReturn(acceptHeaderValues);
             when(mockedRequest.getHeaders("Content-Type")).thenReturn(contentTypeHeaderValues);
             when(mockedRequest.getParameterMap()).thenReturn(parameterMap);
-            when(mockedRequest.getHeader("Accept")).thenReturn("application/xml; q=0.8, text/html");
+            when(mockedRequest.getHeader("accept")).thenReturn("application/xml; q=0.8, text/html");
             when(mockedRequest.getMethod()).thenReturn("POST");
             when(mockedRequest.getRequestURI()).thenReturn("/request");
             when(mockedRequest.getProtocol()).thenReturn("HTTP/1.1");

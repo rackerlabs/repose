@@ -70,9 +70,9 @@ public class RoutingTaggerTest {
    @Test
    public void shouldNotChangeNextRouteWhenValueIsPresent() {
       routingTagger = new RoutingTagger(interrogator);
-      when(request.getHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey())).thenReturn("http://mockendservice.com:8082");
+      when(request.getHeader(PowerApiHeader.NEXT_ROUTE.toString())).thenReturn("http://mockendservice.com:8082");
       FilterDirector result = routingTagger.handleRequest(request, response);
-      assertTrue("Should not change route destination", request.getHeader(PowerApiHeader.NEXT_ROUTE.getHeaderKey()).equals("http://mockendservice.com:8082"));
+      assertTrue("Should not change route destination", request.getHeader(PowerApiHeader.NEXT_ROUTE.toString()).equals("http://mockendservice.com:8082"));
 
    }
 
@@ -92,7 +92,7 @@ public class RoutingTaggerTest {
 
       final String nextRoute = HostUtilities.asUrl(nextHost, requestUri);
 
-      assertTrue("Should route to next non-localhost host", result.requestHeaderManager().headersToAdd().get(PowerApiHeader.NEXT_ROUTE.getHeaderKey().toLowerCase()).contains(nextRoute));
+      assertTrue("Should route to next non-localhost host", result.requestHeaderManager().headersToAdd().get(PowerApiHeader.NEXT_ROUTE.toString().toLowerCase()).contains(nextRoute));
 
    }
 }

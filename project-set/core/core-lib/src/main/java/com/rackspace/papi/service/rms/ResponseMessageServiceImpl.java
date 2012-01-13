@@ -98,7 +98,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         final StatusCodeMatcher matchedCode = getMatchingStatusCode(String.valueOf(response.getStatus()));
 
         if (matchedCode != null) {
-            final List<MediaType> mediaRanges = new MediaRangeParser(request.getHeaders(CommonHttpHeader.ACCEPT.getHeaderKey())).parse();
+            final List<MediaType> mediaRanges = new MediaRangeParser(request.getHeaders(CommonHttpHeader.ACCEPT.toString())).parse();
             final MediaType preferedMediaRange = QualityFactorUtility.choosePreferedHeaderValue(mediaRanges);
             
             final Message statusCodeMessage = getMatchingStatusCodeMessage(matchedCode, preferedMediaRange);
@@ -114,7 +114,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
                     final String formattedOutput = formatter.format(message, request, response).trim();
                     
                     //Write the content type header and then write out our content
-                    response.setHeader(CommonHttpHeader.CONTENT_TYPE.getHeaderKey(), preferedMediaRange.getMimeType().toString());
+                    response.setHeader(CommonHttpHeader.CONTENT_TYPE.toString(), preferedMediaRange.getMimeType().toString());
                     
                     // TODO:Enhancement - Update formatter logic for streaming
                     // TODO:Enhancement - Update getBytes(...) to use requested content encoding

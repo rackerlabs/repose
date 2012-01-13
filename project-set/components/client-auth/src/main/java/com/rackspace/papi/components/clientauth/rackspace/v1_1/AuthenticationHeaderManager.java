@@ -58,7 +58,7 @@ public class AuthenticationHeaderManager {
 
         if (validToken) {
          getGroupsListIds();
-            filterDirector.requestHeaderManager().appendToHeader(request, PowerApiHeader.USER.getHeaderKey(), accountUsername + quality);
+            filterDirector.requestHeaderManager().appendToHeader(request, PowerApiHeader.USER.toString(), accountUsername + quality);
             setRoles();
         }
     }
@@ -74,7 +74,7 @@ public class AuthenticationHeaderManager {
             groupsArray[i] = groups.getGroup().get(i).getId();
         }
 
-         filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.getHeaderKey(), groupsArray);
+         filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.toString(), groupsArray);
     }
    }
 
@@ -82,7 +82,7 @@ public class AuthenticationHeaderManager {
      * Set Identity Status and X-Authorization headers
      */
     private void setIdentityStatus() {
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.getHeaderKey(), StringUtilities.isBlank(accountUsername) ? X_AUTH_PROXY : X_AUTH_PROXY + " " + accountUsername);
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString(), StringUtilities.isBlank(accountUsername) ? X_AUTH_PROXY : X_AUTH_PROXY + " " + accountUsername);
 
         if (isDelegatable) {
             IdentityStatus identityStatus = IdentityStatus.Confirmed;
@@ -91,7 +91,7 @@ public class AuthenticationHeaderManager {
                 identityStatus = IdentityStatus.Indeterminate;
             }
 
-            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.IDENTITY_STATUS.getHeaderKey(), identityStatus.name());
+            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString(), identityStatus.name());
         }
     }
 
@@ -101,8 +101,8 @@ public class AuthenticationHeaderManager {
      */
     private void setRoles() {
         if (keystone) {
-            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.getHeaderKey(), accountUsername);
-            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.getHeaderKey(), accountUsername);
+            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.toString(), accountUsername);
+            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), accountUsername);
 
             List<String> roleList = new ArrayList<String>();
 
@@ -119,7 +119,7 @@ public class AuthenticationHeaderManager {
             }
 
             if (roleList.size() > 0) {
-                filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.ROLES.getHeaderKey(), roleList.toArray(new String[0]));
+                filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.ROLES.toString(), roleList.toArray(new String[0]));
             }
         }
     }

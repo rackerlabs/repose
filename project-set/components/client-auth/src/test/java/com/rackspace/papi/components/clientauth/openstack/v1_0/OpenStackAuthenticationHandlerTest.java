@@ -151,7 +151,7 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void shouldModifyDelegatedWwwAuthenticateHeaderOn401() {
             when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
-            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Delegated");
+            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString())).thenReturn("Delegated");
             when(response.getStatus()).thenReturn(401);
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
@@ -163,7 +163,7 @@ public class OpenStackAuthenticationHandlerTest {
 
         @Test
         public void shouldModifyDelegatedWwwAuthenticateHeaderOn403() {
-            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Delegated");
+            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString())).thenReturn("Delegated");
             when(response.getStatus()).thenReturn(403);
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
@@ -175,7 +175,7 @@ public class OpenStackAuthenticationHandlerTest {
 
         @Test
         public void shouldReturn500OnAuth501FailureWithDelegatedWwwAuthenticateHeaderSet() {
-            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Delegated");
+            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString())).thenReturn("Delegated");
             when(response.getStatus()).thenReturn(501);
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
@@ -210,7 +210,7 @@ public class OpenStackAuthenticationHandlerTest {
 
         @Test
         public void shouldReturn501OnAuth501FailureWithDelegatedWwwAuthenticateHeaderNotSet() {
-            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Not-Delegate");
+            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString())).thenReturn("Not-Delegate");
             when(response.getStatus()).thenReturn(501);
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);

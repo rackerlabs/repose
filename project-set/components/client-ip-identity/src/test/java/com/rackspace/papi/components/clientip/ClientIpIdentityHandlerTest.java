@@ -59,8 +59,8 @@ public class ClientIpIdentityHandlerTest {
       public void shouldSetTheUserHeaderToTheHeaderIpValue() {
          FilterDirector result = handler.handleRequest(request, response);
          
-         Set<String> values = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.getHeaderKey().toLowerCase());
-         assertFalse("Should have " + PowerApiHeader.USER.getHeaderKey() + " header set.", values.isEmpty());
+         Set<String> values = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.toString().toLowerCase());
+         assertFalse("Should have " + PowerApiHeader.USER.toString() + " header set.", values.isEmpty());
          
          String ip = values.iterator().next();
          
@@ -75,8 +75,8 @@ public class ClientIpIdentityHandlerTest {
 
          FilterDirector result = handler.handleRequest(request, response);
          
-         Set<String> values = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.getHeaderKey().toLowerCase());
-         assertFalse("Should have " + PowerApiHeader.USER.getHeaderKey() + " header set.", values.isEmpty());
+         Set<String> values = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.toString().toLowerCase());
+         assertFalse("Should have " + PowerApiHeader.USER.toString() + " header set.", values.isEmpty());
          
          String ip = values.iterator().next();
          
@@ -89,8 +89,8 @@ public class ClientIpIdentityHandlerTest {
          
          FilterDirector result = handler.handleRequest(request, response);
          
-         Set<String> values = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.getHeaderKey().toLowerCase());
-         assertFalse("Should have " + PowerApiHeader.USER.getHeaderKey() + " header set.", values.isEmpty());
+         Set<String> values = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.toString().toLowerCase());
+         assertFalse("Should have " + PowerApiHeader.USER.toString() + " header set.", values.isEmpty());
          
          String ip = values.iterator().next();
          

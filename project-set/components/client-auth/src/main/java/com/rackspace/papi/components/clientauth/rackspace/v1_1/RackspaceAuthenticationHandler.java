@@ -53,7 +53,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
         filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
         filterDirector.setFilterAction(FilterAction.RETURN);
 
-        final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.getHeaderKey());
+        final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
         final ExtractorResult<String> extractedResult = keyedRegexExtractor.extract(request.getRequestURI());        
 
         CachableTokenInfo token = null;
@@ -84,7 +84,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
         myDirector.setResponseStatus(HttpStatusCode.fromInt(response.getStatus()));
         /// The WWW Authenticate header can be used to communicate to the client
         // (since we are a proxy) how to correctly authenticate itself
-        final String wwwAuthenticateHeader = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey());
+        final String wwwAuthenticateHeader = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString());
 
         switch (HttpStatusCode.fromInt(response.getStatus())) {
             // NOTE: We should only mutate the WWW-Authenticate header on a
@@ -111,7 +111,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
         // we should then communicate to the client how to authenticate with us
         if (!StringUtilities.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains("Delegated")) {
             final String replacementWwwAuthenticateHeader = getWWWAuthenticateHeaderContents();
-            director.responseHeaderManager().putHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey(), replacementWwwAuthenticateHeader);
+            director.responseHeaderManager().putHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString(), replacementWwwAuthenticateHeader);
         } else {
             // In the case where authentication has failed and we did not receive
             // a delegated WWW-Authenticate header, this means that our own authentication

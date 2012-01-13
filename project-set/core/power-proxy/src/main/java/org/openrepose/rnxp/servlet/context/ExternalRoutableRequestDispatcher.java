@@ -36,7 +36,7 @@ public class ExternalRoutableRequestDispatcher implements RequestDispatcher {
       final HttpServletResponse httpResponse = (HttpServletResponse) response;
 
       // So you want to go somewhere with this request? Okay, where to, boss?
-      final List<HeaderValue> headerValues = new HeaderFieldParser(httpRequest.getHeaders(PowerApiHeader.NEXT_ROUTE.getHeaderKey())).parse();
+      final List<HeaderValue> headerValues = new HeaderFieldParser(httpRequest.getHeaders(PowerApiHeader.NEXT_ROUTE.toString())).parse();
 
       if (!headerValues.isEmpty()) {
          final HeaderValue nextRoute = QualityFactorUtility.choosePreferedHeaderValue(headerValues);
