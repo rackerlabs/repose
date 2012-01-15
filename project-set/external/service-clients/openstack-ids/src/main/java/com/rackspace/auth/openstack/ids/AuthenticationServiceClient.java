@@ -1,14 +1,13 @@
 package com.rackspace.auth.openstack.ids;
 
-import com.rackspace.auth.openstack.ids.cache.EhcacheWrapper;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
-import net.sf.ehcache.CacheManager;
 import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 
 import java.util.Calendar;
 import java.util.List;
 import org.openstack.docs.identity.api.v2.Endpoint;
 import org.openstack.docs.identity.api.v2.EndpointList;
+import org.openstack.docs.identity.api.v2.Token;
 
 /**
  * @author fran
@@ -19,36 +18,44 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
    private final GenericServiceClient serviceClient;
    private final OpenStackCoreResponseUnmarshaller openStackCoreResponseUnmarshaller;
    private final OpenStackGroupsResponseUnmarshaller openStackGroupsResponseUnmarshaller;
-   private final CacheManager cacheManager;
-   private final EhcacheWrapper ehcacheWrapper;
-   private final String adminTokenCacheKey;
+   private AdminToken currentAdminToken;
+
+   private static class AdminToken {
+
+      private final String token;
+      private final Calendar expires;
+
+      public AdminToken(String token, Calendar expires) {
+         this.token = token;
+         this.expires = expires;
+      }
+
+      public String getToken() {
+         return token;
+      }
+
+      public boolean isValid() {
+         return expires.before(Calendar.getInstance().getTime());
+      }
+   }
 
    public AuthenticationServiceClient(String targetHostUri, String username, String password) {
       this.openStackCoreResponseUnmarshaller = new OpenStackCoreResponseUnmarshaller();
       this.openStackGroupsResponseUnmarshaller = new OpenStackGroupsResponseUnmarshaller();
       this.serviceClient = new GenericServiceClient(username, password);
       this.targetHostUri = targetHostUri;
-      this.cacheManager = new CacheManager();
-      this.ehcacheWrapper = new EhcacheWrapper(cacheManager);
-
-      adminTokenCacheKey = "Admin_Token:" + (username + password).hashCode();
    }
 
    @Override
-   public CachableTokenInfo validateToken(String tenant, String userToken) {
-      CachableTokenInfo token = (CachableTokenInfo) ehcacheWrapper.get(tenant);
+   public CachableUserInfo validateToken(String tenant, String userToken) {
+      CachableUserInfo token = null;
 
-      if (token == null) {
-         final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, getAdminToken());
+      final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, getAdminToken());
 
-         switch (serviceResponse.getStatusCode()) {
-            case 200:
-               final AuthenticateResponse authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
-               final Long expireTtl = authenticateResponse.getToken().getExpires().toGregorianCalendar().getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
-               ehcacheWrapper.put(tenant, token, expireTtl.intValue());
-
-               token = new CachableTokenInfo(authenticateResponse);
-         }
+      switch (serviceResponse.getStatusCode()) {
+         case 200:
+            final AuthenticateResponse authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
+            token = new CachableUserInfo(authenticateResponse);
       }
 
       return token;
@@ -85,7 +92,7 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
    }
 
    private String getAdminToken() {
-      String adminToken = (String) ehcacheWrapper.get(adminTokenCacheKey);
+      String adminToken = currentAdminToken != null && currentAdminToken.isValid() ? currentAdminToken.getToken() : null;
 
       if (adminToken == null) {
          final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.getAdminToken(targetHostUri + "/tokens");
@@ -93,11 +100,10 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
          switch (serviceResponse.getStatusCode()) {
             case 200:
                final AuthenticateResponse authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
-               adminToken = authenticateResponse.getToken().getId();
 
-               final Long expireTtl = authenticateResponse.getToken().getExpires().toGregorianCalendar().getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
-
-               ehcacheWrapper.put(adminTokenCacheKey, adminToken, expireTtl.intValue());
+               Token token = authenticateResponse.getToken();
+               currentAdminToken = new AdminToken(token.getId(), token.getExpires().toGregorianCalendar());
+               adminToken = currentAdminToken.getToken();
          }
       }
 

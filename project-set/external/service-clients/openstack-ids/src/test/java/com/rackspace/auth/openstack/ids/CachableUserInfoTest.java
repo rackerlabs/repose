@@ -11,7 +11,7 @@ import static org.junit.Assert.*;
  * @author fran
  */
 @RunWith(Enclosed.class)
-public class CachableTokenInfoTest {
+public class CachableUserInfoTest {
     public static class WhenFormattingRoles {
         private AuthenticateResponse response;
         private UserForAuthenticateResponse user;
@@ -38,7 +38,7 @@ public class CachableTokenInfoTest {
             user.setRoles(roleList);
             response.setUser(user);
 
-            final CachableTokenInfo info = new CachableTokenInfo(response);
+            final CachableUserInfo info = new CachableUserInfo(response);
 
             final String expected = "default role 1";
             assertEquals(expected, info.getRoles());
@@ -59,7 +59,7 @@ public class CachableTokenInfoTest {
             user.setRoles(roleList);
             response.setUser(user);
 
-            final CachableTokenInfo info = new CachableTokenInfo(response);
+            final CachableUserInfo info = new CachableUserInfo(response);
 
             final String expected = "default role 1,default role 2";
             assertEquals(expected, info.getRoles());
@@ -69,7 +69,7 @@ public class CachableTokenInfoTest {
         public void shouldFormatListWithNoRoles() {
             response.setUser(user);
 
-            final CachableTokenInfo info = new CachableTokenInfo(response);
+            final CachableUserInfo info = new CachableUserInfo(response);
 
             assertNull(info.getRoles());
         }
