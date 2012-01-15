@@ -3,13 +3,11 @@ package com.rackspace.auth.v1_1;
 import com.rackspacecloud.docs.auth.api.v1.FullToken;
 import java.io.Serializable;
 import java.util.Calendar;
-import java.util.GregorianCalendar;
-import javax.xml.datatype.XMLGregorianCalendar;
 
 public class CachableTokenInfo implements Serializable {
    private final String userId;
    private final String tokenId;
-   private final Long tokenTtl;
+   private final Calendar expires;
    
    public CachableTokenInfo(FullToken token) {
       if (token == null) {
@@ -17,24 +15,28 @@ public class CachableTokenInfo implements Serializable {
       }
       this.userId = token.getUserId();
       this.tokenId = token.getId();
-      this.tokenTtl = determineTtlInMillis(token);
+      this.expires = getExpires(token);
+   }
+   private Calendar getExpires(FullToken token) {
+      Calendar result = null;
+      if (token != null && token.getExpires() != null) {
+         result = token.getExpires().toGregorianCalendar();
+      }
+      
+      return result;
    }
    
-   private Long determineTtlInMillis(FullToken token) {
+   private Long determineTtlInMillis() {
       long ttl = 0;
 
-      if (token != null && token.getExpires() != null) {
-         Calendar current = Calendar.getInstance();
-         Calendar expires = token.getExpires().toGregorianCalendar();
-         
-         //if (expires.getTimeZone().equals(current.getTimeZone())) {
-            ttl = token.getExpires().toGregorianCalendar().getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
-         //}
+      if (expires != null) {
+         ttl = expires.getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
       }
 
       return ttl > 0 ? ttl : 0;
    }
 
+   
    public String getUserId() {
       return userId;
    }
@@ -43,11 +45,17 @@ public class CachableTokenInfo implements Serializable {
       return tokenId;
    }
    
+   public Calendar getExpires() {
+      return expires;
+   }
+   
    public Long getTokenTtl() {
-      return tokenTtl;
+      return determineTtlInMillis();
    }
    
    public int getSafeTokenTtl() {
+      Long tokenTtl = getTokenTtl();
+      
       if (tokenTtl >= Integer.MAX_VALUE) {
          return Integer.MAX_VALUE;
       }

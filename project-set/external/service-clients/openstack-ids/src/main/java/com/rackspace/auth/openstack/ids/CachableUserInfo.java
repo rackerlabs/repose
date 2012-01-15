@@ -16,7 +16,7 @@ public class CachableUserInfo implements Serializable {
    private final String userId;
    private final String username;
    private final String roles;
-   private final Long tokenTtl;
+   private final Calendar expires;
 
    public CachableUserInfo(AuthenticateResponse response) {
       if (response == null) {
@@ -27,20 +27,24 @@ public class CachableUserInfo implements Serializable {
       this.userId = response.getUser().getId();
       this.username = response.getUser().getName();
       this.roles = formatRoles(response);
-      this.tokenTtl = determineTtlInMillis(response.getToken());
+      this.expires = getExpires(response.getToken());
 
    }
 
-   private Long determineTtlInMillis(Token token) {
+   private Calendar getExpires(Token token) {
+      Calendar result = null;
+      if (token != null && token.getExpires() != null) {
+         result = token.getExpires().toGregorianCalendar();
+      }
+      
+      return result;
+   }
+   
+   private Long determineTtlInMillis() {
       long ttl = 0;
 
-      if (token != null && token.getExpires() != null) {
-         Calendar current = Calendar.getInstance();
-         Calendar expires = token.getExpires().toGregorianCalendar();
-         
-         //if (expires.getTimeZone().equals(current.getTimeZone())) {
-            ttl = token.getExpires().toGregorianCalendar().getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
-         //}
+      if (expires != null) {
+         ttl = expires.getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
       }
 
       return ttl > 0 ? ttl : 0;
@@ -77,12 +81,18 @@ public class CachableUserInfo implements Serializable {
    public String getRoles() {
       return roles;
    }
+   
+   public Calendar getExpires() {
+      return expires;
+   }
 
    public Long getTokenTtl() {
-      return tokenTtl;
+      return determineTtlInMillis();
    }
 
    public int getSafeTokenTtl() {
+      Long tokenTtl = getTokenTtl();
+      
       if (tokenTtl >= Integer.MAX_VALUE) {
          return Integer.MAX_VALUE;
       }
