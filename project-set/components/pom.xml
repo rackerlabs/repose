@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.rackspace.papi</groupId>
         <artifactId>profile-support</artifactId>
-        <version>1.0.6-SNAPSHOT</version>
+        <version>1.0.7-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.components</groupId>
@@ -28,7 +28,9 @@
         <module>versioning</module>
         <module>translation</module>
         <module>default-router</module>
+        <module>servlet-context-router</module>
         <module>echo</module>
+        <module>client-authorization</module>
     </modules>
     
     <dependencyManagement>

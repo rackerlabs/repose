@@ -3,6 +3,7 @@ package com.rackspace.papi.components.clientauth.rackspace.v1_1;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.auth.v1_1.AuthenticationServiceClient;
+import com.rackspace.auth.v1_1.CachableTokenInfo;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
@@ -135,7 +136,7 @@ public class RackspaceAuthenticationHandlerTest {
         public void shouldRejectInvalidCredentials() {
             when(request.getHeader(anyString())).thenReturn("some-random-auth-token");
             when(request.getRequestURI()).thenReturn("/start/accountId/resource");
-            when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(Boolean.FALSE);
+            when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(null);
 
             final FilterDirector requestDirector = handler.handleRequest(request, response);
 
@@ -144,15 +145,18 @@ public class RackspaceAuthenticationHandlerTest {
 
         @Test
         public void shouldPassValidCredentials() {
-            when(request.getHeader(CommonHttpHeader.AUTH_TOKEN.getHeaderKey())).thenReturn("some-random-auth-token");
+            String tokenId = "some-random-auth-token";
+            String userName = "userName";
+            CachableTokenInfo token = new CachableTokenInfo(userName, tokenId);
+            when(request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn("some-random-auth-token");
             when(request.getRequestURI()).thenReturn("/start/accountId/resource");
-            when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(Boolean.TRUE);
+            when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(token);
             when(authServiceClient.getGroups(anyString())).thenReturn(groups);
 
             final FilterDirector requestDirector = handler.handleRequest(request, response);
 
-            assertTrue("When groups exist, handler must add X-PP-Groups header", requestDirector.requestHeaderManager().headersToAdd().get(PowerApiHeader.GROUPS.getHeaderKey().toLowerCase()).contains("group-id"));
-            assertTrue("Handler must add X-PP-User header", requestDirector.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.getHeaderKey().toLowerCase()).contains("accountId;q=1"));
+            assertTrue("When groups exist, handler must add X-PP-Groups header", requestDirector.requestHeaderManager().headersToAdd().get(PowerApiHeader.GROUPS.toString().toLowerCase()).contains("group-id"));
+            assertTrue("Handler must add X-PP-User header", requestDirector.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.toString().toLowerCase()).contains("accountId;q=1"));
             assertTrue("Auth component must set X Authorization header when in delegated mode", requestDirector.requestHeaderManager().headersToAdd().get("x-authorization").iterator().next().equalsIgnoreCase(xAuthProxy + " accountId"));
             assertTrue("Auth component must set X Identity Status to Confirmed when in delegated mode", requestDirector.requestHeaderManager().headersToAdd().get("x-identity-status").iterator().next().equalsIgnoreCase(IdentityStatus.Confirmed.name()));
             assertEquals("Auth component must pass valid credentials when in delegated mode", FilterAction.PASS, requestDirector.getFilterAction());
@@ -215,7 +219,7 @@ public class RackspaceAuthenticationHandlerTest {
         public void shouldRejectInvalidCredentials() {
             when(request.getHeader(anyString())).thenReturn("some-random-auth-token");
             when(request.getRequestURI()).thenReturn("/start/accountId/resource");
-            when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(Boolean.FALSE);
+            when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(null);
 
             final FilterDirector requestDirector = handler.handleRequest(request, response);
 
@@ -224,15 +228,18 @@ public class RackspaceAuthenticationHandlerTest {
 
         @Test
         public void shouldPassValidCredentials() {
-            when(request.getHeader(CommonHttpHeader.AUTH_TOKEN.getHeaderKey())).thenReturn("some-random-auth-token");
+            String tokenId = "some-random-auth-token";
+            String userName = "userName";
+            CachableTokenInfo token = new CachableTokenInfo(userName, tokenId);
+            when(request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn(tokenId);
             when(request.getRequestURI()).thenReturn("/start/accountId/resource");
-            when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(Boolean.TRUE);
+            when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(token);
             when(authServiceClient.getGroups(anyString())).thenReturn(groups);
 
             final FilterDirector requestDirector = handler.handleRequest(request, response);
 
-            assertTrue("When groups exist, handler must add X-PP-Groups header", requestDirector.requestHeaderManager().headersToAdd().get(PowerApiHeader.GROUPS.getHeaderKey().toLowerCase()).contains("group-id"));
-            assertTrue("Handler must add X-PP-User header", requestDirector.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.getHeaderKey().toLowerCase()).contains("accountId;q=1"));
+            assertTrue("When groups exist, handler must add X-PP-Groups header", requestDirector.requestHeaderManager().headersToAdd().get(PowerApiHeader.GROUPS.toString().toLowerCase()).contains("group-id"));
+            assertTrue("Handler must add X-PP-User header", requestDirector.requestHeaderManager().headersToAdd().get(PowerApiHeader.USER.toString().toLowerCase()).contains("accountId;q=1"));
             assertTrue("Auth component must set X Authorization header when not in delegated mode", requestDirector.requestHeaderManager().headersToAdd().get("x-authorization").iterator().next().equalsIgnoreCase(xAuthProxy + " accountId"));
             assertEquals("Auth component must pass valid credentials when not in delegated mode", FilterAction.PASS, requestDirector.getFilterAction());
         }
@@ -246,7 +253,7 @@ public class RackspaceAuthenticationHandlerTest {
 
         @Test
         public void shouldModifyDelegatedWwwAuthenticateHeaderOn401() {
-            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Delegated");
+            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString())).thenReturn("Delegated");
             when(response.getStatus()).thenReturn(401);
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
@@ -258,7 +265,7 @@ public class RackspaceAuthenticationHandlerTest {
 
         @Test
         public void shouldModifyDelegatedWwwAuthenticateHeaderOn403() {
-            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Delegated");
+            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString())).thenReturn("Delegated");
             when(response.getStatus()).thenReturn(403);
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
@@ -270,7 +277,7 @@ public class RackspaceAuthenticationHandlerTest {
 
         @Test
         public void shouldReturn500OnAuthFailureWith501() {
-            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Delegated");
+            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString())).thenReturn("Delegated");
             when(response.getStatus()).thenReturn(501);
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
@@ -287,7 +294,7 @@ public class RackspaceAuthenticationHandlerTest {
 
         @Test
         public void shouldReturn500OnAuthFailureWith401() {
-            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Not-Delegate");
+            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString())).thenReturn("Not-Delegate");
             when(response.getStatus()).thenReturn(401);
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);
@@ -306,7 +313,7 @@ public class RackspaceAuthenticationHandlerTest {
 
         @Test
         public void shouldReturn501OnAuthFailureWith501() {
-            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey())).thenReturn("Not-Delegate");
+            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString())).thenReturn("Not-Delegate");
             when(response.getStatus()).thenReturn(501);
 
             final FilterDirector responseDirector = handler.handleResponse(request, response);

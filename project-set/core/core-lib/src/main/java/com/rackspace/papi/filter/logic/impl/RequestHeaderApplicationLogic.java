@@ -20,7 +20,7 @@ public class RequestHeaderApplicationLogic implements HeaderApplicationLogic {
 
     @Override
     public void addHeader(String key, Set<String> values) {
-        request.removeHeader(key);
+//        request.removeHeader(key);
 
         for (String value : values) {
             request.addHeader(key, value);

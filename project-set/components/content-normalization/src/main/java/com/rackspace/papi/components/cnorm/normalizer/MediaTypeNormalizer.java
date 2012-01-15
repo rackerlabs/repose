@@ -30,13 +30,13 @@ public class MediaTypeNormalizer {
         MediaType preferredMediaType = mediaTypes.size() > 0 ? mediaTypes.get(0) : null;
 
         for (MediaType mediaType : configuredMediaTypes) {
-            if (mediaType.isSetPreferred()) {
+            if (mediaType.isPreferred()) {
                 preferredMediaType = mediaType;
                 break;
             }
         }
 
-        if (preferredMediaType != null && !preferredMediaType.isSetPreferred()) {
+        if (preferredMediaType != null && !preferredMediaType.isPreferred()) {
             LOG.info("No preferred media type specified in the content normalization configuration.  Using the first in the list.");
         }
 
@@ -46,13 +46,13 @@ public class MediaTypeNormalizer {
     public void normalizeContentMediaType(HttpServletRequest request, FilterDirector director) {
         // The preferred media type should only be null if there were no media types specified
         if (preferredMediaType != null) {
-            final boolean requestHasAcceptHeader = request.getHeader(CommonHttpHeader.ACCEPT.getHeaderKey()) != null;
+            final boolean requestHasAcceptHeader = request.getHeader(CommonHttpHeader.ACCEPT.toString()) != null;
             final MediaType requestedVariantMediaType = getMediaTypeForVariant(request, director);
             
             if (requestedVariantMediaType != null) {
-                director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.getHeaderKey(), requestedVariantMediaType.getName());
+                director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.toString(), requestedVariantMediaType.getName());
             } else if (!requestHasAcceptHeader) {
-                director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.getHeaderKey(), preferredMediaType.getName());
+                director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.toString(), preferredMediaType.getName());
             }
         }
     }

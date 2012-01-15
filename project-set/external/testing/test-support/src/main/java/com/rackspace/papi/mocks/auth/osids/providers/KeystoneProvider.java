@@ -34,5 +34,7 @@ public interface KeystoneProvider extends UserDataProvider {
    boolean isValidToken(String token);
    
    AuthenticateResponse newAuthenticateResponse();
+   
+   EndpointList getEndpoints(String token);
 
 }

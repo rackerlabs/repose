@@ -85,7 +85,7 @@ public class RateLimiterResponse extends RateLimitingOperation {
     private void writeLimitsResponse(byte[] readableContents, HttpServletRequest request, FilterDirector filterDirector) throws IOException {
         filterDirector.setResponseStatus(HttpStatusCode.OK);
         
-        final List<MediaType> mediaRanges = new MediaRangeParser(request.getHeaders(CommonHttpHeader.ACCEPT.getHeaderKey())).parse();
+        final List<MediaType> mediaRanges = new MediaRangeParser(request.getHeaders(CommonHttpHeader.ACCEPT.toString())).parse();
         final MediaType preferredMediaRange = QualityFactorUtility.choosePreferedHeaderValue(mediaRanges);
         
         // TODO:Review - Possible null guard required for preferredMediaRange
@@ -93,13 +93,13 @@ public class RateLimiterResponse extends RateLimitingOperation {
         switch (preferredMediaRange.getMimeType()) {
             case APPLICATION_XML:
                 filterDirector.getResponseOutputStream().write(readableContents);
-                filterDirector.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.getHeaderKey(), MimeType.APPLICATION_XML.toString());
+                filterDirector.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.toString(), MimeType.APPLICATION_XML.toString());
                 break;
 
             case APPLICATION_JSON:
             default:
                 RESPONSE_TRANSFORMER.streamAsJson(new ByteArrayInputStream(readableContents), filterDirector.getResponseOutputStream());
-                filterDirector.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.getHeaderKey(), MimeType.APPLICATION_JSON.toString());
+                filterDirector.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.toString(), MimeType.APPLICATION_JSON.toString());
         }
     }
 }

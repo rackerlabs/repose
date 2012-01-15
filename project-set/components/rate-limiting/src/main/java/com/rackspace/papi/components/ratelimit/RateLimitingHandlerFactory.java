@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 public final class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RateLimitingHandler> {
 
    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingHandlerFactory.class);
+   
    private final Map<String, Map<String, Pattern>> regexCache;
    private final RateLimitCache rateLimitCache;
    
@@ -40,7 +41,6 @@ public final class RateLimitingHandlerFactory extends AbstractConfiguredFilterHa
 
       @Override
       public void configurationUpdated(RateLimitingConfiguration configurationObject) {
-
          boolean defaultSet = false;
 
          regexCache.clear();
@@ -49,11 +49,12 @@ public final class RateLimitingHandlerFactory extends AbstractConfiguredFilterHa
             final Map<String, Pattern> compiledRegexMap = new HashMap<String, Pattern>();
 
             // Makes sure that only the first limit group set to default is the only default group
-            if (limitGroup.isSetDefault() && defaultSet == true) {
+            if (limitGroup.isDefault() && defaultSet == true) {
                limitGroup.setDefault(false);
+
                LOG.warn("Rate-limiting Configuration has more than one default group set. Limit Group '"
                        + limitGroup.getId() + "' will not be set as a default limit group. Please update your configuration file.");
-            } else if (limitGroup.isSetDefault()) {
+            } else if (limitGroup.isDefault()) {
                defaultSet = true;
             }
 
@@ -66,7 +67,6 @@ public final class RateLimitingHandlerFactory extends AbstractConfiguredFilterHa
 
          describeLimitsUriRegex = Pattern.compile(configurationObject.getRequestEndpoint().getUriRegex());
          rateLimitingConfig = configurationObject;
-
       }
    }
 

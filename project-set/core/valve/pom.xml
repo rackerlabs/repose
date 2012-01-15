@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.rackspace.papi.core</groupId>
         <artifactId>core-support</artifactId>
-        <version>1.0.6-SNAPSHOT</version>
+        <version>1.0.7-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.core</groupId>
@@ -132,7 +132,6 @@
                                 <data>
                                     <src>../core-lib/src/main/resources/META-INF/schema/examples/</src>
                                     <type>directory</type>
-                                    <includes>*.cfg.xml</includes>
 
                                     <mapper>
                                         <type>perm</type>

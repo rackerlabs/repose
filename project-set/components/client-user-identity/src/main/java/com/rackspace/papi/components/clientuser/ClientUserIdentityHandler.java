@@ -43,8 +43,8 @@ public class ClientUserIdentityHandler extends AbstractFilterLogicHandler {
       if (userResult != null && !userResult.getResult().isEmpty()) {
          final String user = userResult.getResult();
          
-         headerManager.putHeader(PowerApiHeader.USER.getHeaderKey(), user + quality);
-         headerManager.putHeader(PowerApiHeader.GROUPS.getHeaderKey(), group);
+         headerManager.putHeader(PowerApiHeader.USER.toString(), user + quality);
+         headerManager.putHeader(PowerApiHeader.GROUPS.toString(), group);
       }
 
       return filterDirector;

@@ -39,8 +39,8 @@ public class AuthenticationHeaderManager {
 
     public AuthenticationHeaderManager(boolean validToken, RackspaceAuth cfg, FilterDirector filterDirector, String accountUsername, GroupsList groups, HttpServletRequest request) {
         this.validToken = validToken;
-        this.isDelegatable = cfg.isSetDelegatable();
-        this.keystone = cfg.isSetKeystoneActive();
+        this.isDelegatable = cfg.isDelegatable();
+        this.keystone = cfg.isKeystoneActive();
         this.userRoles = cfg.getUserRoles();
         this.filterDirector = filterDirector;
         this.accountUsername = accountUsername;
@@ -57,13 +57,15 @@ public class AuthenticationHeaderManager {
         }
 
         if (validToken) {
-            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.getHeaderKey(), getGroupsListIds());
-            filterDirector.requestHeaderManager().appendToHeader(request, PowerApiHeader.USER.getHeaderKey(), accountUsername + quality);
+         getGroupsListIds();
+            filterDirector.requestHeaderManager().appendToHeader(request, PowerApiHeader.USER.toString(), accountUsername + quality);
             setRoles();
         }
     }
 
-    private String[] getGroupsListIds() {
+   private void getGroupsListIds() {
+
+      if (groups != null) {
         int groupCount = groups.getGroup().size();
 
         String[] groupsArray = new String[groupCount];
@@ -72,14 +74,15 @@ public class AuthenticationHeaderManager {
             groupsArray[i] = groups.getGroup().get(i).getId();
         }
 
-        return groupsArray;
+         filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.toString(), groupsArray);
     }
+   }
 
     /**
      * Set Identity Status and X-Authorization headers
      */
     private void setIdentityStatus() {
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.getHeaderKey(), StringUtilities.isBlank(accountUsername) ? X_AUTH_PROXY : X_AUTH_PROXY + " " + accountUsername);
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString(), StringUtilities.isBlank(accountUsername) ? X_AUTH_PROXY : X_AUTH_PROXY + " " + accountUsername);
 
         if (isDelegatable) {
             IdentityStatus identityStatus = IdentityStatus.Confirmed;
@@ -88,7 +91,7 @@ public class AuthenticationHeaderManager {
                 identityStatus = IdentityStatus.Indeterminate;
             }
 
-            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.IDENTITY_STATUS.getHeaderKey(), identityStatus.name());
+            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString(), identityStatus.name());
         }
     }
 
@@ -98,8 +101,8 @@ public class AuthenticationHeaderManager {
      */
     private void setRoles() {
         if (keystone) {
-            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.getHeaderKey(), accountUsername);
-            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.getHeaderKey(), accountUsername);
+            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.toString(), accountUsername);
+            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), accountUsername);
 
             List<String> roleList = new ArrayList<String>();
 
@@ -116,7 +119,7 @@ public class AuthenticationHeaderManager {
             }
 
             if (roleList.size() > 0) {
-                filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.ROLES.getHeaderKey(), roleList.toArray(new String[0]));
+                filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.ROLES.toString(), roleList.toArray(new String[0]));
             }
         }
     }

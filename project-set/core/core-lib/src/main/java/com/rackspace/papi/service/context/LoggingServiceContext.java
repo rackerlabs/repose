@@ -1,6 +1,7 @@
 package com.rackspace.papi.service.context;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.commons.config.parser.properties.PropertiesFileConfigurationParser;
 import com.rackspace.papi.commons.util.StringUtilities;
 
 import com.rackspace.papi.container.config.ContainerConfiguration;
@@ -12,85 +13,98 @@ import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.service.logging.LoggingService;
 import com.rackspace.papi.service.logging.LoggingServiceImpl;
 import com.rackspace.papi.service.logging.common.LogFrameworks;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
-import java.io.InputStream;
+import java.util.Properties;
 
 /**
  * @author fran
  */
 public class LoggingServiceContext implements ServiceContext<LoggingService> {
-    public static final String SERVICE_NAME = "powerapi:/services/logging";
-    private final LoggingService loggingService;
-    private ConfigurationService configurationManager;
-    private final ContainerConfigurationListener configurationListener;
-    private final LoggingConfigurationListener loggingConfigurationListener;
-    private String loggingConfigurationConfig = "";
+   private static final Logger LOG = LoggerFactory.getLogger(LoggingServiceContext.class);
 
-    public LoggingServiceContext() {
-        this.loggingService = new LoggingServiceImpl(LogFrameworks.LOG4J);
-        this.configurationListener = new ContainerConfigurationListener();
-        this.loggingConfigurationListener = new LoggingConfigurationListener();
-    }
+   public static final String SERVICE_NAME = "powerapi:/services/logging";
+   private final LoggingService loggingService;
+   private ConfigurationService configurationManager;
+   private final ContainerConfigurationListener configurationListener;
+   private final LoggingConfigurationListener loggingConfigurationListener;
+   private String loggingConfigurationConfig = "";
 
-    @Override
-    public String getServiceName() {
-        return SERVICE_NAME;
-    }
+   public LoggingServiceContext() {
+      this.loggingService = new LoggingServiceImpl(LogFrameworks.LOG4J);
+      this.configurationListener = new ContainerConfigurationListener();
+      this.loggingConfigurationListener = new LoggingConfigurationListener();
+   }
 
-    @Override
-    public LoggingService getService() {
-        return loggingService;
-    }
+   @Override
+   public String getServiceName() {
+      return SERVICE_NAME;
+   }
 
-    private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
+   @Override
+   public LoggingService getService() {
+      return loggingService;
+   }
 
-        @Override
-        public void configurationUpdated(ContainerConfiguration configurationObject) {
+   /**
+    * Listens for updates to the container.cfg.xml file which holds the location of the log properties
+    * file.
+    */
+   private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
 
-            if (configurationObject.getDeploymentConfig() != null) {
-                final LoggingConfiguration loggingConfig = configurationObject.getDeploymentConfig().getLoggingConfiguration();
+      @Override
+      public void configurationUpdated(ContainerConfiguration configurationObject) {
 
-                if (loggingConfig != null && !StringUtilities.isBlank(loggingConfig.getHref())) {
-                    final String newLoggingConfig = loggingConfig.getHref();
+         if (configurationObject.getDeploymentConfig() != null) {
+            final LoggingConfiguration loggingConfig = configurationObject.getDeploymentConfig().getLoggingConfiguration();
 
-                    if (!loggingConfigurationConfig.equalsIgnoreCase(newLoggingConfig)) {
-                        updateLogConfigFileSubscription(loggingConfigurationConfig, newLoggingConfig);
-                        loggingConfigurationConfig = newLoggingConfig;
-                    }
-                }
+            if (loggingConfig != null && !StringUtilities.isBlank(loggingConfig.getHref())) {
+               final String newLoggingConfig = loggingConfig.getHref();
+               loggingConfigurationConfig = newLoggingConfig;
+               updateLogConfigFileSubscription(loggingConfigurationConfig, newLoggingConfig);                             
             }
-        }
-    }
+         }
+      }
+   }
 
-    // TODO: Uncomment out all subscribes and unsubscribes once the parser gets updated
-    private void updateLogConfigFileSubscription(String currentLoggingConfig, String loggingConfig) {
-//        configurationManager.unsubscribeFrom(currentLoggingConfig, loggingConfigurationListener);
-//        configurationManager.subscribeTo(loggingConfig, loggingConfigurationListener, InputStream.class);
-    }
+   /**
+    * Listens for updates to the log properties file.
+    */
+   private class LoggingConfigurationListener implements UpdateListener<Properties> {
 
-    private class LoggingConfigurationListener implements UpdateListener<InputStream> {
+      @Override
+      public void configurationUpdated(Properties configurationObject) {
+         loggingService.updateLoggingConfiguration(configurationObject);
 
-        @Override
-        public void configurationUpdated(InputStream configurationObject) {
-            loggingService.updateLoggingConfiguration(configurationObject);
-        }
-    }
+         LOG.error("ERROR LEVEL LOG STATEMENT");
+         LOG.warn("WARN LEVEL LOG STATEMENT");
+         LOG.info("INFO LEVEL LOG STATEMENT");
+         LOG.debug("DEBUG LEVEL LOG STATEMENT");
+         LOG.trace("TRACE LEVEL LOG STATEMENT");
+      }
+   }
 
-    @Override
-    public void contextInitialized(ServletContextEvent servletContextEvent) {
-        ServletContext servletContext = servletContextEvent.getServletContext();
-        configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
+   private void updateLogConfigFileSubscription(String currentLoggingConfig, String loggingConfig) {
 
-        configurationManager.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);
+      configurationManager.unsubscribeFrom(currentLoggingConfig, loggingConfigurationListener);      
+      configurationManager.subscribeTo(loggingConfig, loggingConfigurationListener, new PropertiesFileConfigurationParser());
+   }
 
-//        configurationManager.subscribeTo(loggingConfigurationConfig, loggingConfigurationListener, InputStream.class);
-    }
+   @Override
+   public void contextInitialized(ServletContextEvent servletContextEvent) {
+      
+      ServletContext servletContext = servletContextEvent.getServletContext();
+      configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();      
 
-    @Override
-    public void contextDestroyed(ServletContextEvent servletContextEvent) {
-        configurationManager.unsubscribeFrom("container.cfg.xml", configurationListener);
-//        configurationManager.unsubscribeFrom(loggingConfigurationConfig, loggingConfigurationListener);
-    }
+      configurationManager.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);
+   }
+
+   @Override
+   public void contextDestroyed(ServletContextEvent servletContextEvent) {
+      configurationManager.unsubscribeFrom("container.cfg.xml", configurationListener);
+      configurationManager.unsubscribeFrom(loggingConfigurationConfig, loggingConfigurationListener);
+   }
 }

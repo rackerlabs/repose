@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.util.Properties;
 
 /**
  * @author fran
@@ -17,26 +18,25 @@ import java.io.*;
 @RunWith(Enclosed.class)
 public class LoggingConfigurationFacadeImplTest {
 
-    public static class WhenConfiguringLog4J {
-        private static final Logger LOG = LoggerFactory.getLogger(WhenConfiguringLog4J.class);
+   // TODO: This task got moved in priority.  Update tests.
+   public static class WhenConfiguringLog4J {
+      private static final Logger LOG = LoggerFactory.getLogger(WhenConfiguringLog4J.class);
 
-        @Test
-        @Ignore
-        public void shouldConfigureToLogLevelAll() throws IOException {
+      @Test
+      @Ignore
+      public void shouldConfigureToLogLevelAll() throws IOException {
 
-            LoggingConfigurationFacade loggingConfigurationFacade = new LoggingConfigurationFacadeImpl(LogFrameworks.LOG4J);
+         LoggingConfigurationFacade loggingConfigurationFacade = new LoggingConfigurationFacadeImpl(LogFrameworks.LOG4J);
 
-            System.out.println(new File(".").getAbsolutePath());
+         Properties properties = new Properties();
 
-            loggingConfigurationFacade.configure(LoggingConfigurationFacadeImplTest.class.getResourceAsStream("log4j.properties"));
+         loggingConfigurationFacade.configure(properties);
 
-            LOG.error("error");
-            LOG.warn("warn");
-            LOG.info("info");
-            LOG.debug("debug");
-            LOG.trace("trace");
-
-            // TODO: This task got moved in priority
-        }
-    }
+         LOG.error("error");
+         LOG.warn("warn");
+         LOG.info("info");
+         LOG.debug("debug");
+         LOG.trace("trace");
+      }
+   }
 }

@@ -4,6 +4,7 @@ import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 
 
 import com.rackspace.auth.v1_1.AuthenticationServiceClient;
+import com.rackspace.auth.v1_1.CachableTokenInfo;
 import com.rackspacecloud.docs.auth.api.v1.GroupsList;
 import org.slf4j.Logger;
 import com.rackspace.papi.commons.util.StringUtilities;
@@ -52,14 +53,14 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
         filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
         filterDirector.setFilterAction(FilterAction.RETURN);
 
-        final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.getHeaderKey());
+        final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
         final ExtractorResult<String> extractedResult = keyedRegexExtractor.extract(request.getRequestURI());        
 
-        boolean validToken = false;
+        CachableTokenInfo token = null;
 
         if ((!StringUtilities.isBlank(authToken) && extractedResult != null)) {
             try {
-                validToken = authenticationService.validateToken(extractedResult, authToken);
+                token = authenticationService.validateToken(extractedResult, authToken);
             } catch (Exception ex) {
                 LOG.error("Failure in auth: " + ex.getMessage(), ex);
                 filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -67,11 +68,11 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
         }
 
         GroupsList groups = null;
-        if (validToken) {
-            groups = authenticationService.getGroups(extractedResult.getResult());
+        if (token != null) {
+            groups = authenticationService.getGroups(token.getUserName());
         }
 
-        final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(validToken, cfg, filterDirector, extractedResult == null ? "" : extractedResult.getResult(), groups, request);
+        final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(token != null, cfg, filterDirector, extractedResult == null ? "" : extractedResult.getResult(), groups, request);
         headerManager.setFilterDirectorValues();
 
         return filterDirector;
@@ -83,7 +84,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
         myDirector.setResponseStatus(HttpStatusCode.fromInt(response.getStatus()));
         /// The WWW Authenticate header can be used to communicate to the client
         // (since we are a proxy) how to correctly authenticate itself
-        final String wwwAuthenticateHeader = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey());
+        final String wwwAuthenticateHeader = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString());
 
         switch (HttpStatusCode.fromInt(response.getStatus())) {
             // NOTE: We should only mutate the WWW-Authenticate header on a
@@ -110,7 +111,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
         // we should then communicate to the client how to authenticate with us
         if (!StringUtilities.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains("Delegated")) {
             final String replacementWwwAuthenticateHeader = getWWWAuthenticateHeaderContents();
-            director.responseHeaderManager().putHeader(CommonHttpHeader.WWW_AUTHENTICATE.getHeaderKey(), replacementWwwAuthenticateHeader);
+            director.responseHeaderManager().putHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString(), replacementWwwAuthenticateHeader);
         } else {
             // In the case where authentication has failed and we did not receive
             // a delegated WWW-Authenticate header, this means that our own authentication

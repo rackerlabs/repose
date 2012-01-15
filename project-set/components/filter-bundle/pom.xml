@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.rackspace.papi.components</groupId>
         <artifactId>components-support</artifactId>
-        <version>1.0.6-SNAPSHOT</version>
+        <version>1.0.7-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.components</groupId>
@@ -47,11 +47,6 @@
             <artifactId>client-user-identity</artifactId>
         </dependency>
         
-        <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>content-negotiation</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>client-auth</artifactId>
@@ -121,11 +116,6 @@
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>client-auth</artifactId>
-                        </jarModule>
-
-                        <jarModule>
-                            <groupId>com.rackspace.papi.components</groupId>
-                            <artifactId>content-negotiation</artifactId>
                         </jarModule>
 
                         <jarModule>

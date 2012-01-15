@@ -17,4 +17,5 @@ public interface AuthProvider extends UserDataProvider {
    
    boolean validateToken(String userName, String token, String accountType);
    
+   String getUsername(String userId);
 }

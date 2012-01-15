@@ -94,14 +94,11 @@
         </revhistory>
     </info>
     <chapter xml:id="Overview-d1e85">
-        <title>Overview</title>
-        <section xml:id="Purpose-d1e90">
-            <title>Purpose</title>
+        <title>About This Document</title>
             <para>
                 The purpose of this glossary is to explain basic vocabulary and key concepts useful in understanding &PRODNAME; and some or all of its components. 
                 This glossary is not a tutorial.
             </para>
-        </section>
         <section xml:id="Document_Change_History-d1e102">
             <title>Document Change History</title>
             <para>This version of the glossary replaces and obsoletes all previous versions.
@@ -110,7 +107,8 @@
         </section>
         <xi:include href="chapters/available-doc.xml"/>
     </chapter>
-    <chapter xml:id="Vocabulary-d1e100">
+    <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
+    <chapter xml:id="Introduction-000">
         <title>&PRODNAME; Vocabulary</title>
         <annotation>
             <remark>

@@ -135,7 +135,7 @@ public class RemoteHttpCacheClientImpl implements RemoteCacheClient {
 
       final HttpPut cacheObjectPut = new HttpPut(targetUrl);
       cacheObjectPut.addHeader(DatastoreRequestHeaders.DATASTORE_HOST_KEY, hostKey);
-      cacheObjectPut.addHeader(ExtendedHttpHeader.X_TTL.getHeaderKey(), String.valueOf(TimeUnit.SECONDS.convert(ttl, timeUnit)));
+      cacheObjectPut.addHeader(ExtendedHttpHeader.X_TTL.toString(), String.valueOf(TimeUnit.SECONDS.convert(ttl, timeUnit)));
 
       httpClientPool.use(new SimpleResourceContext<HttpClient>() {
 

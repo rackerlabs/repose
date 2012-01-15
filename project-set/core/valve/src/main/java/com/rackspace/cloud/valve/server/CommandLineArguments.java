@@ -3,7 +3,7 @@ package com.rackspace.cloud.valve.server;
 import org.kohsuke.args4j.*;
 
 public class CommandLineArguments {
-    private final String defaultPortInfo = "(Default is port 8080, range is 1024 to 49150)";
+    private static final String defaultPortInfo = "(Default is port 8080, range is 1024 to 49150)";
     public static final String ACTION_START = "start";
     public static final String ACTION_STOP = "stop";
 

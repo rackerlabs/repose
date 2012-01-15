@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<servlet-context-router xmlns='http://openrepose.org/repose/servlet-context-router/v1.0'>
+   
+   <!-- This defines a context path route to the context '/protected/servlet/*' -->
+   <context-paths quality-factor="0.1">/protected/servlet/*</context-paths>
+</servlet-context-router>
