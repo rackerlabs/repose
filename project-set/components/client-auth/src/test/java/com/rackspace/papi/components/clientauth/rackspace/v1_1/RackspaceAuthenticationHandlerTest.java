@@ -15,6 +15,7 @@ import com.rackspace.papi.components.clientauth.rackspace.config.AuthenticationS
 import com.rackspace.papi.components.clientauth.rackspace.config.RackspaceAuth;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import com.rackspacecloud.docs.auth.api.v1.FullToken;
 import com.rackspacecloud.docs.auth.api.v1.Group;
 import com.rackspacecloud.docs.auth.api.v1.GroupsList;
 import org.junit.Before;
@@ -25,7 +26,6 @@ import org.junit.runner.RunWith;
 
 import javax.servlet.http.HttpServletRequest;
 
-import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -85,7 +85,7 @@ public class RackspaceAuthenticationHandlerTest {
             rackAuthConfig.setAuthenticationServer(authenticationServer);
 
             authServiceClient = mock(AuthenticationServiceClient.class);
-            handler = new RackspaceAuthenticationHandler(rackAuthConfig, authServiceClient,keyedRegexExtractor);
+            handler = new RackspaceAuthenticationHandler(rackAuthConfig, authServiceClient,keyedRegexExtractor, null);
         }
 
         protected abstract boolean delegatable();
@@ -147,7 +147,10 @@ public class RackspaceAuthenticationHandlerTest {
         public void shouldPassValidCredentials() {
             String tokenId = "some-random-auth-token";
             String userName = "userName";
-            CachableTokenInfo token = new CachableTokenInfo(userName, tokenId);
+            FullToken fullToken = new FullToken();
+            fullToken.setId(tokenId);
+            fullToken.setUserId(userName);
+            CachableTokenInfo token = new CachableTokenInfo(fullToken);
             when(request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn("some-random-auth-token");
             when(request.getRequestURI()).thenReturn("/start/accountId/resource");
             when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(token);
@@ -230,7 +233,10 @@ public class RackspaceAuthenticationHandlerTest {
         public void shouldPassValidCredentials() {
             String tokenId = "some-random-auth-token";
             String userName = "userName";
-            CachableTokenInfo token = new CachableTokenInfo(userName, tokenId);
+            FullToken fullToken = new FullToken();
+            fullToken.setId(tokenId);
+            fullToken.setUserId(userName);
+            CachableTokenInfo token = new CachableTokenInfo(fullToken);
             when(request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn(tokenId);
             when(request.getRequestURI()).thenReturn("/start/accountId/resource");
             when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(token);

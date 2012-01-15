@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.clientauth.openstack.v1_0;
 
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
-import com.rackspace.auth.openstack.ids.CachableTokenInfo;
+import com.rackspace.auth.openstack.ids.CachableUserInfo;
 import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
@@ -59,13 +59,13 @@ public class OpenStackAuthenticationHandlerTest {
             osauthConfig.setIdentityService(openStackIdentityService);
 
             authService = mock(OpenStackAuthenticationService.class);
-            handler = new OpenStackAuthenticationHandler(osauthConfig, authService,keyedRegexExtractor);
+            handler = new OpenStackAuthenticationHandler(osauthConfig, authService,keyedRegexExtractor,null);
         }
 
         protected abstract boolean delegatable();
 
-        public CachableTokenInfo generateCachableTokenInfo(String roles, String tokenId, String username) {
-            final CachableTokenInfo cti = mock(CachableTokenInfo.class);
+        public CachableUserInfo generateCachableTokenInfo(String roles, String tokenId, String username) {
+            final CachableUserInfo cti = mock(CachableUserInfo.class);
             when(cti.getRoles()).thenReturn(roles);
             when(cti.getTokenId()).thenReturn(tokenId);
             when(cti.getUsername()).thenReturn(username);
@@ -116,7 +116,7 @@ public class OpenStackAuthenticationHandlerTest {
 
         @Test
         public void shouldPassValidCredentials() {
-            final CachableTokenInfo tokenInfo = generateCachableTokenInfo("", "", "");
+            final CachableUserInfo tokenInfo = generateCachableTokenInfo("", "", "");
             when(authService.validateToken(anyString(), anyString())).thenReturn(tokenInfo);
 
             final FilterDirector director = handler.handleRequest(request, response);
