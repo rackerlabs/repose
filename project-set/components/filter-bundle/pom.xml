@@ -76,6 +76,11 @@
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>echo</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>client-authorization</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -151,6 +156,11 @@
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>echo</artifactId>
+                        </jarModule>
+
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components</groupId>
+                            <artifactId>client-authorization</artifactId>
                         </jarModule>
                     </modules>
                 </configuration>

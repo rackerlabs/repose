@@ -38,6 +38,7 @@ public class RackspaceAuthorizationFilter implements Filter {
 
         switch (director.getFilterAction()) {
             case RETURN:
+                director.applyTo(mutableHttpResponse);
                 break;
 
             case PASS:
