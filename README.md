@@ -27,6 +27,8 @@ Repose can be used inside a service to perform API operations. It can also run o
 more separate servers as a proxy to one or more services. At its core, Repose is a proxy
 that allows services to use Enterprise Integration Patterns (EIP).
 
+For more information, see our [website](http://openrepose.org/) and [wiki](http://wiki.openrepose.org).
+
 
 ##Repose Components##
 
