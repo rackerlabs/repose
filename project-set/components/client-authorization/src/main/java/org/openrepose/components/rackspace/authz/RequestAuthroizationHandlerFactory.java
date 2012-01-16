@@ -4,20 +4,25 @@ import com.rackspace.auth.openstack.ids.AuthenticationServiceClient;
 import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import com.rackspace.papi.service.datastore.Datastore;
 import java.util.HashMap;
 import java.util.Map;
 import org.openrepose.components.authz.rackspace.config.AuthenticationServer;
 import org.openrepose.components.authz.rackspace.config.RackspaceAuthorization;
+import org.openrepose.components.rackspace.authz.cache.EndpointListCache;
+import org.openrepose.components.rackspace.authz.cache.EndpointListCacheImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RequestAuthroizationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RequestAuthroizationHandler> {
 
    private static final Logger LOG = LoggerFactory.getLogger(RequestAuthroizationHandlerFactory.class);
+   private final Datastore datastore;
    private RackspaceAuthorization authorizationConfiguration;
    private OpenStackAuthenticationService authenticationService;
 
-   public RequestAuthroizationHandlerFactory() {
+   public RequestAuthroizationHandlerFactory(Datastore datastore) {
+      this.datastore = datastore;
    }
 
    private class RoutingConfigurationListener implements UpdateListener<RackspaceAuthorization> {
@@ -43,7 +48,8 @@ public class RequestAuthroizationHandlerFactory extends AbstractConfiguredFilter
          throw new IllegalStateException("Component has not been initialized yet");
       }
 
-      return new RequestAuthroizationHandler(authenticationService, authorizationConfiguration.getServiceEndpoint());
+      final EndpointListCache cache = new EndpointListCacheImpl(datastore, authorizationConfiguration.getAuthenticationServer().getEndpointListTtl());
+      return new RequestAuthroizationHandler(authenticationService, cache, authorizationConfiguration.getServiceEndpoint());
    }
 
    @Override

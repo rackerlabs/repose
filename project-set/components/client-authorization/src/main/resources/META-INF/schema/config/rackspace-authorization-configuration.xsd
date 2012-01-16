@@ -52,6 +52,14 @@
             </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+
+      <xs:attribute name="endpoint-list-ttl" type="xs:int" use="optional" default="300">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Time to live used to cache endpoint list responses from the authentication service. This value is in seconds.</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
    </xs:complexType>
     
    <xs:complexType name="ServiceEndpoint">

@@ -12,11 +12,15 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
 import org.junit.Test;
 import org.openrepose.components.authz.rackspace.config.ServiceEndpoint;
 import org.openstack.docs.identity.api.v2.Endpoint;
+
+import static org.mockito.Mockito.*;
+import static org.junit.Assert.*;
+import org.junit.Ignore;
+import org.openrepose.components.rackspace.authz.cache.CachedEndpoint;
+import org.openrepose.components.rackspace.authz.cache.EndpointListCache;
 
 /**
  *
@@ -25,35 +29,51 @@ import org.openstack.docs.identity.api.v2.Endpoint;
 @RunWith(Enclosed.class)
 public class RequestAuthroizationHandlerTest {
 
-   public static class WhenAuthorizingRequests {
+   private static final String UNAUTHORIZED_TOKEN = "abcdef-abcdef-abcdef-abcdef", AUTHORIZED_TOKEN = "authorized", CACHED_TOKEN = "cached";
+   private static final String PUBLIC_URL = "http://service.api.f.com/v1.1";
 
-      private static final String UNAUTHORIZED_TOKEN = "abcdef-abcdef-abcdef-abcdef";
-      private static final String AUTHORIZED_TOKEN = "authorized";
-      private static final String PUBLIC_URL = "http://service.api.f.com/v1.1";
-      
-      private HttpServletRequest mockedRequest;
-      private RequestAuthroizationHandler handler;
+   @Ignore
+   public static class TestParent {
+
+      protected OpenStackAuthenticationService mockedAuthService;
+      protected RequestAuthroizationHandler handler;
+      protected EndpointListCache mockedCache;
+      protected HttpServletRequest mockedRequest;
 
       @Before
-      public void standUp() {
+      public void beforeAny() {
+         // Caching mocks
+         mockedCache = mock(EndpointListCache.class);
+
+         final List<CachedEndpoint> cachedEndpointList = new LinkedList<CachedEndpoint>();
+         cachedEndpointList.add(new CachedEndpoint(PUBLIC_URL));
+
+         when(mockedCache.getCachedEndpointsForToken(AUTHORIZED_TOKEN)).thenReturn(null);
+         when(mockedCache.getCachedEndpointsForToken(CACHED_TOKEN)).thenReturn(cachedEndpointList);
+
+         // Auth service mocks
          final List<Endpoint> endpointList = new LinkedList<Endpoint>();
-         
+
          Endpoint endpoint = new Endpoint();
          endpoint.setPublicURL(PUBLIC_URL);
-         
+
          endpointList.add(endpoint);
-         
-         final OpenStackAuthenticationService mockedAuthService = mock(OpenStackAuthenticationService.class);
+
+         mockedAuthService = mock(OpenStackAuthenticationService.class);
          when(mockedAuthService.getEndpointsForToken(UNAUTHORIZED_TOKEN)).thenReturn(Collections.EMPTY_LIST);
          when(mockedAuthService.getEndpointsForToken(AUTHORIZED_TOKEN)).thenReturn(endpointList);
-         
+         when(mockedAuthService.getEndpointsForToken(CACHED_TOKEN)).thenReturn(endpointList);
+
          final ServiceEndpoint myServiceEndpoint = new ServiceEndpoint();
          myServiceEndpoint.setHref(PUBLIC_URL);
-         
-         handler = new RequestAuthroizationHandler(mockedAuthService, myServiceEndpoint);
+
+         handler = new RequestAuthroizationHandler(mockedAuthService, mockedCache, myServiceEndpoint);
 
          mockedRequest = mock(HttpServletRequest.class);
       }
+   }
+
+   public static class WhenAuthorizingRequests extends TestParent {
 
       @Test
       public void shouldRejectDelegatedAuthentication() {
@@ -90,6 +110,29 @@ public class RequestAuthroizationHandlerTest {
          final FilterDirector director = handler.handleRequest(mockedRequest, null);
 
          assertEquals("Authorization component must pass authorized requests", FilterAction.PASS, director.getFilterAction());
+      }
+   }
+
+   public static class WhenAuthorizingRequestsAgainstCachedEndpointLists extends TestParent {
+
+      @Test
+      public void shouldCacheFreshEndpointLists() throws Exception {
+         when(mockedRequest.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn(AUTHORIZED_TOKEN);
+         handler.handleRequest(mockedRequest, null);
+
+         verify(mockedCache, times(1)).getCachedEndpointsForToken(AUTHORIZED_TOKEN);
+         verify(mockedAuthService, times(1)).getEndpointsForToken(AUTHORIZED_TOKEN);
+         verify(mockedCache, times(1)).cacheEndpointsForToken(eq(AUTHORIZED_TOKEN), any(List.class));
+      }
+
+      @Test
+      public void shouldUseCacheForCachedEndpoitnLists() throws Exception {
+         when(mockedRequest.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn(CACHED_TOKEN);
+         handler.handleRequest(mockedRequest, null);
+
+         verify(mockedCache, times(1)).getCachedEndpointsForToken(CACHED_TOKEN);
+         verify(mockedAuthService, never()).getEndpointsForToken(CACHED_TOKEN);
+         verify(mockedCache, never()).cacheEndpointsForToken(eq(AUTHORIZED_TOKEN), any(List.class));
       }
    }
 }

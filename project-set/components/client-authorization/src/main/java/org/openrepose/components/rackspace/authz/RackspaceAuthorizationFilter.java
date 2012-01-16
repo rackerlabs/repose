@@ -6,6 +6,9 @@ import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.service.datastore.DatastoreManager;
+import com.rackspace.papi.service.datastore.DatastoreService;
 import org.slf4j.Logger;
 
 import javax.servlet.Filter;
@@ -22,40 +25,43 @@ import org.slf4j.LoggerFactory;
 
 public class RackspaceAuthorizationFilter implements Filter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RackspaceAuthorizationFilter.class);
-    private RequestAuthroizationHandlerFactory handlerFactory;
+   private static final Logger LOG = LoggerFactory.getLogger(RackspaceAuthorizationFilter.class);
+   private RequestAuthroizationHandlerFactory handlerFactory;
 
-    @Override
-    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
+   @Override
+   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+      HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
 
-        final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
-        final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
+      final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
+      final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
 
-        final FilterDirector director = handlerFactory.newHandler().handleRequest(mutableHttpRequest, mutableHttpResponse);
+      final FilterDirector director = handlerFactory.newHandler().handleRequest(mutableHttpRequest, mutableHttpResponse);
 
-        director.applyTo(mutableHttpRequest);
+      director.applyTo(mutableHttpRequest);
 
-        switch (director.getFilterAction()) {
-            case RETURN:
-                director.applyTo(mutableHttpResponse);
-                break;
+      switch (director.getFilterAction()) {
+         case RETURN:
+            director.applyTo(mutableHttpResponse);
+            break;
+            
+         case PASS:
+            chain.doFilter(mutableHttpRequest, response);
+            break;
+      }
+   }
 
-            case PASS:
-                chain.doFilter(mutableHttpRequest, response);
-                break;
-        }
-    }
+   @Override
+   public void destroy() {
+   }
 
-    @Override
-    public void destroy() {
-    }
+   @Override
+   public void init(FilterConfig filterConfig) throws ServletException {
+      final DatastoreService datastoreService = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).datastoreService();
+      final DatastoreManager defaultLocal = datastoreService.defaultDatastore();
 
-    @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        final ConfigurationService manager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
-        handlerFactory = new RequestAuthroizationHandlerFactory();
+      final ConfigurationService configurationService = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
+      handlerFactory = new RequestAuthroizationHandlerFactory(defaultLocal.getDatastore());
 
-        manager.subscribeTo("rackspace-authorization.cfg.xml", handlerFactory, RackspaceAuthorization.class);
-    }
+      configurationService.subscribeTo("rackspace-authorization.cfg.xml", handlerFactory, RackspaceAuthorization.class);
+   }
 }

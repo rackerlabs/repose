@@ -32,7 +32,7 @@ public class ManagedRateLimitCache implements RateLimitCache {
     private HashMap<String, CachedRateLimit> getUserRateLimitMap(String user) {
         final StoredElement element = datastore.get(user);
         
-        return element.elementIsNull() ? new HashMap<String, CachedRateLimit>() : element.elementAs(HashMap.class);
+        return element.elementIsNull() ? (HashMap<String, CachedRateLimit>) Collections.EMPTY_MAP : element.elementAs(HashMap.class);
     }
 
     @Override
