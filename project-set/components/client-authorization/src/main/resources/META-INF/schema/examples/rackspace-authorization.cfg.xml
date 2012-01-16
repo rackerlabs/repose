@@ -5,9 +5,7 @@ and open the template in the editor.
 -->
 
 
-<rackspace-authorization xmlns='http://openrepose.org/power-api/rackspace-auth-2.0/auth-z/v1.0'
-                         xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-                         xsi:schemaLocation='http://openrepose.org/power-api/rackspace-auth-2.0/auth-z/v1.0 file:/home/zinic/work/rackspace/power-api/project-set/components/client-authorization/src/main/resources/META-INF/schema/config/rackspace-auth-z-configuration.xsd'>
+<rackspace-authorization xmlns='http://openrepose.org/power-api/rackspace-auth-2.0/auth-z/v1.0'>
    <authentication-server username="" password="" href="" />
    <service-endpoint href="https://service.api.rackspacecloud.com/v1.0/" />
 </rackspace-authorization>

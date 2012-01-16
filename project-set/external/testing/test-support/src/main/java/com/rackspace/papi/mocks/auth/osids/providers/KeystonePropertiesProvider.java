@@ -221,8 +221,8 @@ public class KeystonePropertiesProvider extends UserDataPropertiesProviderImpl i
             endpoint.setId(Integer.parseInt(eId));
             endpoint.setType(getProperties().getProperty("type." + eId));
             endpoint.setName(getProperties().getProperty("name." + eId));
-            endpoint.setPublicURL(getProperties().getProperty("publicurl." + eId));
-            endpoint.setInternalURL(getProperties().getProperty("internalurl." + eId));
+            endpoint.setPublicURL(getProperties().getProperty("publicurl." + eId) + "/" + username);
+            endpoint.setInternalURL(getProperties().getProperty("internalurl." + eId) + "/" + username);
             endpoint.setAdminURL(getProperties().getProperty("adminurl." + eId));
             endpoint.setTenantId(username);
             String v = getProperties().getProperty("versions." + eId);
