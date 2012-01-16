@@ -50,7 +50,7 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
    public CachableUserInfo validateToken(String tenant, String userToken) {
       CachableUserInfo token = null;
 
-      final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, getAdminToken());
+      final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, getAdminToken(), "belongsTo", tenant);
 
       switch (serviceResponse.getStatusCode()) {
          case 200:
