@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.clientauth.openstack.v1_0;
 
-import com.rackspace.auth.openstack.ids.CachableTokenInfo;
+import com.rackspace.auth.openstack.ids.CachableUserInfo;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import com.rackspace.papi.commons.util.StringUtilities;
@@ -24,7 +24,7 @@ public class AuthenticationHeaderManager {
     private static final String X_AUTH_PROXY = "Proxy";
 
     private final String authToken;
-    private final CachableTokenInfo cachableTokenInfo;
+    private final CachableUserInfo cachableTokenInfo;
     private final Boolean isDelegatable;
     private final FilterDirector filterDirector;
     private final String tenantId;
@@ -36,7 +36,7 @@ public class AuthenticationHeaderManager {
     // the highest quality in terms of using the user it supplies for rate limiting
     private final String quality = ";q=1";
 
-    public AuthenticationHeaderManager(String authToken, CachableTokenInfo cachableTokenInfo, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, Groups groups, HttpServletRequest request) {
+    public AuthenticationHeaderManager(String authToken, CachableUserInfo cachableTokenInfo, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, Groups groups, HttpServletRequest request) {
         this.authToken =authToken;
         this.cachableTokenInfo = cachableTokenInfo;
         this.isDelegatable = isDelegatable;

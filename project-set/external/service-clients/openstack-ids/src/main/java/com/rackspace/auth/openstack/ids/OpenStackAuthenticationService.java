@@ -10,7 +10,7 @@ import org.openstack.docs.identity.api.v2.Endpoint;
  */
 public interface OpenStackAuthenticationService {
 
-    CachableTokenInfo validateToken(String tenant, String userToken);
+    CachableUserInfo validateToken(String tenant, String userToken);
     
     List<Endpoint> getEndpointsForToken(String userToken);
 

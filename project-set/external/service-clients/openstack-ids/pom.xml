@@ -17,10 +17,12 @@
     <packaging>jar</packaging>
 
     <dependencies>
+        <!--
         <dependency>
             <groupId>net.sf.ehcache</groupId>
             <artifactId>ehcache-core</artifactId>
         </dependency>
+        -->
 
         <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
