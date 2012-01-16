@@ -18,7 +18,7 @@ public class RackspaceUserInfoCache extends UserAuthTokenCache<CachableTokenInfo
 
    @Override
    public boolean validateToken(CachableTokenInfo cachedValue, String passedValue) {
-      return cachedValue != null && cachedValue.getTokenId() != null && cachedValue.getTokenId().equals(passedValue);
+      return cachedValue != null && cachedValue.getTokenId() != null && cachedValue.getSafeTokenTtl() > 0 && cachedValue.getTokenId().equals(passedValue);
    }
    
 }

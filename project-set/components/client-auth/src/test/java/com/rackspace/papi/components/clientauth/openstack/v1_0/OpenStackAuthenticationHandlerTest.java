@@ -5,13 +5,22 @@ import com.rackspace.auth.openstack.ids.CachableUserInfo;
 import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.clientauth.openstack.config.ClientMapping;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenStackIdentityService;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
+import com.rackspace.papi.components.clientauth.rackspace.v1_1.RackspaceUserInfoCache;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.service.datastore.StoredElement;
+import java.io.IOException;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 import javax.servlet.http.HttpServletRequest;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -19,6 +28,9 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.*;
+import org.openstack.docs.identity.api.v2.AuthenticateResponse;
+import org.openstack.docs.identity.api.v2.Token;
+import org.openstack.docs.identity.api.v2.UserForAuthenticateResponse;
 
 /**
  *
@@ -34,8 +46,10 @@ public class OpenStackAuthenticationHandlerTest {
         protected ReadableHttpServletResponse response;
         protected OpenStackAuthenticationService authService;
         protected OpenStackAuthenticationHandler handler;
+        protected OpenStackAuthenticationHandler handlerWithCache;
         protected OpenstackAuth osauthConfig;
         protected KeyedRegexExtractor keyedRegexExtractor;
+        protected Datastore store;
                 
 
         @Before
@@ -60,20 +74,143 @@ public class OpenStackAuthenticationHandlerTest {
 
             authService = mock(OpenStackAuthenticationService.class);
             handler = new OpenStackAuthenticationHandler(osauthConfig, authService,keyedRegexExtractor,null);
+            
+            
+            // Handler with cache
+            store = mock(Datastore.class);
+            OpenStackUserInfoCache cache = new OpenStackUserInfoCache(store);
+            
+            handlerWithCache = new OpenStackAuthenticationHandler(osauthConfig, authService, keyedRegexExtractor, cache);
         }
 
         protected abstract boolean delegatable();
 
         public CachableUserInfo generateCachableTokenInfo(String roles, String tokenId, String username) {
+            return generateCachableTokenInfo(roles, tokenId, username, 10000);
+        }
+
+        protected Calendar getCalendarWithOffset(int millis) {
+            return getCalendarWithOffset(Calendar.MILLISECOND, millis);
+        }
+
+        protected Calendar getCalendarWithOffset(int field, int millis) {
+            Calendar cal = GregorianCalendar.getInstance();
+
+            cal.add(field, millis);
+
+            return cal;
+        }
+
+        public CachableUserInfo generateCachableTokenInfo(String roles, String tokenId, String username, int ttl) {
+            Calendar expires = getCalendarWithOffset(ttl);
+            
             final CachableUserInfo cti = mock(CachableUserInfo.class);
             when(cti.getRoles()).thenReturn(roles);
             when(cti.getTokenId()).thenReturn(tokenId);
             when(cti.getUsername()).thenReturn(username);
+            when(cti.getExpires()).thenReturn(expires);
 
             return cti;
         }
     }
 
+    public static class WhenCachingUserInfo extends TestParent {
+        private DatatypeFactory dataTypeFactory;
+        AuthenticateResponse authResponse;
+
+        @Override
+        protected boolean delegatable() {
+            return false;
+        }
+        
+        @Before
+        public void standUp() throws DatatypeConfigurationException {
+            dataTypeFactory = DatatypeFactory.newInstance();
+            when(request.getRequestURI()).thenReturn("/start/104772/resource");
+            when(request.getHeader(anyString())).thenReturn("tokenId");
+            
+            Calendar expires = getCalendarWithOffset(1000);
+            
+            authResponse = new AuthenticateResponse();
+            UserForAuthenticateResponse user = new UserForAuthenticateResponse();
+            user.setId("104772");
+            user.setName("user2");
+            
+            Token token = new Token();
+            token.setId("tokenId");
+            token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar)expires));
+
+            authResponse.setToken(token);
+            authResponse.setUser(user);
+        }
+
+        @Test
+        public void shouldCheckCacheForCredentials() throws IOException {
+            final CachableUserInfo userInfo = new CachableUserInfo(authResponse);
+            byte[] userInfoBytes = ObjectSerializer.instance().writeObject(userInfo);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(userInfo);
+
+            
+            final FilterDirector director = handlerWithCache.handleRequest(request, response);
+
+            verify(store).get(eq(OpenStackUserInfoCache.AUTH_TOKEN_CACHE_PREFIX + ".104772"));
+            assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
+        }
+        
+        @Test
+        public void shouldUseCachedUserInfo() {
+            final CachableUserInfo userInfo = new CachableUserInfo(authResponse);
+            StoredElement element = mock(StoredElement.class);
+            when(element.elementIsNull()).thenReturn(false);
+            when(element.elementAs(CachableUserInfo.class)).thenReturn(userInfo);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(userInfo);
+
+            when(store.get(eq(OpenStackUserInfoCache.AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(element);
+            
+            final FilterDirector director = handlerWithCache.handleRequest(request, response);
+
+            // Service should not be called if we found the token in the cache
+            verify(authService, times(0)).validateToken(anyString(), anyString());
+            assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
+        }
+
+        @Test
+        public void shouldNotUseCachedUserInfoForExpired() throws InterruptedException {
+            final CachableUserInfo userInfo = new CachableUserInfo(authResponse);
+            StoredElement element = mock(StoredElement.class);
+            when(element.elementIsNull()).thenReturn(false);
+            when(element.elementAs(CachableUserInfo.class)).thenReturn(userInfo);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(userInfo);
+            when(store.get(eq(OpenStackUserInfoCache.AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(element);
+            
+            // Wait until token expires
+            Thread.sleep(1000);
+            
+            final FilterDirector director = handlerWithCache.handleRequest(request, response);
+
+            // Service should be called since token has expired
+            verify(authService, times(1)).validateToken(anyString(), anyString());
+            assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
+        }
+
+        @Test
+        public void shouldNotUseCachedUserInfoForBadTokenId() {
+            authResponse.getToken().setId("differentId");
+            final CachableUserInfo userInfo = new CachableUserInfo(authResponse);
+            StoredElement element = mock(StoredElement.class);
+            when(element.elementIsNull()).thenReturn(false);
+            when(element.elementAs(CachableUserInfo.class)).thenReturn(userInfo);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(userInfo);
+
+            when(store.get(eq(OpenStackUserInfoCache.AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(element);
+            
+            final FilterDirector director = handlerWithCache.handleRequest(request, response);
+
+            verify(authService, times(1)).validateToken(anyString(), anyString());
+            assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
+        }
+    }
+    
     public static class WhenAuthenticatingDelegatableRequests extends TestParent {
 
         @Override
