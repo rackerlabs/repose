@@ -86,7 +86,6 @@ when "--create-cluster"
     puts "Cluster built with the nodes:"
     cluster.each do |node|
         puts "\t#{node[2]} : #{node[7]}"
-        puts "password : #{node[9]}"
     end
 when "--delete-cluster"
     destroyCluster
