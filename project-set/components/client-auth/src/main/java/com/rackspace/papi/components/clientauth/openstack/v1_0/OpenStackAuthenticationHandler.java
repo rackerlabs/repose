@@ -78,7 +78,7 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
 
       Groups groups = null;
       if (user != null) {
-         groups = authenticationService.getGroups(user.getUserId());
+         groups = authenticationService.getGroups(user.getUsername());
       }
 
       final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(authToken, user, delegatable, filterDirector, account == null ? "" : account.getResult(), groups, request);
@@ -101,7 +101,7 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
       }
 
       try {
-         cache.storeToken(user.getUserId(), user, user.getTokenTtl().intValue());
+         cache.storeToken(user.getUserId(), user, user.tokenTtl().intValue());
       } catch (IOException ex) {
          LOG.warn("Unable to cache user token information: " + user.getUserId());
       }

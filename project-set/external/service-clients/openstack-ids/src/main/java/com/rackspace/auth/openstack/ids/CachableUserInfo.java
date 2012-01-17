@@ -27,11 +27,11 @@ public class CachableUserInfo implements Serializable {
       this.userId = response.getUser().getId();
       this.username = response.getUser().getName();
       this.roles = formatRoles(response);
-      this.expires = getExpires(response.getToken());
+      this.expires = extractExpires(response.getToken());
 
    }
 
-   private Calendar getExpires(Token token) {
+   private Calendar extractExpires(Token token) {
       Calendar result = null;
       if (token != null && token.getExpires() != null) {
          result = token.getExpires().toGregorianCalendar();
@@ -86,12 +86,12 @@ public class CachableUserInfo implements Serializable {
       return expires;
    }
 
-   public Long getTokenTtl() {
+   public Long tokenTtl() {
       return determineTtlInMillis();
    }
 
-   public int getSafeTokenTtl() {
-      Long tokenTtl = getTokenTtl();
+   public int safeTokenTtl() {
+      Long tokenTtl = tokenTtl();
       
       if (tokenTtl >= Integer.MAX_VALUE) {
          return Integer.MAX_VALUE;

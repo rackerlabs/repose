@@ -59,7 +59,7 @@ public class CachableUserInfoTest {
             CachableUserInfo info = new CachableUserInfo(response);
             
             assertEquals("Expires Calendars should be equivalent", expires.getTimeInMillis(), info.getExpires().getTimeInMillis());
-            assertTrue("Ttl should be positive", info.getTokenTtl() > 0);
+            assertTrue("Ttl should be positive", info.tokenTtl() > 0);
         }
 
         @Test
@@ -71,8 +71,8 @@ public class CachableUserInfoTest {
             
             CachableUserInfo info = new CachableUserInfo(response);
             
-            assertTrue("Raw Ttl should be actual large value", info.getTokenTtl() > Integer.MAX_VALUE);
-            assertEquals("Safe Ttl should be max integer", Integer.MAX_VALUE, info.getSafeTokenTtl());
+            assertTrue("Raw Ttl should be actual large value", info.tokenTtl() > Integer.MAX_VALUE);
+            assertEquals("Safe Ttl should be max integer", Integer.MAX_VALUE, info.safeTokenTtl());
         }
 
         @Test
@@ -81,7 +81,7 @@ public class CachableUserInfoTest {
             
             CachableUserInfo info = new CachableUserInfo(response);
             
-            assertEquals("Ttl should be zero", new Long(0), info.getTokenTtl());
+            assertEquals("Ttl should be zero", new Long(0), info.tokenTtl());
         }
         
         
@@ -96,8 +96,8 @@ public class CachableUserInfoTest {
             // Sleep until we have passed the expiration date.
             Thread.sleep(5);
             
-            assertEquals("Ttl should be zero", new Long(0), info.getTokenTtl());
-            assertEquals("Safe Ttl should be zero", 0, info.getSafeTokenTtl());
+            assertEquals("Ttl should be zero", new Long(0), info.tokenTtl());
+            assertEquals("Safe Ttl should be zero", 0, info.safeTokenTtl());
         }
 
 
