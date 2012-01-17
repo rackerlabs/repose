@@ -3,7 +3,6 @@ package com.rackspace.auth.openstack.ids;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 
-import java.util.Calendar;
 import java.util.List;
 import org.openstack.docs.identity.api.v2.Endpoint;
 import org.openstack.docs.identity.api.v2.EndpointList;
@@ -19,25 +18,6 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
    private final OpenStackCoreResponseUnmarshaller openStackCoreResponseUnmarshaller;
    private final OpenStackGroupsResponseUnmarshaller openStackGroupsResponseUnmarshaller;
    private AdminToken currentAdminToken;
-
-   private static class AdminToken {
-
-      private final String token;
-      private final Calendar expires;
-
-      public AdminToken(String token, Calendar expires) {
-         this.token = token;
-         this.expires = expires;
-      }
-
-      public String getToken() {
-         return token;
-      }
-
-      public boolean isValid() {
-         return expires.before(Calendar.getInstance().getTime());
-      }
-   }
 
    public AuthenticationServiceClient(String targetHostUri, String username, String password) {
       this.openStackCoreResponseUnmarshaller = new OpenStackCoreResponseUnmarshaller();
@@ -91,7 +71,7 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
       return groups;
    }
 
-   private String getAdminToken() {
+   private synchronized String getAdminToken() {
       String adminToken = currentAdminToken != null && currentAdminToken.isValid() ? currentAdminToken.getToken() : null;
 
       if (adminToken == null) {

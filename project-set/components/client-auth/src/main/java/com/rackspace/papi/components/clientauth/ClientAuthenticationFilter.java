@@ -9,21 +9,18 @@ import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.service.context.jndi.ContextAdapter;
 import com.rackspace.papi.service.datastore.Datastore;
-import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import org.slf4j.Logger;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Collection;
 
 /**
  *
