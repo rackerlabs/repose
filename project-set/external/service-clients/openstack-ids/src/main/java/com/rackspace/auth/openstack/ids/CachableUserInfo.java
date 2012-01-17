@@ -16,7 +16,7 @@ public class CachableUserInfo implements Serializable {
    private final String userId;
    private final String username;
    private final String roles;
-   private final Calendar expires;
+   private final long expires;
 
    public CachableUserInfo(AuthenticateResponse response) {
       if (response == null) {
@@ -31,10 +31,10 @@ public class CachableUserInfo implements Serializable {
 
    }
 
-   private Calendar extractExpires(Token token) {
-      Calendar result = null;
+   private long extractExpires(Token token) {
+      long result = 0;
       if (token != null && token.getExpires() != null) {
-         result = token.getExpires().toGregorianCalendar();
+         result = token.getExpires().toGregorianCalendar().getTimeInMillis();
       }
       
       return result;
@@ -43,8 +43,8 @@ public class CachableUserInfo implements Serializable {
    private Long determineTtlInMillis() {
       long ttl = 0;
 
-      if (expires != null) {
-         ttl = expires.getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
+      if (expires > 0) {
+         ttl = expires - Calendar.getInstance().getTimeInMillis();
       }
 
       return ttl > 0 ? ttl : 0;
@@ -82,7 +82,7 @@ public class CachableUserInfo implements Serializable {
       return roles;
    }
    
-   public Calendar getExpires() {
+   public long getExpires() {
       return expires;
    }
 

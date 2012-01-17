@@ -58,7 +58,7 @@ public class CachableUserInfoTest {
             
             CachableUserInfo info = new CachableUserInfo(response);
             
-            assertEquals("Expires Calendars should be equivalent", expires.getTimeInMillis(), info.getExpires().getTimeInMillis());
+            assertEquals("Expires Calendars should be equivalent", expires.getTimeInMillis(), info.getExpires());
             assertTrue("Ttl should be positive", info.tokenTtl() > 0);
         }
 
