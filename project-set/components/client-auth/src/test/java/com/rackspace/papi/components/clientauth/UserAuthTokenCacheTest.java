@@ -30,7 +30,7 @@ public class UserAuthTokenCacheTest {
 
       @Before
       public void standUp() throws Exception {
-         originalUserInfo = new CachableUserInfo("token", "userId", "username", "roles", 10000);
+         originalUserInfo = new CachableUserInfo("token", "userId", "username", "roles", 10000, null);
          mockedDatastore = mock(Datastore.class);
          
          final String cacheFullName =CACHE_PREFIX + "." + VALID_USER; 
