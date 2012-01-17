@@ -146,7 +146,7 @@ public class OpenStackAuthenticationHandlerTest {
 
         @Test
         public void shouldCheckCacheForCredentials() throws IOException {
-            final CachableUserInfo userInfo = new CachableUserInfo(authResponse);
+            final CachableUserInfo userInfo = new CachableUserInfo(null, authResponse);
             byte[] userInfoBytes = ObjectSerializer.instance().writeObject(userInfo);
             when(authService.validateToken(anyString(), anyString())).thenReturn(userInfo);
 
@@ -159,7 +159,7 @@ public class OpenStackAuthenticationHandlerTest {
         
         @Test
         public void shouldUseCachedUserInfo() {
-            final CachableUserInfo userInfo = new CachableUserInfo(authResponse);
+            final CachableUserInfo userInfo = new CachableUserInfo(null, authResponse);
             StoredElement element = mock(StoredElement.class);
             when(element.elementIsNull()).thenReturn(false);
             when(element.elementAs(CachableUserInfo.class)).thenReturn(userInfo);
@@ -176,7 +176,7 @@ public class OpenStackAuthenticationHandlerTest {
 
         @Test
         public void shouldNotUseCachedUserInfoForExpired() throws InterruptedException {
-            final CachableUserInfo userInfo = new CachableUserInfo(authResponse);
+            final CachableUserInfo userInfo = new CachableUserInfo(null, authResponse);
             StoredElement element = mock(StoredElement.class);
             when(element.elementIsNull()).thenReturn(false);
             when(element.elementAs(CachableUserInfo.class)).thenReturn(userInfo);
@@ -196,7 +196,7 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void shouldNotUseCachedUserInfoForBadTokenId() {
             authResponse.getToken().setId("differentId");
-            final CachableUserInfo userInfo = new CachableUserInfo(authResponse);
+            final CachableUserInfo userInfo = new CachableUserInfo(null, authResponse);
             StoredElement element = mock(StoredElement.class);
             when(element.elementIsNull()).thenReturn(false);
             when(element.elementAs(CachableUserInfo.class)).thenReturn(userInfo);

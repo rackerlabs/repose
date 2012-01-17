@@ -17,25 +17,29 @@ public class CachableUserInfo implements Serializable {
    private final String username;
    private final String roles;
    private final long expires;
+   private final String tenantId;
 
-   public CachableUserInfo(AuthenticateResponse response) {
+   public CachableUserInfo(String tenantId, AuthenticateResponse response) {
       if (response == null) {
          throw new IllegalArgumentException();
       }
-
+      
+      this.tenantId = tenantId;
       this.tokenId = response.getToken().getId();
       this.userId = response.getUser().getId();
       this.username = response.getUser().getName();
       this.roles = formatRoles(response);
       this.expires = extractExpires(response.getToken());
+
    }
 
-   public CachableUserInfo(String tokenId, String userId, String username, String roles, long expires) {
+   public CachableUserInfo(String tokenId, String userId, String username, String roles, long expires, String tenantId) {
       this.tokenId = tokenId;
       this.userId = userId;
       this.username = username;
       this.roles = roles;
       this.expires = expires;
+      this.tenantId = tenantId;
    }
 
    private long extractExpires(Token token) {
@@ -73,6 +77,10 @@ public class CachableUserInfo implements Serializable {
       return formattedRoles;
    }
 
+   public String getTenantId() {
+      return tenantId;
+   }
+   
    public String getTokenId() {
       return tokenId;
    }

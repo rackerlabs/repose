@@ -56,7 +56,7 @@ public class CachableUserInfoTest {
 
             token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar)expires));
             
-            CachableUserInfo info = new CachableUserInfo(response);
+            CachableUserInfo info = new CachableUserInfo(null, response);
             
             assertEquals("Expires Calendars should be equivalent", expires.getTimeInMillis(), info.getExpires());
             assertTrue("Ttl should be positive", info.tokenTtl() > 0);
@@ -69,7 +69,7 @@ public class CachableUserInfoTest {
 
             token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar)expires));
             
-            CachableUserInfo info = new CachableUserInfo(response);
+            CachableUserInfo info = new CachableUserInfo(null, response);
             
             assertTrue("Raw Ttl should be actual large value", info.tokenTtl() > Integer.MAX_VALUE);
             assertEquals("Safe Ttl should be max integer", Integer.MAX_VALUE, info.safeTokenTtl());
@@ -79,7 +79,7 @@ public class CachableUserInfoTest {
         public void shouldHaveZeroTtlForNullExpires() {
             token.setExpires(null);
             
-            CachableUserInfo info = new CachableUserInfo(response);
+            CachableUserInfo info = new CachableUserInfo(null, response);
             
             assertEquals("Ttl should be zero", new Long(0), info.tokenTtl());
         }
@@ -91,7 +91,7 @@ public class CachableUserInfoTest {
 
             token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar)expires));
             
-            CachableUserInfo info = new CachableUserInfo(response);
+            CachableUserInfo info = new CachableUserInfo(null, response);
             
             // Sleep until we have passed the expiration date.
             Thread.sleep(5);
@@ -130,7 +130,7 @@ public class CachableUserInfoTest {
             user.setRoles(roleList);
             response.setUser(user);
 
-            final CachableUserInfo info = new CachableUserInfo(response);
+            final CachableUserInfo info = new CachableUserInfo(null, response);
 
             final String expected = "default role 1";
             assertEquals(expected, info.getRoles());
@@ -151,7 +151,7 @@ public class CachableUserInfoTest {
             user.setRoles(roleList);
             response.setUser(user);
 
-            final CachableUserInfo info = new CachableUserInfo(response);
+            final CachableUserInfo info = new CachableUserInfo(null, response);
 
             final String expected = "default role 1,default role 2";
             assertEquals(expected, info.getRoles());
@@ -161,7 +161,7 @@ public class CachableUserInfoTest {
         public void shouldFormatListWithNoRoles() {
             response.setUser(user);
 
-            final CachableUserInfo info = new CachableUserInfo(response);
+            final CachableUserInfo info = new CachableUserInfo(null, response);
 
             assertNull(info.getRoles());
         }

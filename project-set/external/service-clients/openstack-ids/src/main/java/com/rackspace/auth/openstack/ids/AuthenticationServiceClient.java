@@ -35,7 +35,7 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
       switch (serviceResponse.getStatusCode()) {
          case 200:
             final AuthenticateResponse authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
-            token = new CachableUserInfo(authenticateResponse);
+            token = new CachableUserInfo(tenant, authenticateResponse);
       }
 
       return token;
