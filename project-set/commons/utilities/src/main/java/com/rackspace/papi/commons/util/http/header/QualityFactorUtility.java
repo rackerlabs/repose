@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util.http.header;
 
+import java.util.Collections;
 import java.util.Iterator;
 
 /**
@@ -12,7 +13,7 @@ public final class QualityFactorUtility {
    }
    
    public static <T extends HeaderValue> T choosePreferedHeaderValue(Iterable<T> headerValues) {
-      final Iterator<T> headerValueIterator = headerValues.iterator();
+      final Iterator<T> headerValueIterator = headerValues != null ? headerValues.iterator() : Collections.EMPTY_LIST.iterator();
       
       T prefered = headerValueIterator.hasNext() ? headerValueIterator.next() : null;
       

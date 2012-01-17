@@ -15,7 +15,7 @@ public class HeaderValueParser {
       this.rawHeaderValue = rawValue;
    }
 
-   public HeaderValue parse() {
+   public HeaderValue parse() throws MalformedHeaderValueException {
       final Map<String, String> parameters = new HashMap<String, String>();
       final String[] parameterSplit = rawHeaderValue.split(";");
 
@@ -29,12 +29,14 @@ public class HeaderValueParser {
       return new HeaderValueImpl(parameterSplit[0].trim(), parameters);
    }
 
-   private void parseParameter(Map<String, String> parameters, String unparsedParameter) {
+   private void parseParameter(Map<String, String> parameters, String unparsedParameter) throws MalformedHeaderValueException {
       final String[] keyValueSplit = unparsedParameter.split("=");
 
       // For a possible parameter to be valid it must have the '=' character
       if (keyValueSplit.length == 2) {
          parameters.put(keyValueSplit[0].trim(), keyValueSplit[1].trim());
+      } else {
+         throw new MalformedHeaderValueException("Valid parameter expected for header. Got: " + unparsedParameter);
       }
    }
 }

@@ -1,5 +1,7 @@
 package com.rackspace.papi.commons.util.http.header;
 
+import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -33,6 +35,30 @@ public class HeaderFieldParserTest {
 
       @Test
       public void shouldParseMultiValueHeaderFields() {
+         final List<String> rawHeaderValues = new LinkedList<String>();
+         rawHeaderValues.add("value one;q=0.1;x=v1.0");
+         rawHeaderValues.add("value two;q=0.3");
+         
+         final List<HeaderValue> headerValues = new HeaderFieldParser(Collections.enumeration(rawHeaderValues)).parse();
+
+         assertTrue("Header field parser should find two fields", headerValues.size() == 2);
+
+         final HeaderValue first = headerValues.get(0);
+
+         assertEquals("Header value should match expected", "value one", first.getValue());
+         assertTrue("Header value should have two parameters", first.getParameters().size() == 2);
+         assertEquals("Header value paramter 'x' should have value 'v1.0'", first.getParameters().get("x"), "v1.0");
+         assertEquals("Header value quality factor whould be 0.1", (Double) 0.1, (Double) first.getQualityFactor());
+
+         final HeaderValue second = headerValues.get(1);
+
+         assertEquals("Header value should match expected", "value two", second.getValue());
+         assertTrue("Header value should have one parameters", second.getParameters().size() == 1);
+         assertEquals("Header value quality factor whould be 0.3", (Double) 0.3, (Double) second.getQualityFactor());
+      }
+
+      @Test
+      public void shouldParseRawMultiValueHeaderFields() {
          final List<HeaderValue> headerValues = new HeaderFieldParser(SUPER_COMPLICATED_MEDIA_TYPE).parse();
 
          assertTrue("Header field parser should find two fields", headerValues.size() == 2);
@@ -40,15 +66,15 @@ public class HeaderFieldParserTest {
          final HeaderValue first = headerValues.get(0);
 
          assertEquals("Header value should match expected", "application/vnd.rackspace.services.a+xml", first.getValue());
-         assertTrue("Header value should have two parameters", first.getParameters().size() == 2);
+          assertTrue("Header value should have two parameters", first.getParameters().size() == 2);
          assertEquals("Header value paramter 'x' should have value 'v1.0'", first.getParameters().get("x"), "v1.0");
-         assertEquals("Header value quality factor whould be 0.5", Double.valueOf(0.8), Double.valueOf(first.getQualityFactor()));
+         assertEquals("Header value quality factor whould be 0.8", (Double) 0.8, (Double) first.getQualityFactor());
 
          final HeaderValue second = headerValues.get(1);
 
          assertEquals("Header value should match expected", "application/json", second.getValue());
          assertTrue("Header value should have one parameters", second.getParameters().size() == 1);
-         assertEquals("Header value quality factor whould be 0.5", Double.valueOf(0.5), Double.valueOf(second.getQualityFactor()));
+         assertEquals("Header value quality factor whould be 0.5", (Double) 0.5, (Double) second.getQualityFactor());
       }
    }
 }

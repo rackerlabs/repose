@@ -54,7 +54,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
          if (describeLimitsUriRegex.matcher(requestUri).matches()) {
             describeLimitsForRequest(director, request);
          } else {
-            newRateLimiter().recordLimitedRequest(new RateLimitingRequestInfo(request), director);
+            recordLimitedRequest(new RateLimitingRequestInfo(request), director);
          }
       } else {
          LOG.warn("Expected header: " + PowerApiHeader.USER.toString()
@@ -68,8 +68,8 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
       return director;
    }
    
-   private RateLimiter newRateLimiter() {
-      return new RateLimiter(rateLimitCache, regexCache, rateLimitingConfig);
+   public void recordLimitedRequest(RateLimitingRequestInfo info, FilterDirector director) {
+      new RateLimiter(rateLimitCache, regexCache, rateLimitingConfig).recordLimitedRequest(info, director);
    }
 
    public boolean requestHasExpectedHeaders(HttpServletRequest request) {

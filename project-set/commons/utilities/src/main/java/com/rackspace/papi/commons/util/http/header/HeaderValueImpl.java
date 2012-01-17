@@ -16,30 +16,59 @@ public class HeaderValueImpl implements HeaderValue {
    public static final String QUALITY_FACTOR_PARAM_NAME = "q";
    private final Map<String, String> parameters;
    private final String value;
+   private double parsedQualityFactor;
+
+   private static double getQualityFactor(Map<String, String> parameters) throws MalformedHeaderValueException {
+      double qualityFactor = -1;
+
+      final String qualityFactorString = parameters.get(QUALITY_FACTOR_PARAM_NAME);
+
+      if (StringUtilities.isNotBlank(qualityFactorString)) {
+         try {
+            qualityFactor = Double.parseDouble(qualityFactorString);
+         } catch (NumberFormatException nfe) {
+            throw new MalformedHeaderValueException("Quality factor is not a valid double", nfe);
+         }
+      }
+
+      return qualityFactor;
+   }
+
+   private static Map<String, String> qualityFactorToParameterMap(double qualityFactor) {
+      final Map<String, String> parameters = new HashMap<String, String>();
+      parameters.put(QUALITY_FACTOR_PARAM_NAME, String.valueOf(qualityFactor));
+
+      return parameters;
+   }
 
    /**
-    * Constructor that sets the header value's quality factor
-    * 
+    * Constructor that sets the header value's quality factor directly
+    *
     * @param value
-    * @param qualityFactor 
+    * @param qualityFactor
     */
    public HeaderValueImpl(String value, double qualityFactor) {
-      this.parameters = new HashMap();
       this.value = value;
-      
-      parameters.put(QUALITY_FACTOR_PARAM_NAME, String.valueOf(qualityFactor));
+      this.parameters = qualityFactorToParameterMap(qualityFactor);
+      this.parsedQualityFactor = qualityFactor;
    }
 
    /**
     * This constructor copies the parameter map into the header value parameter
     * map.
-    * 
+    *
     * @param value
-    * @param parameters 
+    * @param parameters
     */
-   public HeaderValueImpl(String value, Map<String, String> parameters) {
+   public HeaderValueImpl(String value, Map<String, String> parameters) throws MalformedHeaderValueException {
+      this.parsedQualityFactor = getQualityFactor(parameters);
       this.parameters = new HashMap(parameters);
       this.value = value;
+   }
+
+   @Override
+   public double getQualityFactor() {
+      return parsedQualityFactor;
    }
 
    @Override
@@ -57,51 +86,33 @@ public class HeaderValueImpl implements HeaderValue {
    }
 
    @Override
-   public double getQualityFactor() {
-      double qualityFactor = -1;
-
-      final String qualityFactorString = parameters.get(QUALITY_FACTOR_PARAM_NAME);
-
-      if (StringUtilities.isNotBlank(qualityFactorString)) {
-         try {
-            qualityFactor = Double.parseDouble(qualityFactorString);
-         } catch (NumberFormatException nfe) {
-            // TODO:Implement - Handle this exception
-         }
-      }
-
-      return qualityFactor;
-   }
-
-   @Override
    public boolean equals(Object obj) {
       if (obj == null) {
          return false;
       }
-
+      
       if (getClass() != obj.getClass()) {
          return false;
       }
-
+      
       final HeaderValueImpl other = (HeaderValueImpl) obj;
-
+      
       if (this.parameters != other.parameters && (this.parameters == null || !this.parameters.equals(other.parameters))) {
          return false;
       }
-
+      
       if ((this.value == null) ? (other.value != null) : !this.value.equals(other.value)) {
          return false;
       }
-
+      
       return true;
    }
 
    @Override
    public int hashCode() {
-      int hash = 5;
-      hash = 43 * hash + (this.parameters != null ? this.parameters.hashCode() : 0);
-      hash = 43 * hash + (this.value != null ? this.value.hashCode() : 0);
-
+      int hash = 7;
+      hash = 67 * hash + (this.parameters != null ? this.parameters.hashCode() : 0);
+      hash = 67 * hash + (this.value != null ? this.value.hashCode() : 0);
       return hash;
    }
 

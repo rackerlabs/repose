@@ -7,7 +7,9 @@ import org.junit.Ignore;
 import com.rackspace.papi.service.datastore.impl.StoredElementImpl;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import java.util.Enumeration;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
@@ -20,69 +22,77 @@ import static org.mockito.Mockito.*;
 @RunWith(Enclosed.class)
 public class RateLimitingHandlerTest extends RateLimitingTestSupport {
 
-    public static class WhenMakingInvalidRequests extends DefaultTestCase {
+   public static class WhenMakingInvalidRequests extends TestParent {
 
-        @Test
-        public void shouldReturnUnauthorizedWhenUserInformationIsMissing() {
-            final FilterDirector director = handler.newHandler().handleRequest(requestMock, null);
+      @Test
+      public void shouldReturnUnauthorizedWhenUserInformationIsMissing() {
+         final FilterDirector director = handler.newHandler().handleRequest(mockedRequest, null);
 
-            assertEquals("FilterDirectory must return on rate limiting failure", FilterAction.RETURN, director.getFilterAction());
-            assertEquals("Must return 401 if the user has not been identified", HttpStatusCode.UNAUTHORIZED, director.getResponseStatus());
-        }
-    }
+         assertEquals("FilterDirectory must return on rate limiting failure", FilterAction.RETURN, director.getFilterAction());
+         assertEquals("Must return 401 if the user has not been identified", HttpStatusCode.UNAUTHORIZED, director.getResponseStatus());
+      }
+   }
 
-    public static class WhenMakingValidRequests extends DefaultTestCase {
+   public static class WhenMakingValidRequests extends TestParent {
 
-        @Test
-        public void shouldPassValidRequests() {
-            final Enumeration<String> groupHeaders = mock(Enumeration.class);
-            when(groupHeaders.hasMoreElements()).thenReturn(Boolean.FALSE);
+      @Before
+      public void standUp() {
+         List<String> headerValues = new LinkedList<String>();
+         headerValues.add("group-4");
+         headerValues.add("group-2");
+         headerValues.add("group-1");
+         headerValues.add("group-3");
 
-            when(requestMock.getHeader(PowerApiHeader.USER.toString())).thenReturn("user");
-            when(requestMock.getHeader(PowerApiHeader.GROUPS.toString())).thenReturn("group");
-            when(requestMock.getHeaders(PowerApiHeader.GROUPS.toString())).thenReturn(groupHeaders);
-            when(requestMock.getMethod()).thenReturn("GET");
-            when(requestMock.getRequestURI()).thenReturn("/v1.0/12345/resource");
-            when(requestMock.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/12345/resource"));
+         when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenReturn(Collections.enumeration(headerValues));
 
-            final FilterDirector director = handler.newHandler().handleRequest(requestMock, null);
+         headerValues = new LinkedList<String>();
+         headerValues.add("that other user;q=0.5");
+         headerValues.add("127.0.0.1;q=0.1");
 
-            assertEquals("Filter must pass valid, non-limited requests", FilterAction.PASS, director.getFilterAction());
-        }
+         when(mockedRequest.getHeaders(PowerApiHeader.USER.toString())).thenReturn(Collections.enumeration(headerValues));
 
-        @Test
-        public void shouldProcessResponseWhenAbsoluteLimitsIntegrationIsEnabled() {
-            final Enumeration<String> groupHeaders = mock(Enumeration.class);
-            when(groupHeaders.hasMoreElements()).thenReturn(Boolean.FALSE);
+         when(mockedRequest.getHeader(PowerApiHeader.USER.toString())).thenReturn("127.0.0.1;q=0.1");
+         when(mockedRequest.getHeader(PowerApiHeader.GROUPS.toString())).thenReturn("group-1");
+      }
 
-            when(requestMock.getHeader(PowerApiHeader.USER.toString())).thenReturn("user");
-            when(requestMock.getHeader(PowerApiHeader.GROUPS.toString())).thenReturn("group");
-            when(requestMock.getHeaders(PowerApiHeader.GROUPS.toString())).thenReturn(groupHeaders);
-            when(requestMock.getMethod()).thenReturn("GET");
-            when(requestMock.getRequestURI()).thenReturn("/v1.0/limits");
-            when(requestMock.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/limits"));
+      @Test
+      public void shouldPassValidRequests() {
+         when(mockedRequest.getMethod()).thenReturn("GET");
+         when(mockedRequest.getRequestURI()).thenReturn("/v1.0/12345/resource");
+         when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/12345/resource"));
 
-            final FilterDirector director = handler.newHandler().handleRequest(requestMock, null);
+         final FilterDirector director = handler.newHandler().handleRequest(mockedRequest, null);
 
-            assertEquals("On successful pass, filter must process response", FilterAction.PROCESS_RESPONSE, director.getFilterAction());
-        }
-    }
+         assertEquals("Filter must pass valid, non-limited requests", FilterAction.PASS, director.getFilterAction());
+      }
 
-    @Ignore
-    public static class DefaultTestCase {
+      @Test
+      public void shouldProcessResponseWhenAbsoluteLimitsIntegrationIsEnabled() {
+         when(mockedRequest.getMethod()).thenReturn("GET");
+         when(mockedRequest.getRequestURI()).thenReturn("/v1.0/limits");
+         when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/limits"));
 
-        protected RateLimitingHandlerFactory handler;
-        protected HttpServletRequest requestMock;
+         final FilterDirector director = handler.newHandler().handleRequest(mockedRequest, null);
 
-        @Before
-        public void standUp() {
-            final Datastore datastoreMock = mock(Datastore.class);
-            when(datastoreMock.get(anyString())).thenReturn(new StoredElementImpl("key", null));
+         assertEquals("On successful pass, filter must process response", FilterAction.PROCESS_RESPONSE, director.getFilterAction());
+      }
+   }
 
-            handler = new RateLimitingHandlerFactory(datastoreMock);
-            handler.configurationUpdated(defaultRateLimitingConfiguration());
+   @Ignore
+   public static class TestParent {
 
-            requestMock = mock(HttpServletRequest.class);
-        }
-    }
+      protected RateLimitingHandlerFactory handler;
+      protected HttpServletRequest mockedRequest;
+
+      @Before
+      public void beforeAny() {
+         final Datastore datastoreMock = mock(Datastore.class);
+         when(datastoreMock.get(anyString())).thenReturn(new StoredElementImpl("key", null));
+
+         handler = new RateLimitingHandlerFactory(datastoreMock);
+         handler.configurationUpdated(defaultRateLimitingConfiguration());
+
+         mockedRequest = mock(HttpServletRequest.class);
+      }
+   }
 }
