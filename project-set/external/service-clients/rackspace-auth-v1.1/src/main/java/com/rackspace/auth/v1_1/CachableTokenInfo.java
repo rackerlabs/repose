@@ -15,9 +15,10 @@ public class CachableTokenInfo implements Serializable {
       }
       this.userId = token.getUserId();
       this.tokenId = token.getId();
-      this.expires = getExpires(token);
+      this.expires = extractExpires(token);
    }
-   private Calendar getExpires(FullToken token) {
+
+   private Calendar extractExpires(FullToken token) {
       Calendar result = null;
       if (token != null && token.getExpires() != null) {
          result = token.getExpires().toGregorianCalendar();
@@ -49,12 +50,12 @@ public class CachableTokenInfo implements Serializable {
       return expires;
    }
    
-   public Long getTokenTtl() {
+   public Long tokenTtl() {
       return determineTtlInMillis();
    }
    
-   public int getSafeTokenTtl() {
-      Long tokenTtl = getTokenTtl();
+   public int safeTokenTtl() {
+      Long tokenTtl = tokenTtl();
       
       if (tokenTtl >= Integer.MAX_VALUE) {
          return Integer.MAX_VALUE;
