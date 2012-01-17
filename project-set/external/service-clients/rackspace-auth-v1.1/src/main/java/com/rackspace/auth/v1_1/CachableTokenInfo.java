@@ -5,14 +5,17 @@ import java.io.Serializable;
 import java.util.Calendar;
 
 public class CachableTokenInfo implements Serializable {
+   private final String tenantId;
    private final String userId;
    private final String tokenId;
    private final long expires;
    
-   public CachableTokenInfo(FullToken token) {
+   public CachableTokenInfo(String tenantId, FullToken token) {
       if (token == null) {
          throw new IllegalArgumentException("Invalid token");
       }
+      
+      this.tenantId = tenantId;
       this.userId = token.getUserId();
       this.tokenId = token.getId();
       this.expires = extractExpires(token);
@@ -37,6 +40,9 @@ public class CachableTokenInfo implements Serializable {
       return ttl > 0 ? ttl : 0;
    }
 
+   public String getTenantId() {
+      return tenantId;
+   }
    
    public String getUserId() {
       return userId;

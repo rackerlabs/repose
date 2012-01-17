@@ -68,7 +68,7 @@ public class AuthenticationServiceClient {
          case 200:
             final FullToken tokenResponse = responseUnmarshaller.unmarshall(validateTokenMethod.getData(), FullToken.class);
 
-            tokenInfo = new CachableTokenInfo(tokenResponse);
+            tokenInfo = new CachableTokenInfo(account.getResult(), tokenResponse);
       }
 
       return tokenInfo;

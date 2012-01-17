@@ -150,7 +150,7 @@ public class RackspaceAuthenticationHandlerTest {
             FullToken fullToken = new FullToken();
             fullToken.setId(tokenId);
             fullToken.setUserId(userName);
-            CachableTokenInfo token = new CachableTokenInfo(fullToken);
+            CachableTokenInfo token = new CachableTokenInfo(null, fullToken);
             when(request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn("some-random-auth-token");
             when(request.getRequestURI()).thenReturn("/start/accountId/resource");
             when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(token);
@@ -236,7 +236,7 @@ public class RackspaceAuthenticationHandlerTest {
             FullToken fullToken = new FullToken();
             fullToken.setId(tokenId);
             fullToken.setUserId(userName);
-            CachableTokenInfo token = new CachableTokenInfo(fullToken);
+            CachableTokenInfo token = new CachableTokenInfo("tenantId", fullToken);
             when(request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn(tokenId);
             when(request.getRequestURI()).thenReturn("/start/accountId/resource");
             when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(token);
