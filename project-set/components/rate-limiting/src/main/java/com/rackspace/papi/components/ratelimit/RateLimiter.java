@@ -129,7 +129,7 @@ public class RateLimiter extends RateLimitingOperation {
          // We use a 413 "Request Entity Too Large" to communicate that the user
          // in question has hit their rate limit for this requested URI
          filterDirector.setResponseStatus(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE);
-         filterDirector.responseHeaderManager().putHeader(CommonHttpHeader.RETRY_AFTER.toString(), nextAvailableTime.toRFC1123());
+         filterDirector.responseHeaderManager().appendHeader(CommonHttpHeader.RETRY_AFTER.toString(), nextAvailableTime.toRFC1123());
       } else {
          // When response delegation is enabled, we add the X-PP-Rate-Limited
          // request header with its value set to the correctly formatted 

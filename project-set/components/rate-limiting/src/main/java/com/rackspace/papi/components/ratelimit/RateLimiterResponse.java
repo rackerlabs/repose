@@ -93,13 +93,13 @@ public class RateLimiterResponse extends RateLimitingOperation {
         switch (preferredMediaRange.getMimeType()) {
             case APPLICATION_XML:
                 filterDirector.getResponseOutputStream().write(readableContents);
-                filterDirector.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.toString(), MimeType.APPLICATION_XML.toString());
+                filterDirector.responseHeaderManager().appendHeader(CommonHttpHeader.CONTENT_TYPE.toString(), MimeType.APPLICATION_XML.toString());
                 break;
 
             case APPLICATION_JSON:
             default:
                 RESPONSE_TRANSFORMER.streamAsJson(new ByteArrayInputStream(readableContents), filterDirector.getResponseOutputStream());
-                filterDirector.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.toString(), MimeType.APPLICATION_JSON.toString());
+                filterDirector.responseHeaderManager().appendHeader(CommonHttpHeader.CONTENT_TYPE.toString(), MimeType.APPLICATION_JSON.toString());
         }
     }
 }

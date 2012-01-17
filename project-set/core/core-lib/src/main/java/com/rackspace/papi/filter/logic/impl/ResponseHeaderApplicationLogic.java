@@ -15,7 +15,8 @@ public class ResponseHeaderApplicationLogic implements HeaderApplicationLogic {
 
     @Override
     public void removeHeader(String headerName) {
-        throw new UnsupportedOperationException("Responses do not support header removal");
+       // NOOP
+       // TODO: Log use of this for consideration of reworking the model
     }
 
     @Override
