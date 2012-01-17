@@ -18,6 +18,12 @@ target
 catalog.xml
 nbactions.xml
 
+## IntelliJ IDEA
+*.iml
+*.ipr
+*.iws
+.idea/
+
 ## generic files to ignore
 *~
 *.lock
