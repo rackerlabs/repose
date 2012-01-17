@@ -100,7 +100,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
       }
 
       try {
-         cache.storeToken(user.getUserId(), user, user.getSafeTokenTtl());
+         cache.storeToken(user.getUserId(), user, user.safeTokenTtl());
       } catch (IOException ex) {
          LOG.warn("Unable to cache user token information: " + user.getUserId());
       }

@@ -18,6 +18,6 @@ public class OpenStackUserInfoCache extends UserAuthTokenCache<CachableUserInfo>
 
    @Override
    public boolean validateToken(CachableUserInfo cachedValue, String passedValue) {
-      return cachedValue != null && cachedValue.getTokenId() != null && cachedValue.getSafeTokenTtl() > 0 && cachedValue.getTokenId().equals(passedValue);
+      return cachedValue != null && cachedValue.getTokenId() != null && cachedValue.safeTokenTtl() > 0 && cachedValue.getTokenId().equals(passedValue);
    }
 }
