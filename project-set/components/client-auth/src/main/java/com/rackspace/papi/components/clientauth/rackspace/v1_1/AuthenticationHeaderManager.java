@@ -1,9 +1,9 @@
 package com.rackspace.papi.components.clientauth.rackspace.v1_1;
 
 import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.commons.util.http.IdentityStatus;
+import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.components.clientauth.openstack.v1_0.OpenStackServiceHeader;
-import com.rackspace.papi.components.clientauth.rackspace.IdentityStatus;
 import com.rackspace.papi.components.clientauth.rackspace.config.RackspaceAuth;
 import com.rackspace.papi.components.clientauth.rackspace.config.User;
 import com.rackspace.papi.components.clientauth.rackspace.config.UserRoles;
