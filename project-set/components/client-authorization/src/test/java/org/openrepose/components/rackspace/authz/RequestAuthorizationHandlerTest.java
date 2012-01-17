@@ -3,6 +3,7 @@ package org.openrepose.components.rackspace.authz;
 import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import java.util.Collections;
@@ -27,7 +28,7 @@ import org.openrepose.components.rackspace.authz.cache.EndpointListCache;
  * @author zinic
  */
 @RunWith(Enclosed.class)
-public class RequestAuthroizationHandlerTest {
+public class RequestAuthorizationHandlerTest {
 
    private static final String UNAUTHORIZED_TOKEN = "abcdef-abcdef-abcdef-abcdef", AUTHORIZED_TOKEN = "authorized", CACHED_TOKEN = "cached";
    private static final String PUBLIC_URL = "http://service.api.f.com/v1.1";
@@ -36,7 +37,7 @@ public class RequestAuthroizationHandlerTest {
    public static class TestParent {
 
       protected OpenStackAuthenticationService mockedAuthService;
-      protected RequestAuthroizationHandler handler;
+      protected RequestAuthorizationHandler handler;
       protected EndpointListCache mockedCache;
       protected HttpServletRequest mockedRequest;
 
@@ -67,7 +68,7 @@ public class RequestAuthroizationHandlerTest {
          final ServiceEndpoint myServiceEndpoint = new ServiceEndpoint();
          myServiceEndpoint.setHref(PUBLIC_URL);
 
-         handler = new RequestAuthroizationHandler(mockedAuthService, mockedCache, myServiceEndpoint);
+         handler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, myServiceEndpoint);
 
          mockedRequest = mock(HttpServletRequest.class);
       }
@@ -77,7 +78,7 @@ public class RequestAuthroizationHandlerTest {
 
       @Test
       public void shouldRejectDelegatedAuthentication() {
-         when(mockedRequest.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString())).thenReturn("Delegated");
+         when(mockedRequest.getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString())).thenReturn("Confirmed");
 
          final FilterDirector director = handler.handleRequest(mockedRequest, null);
 

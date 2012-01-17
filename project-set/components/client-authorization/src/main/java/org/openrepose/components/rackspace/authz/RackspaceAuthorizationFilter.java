@@ -6,7 +6,6 @@ import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import org.slf4j.Logger;
@@ -26,7 +25,7 @@ import org.slf4j.LoggerFactory;
 public class RackspaceAuthorizationFilter implements Filter {
 
    private static final Logger LOG = LoggerFactory.getLogger(RackspaceAuthorizationFilter.class);
-   private RequestAuthroizationHandlerFactory handlerFactory;
+   private RequestAuthorizationHandlerFactory handlerFactory;
 
    @Override
    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -60,8 +59,8 @@ public class RackspaceAuthorizationFilter implements Filter {
       final DatastoreManager defaultLocal = datastoreService.defaultDatastore();
 
       final ConfigurationService configurationService = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
-      handlerFactory = new RequestAuthroizationHandlerFactory(defaultLocal.getDatastore());
+      handlerFactory = new RequestAuthorizationHandlerFactory(defaultLocal.getDatastore());
 
-      configurationService.subscribeTo("rackspace-authorization.cfg.xml", handlerFactory, RackspaceAuthorization.class);
+      configurationService.subscribeTo("openstack-authorization.cfg.xml", handlerFactory, RackspaceAuthorization.class);
    }
 }

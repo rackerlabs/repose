@@ -1,6 +1,4 @@
-package com.rackspace.papi.components.clientauth.openstack.v1_0;
-
-import com.rackspace.papi.commons.util.http.HeaderConstant;
+package com.rackspace.papi.commons.util.http;
 
 /**
  * @author fran
@@ -13,7 +11,7 @@ public enum OpenStackServiceHeader implements HeaderConstant {
 
     /**
      *  'Confirmed' or 'Invalid'
-     *   The underlying service will only see a value of 'Invalid' if the PAPI
+     *   The underlying service will only see a value of 'Invalid' if PAPI
      *   is configured to run in 'delegatable' mode
      */
     IDENTITY_STATUS("X-Identity-Status"),

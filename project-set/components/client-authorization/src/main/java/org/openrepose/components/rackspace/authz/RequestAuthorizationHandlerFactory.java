@@ -14,14 +14,14 @@ import org.openrepose.components.rackspace.authz.cache.EndpointListCacheImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RequestAuthroizationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RequestAuthroizationHandler> {
+public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RequestAuthorizationHandler> {
 
-   private static final Logger LOG = LoggerFactory.getLogger(RequestAuthroizationHandlerFactory.class);
+   private static final Logger LOG = LoggerFactory.getLogger(RequestAuthorizationHandlerFactory.class);
    private final Datastore datastore;
    private RackspaceAuthorization authorizationConfiguration;
    private OpenStackAuthenticationService authenticationService;
 
-   public RequestAuthroizationHandlerFactory(Datastore datastore) {
+   public RequestAuthorizationHandlerFactory(Datastore datastore) {
       this.datastore = datastore;
    }
 
@@ -42,14 +42,14 @@ public class RequestAuthroizationHandlerFactory extends AbstractConfiguredFilter
    }
 
    @Override
-   protected RequestAuthroizationHandler buildHandler() {
+   protected RequestAuthorizationHandler buildHandler() {
       if (authenticationService == null) {
          LOG.error("Component has not been initialized yet. Please check your configurations.");
          throw new IllegalStateException("Component has not been initialized yet");
       }
 
       final EndpointListCache cache = new EndpointListCacheImpl(datastore, authorizationConfiguration.getAuthenticationServer().getEndpointListTtl());
-      return new RequestAuthroizationHandler(authenticationService, cache, authorizationConfiguration.getServiceEndpoint());
+      return new RequestAuthorizationHandler(authenticationService, cache, authorizationConfiguration.getServiceEndpoint());
    }
 
    @Override
