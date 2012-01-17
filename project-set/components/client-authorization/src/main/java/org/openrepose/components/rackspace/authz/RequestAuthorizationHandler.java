@@ -4,6 +4,7 @@ import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
@@ -20,14 +21,14 @@ import org.openstack.docs.identity.api.v2.Endpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RequestAuthroizationHandler extends AbstractFilterLogicHandler {
+public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
-   private static final Logger LOG = LoggerFactory.getLogger(RequestAuthroizationHandler.class);
+   private static final Logger LOG = LoggerFactory.getLogger(RequestAuthorizationHandler.class);
    private final OpenStackAuthenticationService authenticationService;
    private final EndpointListCache endpointListCache;
    private final ServiceEndpoint myEndpoint;
 
-   public RequestAuthroizationHandler(OpenStackAuthenticationService authenticationService, EndpointListCache endpointListCache, ServiceEndpoint myEndpoint) {
+   public RequestAuthorizationHandler(OpenStackAuthenticationService authenticationService, EndpointListCache endpointListCache, ServiceEndpoint myEndpoint) {
       this.authenticationService = authenticationService;
       this.endpointListCache = endpointListCache;
       this.myEndpoint = myEndpoint;
@@ -53,8 +54,8 @@ public class RequestAuthroizationHandler extends AbstractFilterLogicHandler {
       final String authenticationToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
 
       if (StringUtilities.isBlank(authenticationToken)) {
-         // We do not support delegation
-         LOG.debug("Authentication delegation is not supported unauthorized requests. Rejecting request.");
+         // Reject if no token
+         LOG.debug("Authentication token not found in X-Auth-Token header. Rejecting request.");
          director.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
       } else {
          checkTenantEndpoints(director, authenticationToken);
@@ -73,22 +74,22 @@ public class RequestAuthroizationHandler extends AbstractFilterLogicHandler {
    }
 
    private List<CachedEndpoint> getEndpointsForToken(String userToken) {
-      List<CachedEndpoint> cachedEnpoints = endpointListCache.getCachedEndpointsForToken(userToken);
+      List<CachedEndpoint> cachedEndpoints = endpointListCache.getCachedEndpointsForToken(userToken);
 
-      if (cachedEnpoints == null) {
-         cachedEnpoints = requestEnpointsForToeknFromAuthService(userToken);
+      if (cachedEndpoints == null) {
+         cachedEndpoints = requestEndpointsForTokenFromAuthService(userToken);
 
          try {
-            endpointListCache.cacheEndpointsForToken(userToken, cachedEnpoints);
+            endpointListCache.cacheEndpointsForToken(userToken, cachedEndpoints);
          } catch (IOException ioe) {
             LOG.error("Caching failure. Reason: " + ioe.getMessage(), ioe);
          }
       }
 
-      return cachedEnpoints;
+      return cachedEndpoints;
    }
 
-   private List<CachedEndpoint> requestEnpointsForToeknFromAuthService(String userToken) {
+   private List<CachedEndpoint> requestEndpointsForTokenFromAuthService(String userToken) {
       final List<Endpoint> authorizedEndpoints = authenticationService.getEndpointsForToken(userToken);
       final LinkedList<CachedEndpoint> serializable = new LinkedList<CachedEndpoint>();
 
@@ -99,9 +100,11 @@ public class RequestAuthroizationHandler extends AbstractFilterLogicHandler {
       return serializable;
    }
 
+   // The X-Identity-Status header gets set if client authentication is in delegated mode.  If the token is valid, the
+   // value of the X-Identity-Status header is "Confirmed".  If the token is not valid, then the X-Identity-Status
+   // header is set to "Indeterminate".  In the future, we may want to allow authorization for delegated requests
+   // that have a "Confirmed" status since we know the token is valid in that case.
    public boolean authenticationWasDelegated(HttpServletRequest request) {
-      final String wwwAuthenticateHeader = request.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString());
-
-      return !StringUtilities.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains("Delegated");
+      return StringUtilities.isNotBlank(request.getHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString()));
    }
 }
