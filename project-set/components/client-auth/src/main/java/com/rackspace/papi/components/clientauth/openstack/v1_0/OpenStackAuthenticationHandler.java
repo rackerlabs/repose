@@ -78,7 +78,7 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
 
       Groups groups = null;
       if (user != null) {
-         groups = authenticationService.getGroups(user.getUserId());
+         groups = authenticationService.getGroups(user.getUsername());
       }
 
       final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(authToken, user, delegatable, filterDirector, account == null ? "" : account.getResult(), groups, request);
