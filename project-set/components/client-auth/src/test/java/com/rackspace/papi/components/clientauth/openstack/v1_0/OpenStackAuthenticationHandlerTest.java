@@ -102,7 +102,7 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         public CachableUserInfo generateCachableTokenInfo(String roles, String tokenId, String username, int ttl) {
-            Calendar expires = getCalendarWithOffset(ttl);
+            Long expires = getCalendarWithOffset(ttl).getTimeInMillis();
             
             final CachableUserInfo cti = mock(CachableUserInfo.class);
             when(cti.getRoles()).thenReturn(roles);

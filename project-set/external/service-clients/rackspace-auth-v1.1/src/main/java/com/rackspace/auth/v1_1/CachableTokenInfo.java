@@ -7,7 +7,7 @@ import java.util.Calendar;
 public class CachableTokenInfo implements Serializable {
    private final String userId;
    private final String tokenId;
-   private final Calendar expires;
+   private final long expires;
    
    public CachableTokenInfo(FullToken token) {
       if (token == null) {
@@ -15,12 +15,13 @@ public class CachableTokenInfo implements Serializable {
       }
       this.userId = token.getUserId();
       this.tokenId = token.getId();
-      this.expires = getExpires(token);
+      this.expires = extractExpires(token);
    }
-   private Calendar getExpires(FullToken token) {
-      Calendar result = null;
+
+   private long extractExpires(FullToken token) {
+      long result = 0;
       if (token != null && token.getExpires() != null) {
-         result = token.getExpires().toGregorianCalendar();
+         result = token.getExpires().toGregorianCalendar().getTimeInMillis();
       }
       
       return result;
@@ -29,8 +30,8 @@ public class CachableTokenInfo implements Serializable {
    private Long determineTtlInMillis() {
       long ttl = 0;
 
-      if (expires != null) {
-         ttl = expires.getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
+      if (expires > 0) {
+         ttl = expires - Calendar.getInstance().getTimeInMillis();
       }
 
       return ttl > 0 ? ttl : 0;
@@ -45,16 +46,16 @@ public class CachableTokenInfo implements Serializable {
       return tokenId;
    }
    
-   public Calendar getExpires() {
+   public long getExpires() {
       return expires;
    }
    
-   public Long getTokenTtl() {
+   public Long tokenTtl() {
       return determineTtlInMillis();
    }
    
-   public int getSafeTokenTtl() {
-      Long tokenTtl = getTokenTtl();
+   public int safeTokenTtl() {
+      Long tokenTtl = tokenTtl();
       
       if (tokenTtl >= Integer.MAX_VALUE) {
          return Integer.MAX_VALUE;

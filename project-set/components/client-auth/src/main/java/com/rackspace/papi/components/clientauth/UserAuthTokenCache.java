@@ -31,7 +31,10 @@ public abstract class UserAuthTokenCache<T extends Serializable> {
          // TODO Should we throw an exception here?
          return;
       }
-      store.put(getCachePrefix() + "." + userId, ObjectSerializer.instance().writeObject(token), ttl, TimeUnit.MILLISECONDS);
+      
+      byte[] data = ObjectSerializer.instance().writeObject(token);
+      
+      store.put(getCachePrefix() + "." + userId, data, ttl, TimeUnit.MILLISECONDS);
    }
    
    public abstract String getCachePrefix();
