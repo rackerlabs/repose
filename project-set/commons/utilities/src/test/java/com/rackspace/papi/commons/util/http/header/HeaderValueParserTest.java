@@ -36,17 +36,10 @@ public class HeaderValueParserTest {
          assertEquals("Should parse parameter 'c' correctly", headerValue.getParameters().get("c"), "c");
       }
 
-      @Test
-      public void shouldSkipMalformedParameters() {
+      @Test(expected=MalformedHeaderValueException.class)
+      public void shouldFailOnMalformedParameters() {
          final String headerValueString = "the value; q=0.5; afafeafa ; b= b; c = c";
-         final HeaderValue headerValue = new HeaderValueParser(headerValueString).parse();
-
-         assertEquals("Should parse the acutal header value correctly", "the value", headerValue.getValue());
-         assertEquals("Should parse quality factor as a double equaling 0.5", Double.valueOf(0.5), Double.valueOf(headerValue.getQualityFactor()));
-         assertEquals("Should parse parameter 'b' correctly", headerValue.getParameters().get("b"), "b");
-         assertEquals("Should parse parameter 'c' correctly", headerValue.getParameters().get("c"), "c");
-
-         assertNull("Should skip malformed parameters", headerValue.getParameters().get("a"));
+         new HeaderValueParser(headerValueString).parse();
       }
    }
 }

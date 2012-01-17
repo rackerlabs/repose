@@ -22,13 +22,20 @@ public class CachableUserInfo implements Serializable {
       if (response == null) {
          throw new IllegalArgumentException();
       }
-      
+
       this.tokenId = response.getToken().getId();
       this.userId = response.getUser().getId();
       this.username = response.getUser().getName();
       this.roles = formatRoles(response);
       this.expires = extractExpires(response.getToken());
+   }
 
+   public CachableUserInfo(String tokenId, String userId, String username, String roles, long expires) {
+      this.tokenId = tokenId;
+      this.userId = userId;
+      this.username = username;
+      this.roles = roles;
+      this.expires = expires;
    }
 
    private long extractExpires(Token token) {
@@ -36,10 +43,10 @@ public class CachableUserInfo implements Serializable {
       if (token != null && token.getExpires() != null) {
          result = token.getExpires().toGregorianCalendar().getTimeInMillis();
       }
-      
+
       return result;
    }
-   
+
    private Long determineTtlInMillis() {
       long ttl = 0;
 
@@ -81,7 +88,7 @@ public class CachableUserInfo implements Serializable {
    public String getRoles() {
       return roles;
    }
-   
+
    public long getExpires() {
       return expires;
    }
@@ -92,11 +99,11 @@ public class CachableUserInfo implements Serializable {
 
    public int safeTokenTtl() {
       Long tokenTtl = tokenTtl();
-      
+
       if (tokenTtl >= Integer.MAX_VALUE) {
          return Integer.MAX_VALUE;
       }
-      
+
       return tokenTtl.intValue();
    }
 }
