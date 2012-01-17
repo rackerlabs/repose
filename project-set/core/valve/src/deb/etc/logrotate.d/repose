@@ -1,0 +1,8 @@
+/var/powerapi/logs/*.log {
+    daily
+    rotate 31
+    missingok
+    notifempty
+    weekly
+    compress
+}
