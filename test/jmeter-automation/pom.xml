@@ -82,7 +82,6 @@
                     <excludes>
                         <exclude>Power API - End to End Automation.jmx</exclude>
                         <exclude>Power API - Versioning.jmx</exclude>
-                        <exclude>Power API - Rate Limiting Tests.jmx</exclude>
                         <exclude>Power API - Valve Test.jmx</exclude>
                     </excludes>
                 </configuration>
