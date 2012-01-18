@@ -222,7 +222,102 @@
                             <timestamped>true</timestamped>
                             <dataSet>
 
-                                <!-- The log directory with info file as placeholder for plugin -->
+                                <!-- The sample configuration files for the filters -->
+                                <data>
+                                    <src>../client-auth/src/main/resources/META-INF/schema/examples/openstack</src>
+                                    <type>directory</type>
+                                    <includes>*.cfg.xml</includes>
+
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>/etc/powerapi</prefix>
+                                        <filemode>600</filemode>
+                                    </mapper>
+                                </data>
+
+                                <data>
+                                    <src>../client-authorization/src/main/resources/META-INF/schema/examples</src>
+                                    <type>directory</type>
+                                    <includes>*.cfg.xml</includes>
+
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>/etc/powerapi</prefix>
+                                        <filemode>600</filemode>
+                                    </mapper>
+                                </data>
+
+                                <data>
+                                    <src>../content-normalization/src/main/resources/META-INF/schema/examples</src>
+                                    <type>directory</type>
+                                    <includes>*.cfg.xml</includes>
+
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>/etc/powerapi</prefix>
+                                        <filemode>600</filemode>
+                                    </mapper>
+                                </data>
+
+                                <data>
+                                    <src>../datastore/src/main/resources/META-INF/schema/examples</src>
+                                    <type>directory</type>
+                                    <includes>*.cfg.xml</includes>
+
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>/etc/powerapi</prefix>
+                                        <filemode>600</filemode>
+                                    </mapper>
+                                </data>
+
+                                <data>
+                                    <src>../http-logging/src/main/resources/META-INF/schema/examples</src>
+                                    <type>directory</type>
+                                    <includes>*.cfg.xml</includes>
+
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>/etc/powerapi</prefix>
+                                        <filemode>600</filemode>
+                                    </mapper>
+                                </data>
+
+                                <data>
+                                    <src>../rate-limiting/src/main/resources/META-INF/schema/examples</src>
+                                    <type>directory</type>
+                                    <includes>*.cfg.xml</includes>
+
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>/etc/powerapi</prefix>
+                                        <filemode>600</filemode>
+                                    </mapper>
+                                </data>
+
+                                <data>
+                                    <src>../servlet-context-router/src/main/resources/META-INF/schema/examples</src>
+                                    <type>directory</type>
+                                    <includes>*.cfg.xml</includes>
+
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>/etc/powerapi</prefix>
+                                        <filemode>600</filemode>
+                                    </mapper>
+                                </data>
+
+                                <data>
+                                    <src>../versioning/src/main/resources/META-INF/schema/examples</src>
+                                    <type>directory</type>
+                                    <includes>*.cfg.xml</includes>
+
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>/etc/powerapi</prefix>
+                                        <filemode>600</filemode>
+                                    </mapper>
+                                </data>
 
                                 <!-- The jar file -->
                                 <data>

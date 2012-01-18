@@ -172,7 +172,6 @@
                                 <data>
                                     <src>../core-lib/src/main/resources/META-INF/schema/examples/</src>
                                     <type>directory</type>
-                                    <includes>*.cfg.xml</includes>
 
                                     <mapper>
                                         <type>perm</type>
