@@ -48,7 +48,7 @@ public class RateLimiterResponse extends RateLimitingOperation {
             final ByteArrayOutputStream bos = new ByteArrayOutputStream();
             RESPONSE_TRANSFORMER.entityAsXml(limits, bos);
 
-            writeLimitsResponse(bos.toByteArray(), requestInfo.getRequest(), filterDirector);
+            writeLimitsResponse(bos.toByteArray(), requestInfo, filterDirector);
         } catch (Exception ex) {
             consumeException(ex, filterDirector);
         }
@@ -65,7 +65,7 @@ public class RateLimiterResponse extends RateLimitingOperation {
             final ByteArrayOutputStream bos = new ByteArrayOutputStream();
             RESPONSE_TRANSFORMER.combine(transformPair, bos);
 
-            writeLimitsResponse(bos.toByteArray(), requestInfo.getRequest(), filterDirector);
+            writeLimitsResponse(bos.toByteArray(), requestInfo, filterDirector);
         } catch (Exception ex) {
             consumeException(ex, filterDirector);
         }
@@ -82,15 +82,12 @@ public class RateLimiterResponse extends RateLimitingOperation {
         return cache.getUserRateLimits(powerProxyUserId);
     }
 
-    private void writeLimitsResponse(byte[] readableContents, HttpServletRequest request, FilterDirector filterDirector) throws IOException {
+    private void writeLimitsResponse(byte[] readableContents, RateLimitingRequestInfo requestInfo, FilterDirector filterDirector) throws IOException {
         filterDirector.setResponseStatus(HttpStatusCode.OK);
-        
-        final List<MediaType> mediaRanges = new MediaRangeParser(request.getHeaders(CommonHttpHeader.ACCEPT.toString())).parse();
-        final MediaType preferredMediaRange = QualityFactorUtility.choosePreferedHeaderValue(mediaRanges);
         
         // TODO:Review - Possible null guard required for preferredMediaRange
         
-        switch (preferredMediaRange.getMimeType()) {
+        switch (requestInfo.getAcceptType().getMimeType()) {
             case APPLICATION_XML:
                 filterDirector.getResponseOutputStream().write(readableContents);
                 filterDirector.responseHeaderManager().appendHeader(CommonHttpHeader.CONTENT_TYPE.toString(), MimeType.APPLICATION_XML.toString());

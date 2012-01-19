@@ -4,6 +4,7 @@ import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.http.header.HeaderFieldParser;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.header.QualityFactorUtility;
+import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.components.limits.schema.HttpMethod;
 
 import java.util.Collection;
@@ -19,13 +20,17 @@ public class RateLimitingRequestInfo {
    private final HttpMethod requestMethod;
    private final HeaderValue userName;
    private final HttpServletRequest request;
+   private final MediaType acceptType;
 
-   public RateLimitingRequestInfo(HttpServletRequest request) {
+   // TODO:Review - Consider builder pattern?
+   public RateLimitingRequestInfo(HttpServletRequest request, MediaType acceptType) {
       this.request = request;
-      
+
+      this.acceptType = acceptType;
+
       final List<HeaderValue> values = new HeaderFieldParser(request.getHeaders(PowerApiHeader.USER.toString())).parse();
       userName = QualityFactorUtility.choosePreferedHeaderValue(values);
-      
+
       allUserGroups = new LinkedList<String>();
 
       for (Enumeration<String> groupHeaders = request.getHeaders(PowerApiHeader.GROUPS.toString()); groupHeaders.hasMoreElements();) {
@@ -53,5 +58,9 @@ public class RateLimitingRequestInfo {
 
    public HttpServletRequest getRequest() {
       return request;
+   }
+
+   public MediaType getAcceptType() {
+      return acceptType;
    }
 }
