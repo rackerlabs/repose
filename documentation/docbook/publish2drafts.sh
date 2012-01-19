@@ -12,3 +12,5 @@ scp -r target/docbkx/webhelp/repose-logging-deploy    docs-beta.rackspace.com:/v
 scp -r target/docbkx/webhelp/repose-ratelimiting-deploy    docs-beta.rackspace.com:/var/www/drafts/repose
 scp -r target/docbkx/webhelp/repose-rootwar-deploy     docs-beta.rackspace.com:/var/www/drafts/repose
 scp -r target/docbkx/webhelp/repose-versioning-deploy    docs-beta.rackspace.com:/var/www/drafts/repose
+
+scp -r target/repose     docs-beta.rackspace.com:/var/www/drafts/
