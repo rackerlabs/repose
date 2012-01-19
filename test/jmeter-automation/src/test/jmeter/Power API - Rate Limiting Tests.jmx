@@ -71,9 +71,159 @@
             <hashTree/>
           </hashTree>
         </hashTree>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Log Iteration with Watchdog" enabled="true"/>
+        <hashTree>
+          <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Iteration Counter" enabled="true">
+            <stringProp name="CounterConfig.start">1</stringProp>
+            <stringProp name="CounterConfig.end">20</stringProp>
+            <stringProp name="CounterConfig.incr">1</stringProp>
+            <stringProp name="CounterConfig.name">__watchdogIterationCounter</stringProp>
+            <stringProp name="CounterConfig.format"></stringProp>
+            <boolProp name="CounterConfig.per_user">true</boolProp>
+          </CounterConfig>
+          <hashTree/>
+          <BSFSampler guiclass="BSFSamplerGui" testclass="BSFSampler" testname="Test runtime watchdog check" enabled="true">
+            <stringProp name="BSFSampler.filename"></stringProp>
+            <stringProp name="BSFSampler.language">javascript</stringProp>
+            <stringProp name="BSFSampler.parameters"></stringProp>
+            <stringProp name="BSFSampler.query">var iCounter= vars.get(&quot;__watchdogIterationCounter&quot;);
+
+if (iCounter &gt; 8) {
+   SampleResult.setSuccessful(false);
+   SampleResult.setResponseCode(&quot;-1&quot;);
+   SampleResult.setResponseMessage(&quot;Test taking to long, failing.&quot;);
+}</stringProp>
+          </BSFSampler>
+          <hashTree/>
+        </hashTree>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Reset Iteration Watchdog" enabled="true"/>
+        <hashTree>
+          <ConfigTestElement guiclass="SimpleConfigGui" testclass="ConfigTestElement" testname="Set iteration counter to 0" enabled="true">
+            <stringProp name="__watchdogIterationCounter">0</stringProp>
+          </ConfigTestElement>
+          <hashTree/>
+        </hashTree>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Wait for request limits to reset" enabled="true"/>
+        <hashTree>
+          <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Get Limits" enabled="true">
+            <collectionProp name="ModuleController.node_path">
+              <stringProp name="-1227702913">WorkBench</stringProp>
+              <stringProp name="764597751">Test Plan</stringProp>
+              <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
+              <stringProp name="1977155682">Get Limits</stringProp>
+            </collectionProp>
+          </ModuleController>
+          <hashTree/>
+          <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="While user has no available requests" enabled="true">
+            <stringProp name="WhileController.condition">${__javaScript(${remainingRequests} == 0)}</stringProp>
+          </WhileController>
+          <hashTree>
+            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Log iteration" enabled="true">
+              <collectionProp name="ModuleController.node_path">
+                <stringProp name="-1227702913">WorkBench</stringProp>
+                <stringProp name="764597751">Test Plan</stringProp>
+                <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
+                <stringProp name="-523470040">Log Iteration with Watchdog</stringProp>
+              </collectionProp>
+            </ModuleController>
+            <hashTree/>
+            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Get Limits" enabled="true">
+              <collectionProp name="ModuleController.node_path">
+                <stringProp name="-1227702913">WorkBench</stringProp>
+                <stringProp name="764597751">Test Plan</stringProp>
+                <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
+                <stringProp name="1977155682">Get Limits</stringProp>
+              </collectionProp>
+            </ModuleController>
+            <hashTree/>
+            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait" enabled="true">
+              <stringProp name="ConstantTimer.delay">10000</stringProp>
+            </ConstantTimer>
+            <hashTree/>
+          </hashTree>
+          <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Reset iteration counter" enabled="true">
+            <collectionProp name="ModuleController.node_path">
+              <stringProp name="-1227702913">WorkBench</stringProp>
+              <stringProp name="764597751">Test Plan</stringProp>
+              <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
+              <stringProp name="-1344922943">Reset Iteration Watchdog</stringProp>
+            </collectionProp>
+          </ModuleController>
+          <hashTree/>
+        </hashTree>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Make requests while user has requests remaining" enabled="true"/>
+        <hashTree>
+          <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="While user has requests remaining" enabled="true">
+            <stringProp name="WhileController.condition">${__javaScript(${remainingRequests} &gt; 0)}</stringProp>
+          </WhileController>
+          <hashTree>
+            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Log iteration" enabled="true">
+              <collectionProp name="ModuleController.node_path">
+                <stringProp name="-1227702913">WorkBench</stringProp>
+                <stringProp name="764597751">Test Plan</stringProp>
+                <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
+                <stringProp name="-1929474597">Test Watchdog</stringProp>
+              </collectionProp>
+            </ModuleController>
+            <hashTree/>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Should allow requests when user has requests remaining" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/service/test</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Must return 200 when user still has avaiable requests" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+            </hashTree>
+            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Get Limits" enabled="true">
+              <collectionProp name="ModuleController.node_path">
+                <stringProp name="-1227702913">WorkBench</stringProp>
+                <stringProp name="764597751">Test Plan</stringProp>
+                <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
+                <stringProp name="1977155682">Get Limits</stringProp>
+              </collectionProp>
+            </ModuleController>
+            <hashTree/>
+            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait" enabled="true">
+              <stringProp name="ConstantTimer.delay">500</stringProp>
+            </ConstantTimer>
+            <hashTree/>
+          </hashTree>
+          <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Reset iteration counter" enabled="true">
+            <collectionProp name="ModuleController.node_path">
+              <stringProp name="-1227702913">WorkBench</stringProp>
+              <stringProp name="764597751">Test Plan</stringProp>
+              <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
+              <stringProp name="-1344922943">Reset Iteration Watchdog</stringProp>
+            </collectionProp>
+          </ModuleController>
+          <hashTree/>
+        </hashTree>
       </hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Rate Limiting" enabled="true">
-        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <stringProp name="ThreadGroup.on_sample_error">stoptest</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <stringProp name="LoopController.loops">1</stringProp>
@@ -132,82 +282,24 @@
           <hashTree/>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When rate limiting requests" enabled="true"/>
           <hashTree>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Get Limits" enabled="true">
+            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Wait until user has available requests" enabled="true">
               <collectionProp name="ModuleController.node_path">
                 <stringProp name="-1227702913">WorkBench</stringProp>
                 <stringProp name="764597751">Test Plan</stringProp>
                 <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
-                <stringProp name="1977155682">Get Limits</stringProp>
+                <stringProp name="1200555135">Wait for request limits to reset</stringProp>
               </collectionProp>
             </ModuleController>
             <hashTree/>
-            <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="Wait until user has available requests" enabled="true">
-              <stringProp name="WhileController.condition">${__javaScript(${remainingRequests} == 0)}</stringProp>
-            </WhileController>
-            <hashTree>
-              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Get Limits" enabled="true">
-                <collectionProp name="ModuleController.node_path">
-                  <stringProp name="-1227702913">WorkBench</stringProp>
-                  <stringProp name="764597751">Test Plan</stringProp>
-                  <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
-                  <stringProp name="1977155682">Get Limits</stringProp>
-                </collectionProp>
-              </ModuleController>
-              <hashTree/>
-              <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait" enabled="true">
-                <stringProp name="ConstantTimer.delay">10000</stringProp>
-              </ConstantTimer>
-              <hashTree/>
-            </hashTree>
-            <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="Make requests while user has requests remaining" enabled="true">
-              <stringProp name="WhileController.condition">${__javaScript(${remainingRequests} &gt; 0)}</stringProp>
-            </WhileController>
-            <hashTree>
-              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Should allow requests when user has requests remaining" enabled="true">
-                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                  <collectionProp name="Arguments.arguments"/>
-                </elementProp>
-                <stringProp name="HTTPSampler.domain"></stringProp>
-                <stringProp name="HTTPSampler.port"></stringProp>
-                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-                <stringProp name="HTTPSampler.response_timeout"></stringProp>
-                <stringProp name="HTTPSampler.protocol"></stringProp>
-                <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-                <stringProp name="HTTPSampler.path">/service/test</stringProp>
-                <stringProp name="HTTPSampler.method">GET</stringProp>
-                <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-                <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-                <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
-                <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-                <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
-                <boolProp name="HTTPSampler.monitor">false</boolProp>
-                <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-              </HTTPSamplerProxy>
-              <hashTree>
-                <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Must return 200 when user still has avaiable requests" enabled="true">
-                  <collectionProp name="Asserion.test_strings">
-                    <stringProp name="49586">200</stringProp>
-                  </collectionProp>
-                  <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
-                  <boolProp name="Assertion.assume_success">false</boolProp>
-                  <intProp name="Assertion.test_type">2</intProp>
-                </ResponseAssertion>
-                <hashTree/>
-              </hashTree>
-              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Get Limits" enabled="true">
-                <collectionProp name="ModuleController.node_path">
-                  <stringProp name="-1227702913">WorkBench</stringProp>
-                  <stringProp name="764597751">Test Plan</stringProp>
-                  <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
-                  <stringProp name="1977155682">Get Limits</stringProp>
-                </collectionProp>
-              </ModuleController>
-              <hashTree/>
-              <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait" enabled="true">
-                <stringProp name="ConstantTimer.delay">500</stringProp>
-              </ConstantTimer>
-              <hashTree/>
-            </hashTree>
+            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Make requests while user has requests remaining" enabled="true">
+              <collectionProp name="ModuleController.node_path">
+                <stringProp name="-1227702913">WorkBench</stringProp>
+                <stringProp name="764597751">Test Plan</stringProp>
+                <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
+                <stringProp name="-258369700">Make requests while user has requests remaining</stringProp>
+              </collectionProp>
+            </ModuleController>
+            <hashTree/>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Should limit requests when user has no requests remaining" enabled="true">
               <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
                 <collectionProp name="Arguments.arguments"/>
@@ -240,24 +332,15 @@
               </ResponseAssertion>
               <hashTree/>
             </hashTree>
-            <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="Wait until user has available requests" enabled="true">
-              <stringProp name="WhileController.condition">${__javaScript(${remainingRequests} == 0)}</stringProp>
-            </WhileController>
-            <hashTree>
-              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Get Limits" enabled="true">
-                <collectionProp name="ModuleController.node_path">
-                  <stringProp name="-1227702913">WorkBench</stringProp>
-                  <stringProp name="764597751">Test Plan</stringProp>
-                  <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
-                  <stringProp name="1977155682">Get Limits</stringProp>
-                </collectionProp>
-              </ModuleController>
-              <hashTree/>
-              <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait" enabled="true">
-                <stringProp name="ConstantTimer.delay">10000</stringProp>
-              </ConstantTimer>
-              <hashTree/>
-            </hashTree>
+            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Wait until user has available requests" enabled="true">
+              <collectionProp name="ModuleController.node_path">
+                <stringProp name="-1227702913">WorkBench</stringProp>
+                <stringProp name="764597751">Test Plan</stringProp>
+                <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
+                <stringProp name="1200555135">Wait for request limits to reset</stringProp>
+              </collectionProp>
+            </ModuleController>
+            <hashTree/>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Should allow requests when user has requests remaining" enabled="true">
               <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
                 <collectionProp name="Arguments.arguments"/>
@@ -292,82 +375,24 @@
           </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When rate limiting requests with multiple X-PP-User values" enabled="true"/>
           <hashTree>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Get Limits" enabled="true">
+            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Wait until user has available requests" enabled="true">
               <collectionProp name="ModuleController.node_path">
                 <stringProp name="-1227702913">WorkBench</stringProp>
                 <stringProp name="764597751">Test Plan</stringProp>
                 <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
-                <stringProp name="1977155682">Get Limits</stringProp>
+                <stringProp name="1200555135">Wait for request limits to reset</stringProp>
               </collectionProp>
             </ModuleController>
             <hashTree/>
-            <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="Wait until user has available requests" enabled="true">
-              <stringProp name="WhileController.condition">${__javaScript(${remainingRequests} == 0)}</stringProp>
-            </WhileController>
-            <hashTree>
-              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Get Limits" enabled="true">
-                <collectionProp name="ModuleController.node_path">
-                  <stringProp name="-1227702913">WorkBench</stringProp>
-                  <stringProp name="764597751">Test Plan</stringProp>
-                  <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
-                  <stringProp name="1977155682">Get Limits</stringProp>
-                </collectionProp>
-              </ModuleController>
-              <hashTree/>
-              <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait" enabled="true">
-                <stringProp name="ConstantTimer.delay">10000</stringProp>
-              </ConstantTimer>
-              <hashTree/>
-            </hashTree>
-            <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="Make requests while user has requests remaining" enabled="true">
-              <stringProp name="WhileController.condition">${__javaScript(${remainingRequests} &gt; 0)}</stringProp>
-            </WhileController>
-            <hashTree>
-              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Should allow requests when user has requests remaining" enabled="true">
-                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                  <collectionProp name="Arguments.arguments"/>
-                </elementProp>
-                <stringProp name="HTTPSampler.domain"></stringProp>
-                <stringProp name="HTTPSampler.port"></stringProp>
-                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-                <stringProp name="HTTPSampler.response_timeout"></stringProp>
-                <stringProp name="HTTPSampler.protocol"></stringProp>
-                <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-                <stringProp name="HTTPSampler.path">/service/test</stringProp>
-                <stringProp name="HTTPSampler.method">GET</stringProp>
-                <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-                <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-                <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
-                <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-                <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
-                <boolProp name="HTTPSampler.monitor">false</boolProp>
-                <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-              </HTTPSamplerProxy>
-              <hashTree>
-                <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Must return 200 when user still has avaiable requests" enabled="true">
-                  <collectionProp name="Asserion.test_strings">
-                    <stringProp name="49586">200</stringProp>
-                  </collectionProp>
-                  <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
-                  <boolProp name="Assertion.assume_success">false</boolProp>
-                  <intProp name="Assertion.test_type">2</intProp>
-                </ResponseAssertion>
-                <hashTree/>
-              </hashTree>
-              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Get Limits" enabled="true">
-                <collectionProp name="ModuleController.node_path">
-                  <stringProp name="-1227702913">WorkBench</stringProp>
-                  <stringProp name="764597751">Test Plan</stringProp>
-                  <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
-                  <stringProp name="1977155682">Get Limits</stringProp>
-                </collectionProp>
-              </ModuleController>
-              <hashTree/>
-              <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait" enabled="true">
-                <stringProp name="ConstantTimer.delay">500</stringProp>
-              </ConstantTimer>
-              <hashTree/>
-            </hashTree>
+            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Make requests while user has requests remaining" enabled="true">
+              <collectionProp name="ModuleController.node_path">
+                <stringProp name="-1227702913">WorkBench</stringProp>
+                <stringProp name="764597751">Test Plan</stringProp>
+                <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
+                <stringProp name="-258369700">Make requests while user has requests remaining</stringProp>
+              </collectionProp>
+            </ModuleController>
+            <hashTree/>
             <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Header Scope Controller" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Add user name with higher quality to avoid being rate limited" enabled="true">
