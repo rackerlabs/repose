@@ -39,7 +39,6 @@
               <collectionProp name="Asserion.test_strings">
                 <stringProp name="666482595">&lt;h3&gt; x-pp-groups</stringProp>
                 <stringProp name="-1621233318">&lt;h3&gt; x-pp-user</stringProp>
-                <stringProp name="1393924073">&lt;h3&gt; accept : ${accept}</stringProp>
               </collectionProp>
               <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
               <boolProp name="Assertion.assume_success">false</boolProp>
@@ -113,13 +112,13 @@
         <hashTree>
           <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Credentials" enabled="true">
             <collectionProp name="Arguments.arguments">
-              <elementProp name="user" elementType="Argument">
-                <stringProp name="Argument.name">user</stringProp>
+              <elementProp name="user1" elementType="Argument">
+                <stringProp name="Argument.name">user1</stringProp>
                 <stringProp name="Argument.value">usertest1</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
-              <elementProp name="token" elementType="Argument">
-                <stringProp name="Argument.name">token</stringProp>
+              <elementProp name="token1" elementType="Argument">
+                <stringProp name="Argument.name">token1</stringProp>
                 <stringProp name="Argument.value">358484212:99493</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>

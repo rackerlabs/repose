@@ -1,6 +1,8 @@
 package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.commons.util.http.media.MediaType;
+import com.rackspace.papi.commons.util.http.media.MimeType;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -20,6 +22,7 @@ import static org.junit.Assert.*;
 public class RateLimitingRequestInfoTest {
 
    private static final String MOST_QUALIFIED_USER = "the best user of them all";
+   private static final MediaType MEDIA_TYPE = new MediaType(MimeType.APPLICATION_XML);
 
    public static class WhenInstantiatingRequestInformation {
 
@@ -49,14 +52,14 @@ public class RateLimitingRequestInfoTest {
 
       @Test
       public void shouldCopyGroupHeaders() {
-         final RateLimitingRequestInfo info = new RateLimitingRequestInfo(mockedRequest);
+         final RateLimitingRequestInfo info = new RateLimitingRequestInfo(mockedRequest,MEDIA_TYPE);
 
          assertTrue("Request info must copy user group information from request", info.getUserGroups().size() == 4);
       }
 
       @Test
       public void shouldSelectMostQualifiedUserHeader() {
-         final RateLimitingRequestInfo info = new RateLimitingRequestInfo(mockedRequest);
+         final RateLimitingRequestInfo info = new RateLimitingRequestInfo(mockedRequest,MEDIA_TYPE);
 
          assertEquals("Request info must understand user header quality", MOST_QUALIFIED_USER, info.getUserName());
       }
@@ -82,21 +85,21 @@ public class RateLimitingRequestInfoTest {
          
          when(mockedRequest.getHeaders(PowerApiHeader.USER.toString())).thenReturn(Collections.enumeration(headerValues));
          
-         final RateLimitingRequestInfo info = new RateLimitingRequestInfo(mockedRequest);
+         final RateLimitingRequestInfo info = new RateLimitingRequestInfo(mockedRequest,MEDIA_TYPE);
 
          assertEquals("Rate limiting request info must return correct user without quality factors", MOST_QUALIFIED_USER, info.getUserName());
       }
 
       @Test
       public void shouldReturnNullWhenNoGroupsHeaderIsPresent() {
-         final RateLimitingRequestInfo info = new RateLimitingRequestInfo(mockedRequest);
+         final RateLimitingRequestInfo info = new RateLimitingRequestInfo(mockedRequest,MEDIA_TYPE);
 
          assertTrue("Rate limiting request info must return null for groups when no group information is present in the request", info.getFirstUserGroup() == null);
       }
 
       @Test
       public void shouldReturnFirstGroup() {
-         final RateLimitingRequestInfo info = new RateLimitingRequestInfo(mockedRequest);
+         final RateLimitingRequestInfo info = new RateLimitingRequestInfo(mockedRequest,MEDIA_TYPE);
 
          assertTrue("Rate limiting request info must return null for groups when no group information is present in the request", info.getFirstUserGroup() == null);
       }

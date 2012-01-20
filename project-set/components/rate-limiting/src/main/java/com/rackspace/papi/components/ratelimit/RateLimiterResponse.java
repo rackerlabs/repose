@@ -1,9 +1,6 @@
 package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.commons.util.http.*;
-import com.rackspace.papi.commons.util.http.header.QualityFactorUtility;
-import com.rackspace.papi.commons.util.http.media.MediaType;
-import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.limits.schema.Limits;
