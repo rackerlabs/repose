@@ -56,6 +56,8 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
         if (originalAcceptHeaders != null) {
             mediaRanges = new MediaRangeParser(originalAcceptHeaders).parse();
             acceptType = QualityFactorUtility.choosePreferedHeaderValue(mediaRanges);
+        }else{
+            acceptType = new MediaType(MimeType.APPLICATION_JSON);  //we will default to a json response
         }
 
         // Does the request contain expected headers?
@@ -94,6 +96,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
     }
 
     private void describeLimitsForRequest(final FilterDirector director, HttpServletRequest request) {
+        
         // Should we include the absolute limits from the service origin?
         if (rateLimitingConfig.getRequestEndpoint().isIncludeAbsoluteLimits()) {
 
@@ -105,8 +108,10 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
             }
 
         } else {
-            MediaType mediaType = new MediaType(MimeType.valueOf(acceptType.getValue()));
-            new RateLimiterResponse(rateLimitCache, rateLimitingConfig).writeActiveLimits(new RateLimitingRequestInfo(request, mediaType), director);
+            if(acceptType.toString().equals(MimeType.WILDCARD.getMimeType())){
+                acceptType = new MediaType(MimeType.APPLICATION_JSON);
+            }
+            new RateLimiterResponse(rateLimitCache, rateLimitingConfig).writeActiveLimits(new RateLimitingRequestInfo(request, acceptType), director);
 
             director.setFilterAction(FilterAction.RETURN);
             director.setResponseStatus(HttpStatusCode.OK);
