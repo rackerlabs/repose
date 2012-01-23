@@ -38,7 +38,7 @@
                 <xs:attribute name="check-interval" type="xs:int" use="optional" default="15">
                     <xs:annotation>
                         <xs:documentation>
-                            <html:p>Directory check interval in seconds</html:p>
+                            <html:p>Directory check interval in milliseconds</html:p>
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
