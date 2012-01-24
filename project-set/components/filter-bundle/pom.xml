@@ -59,6 +59,11 @@
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>servlet-context-router</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
             <artifactId>http-logging</artifactId>
         </dependency>
 
@@ -141,6 +146,11 @@
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>service-auth</artifactId>
+                        </jarModule>
+
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components</groupId>
+                            <artifactId>servlet-context-router</artifactId>
                         </jarModule>
                             
                         <jarModule>
