@@ -81,6 +81,8 @@
                             <useExtensions>1</useExtensions>
                             <calloutsExtension>1</calloutsExtension>
                             <textinsertExtension>1</textinsertExtension>
+                            <!-- enable pop-up tool-tips from the glossary book into the HTML versions of all the books -->
+                            <glossaryCollection>${project.build.directory}/../src/resources/repose-glossary.xml</glossaryCollection>
                             <!-- use this .XML as the source for the books to be generated as .PDF & .HTML -->
                             <!-- to generate for all, comment out this <includes> -->
                             <!-- <includes>repose-rootwar-deploy.xml</includes> -->
