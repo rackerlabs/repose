@@ -211,10 +211,21 @@
     </chapter>
     <chapter xml:id="Design-d1e665">
         <title>How Does &PRODNAME; Work?</title>
-        <annotation>
-            <remark> Source for this chapter is
-                https://wiki.mosso.com/display/CT/Repose+Components+and+Enterprise+Integration+Patterns </remark>
-        </annotation>
+        <para>
+            When a client sends a request to an origin service, placing &PRODNAME; between the client and the origin service can make features available
+            that do not exist within the origin service itself. 
+            This is possible because &PRODNAME; acts as a proxy for the origin service: the client is aware only of the origin service, but the origin service
+            is configured so that &PRODNAME; processes the client request first.
+        </para>
+        <figure xml:id="Proxy-Server">
+            <title>Repose as a proxy between a client request and the
+                origin service</title>
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="figures/repose-intro-proxyServer.png" format="PNG" align="center"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
         <para> A good way to understand &PRODNAME; is to think of it as a platform that can be used
             to implement integration patterns. &PRODABBREV;'s two core patterns are: </para>
         <itemizedlist>
@@ -262,16 +273,11 @@
     </chapter>
     <chapter xml:id="Try-d1e731">
         <title>How Can I Try &PRODNAME;?</title>
-        <annotation>
-            <remark>
-                Source for this chapter is https://wiki.mosso.com/display/CT/Deployment
-            </remark>
-        </annotation>
         <para> &PRODNAME; is distributed as a filter bundle containing
             all available components. You can choose which components
             to implement in your configuration. </para>
         <figure xml:id="Filter-Bundle">
-            <title>Multiple &PRODNAME; Components in Filter Bundle</title>
+            <title>Multiple &PRODNAME; components in a filter bundle</title>
             <mediaobject>
                 <imageobject>
                     <imagedata fileref="figures/papi-intro-filterBundle.png" format="PNG" align="center"/>
@@ -283,7 +289,7 @@
             You can configure the Power Proxy to use one or multiple &PRODNAME; components as additional filters, as shown below.
         </para>
         <figure xml:id="Power-Proxy">
-            <title>Loading Multiple &PRODNAME; Components into Power Proxy</title>
+            <title>Loading multiple &PRODNAME; components into power proxy</title>
             <mediaobject>
                 <imageobject>
                     <imagedata fileref="figures/papi-intro-powerproxy.png" format="PNG" align="center"/>
@@ -309,7 +315,7 @@
                         The origin service sends a response to the proxy server, which passes that response back to the client.
                     </para>
                 <figure xml:id="ProxyServer-d1e445">
-                    <title>Deployment as External Servlet Container</title>
+                    <title>&PRODNAME; deployment as an external servlet container</title>
                     <mediaobject>
                         <imageobject>
                             <imagedata fileref="figures/papi-intro-deploy-proxyServer.png" format="PNG" align="center"/>
@@ -328,7 +334,7 @@
                         </para>
                     </note>    
                     <figure xml:id="Root-Replace-d1e111">
-                        <title>Deployment by Replacing the Root Component</title>
+                        <title>&PRODNAME; deployment by replacing the root component</title>
                         <mediaobject>
                             <imageobject>
                                 <imagedata fileref="figures/papi-intro-deploy-root.png" format="PNG" align="center"/>
@@ -356,7 +362,7 @@
                     </para>
                 </note>
                 <figure xml:id="ProxyCluster-d1e556">
-                    <title>Deployment Across Multiple Hosts</title>
+                    <title>&PRODNAME; deployment across multiple hosts</title>
                     <mediaobject>
                         <imageobject>
                             <imagedata fileref="figures/papi-intro-deploy-proxyCluster.png" format="PNG" align="center"/>

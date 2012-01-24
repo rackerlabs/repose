@@ -110,11 +110,6 @@
     <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
     <chapter xml:id="Introduction-000">
         <title>&PRODNAME; Vocabulary</title>
-        <annotation>
-            <remark>
-                Source for this chapter is https://wiki.mosso.com/display/CT/Repose+Glossary
-            </remark>
-        </annotation>
             <note>
                 <para> Below, we have explained what we mean when we use some basic &PRODNAME;
                 terms. Terms not defined here are not unique to &PRODNAME; and are used in

@@ -120,7 +120,7 @@
             <title>Overview of &PRODNAME; HTTP Logging</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="figures/repose-logging-overview-HTTP.png" format="PNG" align="center"/>
+                    <imagedata fileref="figures/repose-logging-HTTPoverview.png" format="PNG" align="center"/>
                 </imageobject>
             </mediaobject>
         </figure>

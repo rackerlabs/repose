@@ -37,14 +37,14 @@
       xmlns:m="http://www.w3.org/1998/Math/MathML"
       xmlns:html="http://www.w3.org/1999/xhtml"
       xmlns:db="http://docbook.org/ns/docbook" 
-      xml:id="Repose-Versioning-Deployment-Guide">
-    <?rax pdf.url="../../repose-versioning-deploy.pdf"?>
-    <title>&PRODNAME; Versioning Component Deployment Handbook</title>
+      xml:id="Repose-Logging-Deploy">
+    <?rax pdf.url="../../repose-logging-deploy.pdf"?>
+    <title>&PRODNAME; Logging Component Deployment Handbook</title>
     <!-- set watermark on cover and left margin 
         <?rax status.bar.text="CONFIDENTIAL"?>
     -->
     <?rax title.font.size="35px" subtitle.font.size="16px"?>
-    <titleabbrev>&PRODABBREV; Versioning Deployment</titleabbrev>
+    <titleabbrev>&PRODABBREV; Logging Deployment</titleabbrev>
     <info>
         <author>
             <personname>
@@ -58,11 +58,12 @@
         <copyright>
             <year>2010</year>
             <year>2011</year>
+            <year>2012</year>
             <holder>Rackspace US, Inc.</holder>
         </copyright>
         <releaseinfo>v1.0</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2011-09-21</pubdate>
+        <pubdate>2012-01-06</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -70,57 +71,57 @@
         </legalnotice>
         <abstract>
             <para>This document is intended for systems administrators interested in configuring
-                their service to use the Versioning component of the &PRODEXPAND;. </para>
+                their service to use the logging component of the &PRODEXPAND;. </para>
         </abstract>
-        <revhistory>
-            <revision>
-                <date>2012-01-11</date>
-                <revdescription>
-                    <itemizedlist spacing="compact">
-                        <listitem><para>Republish for Repose v1.0.</para></listitem>
-                    </itemizedlist>
-                </revdescription>
-            </revision>
-            <revision>
-                <date>2011-06-30</date>
-                <revdescription>
-                    <itemizedlist spacing="compact">
-                        <listitem><para>Initial release as internal draft.</para></listitem>
-                    </itemizedlist>
-                </revdescription>
-            </revision>
-        </revhistory>
     </info>
     <chapter xml:id="Overview-d1e85">
-        <title>About This Document</title>
+        <title>Overview</title>
+        <section xml:id="Purpose-d1e90">
+            <title>Purpose</title>
             <para>
-                The purpose of this handbook is to facilitate deployment of &PRODNAME;'s versioning component. 
+                The purpose of this handbook is to facilitate deployment of &PRODNAME;'s logging component. 
                 This handbook is not a tutorial.
                 It provides basic information that will help you understand and deploy this &PRODNAME; component, but you must adapt this information to suit your own configuration.
+            </para>
+            <para>
+                Versioning enables ReST services to roll out updates and changes without causing end-client breakage.
+                A new version of the service API can be released, but clients who are not ready to use the new version can specify a preference for the old version.
+                Clients can also request a catalog of available versions; 
+                each version in the catalog is marked with a status, such as <code>CURRENT</code> or <code>DEPRECATED</code>, which the client can use for guidance in deciding which version to use.
             </para>
             <para>
                 This handbook is focused on one &PRODNAME; component.
                 Other &PRODNAME; components are documented in companion handbooks.
             </para>
+        </section>
         <section xml:id="Document_Change_History-d1e102">
             <title>Document Change History</title>
-            <para>This version replaces and obsoletes all previous versions.
-            The most recent changes are described in the table below: </para>
-            <?rax revhistory?>
+            <para>This version of the guide replaces and obsoletes all previous versions.
+                The most recent changes are described in the table below: </para>
+            <informaltable rules="all">
+                <thead>
+                    <tr align="center">
+                        <td colspan="1">Revision Date</td>
+                        <td colspan="4">Summary of Changes</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr align="left">
+                        <td colspan="1" align="center">Jun 30, 2011</td>
+                        <td colspan="4" align="left">
+                            <itemizedlist spacing="compact">
+                                <listitem>
+                                    <para>Initial release.</para>
+                                </listitem>
+                            </itemizedlist>
+                        </td>
+                    </tr>
+                </tbody>
+            </informaltable>
         </section>
         <xi:include href="chapters/available-doc.xml"/>
     </chapter>
-    <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
-    <chapter xml:id="Introduction-000">
-        <title>Introduction to the Versioning Component of &PRODNAME;</title>
-        <para>
-            Versioning enables ReST services to roll out updates and changes without causing end-client breakage.
-            A new version of the service API can be released, but clients who are not ready to use the new version can specify a preference for the old version.
-            Clients can also request a catalog of available versions; 
-            each version in the catalog is marked with a status, such as <code>CURRENT</code> or <code>DEPRECATED</code>, which the client can use for guidance in deciding which version to use.
-        </para>
-    </chapter>
-    <chapter xml:id="Message_Routing-d1e222">
+    <chapter xml:id="Msg_Enhancement-d1e172">
         <title>Message Enhancement and Routing</title>
         <para> The versioning component does not route requests, nor is it responsible for routing.
             The versioning component's purpose is to annotate incoming requests with their intended
@@ -308,52 +309,7 @@
         <section xml:id="Complex_MIME-d1e439">
             <title>Complex Request MIME Types</title>
             <para> The versioning component supports two methods of requesting a service version in
-            the HTTP request. </para>      
-            <table border="1" frame="box">
-                <caption>Request Methods</caption>
-                <thead>
-                    <tr>
-                        <td>Request Method</td>
-                        <td>Description</td>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Complex MIME Type with Vendor Specification</td>
-                        <td>
-                            <para>
-                                In the MIME type for the <code>Accept</code> HTTP header, a
-                                request may specify which <emphasis>vendor namespace</emphasis> it is expecting to
-                                format the response. 
-                            </para>
-                            <para>
-                                For example, in
-                                <code>application/vnd.rackspace-v1.0+xml</code>, the vendor
-                                namespace has been specified as <code>vnd.rackspace</code> and
-                                version <code>v1.0</code> of the service API has been requested. 
-                            </para>
-                            <para> Vendor specifications do not modify how the versioning
-                                service routes requests. The information is still parsed and
-                                stored, however, and may be utilized by other components further
-                                down the stack. </para>
-                        </td>
-                    </tr>
-                    <tr>
-                        <td>Complex MIME Type with Version Specification</td>
-                        <td> 
-                            <para>
-                                In the MIME type for the <code>Accept</code> HTTP header, a
-                                request may specify which <emphasis>version</emphasis> it is expecting to process the
-                                response. 
-                            </para>
-                            <para>
-                                For example, in <code>application/v1.0+xml</code>, version
-                                <code>v1.0</code> of the service API has been requested.
-                            </para>
-                        </td>  
-                    </tr>
-                </tbody>
-            </table>          
+                the HTTP request. </para>
         </section>
             <section xml:id="Request_Variant-d1e491">
             <title>Request URI Variants</title>
