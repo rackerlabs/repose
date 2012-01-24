@@ -144,12 +144,6 @@
 
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
-                <artifactId>content-negotiation</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>client-auth</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -168,13 +162,13 @@
 
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
-                <artifactId>rack-v11-authorization</artifactId>
+                <artifactId>service-auth</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
-                <artifactId>service-auth</artifactId>
+                <artifactId>servlet-context-router</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
