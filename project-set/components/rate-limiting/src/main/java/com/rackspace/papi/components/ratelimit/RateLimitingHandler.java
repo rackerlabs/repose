@@ -3,12 +3,8 @@
  */
 package com.rackspace.papi.components.ratelimit;
 
-import com.rackspace.papi.commons.util.http.header.QualityFactorUtility;
-import com.rackspace.papi.commons.util.http.CommonHttpHeader;
-import com.rackspace.papi.commons.util.http.header.HeaderFieldParser;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.header.QualityFactorUtility;
 import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
 import com.rackspace.papi.commons.util.http.media.MediaType;
