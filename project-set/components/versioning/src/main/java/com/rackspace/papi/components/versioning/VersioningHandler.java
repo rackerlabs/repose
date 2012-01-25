@@ -5,6 +5,7 @@ import com.rackspace.papi.components.versioning.util.http.HttpRequestInfo;
 import com.rackspace.papi.components.versioning.util.http.HttpRequestInfoImpl;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.versioning.domain.ConfigurationData;
 import com.rackspace.papi.components.versioning.domain.VersionedHostNotFoundException;
@@ -46,13 +47,14 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
         
         try {
             final VersionedOriginService targetOriginService = configurationData.getOriginServiceForRequest(httpRequestInfo, filterDirector);
-
+            
             if (targetOriginService != null) {
                 final VersionedRequest versionedRequest = new VersionedRequest(httpRequestInfo, targetOriginService.getMapping());
                 handleVersionedRequest(versionedRequest, filterDirector, targetOriginService);
             } else {
                 handleUnversionedRequest(httpRequestInfo, filterDirector);
             }
+            filterDirector.responseHeaderManager().appendHeader("Content-Type", httpRequestInfo.getPreferedMediaRange().getMimeType().getMimeType());
         } catch (VersionedHostNotFoundException vhnfe) {
             filterDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
             filterDirector.setFilterAction(FilterAction.RETURN);
@@ -78,9 +80,10 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
         if (configurationData.isRequestForVersions(httpRequestInfo)) {
             filterDirector.setResponseStatus(HttpStatusCode.OK);
             filterDirector.setFilterAction(FilterAction.RETURN);
-
+            
             final JAXBElement<VersionChoiceList> versions = VERSIONING_OBJECT_FACTORY.createVersions(configurationData.versionChoicesAsList(httpRequestInfo));
             transformer.transform(versions, httpRequestInfo.getPreferedMediaRange(), filterDirector.getResponseOutputStream());
+            
         }
     }
     
