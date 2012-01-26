@@ -17,7 +17,8 @@ public class FilePathReaderImpl extends FileReader {
 
     @Override
     protected void checkPreconditions() throws IOException {
-        if (!(getResourceAsStream().available() > 0)) {
+       InputStream stream = getResourceAsStream();
+        if (stream == null || !(stream.available() > 0)) {
             throw new FileNotFoundException("filePath [" + filePath + "] not found");
         }
     }
