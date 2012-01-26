@@ -35,18 +35,6 @@
                   </html:p>
                </xs:documentation>
             </xs:annotation>
-
-            <xs:attribute name="quality-factor" type="xs:double" use="required">
-               <xs:annotation>
-                  <xs:documentation>
-                     <html:p>
-                        The context path quality factor determines how desirable this
-                        potential route is. The higher the quality factor, the more
-                        desirable the route.
-                     </html:p>
-                  </xs:documentation>
-               </xs:annotation>
-            </xs:attribute>
          </xs:extension>
       </xs:simpleContent>
    </xs:complexType>
