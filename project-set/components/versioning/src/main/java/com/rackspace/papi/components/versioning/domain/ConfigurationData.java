@@ -3,12 +3,9 @@ package com.rackspace.papi.components.versioning.domain;
 import com.rackspace.papi.components.versioning.util.http.HttpRequestInfo;
 import com.rackspace.papi.components.versioning.util.http.UniformResourceInfo;
 import com.rackspace.papi.commons.util.http.media.MediaType;
-import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
 import com.rackspace.papi.commons.util.StringUriUtilities;
 
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
-import com.rackspace.papi.commons.util.http.header.QualityFactorUtility;
-import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.components.versioning.config.MediaTypeList;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 import com.rackspace.papi.components.versioning.schema.VersionChoice;
@@ -16,8 +13,10 @@ import com.rackspace.papi.components.versioning.schema.VersionChoiceList;
 import com.rackspace.papi.components.versioning.util.VersionChoiceFactory;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.model.Host;
+import com.rackspace.papi.commons.util.http.media.servlet.RequestMediaRangeInterrogator;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import org.ietf.atom.schema.Link;
 import org.ietf.atom.schema.Relation;
@@ -114,11 +113,12 @@ public class ConfigurationData {
         final MediaTypeList configuredMediaTypes = serviceVersionMapping.getMediaTypes();
 
         for (com.rackspace.papi.components.versioning.config.MediaType configuredMediaType : configuredMediaTypes.getMediaType()) {
-            final MimeType configuredMimeType = MimeType.getMatchingMimeType(configuredMediaType.getType());
+            List<MediaType> mediaTypes = RequestMediaRangeInterrogator.interrogate("", configuredMediaType.getType());
             
-            if (preferedMediaType.getMimeType() == configuredMimeType) {
+            if(mediaTypes.contains(preferedMediaType)){
                 return true;
             }
+             
         }
 
         return false;

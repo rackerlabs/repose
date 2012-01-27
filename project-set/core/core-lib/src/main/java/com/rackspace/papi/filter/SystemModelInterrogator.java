@@ -6,13 +6,14 @@ import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
 import com.rackspace.papi.commons.util.net.NetworkNameResolver;
 import com.rackspace.papi.commons.util.net.StaticNetworkInterfaceProvider;
+
 import java.net.InetAddress;
-import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,7 +23,7 @@ import org.slf4j.LoggerFactory;
 public class SystemModelInterrogator {
 
    private static final Logger LOG = LoggerFactory.getLogger(SystemModelInterrogator.class);
-   
+
    private final NetworkInterfaceProvider networkInterfaceProvider;
    private final NetworkNameResolver nameResolver;
    private final PowerProxy systemModel;
@@ -44,16 +45,24 @@ public class SystemModelInterrogator {
 
       final List<Host> possibleHosts = new LinkedList<Host>();
 
-      for (Host powerProxyHost : systemModel.getHost()) {
-         if (powerProxyHost.getServicePort() == localPort) {
-            possibleHosts.add(powerProxyHost);
+      if (localPort > 0) {
+         for (Host powerProxyHost : systemModel.getHost()) {
+            if (powerProxyHost.getServicePort() == localPort) {
+               possibleHosts.add(powerProxyHost);
+            }
          }
+      } else {
+         // This is the case where we are running ROOT.war so we
+         // don't have easy programmatic access to the port on which
+         // the local Repose is running.  So, just use the hostname to
+         // resolve which is the local Repose node.
+         possibleHosts.addAll(systemModel.getHost());
       }
 
       try {
          for (Host powerProxyHost : possibleHosts) {
             final InetAddress hostAddress = nameResolver.lookupName(powerProxyHost.getHostname());
-            
+
             if (networkInterfaceProvider.hasInterfaceFor(hostAddress)) {
                localHost = powerProxyHost;
                break;
@@ -69,6 +78,7 @@ public class SystemModelInterrogator {
    }
 
    // TODO: Enhancement - Explore using service domains to better handle routing identification logic
+
    public Host getNextRoutableHost() {
       final Host localHost = getLocalHost();
 
