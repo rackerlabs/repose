@@ -133,7 +133,7 @@
             <title>Overview of &PRODNAME; Versioning</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="figures/papi-versioning-overview.png" format="PNG" align="center"/>
+                    <imagedata fileref="figures/repose-versioning-overview.png" format="PNG" align="center"/>
                 </imageobject>
             </mediaobject>
         </figure>
