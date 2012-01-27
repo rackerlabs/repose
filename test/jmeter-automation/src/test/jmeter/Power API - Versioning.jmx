@@ -539,7 +539,7 @@
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">1</stringProp>
+          <intProp name="LoopController.loops">-1</intProp>
         </elementProp>
         <stringProp name="ThreadGroup.num_threads">4</stringProp>
         <stringProp name="ThreadGroup.ramp_time">1</stringProp>
@@ -550,7 +550,7 @@
         <stringProp name="ThreadGroup.delay"></stringProp>
       </ThreadGroup>
       <hashTree>
-        <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="User Parameters" enabled="true">
+        <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="User Parameters" enabled="false">
           <collectionProp name="UserParameters.names">
             <stringProp name="3373707">name</stringProp>
             <stringProp name="-1423461112">accept</stringProp>
@@ -606,19 +606,19 @@
           <boolProp name="UserParameters.per_iteration">true</boolProp>
         </UserParameters>
         <hashTree/>
+        <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="hosts info" enabled="true">
+          <stringProp name="filename">/tmp/hosts.csv</stringProp>
+          <stringProp name="fileEncoding"></stringProp>
+          <stringProp name="variableNames">endpoint,targetPort,authtype</stringProp>
+          <stringProp name="delimiter"></stringProp>
+          <boolProp name="quotedData">true</boolProp>
+          <boolProp name="recycle">false</boolProp>
+          <boolProp name="stopThread">true</boolProp>
+          <stringProp name="shareMode">Current thread</stringProp>
+        </CSVDataSet>
+        <hashTree/>
         <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Simple Controller" enabled="true"/>
         <hashTree>
-          <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="hosts info" enabled="true">
-            <stringProp name="filename">/tmp/hosts.csv</stringProp>
-            <stringProp name="fileEncoding"></stringProp>
-            <stringProp name="variableNames">endpoint,targetPort,authtype</stringProp>
-            <stringProp name="delimiter"></stringProp>
-            <boolProp name="quotedData">true</boolProp>
-            <boolProp name="recycle">true</boolProp>
-            <boolProp name="stopThread">false</boolProp>
-            <stringProp name="shareMode">All threads</stringProp>
-          </CSVDataSet>
-          <hashTree/>
           <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="port info" enabled="false">
             <stringProp name="CounterConfig.start">8887</stringProp>
             <stringProp name="CounterConfig.end">8889</stringProp>
@@ -659,1175 +659,1226 @@
             </collectionProp>
           </HeaderManager>
           <hashTree/>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getAllVersion - xml" enabled="false"/>
+          <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Controller" enabled="true">
+            <stringProp name="IfController.condition">&quot;${authtype}&quot; == &quot;Rackspace Auth v1.1&quot;</stringProp>
+            <boolProp name="IfController.evaluateAll">false</boolProp>
+          </IfController>
           <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/xml</stringProp>
+            <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="name" elementType="Argument">
+                  <stringProp name="Argument.name">name</stringProp>
+                  <stringProp name="Argument.value">usertest1</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">User-Agent</stringProp>
-                  <stringProp name="Header.value">Jakarta Commons-HttpClient/3.1 </stringProp>
+                <elementProp name="auth-token" elementType="Argument">
+                  <stringProp name="Argument.name">auth-token</stringProp>
+                  <stringProp name="Argument.value">358484212:1546391112</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getAllVersions - xml" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="1425422257">getAllVersion - xml</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getAllVersion - json" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/json</stringProp>
+                <elementProp name="accept" elementType="Argument">
+                  <stringProp name="Argument.name">accept</stringProp>
+                  <stringProp name="Argument.value">application/xml</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
+                <elementProp name="version" elementType="Argument">
+                  <stringProp name="Argument.name">version</stringProp>
+                  <stringProp name="Argument.value">2</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
+                <elementProp name="group" elementType="Argument">
+                  <stringProp name="Argument.name">group</stringProp>
+                  <stringProp name="Argument.value">customer</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getAllVersions - json" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="1238005902">getAllVersion - json</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionDetails- xml" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/xml</stringProp>
+                <elementProp name="acceptHeaderVer" elementType="Argument">
+                  <stringProp name="Argument.name">acceptHeaderVer</stringProp>
+                  <stringProp name="Argument.value">v2</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
+                <elementProp name="verNum" elementType="Argument">
+                  <stringProp name="Argument.name">verNum</stringProp>
+                  <stringProp name="Argument.value">1</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
+                <elementProp name="resourcePath" elementType="Argument">
+                  <stringProp name="Argument.name">resourcePath</stringProp>
+                  <stringProp name="Argument.value">/usertest1/ss</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
               </collectionProp>
-            </HeaderManager>
+            </Arguments>
             <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionDetails - xml" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="-1455269718">getVersionDetails - single version xml</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionDetails- json" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/json</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionDetails - json" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="2130867893">getVersionDetails - single version json</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getSingleVersion - accept header version + xml" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/${version}+xml</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getSingleVersion - accept header version + xml" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="-1875827749">SingleVersion - MINE TYPE xml</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getSingleVersion - accept header version + json" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/${version}+json</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getSingleVersion - accept header version + json" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="1978470820">SingleVersion - MINE TYPE json</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getSingleVersion - accept header vendor version + xml" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/vnd.vendor.service-${version}+xml</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getSingleVersion - accept header vendor version + xml" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="-1875827749">SingleVersion - MINE TYPE xml</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getSingleVersion - accept header vendor version + json" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/vnd.vendor.service-${version}+json</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getSingleVersion - accept header vendor version + json" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="1978470820">SingleVersion - MINE TYPE json</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getSingleVersion - accept header vendor version number + xml" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/vnd.vendor.service+xml; version=${verNum}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getSingleVersion - accept header vendor version number + xml" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="-1875827749">SingleVersion - MINE TYPE xml</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getSingleVersion - accept header vendor version number + json" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/vnd.vendor.service+json; version=${verNum}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getSingleVersion - accept header vendor version number + json" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="1978470820">SingleVersion - MINE TYPE json</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - accept header multiple attrs - xml" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/vnd.rackspace; x=${version}; y=xml</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - multiple attrs - xml" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="-1875827749">SingleVersion - MINE TYPE xml</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - accept header multiple attrs - json" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/vnd.rackspace; x=${version}; y=json</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - multiple attrs - json" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="1978470820">SingleVersion - MINE TYPE json</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - accept header multiple random attrs - xml" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/vnd.rackspace; rnd=1; x=${version}; rnd2=2; y=xml</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - multiple random attrs - xml" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="-1875827749">SingleVersion - MINE TYPE xml</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - accept header multiple random attrs - json" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/vnd.rackspace; rnd=1; x=${version}; rnd2=2; y=json</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - multiple random attrs - json" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="1978470820">SingleVersion - MINE TYPE json</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="unversioning/badrequest - multiple choice - xml" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/xml</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain"></stringProp>
-              <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
-              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-              <stringProp name="HTTPSampler.response_timeout"></stringProp>
-              <stringProp name="HTTPSampler.protocol">http</stringProp>
-              <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
-              <stringProp name="HTTPSampler.path">abcd</stringProp>
-              <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
-            </ConfigTestElement>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="unversioning/badrequest - multiple choice - xml" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="-413242481">getAllVersion - multiple choice - xml</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="unversioning/badrequest - multiple choice - json" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/json</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain"></stringProp>
-              <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
-              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-              <stringProp name="HTTPSampler.response_timeout"></stringProp>
-              <stringProp name="HTTPSampler.protocol">http</stringProp>
-              <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
-              <stringProp name="HTTPSampler.path">abcd</stringProp>
-              <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
-            </ConfigTestElement>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="unversioning/badrequest - multiple choice - json" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="73973872">getAllVersion - multiple choice - json</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - from URI variants - xml" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/xml</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-Auth-Token</stringProp>
-                  <stringProp name="Header.value">${auth-token}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain"></stringProp>
-              <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
-              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-              <stringProp name="HTTPSampler.response_timeout"></stringProp>
-              <stringProp name="HTTPSampler.protocol">http</stringProp>
-              <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
-              <stringProp name="HTTPSampler.path">${version}${resourcepath}</stringProp>
-              <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
-            </ConfigTestElement>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - from URI variants - xml" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="1056720898">SingleVersion - url variants</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - from URI variants - json" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/json</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-Auth-Token</stringProp>
-                  <stringProp name="Header.value">${auth-token}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain"></stringProp>
-              <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
-              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-              <stringProp name="HTTPSampler.response_timeout"></stringProp>
-              <stringProp name="HTTPSampler.protocol">http</stringProp>
-              <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
-              <stringProp name="HTTPSampler.path">${version}${resourcepath}</stringProp>
-              <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
-            </ConfigTestElement>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - from URI variants - json" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="1056720898">SingleVersion - url variants</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - unVersion or bad request from path - xml" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/xml</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-Auth-Token</stringProp>
-                  <stringProp name="Header.value">${auth-token}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain"></stringProp>
-              <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
-              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-              <stringProp name="HTTPSampler.response_timeout"></stringProp>
-              <stringProp name="HTTPSampler.protocol">http</stringProp>
-              <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
-              <stringProp name="HTTPSampler.path">${version}xyz${resourcepath}</stringProp>
-              <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
-            </ConfigTestElement>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - unVersion or bad request from path - xml" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="-413242481">getAllVersion - multiple choice - xml</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - unVersion or bad request from path - json" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/json</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-Auth-Token</stringProp>
-                  <stringProp name="Header.value">${auth-token}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain"></stringProp>
-              <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
-              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-              <stringProp name="HTTPSampler.response_timeout"></stringProp>
-              <stringProp name="HTTPSampler.protocol">http</stringProp>
-              <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
-              <stringProp name="HTTPSampler.path">${version}xyz${resourcepath}</stringProp>
-              <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
-            </ConfigTestElement>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - unVersion or bad request from path - json" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="73973872">getAllVersion - multiple choice - json</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - unVersion or bad request from path - xml 2" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/xml</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-Auth-Token</stringProp>
-                  <stringProp name="Header.value">${auth-token}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain"></stringProp>
-              <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
-              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-              <stringProp name="HTTPSampler.response_timeout"></stringProp>
-              <stringProp name="HTTPSampler.protocol">http</stringProp>
-              <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
-              <stringProp name="HTTPSampler.path">abcd${resourcepath}</stringProp>
-              <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
-            </ConfigTestElement>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - unVersion or bad request from path - xml 2" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="-413242481">getAllVersion - multiple choice - xml</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - unVersion or bad request from path - json 2" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/json</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-Auth-Token</stringProp>
-                  <stringProp name="Header.value">${auth-token}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain"></stringProp>
-              <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
-              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-              <stringProp name="HTTPSampler.response_timeout"></stringProp>
-              <stringProp name="HTTPSampler.protocol">http</stringProp>
-              <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
-              <stringProp name="HTTPSampler.path">abcd${resourcepath}</stringProp>
-              <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
-            </ConfigTestElement>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - unVersion or bad request from path - json 2" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="73973872">getAllVersion - multiple choice - json</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="complex - getSingleVersion different from accept header version + xml" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/${acceptHeaderVer}+xml</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="complex - getSingleVersion different from accept header version + xml" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="-1455269718">getVersionDetails - single version xml</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="complex - getSingleVersion different from accept header version + json" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/${acceptHeaderVer}+json</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="complex - getSingleVersion different from accept header version + json" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="2130867893">getVersionDetails - single version json</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - from URI Variants - no version - xml" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/xml</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain"></stringProp>
-              <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
-              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-              <stringProp name="HTTPSampler.response_timeout"></stringProp>
-              <stringProp name="HTTPSampler.protocol">http</stringProp>
-              <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
-              <stringProp name="HTTPSampler.path">0/${resourcepath}</stringProp>
-              <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
-            </ConfigTestElement>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - from URI Variants - no version - xml" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="-413242481">getAllVersion - multiple choice - xml</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - from URI Variants - no version - json" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/json</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain"></stringProp>
-              <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
-              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-              <stringProp name="HTTPSampler.response_timeout"></stringProp>
-              <stringProp name="HTTPSampler.protocol">http</stringProp>
-              <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
-              <stringProp name="HTTPSampler.path">0${resourcepath}</stringProp>
-              <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
-            </ConfigTestElement>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - from URI Variants - no version - json" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="73973872">getAllVersion - multiple choice - json</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - test malform" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">text/html</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-Auth-Token</stringProp>
-                  <stringProp name="Header.value">${auth-token}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain"></stringProp>
-              <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
-              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-              <stringProp name="HTTPSampler.response_timeout"></stringProp>
-              <stringProp name="HTTPSampler.protocol">http</stringProp>
-              <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
-              <stringProp name="HTTPSampler.path">${version}${resourcepath}</stringProp>
-              <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
-            </ConfigTestElement>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - malform 1" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="1056720898">SingleVersion - url variants</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - test malform 2" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/xhtml+xml</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-Auth-Token</stringProp>
-                  <stringProp name="Header.value">${auth-token}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain"></stringProp>
-              <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
-              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-              <stringProp name="HTTPSampler.response_timeout"></stringProp>
-              <stringProp name="HTTPSampler.protocol">http</stringProp>
-              <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
-              <stringProp name="HTTPSampler.path">${version}${resourcepath}</stringProp>
-              <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
-            </ConfigTestElement>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - malform 2" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="1056720898">SingleVersion - url variants</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - test malform 3" enabled="false"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">Accept</stringProp>
-                  <stringProp name="Header.value">application/xml;q=0.9,*/*;q=0.8</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-User</stringProp>
-                  <stringProp name="Header.value">${name}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-PP-Groups</stringProp>
-                  <stringProp name="Header.value">${group}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-Auth-Token</stringProp>
-                  <stringProp name="Header.value">${auth-token}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain"></stringProp>
-              <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
-              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-              <stringProp name="HTTPSampler.response_timeout"></stringProp>
-              <stringProp name="HTTPSampler.protocol">http</stringProp>
-              <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
-              <stringProp name="HTTPSampler.path">${version}${resourcepath}</stringProp>
-              <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
-            </ConfigTestElement>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - malform 3" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="170071582">Test Fragment</stringProp>
-                <stringProp name="1056720898">SingleVersion - url variants</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Get Root Context Version" enabled="true"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">x-auth-token</stringProp>
-                  <stringProp name="Header.value">${auth-token}</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain"></stringProp>
-              <stringProp name="HTTPSampler.port"></stringProp>
-              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-              <stringProp name="HTTPSampler.response_timeout"></stringProp>
-              <stringProp name="HTTPSampler.protocol"></stringProp>
-              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-              <stringProp name="HTTPSampler.path">/v3/${name}/ss</stringProp>
-              <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
-            </ConfigTestElement>
-            <hashTree/>
-            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Get Root Context Version" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain"></stringProp>
-              <stringProp name="HTTPSampler.port"></stringProp>
-              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-              <stringProp name="HTTPSampler.response_timeout"></stringProp>
-              <stringProp name="HTTPSampler.protocol"></stringProp>
-              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-              <stringProp name="HTTPSampler.path"></stringProp>
-              <stringProp name="HTTPSampler.method">GET</stringProp>
-              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-              <boolProp name="HTTPSampler.monitor">false</boolProp>
-              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-            </HTTPSamplerProxy>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getAllVersion - xml" enabled="false"/>
             <hashTree>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
-                <collectionProp name="Asserion.test_strings">
-                  <stringProp name="1712453330">&lt;h1&gt;Servlet version at /${name}/ss</stringProp>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/xml</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">User-Agent</stringProp>
+                    <stringProp name="Header.value">Jakarta Commons-HttpClient/3.1 </stringProp>
+                  </elementProp>
                 </collectionProp>
-                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-                <boolProp name="Assertion.assume_success">true</boolProp>
-                <intProp name="Assertion.test_type">2</intProp>
-              </ResponseAssertion>
+              </HeaderManager>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getAllVersions - xml" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="1425422257">getAllVersion - xml</stringProp>
+                </collectionProp>
+              </ModuleController>
               <hashTree/>
             </hashTree>
-          </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Get Root Context Version from MIME Type" enabled="true"/>
-          <hashTree>
-            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
-              <collectionProp name="HeaderManager.headers">
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">x-auth-token</stringProp>
-                  <stringProp name="Header.value">${auth-token}</stringProp>
-                </elementProp>
-                <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">accept</stringProp>
-                  <stringProp name="Header.value">application/v3+xml</stringProp>
-                </elementProp>
-              </collectionProp>
-            </HeaderManager>
-            <hashTree/>
-            <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain"></stringProp>
-              <stringProp name="HTTPSampler.port"></stringProp>
-              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-              <stringProp name="HTTPSampler.response_timeout"></stringProp>
-              <stringProp name="HTTPSampler.protocol"></stringProp>
-              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-              <stringProp name="HTTPSampler.path">/${name}/ss</stringProp>
-              <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
-            </ConfigTestElement>
-            <hashTree/>
-            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Get Root Context Version from MIME Type" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain"></stringProp>
-              <stringProp name="HTTPSampler.port"></stringProp>
-              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-              <stringProp name="HTTPSampler.response_timeout"></stringProp>
-              <stringProp name="HTTPSampler.protocol"></stringProp>
-              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-              <stringProp name="HTTPSampler.path"></stringProp>
-              <stringProp name="HTTPSampler.method">GET</stringProp>
-              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-              <boolProp name="HTTPSampler.monitor">false</boolProp>
-              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-            </HTTPSamplerProxy>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getAllVersion - json" enabled="false"/>
             <hashTree>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
-                <collectionProp name="Asserion.test_strings">
-                  <stringProp name="1712453330">&lt;h1&gt;Servlet version at /${name}/ss</stringProp>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
                 </collectionProp>
-                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-                <boolProp name="Assertion.assume_success">true</boolProp>
-                <intProp name="Assertion.test_type">2</intProp>
-              </ResponseAssertion>
+              </HeaderManager>
               <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getAllVersions - json" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="1238005902">getAllVersion - json</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionDetails- xml" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/xml</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionDetails - xml" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="-1455269718">getVersionDetails - single version xml</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionDetails- json" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionDetails - json" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="2130867893">getVersionDetails - single version json</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getSingleVersion - accept header version + xml" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/${version}+xml</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getSingleVersion - accept header version + xml" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="-1875827749">SingleVersion - MINE TYPE xml</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getSingleVersion - accept header version + json" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/${version}+json</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getSingleVersion - accept header version + json" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="1978470820">SingleVersion - MINE TYPE json</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getSingleVersion - accept header vendor version + xml" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/vnd.vendor.service-${version}+xml</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getSingleVersion - accept header vendor version + xml" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="-1875827749">SingleVersion - MINE TYPE xml</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getSingleVersion - accept header vendor version + json" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/vnd.vendor.service-${version}+json</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getSingleVersion - accept header vendor version + json" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="1978470820">SingleVersion - MINE TYPE json</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getSingleVersion - accept header vendor version number + xml" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/vnd.vendor.service+xml; version=${verNum}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getSingleVersion - accept header vendor version number + xml" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="-1875827749">SingleVersion - MINE TYPE xml</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getSingleVersion - accept header vendor version number + json" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/vnd.vendor.service+json; version=${verNum}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getSingleVersion - accept header vendor version number + json" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="1978470820">SingleVersion - MINE TYPE json</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - accept header multiple attrs - xml" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/vnd.rackspace; x=${version}; y=xml</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - multiple attrs - xml" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="-1875827749">SingleVersion - MINE TYPE xml</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - accept header multiple attrs - json" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/vnd.rackspace; x=${version}; y=json</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - multiple attrs - json" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="1978470820">SingleVersion - MINE TYPE json</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - accept header multiple random attrs - xml" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/vnd.rackspace; rnd=1; x=${version}; rnd2=2; y=xml</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - multiple random attrs - xml" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="-1875827749">SingleVersion - MINE TYPE xml</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - accept header multiple random attrs - json" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/vnd.rackspace; rnd=1; x=${version}; rnd2=2; y=json</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - multiple random attrs - json" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="1978470820">SingleVersion - MINE TYPE json</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="unversioning/badrequest - multiple choice - xml" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/xml</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol">http</stringProp>
+                <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
+                <stringProp name="HTTPSampler.path">abcd</stringProp>
+                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+              </ConfigTestElement>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="unversioning/badrequest - multiple choice - xml" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="-413242481">getAllVersion - multiple choice - xml</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="unversioning/badrequest - multiple choice - json" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol">http</stringProp>
+                <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
+                <stringProp name="HTTPSampler.path">abcd</stringProp>
+                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+              </ConfigTestElement>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="unversioning/badrequest - multiple choice - json" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="73973872">getAllVersion - multiple choice - json</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - from URI variants - xml" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/xml</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-Auth-Token</stringProp>
+                    <stringProp name="Header.value">${auth-token}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol">http</stringProp>
+                <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
+                <stringProp name="HTTPSampler.path">${version}${resourcepath}</stringProp>
+                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+              </ConfigTestElement>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - from URI variants - xml" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="1056720898">SingleVersion - url variants</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - from URI variants - json" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-Auth-Token</stringProp>
+                    <stringProp name="Header.value">${auth-token}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol">http</stringProp>
+                <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
+                <stringProp name="HTTPSampler.path">${version}${resourcepath}</stringProp>
+                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+              </ConfigTestElement>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - from URI variants - json" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="1056720898">SingleVersion - url variants</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - unVersion or bad request from path - xml" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/xml</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-Auth-Token</stringProp>
+                    <stringProp name="Header.value">${auth-token}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol">http</stringProp>
+                <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
+                <stringProp name="HTTPSampler.path">${version}xyz${resourcepath}</stringProp>
+                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+              </ConfigTestElement>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - unVersion or bad request from path - xml" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="-413242481">getAllVersion - multiple choice - xml</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - unVersion or bad request from path - json" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-Auth-Token</stringProp>
+                    <stringProp name="Header.value">${auth-token}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol">http</stringProp>
+                <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
+                <stringProp name="HTTPSampler.path">${version}xyz${resourcepath}</stringProp>
+                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+              </ConfigTestElement>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - unVersion or bad request from path - json" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="73973872">getAllVersion - multiple choice - json</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - unVersion or bad request from path - xml 2" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/xml</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-Auth-Token</stringProp>
+                    <stringProp name="Header.value">${auth-token}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol">http</stringProp>
+                <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
+                <stringProp name="HTTPSampler.path">abcd${resourcepath}</stringProp>
+                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+              </ConfigTestElement>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - unVersion or bad request from path - xml 2" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="-413242481">getAllVersion - multiple choice - xml</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - unVersion or bad request from path - json 2" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-Auth-Token</stringProp>
+                    <stringProp name="Header.value">${auth-token}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol">http</stringProp>
+                <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
+                <stringProp name="HTTPSampler.path">abcd${resourcepath}</stringProp>
+                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+              </ConfigTestElement>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - unVersion or bad request from path - json 2" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="73973872">getAllVersion - multiple choice - json</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="complex - getSingleVersion different from accept header version + xml" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/${acceptHeaderVer}+xml</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="complex - getSingleVersion different from accept header version + xml" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="-1455269718">getVersionDetails - single version xml</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="complex - getSingleVersion different from accept header version + json" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/${acceptHeaderVer}+json</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="complex - getSingleVersion different from accept header version + json" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="2130867893">getVersionDetails - single version json</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - from URI Variants - no version - xml" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/xml</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol">http</stringProp>
+                <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
+                <stringProp name="HTTPSampler.path">0/${resourcepath}</stringProp>
+                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+              </ConfigTestElement>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - from URI Variants - no version - xml" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="-413242481">getAllVersion - multiple choice - xml</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - from URI Variants - no version - json" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/json</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol">http</stringProp>
+                <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
+                <stringProp name="HTTPSampler.path">0${resourcepath}</stringProp>
+                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+              </ConfigTestElement>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - from URI Variants - no version - json" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="73973872">getAllVersion - multiple choice - json</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - test malform" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">text/html</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-Auth-Token</stringProp>
+                    <stringProp name="Header.value">${auth-token}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol">http</stringProp>
+                <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
+                <stringProp name="HTTPSampler.path">${version}${resourcepath}</stringProp>
+                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+              </ConfigTestElement>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - malform 1" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="1056720898">SingleVersion - url variants</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - test malform 2" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/xhtml+xml</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-Auth-Token</stringProp>
+                    <stringProp name="Header.value">${auth-token}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol">http</stringProp>
+                <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
+                <stringProp name="HTTPSampler.path">${version}${resourcepath}</stringProp>
+                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+              </ConfigTestElement>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - malform 2" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="1056720898">SingleVersion - url variants</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - test malform 3" enabled="false"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">Accept</stringProp>
+                    <stringProp name="Header.value">application/xml;q=0.9,*/*;q=0.8</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-User</stringProp>
+                    <stringProp name="Header.value">${name}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-PP-Groups</stringProp>
+                    <stringProp name="Header.value">${group}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-Auth-Token</stringProp>
+                    <stringProp name="Header.value">${auth-token}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol">http</stringProp>
+                <stringProp name="HTTPSampler.contentEncoding">gzip,deflate</stringProp>
+                <stringProp name="HTTPSampler.path">${version}${resourcepath}</stringProp>
+                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+              </ConfigTestElement>
+              <hashTree/>
+              <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getVersionInfo - malform 3" enabled="true">
+                <collectionProp name="ModuleController.node_path">
+                  <stringProp name="-1227702913">WorkBench</stringProp>
+                  <stringProp name="764597751">Test Plan</stringProp>
+                  <stringProp name="170071582">Test Fragment</stringProp>
+                  <stringProp name="1056720898">SingleVersion - url variants</stringProp>
+                </collectionProp>
+              </ModuleController>
+              <hashTree/>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Get Root Context Version" enabled="true"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">x-auth-token</stringProp>
+                    <stringProp name="Header.value">${auth-token}</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port"></stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol"></stringProp>
+                <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+                <stringProp name="HTTPSampler.path">/v3/${name}/ss</stringProp>
+                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+              </ConfigTestElement>
+              <hashTree/>
+              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Get Root Context Version" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port"></stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol"></stringProp>
+                <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+                <stringProp name="HTTPSampler.path"></stringProp>
+                <stringProp name="HTTPSampler.method">GET</stringProp>
+                <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+                <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+                <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+                <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+                <boolProp name="HTTPSampler.monitor">false</boolProp>
+                <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              </HTTPSamplerProxy>
+              <hashTree>
+                <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                  <collectionProp name="Asserion.test_strings">
+                    <stringProp name="1712453330">&lt;h1&gt;Servlet version at /${name}/ss</stringProp>
+                  </collectionProp>
+                  <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                  <boolProp name="Assertion.assume_success">true</boolProp>
+                  <intProp name="Assertion.test_type">2</intProp>
+                </ResponseAssertion>
+                <hashTree/>
+              </hashTree>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Get Root Context Version from MIME Type" enabled="true"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">x-auth-token</stringProp>
+                    <stringProp name="Header.value">${auth-token}</stringProp>
+                  </elementProp>
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">accept</stringProp>
+                    <stringProp name="Header.value">application/v3+xml</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port"></stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol"></stringProp>
+                <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+                <stringProp name="HTTPSampler.path">/${name}/ss</stringProp>
+                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+              </ConfigTestElement>
+              <hashTree/>
+              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Get Root Context Version from MIME Type" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port"></stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol"></stringProp>
+                <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+                <stringProp name="HTTPSampler.path"></stringProp>
+                <stringProp name="HTTPSampler.method">GET</stringProp>
+                <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+                <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+                <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+                <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+                <boolProp name="HTTPSampler.monitor">false</boolProp>
+                <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              </HTTPSamplerProxy>
+              <hashTree>
+                <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                  <collectionProp name="Asserion.test_strings">
+                    <stringProp name="1712453330">&lt;h1&gt;Servlet version at /${name}/ss</stringProp>
+                  </collectionProp>
+                  <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                  <boolProp name="Assertion.assume_success">true</boolProp>
+                  <intProp name="Assertion.test_type">2</intProp>
+                </ResponseAssertion>
+                <hashTree/>
+              </hashTree>
             </hashTree>
           </hashTree>
         </hashTree>
