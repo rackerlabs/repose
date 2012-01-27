@@ -105,6 +105,8 @@ public class PowerFilterChain implements FilterChain {
                     new DispatchPathBuilder(servletRequest, routeDestination).build());
 
             if (dispatcher != null) {
+               LOG.debug("Attempting to route to " + routeDestination);
+               LOG.debug("Context path = " + targetContext.getContextPath());
                dispatcher.forward(servletRequest, servletResponse);
             }
          }

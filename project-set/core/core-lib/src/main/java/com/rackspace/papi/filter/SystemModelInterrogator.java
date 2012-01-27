@@ -57,8 +57,6 @@ public class SystemModelInterrogator {
          // the local Repose is running.  So, just use the hostname to
          // resolve which is the local Repose node.
          possibleHosts.addAll(systemModel.getHost());
-
-         LOG.warn("Could not find the port on which Repose is running: repose-bound-port context parameter is not configured in web.xml.  Defaulting to assumption that first host in power-proxy.cfg.xml is the local Repose host.");
       }
 
       try {
