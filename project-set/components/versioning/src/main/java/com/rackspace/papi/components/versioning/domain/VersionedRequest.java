@@ -97,6 +97,6 @@ public class VersionedRequest {
             }
         }
 
-        return uriBuilder.toString();
+        return StringUriUtilities.formatUri(uriBuilder.toString());
     }
 }
