@@ -10,7 +10,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import java.io.IOException;
-
+import java.util.LinkedList;
+import java.util.List;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -105,6 +106,7 @@ public class PowerFilterChain implements FilterChain {
 
             if (dispatcher != null) {
                LOG.debug("Attempting to route to " + routeDestination);
+               LOG.debug("Context path = " + targetContext.getContextPath());
                dispatcher.forward(servletRequest, servletResponse);
             }
          }
