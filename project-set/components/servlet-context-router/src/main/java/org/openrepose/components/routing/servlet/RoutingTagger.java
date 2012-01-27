@@ -9,9 +9,12 @@ import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import org.openrepose.components.routing.servlet.config.ContextPathRoute;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RoutingTagger extends AbstractFilterLogicHandler {
 
+   private static final Logger LOG = LoggerFactory.getLogger(RoutingTagger.class);
    private final List<ContextPathRoute> routes;
 
    public RoutingTagger(List<ContextPathRoute> routes) {
@@ -24,6 +27,7 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
       myDirector.setFilterAction(FilterAction.PASS);
 
       for (ContextPathRoute route : routes) {
+         LOG.debug("Adding route: " + route.getValue());
          myDirector.requestHeaderManager().appendHeader(PowerApiHeader.NEXT_ROUTE.toString(), route.getValue());
       }
       
