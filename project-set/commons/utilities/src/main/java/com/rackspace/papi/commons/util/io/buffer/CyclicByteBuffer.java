@@ -32,7 +32,8 @@ public class CyclicByteBuffer implements ByteBuffer {
         this.byteArrayProvider = byteArrayProvider;
 
         final int readableLength = byteBuffer.available();
-        buffer = byteArrayProvider.allocate(readableLength);   // TODO:Review - Should this be more than the original readable size?
+        final int allocationSize = (readableLength > DEFAULT_BUFFER_SIZE? readableLength: DEFAULT_BUFFER_SIZE);
+        buffer = byteArrayProvider.allocate(allocationSize);
 
         if (byteBuffer.nextReadableIndex + readableLength > byteBuffer.buffer.length) {
             final int trimmedLength = byteBuffer.buffer.length - byteBuffer.nextReadableIndex;
@@ -44,8 +45,8 @@ public class CyclicByteBuffer implements ByteBuffer {
         }
 
         this.nextReadableIndex = 0;
-        this.nextWritableIndex = 0;
-        this.hasElements = true;
+        this.nextWritableIndex = readableLength;
+        this.hasElements = byteBuffer.available() > 0;
     }
 
     @Override
