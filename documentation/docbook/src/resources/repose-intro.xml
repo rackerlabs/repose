@@ -78,7 +78,11 @@
                 <revdescription>
                     <itemizedlist spacing="compact">
                         <listitem><para>Added link to download page in <xref linkend="Try-d1e731"></xref>.</para></listitem>
-                        <listitem><para>Updated example to show <parameter>service-host</parameter> in <xref linkend="Deployment_Method_Alternate-d1e124"></xref>.</para></listitem>
+                        <listitem><para>Added configuration example in <xref linkend="Deployment_Method_Preferred-d1e122"></xref>.</para></listitem>
+                        <listitem><para>Updated example to show <parameter>service-port</parameter> in
+                                   <xref
+                                   linkend="Deployment_Method_Alternate-d1e124"
+                                />.</para></listitem>
                     </itemizedlist>
                 </revdescription>
             </revision>
@@ -137,15 +141,24 @@
     <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
     <chapter xml:id="Introduction-000">
         <title>What is &PRODNAME;?</title>
-        <para> &PRODNAME; is an open-source platform that you can use
-            to build stacks of reusable software components. These
-            components can be leveraged by service developers to
-            perform common API processing tasks. By using &PRODNAME;'s
+        <para>
+            &PRODNAME; is an open-source ReSTful HTTP proxy service that scales to the cloud. 
+            &PRODNAME; provides the solution to common API processing tasks such as 
+            rate limiting, client authentication, versioning, and logging 
+            so that web service developers can focus on the unique features of their services.
+        </para>
+        <para>
+            By using &PRODNAME;'s
             components rather than creating their own, service
             developers can focus on the unique features of their
             services. For example, your service may need to perform
             rate limiting; you can use the &PRODNAME; rate limiting component instead of
             writing your own code to perform this function.
+        </para>
+        <para> You can also use &PRODNAME; as an open-source platform on which 
+            to build stacks of reusable software components. You can then make those
+            components available for use by service developers to
+            perform common API processing tasks. 
         </para>
         <para> 
             &PRODNAME; can be used inside a service to perform API operations.
@@ -331,7 +344,8 @@
                         In <firstterm>proxy server</firstterm> deployment, Power API is in an external servlet container and acts as a second client, 
                         replicating each client request. 
                         A client sends a request to the proxy server; the proxy server then sends the request to Power Filter for processing. 
-                        The proxy server also sends the modified request to the origin service, which may be a Python service. 
+                        The proxy server also sends the modified request to the origin service; 
+                        the origin service may be any ReSTful service, including a Python service. 
                         The origin service sends a response to the proxy server, which passes that response back to the client.
                     </para>
                 <figure xml:id="ProxyServer-d1e445">
@@ -342,6 +356,12 @@
                         </imageobject>
                     </mediaobject>
                 </figure>
+                <example>
+                    <title>Configuring power-proxy.cfg.xml for proxy server deployment</title>
+                    <programlisting language="xml">
+<xi:include href="samples/papi-deploy-proxyServer.xml" parse="text"/>
+                    </programlisting>
+                </example>
             </section>
             <section xml:id="Deployment_Method_Alternate-d1e124">
                 <title>Alternate Deployment Method: Root.WAR</title>
@@ -362,7 +382,8 @@
                         </mediaobject>
                     </figure>
                     <example>
-                        <title>Configuring power-proxy.xml for Root.WAR Deployment</title>
+                        <title>Configuring power-proxy.cfg.xml for
+                        Root.WAR deployment</title>
                         <programlisting language="xml">
 <xi:include href="samples/papi-deploy-root.xml" parse="text"/>
                     </programlisting>
