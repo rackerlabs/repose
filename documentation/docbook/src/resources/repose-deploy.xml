@@ -136,7 +136,7 @@
         <para>
             You can deploy &PRODNAME; in either of two ways:
         </para>
-            <table frame="box" width="855">
+            <table rules="all">
                 <caption>&PRODNAME; Deployment Strategies</caption>
                 <col width="20%"/>
                 <col width="47%"/>
@@ -283,7 +283,7 @@
             These artifacts are required for installation of
             &PRODNAME;.
         </para>
-        <table frame="box">
+        <table rules="all">
             <caption>Installation Artifacts</caption>
             <col width="22%"/>
             <col width="78%"/>
