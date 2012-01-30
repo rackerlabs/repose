@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<power-proxy xmlns="http://docs.openrepose.org/repose/system-model/v1.1">
+   <service-domain name="repose-actional" cluster="repose-actional" port="8080" filter-chain="repose-filters" />
+   
+   <filter-chain name="repose-filters">
+      <filter name="client-authentication" />
+      <filter name="client-authorization" />
+      <filter name="dist-datastore" />
+      <filter name="rate-limiting" />
+      <filter name="servlet-context-router" />
+   </filter-chain>
+   
+   <cluster name="repose-actional">
+      <node alias="repose-actional-n01" host="repose-actional-n01.ord.internal.rackspace.corp" />
+      <node alias="repose-actional-n02" host="repose-actional-n02.ord.internal.rackspace.corp" />
+   </cluster>
+</power-proxy>

@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
 public class CyclicByteBufferTest {
 
    private static final int DEFAULT_SIZE = 2048;
-   
+
    private static byte[] fill(byte[] array) {
       for (int i = 0; i < array.length; i++) {
          array[i] = (byte) (i % Byte.MAX_VALUE);
@@ -57,14 +57,32 @@ public class CyclicByteBufferTest {
       }
 
       @Test
-      public void shouldSkipToEndOfDatar() throws IOException {
+      public void shouldSkipToEndOfData() throws IOException {
          byte[] data = fill(new byte[10]);
          buffer.put(data);
          int expected = data.length;
          int actual = buffer.skip(DEFAULT_SIZE);
-         
+
          assertEquals("Should skip to end of buffer", expected, actual);
-         
+      }
+
+      @Test
+      public void shouldWrapSkip() throws IOException {
+         buffer = new CyclicByteBuffer(HeapspaceByteArrayProvider.getInstance(), 10, 0, 0, false);
+         byte[] data = new byte[]{1, 2, 3, 4, 5, 6, 7};
+
+         // Shift buffer contents
+         buffer.put(data);
+         buffer.get(data);
+
+         assertEquals("Should have 10 remaining", 10, buffer.remaining());
+
+         buffer.put(data);
+         assertEquals("Should have 3 remaining", 3, buffer.remaining());
+
+         buffer.skip(6);
+
+         assertEquals(7, buffer.get());
       }
    }
 
@@ -87,7 +105,6 @@ public class CyclicByteBufferTest {
          final byte expected = 0x1;
 
          buffer.put(expected);
-
          assertEquals("Byte in buffer should be same as the byte put into the buffer", expected, buffer.get());
       }
 
@@ -155,7 +172,26 @@ public class CyclicByteBufferTest {
          buffer.get(data2Read);
 
          assertTrue(compare(data2Written, data2Read));
+      }
 
+      @Test
+      public void shouldWrapPuts() throws IOException {
+         buffer = new CyclicByteBuffer(HeapspaceByteArrayProvider.getInstance(), 10, 0, 0, false);
+         byte[] data = fill(new byte[7]);
+
+         // Shift buffer contents
+         buffer.put(data);
+         buffer.get(data);
+
+         assertEquals("Should have 10 remaining", 10, buffer.remaining());
+
+         buffer.put(data);
+         assertEquals("Should have 3 remaining", 3, buffer.remaining());
+
+         byte[] read = new byte[7];
+         buffer.get(read);
+
+         assertTrue(compare(data, read));
       }
    }
 
@@ -238,8 +274,9 @@ public class CyclicByteBufferTest {
          assertTrue(new ByteArrayComparator(expected, actual).arraysAreEqual());
       }
    }
-   
+
    public static class WhenClearing {
+
       private CyclicByteBuffer sourceBuffer;
 
       @Before
@@ -251,23 +288,22 @@ public class CyclicByteBufferTest {
       public void shouldClearEmptyBuffer() {
          int expected = sourceBuffer.remaining();
          sourceBuffer.clear();
-         int actual  = sourceBuffer.remaining();
+         int actual = sourceBuffer.remaining();
          assertEquals("Remaining should be unchanged after clearing empty buffer", expected, actual);
       }
-      
+
       @Test
       public void shouldClearPartiallyFullBuffer() throws IOException {
          int expected = sourceBuffer.remaining();
          sourceBuffer.put(fill(new byte[20]));
          sourceBuffer.clear();
-         int actual  = sourceBuffer.remaining();
+         int actual = sourceBuffer.remaining();
          assertEquals("Remaining should be entire buffer after clearing", expected, actual);
       }
-      
-      
    }
-   
+
    public static class WhenCopying {
+
       private CyclicByteBuffer sourceBuffer;
 
       @Before
@@ -276,37 +312,38 @@ public class CyclicByteBufferTest {
       }
 
       @Test
-      public void shouldCopyBuffer() {
-         ByteBuffer dest = sourceBuffer.copy();
+      public void shouldCopyBuffer() throws Exception {
+         ByteBuffer dest = (ByteBuffer) sourceBuffer.clone();
+         
          assertNotNull(dest);
          assertEquals("Dest and source available should be the same", sourceBuffer.available(), dest.available());
          assertEquals("Dest and source remaining should be the same", sourceBuffer.remaining(), dest.remaining());
       }
-      
+
       @Test
       public void shouldPreserveData() throws IOException {
          byte[] dataWritten = fill(new byte[10]);
          sourceBuffer.put(dataWritten);
-         
+
          ByteBuffer dest = sourceBuffer.copy();
          byte[] dataRead = new byte[dataWritten.length];
          dest.get(dataRead);
-         
+
          assertTrue("Data read from clone should match data written to source", compare(dataRead, dataWritten));
-         
+
       }
-      
+
       @Test
       public void shouldAllocateSufficientBuffer() throws IOException {
          byte[] dataWritten = fill(new byte[DEFAULT_SIZE + 10]);
          sourceBuffer.put(dataWritten);
-         
+
          ByteBuffer dest = sourceBuffer.copy();
          byte[] dataRead = new byte[dataWritten.length];
          dest.get(dataRead);
-         
+
          assertTrue("Data read from clone should match data written to source", compare(dataRead, dataWritten));
-         
+
       }
 
       @Test
@@ -315,16 +352,16 @@ public class CyclicByteBufferTest {
          // shift internal buffers by 10
          sourceBuffer.put(new byte[10]);
          sourceBuffer.get(new byte[10]);
-                 
+
          // fill buffer.  Data will be "wrapped" in internal buffer
          sourceBuffer.put(dataWritten);
-         
+
          ByteBuffer dest = sourceBuffer.copy();
          byte[] dataRead = new byte[dataWritten.length];
          dest.get(dataRead);
-         
+
          assertTrue("Data read from clone should match data written to source", compare(dataRead, dataWritten));
-         
+
       }
    }
 }
