@@ -280,7 +280,7 @@
             <title>Multiple &PRODNAME; components in a filter bundle</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="figures/papi-intro-filterBundle.png" format="PNG" align="center"/>
+                    <imagedata fileref="figures/repose-intro-filterBundle.png" format="PNG" align="center"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -292,7 +292,7 @@
             <title>Loading multiple &PRODNAME; components into power proxy</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="figures/papi-intro-powerproxy.png" format="PNG" align="center"/>
+                    <imagedata fileref="figures/repose-intro-powerProxy.png" format="PNG" align="center"/>
                 </imageobject>
             </mediaobject>
         </figure>     
@@ -318,7 +318,7 @@
                     <title>&PRODNAME; deployment as an external servlet container</title>
                     <mediaobject>
                         <imageobject>
-                            <imagedata fileref="figures/papi-intro-deploy-proxyServer.png" format="PNG" align="center"/>
+                            <imagedata fileref="figures/repose-intro-deployProxyServer.png" format="PNG" align="center"/>
                         </imageobject>
                     </mediaobject>
                 </figure>
@@ -337,7 +337,7 @@
                         <title>&PRODNAME; deployment by replacing the root component</title>
                         <mediaobject>
                             <imageobject>
-                                <imagedata fileref="figures/papi-intro-deploy-root.png" format="PNG" align="center"/>
+                                <imagedata fileref="figures/repose-intro-deployRoot.png" format="PNG" align="center"/>
                             </imageobject>
                         </mediaobject>
                     </figure>
@@ -365,7 +365,7 @@
                     <title>&PRODNAME; deployment across multiple hosts</title>
                     <mediaobject>
                         <imageobject>
-                            <imagedata fileref="figures/papi-intro-deploy-proxyCluster.png" format="PNG" align="center"/>
+                            <imagedata fileref="figures/repose-intro-deployProxyCluster.png" format="PNG" align="center"/>
                         </imageobject>
                     </mediaobject>
                 </figure>
