@@ -115,7 +115,8 @@
     </chapter>
     <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
     <chapter xml:id="Introduction-000">
-        <title>Introduction to the Logging Component of &PRODNAME;</title>
+        <title>Introduction to the HTTP Logging Component of
+            &PRODNAME;</title>
         <para>
             &PRODNAME;'s HTTP logging component allows logging of information in HTTP requests that are sent to &PRODNAME; and responses sent from &PRODNAME;.
         </para>
