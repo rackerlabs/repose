@@ -74,7 +74,7 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
                LOG.info("Setting " + InitParameter.PORT.getParameterName() + " to " + port);
             } else {
                // current port and port specified in container.cfg.xml are -1 (not set)
-               LOG.equals("Cannot determine " + InitParameter.PORT.getParameterName() + ". Port must be specified in container.cfg.xml or on the command line.");
+               LOG.error("Cannot determine " + InitParameter.PORT.getParameterName() + ". Port must be specified in container.cfg.xml or on the command line.");
             }
          } else {
             if (port > 0 && currentPort != port) {
