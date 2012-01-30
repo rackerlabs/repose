@@ -125,7 +125,7 @@ public class ConfigurationData {
     }
 
     public boolean isRequestForVersions(UniformResourceInfo uniformResourceInfo) {
-        return StringUriUtilities.formatUri(uniformResourceInfo.getUri()).isEmpty();
+        return StringUriUtilities.formatUri(uniformResourceInfo.getUri()).equals("/");
     }
 
     public Host getLocalHost() {
