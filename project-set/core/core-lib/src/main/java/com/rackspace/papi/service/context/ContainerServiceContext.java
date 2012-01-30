@@ -47,19 +47,43 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
     */
    private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
 
+      private int determinePort(DeploymentConfiguration deployConfig) {
+         int port = -1;
+
+         if (deployConfig != null && deployConfig.getPort() != null) {
+            port = deployConfig.getPort();
+         } else {
+            LOG.error("Service port not specified in container.cfg.xml");
+         }
+         
+         return port;
+      }
+      
       @Override
       public void configurationUpdated(ContainerConfiguration configurationObject) {
          DeploymentConfiguration deployConfig = configurationObject.getDeploymentConfig();
          int currentPort = ServletContextHelper.getServerPort(servletContext);
+         int port = determinePort(deployConfig);
 
-         if (deployConfig != null && deployConfig.getPort() != null) {
-            Integer port = deployConfig.getPort();
-            containerConfigurationService = new ContainerConfigurationServiceImpl(port);
-            servletContext.setAttribute(InitParameter.PORT.getParameterName(), port);
-            LOG.info("Setting " + InitParameter.PORT.getParameterName() + ": " + currentPort + " --> " + port);
+         if (currentPort == -1) {
+            // No port has been set into the servlet context
+
+            if (port > 0) {
+               containerConfigurationService = new ContainerConfigurationServiceImpl(port);
+               servletContext.setAttribute(InitParameter.PORT.getParameterName(), port);
+               LOG.info("Setting " + InitParameter.PORT.getParameterName() + " to " + port);
+            } else {
+               // current port and port specified in container.cfg.xml are -1 (not set)
+               LOG.equals("Cannot determine " + InitParameter.PORT.getParameterName() + ". Port must be specified in container.cfg.xml or on the command line.");
+            }
          } else {
-            LOG.warn("Service port not specified in container.cfg.xml, using: " + currentPort);
+            if (port > 0 && currentPort != port) {
+               // Port changed and is different from port already available in servlet context.
+               LOG.warn("****** " + InitParameter.PORT.getParameterName() + " changed from " + currentPort + " --> " + port 
+                       + ".  Restart is required for this change.");
+            }
          }
+
       }
    }
 
