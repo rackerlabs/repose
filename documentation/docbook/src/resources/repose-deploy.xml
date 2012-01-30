@@ -334,14 +334,23 @@
         <para> 
             We have provided XML samples to help explain the ideas in this section, but you must customize them to fit your own operating environment.
         </para>
-        <para>
-            Configurations included in the WAR are deployed in the core of &PRODNAME;.
-            Configurations included in the EAR are deployed as components.
-            The <firstterm>power proxy</firstterm> and <firstterm>container</firstterm> configurations are within the scope of the
-            core and are controlled by <code>root.WAR</code>. 
-            The <firstterm>versioning</firstterm> configuration is a component, outside the scope of the core and controlled by the EAR. </para>
+        <para> Configurations included in the WAR are deployed in the
+            core of &PRODNAME;. 
+            For example, 
+            the power proxy and container
+            configurations are within the scope of the core and are
+            controlled by <code>root.war</code>.
+        </para>
         <para>
             &PRODNAME; core configurations outline the deployment layout for the service cluster and tell the system where to look for component artifacts.
+        </para>
+        <para>
+            Configurations included in the EAR are
+            deployed as components.  
+            For example, 
+            the versioning configuration is a
+            component, outside the scope of the core and controlled by
+            the EAR. 
         </para>
         <section xml:id="Power_Proxy-d1e447">
             <title>Configuration Directory: Power Proxy</title>
@@ -387,7 +396,7 @@
             </calloutlist>
             <important>
                 <para>
-                    Filters are applied in the order they are specified. 
+Filters are applied in the order they are specified. 
                 </para>
             </important>
             <para>
@@ -406,7 +415,7 @@
             </orderedlist>
         </section>
             <section xml:id="Container-d1e470">
-                <title>Container</title>
+                <title>Container Configuration</title>
                 <para>
                     The container configuration in &PRODNAME; is used to tell the system where to look for component artifacts and where to deploy them. 
                     The deployment directory's configuration element includes an attribute that tells &PRODNAME; whether or not it should clean up deployed artifacts once they're no longer in use. 
@@ -419,10 +428,7 @@
 <xi:include href="samples/papi-container.xml" parse="text"/>
                     </programlisting>
                 </example>
-            </section>
-        <section xml:id="Container_Integration-d1e480">
-            <title>Container Integration</title>
-            <para> To use &PRODNAME;with Apache Tomcat, you must add this line to <code>context.xml</code>:
+            <para> To integrate &PRODNAME;with Apache Tomcat, you must add this line to <code>context.xml</code>:
                 <code>&lt;context crosscontext="true"&gt;</code>.
             </para>
             <note>
@@ -430,6 +436,72 @@
                     For Tomcat 7, <code>context.xml</code> is found in <code>/var/lib/tomcat7/config/context.xml</code>.
                 </para>
             </note>
+            </section>
+        <section xml:id="Deploy_ProxyServer-d1e550">
+            <title>Recommended Deployment Method: Proxy Server</title>
+            <para> To deploy &PRODNAME; as a proxy server, set these parameters in the JAR file:</para>
+            <itemizedlist spacing="compact">
+                <listitem>
+                    <para>location of the &PRODNAME; configuration directory</para>
+                </listitem>
+                <listitem>
+                    <para>start or running port for &PRODNAME;</para>
+                </listitem>
+                <listitem>
+                    <para>shutdown port for &PRODNAME;</para>
+                </listitem>
+            </itemizedlist>
+            <para>
+                The following example demonstrates <code>power-proxy.cfg.xml</code>
+                configured for a &PRODNAME; proxy server deployment.
+            </para>
+            <example>
+                <title>Power Proxy Configuration for Proxy Server Deployment</title>
+                <programlisting language="xml">
+<xi:include href="samples/repose-deploy-proxyServerPowerProxyCfg.xml" parse="text"/>
+                    </programlisting>
+            </example>
+            <para>
+                In the preceding example, 
+                &PRODNAME; is deployed at <code>cloud.repose.n01</code> and routes
+                incoming requests to the origin service which is deployed at
+                <code>api-n01.yourdomain.com</code>.
+            </para>
+        </section>
+        <section xml:id="Deploy_RootWar-d1e570">
+            <title>Alternative Deployment Method: Root.WAR</title>
+            <para> To deploy &PRODNAME; in the root Web application
+                ARchive (WAR), replace your <code>root.war</code>. with one supplied by &PRODNAME;.</para>
+            <itemizedlist spacing="compact">
+                <listitem>
+                    <para><code>root.war</code> includes all the components needed to install &PRODNAME; 
+                        into a running application container</para>
+                </listitem>
+                <listitem>
+                    <para>the configuration directory is assumed to be <code>/etc/powerapi</code></para>
+                </listitem>
+            </itemizedlist>
+            <para> The following example demonstrates
+                    <code>power-proxy.cfg.xml</code> configured for a
+                &PRODNAME; Root.WAR  deployment. </para>
+            <example>
+                <title>Power Proxy Configuration for Root.WAR Deployment</title>
+                <programlisting language="xml">
+<xi:include href="samples/repose-deploy-rootWarPowerProxyCfg.xml" parse="text"/>
+                    </programlisting>
+            </example>
+            <para> In the preceding example, &PRODNAME; is deployed in
+                the same container as the origin service in the root
+                context and intercepts requests coming into the
+                service. </para>
+            <important>
+                <para>
+                    When deploying on Glassfish, 
+                    be sure to remove the <code>default-web.xml</code> file located in <code>domains/your_domain/config</code>.  
+                    This file contains a default servlet that interferes with the routing between 
+                    &PRODNAME; and the origin service.
+                </para>
+            </important>
         </section>
     </chapter>
     <xi:include href="chapters/afterword.xml"/>
