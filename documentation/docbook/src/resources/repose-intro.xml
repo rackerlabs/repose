@@ -63,7 +63,7 @@
         </copyright>
         <releaseinfo>v1.0</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2012-01-11</pubdate>
+        <pubdate>2012-01-30</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -74,6 +74,15 @@
         </abstract>
         <revhistory>
             <revision>
+                <date>2012-01-30</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem><para>Added link to download page in <xref linkend="Try-d1e731"></xref>.</para></listitem>
+                        <listitem><para>Updated example to show <parameter>service-host</parameter> in <xref linkend="Deployment_Method_Alternate-d1e124"></xref>.</para></listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
+            <revision>
                 <date>2012-01-11</date>
                 <revdescription>
                     <itemizedlist spacing="compact">
@@ -81,14 +90,14 @@
                     </itemizedlist>
                 </revdescription>
             </revision>
-        <revision>
-            <date>2011-09-26</date>
-            <revdescription>
-                <itemizedlist spacing="compact">
-                    <listitem><para>Initial release as internal draft.</para></listitem>
-                </itemizedlist>
-            </revdescription>
-        </revision>
+            <revision>
+                <date>2011-09-26</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem><para>Initial release as internal draft.</para></listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
         </revhistory>
     </info>
     <chapter xml:id="Overview-d1e85">
@@ -128,15 +137,16 @@
     <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
     <chapter xml:id="Introduction-000">
         <title>What is &PRODNAME;?</title>
-        <annotation>
-            <remark>
-                Source for this chapter is https://wiki.mosso.com/display/CT/Cloud+Service+Bus
-            </remark>
-        </annotation>
-        <para> &PRODNAME; is an open-source platform that you can use to build stacks of reusable
-            software components. These components can be leveraged by service developers to perform
-            common API processing tasks. By using &PRODNAME;'s components rather than creating their
-            own, service developers can focus on the unique features of their services. </para>
+        <para> &PRODNAME; is an open-source platform that you can use
+            to build stacks of reusable software components. These
+            components can be leveraged by service developers to
+            perform common API processing tasks. By using &PRODNAME;'s
+            components rather than creating their own, service
+            developers can focus on the unique features of their
+            services. For example, your service may need to perform
+            rate limiting; you can use the &PRODNAME; rate limiting component instead of
+            writing your own code to perform this function.
+        </para>
         <para> 
             &PRODNAME; can be used inside a service to perform API operations.
             It can also run on one or more separate servers as a proxy to one or more services.
@@ -276,6 +286,16 @@
         <para> &PRODNAME; is distributed as a filter bundle containing
             all available components. You can choose which components
             to implement in your configuration. </para>
+        <tip>
+            <para>
+                Download &PRODNAME; from the project website at 
+                <link xlink:href="http://openrepose.org/download.html">http://openrepose.org/download.html</link>.
+            </para>
+            <para>
+                The download page offers links to installation instructions
+                and a tutorial.
+            </para>
+        </tip>
         <figure xml:id="Filter-Bundle">
             <title>Multiple &PRODNAME; components in a filter bundle</title>
             <mediaobject>
