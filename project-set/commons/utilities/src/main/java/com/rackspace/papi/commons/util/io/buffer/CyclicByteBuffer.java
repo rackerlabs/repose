@@ -45,7 +45,7 @@ public class CyclicByteBuffer implements ByteBuffer {
         }
 
         this.nextReadableIndex = 0;
-        this.nextWritableIndex = readableLength;
+        this.nextWritableIndex = (readableLength < allocationSize? readableLength: 0);
         this.hasElements = byteBuffer.available() > 0;
     }
 
@@ -76,6 +76,10 @@ public class CyclicByteBuffer implements ByteBuffer {
         }
 
         return bytesSkipped;
+    }
+    
+    public boolean getHasElements() {
+       return hasElements;
     }
 
     @Override

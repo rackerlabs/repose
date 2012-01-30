@@ -96,6 +96,8 @@ public class PowerApiContextManager implements ServletContextListener {
         // Configuration Services
         initService(new ConfigurationServiceContext(), sce);
 
+        initService(new ContainerServiceContext(), sce);
+        
         // Logging Service
         initService(new LoggingServiceContext(), sce);
 
