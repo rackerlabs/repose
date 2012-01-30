@@ -121,10 +121,10 @@
         </section>
         <xi:include href="chapters/available-doc.xml"/>
     </chapter>
-    <chapter xml:id="Msg_Enhancement-d1e172">
+    <chapter xml:id="Introduction-000">
         <title>Message Enhancement and Routing</title>
-        <para> The versioning component does not route requests, nor is it responsible for routing.
-            The versioning component's purpose is to annotate incoming requests with their intended
+        <para>
+            The &PRODNAME; versioning component's purpose is to annotate incoming requests with their intended
             destination and to describe the available versions to the user. </para>
         <para> The versioning component enhances the incoming request with an HTTP header named
                 <code>X-PP-Service-Origin</code>. This header can be used by components further down
@@ -137,6 +137,9 @@
                 </imageobject>
             </mediaobject>
         </figure>
+        <para> 
+            The versioning component does not route requests, nor is it responsible for routing.
+        </para>
     </chapter>
     <chapter xml:id="Configuration-d1e365">
         <title>Configuration</title>
@@ -302,7 +305,7 @@
             <title>Normal Handling of Versioning Request</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="figures/papi-versioning-normal.png" format="PNG" align="center"/>
+                    <imagedata fileref="figures/repose-versioning-normal.png" format="PNG" align="center"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -331,7 +334,7 @@
             <title>Service Versions Catalog as Response to Versioning Request</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="figures/papi-versioning-description.png" format="PNG" align="center"/>
+                    <imagedata fileref="figures/repose-versioning-description.png" format="PNG" align="center"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -424,7 +427,7 @@ Accept: application/vnd.rackspace-v1.0+xml
             <title>Error Handling of Versioning Request</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="figures/papi-versioning-error.png" format="PNG" align="center"/>
+                    <imagedata fileref="figures/repose-versioning-error.png" format="PNG" align="center"/>
                 </imageobject>
             </mediaobject>
         </figure>
