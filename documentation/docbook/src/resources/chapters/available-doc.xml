@@ -25,22 +25,17 @@
         </listitem>
         <listitem>
             <para>
-                <emphasis role="bold">Deployment Handbooks</emphasis>: Deployment handbooks are
-                non-procedural collections of key facts designed to be helpful in preparing to use &PRODNAME; or specific &PRODNAME; components. 
+                <emphasis role="bold">Deployment Handbooks</emphasis>:
+                Deployment handbooks are non-procedural collections of
+                key facts designed to be helpful in preparing to use
+                &PRODNAME; or specific components of &PRODNAME;.
                 Deployment handbooks are available to assist with: 
                 <itemizedlist>
                     <listitem>
-                        <para><emphasis>&PRODNAME; Deployment Methods</emphasis></para>
-                        <itemizedlist>
-                            <listitem>
-                                <para>
-                                    Root.WAR
-                                </para>
-                            </listitem>
-                        </itemizedlist>
+                        <para>&PRODNAME; Deployment </para>
                     </listitem>
                     <listitem>
-                        <para><emphasis>&PRODNAME; Component Deployments</emphasis></para>
+                        <para>&PRODNAME; Component Deployments:</para>
                         <itemizedlist>
                             <listitem>
                                 <para>Authentication</para>
