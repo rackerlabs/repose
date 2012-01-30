@@ -45,7 +45,7 @@ public class CyclicByteBuffer implements ByteBuffer {
         }
 
         this.nextReadableIndex = 0;
-        this.nextWritableIndex = 0;
+        this.nextWritableIndex = readableLength;
         this.hasElements = byteBuffer.available() > 0;
     }
 

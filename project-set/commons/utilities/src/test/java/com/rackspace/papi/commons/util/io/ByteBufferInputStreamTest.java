@@ -1,6 +1,7 @@
 package com.rackspace.papi.commons.util.io;
 
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
+import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
 import java.io.IOException;
 import static org.junit.Assert.*;
 import org.junit.Before;
@@ -212,6 +213,23 @@ public class ByteBufferInputStreamTest {
          when(buffer.get(anyByteArray(), anyInt(), anyInt())).thenAnswer(new ByteReadAnswer());
 
          stream = new ByteBufferInputStream(buffer);
+      }
+
+      @Test
+      public void shouldStopReadingOnNoBytesRemaining() throws Exception {
+         final byte[] bytes = new byte[]{1, 2, 3};
+         ByteBuffer localBuffer = new CyclicByteBuffer();
+         localBuffer.put(bytes);
+
+         stream = new ByteBufferInputStream(localBuffer.copy());
+
+         for (int c = 0; c < 4; c++) {
+            if (c == 3) {
+               assertEquals(-1, stream.read());
+            } else {
+               assertEquals(bytes[c], stream.read());
+            }
+         }
       }
 
       @Test
