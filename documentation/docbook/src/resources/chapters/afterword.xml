@@ -282,6 +282,7 @@
                     </para>
                 </abstract>
             </biblioentry>
+            <!-- this link is bad and I don't remember why it is here; commenting it out pending investigation
             <biblioentry xml:id="OSXSD">
                 <author>
                     <personname>
@@ -302,6 +303,7 @@
                     </para>
                 </abstract>
             </biblioentry>
+            -->
         </bibliography>  
     </section>
 </chapter>

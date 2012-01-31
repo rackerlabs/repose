@@ -3,9 +3,9 @@
     
     <!--
         In this Root.WAR deployment, the host has no filters defined.
-        An href identifies a service URI, identifying this host as a service host.
+        The service-port value identifies this host as a service host.
     -->
     <host id="service-v1.1" hostname="service-n04.wc1.dfw1.stabletransit.com"
-        href="http://service.api.rackspacecloud.com/v1.1/" />
+        service-port="8080" />
     
 </power-proxy>
