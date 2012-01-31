@@ -2,6 +2,7 @@ package com.rackspace.auth.openstack.ids;
 
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import org.openstack.docs.identity.api.v2.AuthenticateResponse;
+import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 
 import java.util.List;
 import org.openstack.docs.identity.api.v2.Endpoint;

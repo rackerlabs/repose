@@ -1,5 +1,6 @@
 package com.rackspace.auth.v1_1;
 
+import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;

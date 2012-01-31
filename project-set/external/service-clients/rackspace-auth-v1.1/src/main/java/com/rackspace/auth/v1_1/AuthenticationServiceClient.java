@@ -1,5 +1,6 @@
 package com.rackspace.auth.v1_1;
 
+import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspacecloud.docs.auth.api.v1.FullToken;
 import com.rackspacecloud.docs.auth.api.v1.GroupsList;

@@ -1,5 +1,6 @@
 package com.rackspace.auth.v1_1;
 
+import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspacecloud.docs.auth.api.v1.Endpoint;
 import com.rackspacecloud.docs.auth.api.v1.Service;
 import com.rackspacecloud.docs.auth.api.v1.ServiceCatalog;
