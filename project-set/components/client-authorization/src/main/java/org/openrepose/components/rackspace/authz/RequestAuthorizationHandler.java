@@ -65,12 +65,25 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
    public void checkTenantEndpoints(FilterDirector director, String userToken) {
       final List<CachedEndpoint> authorizedEndpoints = getEndpointsForToken(userToken);
 
+      if (isEndpointAuthorized(authorizedEndpoints)) {
+         director.setFilterAction(FilterAction.PASS);
+      }
+   }
+
+   private boolean isEndpointAuthorized(final List<CachedEndpoint> authorizedEndpoints){
+      boolean authorized = false;
+
       for (CachedEndpoint authorizedEndpoint : authorizedEndpoints) {
-         if (authorizedEndpoint.getPublicUrl().startsWith(myEndpoint.getHref())) {
-            director.setFilterAction(FilterAction.PASS);
+         if (authorizedEndpoint.getPublicUrl().startsWith(myEndpoint.getHref()) &&
+             authorizedEndpoint.getType().equalsIgnoreCase(myEndpoint.getType()) &&
+             StringUtilities.nullSafeEqualsIgnoreCase(authorizedEndpoint.getRegion(), myEndpoint.getRegion()) &&
+             StringUtilities.nullSafeEqualsIgnoreCase(authorizedEndpoint.getName(), myEndpoint.getName())) {
+            authorized = true;
             break;
          }
       }
+
+      return authorized;
    }
 
    private List<CachedEndpoint> getEndpointsForToken(String userToken) {
@@ -94,7 +107,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
       final LinkedList<CachedEndpoint> serializable = new LinkedList<CachedEndpoint>();
 
       for (Endpoint ep : authorizedEndpoints) {
-         serializable.add(new CachedEndpoint(ep.getPublicURL()));
+         serializable.add(new CachedEndpoint(ep.getPublicURL(), ep.getRegion(), ep.getName(), ep.getType()));
       }
 
       return serializable;
