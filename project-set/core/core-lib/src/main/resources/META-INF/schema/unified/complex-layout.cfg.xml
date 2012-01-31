@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<power-proxy xmlns="http://docs.openrepose.org/repose/system-model/v1.1">
+   <service-domain name="nova-auth" cluster="repose-auth-versioning" port="8080" filter-chain="auth-versioning">
+      <forward destination="nova-cs-legacy-translation" />
+      <forward destination="nova-rate-limiting" />
+   </service-domain>
+   
+   <service-domain name="nova-cs-legacy-translation" cluster="repose-rl" port="8080" filter-chain="cs-legacy-translation">
+      <forward destination="nova-rate-limiting" />
+   </service-domain>
+   
+   <service-domain name="nova-rate-limiting" cluster="repose-rl" port="8080" filter-chain="nova-rate-limiting">
+      <forward destination="nova-api" />
+   </service-domain>
+
+   <service-domain name="nova-api" cluster="nova-api" port="8080" />
+   
+   <filter-chain name="auth-versioning">
+      <filter name="client-authentication" />
+      <filter name="client-authorization" />
+      <filter name="service-versioning" />
+   </filter-chain>
+   
+   <filter-chain name="cs-legacy-translation">
+      <filter name="http-Logging" />
+      <filter name="translation" />
+   </filter-chain>
+   
+   <filter-chain name="nova-rate-limiting">
+      <filter name="dist-datastore" />
+      <filter name="rate-limiting" />
+   </filter-chain>
+   
+   <cluster name="repose-auth-versioning">
+      <node alias="repose-nova-av-n01" host="repose-nova-av-n01.ord.internal.rackspace.corp" />
+      <node alias="repose-nova-av-n02" host="repose-nova-av-n02.ord.internal.rackspace.corp" />
+   </cluster>
+   
+   <cluster name="repose-cs-legacy-translation">
+      <node alias="repose-csl-trans-n01" host="repose-csl-trans-n01.ord.internal.rackspace.corp" />
+      <node alias="repose-csl-trans-n02" host="repose-csl-trans-n02.ord.internal.rackspace.corp" />
+   </cluster>
+   
+   <cluster name="repose-rl">
+      <node alias="repose-nova-rl-n01" host="repose-nova-rl-n01.ord.internal.rackspace.corp" />
+      <node alias="repose-nova-rl-n02" host="repose-nova-rl-n02.ord.internal.rackspace.corp" />
+   </cluster>
+   
+   <cluster name="nova-api">
+      <node alias="nova-n01" host="nova-n01.ord.internal.rackspace.corp" />
+      <node alias="nova-n02" host="nova-n02.ord.internal.rackspace.corp" />
+   </cluster>
+</power-proxy>
