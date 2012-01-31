@@ -39,12 +39,13 @@
       xmlns:db="http://docbook.org/ns/docbook" 
       xml:id="Repose-Logging-Deployment-Guide">
     <?rax pdf.url="../../repose-logging-deploy.pdf"?>
-    <title>&PRODNAME; Logging Component Deployment Handbook</title>
+    <title>&PRODNAME; HTTP Logging Component Deployment
+        Handbook</title>
     <!-- set watermark on cover and left margin 
         <?rax status.bar.text="CONFIDENTIAL"?>
     -->
     <?rax title.font.size="35px" subtitle.font.size="16px"?>
-    <titleabbrev>&PRODABBREV; Logging Deployment</titleabbrev>
+    <titleabbrev>&PRODABBREV; HTTP Logging Deployment</titleabbrev>
     <info>
         <author>
             <personname>
@@ -63,7 +64,7 @@
         </copyright>
         <releaseinfo>v1.0</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2012-01-11</pubdate>
+        <pubdate>2012-01-30</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -74,6 +75,14 @@
                 their service to use the logging component of the &PRODEXPAND;. </para>
         </abstract>
         <revhistory>
+            <revision>
+                <date>2012-01-30</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem><para>Clarified current limitation to HTTP logging.</para></listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
             <revision>
                 <date>2012-01-11</date>
                 <revdescription>
@@ -86,11 +95,12 @@
     </info>
     <chapter xml:id="Overview-d1e85">
         <title>About This Document</title>
-            <para>
-                The purpose of this handbook is to facilitate deployment of &PRODNAME;'s logging component. 
-                This handbook is not a tutorial.
-                It provides basic information that will help you understand and deploy this &PRODNAME; component, but you must adapt this information to suit your own configuration.
-            </para>
+            <para> The purpose of this handbook is to facilitate
+            deployment of &PRODNAME;'s HTTP logging component. This
+            handbook is not a tutorial. It provides basic information
+            that will help you understand and deploy this &PRODNAME;
+            component, but you must adapt this information to suit
+            your own configuration. </para>
             <para>
                 This handbook is focused on one &PRODNAME; component.
                 Other &PRODNAME; components are documented in companion handbooks.
@@ -105,7 +115,8 @@
     </chapter>
     <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
     <chapter xml:id="Introduction-000">
-        <title>Introduction to the Logging Component of &PRODNAME;</title>
+        <title>Introduction to the HTTP Logging Component of
+            &PRODNAME;</title>
         <para>
             &PRODNAME;'s HTTP logging component allows logging of information in HTTP requests that are sent to &PRODNAME; and responses sent from &PRODNAME;.
         </para>

@@ -1,0 +1,15 @@
+<power-proxy xmlns="http://docs.rackspacecloud.com/power-api/system-model/v1.0">
+    <host id="repose-instance" 
+        hostname="cloud.repose.n01" 
+        service-port="8887">
+        <filters>
+            <filter name="default-router" />
+            <filter name="client-ip-identity" />
+            <filter name="rate-limiting"/>
+        </filters>
+    </host>
+    
+    <host id="origin-service" 
+        hostname="api-n01.yourdomain.com" 
+        service-port="8080"/>
+</power-proxy>
