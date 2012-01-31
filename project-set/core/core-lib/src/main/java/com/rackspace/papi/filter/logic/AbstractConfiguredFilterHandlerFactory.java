@@ -8,7 +8,7 @@ import java.util.*;
  *
  * @author Dan Daley
  */
-public abstract class AbstractConfiguredFilterHandlerFactory<Handler extends FilterLogicHandler> implements UpdateListener {
+public abstract class AbstractConfiguredFilterHandlerFactory<T extends FilterLogicHandler> implements UpdateListener {
 
    private final Map<Class, UpdateListener<?>> listeners;
    private final KeyedStackLock configurationLock;
@@ -22,11 +22,11 @@ public abstract class AbstractConfiguredFilterHandlerFactory<Handler extends Fil
       listeners = getListeners();
    }
 
-   protected abstract Handler buildHandler();
+   protected abstract T buildHandler();
 
    protected abstract Map<Class, UpdateListener<?>> getListeners();
 
-   public Handler newHandler() {
+   public T newHandler() {
       configurationLock.lock(readKey);
       try {
          return buildHandler();
