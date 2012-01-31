@@ -22,7 +22,6 @@
 
     <modules>
         <module>utilities</module>
-        <module>ip-utilities</module>
         <module>configuration</module>
         <module>classloader</module>
         <module>jetty</module>
@@ -39,12 +38,6 @@
             <dependency>
                 <groupId>com.rackspace.papi.commons</groupId>
                 <artifactId>utilities</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.rackspace.papi.commons</groupId>
-                <artifactId>ip-utilities</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
