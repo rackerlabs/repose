@@ -1,11 +1,14 @@
 package com.rackspace.papi.components.clientip.extractor;
 
-import com.rackspace.papi.commons.iputil.IPAddressUtil;
 import com.rackspace.papi.components.clientip.config.HttpHeader;
+
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
+import sun.net.util.IPAddressUtil;
+
 public class ClientIpExtractor {
+
    private HttpServletRequest request;
 
    public ClientIpExtractor(HttpServletRequest request) {
@@ -26,11 +29,11 @@ public class ClientIpExtractor {
          String candidate = extractHeader(header.getId());
 
          if (IPAddressUtil.isIPv4LiteralAddress(candidate) || IPAddressUtil.isIPv6LiteralAddress(candidate)) {
-            address = candidate;
-            break;
+               address = candidate;
+               break;
          }
       }
-      
+
       return address;
    }
 }
