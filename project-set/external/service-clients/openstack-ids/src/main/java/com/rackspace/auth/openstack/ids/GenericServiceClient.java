@@ -12,6 +12,7 @@ import com.sun.jersey.api.client.filter.LoggingFilter;
 import com.sun.ws.rs.ext.RuntimeDelegateImpl;
 import org.openstack.docs.identity.api.v2.AuthenticationRequest;
 import org.openstack.docs.identity.api.v2.PasswordCredentialsRequiredUsername;
+import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 
 import javax.ws.rs.ext.RuntimeDelegate;
 import javax.xml.bind.JAXBElement;

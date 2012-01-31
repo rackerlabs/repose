@@ -46,7 +46,7 @@ public class MockServiceResource {
             }
         }
         resp += "\n\t</body>\n</html>";
-        return Response.ok(resp).build();
+        return Response.ok(resp).header("x-request-id", "somevalue").build();
     }
 
     @GET
