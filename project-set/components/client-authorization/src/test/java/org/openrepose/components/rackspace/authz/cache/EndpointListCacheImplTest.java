@@ -24,7 +24,11 @@ public class EndpointListCacheImplTest {
            NON_CACHED_TOKEN_FULLNAME = EndpointListCacheImpl.getCacheNameForToken(NON_CACHED_TOKEN),
            CACHED_TOKEN = "cached",
            CACHED_TOKEN_FULLNAME = EndpointListCacheImpl.getCacheNameForToken(CACHED_TOKEN),
-           PUBLIC_URL = "http://f.com";
+           PUBLIC_URL = "http://f.com",
+           REGION = "ORD",
+           NAME = "Nova",
+           TYPE = "compute";
+
 
    public static class WhenGettingCachedEndpointLists {
 
@@ -34,7 +38,7 @@ public class EndpointListCacheImplTest {
       @Before
       public void standUp() throws Exception {
          final LinkedList<CachedEndpoint> endpointList = new LinkedList<CachedEndpoint>();
-         endpointList.add(new CachedEndpoint(PUBLIC_URL));
+         endpointList.add(new CachedEndpoint(PUBLIC_URL, REGION, NAME, TYPE));
 
          mockedDatastore = mock(Datastore.class);
          when(mockedDatastore.get(eq(CACHED_TOKEN_FULLNAME))).thenReturn(new StoredElementImpl(CACHED_TOKEN, ObjectSerializer.instance().writeObject(endpointList)));
@@ -66,7 +70,7 @@ public class EndpointListCacheImplTest {
       @Test
       public void shouldCacheEndpointList() throws Exception {
          final LinkedList<CachedEndpoint> endpointList = new LinkedList<CachedEndpoint>();
-         endpointList.add(new CachedEndpoint(PUBLIC_URL));
+         endpointList.add(new CachedEndpoint(PUBLIC_URL, REGION, NAME, TYPE));
          
          cache.cacheEndpointsForToken(NON_CACHED_TOKEN, endpointList);
          

@@ -76,5 +76,29 @@
             </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+
+      <xs:attribute name="region" type="xs:string" use="required">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Service Mapping for the Origin Service</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+
+      <xs:attribute name="name" type="xs:string" use="required">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Service Mapping for the Origin Service</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+
+      <xs:attribute name="type" type="xs:string" use="required">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Service Mapping for the Origin Service</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
    </xs:complexType>
 </xs:schema>
