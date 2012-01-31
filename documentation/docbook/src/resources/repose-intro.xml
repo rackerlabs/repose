@@ -63,7 +63,7 @@
         </copyright>
         <releaseinfo>v1.0</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2012-01-11</pubdate>
+        <pubdate>2012-01-30</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -74,6 +74,19 @@
         </abstract>
         <revhistory>
             <revision>
+                <date>2012-01-30</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem><para>Added link to download page in <xref linkend="Try-d1e731"></xref>.</para></listitem>
+                        <listitem><para>Added configuration example in <xref linkend="Deployment_Method_Preferred-d1e122"></xref>.</para></listitem>
+                        <listitem><para>Updated example to show <parameter>service-port</parameter> in
+                                   <xref
+                                   linkend="Deployment_Method_Alternate-d1e124"
+                                />.</para></listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
+            <revision>
                 <date>2012-01-11</date>
                 <revdescription>
                     <itemizedlist spacing="compact">
@@ -81,14 +94,14 @@
                     </itemizedlist>
                 </revdescription>
             </revision>
-        <revision>
-            <date>2011-09-26</date>
-            <revdescription>
-                <itemizedlist spacing="compact">
-                    <listitem><para>Initial release as internal draft.</para></listitem>
-                </itemizedlist>
-            </revdescription>
-        </revision>
+            <revision>
+                <date>2011-09-26</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem><para>Initial release as internal draft.</para></listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
         </revhistory>
     </info>
     <chapter xml:id="Overview-d1e85">
@@ -128,15 +141,25 @@
     <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
     <chapter xml:id="Introduction-000">
         <title>What is &PRODNAME;?</title>
-        <annotation>
-            <remark>
-                Source for this chapter is https://wiki.mosso.com/display/CT/Cloud+Service+Bus
-            </remark>
-        </annotation>
-        <para> &PRODNAME; is an open-source platform that you can use to build stacks of reusable
-            software components. These components can be leveraged by service developers to perform
-            common API processing tasks. By using &PRODNAME;'s components rather than creating their
-            own, service developers can focus on the unique features of their services. </para>
+        <para>
+            &PRODNAME; is an open-source ReSTful HTTP proxy service that scales to the cloud. 
+            &PRODNAME; provides the solution to common API processing tasks such as 
+            rate limiting, client authentication, versioning, and logging 
+            so that web service developers can focus on the unique features of their services.
+        </para>
+        <para>
+            By using &PRODNAME;'s
+            components rather than creating their own, service
+            developers can focus on the unique features of their
+            services. For example, your service may need to perform
+            rate limiting; you can use the &PRODNAME; rate limiting component instead of
+            writing your own code to perform this function.
+        </para>
+        <para> You can also use &PRODNAME; as an open-source platform on which 
+            to build stacks of reusable software components. You can then make those
+            components available for use by service developers to
+            perform common API processing tasks. 
+        </para>
         <para> 
             &PRODNAME; can be used inside a service to perform API operations.
             It can also run on one or more separate servers as a proxy to one or more services.
@@ -276,11 +299,21 @@
         <para> &PRODNAME; is distributed as a filter bundle containing
             all available components. You can choose which components
             to implement in your configuration. </para>
+        <tip>
+            <para>
+                Download &PRODNAME; from the project website at 
+                <link xlink:href="http://openrepose.org/download.html">http://openrepose.org/download.html</link>.
+            </para>
+            <para>
+                The download page offers links to installation instructions
+                and a tutorial.
+            </para>
+        </tip>
         <figure xml:id="Filter-Bundle">
             <title>Multiple &PRODNAME; components in a filter bundle</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="figures/papi-intro-filterBundle.png" format="PNG" align="center"/>
+                    <imagedata fileref="figures/repose-intro-filterBundle.png" format="PNG" align="center"/>
                 </imageobject>
             </mediaobject>
         </figure>
@@ -292,7 +325,7 @@
             <title>Loading multiple &PRODNAME; components into power proxy</title>
             <mediaobject>
                 <imageobject>
-                    <imagedata fileref="figures/papi-intro-powerproxy.png" format="PNG" align="center"/>
+                    <imagedata fileref="figures/repose-intro-powerProxy.png" format="PNG" align="center"/>
                 </imageobject>
             </mediaobject>
         </figure>     
@@ -311,17 +344,24 @@
                         In <firstterm>proxy server</firstterm> deployment, Power API is in an external servlet container and acts as a second client, 
                         replicating each client request. 
                         A client sends a request to the proxy server; the proxy server then sends the request to Power Filter for processing. 
-                        The proxy server also sends the modified request to the origin service, which may be a Python service. 
+                        The proxy server also sends the modified request to the origin service; 
+                        the origin service may be any ReSTful service, including a Python service. 
                         The origin service sends a response to the proxy server, which passes that response back to the client.
                     </para>
                 <figure xml:id="ProxyServer-d1e445">
                     <title>&PRODNAME; deployment as an external servlet container</title>
                     <mediaobject>
                         <imageobject>
-                            <imagedata fileref="figures/papi-intro-deploy-proxyServer.png" format="PNG" align="center"/>
+                            <imagedata fileref="figures/repose-intro-deployProxyServer.png" format="PNG" align="center"/>
                         </imageobject>
                     </mediaobject>
                 </figure>
+                <example>
+                    <title>Configuring power-proxy.cfg.xml for proxy server deployment</title>
+                    <programlisting language="xml">
+<xi:include href="samples/papi-deploy-proxyServer.xml" parse="text"/>
+                    </programlisting>
+                </example>
             </section>
             <section xml:id="Deployment_Method_Alternate-d1e124">
                 <title>Alternate Deployment Method: Root.WAR</title>
@@ -337,12 +377,13 @@
                         <title>&PRODNAME; deployment by replacing the root component</title>
                         <mediaobject>
                             <imageobject>
-                                <imagedata fileref="figures/papi-intro-deploy-root.png" format="PNG" align="center"/>
+                                <imagedata fileref="figures/repose-intro-deployRoot.png" format="PNG" align="center"/>
                             </imageobject>
                         </mediaobject>
                     </figure>
                     <example>
-                        <title>Configuring power-proxy.xml for Root.WAR Deployment</title>
+                        <title>Configuring power-proxy.cfg.xml for
+                        Root.WAR deployment</title>
                         <programlisting language="xml">
 <xi:include href="samples/papi-deploy-root.xml" parse="text"/>
                     </programlisting>
@@ -365,7 +406,7 @@
                     <title>&PRODNAME; deployment across multiple hosts</title>
                     <mediaobject>
                         <imageobject>
-                            <imagedata fileref="figures/papi-intro-deploy-proxyCluster.png" format="PNG" align="center"/>
+                            <imagedata fileref="figures/repose-intro-deployProxyCluster.png" format="PNG" align="center"/>
                         </imageobject>
                     </mediaobject>
                 </figure>

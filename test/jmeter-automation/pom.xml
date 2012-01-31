@@ -81,7 +81,6 @@
                     <jmeterPreserveIncludeOrder>true</jmeterPreserveIncludeOrder>
                     <excludes>
                         <exclude>Power API - End to End Automation.jmx</exclude>
-                        <exclude>Power API - Versioning.jmx</exclude>
                         <exclude>Power API - Valve Test.jmx</exclude>
                         <exclude>Power API - Rate Limiting Tests.jmx</exclude>
                     </excludes>
