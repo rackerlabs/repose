@@ -31,7 +31,7 @@ import org.openrepose.components.rackspace.authz.cache.EndpointListCache;
 public class RequestAuthorizationHandlerTest {
 
    private static final String UNAUTHORIZED_TOKEN = "abcdef-abcdef-abcdef-abcdef", AUTHORIZED_TOKEN = "authorized", CACHED_TOKEN = "cached";
-   private static final String PUBLIC_URL = "http://service.api.f.com/v1.1";
+   private static final String PUBLIC_URL = "http://service.api.f.com/v1.1", REGION = "ORD", NAME = "Nova", TYPE = "compute";
 
    @Ignore
    public static class TestParent {
@@ -47,7 +47,7 @@ public class RequestAuthorizationHandlerTest {
          mockedCache = mock(EndpointListCache.class);
 
          final List<CachedEndpoint> cachedEndpointList = new LinkedList<CachedEndpoint>();
-         cachedEndpointList.add(new CachedEndpoint(PUBLIC_URL));
+         cachedEndpointList.add(new CachedEndpoint(PUBLIC_URL, REGION, NAME, TYPE));
 
          when(mockedCache.getCachedEndpointsForToken(AUTHORIZED_TOKEN)).thenReturn(null);
          when(mockedCache.getCachedEndpointsForToken(CACHED_TOKEN)).thenReturn(cachedEndpointList);
@@ -57,6 +57,9 @@ public class RequestAuthorizationHandlerTest {
 
          Endpoint endpoint = new Endpoint();
          endpoint.setPublicURL(PUBLIC_URL);
+         endpoint.setRegion(REGION);
+         endpoint.setName(NAME);
+         endpoint.setType(TYPE);
 
          endpointList.add(endpoint);
 
@@ -67,6 +70,9 @@ public class RequestAuthorizationHandlerTest {
 
          final ServiceEndpoint myServiceEndpoint = new ServiceEndpoint();
          myServiceEndpoint.setHref(PUBLIC_URL);
+         myServiceEndpoint.setRegion(REGION);
+         myServiceEndpoint.setName(NAME);
+         myServiceEndpoint.setType(TYPE);
 
          handler = new RequestAuthorizationHandler(mockedAuthService, mockedCache, myServiceEndpoint);
 
