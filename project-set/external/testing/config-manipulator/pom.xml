@@ -91,13 +91,13 @@
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>client-ip-identity</artifactId>
+            <artifactId>header-identity</artifactId>
             <version>${project.version}</version>
         </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>client-user-identity</artifactId>
+            <artifactId>uri-identity</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
