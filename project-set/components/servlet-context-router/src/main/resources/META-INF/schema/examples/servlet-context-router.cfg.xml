@@ -3,5 +3,5 @@
 <servlet-context-router xmlns='http://openrepose.org/repose/servlet-context-router/v1.0'>
    
    <!-- This defines a context path route to the context '/protected/servlet/*' -->
-   <context-paths>/protected/servlet/*</context-paths>
+   <context-path>/protected/servlet</context-path>
 </servlet-context-router>
