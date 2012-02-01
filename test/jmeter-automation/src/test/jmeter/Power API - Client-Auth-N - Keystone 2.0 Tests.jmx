@@ -123,7 +123,6 @@
             <stringProp name="3373707">name</stringProp>
             <stringProp name="-1423461112">accept</stringProp>
             <stringProp name="351608024">version</stringProp>
-            <stringProp name="504132983">user-token</stringProp>
             <stringProp name="98629247">group</stringProp>
             <stringProp name="-356853330">acceptHeaderVer</stringProp>
             <stringProp name="-819976989">verNum</stringProp>
@@ -131,44 +130,40 @@
             <stringProp name="1216985755">password</stringProp>
           </collectionProp>
           <collectionProp name="UserParameters.thread_values">
-            <collectionProp name="-1380232627">
+            <collectionProp name="-1153950590">
               <stringProp name="882210738">cmarin2</stringProp>
               <stringProp name="-1248326952">application/xml</stringProp>
               <stringProp name="3707">v1</stringProp>
-              <stringProp name="-925926243">asdasdasd-adsasdads-asdasdasd-adsadsasd</stringProp>
               <stringProp name="606175198">customer</stringProp>
               <stringProp name="3708">v2</stringProp>
               <stringProp name="49">1</stringProp>
               <stringProp name="1409471242">/usertest1/ss</stringProp>
               <stringProp name="106438208">pass1</stringProp>
             </collectionProp>
-            <collectionProp name="1226581037">
+            <collectionProp name="2044421252">
               <stringProp name="358484213">usertest2</stringProp>
               <stringProp name="1393866505">v1.0+xml</stringProp>
               <stringProp name="3708">v2</stringProp>
-              <stringProp name="-503241867">now-is-the-time</stringProp>
               <stringProp name="606175198">customer</stringProp>
               <stringProp name="3707">v1</stringProp>
               <stringProp name="50">2</stringProp>
               <stringProp name="-287715930">/usertest2</stringProp>
               <stringProp name="106438209">pass2</stringProp>
             </collectionProp>
-            <collectionProp name="716315299">
+            <collectionProp name="2121607315">
               <stringProp name="358484214">usertest3</stringProp>
               <stringProp name="-635250895">vnd.vendo.servicer-v1+xml</stringProp>
               <stringProp name="3707">v1</stringProp>
-              <stringProp name="76684575">my-third-test-user</stringProp>
               <stringProp name="606175198">customer</stringProp>
               <stringProp name="3708">v2</stringProp>
               <stringProp name="49">1</stringProp>
               <stringProp name="1644443642">/usertest3/test</stringProp>
               <stringProp name="106438210">pass3</stringProp>
             </collectionProp>
-            <collectionProp name="546999817">
+            <collectionProp name="-184348209">
               <stringProp name="358484215">usertest4</stringProp>
               <stringProp name="-526297701">application/vnd.rackspace; x=v1; y=xml</stringProp>
               <stringProp name="3708">v2</stringProp>
-              <stringProp name="-1442861776">dkshk-fdjke3-fdfjdk-21342</stringProp>
               <stringProp name="1127932692">custome</stringProp>
               <stringProp name="3707">v1</stringProp>
               <stringProp name="50">2</stringProp>
@@ -338,7 +333,7 @@ vars.put(&apos;user-token&apos;, randomValidToken());</stringProp>
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
               <stringProp name="HTTPSampler.protocol"></stringProp>
               <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-              <stringProp name="HTTPSampler.path">/v1/mockendservice/${name}</stringProp>
+              <stringProp name="HTTPSampler.path">/v1/${name}</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
