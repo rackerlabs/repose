@@ -3,6 +3,7 @@ package com.rackspace.papi.filter;
 import com.rackspace.papi.filter.resource.ResourceMonitor;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 
 import com.rackspace.papi.filter.logic.DispatchPathBuilder;
 import javax.servlet.FilterChain;
@@ -106,6 +107,7 @@ public class PowerFilterChain implements FilterChain {
 
             if (dispatcher != null) {
                LOG.debug("Attempting to route to " + routeDestination);
+               LOG.debug("Request URI: " + ((HttpServletRequest)servletRequest).getRequestURI());
                LOG.debug("Context path = " + targetContext.getContextPath());
                dispatcher.forward(servletRequest, servletResponse);
             }
