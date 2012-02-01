@@ -225,6 +225,7 @@ public class KeystonePropertiesProvider extends UserDataPropertiesProviderImpl i
             endpoint.setInternalURL(getProperties().getProperty("internalurl." + eId) + "/" + username);
             endpoint.setAdminURL(getProperties().getProperty("adminurl." + eId));
             endpoint.setTenantId(username);
+            endpoint.setRegion(getProperties().getProperty("region."+eId));
             String v = getProperties().getProperty("versions." + eId);
             if (v != null) {
                 version = new VersionForService();
