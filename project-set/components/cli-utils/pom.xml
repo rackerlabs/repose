@@ -26,11 +26,6 @@
          <groupId>com.rackspace.papi.commons</groupId>
          <artifactId>utilities</artifactId>
       </dependency>
-
-      <dependency>
-         <groupId>com.rackspace.papi.core</groupId>
-         <artifactId>core-lib</artifactId>
-      </dependency>
    </dependencies>
    
    <build>
