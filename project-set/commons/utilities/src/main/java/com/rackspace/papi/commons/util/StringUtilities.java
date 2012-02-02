@@ -63,4 +63,8 @@ public final class StringUtilities {
     public static boolean nullSafeEqualsIgnoreCase(String one, String two) {
         return one == null ? (two == null) : (two != null) && one.equalsIgnoreCase(two);
     }
+
+    public static boolean nullSafeStartsWith(String one, String two) {
+        return !((one == null) || (two == null)) && one.startsWith(two);
+    }
 }
