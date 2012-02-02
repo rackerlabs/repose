@@ -5,13 +5,13 @@
    <parent>
       <groupId>com.rackspace.papi</groupId>
       <artifactId>profile-support</artifactId>
-      <version>1.1.1</version>
+      <version>1.1.2-SNAPSHOT</version>
       <relativePath>../../pom.xml</relativePath>
    </parent>
 
    <groupId>org.openrepose.servlet</groupId>
    <artifactId>servlet-api</artifactId>
-   <version>1.1.1</version>
+   <version>1.1.2-SNAPSHOT</version>
 
    <name>Repose - Servlet API Spec</name>
     
