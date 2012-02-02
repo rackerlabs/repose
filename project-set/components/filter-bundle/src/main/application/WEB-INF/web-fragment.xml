@@ -17,13 +17,13 @@
     </filter>
 
     <filter>
-        <filter-name>client-ip-identity</filter-name>
-        <filter-class>com.rackspace.papi.components.clientip.ClientIpIdentityFilter</filter-class>
+        <filter-name>header-identity</filter-name>
+        <filter-class>com.rackspace.papi.components.identity.header.HeaderIdentityFilter</filter-class>
     </filter>
 
     <filter>
-        <filter-name>client-user-identity</filter-name>
-        <filter-class>com.rackspace.papi.components.clientuser.ClientUserIdentityFilter</filter-class>
+        <filter-name>uri-identity</filter-name>
+        <filter-class>com.rackspace.papi.components.identity.uri.UriIdentityFilter</filter-class>
     </filter>
 
     <filter>

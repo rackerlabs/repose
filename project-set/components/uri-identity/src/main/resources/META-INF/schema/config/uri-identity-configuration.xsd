@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.api.rackspacecloud.com/powerapi/uri-identity/v1.0"
+           xmlns:uri-identity="http://docs.api.rackspacecloud.com/powerapi/uri-identity/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:atom="http://www.w3.org/2005/Atom"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Client User Identity Configuration -->
+    <xs:element name="uri-identity" type="uri-identity:UriIdentityConfig" />
+
+    <xs:complexType name="UriIdentityConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:all>
+            <xs:element name="identification-mappings" type="uri-identity:IdentificationMappingList" minOccurs="1" maxOccurs="1" />
+            <xs:element name="group" type="xs:string" minOccurs="0" maxOccurs="1" default="User_Standard" />
+            <xs:element name="quality" type="xs:string" minOccurs="0" maxOccurs="1" default="0.5" />
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="IdentificationMappingList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:sequence>
+            <xs:element name="mapping" type="uri-identity:IdentificationMapping" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+
+    </xs:complexType>
+
+    <xs:complexType name="IdentificationMapping">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Describes how to extract identification information from a given URI</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="id" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>            
+        </xs:attribute>
+
+        <xs:attribute name="identification-regex" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Regex used to extract identification information from a given URI</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+</xs:schema>
