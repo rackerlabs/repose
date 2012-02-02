@@ -61,6 +61,10 @@ public class RequestAuthorizationHandlerTest {
          endpoint.setName(NAME);
          endpoint.setType(TYPE);
 
+         // Added to test case where endpoint values are null
+         Endpoint endpointb = new Endpoint();
+
+         endpointList.add(endpointb);
          endpointList.add(endpoint);
 
          mockedAuthService = mock(OpenStackAuthenticationService.class);
