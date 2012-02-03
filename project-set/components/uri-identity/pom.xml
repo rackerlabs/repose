@@ -11,7 +11,7 @@
     <groupId>com.rackspace.papi.components</groupId>
     <artifactId>uri-identity</artifactId>
 
-    <name>Power API Components - Client Identity By User Name</name>
+    <name>Power API Components - Client Identity By URI</name>
     <description>TODO</description>
 
     <packaging>jar</packaging>

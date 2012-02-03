@@ -208,7 +208,7 @@ public class StringUtilitiesTest {
    public static class WhenPerformingNullSafeStartsWith {
 
       @Test
-      public void shouldReturnTrueIfBothStringAreBlank() {
+      public void shouldReturnTrueIfBothStringsAreBlank() {
          final String one = "";
          final String two = "";
 

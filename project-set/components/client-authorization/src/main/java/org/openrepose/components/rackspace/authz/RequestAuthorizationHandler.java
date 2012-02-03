@@ -80,7 +80,7 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
          }
 
          if (StringUtilities.isBlank(authorizedEndpoint.getType())) {
-            LOG.warn("Endpoint type is null.  This is a violation of the OpenStack Identity Service contract." );
+            LOG.warn("Endpoint Type is null.  This is a violation of the OpenStack Identity Service contract." );
          }
 
          if (StringUtilities.nullSafeStartsWith(authorizedEndpoint.getPublicUrl(), myEndpoint.getHref())) {          
