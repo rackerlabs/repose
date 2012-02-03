@@ -4,6 +4,8 @@
  */
 package com.rackspace.papi.components.versioning;
 
+import com.rackspace.papi.commons.util.http.CommonHttpHeader;
+import org.junit.Ignore;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.http.media.MediaType;
@@ -44,7 +46,7 @@ public class VersioningHandlerTest {
     Map<String, Host> configuredHosts;
     Map<String, ServiceVersionMapping> configuredMappings;
     ServiceVersionMappingList mappings;
-    ServiceVersionMapping version1, version2, version3;
+    ServiceVersionMapping version1, version2, version3, version4;
     Host localHost;
     HttpServletRequest request;
 
@@ -67,17 +69,27 @@ public class VersioningHandlerTest {
         v1MediaType1.setBase("application/xml");
         v1MediaType1.setType("application/vnd.vendor.service-v1+xml");
         v1MediaTypeList.getMediaType().add(v1MediaType1);
+        
+
+        com.rackspace.papi.components.versioning.config.MediaType v1MediaType2 = new com.rackspace.papi.components.versioning.config.MediaType();
+        v1MediaType2.setBase("application/xml");
+        v1MediaType2.setType("application/vnd.rackspace; x=v1; y=json");
+        v1MediaTypeList.getMediaType().add(v1MediaType2);
+        
         version1.setMediaTypes(v1MediaTypeList);
 
         version2 = new ServiceVersionMapping();
         version2.setId("/v2");
         version2.setPpHostId("localhost");
         version2.setContextPath("/");
-        MediaTypeList v2MediaTypeList = new MediaTypeList();
+        MediaTypeList v2MediaTypeList = new MediaTypeList();        
         com.rackspace.papi.components.versioning.config.MediaType v2MediaType1 = new com.rackspace.papi.components.versioning.config.MediaType();
         v2MediaType1.setBase("application/xml");
         v2MediaType1.setType("application/vnd.vendor.service-v2+xml");
         v2MediaTypeList.getMediaType().add(v2MediaType1);
+        
+        
+        
         version2.setMediaTypes(v2MediaTypeList);
         
         version3 = new ServiceVersionMapping();
@@ -87,9 +99,20 @@ public class VersioningHandlerTest {
         MediaTypeList v3MediaTypeList = new MediaTypeList();
         com.rackspace.papi.components.versioning.config.MediaType v3MediaType1 = new com.rackspace.papi.components.versioning.config.MediaType();
         v3MediaType1.setBase("application/xml");
-        v3MediaType1.setType("application/vnd.vendor.service-v2+xml");
+        v3MediaType1.setType("application/vnd.vendor.service-v3+xml");
         v3MediaTypeList.getMediaType().add(v2MediaType1);
         version3.setMediaTypes(v3MediaTypeList);
+        
+//        version4 = new ServiceVersionMapping();
+//        version4.setId("/v4");
+//        version4.setPpHostId("localhost");
+//        version4.setContextPath("/version4");
+//        MediaTypeList v4MediaTypeList = new MediaTypeList();
+//        com.rackspace.papi.components.versioning.config.MediaType v4MediaType1 = new com.rackspace.papi.components.versioning.config.MediaType();
+//        v4MediaType1.setBase("application/xml");
+//        v4MediaType1.setType("application/vnd.vendor.service-v2+xml");
+//        v4MediaTypeList.getMediaType().add(v4MediaType1);
+//        version4.setMediaTypes(v4MediaTypeList);
 
         mappings = new ServiceVersionMappingList();
 
@@ -97,13 +120,14 @@ public class VersioningHandlerTest {
         mappings.getVersionMapping().add(version2);
         mappings.getVersionMapping().add(version3);
 
+
         configuredHosts = new HashMap<String, Host>();
         configuredMappings = new HashMap<String, ServiceVersionMapping>();
 
         configuredHosts.put(localHost.getId(), localHost);
         configuredMappings.put(version1.getId(), version1);
         configuredMappings.put(version2.getId(), version2);
-        configuredMappings.put(version2.getId(), version3);
+        configuredMappings.put(version3.getId(), version3);
 
         configurationData = new ConfigurationData(localHost, configuredHosts, configuredMappings);
 
@@ -183,5 +207,15 @@ public class VersioningHandlerTest {
         director = versioningHandler.handleRequest(request, null);
         assertTrue("Filter director should be set to send the request back", director.getFilterAction().equals(FilterAction.RETURN));
         assertTrue("Response should still be set to Bad Gateway", director.getResponseStatus().equals(HttpStatusCode.BAD_GATEWAY));
+    }
+    
+    @Test
+    public void shouldSetAcceptFromMediaTypeParameter() {
+        when(request.getRequestURI()).thenReturn("/somethingthere");
+        when(request.getRequestURL()).thenReturn(new StringBuffer("repose.node.n01:9999/"));
+        when(request.getHeader("accept")).thenReturn("application/vnd.rackspace; x=v1; y=json");
+        FilterDirector director = new FilterDirectorImpl();
+        director = versioningHandler.handleRequest(request, null);
+        assertTrue(director.requestHeaderManager().headersToAdd().get(CommonHttpHeader.ACCEPT.toString().toLowerCase()).contains("application/xml"));
     }
 }
