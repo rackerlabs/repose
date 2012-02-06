@@ -104,9 +104,6 @@ public class ConfigurationData {
     public VersionedMapType getServiceVersionForMediaRange(MediaType preferedMediaRange) {
         com.rackspace.papi.components.versioning.config.MediaType mediaType;
         for (Map.Entry<String, ServiceVersionMapping> serviceMapping : serviceMappings.entrySet()) {
-//            if (mediaTypeMatchesVersionConfigServiceMapping((ServiceVersionMapping) serviceMapping.getValue(), preferedMediaRange)) {
-//                return serviceMapping.getValue();
-//            }
             mediaType = getMatchingMediaType((ServiceVersionMapping)serviceMapping.getValue(), preferedMediaRange);
             if(mediaType != null){
                 return new VersionedMapType((ServiceVersionMapping)serviceMapping.getValue(), mediaType);
@@ -115,21 +112,6 @@ public class ConfigurationData {
         }
 
         return null;
-    }
-
-    public boolean mediaTypeMatchesVersionConfigServiceMapping(ServiceVersionMapping serviceVersionMapping, MediaType preferedMediaType) {
-        final MediaTypeList configuredMediaTypes = serviceVersionMapping.getMediaTypes();
-
-        for (com.rackspace.papi.components.versioning.config.MediaType configuredMediaType : configuredMediaTypes.getMediaType()) {
-            List<MediaType> mediaTypes = RequestMediaRangeInterrogator.interrogate("", configuredMediaType.getType());
-            
-            if(mediaTypes.contains(preferedMediaType)){
-                return true;
-            }
-             
-        }
-
-        return false;
     }
     
     public com.rackspace.papi.components.versioning.config.MediaType getMatchingMediaType(ServiceVersionMapping serviceVersionMapping, MediaType preferedMediaType) {
