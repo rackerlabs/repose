@@ -1,4 +1,4 @@
-# This README relates only to *documentation" for Repose #
+# This README relates only to documentation for Repose #
 
 Within /documentation/, the source XML for books published at http://openrepose.org/documentation.html is in /docbook/src/resources/.
 
