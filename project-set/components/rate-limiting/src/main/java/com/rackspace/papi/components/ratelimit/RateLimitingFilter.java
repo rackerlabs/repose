@@ -1,10 +1,7 @@
 package com.rackspace.papi.components.ratelimit;
 
-import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
-import com.rackspace.papi.filter.logic.FilterDirector;
+import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.context.jndi.ContextAdapter;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.service.datastore.Datastore;
@@ -13,8 +10,6 @@ import com.rackspace.papi.service.datastore.DatastoreService;
 import org.slf4j.Logger;
 
 import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collection;
 
@@ -36,29 +31,7 @@ public class RateLimitingFilter implements Filter {
 
    @Override
    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-      HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
-
-      final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
-      final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
-
-      final RateLimitingHandler handler = handlerFactory.newHandler();
-      FilterDirector director = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
-
-      director.applyTo(mutableHttpRequest);
-
-      switch (director.getFilterAction()) {
-         case PASS:
-            chain.doFilter(request, response);
-            break;
-
-         case PROCESS_RESPONSE:
-            chain.doFilter(request, response);
-            director = handler.handleResponse(mutableHttpRequest, mutableHttpResponse);
-
-         case RETURN:
-            director.applyTo(mutableHttpResponse);
-            break;
-      }
+      new FilterLogicHandlerDelegate(request, response, chain).doFilter(handlerFactory.newHandler());
    }
 
    private Datastore getDatastore(DatastoreService datastoreService) {
