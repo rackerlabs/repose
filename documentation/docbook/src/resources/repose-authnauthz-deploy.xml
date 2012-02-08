@@ -79,7 +79,9 @@
                 <revdescription>
                     <itemizedlist spacing="compact">
                         <listitem>
-                            <para>Initial release as combine Authentication and Authorization document.</para>
+                            <para>Initial release as combined
+                                Authentication and Authorization
+                                document.</para>
                         </listitem>
                     </itemizedlist>
                 </revdescription>
@@ -121,14 +123,16 @@
     </info>
     <chapter xml:id="Overview-d1e85">
         <title>About This Document</title>
-            <para> The purpose of this handbook is to facilitate deployment of &PRODNAME;'s client
-                authentication component. This handbook is not a tutorial. It provides basic
-                information that will help you understand and deploy this &PRODNAME; component, but
-                you must adapt this information to suit your own configuration. </para>
-            <para>
-                This handbook is focused on one &PRODNAME; component.
-                Other &PRODNAME; components are documented in companion handbooks.
-            </para>
+            <para> The purpose of this handbook is to facilitate
+            deployment of &PRODNAME;'s client authentication and
+            authorization components. This handbook is not a tutorial.
+            It provides basic information that will help you
+            understand and deploy these &PRODNAME; components, but you
+            must adapt this information to suit your own
+            configuration. </para>
+            <para> This handbook is focused on two closely-related
+            &PRODNAME; components. Other &PRODNAME; components are
+            documented in companion handbooks. </para>
         <section xml:id="Document_Change_History-d1e102">
             <title>Document Change History</title>
             <para>This version of the guide replaces and obsoletes all previous versions.
@@ -139,103 +143,253 @@
     </chapter>
     <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
     <chapter xml:id="Introduction-000">
-        <title>Introduction to the Client Authentication Component of &PRODNAME;</title>
+        <title>Introduction to the Client Authentication and Authorization Components of &PRODNAME;</title>
+        <para> 
+            Authentication and authorization are related but independent ideas: 
+        </para>
+        <itemizedlist>
+            <listitem>
+                <para> Authentication is the process of confirming
+                    that you are who you say you are. 
+                    For example, you might be asked to provide credentials such as a userid, password, account number, or token.</para> 
+            </listitem>
+            <listitem>
+                <para>
+                    Authorization is the process of confirming that you have permission to do what you are asking to do.
+                    For example, your authenticated identity might be checked against a list of the services to which you have subscribed.
+                </para>
+            </listitem>
+        </itemizedlist>
+        <para>
+            Both authentication and authorization processes are commonly used by software that requires users to register their identities and subscribe to specific services.
+            You can configure your service to use &PRODNAME;'s authentication component to validate the identities of your users.
+            For identities validated by the authentication component, 
+            you can use the authorization component to confirm that the services being requested match those for which the user has permission.
+        </para>
+        <important>
+            <para>
+                If you wish to use &PRODNAME; for authorization, 
+                you must first use it for authentication.
+            </para>
+        </important>
+    </chapter>
+    <chapter xml:id="Client-Authentication-001">
+        <title>Client Authentication in &PRODNAME;</title>
         <para> The client authentication service filter enables the origin service to
             communicate with the authentication service implemented in its environment. It
             accomplishes this by delegating authentication requests to the authentication
             service and returning the results of those requests to the origin service.
         </para>
-    </chapter>
-    <chapter xml:id="Configuration-d1e220">
-        <title>Configuration</title>
-        <para> 
-            Client Authentication is divided into interchangable modules which represent different authentication schemes. 
-            Depending on the &PRODNAME; components being deployed, the authentication configuration may change. 
-            In the following example, we are configuring the <code>client-auth</code> component to interact with the Rackspace Cloud Authentication Service. 
-        </para>
-        <example>
-            <title>Client Authentication Configuration: XML</title>
-            <programlistingco>
-                <areaspec>
-                    <area xml:id="papi-authn.xml.delegateable" units="linecolumn" coords="7 21"/>
-                    <area xml:id="papi-authn.xml.server" units="linecolumn" coords="10 10"/>
-                    <area xml:id="papi-authn.xml.uri" units="linecolumn" coords="11 13"/>
-                    <area xml:id="papi-authn.xml.auth" units="linecolumn" coords="11 51"/>
-                    <area xml:id="papi-authn.xml.regex" units="linecolumn" coords="13 29"/>
-                    <area xml:id="papi-authn.xml.type" units="linecolumn" coords="13 56"/>
-                </areaspec> 
-                <programlisting language="xml">
+        <section xml:id="Authentication_Configuration-d1e220">
+            <title>Authentication Configuration</title>
+            <para> Client Authentication is divided into modules which
+                represent different authentication schemes. Depending on
+                the &PRODNAME; components being deployed, the
+                authentication configuration may change. In the following
+                example, we are configuring the <code>client-auth</code>
+                &PRODNAME; component to interact with the Rackspace Cloud
+                Authentication Service. </para>
+            <example>
+                <title>Client Authentication Configuration: XML</title>
+                <programlistingco>
+                    <areaspec>
+                        <area xml:id="repose-authn.xml.delegateable" units="linecolumn" coords="7 21"/>
+                        <area xml:id="repose-authn.xml.server" units="linecolumn" coords="10 10"/>
+                        <area xml:id="repose-authn.xml.uri" units="linecolumn" coords="11 13"/>
+                        <area xml:id="repose-authn.xml.auth" units="linecolumn" coords="11 51"/>
+                        <area xml:id="repose-authn.xml.regex" units="linecolumn" coords="13 29"/>
+                        <area xml:id="repose-authn.xml.type" units="linecolumn" coords="13 56"/>
+                    </areaspec> 
+                    <programlisting language="xml">
 <xi:include href="samples/papi-authn.xml" parse="text"/>
                 </programlisting>
-            </programlistingco>     
-        </example>
-        <para> Key elements of the preceding example are labeled with callouts and explained below: </para>
-        <calloutlist>
-            <callout arearefs="papi-authn.xml.delegateable">
-                <para> All &PRODNAME; authentication modules support authentication
+                </programlistingco>     
+            </example>
+            <para> Key elements of the preceding example are labeled with callouts and explained below: </para>
+            <calloutlist>
+                <callout arearefs="repose-authn.xml.delegateable">
+                    <para> All &PRODNAME; authentication modules support authentication
                         <firstterm>delegation</firstterm>. Delegation may be enabled or disabled by
-                    setting the <code>rackspace-auth delegatable</code> attribute to <code>true</code> or <code>false</code>. To better
-                    protect services, delegation always defaults to <code>false</code>. 
-                </para>
-                <para>
-                    For more about delegation, please refer to the "Authentication in OpenStack" blueprint at 
-                    <link xlink:href="http://wiki.openstack.org/openstack-authn">http://wiki.openstack.org/openstack-authn</link>.
-                </para>
-                <para> </para>
-            </callout>
-            <callout arearefs="papi-authn.xml.server">
-                <para> The <firstterm><code>authentication-server</code></firstterm> configuration
-                    element identifies an authentication endpoint. Tokens are validated against this
-                    endpoint. While a password is required in the configuration file, it is
-                    important to note that file permissions can be set to make the configuration
-                    file user-readable only and therefore more secure. </para>
-                <para> </para>
-            </callout>
-            <callout arearefs="papi-authn.xml.uri">
-                <para> 
-                    The <firstterm><code>URI</code></firstterm> attribute of the <code>authentication-server</code> configuration element 
-                    identifies a destination to which the component must route token validation requests. 
-                    This URI must include all information required to construct an HTTP request, 
-                    including the port number the authentication service is listening on and the authentication service's context root.
-                </para>
-                <para> </para>
-            </callout>
-            <callout arearefs="papi-authn.xml.auth">
-                <para> 
-                    The authentication service's context root is <firstterm>/auth</firstterm> in this example.
-                </para>
-                <para> </para>
-            </callout>
-            <callout arearefs="papi-authn.xml.regex">
-                <para> Account mappings in the configuration inform the component of where to source
-                    the identity string in client-requested URIs. This is achieved via a regular
-                    expression (<firstterm>regex</firstterm>). In this regular expression, the
-                    service implementor must specify a regular expression capture group which, when
-                    executed, will capture the requesting client's identity string. This string will
-                    then be sent to the authentication service. </para>
-                <para> </para>
-            </callout>
-            <callout arearefs="papi-authn.xml.type">
-                <para> The <firstterm><code>type</code></firstterm> attribute identifies the type of
-                    account associated with this authentication request. In this example, the
-                    account is of type <code>CLOUD</code>. Valid account types vary depending on the
-                    requirements of the authentication service, so you should refer to the
-                    documentation describing the authentication service that you use. For example, the
-                    Rackspace Cloud Authentication Service is documented at
-                    <link xlink:href="http://docs.rackspace.com/auth/api/v1.1/auth-client-devguide-latest.pdf">http://docs.rackspace.com/auth/api/v1.1/auth-client-devguide-latest.pdf</link>.
-                </para>
-                <para> </para>
-            </callout>
-        </calloutlist>
+                        setting the <code>rackspace-auth delegatable</code> attribute to <code>true</code> or <code>false</code>. To better
+                        protect services, delegation always defaults to <code>false</code>. 
+                    </para>
+                    <para>
+                        For more about delegation, please refer to the "Authentication in OpenStack" blueprint at 
+                        <link xlink:href="http://wiki.openstack.org/openstack-authn">http://wiki.openstack.org/openstack-authn</link>.
+                    </para>
+                    <para> </para>
+                </callout>
+                <callout arearefs="repose-authn.xml.server">
+                    <para> The <firstterm><code>authentication-server</code></firstterm> configuration
+                        element identifies an authentication endpoint. Tokens are validated against this
+                        endpoint. While a password is required in the configuration file, it is
+                        important to note that file permissions can be set to make the configuration
+                        file user-readable only and therefore more secure. </para>
+                    <para> </para>
+                </callout>
+                <callout arearefs="repose-authn.xml.uri">
+                    <para> 
+                        The <firstterm><code>URI</code></firstterm> attribute of the <code>authentication-server</code> configuration element 
+                        identifies a destination to which the component must route token validation requests. 
+                        This URI must include all information required to construct an HTTP request, 
+                        including the port number the authentication service is listening on and the authentication service's context root.
+                    </para>
+                    <para> </para>
+                </callout>
+                <callout arearefs="repose-authn.xml.auth">
+                    <para> 
+                        The authentication service's context root is <firstterm>/auth</firstterm> in this example.
+                    </para>
+                    <para> </para>
+                </callout>
+                <callout arearefs="repose-authn.xml.regex">
+                    <para> Account mappings in the configuration inform the component of where to source
+                        the identity string in client-requested URIs. This is achieved via a regular
+                        expression (<firstterm>regex</firstterm>). In this regular expression, the
+                        service implementor must specify a regular expression capture group which, when
+                        executed, will capture the requesting client's identity string. This string will
+                        then be sent to the authentication service. </para>
+                    <para> </para>
+                </callout>
+                <callout arearefs="repose-authn.xml.type">
+                    <para> The <firstterm><code>type</code></firstterm> attribute identifies the type of
+                        account associated with this authentication request. In this example, the
+                        account is of type <code>CLOUD</code>. Valid account types vary depending on the
+                        requirements of the authentication service, so you should refer to the
+                        documentation describing the authentication service that you use. For example, the
+                        Rackspace Cloud Authentication Service v1.1 is documented at
+                        <link xlink:href="http://docs.rackspace.com/auth/api/v1.1/auth-client-devguide-latest.pdf">http://docs.rackspace.com/auth/api/v1.1/auth-client-devguide-latest.pdf</link>.
+                    </para>
+                    <para> </para>
+                </callout>
+            </calloutlist>
+        </section>
+        <section xml:id="Authentication_Lifecycle-d1e731">
+            <title>Authentication Lifecycle</title>
+            <para> 
+                &PRODNAME;'s authentication lifecycle is directly derived from the "Authentication in OpenStack" blueprint at 
+                <link xlink:href="http://wiki.openstack.org/openstack-authn">http://wiki.openstack.org/openstack-authn</link>, which defines a standard for authentication. 
+                Compliance with this standard enables services to support multiple authentication protocols in a pluggable manner. 
+                For further information about &PRODNAME;'s handling of authentication requests, please refer to this blueprint.
+            </para> 
+        </section>        
     </chapter>
-    <chapter xml:id="Limited-d1e731">
-        <title>Authentication Lifecycle</title>
-        <para> 
-            &PRODNAME;'s authentication lifecycle is directly derived from the "Authentication in OpenStack" blueprint at 
-            <link xlink:href="http://wiki.openstack.org/openstack-authn">http://wiki.openstack.org/openstack-authn</link>, which defines a standard for authentication. 
-            Compliance with this standard enables services to support multiple authentication protocols in a pluggable manner. 
-            For further information about &PRODNAME;'s handling of authentication requests, please refer to this blueprint.
-        </para> 
+    <chapter xml:id="Client-Authorization-002">
+        <title>Client Authorization in &PRODNAME;</title>
+        <para> The client authorization service filter enables the
+            service implementer to validate that a client's request is
+            allowed. <itemizedlist>
+                <listitem>
+                    <para> If the client's request is allowed, then
+                        the request is passed through without any
+                        changes. </para>
+                </listitem>
+                <listitem>
+                    <para> If the client's request is not allowed,
+                        then the request is denied with an HTTP
+                            <errorcode>403</errorcode> (forbidden)
+                        response. </para>
+                </listitem>
+            </itemizedlist> A request is considered authorized if any
+            of the endpoints in the client's endpoint list start with
+            the service endpoint associated with the requested
+            component. For example, if an authenticated client
+            requests the  compute service, and that client's endpoint
+            list (also known as a services catalog) includes an
+            endpoint for the compute service, then the client is
+            authorized to use the compute service and the client's
+            request is forwarded to the compute service for further
+            processing.</para>
+        <para>
+            The &PRODNAME; authorization component's decision flow is summarized in the drawing below:
+        </para>
+        <figure xml:id="Authorization_Decisions">
+            <title>Decision Flow in the &PRODNAME; Client
+                Authorization Component</title>
+            <!-- color drawing from John Hopper here -->
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="figures/repose-authz-decisions.png" format="PNG" align="center"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>
+            As shown above, 
+            the authorization component must be configured to represent a valid endpoint.
+            The client receives a token as a result of successful authentication; the identity server uses the client's token to retrieve the client's endpoint list. 
+            The authorization component then compares the configured endpoint against the authenticated client's endpoint list.
+        </para>
+        <important>
+            <para>
+                The authorization component assumes that any requests passed to it
+                have already been authenticated.
+            </para>
+        </important>
+        <section xml:id="Authorization_Schemes-d1e320">
+            <title>Authorization Schemes</title>
+            <para> The &PRODNAME; client authorization component is
+                designed to allow selection from a list of supported
+                authorization schemes. The list of supported
+                authorization schemes is:</para>
+            <itemizedlist>
+                <listitem>
+                    <para> OpenStack Identity Request Authorization
+                    </para>
+                </listitem>
+            </itemizedlist>
+            <section xml:id="Authorization_Scheme_OpenStack_Identity-d1e325">
+                <title>OpenStack Identity Request Authorization</title>
+                <para>bla</para>
+            </section>
+        </section>
+        <section xml:id="Authorization_Tests-d1e327">
+            <title>Authorization Tests</title>
+            <para>You can adapt the tests described in this table to
+                work within your own &PRODNAME; configuration.<table
+                    frame="box" width="965">
+                    <caption>Authorization Test Suite
+                        Summary</caption>
+                    <col width="33%"/>
+                    <col width="34%"/>
+                    <col width="33%"/>
+                    <thead>
+                        <tr>
+                            <th>Test</th>
+                            <th>Sample Command</th>
+                            <th>Expected Outcome</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>When authorizing requests in which
+                                client authentication has been
+                                delegated ...</td>
+                            <td><code>curl -X GET -H "www-authenticate: delegated" --verbose http://repose-host/some/protected/resource</code></td>
+                            <td>... service must return an HTTP
+                                   <errorcode>403</errorcode>
+                                (forbidden) response.</td>
+                        </tr>
+                        <tr>
+                            <td>When authorizing requests in which
+                                authentication information (username
+                                and token) is not provided ...</td>
+                            <td><code>curl -X GET --verbose http://repose-host/some/protected/resource</code></td>
+                            <td>... service must return an HTTP
+                                   <errorcode>401</errorcode>
+                                (unauthorized) response.</td>
+                        </tr>
+                        <tr>
+                            <td>When authorizing requests in which
+                                authentication information (username
+                                and token) is provided ...</td>
+                            <!-- in <code>, replaced one < with &lt; so Author parses OK; come back later and retry as CDATA -->
+                            <td><code>curl -X GET -H "x-auth-token: &lt;valid-token>" --verbose http://repose-host/some/protected/resource</code></td>
+                            <td>... service must pass the request
+                                downstream. </td>
+                        </tr>
+                    </tbody>
+                </table></para>
+        </section>
     </chapter>
     <xi:include href="chapters/afterword.xml"/>
 </book>
