@@ -1557,7 +1557,7 @@
               </ModuleController>
               <hashTree/>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - from URI Variants - no version - xml" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - from URI Variants - no version - xml" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
@@ -1600,7 +1600,7 @@
               </ModuleController>
               <hashTree/>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - from URI Variants - no version - json" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - from URI Variants - no version - json" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
@@ -1643,7 +1643,7 @@
               </ModuleController>
               <hashTree/>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - test malform" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - test malform" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
@@ -1690,7 +1690,7 @@
               </ModuleController>
               <hashTree/>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - test malform 2" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - test malform 2" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
@@ -1737,7 +1737,7 @@
               </ModuleController>
               <hashTree/>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - test malform 3" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - test malform 3" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
