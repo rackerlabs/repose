@@ -21,10 +21,10 @@
           <stringProp name="98629247">group</stringProp>
         </collectionProp>
         <collectionProp name="UserParameters.thread_values">
-          <collectionProp name="-1476379258">
-            <stringProp name="-1149796508">10.6.60.1</stringProp>
+          <collectionProp name="-268284838">
+            <stringProp name="231793410">reposeuser1</stringProp>
             <stringProp name="-1248326952">application/xml</stringProp>
-            <stringProp name="-1149796507">10.6.60.2</stringProp>
+            <stringProp name="231793411">reposeuser2</stringProp>
             <stringProp name="-284840886">unknown</stringProp>
             <stringProp name="1980046654">64.39.4.132</stringProp>
             <stringProp name="598148853">IP_Standard</stringProp>
@@ -84,7 +84,7 @@
             <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Headers" enabled="true">
               <collectionProp name="HeaderManager.headers">
                 <elementProp name="" elementType="Header">
-                  <stringProp name="Header.name">X-Forwarded-For</stringProp>
+                  <stringProp name="Header.name">X-Header-User</stringProp>
                   <stringProp name="Header.value">${ip1}</stringProp>
                 </elementProp>
                 <elementProp name="" elementType="Header">
@@ -105,7 +105,7 @@
                 <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                   <collectionProp name="HeaderManager.headers">
                     <elementProp name="" elementType="Header">
-                      <stringProp name="Header.name">X-Forwarded-For</stringProp>
+                      <stringProp name="Header.name">X-Header-User</stringProp>
                       <stringProp name="Header.value">${ip1}</stringProp>
                     </elementProp>
                   </collectionProp>
@@ -132,9 +132,9 @@
                   <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
                 </HTTPSamplerProxy>
                 <hashTree>
-                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="should return only ip address" enabled="true">
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="should return only set header user" enabled="true">
                     <collectionProp name="Asserion.test_strings">
-                      <stringProp name="32561690">x-pp-user : ${ip1};q=</stringProp>
+                      <stringProp name="-894012258">x-pp-user : .*${ip1};q=</stringProp>
                       <stringProp name="1154212879">x-pp-groups : ${group}</stringProp>
                     </collectionProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
@@ -149,7 +149,7 @@
                 <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                   <collectionProp name="HeaderManager.headers">
                     <elementProp name="" elementType="Header">
-                      <stringProp name="Header.name">X-Forwarded-For</stringProp>
+                      <stringProp name="Header.name">X-Header-User</stringProp>
                       <stringProp name="Header.value">${ip2}, ${ip1}</stringProp>
                     </elementProp>
                   </collectionProp>
@@ -178,12 +178,21 @@
                 <hashTree>
                   <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="should return first ip address in the list" enabled="true">
                     <collectionProp name="Asserion.test_strings">
-                      <stringProp name="33485211">x-pp-user : ${ip2};q=</stringProp>
+                      <stringProp name="-893088737">x-pp-user : .*${ip2};q=</stringProp>
                       <stringProp name="1154212879">x-pp-groups : ${group}</stringProp>
                     </collectionProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
                     <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Should not set any user after the first" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="-711298922">x-pp-user : *${ip1};q=</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">6</intProp>
                   </ResponseAssertion>
                   <hashTree/>
                 </hashTree>
@@ -214,7 +223,7 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                 </BSFSampler>
                 <hashTree/>
               </hashTree>
-              <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When X-Forwarded-For has no value" enabled="true"/>
+              <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When X-Forwarded-For has no value" enabled="false"/>
               <hashTree>
                 <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                   <collectionProp name="HeaderManager.headers">
@@ -258,7 +267,7 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                   <hashTree/>
                 </hashTree>
               </hashTree>
-              <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When X-Forwarded-For has bogus value" enabled="true"/>
+              <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When X-Forwarded-For has bogus value" enabled="false"/>
               <hashTree>
                 <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                   <collectionProp name="HeaderManager.headers">
@@ -291,6 +300,52 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                 </HTTPSamplerProxy>
                 <hashTree>
                   <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="should return source ip" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="-121316922">x-pp-user : ${sourceIp};q=</stringProp>
+                      <stringProp name="1154212879">x-pp-groups : ${group}</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                </hashTree>
+              </hashTree>
+              <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When X-Header-Manager has no value" enabled="true">
+                <stringProp name="TestPlan.comments">This tests the happy path case where there is a single valid IP address in the X-Forwarded-For header.</stringProp>
+              </GenericController>
+              <hashTree>
+                <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                  <collectionProp name="HeaderManager.headers">
+                    <elementProp name="" elementType="Header">
+                      <stringProp name="Header.name">X-Header-User</stringProp>
+                      <stringProp name="Header.value"></stringProp>
+                    </elementProp>
+                  </collectionProp>
+                </HeaderManager>
+                <hashTree/>
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request" enabled="true">
+                  <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                    <collectionProp name="Arguments.arguments"/>
+                  </elementProp>
+                  <stringProp name="HTTPSampler.domain"></stringProp>
+                  <stringProp name="HTTPSampler.port"></stringProp>
+                  <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                  <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                  <stringProp name="HTTPSampler.protocol"></stringProp>
+                  <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+                  <stringProp name="HTTPSampler.path"></stringProp>
+                  <stringProp name="HTTPSampler.method">GET</stringProp>
+                  <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+                  <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+                  <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+                  <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+                  <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
+                  <boolProp name="HTTPSampler.monitor">false</boolProp>
+                  <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+                </HTTPSamplerProxy>
+                <hashTree>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="should return only ip address" enabled="true">
                     <collectionProp name="Asserion.test_strings">
                       <stringProp name="-121316922">x-pp-user : ${sourceIp};q=</stringProp>
                       <stringProp name="1154212879">x-pp-groups : ${group}</stringProp>
