@@ -5,7 +5,7 @@ import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.identity.header.config.HeaderIdentityConfig;
 import com.rackspace.papi.components.identity.header.config.HttpHeader;
 import com.rackspace.papi.components.identity.header.extractor.ClientGroupExtractor;
-import com.rackspace.papi.components.identity.header.extractor.ClientIpExtractor;
+import com.rackspace.papi.components.identity.header.extractor.HeaderValueExtractor;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -33,7 +33,7 @@ public class HeaderIdentityHandler extends AbstractFilterLogicHandler {
       HeaderManager headerManager = filterDirector.requestHeaderManager();
       filterDirector.setFilterAction(FilterAction.PASS);
 
-      String address = new ClientIpExtractor(request).extractIpAddress(sourceHeaders);
+      String address = new HeaderValueExtractor(request).extractHeaderValue(sourceHeaders);
 
       if(!address.isEmpty()) {
          String group = new ClientGroupExtractor(request, config).determineIpGroup(address);

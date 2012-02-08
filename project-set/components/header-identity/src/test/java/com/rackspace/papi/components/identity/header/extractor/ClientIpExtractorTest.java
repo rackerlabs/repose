@@ -23,12 +23,12 @@ public class ClientIpExtractorTest {
       private static String IP_HEADER = "127.0.0.1";
       private static String INVALID_IP = "unknown";
       private static String DEFAULT_IP_VALUE = "10.0.0.1";
-      private ClientIpExtractor extractor;
+      private HeaderValueExtractor extractor;
 
       @Before
       public void setUp() {
          request = mock(HttpServletRequest.class);
-         extractor = new ClientIpExtractor(request);
+         extractor = new HeaderValueExtractor(request);
          
          when(request.getHeader(IP_HEADER_NAME)).thenReturn(IP_HEADER);
          when(request.getHeader(INVALID_IP_HEADER_NAME)).thenReturn(INVALID_IP);
@@ -51,7 +51,7 @@ public class ClientIpExtractorTest {
       @Ignore
       public void shouldGetDefaultIpAddress() {
          List<HttpHeader> headers = new ArrayList<HttpHeader>();
-         String actual = extractor.extractIpAddress(headers);
+         String actual = extractor.extractHeaderValue(headers);
          assertEquals("Should find default IP", DEFAULT_IP_VALUE, actual);
       }
 
@@ -62,7 +62,7 @@ public class ClientIpExtractorTest {
          header.setId(INVALID_IP_HEADER_NAME);
          headers.add(header);
 
-         String actual = extractor.extractIpAddress(headers);
+         String actual = extractor.extractHeaderValue(headers);
          assertEquals("Should find default IP", DEFAULT_IP_VALUE, actual);
       }
 
@@ -73,7 +73,7 @@ public class ClientIpExtractorTest {
          header.setId(IP_HEADER_NAME);
          headers.add(header);
          
-         String actual = extractor.extractIpAddress(headers);
+         String actual = extractor.extractHeaderValue(headers);
          assertEquals("Should find Header IP", IP_HEADER, actual);
       }
       
@@ -85,7 +85,7 @@ public class ClientIpExtractorTest {
          header.setId(MULTIPLE_IP_HEADER_NAME);
          headers.add(header);
          
-         String actual = extractor.extractIpAddress(headers);
+         String actual = extractor.extractHeaderValue(headers);
          assertEquals("Should find Header IP", expected, actual);
          
       }
