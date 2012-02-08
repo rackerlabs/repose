@@ -541,7 +541,7 @@
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <intProp name="LoopController.loops">-1</intProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">4</stringProp>
+        <stringProp name="ThreadGroup.num_threads">2</stringProp>
         <stringProp name="ThreadGroup.ramp_time">1</stringProp>
         <longProp name="ThreadGroup.start_time">1311862364000</longProp>
         <longProp name="ThreadGroup.end_time">1311862364000</longProp>
@@ -683,7 +683,7 @@
                 </elementProp>
                 <elementProp name="version" elementType="Argument">
                   <stringProp name="Argument.name">version</stringProp>
-                  <stringProp name="Argument.value">2</stringProp>
+                  <stringProp name="Argument.value">v2</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
                 <elementProp name="group" elementType="Argument">
@@ -698,18 +698,18 @@
                 </elementProp>
                 <elementProp name="verNum" elementType="Argument">
                   <stringProp name="Argument.name">verNum</stringProp>
-                  <stringProp name="Argument.value">1</stringProp>
+                  <stringProp name="Argument.value">2</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
-                <elementProp name="resourcePath" elementType="Argument">
-                  <stringProp name="Argument.name">resourcePath</stringProp>
+                <elementProp name="resourcepath" elementType="Argument">
+                  <stringProp name="Argument.name">resourcepath</stringProp>
                   <stringProp name="Argument.value">/usertest1/ss</stringProp>
                   <stringProp name="Argument.metadata">=</stringProp>
                 </elementProp>
               </collectionProp>
             </Arguments>
             <hashTree/>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getAllVersion - xml" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getAllVersion - xml" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
@@ -734,7 +734,7 @@
               </ModuleController>
               <hashTree/>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getAllVersion - json" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getAllVersion - json" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
@@ -763,7 +763,7 @@
               </ModuleController>
               <hashTree/>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionDetails- xml" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionDetails- xml" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
@@ -792,7 +792,7 @@
               </ModuleController>
               <hashTree/>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionDetails- json" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionDetails- json" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
@@ -908,7 +908,7 @@
               </ModuleController>
               <hashTree/>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getSingleVersion - accept header vendor version + json" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getSingleVersion - accept header vendor version + json" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
@@ -917,27 +917,37 @@
                     <stringProp name="Header.value">application/vnd.vendor.service-${version}+json</stringProp>
                   </elementProp>
                   <elementProp name="" elementType="Header">
-                    <stringProp name="Header.name">X-PP-User</stringProp>
-                    <stringProp name="Header.value">${name}</stringProp>
-                  </elementProp>
-                  <elementProp name="" elementType="Header">
-                    <stringProp name="Header.name">X-PP-Groups</stringProp>
-                    <stringProp name="Header.value">${group}</stringProp>
+                    <stringProp name="Header.name">x-auth-token</stringProp>
+                    <stringProp name="Header.value">${auth-token}</stringProp>
                   </elementProp>
                 </collectionProp>
               </HeaderManager>
+              <hashTree/>
+              <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port"></stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol"></stringProp>
+                <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+                <stringProp name="HTTPSampler.path">/${name}/ss</stringProp>
+                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+              </ConfigTestElement>
               <hashTree/>
               <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getSingleVersion - accept header vendor version + json" enabled="true">
                 <collectionProp name="ModuleController.node_path">
                   <stringProp name="-1227702913">WorkBench</stringProp>
                   <stringProp name="764597751">Test Plan</stringProp>
                   <stringProp name="170071582">Test Fragment</stringProp>
-                  <stringProp name="1978470820">SingleVersion - MINE TYPE json</stringProp>
+                  <stringProp name="1056720898">SingleVersion - url variants</stringProp>
                 </collectionProp>
               </ModuleController>
               <hashTree/>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getSingleVersion - accept header vendor version number + xml" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getSingleVersion - accept header vendor version number + xml" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
@@ -946,22 +956,32 @@
                     <stringProp name="Header.value">application/vnd.vendor.service+xml; version=${verNum}</stringProp>
                   </elementProp>
                   <elementProp name="" elementType="Header">
-                    <stringProp name="Header.name">X-PP-User</stringProp>
-                    <stringProp name="Header.value">${name}</stringProp>
-                  </elementProp>
-                  <elementProp name="" elementType="Header">
-                    <stringProp name="Header.name">X-PP-Groups</stringProp>
-                    <stringProp name="Header.value">${group}</stringProp>
+                    <stringProp name="Header.name">X-Auth-Token</stringProp>
+                    <stringProp name="Header.value">${auth-token}</stringProp>
                   </elementProp>
                 </collectionProp>
               </HeaderManager>
+              <hashTree/>
+              <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port"></stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol"></stringProp>
+                <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+                <stringProp name="HTTPSampler.path">/${name}/ss</stringProp>
+                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+              </ConfigTestElement>
               <hashTree/>
               <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="getSingleVersion - accept header vendor version number + xml" enabled="true">
                 <collectionProp name="ModuleController.node_path">
                   <stringProp name="-1227702913">WorkBench</stringProp>
                   <stringProp name="764597751">Test Plan</stringProp>
                   <stringProp name="170071582">Test Fragment</stringProp>
-                  <stringProp name="-1875827749">SingleVersion - MINE TYPE xml</stringProp>
+                  <stringProp name="1056720898">SingleVersion - url variants</stringProp>
                 </collectionProp>
               </ModuleController>
               <hashTree/>
@@ -1111,7 +1131,7 @@
               </ModuleController>
               <hashTree/>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="unversioning/badrequest - multiple choice - xml" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="unversioning/badrequest - multiple choice - xml" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
@@ -1154,7 +1174,7 @@
               </ModuleController>
               <hashTree/>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="unversioning/badrequest - multiple choice - json" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="unversioning/badrequest - multiple choice - json" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
@@ -1197,7 +1217,7 @@
               </ModuleController>
               <hashTree/>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - from URI variants - xml" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - from URI variants - xml" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
@@ -1244,7 +1264,7 @@
               </ModuleController>
               <hashTree/>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - from URI variants - json" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - from URI variants - json" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
@@ -1291,7 +1311,7 @@
               </ModuleController>
               <hashTree/>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - unVersion or bad request from path - xml" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - unVersion or bad request from path - xml" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
@@ -1479,7 +1499,7 @@
               </ModuleController>
               <hashTree/>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="complex - getSingleVersion different from accept header version + xml" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="complex - getSingleVersion different from accept header version + xml" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
@@ -1508,7 +1528,7 @@
               </ModuleController>
               <hashTree/>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="complex - getSingleVersion different from accept header version + json" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="complex - getSingleVersion different from accept header version + json" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
@@ -1537,7 +1557,7 @@
               </ModuleController>
               <hashTree/>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - from URI Variants - no version - xml" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - from URI Variants - no version - xml" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
@@ -1580,7 +1600,7 @@
               </ModuleController>
               <hashTree/>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - from URI Variants - no version - json" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - from URI Variants - no version - json" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
@@ -1623,7 +1643,7 @@
               </ModuleController>
               <hashTree/>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - test malform" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - test malform" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
@@ -1670,7 +1690,7 @@
               </ModuleController>
               <hashTree/>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - test malform 2" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - test malform 2" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">
@@ -1717,7 +1737,7 @@
               </ModuleController>
               <hashTree/>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - test malform 3" enabled="false"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="getVersionInfo - test malform 3" enabled="true"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                 <collectionProp name="HeaderManager.headers">

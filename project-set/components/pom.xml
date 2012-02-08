@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.rackspace.papi</groupId>
         <artifactId>profile-support</artifactId>
-        <version>1.1.1-SNAPSHOT</version>
+        <version>1.1.2-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.components</groupId>
@@ -19,8 +19,8 @@
         <module>datastore</module>
         <module>http-logging</module>
         <module>client-auth</module>
-        <module>client-ip-identity</module>
-        <module>client-user-identity</module>
+        <module>header-identity</module>
+        <module>uri-identity</module>
         <module>service-auth</module>
         <module>cli-utils</module>
         <module>content-normalization</module>
@@ -56,12 +56,6 @@
             <dependency>
                 <groupId>com.rackspace.papi.commons</groupId>
                 <artifactId>utilities</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            
-            <dependency>
-                <groupId>com.rackspace.papi.commons</groupId>
-                <artifactId>ip-utilities</artifactId>
                 <version>${project.version}</version>
             </dependency>
             
@@ -145,13 +139,13 @@
 
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
-                <artifactId>client-ip-identity</artifactId>
+                <artifactId>header-identity</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
-                <artifactId>client-user-identity</artifactId>
+                <artifactId>uri-identity</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

@@ -56,7 +56,7 @@ public class MockServiceResource {
     }
 
     @GET
-    @Path("/{version}/{user}/limits")
+    @Path("*/limits")
     @Produces("application/xml")
     public Response getAbsoluteLimits() {
 

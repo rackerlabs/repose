@@ -58,11 +58,13 @@ public class ConfigurationData {
         // If version info not in URI look in accept header
         if (destination == null) {
             final MediaType range = requestInfo.getPreferedMediaRange();
-            final ServiceVersionMapping currentServiceVersion = getServiceVersionForMediaRange(range);
+            final VersionedMapType currentServiceVersion = getServiceVersionForMediaRange(range);
+            
 
             if (currentServiceVersion != null) {
-                director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.toString(), range.getMimeType().toString());
-                destination = new VersionedOriginService(currentServiceVersion, getHostForVersionMapping(currentServiceVersion));
+                final Host host = getHostForVersionMapping(currentServiceVersion.getServiceVersionMapping());
+                director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.toString(), currentServiceVersion.getMediaType().getBase());
+                destination = new VersionedOriginService(currentServiceVersion.getServiceVersionMapping(),host);
             }
         }
 
@@ -99,29 +101,30 @@ public class ConfigurationData {
         return versionChoices;
     }
 
-    public ServiceVersionMapping getServiceVersionForMediaRange(MediaType preferedMediaRange) {
+    public VersionedMapType getServiceVersionForMediaRange(MediaType preferedMediaRange) {
+        com.rackspace.papi.components.versioning.config.MediaType mediaType;
         for (Map.Entry<String, ServiceVersionMapping> serviceMapping : serviceMappings.entrySet()) {
-            if (mediaTypeMatchesVersionConfigServiceMapping((ServiceVersionMapping) serviceMapping.getValue(), preferedMediaRange)) {
-                return serviceMapping.getValue();
+            mediaType = getMatchingMediaType((ServiceVersionMapping)serviceMapping.getValue(), preferedMediaRange);
+            if(mediaType != null){
+                return new VersionedMapType((ServiceVersionMapping)serviceMapping.getValue(), mediaType);
             }
+           
         }
 
         return null;
     }
-
-    public boolean mediaTypeMatchesVersionConfigServiceMapping(ServiceVersionMapping serviceVersionMapping, MediaType preferedMediaType) {
+    
+    public com.rackspace.papi.components.versioning.config.MediaType getMatchingMediaType(ServiceVersionMapping serviceVersionMapping, MediaType preferedMediaType) {
         final MediaTypeList configuredMediaTypes = serviceVersionMapping.getMediaTypes();
-
         for (com.rackspace.papi.components.versioning.config.MediaType configuredMediaType : configuredMediaTypes.getMediaType()) {
             List<MediaType> mediaTypes = RequestMediaRangeInterrogator.interrogate("", configuredMediaType.getType());
-            
             if(mediaTypes.contains(preferedMediaType)){
-                return true;
+                return configuredMediaType;
             }
              
         }
 
-        return false;
+        return null;
     }
 
     public boolean isRequestForVersions(UniformResourceInfo uniformResourceInfo) {

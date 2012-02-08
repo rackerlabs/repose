@@ -74,10 +74,16 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
       boolean authorized = false;
 
       for (CachedEndpoint authorizedEndpoint : authorizedEndpoints) {
-         if (authorizedEndpoint.getPublicUrl().startsWith(myEndpoint.getHref()) &&
-             authorizedEndpoint.getType().equalsIgnoreCase(myEndpoint.getType()) &&
-             StringUtilities.nullSafeEqualsIgnoreCase(authorizedEndpoint.getRegion(), myEndpoint.getRegion()) &&
-             StringUtilities.nullSafeEqualsIgnoreCase(authorizedEndpoint.getName(), myEndpoint.getName())) {
+
+         if (StringUtilities.isBlank(authorizedEndpoint.getPublicUrl())) {
+            LOG.warn("Endpoint Public URL is null.  This is a violation of the OpenStack Identity Service contract." );
+         }
+
+         if (StringUtilities.isBlank(authorizedEndpoint.getType())) {
+            LOG.warn("Endpoint Type is null.  This is a violation of the OpenStack Identity Service contract." );
+         }
+
+         if (StringUtilities.nullSafeStartsWith(authorizedEndpoint.getPublicUrl(), myEndpoint.getHref())) {          
             authorized = true;
             break;
          }
