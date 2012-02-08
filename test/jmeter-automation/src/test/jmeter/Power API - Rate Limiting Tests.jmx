@@ -71,38 +71,6 @@
             <hashTree/>
           </hashTree>
         </hashTree>
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Log Iteration with Watchdog" enabled="true"/>
-        <hashTree>
-          <CounterConfig guiclass="CounterConfigGui" testclass="CounterConfig" testname="Iteration Counter" enabled="true">
-            <stringProp name="CounterConfig.start">1</stringProp>
-            <stringProp name="CounterConfig.end">20</stringProp>
-            <stringProp name="CounterConfig.incr">1</stringProp>
-            <stringProp name="CounterConfig.name">__watchdogIterationCounter</stringProp>
-            <stringProp name="CounterConfig.format"></stringProp>
-            <boolProp name="CounterConfig.per_user">true</boolProp>
-          </CounterConfig>
-          <hashTree/>
-          <BSFSampler guiclass="BSFSamplerGui" testclass="BSFSampler" testname="Test runtime watchdog check" enabled="true">
-            <stringProp name="BSFSampler.filename"></stringProp>
-            <stringProp name="BSFSampler.language">javascript</stringProp>
-            <stringProp name="BSFSampler.parameters"></stringProp>
-            <stringProp name="BSFSampler.query">var iCounter= vars.get(&quot;__watchdogIterationCounter&quot;);
-
-if (iCounter &gt; 8) {
-   SampleResult.setSuccessful(false);
-   SampleResult.setResponseCode(&quot;-1&quot;);
-   SampleResult.setResponseMessage(&quot;Test taking to long, failing.&quot;);
-}</stringProp>
-          </BSFSampler>
-          <hashTree/>
-        </hashTree>
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Reset Iteration Watchdog" enabled="true"/>
-        <hashTree>
-          <ConfigTestElement guiclass="SimpleConfigGui" testclass="ConfigTestElement" testname="Set iteration counter to 0" enabled="true">
-            <stringProp name="__watchdogIterationCounter">0</stringProp>
-          </ConfigTestElement>
-          <hashTree/>
-        </hashTree>
         <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Wait for request limits to reset" enabled="true"/>
         <hashTree>
           <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Get Limits" enabled="true">
@@ -118,14 +86,9 @@ if (iCounter &gt; 8) {
             <stringProp name="WhileController.condition">${__javaScript(${remainingRequests} == 0)}</stringProp>
           </WhileController>
           <hashTree>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Log iteration" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
-                <stringProp name="-523470040">Log Iteration with Watchdog</stringProp>
-              </collectionProp>
-            </ModuleController>
+            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait" enabled="true">
+              <stringProp name="ConstantTimer.delay">10000</stringProp>
+            </ConstantTimer>
             <hashTree/>
             <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Get Limits" enabled="true">
               <collectionProp name="ModuleController.node_path">
@@ -136,36 +99,23 @@ if (iCounter &gt; 8) {
               </collectionProp>
             </ModuleController>
             <hashTree/>
-            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait" enabled="true">
-              <stringProp name="ConstantTimer.delay">10000</stringProp>
-            </ConstantTimer>
-            <hashTree/>
           </hashTree>
-          <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Reset iteration counter" enabled="true">
+        </hashTree>
+        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Make requests while user has requests remaining" enabled="true"/>
+        <hashTree>
+          <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Get Limits" enabled="true">
             <collectionProp name="ModuleController.node_path">
               <stringProp name="-1227702913">WorkBench</stringProp>
               <stringProp name="764597751">Test Plan</stringProp>
               <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
-              <stringProp name="-1344922943">Reset Iteration Watchdog</stringProp>
+              <stringProp name="1977155682">Get Limits</stringProp>
             </collectionProp>
           </ModuleController>
           <hashTree/>
-        </hashTree>
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Make requests while user has requests remaining" enabled="true"/>
-        <hashTree>
           <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="While user has requests remaining" enabled="true">
             <stringProp name="WhileController.condition">${__javaScript(${remainingRequests} &gt; 0)}</stringProp>
           </WhileController>
           <hashTree>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Log iteration" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
-                <stringProp name="-1929474597">Test Watchdog</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Should allow requests when user has requests remaining" enabled="true">
               <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
                 <collectionProp name="Arguments.arguments"/>
@@ -197,6 +147,10 @@ if (iCounter &gt; 8) {
               </ResponseAssertion>
               <hashTree/>
             </hashTree>
+            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait" enabled="true">
+              <stringProp name="ConstantTimer.delay">500</stringProp>
+            </ConstantTimer>
+            <hashTree/>
             <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Get Limits" enabled="true">
               <collectionProp name="ModuleController.node_path">
                 <stringProp name="-1227702913">WorkBench</stringProp>
@@ -206,33 +160,20 @@ if (iCounter &gt; 8) {
               </collectionProp>
             </ModuleController>
             <hashTree/>
-            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait" enabled="true">
-              <stringProp name="ConstantTimer.delay">500</stringProp>
-            </ConstantTimer>
-            <hashTree/>
           </hashTree>
-          <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Reset iteration counter" enabled="true">
-            <collectionProp name="ModuleController.node_path">
-              <stringProp name="-1227702913">WorkBench</stringProp>
-              <stringProp name="764597751">Test Plan</stringProp>
-              <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
-              <stringProp name="-1344922943">Reset Iteration Watchdog</stringProp>
-            </collectionProp>
-          </ModuleController>
-          <hashTree/>
         </hashTree>
       </hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Rate Limiting" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">stoptest</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">1</stringProp>
+          <intProp name="LoopController.loops">-1</intProp>
         </elementProp>
         <stringProp name="ThreadGroup.num_threads">1</stringProp>
         <stringProp name="ThreadGroup.ramp_time">1</stringProp>
         <longProp name="ThreadGroup.start_time">1300822554000</longProp>
         <longProp name="ThreadGroup.end_time">1300822554000</longProp>
-        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <boolProp name="ThreadGroup.scheduler">true</boolProp>
         <stringProp name="ThreadGroup.duration">300</stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
       </ThreadGroup>
@@ -243,8 +184,8 @@ if (iCounter &gt; 8) {
           <stringProp name="variableNames">endpoint,port,type</stringProp>
           <stringProp name="delimiter">,</stringProp>
           <boolProp name="quotedData">true</boolProp>
-          <boolProp name="recycle">true</boolProp>
-          <boolProp name="stopThread">false</boolProp>
+          <boolProp name="recycle">false</boolProp>
+          <boolProp name="stopThread">true</boolProp>
           <stringProp name="shareMode">All threads</stringProp>
         </CSVDataSet>
         <hashTree/>
@@ -279,6 +220,12 @@ if (iCounter &gt; 8) {
               </elementProp>
             </collectionProp>
           </HeaderManager>
+          <hashTree/>
+          <DebugSampler guiclass="TestBeanGUI" testclass="DebugSampler" testname="Debug Sampler" enabled="true">
+            <boolProp name="displayJMeterProperties">false</boolProp>
+            <boolProp name="displayJMeterVariables">true</boolProp>
+            <boolProp name="displaySystemProperties">false</boolProp>
+          </DebugSampler>
           <hashTree/>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When rate limiting requests" enabled="true"/>
           <hashTree>
