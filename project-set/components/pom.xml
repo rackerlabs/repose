@@ -146,6 +146,12 @@
 
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>client-ip-identity</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>uri-identity</artifactId>
                 <version>${project.version}</version>
             </dependency>

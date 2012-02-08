@@ -9,7 +9,7 @@
     </parent>
 
     <groupId>com.rackspace.papi.components</groupId>
-    <artifactId>ip-identity</artifactId>
+    <artifactId>client-ip-identity</artifactId>
 
     <name>Power API Components - Client Identity By IP</name>
     <description>TODO</description>

@@ -3,7 +3,6 @@ package com.rackspace.papi.components.identity.ip;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.identity.ip.config.IpIdentityConfig;
-import com.rackspace.papi.components.identity.ip.extractor.ClientGroupExtractor;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -31,7 +30,7 @@ public class IpIdentityHandler extends AbstractFilterLogicHandler {
         if (!address.isEmpty()) {
             headerManager.appendHeader(PowerApiHeader.USER.toString(), address+quality);
             filterDirector.setFilterAction(FilterAction.PASS);
-            String group = new ClientGroupExtractor(request, config).determineIpGroup(address);
+            String group = IpIdentityGroup.DEST_GROUP;
             headerManager.putHeader(PowerApiHeader.GROUPS.toString(), group);
         }
         return filterDirector;
