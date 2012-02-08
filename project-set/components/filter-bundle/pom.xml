@@ -41,7 +41,7 @@
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>header-identity</artifactId>
         </dependency>
-        
+
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>uri-identity</artifactId>
@@ -85,6 +85,11 @@
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>client-authorization</artifactId>
+        </dependency>
+        
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>client-ip-identity</artifactId>
         </dependency>
     </dependencies>
 

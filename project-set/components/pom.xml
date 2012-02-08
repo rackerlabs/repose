@@ -31,6 +31,7 @@
         <module>servlet-context-router</module>
         <module>echo</module>
         <module>client-authorization</module>
+        <module>client-ip-identity</module>
     </modules>
     
     <dependencyManagement>
@@ -140,6 +141,12 @@
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>header-identity</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>client-ip-identity</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

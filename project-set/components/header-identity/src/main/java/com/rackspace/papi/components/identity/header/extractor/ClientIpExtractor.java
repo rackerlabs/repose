@@ -27,7 +27,7 @@ public class ClientIpExtractor {
    }
 
    public String extractIpAddress(List<HttpHeader> headerNames) {
-      String address = request.getRemoteAddr();
+      String address = "";
 
       for (HttpHeader header : headerNames) {
          String candidate = extractHeader(header.getId());
