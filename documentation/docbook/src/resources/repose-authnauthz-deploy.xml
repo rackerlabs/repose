@@ -339,7 +339,120 @@
             </itemizedlist>
             <section xml:id="Authorization_Scheme_OpenStack_Identity-d1e325">
                 <title>OpenStack Identity Request Authorization</title>
-                <para>bla</para>
+                <para>In the following authorization configuration,
+                        <code>rackspace-authorization</code> specifies
+                        the <code>openstack-identity</code>
+                    authorization scheme and
+                        <code>service-endpoint</code> specifies a
+                    Rackspace service.</para>
+                <example>
+                    <title>Client Authorization Configuration for OpenStack Identity: XML</title>
+                        <programlisting language="xml">
+<xi:include href="samples/repose-authz-config-openstack.xml" parse="text"/>
+                </programlisting>    
+                </example>
+                <para> 
+                    The &PRODNAME; authorization component must be
+                    able to communicate with an OpenStack identity
+                    server to obtain a client's endpoint list. You
+                    make this possible by defining
+                    <code>rackspace-authorization</code> in your
+                    &PRODNAME; configuration. This configuration
+                    element informs the authorization component how to
+                    contact the OpenStack identity server, which
+                    credentials to use when contacting the OpenStack
+                    identity server, and how long to cache responses
+                    from the OpenStack identity server. 
+                </para>
+                    <table frame="box">
+                        <caption>Authorization Server Configuration
+                            Element Attributes</caption>
+                        <col width="16%"/>
+                        <col width="6%"/>
+                        <col width="7%"/>
+                        <col width="60%"/>
+                        <thead>
+                            <tr>
+                                <th>Configuration Attribute</th>
+                                <th>Type</th>
+                                <th>Required?</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>username</code></td>
+                                <td>string</td>
+                                <td>YES</td>
+                                <td>The username to send to
+                                   the OpenStack identity server when
+                                   authenticating the component for
+                                   admin calls</td>
+                            </tr>
+                            <tr>
+                                <td><code>password</code></td>
+                                <td>string</td>
+                                <td>YES</td>
+                                <td>The password to send to
+                                   the OpenStack identity server when
+                                   authenticating the component for
+                                   admin calls</td>
+                            </tr>
+                            <tr>
+                                <td><code>href</code></td>
+                                <td>anyURI</td>
+                                <td>YES</td>
+                                <td>The full, valid URL of the
+                                   OpenStack identity server</td>
+                            </tr>
+                            <tr>
+                                <td><code>endpoint-list-ttl</code></td>
+                                <td>int</td>
+                                <td>NO</td>
+                                <td>Duration in seconds for how long
+                                   the component will cache (time to
+                                   live (TTL)) a valid endpoint-list
+                                   from the OpenStack identity
+                                   server</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                <para> The authorization component must be able to
+                    identify which service it represents when
+                    inspecting a client's endpoint list. The
+                        <code>service-endpoint</code> configuration
+                    element informs the authorization component of the
+                    service endpoint's public URL. If the service
+                    endpoint's public URL matches one of the endpoints
+                    in the client's endpoint list, the client is
+                    authorized to use that service.<table frame="box">
+                        <caption>Service Endpoint Configuration
+                            Element</caption>
+                        <col width="16%"/>
+                        <col width="6%"/>
+                        <col width="7%"/>
+                        <col width="60%"/>
+                        <thead>
+                            <tr>
+                                <th>Configuration Attribute</th>
+                                <th>Type</th>
+                                <th>Required?</th>
+                                <th>Description</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><code>href</code></td>
+                                <td>anyURI</td>
+                                <td>YES</td>
+                                <td>A valid URL that can be used to
+                                   match against the
+                                   <code>publicURL</code> values in
+                                   the client's endpoint list.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </para>
             </section>
         </section>
         <section xml:id="Authorization_Tests-d1e327">
