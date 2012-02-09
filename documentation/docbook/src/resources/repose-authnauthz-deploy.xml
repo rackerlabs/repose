@@ -204,6 +204,13 @@
             described in the "Authentication in OpenStack" blueprint at 
             <link xlink:href="http://wiki.openstack.org/openstack-authn">http://wiki.openstack.org/openstack-authn</link>.
         </para>
+        <para> 
+             &PRODNAME;'s authentication lifecycle is directly derived from the "Authentication in OpenStack" blueprint, 
+             which defines a standard for authentication. 
+             Compliance with this standard enables services to support multiple authentication protocols in a pluggable manner. 
+             For information about &PRODNAME;'s handling of authentication requests beyond what is described in this document, 
+             refer to the "Authentication in OpenStack" blueprint.
+            </para> 
         <section xml:id="Authentication_Configuration-d1e220">
             <title>Authentication Configuration</title>
             <para> Client authentication is divided into modules which
@@ -288,16 +295,31 @@
                     <para> </para>
                 </callout>
             </calloutlist>
+        </section>  
+        <section xml:id="Authentication_Schemes-d1e230">
+            <title>Authentication Schemes</title>
+            <para>
+                bla
+            </para>
+            <section xml:id="Authentication_Scheme_Rackspace_Auth11-d1e235">
+                <title>Rackspace Cloud Auth 1.1</title>
+                <para>
+                    bla
+                </para>
+            </section>
+            <section xml:id="Authentication_Scheme_OpenStack_Identity-d1e237">
+                <title>OpenStack Identity Service</title>
+                <para>
+                    bla
+                </para>
+            </section>
         </section>
-        <section xml:id="Authentication_Lifecycle-d1e731">
-            <title>Authentication Lifecycle</title>
-            <para> 
-                &PRODNAME;'s authentication lifecycle is directly derived from the "Authentication in OpenStack" blueprint at 
-                <link xlink:href="http://wiki.openstack.org/openstack-authn">http://wiki.openstack.org/openstack-authn</link>, which defines a standard for authentication. 
-                Compliance with this standard enables services to support multiple authentication protocols in a pluggable manner. 
-                For further information about &PRODNAME;'s handling of authentication requests, please refer to this blueprint.
-            </para> 
-        </section>        
+        <section xml:id="Authentication_Tests-d1e250">
+            <title>Authentication Tests</title>
+            <para>
+                bla
+            </para>
+        </section>
     </chapter>
     <chapter xml:id="Client-Authorization-002">
         <title>Client Authorization in &PRODNAME;</title>
