@@ -175,7 +175,7 @@
 
                                     <mapper>
                                         <type>perm</type>
-                                        <prefix>/etc/powerapi</prefix>
+                                        <prefix>/etc/repose</prefix>
                                         <filemode>600</filemode>
                                     </mapper>
                                 </data>
@@ -187,13 +187,13 @@
                                     <type>file</type>
                                     <mapper>
                                         <type>perm</type>
-                                        <prefix>/usr/share/lib</prefix>
+                                        <prefix>/usr/share/lib/repose</prefix>
                                     </mapper>
                                 </data>
 
                                     <!-- The start script -->
                                 <data>
-                                    <src>src/main/resources/papi</src>
+                                    <src>src/main/resources/repose-valve</src>
                                     <type>file</type>
                                     <mapper>
                                         <type>perm</type>
@@ -208,7 +208,7 @@
                                     <type>file</type>
                                     <mapper>
                                         <type>perm</type>
-                                        <prefix>/var/powerapi/logs</prefix>
+                                        <prefix>/var/log/repose</prefix>
                                     </mapper>
                                 </data>
 
