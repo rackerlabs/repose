@@ -38,7 +38,7 @@
       xmlns:html="http://www.w3.org/1999/xhtml"
       xmlns:db="http://docbook.org/ns/docbook" 
       xml:id="Repose-AuthNZ-Deployment-Guide">
-    <?rax pdf.url="../../repose-auth-deploy.pdf"?>
+    <?rax pdf.url="../../repose-authnauthz-deploy.pdf"?>
     <title>&PRODNAME; Authentication and Authorization Components Deployment Handbook</title>
     <!-- set watermark on cover and left margin 
         <?rax status.bar.text="CONFIDENTIAL"?>
@@ -175,20 +175,45 @@
     </chapter>
     <chapter xml:id="Client-Authentication-001">
         <title>Client Authentication in &PRODNAME;</title>
-        <para> The client authentication service filter enables the origin service to
-            communicate with the authentication service implemented in its environment. It
-            accomplishes this by delegating authentication requests to the authentication
-            service and returning the results of those requests to the origin service.
+        <para> 
+            &PRODNAME;'s client authentication component enables the origin service to communicate with the
+            authentication service implemented in its environment. It
+            accomplishes this by delegating authentication requests to
+            the authentication service and returning the results of
+            those requests to the origin service. 
+        </para>
+        <para>
+            The &PRODNAME; client authentication component acts as an HTTP reverse proxy. 
+            It passes incoming HTTP requests to an external authentication service. 
+            If the authentication service validates the request, &PRODNAME; adds header information to the 
+            HTTP request and forwards it to the origin service. 
+            If the authentication service rejects the request, &PRODNAME; returns the HTTP response to the client.
+        </para>
+        <figure xml:id="Authentication_Overview">
+            <title>Overview of the &PRODNAME; Client
+                Authentication Component</title>
+            <!-- redraw B&W drawing from Theresa Huth here -->
+            <mediaobject>
+                <imageobject>
+                    <imagedata fileref="figures/repose-authn-intro.png" format="PNG" align="center"/>
+                </imageobject>
+            </mediaobject>
+        </figure>
+        <para>
+            The &PRODNAME; client authentication component is implemented as an "Auth Component" as
+            described in the "Authentication in OpenStack" blueprint at 
+            <link xlink:href="http://wiki.openstack.org/openstack-authn">http://wiki.openstack.org/openstack-authn</link>.
         </para>
         <section xml:id="Authentication_Configuration-d1e220">
             <title>Authentication Configuration</title>
-            <para> Client Authentication is divided into modules which
-                represent different authentication schemes. Depending on
-                the &PRODNAME; components being deployed, the
-                authentication configuration may change. In the following
-                example, we are configuring the <code>client-auth</code>
-                &PRODNAME; component to interact with the Rackspace Cloud
-                Authentication Service. </para>
+            <para> Client authentication is divided into modules which
+                represent different authentication schemes. Depending
+                on the &PRODNAME; components being deployed, the
+                authentication configuration may change. In the
+                following example, we are configuring the
+                    <code>client-auth</code> &PRODNAME; component to
+                interact with the Rackspace Cloud Authentication
+                Service. </para>
             <example>
                 <title>Client Authentication Configuration: XML</title>
                 <programlistingco>
