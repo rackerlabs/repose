@@ -6,10 +6,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 
-// NOTE: This is a sun class we use for IP validation.  If a customer eventually wants to run Repose on a JVM
-// that does not include the IPAddressUtil class, we can look in our git history and resurrect the copy we had
-// included in our project or perhaps find another way at that time to validate IP address in a JVM independent
-// fashion.
 public class HeaderValueExtractor {
 
     private HttpServletRequest request;
@@ -19,8 +15,8 @@ public class HeaderValueExtractor {
     }
 
     protected String extractHeader(String name) {
-        // Header value may be a comma separated list of IP addresses.
-        // The client IP should be the left most IP address in the list.
+        // Header value may be a comma separated list of values.
+        // The left most value in the list will be extracted.
         String header = request.getHeader(name);
         return header != null ? header.split(",")[0].trim() : "";
     }

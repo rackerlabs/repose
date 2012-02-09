@@ -20,12 +20,12 @@ public class UriIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFa
       return new HashMap<Class, UpdateListener<?>>() {
 
          {
-            put(UriIdentityConfig.class, new ClientUserIdentityConfigurationListener());
+            put(UriIdentityConfig.class, new UriIdentityConfigurationListener());
          }
       };
    }
 
-   private class ClientUserIdentityConfigurationListener implements UpdateListener<UriIdentityConfig> {
+   private class UriIdentityConfigurationListener implements UpdateListener<UriIdentityConfig> {
 
       private String determineQuality() {
          String q = DEFAULT_QUALITY;
