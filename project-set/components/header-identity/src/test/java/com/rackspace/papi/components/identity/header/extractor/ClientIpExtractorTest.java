@@ -8,6 +8,7 @@ import org.junit.*;
 import static org.junit.Assert.*;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
@@ -48,23 +49,6 @@ public class ClientIpExtractorTest {
          assertEquals("Should not find IP in invalid header", "", result);
       }
       
-      @Ignore
-      public void shouldGetDefaultIpAddress() {
-         List<HttpHeader> headers = new ArrayList<HttpHeader>();
-         String actual = extractor.extractHeaderValue(headers);
-         assertEquals("Should find default IP", DEFAULT_IP_VALUE, actual);
-      }
-
-      @Ignore
-      public void shouldGetDefaultIpAddressForInvalidHeader() {
-         List<HttpHeader> headers = new ArrayList<HttpHeader>();
-         HttpHeader header = new HttpHeader();
-         header.setId(INVALID_IP_HEADER_NAME);
-         headers.add(header);
-
-         String actual = extractor.extractHeaderValue(headers);
-         assertEquals("Should find default IP", DEFAULT_IP_VALUE, actual);
-      }
 
       @Test
       public void shouldGetHeaderIpAddress() {
@@ -73,8 +57,10 @@ public class ClientIpExtractorTest {
          header.setId(IP_HEADER_NAME);
          headers.add(header);
          
-         String actual = extractor.extractHeaderValue(headers);
-         assertEquals("Should find Header IP", IP_HEADER, actual);
+         ExtractorResult<String> act = extractor.extractUserGroup(headers);
+         
+         assertEquals("Should find Header User", IP_HEADER, act.getResult());
+         assertEquals("Should find Header Group", IP_HEADER_NAME, act.getKey());
       }
       
       @Test
@@ -85,8 +71,9 @@ public class ClientIpExtractorTest {
          header.setId(MULTIPLE_IP_HEADER_NAME);
          headers.add(header);
          
-         String actual = extractor.extractHeaderValue(headers);
-         assertEquals("Should find Header IP", expected, actual);
+         ExtractorResult<String> act = extractor.extractUserGroup(headers);
+         assertEquals("Should find Header User", expected, act.getResult());
+         assertEquals("Should find Header Group", MULTIPLE_IP_HEADER_NAME, act.getKey());
          
       }
    }

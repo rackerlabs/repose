@@ -65,6 +65,12 @@ public class HeaderIdentityHandlerTest {
          String ip = values.iterator().next();
          
          assertEquals("Should find IP address in header", IP_HEADER_1 + QUALITY_VALUE, ip);
+         
+         Set<String> groups = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.GROUPS.toString().toLowerCase());
+         assertFalse("Should have " + PowerApiHeader.GROUPS.toString() + " header set.", groups.isEmpty());
+         
+         String group = groups.iterator().next();
+         assertEquals("Should find Group name in header", IP_HEADER_NAME_1 , group);
       }
 
 
