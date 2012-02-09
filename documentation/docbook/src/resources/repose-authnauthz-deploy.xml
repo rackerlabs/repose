@@ -427,7 +427,7 @@
                     in the client's endpoint list, the client is
                     authorized to use that service.<table frame="box">
                         <caption>Service Endpoint Configuration
-                            Element</caption>
+                            Element Attributes</caption>
                         <col width="16%"/>
                         <col width="6%"/>
                         <col width="7%"/>
@@ -452,7 +452,40 @@
                             </tr>
                         </tbody>
                     </table>
-                </para>
+                    <warning>
+                        <para> In a client's endpoint list (also known
+                            as services catalog), each endpoint must
+                            specify its <code>publicURL</code> and
+                                <code>type</code> if the client is to
+                            be authorized by using the &PRODNAME;
+                            authorization service and the OpenStack
+                            identity service. This is a requirement of
+                            the OpenStack identity service contract.
+                            If any required endpoint elements are null
+                            for any endpoint in the client's endpoint
+                            list, &PRODNAME; issues a warning: <itemizedlist>
+                                <listitem>
+                                   <para> If <code>publicURL</code>is
+                                   null, the warning is <code>Endpoint
+                                   Public URL is null. This is a
+                                   violation of the OpenStack Identity
+                                   Service contract.</code>
+                                   </para>
+                                </listitem>
+                                <listitem>
+                                   <para> If <code>type</code>is null,
+                                   the warning is <code>Endpoint Type
+                                   is null. This is a violation of the
+                                   OpenStack Identity Service
+                                   contract.</code>
+                                   </para>
+                                </listitem>
+                            </itemizedlist> After issuing the
+                            appropriate warning, &PRODNAME; ignores
+                            the invalidly-specified endpoint and
+                            continues processing the other endpoints
+                            in the list. </para>
+                    </warning></para>
             </section>
         </section>
         <section xml:id="Authorization_Tests-d1e327">
