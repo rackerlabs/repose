@@ -32,7 +32,7 @@ public class ProxyApp {
          return;
       }
 
-      if ((!(portIsInRange(commandLineArgs.getPort()))) || (!(portIsInRange(commandLineArgs.getStopPort())))) {
+      if (!portIsInRange(commandLineArgs.getStopPort())) {
          LOG.info("Invalid Power API Valve port setting, use a value between 1024 and 49150");
          return;
       }
