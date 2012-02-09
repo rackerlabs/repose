@@ -43,7 +43,7 @@ public class UriIdentityFilter implements Filter {
 
     @Override
     public void destroy() {
-        configurationManager.unsubscribeFrom("client-user-identity.cfg.xml", handlerFactory);
+        configurationManager.unsubscribeFrom("uri-identity.cfg.xml", handlerFactory);
     }
 
     @Override
@@ -51,6 +51,6 @@ public class UriIdentityFilter implements Filter {
         configurationManager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
         handlerFactory = new UriIdentityHandlerFactory();
 
-        configurationManager.subscribeTo("client-user-identity.cfg.xml", handlerFactory, UriIdentityConfig.class);
+        configurationManager.subscribeTo("uri-identity.cfg.xml", handlerFactory, UriIdentityConfig.class);
     }
 }
