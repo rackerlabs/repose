@@ -144,6 +144,15 @@
     <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
     <chapter xml:id="Introduction-000">
         <title>Introduction to the Client Authentication and Authorization Components of &PRODNAME;</title>
+        <para>
+            Authorization_Scheme_OpenStack_Identity-d1e325
+            &PRODNAME; includes a component designed to support
+            <link linkend="Client-Authentication-001">client authentication</link> 
+            and 
+            another component designed to support 
+            <link linkend="Client-Authorization-002">client authorization</link>
+            .
+        </para>
         <para> 
             Authentication and authorization are related but independent ideas: 
         </para>
@@ -298,17 +307,34 @@
         </section>  
         <section xml:id="Authentication_Schemes-d1e230">
             <title>Authentication Schemes</title>
-            <para>
-                bla
-            </para>
+            <para> The &PRODNAME; client authentication component is
+                designed to allow selection from a list of supported
+                authentication schemes. The list of supported
+                authentication schemes is:</para>
+            <itemizedlist>
+                <listitem>
+                    <para>
+                        <link linkend="Authentication_Scheme_Rackspace_Auth11-d1e235">Rackspace Cloud Auth 1.1 Authentication</link>
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <link
+                            linkend="Authentication_Scheme_OpenStack_Identity-d1e237"
+                            >OpenStack Identity Service
+                            Authentication</link>
+                    </para>
+                </listitem>
+            </itemizedlist>
             <section xml:id="Authentication_Scheme_Rackspace_Auth11-d1e235">
-                <title>Rackspace Cloud Auth 1.1</title>
+                <title>Rackspace Cloud Auth 1.1 Authentication</title>
                 <para>
                     bla
                 </para>
             </section>
             <section xml:id="Authentication_Scheme_OpenStack_Identity-d1e237">
-                <title>OpenStack Identity Service</title>
+                <title>OpenStack Identity Service
+                    Authentication</title>
                 <para>
                     bla
                 </para>
@@ -380,7 +406,8 @@
                 authorization schemes is:</para>
             <itemizedlist>
                 <listitem>
-                    <para> OpenStack Identity Request Authorization
+                    <para> 
+                        <link linkend="Authorization_Scheme_OpenStack_Identity-d1e325">OpenStack Identity Request Authorization</link>
                     </para>
                 </listitem>
             </itemizedlist>
