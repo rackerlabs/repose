@@ -245,7 +245,7 @@
 
                                     <mapper>
                                         <type>perm</type>
-                                        <prefix>/etc/powerapi</prefix>
+                                        <prefix>/etc/repose</prefix>
                                         <filemode>600</filemode>
                                     </mapper>
                                 </data>
@@ -257,7 +257,7 @@
 
                                     <mapper>
                                         <type>perm</type>
-                                        <prefix>/etc/powerapi</prefix>
+                                        <prefix>/etc/repose</prefix>
                                         <filemode>600</filemode>
                                     </mapper>
                                 </data>
@@ -269,7 +269,7 @@
 
                                     <mapper>
                                         <type>perm</type>
-                                        <prefix>/etc/powerapi</prefix>
+                                        <prefix>/etc/repose</prefix>
                                         <filemode>600</filemode>
                                     </mapper>
                                 </data>
@@ -281,7 +281,7 @@
 
                                     <mapper>
                                         <type>perm</type>
-                                        <prefix>/etc/powerapi</prefix>
+                                        <prefix>/etc/repose</prefix>
                                         <filemode>600</filemode>
                                     </mapper>
                                 </data>
@@ -293,7 +293,7 @@
 
                                     <mapper>
                                         <type>perm</type>
-                                        <prefix>/etc/powerapi</prefix>
+                                        <prefix>/etc/repose</prefix>
                                         <filemode>600</filemode>
                                     </mapper>
                                 </data>
@@ -305,7 +305,7 @@
 
                                     <mapper>
                                         <type>perm</type>
-                                        <prefix>/etc/powerapi</prefix>
+                                        <prefix>/etc/repose</prefix>
                                         <filemode>600</filemode>
                                     </mapper>
                                 </data>
@@ -317,7 +317,7 @@
 
                                     <mapper>
                                         <type>perm</type>
-                                        <prefix>/etc/powerapi</prefix>
+                                        <prefix>/etc/repose</prefix>
                                         <filemode>600</filemode>
                                     </mapper>
                                 </data>
@@ -329,7 +329,7 @@
 
                                     <mapper>
                                         <type>perm</type>
-                                        <prefix>/etc/powerapi</prefix>
+                                        <prefix>/etc/repose</prefix>
                                         <filemode>600</filemode>
                                     </mapper>
                                 </data>
@@ -340,7 +340,7 @@
                                     <type>file</type>
                                     <mapper>
                                         <type>perm</type>
-                                        <prefix>/usr/share/powerapi/filters</prefix>
+                                        <prefix>/usr/share/repose/filters</prefix>
                                     </mapper>
                                 </data>
 
