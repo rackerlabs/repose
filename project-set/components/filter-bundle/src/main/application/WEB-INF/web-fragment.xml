@@ -42,8 +42,8 @@
     </filter>
 
     <filter>
-        <filter-name>servlet-context-router</filter-name>
-        <filter-class>org.openrepose.components.routing.servlet.ServletContextRoutingFilter</filter-class>
+        <filter-name>root-context-router</filter-name>
+        <filter-class>org.openrepose.components.routing.servlet.RootContextRoutingFilter</filter-class>
     </filter>
 
     <filter>

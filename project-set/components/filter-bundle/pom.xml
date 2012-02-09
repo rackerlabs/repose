@@ -59,7 +59,7 @@
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>servlet-context-router</artifactId>
+            <artifactId>root-context-router</artifactId>
         </dependency>
 
         <dependency>
@@ -155,7 +155,7 @@
 
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
-                            <artifactId>servlet-context-router</artifactId>
+                            <artifactId>root-context-router</artifactId>
                         </jarModule>
                             
                         <jarModule>
@@ -311,7 +311,7 @@
                                 </data>
 
                                 <data>
-                                    <src>../servlet-context-router/src/main/resources/META-INF/schema/examples</src>
+                                    <src>../root-context-router/src/main/resources/META-INF/schema/examples</src>
                                     <type>directory</type>
                                     <includes>*.cfg.xml</includes>
 

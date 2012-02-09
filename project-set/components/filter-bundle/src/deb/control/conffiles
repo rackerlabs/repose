@@ -4,5 +4,5 @@
 /etc/powerapi/dist-datastore.cfg.xml
 /etc/powerapi/http-logging.cfg.xml
 /etc/powerapi/rate-limiting.cfg.xml
-/etc/powerapi/servlet-context-router.cfg.xml
+/etc/powerapi/root-context-router.cfg.xml
 /etc/powerapi/versioning.cfg.xml

@@ -17,12 +17,12 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
-import org.openrepose.components.routing.servlet.config.ServletContextRouterConfiguration;
+import org.openrepose.components.routing.servlet.config.RootContextRouterConfiguration;
 import org.slf4j.LoggerFactory;
 
-public class ServletContextRoutingFilter implements Filter {
+public class RootContextRoutingFilter implements Filter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ServletContextRoutingFilter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(RootContextRoutingFilter.class);
     private RoutingHandlerFactory handlerFactory;
 
     @Override
@@ -55,6 +55,6 @@ public class ServletContextRoutingFilter implements Filter {
         final ConfigurationService manager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
         handlerFactory = new RoutingHandlerFactory();
 
-        manager.subscribeTo("servlet-context-router.cfg.xml", handlerFactory, ServletContextRouterConfiguration.class);
+        manager.subscribeTo("root-context-router.cfg.xml", handlerFactory, RootContextRouterConfiguration.class);
     }
 }

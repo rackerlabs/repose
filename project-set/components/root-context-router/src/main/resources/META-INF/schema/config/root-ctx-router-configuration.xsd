@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://openrepose.org/repose/servlet-context-router/v1.0"
-           xmlns:scr="http://openrepose.org/repose/servlet-context-router/v1.0"
+           targetNamespace="http://openrepose.org/repose/root-context-router/v1.0"
+           xmlns:scr="http://openrepose.org/repose/root-context-router/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <!-- Configuration Schema Definitions -->
-   <xs:element name="servlet-context-router" type="scr:ServletContextRouterConfiguration" />
+   <xs:element name="root-context-router" type="scr:RootContextRouterConfiguration" />
 
-   <xs:complexType name="ServletContextRouterConfiguration">
+   <xs:complexType name="RootContextRouterConfiguration">
       <xs:annotation>
          <xs:documentation>
             <html:p>

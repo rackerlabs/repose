@@ -4,16 +4,16 @@ import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import java.util.HashMap;
 import java.util.Map;
-import org.openrepose.components.routing.servlet.config.ServletContextRouterConfiguration;
+import org.openrepose.components.routing.servlet.config.RootContextRouterConfiguration;
 
 public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RoutingTagger> {
 
-   private ServletContextRouterConfiguration contextRouterConfiguration;
+   private RootContextRouterConfiguration contextRouterConfiguration;
 
-   private class RoutingConfigurationListener implements UpdateListener<ServletContextRouterConfiguration> {
+   private class RoutingConfigurationListener implements UpdateListener<RootContextRouterConfiguration> {
 
       @Override
-      public void configurationUpdated(ServletContextRouterConfiguration configurationObject) {
+      public void configurationUpdated(RootContextRouterConfiguration configurationObject) {
          contextRouterConfiguration = configurationObject;
       }
    }
@@ -26,7 +26,7 @@ public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactor
    @Override
    protected Map<Class, UpdateListener<?>> getListeners() {
       final Map<Class, UpdateListener<?>> updateListeners = new HashMap<Class, UpdateListener<?>>();
-      updateListeners.put(ServletContextRouterConfiguration.class, new RoutingConfigurationListener());
+      updateListeners.put(RootContextRouterConfiguration.class, new RoutingConfigurationListener());
 
       return updateListeners;
    }
