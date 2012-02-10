@@ -9,6 +9,7 @@ import com.rackspace.papi.commons.util.regex.ExtractorResult;
 public class HeaderValueExtractor {
 
     private HttpServletRequest request;
+    public static final String DEFAULT_QUALITY = "0.1";
 
     public HeaderValueExtractor(HttpServletRequest request) {
         this.request = request;
@@ -20,7 +21,7 @@ public class HeaderValueExtractor {
         String header = request.getHeader(name);
         return header != null ? header.split(",")[0].trim() : "";
     }
-    
+
     public ExtractorResult<String> extractUserGroup(List<HttpHeader> headerNames) {
         String user = "";
         String group = "";
@@ -28,6 +29,7 @@ public class HeaderValueExtractor {
         for (HttpHeader header : headerNames) {
             user = extractHeader(header.getId());
             if (!user.isEmpty()) {
+                user += determineQuality(header);
                 group = header.getId();
                 break;
             }
@@ -35,6 +37,14 @@ public class HeaderValueExtractor {
 
         return new ExtractorResult<String>(user, group);
     }
-    
-    
+
+    private String determineQuality(HttpHeader header) {
+        String q = DEFAULT_QUALITY;
+
+        if (header.getQuality() != null && !header.getQuality().trim().isEmpty()) {
+            q = header.getQuality().trim();
+        }
+
+        return ";q=" + q;
+    }
 }

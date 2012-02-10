@@ -36,17 +36,18 @@ public class HeaderIdentityHandlerTest {
 
          // Tell the handler to look for two headers called IP1 and IP2
          config = new HeaderIdentityConfig();
-         config.setQuality(QUALITY);
+         //config.setQuality(QUALITY);
          
          HttpHeader header = new HttpHeader();
          header.setId(IP_HEADER_NAME_1);
+         header.setQuality(QUALITY);
          headerList.getHeader().add(header);
          header = new HttpHeader();
          header.setId(IP_HEADER_NAME_2);
          headerList.getHeader().add(header);
          config.setSourceHeaders(headerList);
          
-         handler = new HeaderIdentityHandler(config, QUALITY_VALUE);
+         handler = new HeaderIdentityHandler(config);
          request = mock(HttpServletRequest.class);
          response = mock(ReadableHttpServletResponse.class);
          

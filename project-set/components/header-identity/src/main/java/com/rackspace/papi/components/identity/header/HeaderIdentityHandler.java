@@ -18,12 +18,12 @@ import com.rackspace.papi.commons.util.regex.ExtractorResult;
 public class HeaderIdentityHandler extends AbstractFilterLogicHandler {
 
    private final HeaderIdentityConfig config;
-   private final String quality;
+   //private final String quality;
    private final List<HttpHeader> sourceHeaders;
 
-   public HeaderIdentityHandler(HeaderIdentityConfig config, String quality) {
+   public HeaderIdentityHandler(HeaderIdentityConfig config) {
       this.config = config;
-      this.quality = quality;
+      //this.quality = quality;
       this.sourceHeaders = config.getSourceHeaders().getHeader();
    }
    
@@ -37,7 +37,7 @@ public class HeaderIdentityHandler extends AbstractFilterLogicHandler {
       ExtractorResult<String> result = new HeaderValueExtractor(request).extractUserGroup(sourceHeaders);
       
       if(!result.getResult().isEmpty()){
-          headerManager.appendHeader(PowerApiHeader.USER.toString(), result.getResult()+quality);
+          headerManager.appendHeader(PowerApiHeader.USER.toString(), result.getResult());
           headerManager.appendHeader(PowerApiHeader.GROUPS.toString(), result.getKey());
       }
       

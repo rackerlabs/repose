@@ -24,6 +24,7 @@ public class ClientIpExtractorTest {
       private static String IP_HEADER = "127.0.0.1";
       private static String INVALID_IP = "unknown";
       private static String DEFAULT_IP_VALUE = "10.0.0.1";
+      private static String DEFAULT_QUALITY_VALUE = ";q=0.1";
       private HeaderValueExtractor extractor;
 
       @Before
@@ -59,7 +60,7 @@ public class ClientIpExtractorTest {
          
          ExtractorResult<String> act = extractor.extractUserGroup(headers);
          
-         assertEquals("Should find Header User", IP_HEADER, act.getResult());
+         assertEquals("Should find Header User", IP_HEADER+DEFAULT_QUALITY_VALUE, act.getResult());
          assertEquals("Should find Header Group", IP_HEADER_NAME, act.getKey());
       }
       
@@ -72,7 +73,7 @@ public class ClientIpExtractorTest {
          headers.add(header);
          
          ExtractorResult<String> act = extractor.extractUserGroup(headers);
-         assertEquals("Should find Header User", expected, act.getResult());
+         assertEquals("Should find Header User", expected+DEFAULT_QUALITY_VALUE, act.getResult());
          assertEquals("Should find Header Group", MULTIPLE_IP_HEADER_NAME, act.getKey());
          
       }
