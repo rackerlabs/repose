@@ -145,7 +145,6 @@
     <chapter xml:id="Introduction-000">
         <title>Introduction to the Client Authentication and Authorization Components of &PRODNAME;</title>
         <para>
-            Authorization_Scheme_OpenStack_Identity-d1e325
             &PRODNAME; includes a component designed to support
             <link linkend="Client-Authentication-001">client authentication</link> 
             and 
@@ -159,8 +158,10 @@
         <itemizedlist>
             <listitem>
                 <para> Authentication is the process of confirming
-                    that you are who you say you are. 
-                    For example, you might be asked to provide credentials such as a userid, password, account number, or token.</para> 
+                    that you are who you say you are. For example, you
+                    might be asked to authenticate your identity by
+                    providing credentials such as a userid, password,
+                    account number, or token.</para> 
             </listitem>
             <listitem>
                 <para>
@@ -379,7 +380,7 @@
         <figure xml:id="Authorization_Decisions">
             <title>Decision Flow in the &PRODNAME; Client
                 Authorization Component</title>
-            <!-- color drawing from John Hopper here -->
+            <!--this is now PNG from openrepose wiki; retry as SVG when I find John's email attachment-->
             <mediaobject>
                 <imageobject>
                     <imagedata fileref="figures/repose-authz-decisions.png" format="PNG" align="center"/>
