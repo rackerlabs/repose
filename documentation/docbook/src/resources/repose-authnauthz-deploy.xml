@@ -346,12 +346,127 @@
                     <orderedlist>
                          <listitem>
                            <para>The client authentication component receives a request from the client.</para>
+                           <para>
+                               The incoming HTTP request must have a URI and a token
+                               in the <code>X-Auth-Token</code> request header.
+                               The URI may contain the tenant ID.
+                           </para>
                         </listitem>
                         <listitem>
                             <para>The authentication filter parses the URI in the request, extracting the tenant ID and token.</para>
+                            <para>
+                                &PRODNAME;'s authentication filter parses the URI using a configurable regular expression
+                                (<code>id-reg</code> in the <code>client-auth-n-cfg.xml</code> file)
+                                to extract the tenant ID.
+                                If the tenant ID is missing,
+                                &PRODNAME; does not call the external authentication component;
+                                instead, &PRODNAME; sets the <code>X-Authorization</code> header with no user entry (for example, <code>X-Authorization: Proxy</code>).
+                                If the origin service is configured to run in delegated mode, 
+                                then the <code>X-Identity-Status</code> HTTP header is set to a value of <code>Indeterminate</code>.
+                                The request is then passed along to the origin service with the <code>X-Authorization</code> and <code>X-Identity-Status</code>
+                                request headers set as described above.
+                            </para>
+                            <para>
+                                The &PRODNAME; client authentication component identifies whether the origin service is in delegated mode 
+                                based on the Boolean value of the <code>delegateable</code> attribute in the <code>client-auth-n-cfg.xml</code> file.
+                            </para>
+                            <para>
+                                If the tenant ID is missing and the origin service is not running in delegated mode 
+                                (<code>delegateable="false"</code> in the <code>client-auth-n-cfg.xml</code> file), 
+                                then the &PRODNAME; client authentication component does not forward the request to the origin service.
+                                Instead, the &PRODNAME; client authentication component returns a <errorcode>401</errorcode> to the client.
+                            </para>
+                            <para>
+                                The incoming HTTP request's <code>X-Auth-Token</code> header does not have an authentication token,
+                                then &PRODNAME; performs the same steps as when the tenant ID is missing.
+                                Both the tenant ID and the <code>X-Auth-Token</code> must be present before &PRODNAME; attempts to validate user credentials. 
+                            </para>
                         </listitem>
                         <listitem>
-                            <para>&PRODNAME; sends a token validation request to an external authentication service.</para>
+                            <para>&PRODNAME; sends a token validation
+                                request to an external authentication
+                                service.</para>
+                            <para> If the &PRODNAME; authentication
+                                component successfully obtains the
+                                tenant ID and the token from the
+                                request, then &PRODNAME; sends a
+                                request to the external authentication
+                                service. </para> 
+                            <table frame="box">
+                                <caption>&amp;PRODNAME; Handling of
+                                   Valid and Invalid Tokens with
+                                   OpenStack Authentication</caption>
+                                <col width="50%"/>
+                                <col width="50%"/>
+                                <thead>
+                                   <tr>
+                                   <th>If token is valid</th>
+                                   <th>If token is not valid</th>
+                                   </tr>
+                                </thead>
+                                <tbody>
+                                   <tr>
+                                   <td>
+                                       <orderedlist>
+                                           <listitem>
+                                               <para>
+                                                   Using the user ID from the validated token, 
+                                                   perform another request against the external authentication service
+                                                   to retrieve the user's groups.
+                                               </para>
+                                           </listitem>
+                                           <listitem>
+                                               <para>Add the groups to the <code>X-PP-Groups</code> request header, to be consumed by the &PRODNAME; rate limiting component.</para>
+                                           </listitem>
+                                           <listitem>
+                                               <para>Add the user ID to the <code>X-PP-User</code> request header, to be consumed by the &PRODNAME; rate limiting component.</para>
+                                           </listitem>
+                                           <listitem>
+                                               <para>Set the <code>X-User-Name</code> header with the username returned in the validated token object.</para>
+                                           </listitem>
+                                           <listitem>
+                                               <para>Set the <code>X-User-Id</code> header with the user ID returned in the validated token object.</para>
+                                           </listitem>
+                                           <listitem>
+                                               <para>Set the <code>X-Tenant-Id</code> header with the tenant ID extracted from the URL.</para>
+                                           </listitem>
+                                           <listitem>
+                                               <para>Set the <code>X-Roles</code> header with the roles returned in the validated token object.</para>
+                                           </listitem>
+                                           <listitem>
+                                               <para>Set the <code>X-Authorization</code> header to <code>Proxy userid</code>.</para>
+                                           </listitem>
+                                           <listitem>
+                                               <para>If <code>delegegateable=true</code>, then set <code>X-Identity-Status</code>to <code>Indeterminate</code>.</para>
+                                           </listitem>
+                                           <listitem>
+                                               <para>If <code>delegegateable=true</code>, then pass the updated request to the origin service.</para>
+                                           </listitem>
+                                       </orderedlist>
+                                   </td> 
+                                   <td>
+                                   <orderedlist>
+                                        <listitem>
+                                            <para>Set the <code>X-Authorization</code> header to <code>Proxy userid</code>.</para>
+                                        </listitem>
+                                        <listitem>
+                                            <para>If <code>delegegateable=true</code>, then set <code>X-Identity-Status</code>to <code>Indeterminate</code>.</para>
+                                        </listitem>
+                                       <listitem>
+                                           <para>If <code>delegegateable=true</code>, then pass the updated request to the origin service.</para>
+                                       </listitem>
+                                   </orderedlist>
+                                   </td>
+                                   </tr>
+                                </tbody>
+                            </table><para> The &PRODNAME;
+                                authentication component handles the
+                                response from the origin service as
+                                described in the "Authentication in
+                                OpenStack" blueprint at <link
+                                   xlink:href="http://wiki.openstack.org/openstack-authn"
+                                   >http://wiki.openstack.org/openstack-authn</link>.
+                            </para>
                         </listitem>
                         <listitem>
                             <para>The &PRODNAME; authentication component returns the request to the &PRODNAME; filter chain for further processing.</para>
@@ -366,7 +481,8 @@
             <section xml:id="Authentication_Scheme_Rackspace_Auth11-d1e235">
                 <title>Rackspace Cloud Auth 1.1 Authentication</title>
                 <para>
-                    bla
+                    The &PRODNAME; authentication component supports the
+                    Rackspace Cloud Auth 1.1 authentication scheme.
                 </para>
                 <figure xml:id="Authentication_RAX-Lifecycle-figure">
                     <title>Request/Response Lifecycle for Authentication by Rackspace Auth 1.1</title>
@@ -376,12 +492,44 @@
                         </imageobject>
                     </mediaobject>
                 </figure>
+                <para>
+                    At a high level, the request/response lifecycle is:
+                    <orderedlist>
+                        <listitem>
+                            <para>The client authentication component receives a request from the client.</para>
+                            <para>
+                                The incoming HTTP request must have a URI and a token
+                                in the <code>X-Auth-Token</code> request header.
+                                The URI may contain the tenant ID.
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para>The authentication filter parses the URI in the request, extracting the tenant ID and token.</para>
+                        </listitem>
+                        <listitem>
+                            <para>&PRODNAME; sends a token validation request to an external authentication service.</para>
+                        </listitem>
+                        <listitem>
+                            <para>The &PRODNAME; authentication component caches the user's token until the token's expiration time.</para>
+                        </listitem>
+                        <listitem>
+                            <para>The &PRODNAME; authentication component returns the request to the &PRODNAME; filter chain for further processing.</para>
+                        </listitem>
+                        <listitem>
+                            <para>When all processing is complete, either the request is passed on to the origin service 
+                                or a response is sent to the client.</para>
+                        </listitem>
+                    </orderedlist>
+                </para>
             </section>
         </section>
         <section xml:id="Authentication_Tests-d1e250">
             <title>Authentication Tests</title>
             <para>
-                bla
+                The authentication test suite is summarized in the Repose wiki at 
+                <link
+                    xlink:href="http://wiki.openrepose.org/display/REPOSE/Client+Authentication+Filter"
+                    >http://wiki.openrepose.org/display/REPOSE/Client+Authentication+Filter</link>.
             </para>
         </section>
     </chapter>
