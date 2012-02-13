@@ -32,4 +32,13 @@ public class HttpLoggingHandler extends AbstractFilterLogicHandler {
 
         return filterDirector;
     }
+    
+    
+    @Override
+    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response){
+        FilterDirector filterDirector = new FilterDirectorImpl();
+        filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
+        return filterDirector;
+        
+    }
 }

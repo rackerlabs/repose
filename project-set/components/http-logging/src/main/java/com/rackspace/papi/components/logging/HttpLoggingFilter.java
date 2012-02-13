@@ -1,9 +1,7 @@
 package com.rackspace.papi.components.logging;
 
-import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.components.logging.config.HttpLoggingConfig;
+import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import org.slf4j.Logger;
@@ -14,8 +12,6 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
@@ -26,30 +22,23 @@ public class HttpLoggingFilter implements Filter {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(HttpLoggingFilter.class);
     private ConfigurationService manager;
-    private HttpLoggingHandlerFactory handler;
+    private HttpLoggingHandlerFactory handlerFactory;
 
     @Override
     public void destroy() {
-        manager.unsubscribeFrom("http-logging.cfg.xml", handler);
+        manager.unsubscribeFrom("http-logging.cfg.xml", handlerFactory);
     }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
-
-        final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
-        final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
-
-        chain.doFilter(request, response);
-
-        handler.newHandler().handleResponse(mutableHttpRequest, mutableHttpResponse);
+        new FilterLogicHandlerDelegate(request, response, chain).doFilter(handlerFactory.newHandler());
     }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        handler = new HttpLoggingHandlerFactory();
+        handlerFactory = new HttpLoggingHandlerFactory();
         manager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
 
-        manager.subscribeTo("http-logging.cfg.xml", handler, HttpLoggingConfig.class);
+        manager.subscribeTo("http-logging.cfg.xml", handlerFactory, HttpLoggingConfig.class);
     }
 }
