@@ -8,7 +8,7 @@
       <filter name="client-authorization" />
       <filter name="dist-datastore" />
       <filter name="rate-limiting" />
-      <filter name="servlet-context-router" />
+      <filter name="root-context-router" />
    </filter-chain>
    
    <cluster name="repose-actional">

@@ -4,8 +4,7 @@ import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.identity.header.config.HeaderIdentityConfig;
 import com.rackspace.papi.components.identity.header.config.HttpHeader;
-import com.rackspace.papi.components.identity.header.extractor.ClientGroupExtractor;
-import com.rackspace.papi.components.identity.header.extractor.ClientIpExtractor;
+import com.rackspace.papi.components.identity.header.extractor.HeaderValueExtractor;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -13,16 +12,18 @@ import com.rackspace.papi.filter.logic.HeaderManager;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import com.rackspace.papi.commons.util.regex.ExtractorResult;
+
 
 public class HeaderIdentityHandler extends AbstractFilterLogicHandler {
 
    private final HeaderIdentityConfig config;
-   private final String quality;
+   //private final String quality;
    private final List<HttpHeader> sourceHeaders;
 
-   public HeaderIdentityHandler(HeaderIdentityConfig config, String quality) {
+   public HeaderIdentityHandler(HeaderIdentityConfig config) {
       this.config = config;
-      this.quality = quality;
+      //this.quality = quality;
       this.sourceHeaders = config.getSourceHeaders().getHeader();
    }
    
@@ -33,12 +34,11 @@ public class HeaderIdentityHandler extends AbstractFilterLogicHandler {
       HeaderManager headerManager = filterDirector.requestHeaderManager();
       filterDirector.setFilterAction(FilterAction.PASS);
 
-      String address = new ClientIpExtractor(request).extractIpAddress(sourceHeaders);
-
-      if(!address.isEmpty()) {
-         String group = new ClientGroupExtractor(request, config).determineIpGroup(address);
-         headerManager.appendToHeader(request, PowerApiHeader.USER.toString(), address + quality);
-         headerManager.putHeader(PowerApiHeader.GROUPS.toString(), group);
+      ExtractorResult<String> result = new HeaderValueExtractor(request).extractUserGroup(sourceHeaders);
+      
+      if(!result.getResult().isEmpty()){
+          headerManager.appendHeader(PowerApiHeader.USER.toString(), result.getResult());
+          headerManager.appendHeader(PowerApiHeader.GROUPS.toString(), result.getKey());
       }
       
       return filterDirector;

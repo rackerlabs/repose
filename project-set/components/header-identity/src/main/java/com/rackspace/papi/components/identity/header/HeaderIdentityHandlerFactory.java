@@ -8,7 +8,7 @@ import java.util.Map;
 
 public class HeaderIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFactory<HeaderIdentityHandler> {
 
-   public static final String DEFAULT_QUALITY = "0.1";
+
    private HeaderIdentityConfig config;
    private String quality;
 
@@ -20,32 +20,32 @@ public class HeaderIdentityHandlerFactory extends AbstractConfiguredFilterHandle
       return new HashMap<Class, UpdateListener<?>>() {
 
          {
-            put(HeaderIdentityConfig.class, new ClientIpIdentityConfigurationListener());
+            put(HeaderIdentityConfig.class, new HeaderIdentityConfigurationListener());
          }
       };
    }
 
-   private class ClientIpIdentityConfigurationListener implements UpdateListener<HeaderIdentityConfig> {
+   private class HeaderIdentityConfigurationListener implements UpdateListener<HeaderIdentityConfig> {
 
-      private String determineQuality() {
-         String q = DEFAULT_QUALITY;
-
-         if (config.getQuality() != null && !config.getQuality().trim().isEmpty()) {
-            q = config.getQuality().trim();
-         }
-
-         return ";q=" + q;
-      }
+//      private String determineQuality() {
+//         String q = DEFAULT_QUALITY;
+//
+//         if (config.getQuality() != null && !config.getQuality().trim().isEmpty()) {
+//            q = config.getQuality().trim();
+//         }
+//
+//         return ";q=" + q;
+//      }
 
       @Override
       public void configurationUpdated(HeaderIdentityConfig configurationObject) {
          config = configurationObject;
-         quality = determineQuality();
+         //quality = determineQuality();
       }
    }
 
    @Override
    protected HeaderIdentityHandler buildHandler() {
-      return new HeaderIdentityHandler(config, quality);
+      return new HeaderIdentityHandler(config);
    }
 }

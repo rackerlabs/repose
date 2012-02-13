@@ -36,17 +36,18 @@ public class HeaderIdentityHandlerTest {
 
          // Tell the handler to look for two headers called IP1 and IP2
          config = new HeaderIdentityConfig();
-         config.setQuality(QUALITY);
+         //config.setQuality(QUALITY);
          
          HttpHeader header = new HttpHeader();
          header.setId(IP_HEADER_NAME_1);
+         header.setQuality(QUALITY);
          headerList.getHeader().add(header);
          header = new HttpHeader();
          header.setId(IP_HEADER_NAME_2);
          headerList.getHeader().add(header);
          config.setSourceHeaders(headerList);
          
-         handler = new HeaderIdentityHandler(config, QUALITY_VALUE);
+         handler = new HeaderIdentityHandler(config);
          request = mock(HttpServletRequest.class);
          response = mock(ReadableHttpServletResponse.class);
          
@@ -65,6 +66,12 @@ public class HeaderIdentityHandlerTest {
          String ip = values.iterator().next();
          
          assertEquals("Should find IP address in header", IP_HEADER_1 + QUALITY_VALUE, ip);
+         
+         Set<String> groups = result.requestHeaderManager().headersToAdd().get(PowerApiHeader.GROUPS.toString().toLowerCase());
+         assertFalse("Should have " + PowerApiHeader.GROUPS.toString() + " header set.", groups.isEmpty());
+         
+         String group = groups.iterator().next();
+         assertEquals("Should find Group name in header", IP_HEADER_NAME_1 , group);
       }
 
 
@@ -83,7 +90,7 @@ public class HeaderIdentityHandlerTest {
          assertEquals("Should find 2nd IP address in header", IP_HEADER_2 + QUALITY_VALUE, ip);
       }
 
-      @Test
+      @Ignore
       public void shouldSetTheUserHeaderToTheDefaultIpValue() {
          config.getSourceHeaders().getHeader().clear();
          

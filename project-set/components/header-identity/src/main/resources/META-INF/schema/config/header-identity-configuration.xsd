@@ -19,7 +19,6 @@
         
         <xs:all>
             <xs:element name="source-headers" type="header-identity:HttpHeaderList" minOccurs="1" maxOccurs="1" />
-            <xs:element name="quality" type="xs:string" minOccurs="0" maxOccurs="1" default="0.1" />
         </xs:all>
     </xs:complexType>
 
@@ -45,6 +44,14 @@
         </xs:annotation>
         
         <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>            
+        </xs:attribute>
+        
+        <xs:attribute name="quality" type="xs:string">
             <xs:annotation>
                 <xs:documentation>
                     <html:p></html:p>

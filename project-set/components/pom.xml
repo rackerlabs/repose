@@ -28,9 +28,10 @@
         <module>versioning</module>
         <module>translation</module>
         <module>default-router</module>
-        <module>servlet-context-router</module>
+        <module>root-context-router</module>
         <module>echo</module>
         <module>client-authorization</module>
+        <module>client-ip-identity</module>
     </modules>
     
     <dependencyManagement>
@@ -145,6 +146,12 @@
 
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>client-ip-identity</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>uri-identity</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -157,7 +164,7 @@
 
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
-                <artifactId>servlet-context-router</artifactId>
+                <artifactId>root-context-router</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
