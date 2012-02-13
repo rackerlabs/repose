@@ -202,7 +202,6 @@
         <figure xml:id="Authentication_Overview">
             <title>Overview of the &PRODNAME; Client
                 Authentication Component</title>
-            <!-- redraw B&W drawing from Theresa Huth here -->
             <mediaobject>
                 <imageobject>
                     <imagedata fileref="figures/repose-authn-intro.png" format="PNG" align="center"/>
@@ -368,8 +367,8 @@
             of the endpoints in the client's endpoint list start with
             the service endpoint associated with the requested
             component. For example, if an authenticated client
-            requests the  compute service, and that client's endpoint
-            list (also known as a services catalog) includes an
+            requests the compute service, and that client's endpoint
+            list (also known as a service catalog) includes an
             endpoint for the compute service, then the client is
             authorized to use the compute service and the client's
             request is forwarded to the compute service for further
@@ -529,7 +528,7 @@
                     </table>
                     <warning>
                         <para> In a client's endpoint list (also known
-                            as services catalog), each endpoint must
+                            as service catalog), each endpoint must
                             specify its <code>publicURL</code> and
                                 <code>type</code> if the client is to
                             be authorized by using the &PRODNAME;
