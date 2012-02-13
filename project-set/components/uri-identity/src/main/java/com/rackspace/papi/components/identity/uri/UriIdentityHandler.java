@@ -43,8 +43,8 @@ public class UriIdentityHandler extends AbstractFilterLogicHandler {
       if (userResult != null && !userResult.getResult().isEmpty()) {
          final String user = userResult.getResult();
          
-         headerManager.putHeader(PowerApiHeader.USER.toString(), user + quality);
-         headerManager.putHeader(PowerApiHeader.GROUPS.toString(), group);
+         headerManager.appendHeader(PowerApiHeader.USER.toString(), user + quality);
+         headerManager.appendHeader(PowerApiHeader.GROUPS.toString(), group);
       }
 
       return filterDirector;
