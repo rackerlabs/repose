@@ -25,6 +25,7 @@ public class HeaderIdentityHandlerTest {
       private static String DEFAULT_IP_VALUE = "10.0.0.1";
       private static String QUALITY = "0.2";
       private static String QUALITY_VALUE = ";q=0.2";
+      private static String DEFAULT_QUALITY_VALUE = ";q=0.1";
       private HttpServletRequest request;
       private ReadableHttpServletResponse response;
       private HeaderIdentityHandler handler;
@@ -87,7 +88,7 @@ public class HeaderIdentityHandlerTest {
          
          String ip = values.iterator().next();
          
-         assertEquals("Should find 2nd IP address in header", IP_HEADER_2 + QUALITY_VALUE, ip);
+         assertEquals("Should find 2nd IP address in header", IP_HEADER_2 + DEFAULT_QUALITY_VALUE, ip);
       }
 
       @Ignore
