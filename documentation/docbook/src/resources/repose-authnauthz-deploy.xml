@@ -199,7 +199,7 @@
             HTTP request and forwards it to the origin service. 
             If the authentication service rejects the request, &PRODNAME; returns the HTTP response to the client.
         </para>
-        <figure xml:id="Authentication_Overview">
+        <figure xml:id="Authentication_Overview-figure">
             <title>Overview of the &PRODNAME; Client
                 Authentication Component</title>
             <mediaobject>
@@ -314,30 +314,45 @@
             <itemizedlist>
                 <listitem>
                     <para>
-                        <link linkend="Authentication_Scheme_Rackspace_Auth11-d1e235">Rackspace Cloud Auth 1.1 Authentication</link>
-                    </para>
-                </listitem>
-                <listitem>
-                    <para>
                         <link
                             linkend="Authentication_Scheme_OpenStack_Identity-d1e237"
                             >OpenStack Identity Service
                             Authentication</link>
                     </para>
                 </listitem>
+                <listitem>
+                    <para>
+                        <link linkend="Authentication_Scheme_Rackspace_Auth11-d1e235">Rackspace Cloud Auth 1.1 Authentication</link>
+                    </para>
+                </listitem>
             </itemizedlist>
+            <section xml:id="Authentication_Scheme_OpenStack_Identity-d1e237">
+                <title>OpenStack Identity Service Authentication</title>
+                <para>
+                    bla
+                </para>
+                <figure xml:id="Authentication_OpenStack-Lifecycle-figure">
+                    <title>Request/Response Lifecycle for Authentication by the OpenStack Identity Service</title>
+                    <mediaobject>
+                        <imageobject>
+                            <imagedata fileref="figures/repose-authn-openstack-lifecycle.png" format="PNG" align="center"/>
+                        </imageobject>
+                    </mediaobject>
+                </figure>
+            </section>
             <section xml:id="Authentication_Scheme_Rackspace_Auth11-d1e235">
                 <title>Rackspace Cloud Auth 1.1 Authentication</title>
                 <para>
                     bla
                 </para>
-            </section>
-            <section xml:id="Authentication_Scheme_OpenStack_Identity-d1e237">
-                <title>OpenStack Identity Service
-                    Authentication</title>
-                <para>
-                    bla
-                </para>
+                <figure xml:id="Authentication_RAX-Lifecycle-figure">
+                    <title>Request/Response Lifecycle for Authentication by Rackspace Auth 1.1</title>
+                    <mediaobject>
+                        <imageobject>
+                            <imagedata fileref="figures/repose-authn-rax-lifecycle.png" format="PNG" align="center"/>
+                        </imageobject>
+                    </mediaobject>
+                </figure>
             </section>
         </section>
         <section xml:id="Authentication_Tests-d1e250">
@@ -376,7 +391,7 @@
         <para>
             The &PRODNAME; authorization component's decision flow is summarized in the drawing below:
         </para>
-        <figure xml:id="Authorization_Decisions">
+        <figure xml:id="Authorization_Decisions-figure">
             <title>Decision Flow in the &PRODNAME; Client
                 Authorization Component</title>
             <!--this is now PNG from openrepose wiki; retry as SVG when I find John's email attachment-->
