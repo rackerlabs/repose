@@ -329,7 +329,9 @@
             <section xml:id="Authentication_Scheme_OpenStack_Identity-d1e237">
                 <title>OpenStack Identity Service Authentication</title>
                 <para>
-                    bla
+                    The &PRODNAME; client authentication component supports the OpenStack Identity Service authentication scheme.
+                    Using this authentication scheme, the &PRODNAME; client authentication component may be configured to interact with 
+                    Keystone or Rackspace Cloud Auth 2.0 (both of which implement the OpenStack Identity Service contract) when validating user credentials.
                 </para>
                 <figure xml:id="Authentication_OpenStack-Lifecycle-figure">
                     <title>Request/Response Lifecycle for Authentication by the OpenStack Identity Service</title>
@@ -339,6 +341,27 @@
                         </imageobject>
                     </mediaobject>
                 </figure>
+                <para>
+                    At a high level, the request/response lifecycle is:
+                    <orderedlist>
+                         <listitem>
+                           <para>The client authentication component receives a request from the client.</para>
+                        </listitem>
+                        <listitem>
+                            <para>The authentication filter parses the URI in the request, extracting the tenant ID and token.</para>
+                        </listitem>
+                        <listitem>
+                            <para>&PRODNAME; sends a token validation request to an external authentication service.</para>
+                        </listitem>
+                        <listitem>
+                            <para>The &PRODNAME; authentication component returns the request to the &PRODNAME; filter chain for further processing.</para>
+                        </listitem>
+                        <listitem>
+                            <para>When all processing is complete, either the request is passed on to the origin service 
+                                or a response is sent to the client.</para>
+                        </listitem>
+                    </orderedlist>
+                </para>
             </section>
             <section xml:id="Authentication_Scheme_Rackspace_Auth11-d1e235">
                 <title>Rackspace Cloud Auth 1.1 Authentication</title>
