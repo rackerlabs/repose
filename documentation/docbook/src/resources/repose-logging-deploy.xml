@@ -124,9 +124,6 @@
             HTTP logging in &PRODNAME; is based on the Apache HTTPD Logging Standard, described at 
             <link xlink:href="http://httpd.apache.org/docs/2.2/mod/mod_log_config.html">http://httpd.apache.org/docs/2.2/mod/mod_log_config.html</link>.
         </para>
-        <para> The versioning component enhances the incoming request with an HTTP header named
-                <code>X-PP-Service-Origin</code>. This header can be used by components further down
-            the stack to perform routing. </para>
         <figure xml:id="Overview">
             <title>Overview of &PRODNAME; HTTP Logging</title>
             <mediaobject>
