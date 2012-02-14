@@ -135,7 +135,7 @@ public class AuthenticationHeaderManager {
                 groupIds.add(group.getId());
             }
 
-            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.toString(), groupIds.toArray(new String[0]));
+            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.toString(), groupIds.toArray(new String[0]) + quality);
         }
     }
 }

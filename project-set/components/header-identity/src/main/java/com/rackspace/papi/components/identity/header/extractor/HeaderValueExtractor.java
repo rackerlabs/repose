@@ -29,8 +29,9 @@ public class HeaderValueExtractor {
         for (HttpHeader header : headerNames) {
             user = extractHeader(header.getId());
             if (!user.isEmpty()) {
-                user += determineQuality(header);
-                group = header.getId();
+                String quality = determineQuality(header);
+                user += quality;
+                group = header.getId() + quality;
                 break;
             }
         }

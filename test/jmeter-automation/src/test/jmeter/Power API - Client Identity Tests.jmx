@@ -139,7 +139,7 @@
                   <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="should return only set header user" enabled="true">
                     <collectionProp name="Asserion.test_strings">
                       <stringProp name="-894012258">x-pp-user : .*${ip1};q=</stringProp>
-                      <stringProp name="1154212879">x-pp-groups : ${group}</stringProp>
+                      <stringProp name="-1756466116">x-pp-groups : .*${group};q=</stringProp>
                     </collectionProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
@@ -183,7 +183,7 @@
                   <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="should return first ip address in the list" enabled="true">
                     <collectionProp name="Asserion.test_strings">
                       <stringProp name="-893088737">x-pp-user : .*${ip2};q=</stringProp>
-                      <stringProp name="1154212879">x-pp-groups : ${group}</stringProp>
+                      <stringProp name="-1756466116">x-pp-groups : .*${group};q=</stringProp>
                     </collectionProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
@@ -263,8 +263,8 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                 <hashTree>
                   <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="should return only ip address" enabled="true">
                     <collectionProp name="Asserion.test_strings">
-                      <stringProp name="-121316922">x-pp-user : ${sourceIp};q=</stringProp>
-                      <stringProp name="1154212879">x-pp-groups : ${group}</stringProp>
+                      <stringProp name="-1901121086">x-pp-user : .*${sourceIp};q=</stringProp>
+                      <stringProp name="-1756466116">x-pp-groups : .*${group};q=</stringProp>
                     </collectionProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
@@ -327,7 +327,7 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                   <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="should return user header with url identification value" enabled="true">
                     <collectionProp name="Asserion.test_strings">
                       <stringProp name="1839130122">x-pp-user : .*${accountNumber};q=</stringProp>
-                      <stringProp name="128927003">x-pp-groups : ${uri_identity_group}</stringProp>
+                      <stringProp name="559685544">x-pp-groups : .*${uri_identity_group};q=</stringProp>
                     </collectionProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>

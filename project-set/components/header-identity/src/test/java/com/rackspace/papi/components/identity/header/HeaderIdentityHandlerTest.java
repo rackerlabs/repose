@@ -72,7 +72,7 @@ public class HeaderIdentityHandlerTest {
          assertFalse("Should have " + PowerApiHeader.GROUPS.toString() + " header set.", groups.isEmpty());
          
          String group = groups.iterator().next();
-         assertEquals("Should find Group name in header", IP_HEADER_NAME_1 , group);
+         assertEquals("Should find Group name in header", IP_HEADER_NAME_1 + QUALITY_VALUE, group);
       }
 
 
