@@ -477,8 +477,8 @@
             </thead>
             <tbody>
                 <tr>
-                    <td>curl http://50.57.184.12:8887/v1/usertest1 -H
-                        "x-auth-token:358484212:99493"</td>
+                    <td><code>curl http://50.57.184.12:8887/v1/usertest1 -H
+                        "x-auth-token:358484212:99493"</code></td>
                     <td>200 OK</td>
                     <td>
                         <para> Remote IP=64.39.4.132 Local
@@ -491,9 +491,9 @@
                     </td>
                 </tr>
                 <tr>
-                    <td> curl http://50.57.184.12:8887/v1/usertest1 -H
-                        "x-auth-token:358484212:99493"</td>
-                    <td>413 Request Entity Too Large</td>
+                    <td><code>curl http://50.57.184.12:8887/v1/usertest1 -H
+                        "x-auth-token:358484212:99493"</code></td>
+                    <td><errorcode>413</errorcode> Request Entity Too Large</td>
                     <td>
                         <para> Remote IP=64.39.4.132 Local
                             IP=50.57.184.12 Response Size(bytes)=2048
