@@ -11,7 +11,7 @@
     
     <status-code id="5xx" code-regex="5\d\d">
         <message prepend-origin="false" media-type="*/*">
-            An error has occured. Please contact support... the printer may be on fire.
+            An error has occurred. Please contact support... the printer may be on fire.
         </message>
     </status-code>
 </response-messaging>
