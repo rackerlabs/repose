@@ -64,7 +64,7 @@
         </copyright>
         <releaseinfo>v1.0</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2012-01-30</pubdate>
+        <pubdate>2012-02-14</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -75,6 +75,16 @@
                 their service to use the logging component of the &PRODEXPAND;. </para>
         </abstract>
         <revhistory>
+            <revision>
+                <date>2012-02-14</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem><para>Improved sample <code>http-log</code> specification in <xref
+                                   linkend="Using_Log-d1e531"/> to
+                                include formatting control.</para></listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
             <revision>
                 <date>2012-01-30</date>
                 <revdescription>
