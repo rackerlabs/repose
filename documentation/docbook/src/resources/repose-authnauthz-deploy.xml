@@ -149,8 +149,7 @@
             <link linkend="Client-Authentication-001">client authentication</link> 
             and 
             another component designed to support 
-            <link linkend="Client-Authorization-002">client authorization</link>
-            .
+            <link linkend="Client-Authorization-002">client authorization</link>.
         </para>
         <para> 
             Authentication and authorization are related but independent ideas: 
@@ -161,13 +160,16 @@
                     that you are who you say you are. For example, you
                     might be asked to authenticate your identity by
                     providing credentials such as a userid, password,
-                    account number, or token.</para> 
+                    account number, or token. Authentication is often
+                    abbreviated as Auth-N.</para> 
             </listitem>
             <listitem>
-                <para>
-                    Authorization is the process of confirming that you have permission to do what you are asking to do.
-                    For example, your authenticated identity might be checked against a list of the services to which you have subscribed.
-                </para>
+                <para> Authorization is the process of confirming that
+                    you have permission to do what you are asking to
+                    do. For example, your authenticated identity might
+                    be checked against a list of the services to which
+                    you have subscribed. Authrization is often
+                    abbreviated as Auth-Z.</para>
             </listitem>
         </itemizedlist>
         <para>
@@ -187,10 +189,9 @@
         <title>Client Authentication in &PRODNAME;</title>
         <para> 
             &PRODNAME;'s client authentication component enables the origin service to communicate with the
-            authentication service implemented in its environment. It
-            accomplishes this by delegating authentication requests to
+            authentication service implemented in its environment. &PRODNAME; calls 
             the authentication service and returning the results of
-            those requests to the origin service. 
+            authentication requests to the origin service. 
         </para>
         <para>
             The &PRODNAME; client authentication component acts as an HTTP reverse proxy. 
