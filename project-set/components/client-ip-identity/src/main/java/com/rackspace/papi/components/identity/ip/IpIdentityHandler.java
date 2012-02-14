@@ -31,7 +31,7 @@ public class IpIdentityHandler extends AbstractFilterLogicHandler {
             headerManager.appendHeader(PowerApiHeader.USER.toString(), address+quality);
             filterDirector.setFilterAction(FilterAction.PASS);
             String group = IpIdentityGroup.DEST_GROUP;
-            headerManager.appendHeader(PowerApiHeader.GROUPS.toString(), group);
+            headerManager.appendHeader(PowerApiHeader.GROUPS.toString(), group+quality);
         }
         return filterDirector;
     }

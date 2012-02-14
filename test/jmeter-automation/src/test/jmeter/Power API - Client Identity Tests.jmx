@@ -327,7 +327,7 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                   <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="should return user header with url identification value" enabled="true">
                     <collectionProp name="Asserion.test_strings">
                       <stringProp name="1839130122">x-pp-user : .*${accountNumber};q=</stringProp>
-                      <stringProp name="128927003">x-pp-groups : ${uri_identity_group}</stringProp>
+                      <stringProp name="559685544">x-pp-groups : .*${uri_identity_group};q=</stringProp>
                     </collectionProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
