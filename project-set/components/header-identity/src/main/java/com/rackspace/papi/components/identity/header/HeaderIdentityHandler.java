@@ -18,12 +18,10 @@ import com.rackspace.papi.commons.util.regex.ExtractorResult;
 public class HeaderIdentityHandler extends AbstractFilterLogicHandler {
 
    private final HeaderIdentityConfig config;
-   //private final String quality;
    private final List<HttpHeader> sourceHeaders;
 
    public HeaderIdentityHandler(HeaderIdentityConfig config) {
       this.config = config;
-      //this.quality = quality;
       this.sourceHeaders = config.getSourceHeaders().getHeader();
    }
    
