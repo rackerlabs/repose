@@ -39,12 +39,12 @@
       xmlns:db="http://docbook.org/ns/docbook" 
       xml:id="Repose-AuthNZ-Deployment-Guide">
     <?rax pdf.url="../../repose-authnauthz-deploy.pdf"?>
-    <title>&PRODNAME; Authentication and Authorization Components Deployment Handbook</title>
+    <title>&PRODNAME; Auth-N &amp; Auth-Z Components Deployment Handbook</title>
     <!-- set watermark on cover and left margin 
         <?rax status.bar.text="CONFIDENTIAL"?>
     -->
     <?rax title.font.size="35px" subtitle.font.size="16px"?>
-    <titleabbrev>&PRODABBREV; AuthN/AuthZ Deployment</titleabbrev>
+    <titleabbrev>&PRODABBREV; AuthN&amp;AuthZ Deploy</titleabbrev>
     <info>
         <author>
             <personname>
@@ -393,7 +393,7 @@
                                 request to the external authentication
                                 service. </para> 
                             <table frame="box">
-                                <caption>&amp;PRODNAME; Handling of
+                                <caption>Handling of
                                    Valid and Invalid Tokens with
                                    OpenStack Authentication</caption>
                                 <col width="50%"/>
