@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <power-proxy xmlns="http://docs.rackspacecloud.com/power-api/system-model/v1.0">
-    <!-- Usually, multiple hosts are only defined if Power API is operating as a cluster -->
+    <!-- Usually, multiple hosts are only defined if Repose is operating as a cluster -->
     
     <!--
         A single host definition that describes the host's ID,
         its hostname and the filters it hosts. Whether or not
         the host also hosts the service has no impact on how
-        PowerAPI manages its components.
+        Repose manages its components.
     -->
     <host id="proxy-n01" hostname="power-proxy-n01.wc1.dfw1.stabletransit.com">
         <filters>
@@ -19,8 +19,8 @@
     </host>
     
     <!--
-        In the case below, PowerAPI will consider the two hosts
-        as the same and therefor automatically (in the future)
+        In the case below, Repose will consider the two hosts
+        as the same and therefore automatically (in the future)
         balance between the two both resource wise and request
         wise. Rate Limiting is currently the only component that
         is able to take advantage of this. For all other components
@@ -42,18 +42,16 @@
     
     <!--
         In this case we have a host that has no filters defined.
-        In addition there is a href defined that represents a
-        service URI. What the href's presence tells PowerAPI is
-        that this host is a service host. In the future there
-        may be an attribute that explicitly defines whether or
-        not the host really is a service host (i.e. where the
-        service is hosted).
+        The hostname attribute represents the host's service
+        URI. In the future there may be an attribute that explicitly 
+        defines whether or not the host really is a service host
+         (i.e. where the service is hosted).
     -->
     <host id="service-v1.1" hostname="service-n04.wc1.dfw1.stabletransit.com" />
     
     <!--
         In the case below we have a service host that also hosts
-        all of the PowerAPI components locally (same app container
+        all of the Repose components locally (same app container
         for example. This will be a common deployment strategy.
     -->
     <host id="service-v1.2" hostname="service-n05.wc1.dfw1.stabletransit.com" >
