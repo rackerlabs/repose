@@ -71,7 +71,7 @@ public class AuthenticationHeaderManager {
         String[] groupsArray = new String[groupCount];
 
         for (int i = 0; i < groupCount; i++) {
-            groupsArray[i] = groups.getGroup().get(i).getId();
+            groupsArray[i] = groups.getGroup().get(i).getId() + quality;
         }
 
          filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.toString(), groupsArray);
