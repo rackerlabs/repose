@@ -267,12 +267,16 @@
                     <para> </para>
                 </callout>
                 <callout arearefs="repose-authn.xml.uri">
-                    <para> 
-                        The <firstterm><code>URI</code></firstterm> attribute of the <code>authentication-server</code> configuration element 
-                        identifies a destination to which the component must route token validation requests. 
-                        This URI must include all information required to construct an HTTP request, 
-                        including the port number the authentication service is listening on and the authentication service's context root.
-                    </para>
+                    <para> The <firstterm><code>URI</code></firstterm>
+                        attribute of the
+                            <code>authentication-server</code>
+                        configuration element identifies a destination
+                        to which the component must route token
+                        validation requests. This URI must include all
+                        information required to construct an HTTP
+                        request, including the authentication
+                        service's context root and the port number on
+                        which the authentication service is listening. </para>
                     <para> </para>
                 </callout>
                 <callout arearefs="repose-authn.xml.auth">
@@ -390,7 +394,7 @@
                                 request, then &PRODNAME; sends a
                                 request to the external authentication
                                 service. </para> 
-                            <table frame="box">
+                            <table rules="all">
                                 <caption>Handling of
                                    Valid and Invalid Tokens with
                                    OpenStack Authentication</caption>
@@ -523,12 +527,12 @@
         </section>
         <section xml:id="Authentication_Tests-d1e250">
             <title>Authentication Tests</title>
-            <para>
-                The authentication test suite is summarized in the Repose wiki at 
-                <link
-                    xlink:href="http://wiki.openrepose.org/display/REPOSE/Client+Authentication+Filter"
+            <para> The authentication test suite is summarized in the
+                Repose wiki at <?sbr?>
+                <link xlink:href="http://wiki.openrepose.org/display/REPOSE/Client+Authentication+Filter"
                     >http://wiki.openrepose.org/display/REPOSE/Client+Authentication+Filter</link>.
-            </para>
+                You can adapt those tests to work within
+                your own &PRODNAME; configuration. </para>
         </section>
     </chapter>
     <chapter xml:id="Client-Authorization-002">
@@ -622,59 +626,56 @@
                     identity server, and how long to cache responses
                     from the OpenStack identity server. 
                 </para>
-                    <table frame="box">
-                        <caption>Authorization Server Configuration
-                            Element Attributes</caption>
-                        <col width="16%"/>
-                        <col width="6%"/>
-                        <col width="7%"/>
-                        <col width="60%"/>
-                        <thead>
-                            <tr>
-                                <th>Configuration Attribute</th>
-                                <th>Type</th>
-                                <th>Required?</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>username</code></td>
-                                <td>string</td>
-                                <td>YES</td>
-                                <td>The username to send to
-                                   the OpenStack identity server when
-                                   authenticating the component for
-                                   admin calls</td>
-                            </tr>
-                            <tr>
-                                <td><code>password</code></td>
-                                <td>string</td>
-                                <td>YES</td>
-                                <td>The password to send to
-                                   the OpenStack identity server when
-                                   authenticating the component for
-                                   admin calls</td>
-                            </tr>
-                            <tr>
-                                <td><code>href</code></td>
-                                <td>anyURI</td>
-                                <td>YES</td>
-                                <td>The full, valid URL of the
-                                   OpenStack identity server</td>
-                            </tr>
-                            <tr>
-                                <td><code>endpoint-list-ttl</code></td>
-                                <td>int</td>
-                                <td>NO</td>
-                                <td>Duration in seconds for how long
-                                   the component will cache (time to
-                                   live (TTL)) a valid endpoint-list
-                                   from the OpenStack identity
-                                   server</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <table rules="all">
+                    <caption>Authorization Server Configuration
+                        Element Attributes</caption>
+                    <col width="20%"/>
+                    <col width="10%"/>
+                    <col width="10%"/>
+                    <col width="50%"/>
+                    <thead>
+                        <tr>
+                            <th>Configuration Attribute</th>
+                            <th>Type</th>
+                            <th>Required?</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>username</code></td>
+                            <td>string</td>
+                            <td>YES</td>
+                            <td>The username to send to the OpenStack
+                                identity server when authenticating
+                                the component for admin calls</td>
+                        </tr>
+                        <tr>
+                            <td><code>password</code></td>
+                            <td>string</td>
+                            <td>YES</td>
+                            <td>The password to send to the OpenStack
+                                identity server when authenticating
+                                the component for admin calls</td>
+                        </tr>
+                        <tr>
+                            <td><code>href</code></td>
+                            <td>anyURI</td>
+                            <td>YES</td>
+                            <td>The full, valid URL of the OpenStack
+                                identity server</td>
+                        </tr>
+                        <tr>
+                            <td><code>endpoint-list-ttl</code></td>
+                            <td>int</td>
+                            <td>NO</td>
+                            <td>Duration in seconds for how long the
+                                component will cache (time to live
+                                (TTL)) a valid endpoint-list from the
+                                OpenStack identity server</td>
+                        </tr>
+                    </tbody>
+                </table>
                 <para> The authorization component must be able to
                     identify which service it represents when
                     inspecting a client's endpoint list. The
@@ -683,13 +684,14 @@
                     service endpoint's public URL. If the service
                     endpoint's public URL matches one of the endpoints
                     in the client's endpoint list, the client is
-                    authorized to use that service.<table frame="box">
+                    authorized to use that service.
+                    <table rules="all">
                         <caption>Service Endpoint Configuration
                             Element Attributes</caption>
-                        <col width="16%"/>
-                        <col width="6%"/>
-                        <col width="7%"/>
-                        <col width="60%"/>
+                        <col width="20%"/>
+                        <col width="10%"/>
+                        <col width="10%"/>
+                        <col width="50%"/>
                         <thead>
                             <tr>
                                 <th>Configuration Attribute</th>
@@ -723,7 +725,7 @@
                             for any endpoint in the client's endpoint
                             list, &PRODNAME; issues a warning: <itemizedlist>
                                 <listitem>
-                                   <para> If <code>publicURL</code>is
+                                   <para> If <code>publicURL</code> is
                                    null, the warning is <code>Endpoint
                                    Public URL is null. This is a
                                    violation of the OpenStack Identity
@@ -731,10 +733,10 @@
                                    </para>
                                 </listitem>
                                 <listitem>
-                                   <para> If <code>type</code>is null,
-                                   the warning is <code>Endpoint Type
-                                   is null. This is a violation of the
-                                   OpenStack Identity Service
+                                   <para> If <code>type</code> is
+                                   null, the warning is <code>Endpoint
+                                   Type is null. This is a violation
+                                   of the OpenStack Identity Service
                                    contract.</code>
                                    </para>
                                 </listitem>
@@ -749,8 +751,8 @@
         <section xml:id="Authorization_Tests-d1e327">
             <title>Authorization Tests</title>
             <para>You can adapt the tests described in this table to
-                work within your own &PRODNAME; configuration.<table
-                    frame="box" width="965">
+                work within your own &PRODNAME; configuration.
+                <table rules="all">
                     <caption>Authorization Test Suite
                         Summary</caption>
                     <col width="33%"/>
