@@ -17,13 +17,50 @@ import static org.junit.Assert.*;
 @RunWith(Enclosed.class)
 public class HeaderValueImplTest {
 
+   public static class WhenComparingHeaderValues {
+
+      @Test
+      public void shouldUseQualityFactor() {
+         final HeaderValue first = new HeaderValueImpl("", 0.8), second = new HeaderValueImpl("", 0.2);
+
+         assertEquals("Matching quality factors and values must return 0", 0, first.compareTo(first));
+         assertEquals("Higher quality factors must return 1", 1, first.compareTo(second));
+         assertEquals("Lesser quality factors must return -1", -1, second.compareTo(first));
+      }
+
+      @Test
+      public void shouldHandleNullHeaderValues() {
+         final HeaderValue first = new HeaderValueImpl("", 0.8);
+         
+         assertEquals("Null header values must compare against valid values as lesser than valid values", 1, first.compareTo(null));
+      }
+
+      @Test
+      public void shouldHandleNullHeaderValueString() {
+         final HeaderValue first = new HeaderValueImpl("", 0.8), second = new HeaderValueImpl(null, 0.8);
+
+         assertEquals("Null header value strings must compare against valid header value strings as lesser than valid values", 1, first.compareTo(second));
+         assertEquals("Null header value strings must compare against valid header value strings as lesser than valid values", -1, second.compareTo(first));
+         assertEquals("Null header value strings must compare against null header values as equal", 0, second.compareTo(second));
+      }
+
+      @Test
+      public void shouldCompareStringValuesWhenQualityFactorsAreEqual() {
+         final HeaderValue first = new HeaderValueImpl("equal", 0.8), second = new HeaderValueImpl("equal", 0.8),
+                 third = new HeaderValueImpl("eqlam", 0.8);
+
+         assertEquals("Comparing header values must match equal values", 0, first.compareTo(second));
+         assertEquals("Comparing header values must return the String class compareTo value", 9, first.compareTo(third));
+      }
+   }
+
    public static class WhenGettingQualityFactor {
 
-      @Test (expected=MalformedHeaderValueException.class)
+      @Test(expected = MalformedHeaderValueException.class)
       public void shouldReturnThrowNumberFormatExceptionForUnparsableQualityFactors() {
          final Map<String, String> parameters = new HashMap<String, String>();
          parameters.put("q", "nan");
-         
+
          final HeaderValueImpl headerValue = new HeaderValueImpl("value", parameters);
 
          assertTrue("Header value must match expected output", -1 == headerValue.getQualityFactor());
