@@ -39,12 +39,12 @@
       xmlns:db="http://docbook.org/ns/docbook" 
       xml:id="Repose-AuthNZ-Deployment-Guide">
     <?rax pdf.url="../../repose-authnauthz-deploy.pdf"?>
-    <title>&PRODNAME; Authentication and Authorization Components Deployment Handbook</title>
+    <title>&PRODNAME; Auth-N &amp; Auth-Z Components Deployment Handbook</title>
     <!-- set watermark on cover and left margin 
         <?rax status.bar.text="CONFIDENTIAL"?>
     -->
     <?rax title.font.size="35px" subtitle.font.size="16px"?>
-    <titleabbrev>&PRODABBREV; AuthN/AuthZ Deployment</titleabbrev>
+    <titleabbrev>&PRODABBREV; AuthN&amp;AuthZ Deploy</titleabbrev>
     <info>
         <author>
             <personname>
@@ -149,8 +149,7 @@
             <link linkend="Client-Authentication-001">client authentication</link> 
             and 
             another component designed to support 
-            <link linkend="Client-Authorization-002">client authorization</link>
-            .
+            <link linkend="Client-Authorization-002">client authorization</link>.
         </para>
         <para> 
             Authentication and authorization are related but independent ideas: 
@@ -161,13 +160,16 @@
                     that you are who you say you are. For example, you
                     might be asked to authenticate your identity by
                     providing credentials such as a userid, password,
-                    account number, or token.</para> 
+                    account number, or token. Authentication is often
+                    abbreviated as Auth-N.</para> 
             </listitem>
             <listitem>
-                <para>
-                    Authorization is the process of confirming that you have permission to do what you are asking to do.
-                    For example, your authenticated identity might be checked against a list of the services to which you have subscribed.
-                </para>
+                <para> Authorization is the process of confirming that
+                    you have permission to do what you are asking to
+                    do. For example, your authenticated identity might
+                    be checked against a list of the services to which
+                    you have subscribed. Authrization is often
+                    abbreviated as Auth-Z.</para>
             </listitem>
         </itemizedlist>
         <para>
@@ -187,10 +189,9 @@
         <title>Client Authentication in &PRODNAME;</title>
         <para> 
             &PRODNAME;'s client authentication component enables the origin service to communicate with the
-            authentication service implemented in its environment. It
-            accomplishes this by delegating authentication requests to
+            authentication service implemented in its environment. &PRODNAME; calls 
             the authentication service and returning the results of
-            those requests to the origin service. 
+            authentication requests to the origin service. 
         </para>
         <para>
             The &PRODNAME; client authentication component acts as an HTTP reverse proxy. 
@@ -212,13 +213,10 @@
             The &PRODNAME; client authentication component is implemented as an "Auth Component" as
             described in the "Authentication in OpenStack" blueprint at 
             <link xlink:href="http://wiki.openstack.org/openstack-authn">http://wiki.openstack.org/openstack-authn</link>.
-        </para>
-        <para> 
-             &PRODNAME;'s authentication lifecycle is directly derived from the "Authentication in OpenStack" blueprint, 
+             As such, 
+             &PRODNAME;'s authentication lifecycle is directly derived from the blueprint, 
              which defines a standard for authentication. 
-             Compliance with this standard enables services to support multiple authentication protocols in a pluggable manner. 
-             For information about &PRODNAME;'s handling of authentication requests beyond what is described in this document, 
-             refer to the "Authentication in OpenStack" blueprint.
+             Compliance with this standard enables services to support multiple authentication protocols in a pluggable manner.
             </para> 
         <section xml:id="Authentication_Configuration-d1e220">
             <title>Authentication Configuration</title>
@@ -234,10 +232,10 @@
                 <title>Client Authentication Configuration: XML</title>
                 <programlistingco>
                     <areaspec>
-                        <area xml:id="repose-authn.xml.delegateable" units="linecolumn" coords="7 21"/>
+                        <area xml:id="repose-authn.xml.delegatable" units="linecolumn" coords="7 21"/>
                         <area xml:id="repose-authn.xml.server" units="linecolumn" coords="10 10"/>
                         <area xml:id="repose-authn.xml.uri" units="linecolumn" coords="11 13"/>
-                        <area xml:id="repose-authn.xml.auth" units="linecolumn" coords="11 51"/>
+                        <area xml:id="repose-authn.xml.auth" units="linecolumn" coords="11 46"/>
                         <area xml:id="repose-authn.xml.regex" units="linecolumn" coords="13 29"/>
                         <area xml:id="repose-authn.xml.type" units="linecolumn" coords="13 56"/>
                     </areaspec> 
@@ -248,7 +246,7 @@
             </example>
             <para> Key elements of the preceding example are labeled with callouts and explained below: </para>
             <calloutlist>
-                <callout arearefs="repose-authn.xml.delegateable">
+                <callout arearefs="repose-authn.xml.delegatable">
                     <para> All &PRODNAME; authentication modules support authentication
                         <firstterm>delegation</firstterm>. Delegation may be enabled or disabled by
                         setting the <code>rackspace-auth delegatable</code> attribute to <code>true</code> or <code>false</code>. To better
@@ -269,12 +267,16 @@
                     <para> </para>
                 </callout>
                 <callout arearefs="repose-authn.xml.uri">
-                    <para> 
-                        The <firstterm><code>URI</code></firstterm> attribute of the <code>authentication-server</code> configuration element 
-                        identifies a destination to which the component must route token validation requests. 
-                        This URI must include all information required to construct an HTTP request, 
-                        including the port number the authentication service is listening on and the authentication service's context root.
-                    </para>
+                    <para> The <firstterm><code>URI</code></firstterm>
+                        attribute of the
+                            <code>authentication-server</code>
+                        configuration element identifies a destination
+                        to which the component must route token
+                        validation requests. This URI must include all
+                        information required to construct an HTTP
+                        request, including the authentication
+                        service's context root and the port number on
+                        which the authentication service is listening. </para>
                     <para> </para>
                 </callout>
                 <callout arearefs="repose-authn.xml.auth">
@@ -368,11 +370,11 @@
                             </para>
                             <para>
                                 The &PRODNAME; client authentication component identifies whether the origin service is in delegated mode 
-                                based on the Boolean value of the <code>delegateable</code> attribute in the <code>client-auth-n-cfg.xml</code> file.
+                                based on the Boolean value of the <code>delegatable</code> attribute in the <code>client-auth-n-cfg.xml</code> file.
                             </para>
                             <para>
                                 If the tenant ID is missing and the origin service is not running in delegated mode 
-                                (<code>delegateable="false"</code> in the <code>client-auth-n-cfg.xml</code> file), 
+                                (<code>delegatable="false"</code> in the <code>client-auth-n-cfg.xml</code> file), 
                                 then the &PRODNAME; client authentication component does not forward the request to the origin service.
                                 Instead, the &PRODNAME; client authentication component returns a <errorcode>401</errorcode> to the client.
                             </para>
@@ -392,8 +394,8 @@
                                 request, then &PRODNAME; sends a
                                 request to the external authentication
                                 service. </para> 
-                            <table frame="box">
-                                <caption>&amp;PRODNAME; Handling of
+                            <table rules="all">
+                                <caption>Handling of
                                    Valid and Invalid Tokens with
                                    OpenStack Authentication</caption>
                                 <col width="50%"/>
@@ -525,12 +527,12 @@
         </section>
         <section xml:id="Authentication_Tests-d1e250">
             <title>Authentication Tests</title>
-            <para>
-                The authentication test suite is summarized in the Repose wiki at 
-                <link
-                    xlink:href="http://wiki.openrepose.org/display/REPOSE/Client+Authentication+Filter"
+            <para> The authentication test suite is summarized in the
+                Repose wiki at <?sbr?>
+                <link xlink:href="http://wiki.openrepose.org/display/REPOSE/Client+Authentication+Filter"
                     >http://wiki.openrepose.org/display/REPOSE/Client+Authentication+Filter</link>.
-            </para>
+                You can adapt those tests to work within
+                your own &PRODNAME; configuration. </para>
         </section>
     </chapter>
     <chapter xml:id="Client-Authorization-002">
@@ -624,59 +626,56 @@
                     identity server, and how long to cache responses
                     from the OpenStack identity server. 
                 </para>
-                    <table frame="box">
-                        <caption>Authorization Server Configuration
-                            Element Attributes</caption>
-                        <col width="16%"/>
-                        <col width="6%"/>
-                        <col width="7%"/>
-                        <col width="60%"/>
-                        <thead>
-                            <tr>
-                                <th>Configuration Attribute</th>
-                                <th>Type</th>
-                                <th>Required?</th>
-                                <th>Description</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td><code>username</code></td>
-                                <td>string</td>
-                                <td>YES</td>
-                                <td>The username to send to
-                                   the OpenStack identity server when
-                                   authenticating the component for
-                                   admin calls</td>
-                            </tr>
-                            <tr>
-                                <td><code>password</code></td>
-                                <td>string</td>
-                                <td>YES</td>
-                                <td>The password to send to
-                                   the OpenStack identity server when
-                                   authenticating the component for
-                                   admin calls</td>
-                            </tr>
-                            <tr>
-                                <td><code>href</code></td>
-                                <td>anyURI</td>
-                                <td>YES</td>
-                                <td>The full, valid URL of the
-                                   OpenStack identity server</td>
-                            </tr>
-                            <tr>
-                                <td><code>endpoint-list-ttl</code></td>
-                                <td>int</td>
-                                <td>NO</td>
-                                <td>Duration in seconds for how long
-                                   the component will cache (time to
-                                   live (TTL)) a valid endpoint-list
-                                   from the OpenStack identity
-                                   server</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <table rules="all">
+                    <caption>Authorization Server Configuration
+                        Element Attributes</caption>
+                    <col width="20%"/>
+                    <col width="10%"/>
+                    <col width="10%"/>
+                    <col width="50%"/>
+                    <thead>
+                        <tr>
+                            <th>Configuration Attribute</th>
+                            <th>Type</th>
+                            <th>Required?</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>username</code></td>
+                            <td>string</td>
+                            <td>YES</td>
+                            <td>The username to send to the OpenStack
+                                identity server when authenticating
+                                the component for admin calls</td>
+                        </tr>
+                        <tr>
+                            <td><code>password</code></td>
+                            <td>string</td>
+                            <td>YES</td>
+                            <td>The password to send to the OpenStack
+                                identity server when authenticating
+                                the component for admin calls</td>
+                        </tr>
+                        <tr>
+                            <td><code>href</code></td>
+                            <td>anyURI</td>
+                            <td>YES</td>
+                            <td>The full, valid URL of the OpenStack
+                                identity server</td>
+                        </tr>
+                        <tr>
+                            <td><code>endpoint-list-ttl</code></td>
+                            <td>int</td>
+                            <td>NO</td>
+                            <td>Duration in seconds for how long the
+                                component will cache (time to live
+                                (TTL)) a valid endpoint-list from the
+                                OpenStack identity server</td>
+                        </tr>
+                    </tbody>
+                </table>
                 <para> The authorization component must be able to
                     identify which service it represents when
                     inspecting a client's endpoint list. The
@@ -685,13 +684,14 @@
                     service endpoint's public URL. If the service
                     endpoint's public URL matches one of the endpoints
                     in the client's endpoint list, the client is
-                    authorized to use that service.<table frame="box">
+                    authorized to use that service.
+                    <table rules="all">
                         <caption>Service Endpoint Configuration
                             Element Attributes</caption>
-                        <col width="16%"/>
-                        <col width="6%"/>
-                        <col width="7%"/>
-                        <col width="60%"/>
+                        <col width="20%"/>
+                        <col width="10%"/>
+                        <col width="10%"/>
+                        <col width="50%"/>
                         <thead>
                             <tr>
                                 <th>Configuration Attribute</th>
@@ -725,7 +725,7 @@
                             for any endpoint in the client's endpoint
                             list, &PRODNAME; issues a warning: <itemizedlist>
                                 <listitem>
-                                   <para> If <code>publicURL</code>is
+                                   <para> If <code>publicURL</code> is
                                    null, the warning is <code>Endpoint
                                    Public URL is null. This is a
                                    violation of the OpenStack Identity
@@ -733,10 +733,10 @@
                                    </para>
                                 </listitem>
                                 <listitem>
-                                   <para> If <code>type</code>is null,
-                                   the warning is <code>Endpoint Type
-                                   is null. This is a violation of the
-                                   OpenStack Identity Service
+                                   <para> If <code>type</code> is
+                                   null, the warning is <code>Endpoint
+                                   Type is null. This is a violation
+                                   of the OpenStack Identity Service
                                    contract.</code>
                                    </para>
                                 </listitem>
@@ -751,8 +751,8 @@
         <section xml:id="Authorization_Tests-d1e327">
             <title>Authorization Tests</title>
             <para>You can adapt the tests described in this table to
-                work within your own &PRODNAME; configuration.<table
-                    frame="box" width="965">
+                work within your own &PRODNAME; configuration.
+                <table rules="all">
                     <caption>Authorization Test Suite
                         Summary</caption>
                     <col width="33%"/>

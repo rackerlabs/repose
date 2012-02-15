@@ -7,7 +7,7 @@
         xmlns="http://docs.rackspacecloud.com/power-api/client-auth/rs-auth-1.1/v1.0">
         
         <authentication-server username="auth" password="auth123" 
-            uri="http://184.106.208.75:8080/auth/" />
+            uri="http://127.0.0.1:8080/auth/" />
         
         <account-mapping id-regex=".*.com/(\d*)/" type="CLOUD"/>
         <account-mapping id-regex=".*.com/service/(\d*)/" type="CLOUD"/>
