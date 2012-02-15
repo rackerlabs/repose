@@ -9,8 +9,6 @@ import java.util.Iterator;
  */
 public final class QualityFactorUtility {
 
-   
-   
    private QualityFactorUtility() {
    }
 
