@@ -64,7 +64,7 @@
         </copyright>
         <releaseinfo>v1.0</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2012-01-30</pubdate>
+        <pubdate>2012-02-14</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -75,6 +75,16 @@
                 their service to use the logging component of the &PRODEXPAND;. </para>
         </abstract>
         <revhistory>
+            <revision>
+                <date>2012-02-14</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem><para>Improved sample <code>http-log</code> specification in <xref
+                                   linkend="Using_Log-d1e531"/> to
+                                include formatting control.</para></listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
             <revision>
                 <date>2012-01-30</date>
                 <revdescription>
@@ -124,9 +134,6 @@
             HTTP logging in &PRODNAME; is based on the Apache HTTPD Logging Standard, described at 
             <link xlink:href="http://httpd.apache.org/docs/2.2/mod/mod_log_config.html">http://httpd.apache.org/docs/2.2/mod/mod_log_config.html</link>.
         </para>
-        <para> The versioning component enhances the incoming request with an HTTP header named
-                <code>X-PP-Service-Origin</code>. This header can be used by components further down
-            the stack to perform routing. </para>
         <figure xml:id="Overview">
             <title>Overview of &PRODNAME; HTTP Logging</title>
             <mediaobject>
@@ -138,15 +145,18 @@
     </chapter>
     <chapter xml:id="Configuration-d1e365">
         <title>Configuration</title>
-        <para> 
-            To add the HTTP logging component to a &PRODNAME; deployment, 
-            add the <code>http-logging</code> filter to the configuration file.
-        </para>
+        <para> To add the HTTP logging component to a &PRODNAME;
+            deployment, add the <code>http-logging</code> filter to
+            the &PRODNAME;  configuration file,
+                <code>power-proxy.cfg.xml</code>. You can read about
+            configuring &PRODNAME; in the&PRODNAME; Deployment
+            Handbook.   </para>
         <important>
-            <para>
-                &PRODNAME;'s HTTP logging component can only be deployed on a system which supports the UTF-8 character set. 
-                If the system does not support UTF-8, an error will be thrown at startup and &PRODNAME; will exit. 
-            </para>
+            <para> &PRODNAME;'s HTTP logging component can only be
+                deployed on a system which supports the UTF-8
+                character set. If the system does not support the
+                UTF-8 character set, an error will be thrown at
+                startup and &PRODNAME; will exit. </para>
         </important>
         <para> To configure the &PRODNAME; HTTP logging component,
             edit the <code>http-logging.cfg.xml</code> file. Within
@@ -164,7 +174,6 @@
                     <area xml:id="logging-config-HTTP.xml.id" units="linecolumn" coords="8 9"/>
                     <area xml:id="logging-config-HTTP.xml.format-detailed" units="linecolumn" coords="9 9"/>
                     <area xml:id="logging-config-HTTP.xml.location" units="linecolumn" coords="12 17"/>
-                    <area xml:id="logging-config-HTTP.xml.format-IP" units="linecolumn" coords="18 9"/>
                 </areaspec>
             <programlisting language="xml">
 <xi:include href="samples/repose-logging-config-HTTP.xml" parse="text"/>
@@ -205,32 +214,24 @@
                 </para>
                 <para> </para>
             </callout>
-            <callout arearefs="logging-config-HTTP.xml.format-IP">
-                <para>
-                    <code>format</code> identifies what to record in this log. 
-                    See <xref linkend="Formatting_Log-d1e431"></xref> for help in interpreting <code>format</code>.
-                </para>
-                <para>
-                    As specified by <code>format</code> in this example, a
-                    log record will look like this: 
-                    <code>Remote IP=</code><parameter>value</parameter> <code>Local IP=</code><parameter>value</parameter>
-                    </para>
-                <para> 
-                    In this example, no tabs and no new lines are
-                    specified, so the log will consist of a single
-                    line which contains all the log's records. 
-                </para>
-                <para> </para>
-            </callout>
         </calloutlist>
     </chapter>
     <chapter xml:id="Formatting_Log-d1e431">
         <title>Choosing What to Log</title>
-        <para> 
-            You can configure &PRODNAME; to log information from a request's URI and headers. 
-            You cannot configure &PRODNAME; to log a request's message content.
-            This means a log created by &PRODNAME; can be used to investigate operational issues with no risk of exposing sensitive user data.
-        </para>
+        <para> Requests are obtained from URIs and consist of headers
+            and content. <itemizedlist spacing="compact">
+                <listitem>
+                    <para> You can configure &PRODNAME; to log
+                        information from a request's URI and headers.
+                    </para>
+                </listitem>
+                <listitem>
+                    <para> You cannot configure &PRODNAME; to log a
+                        request's content. </para>
+                </listitem>
+            </itemizedlist> This means a log created by &PRODNAME; can
+            be used to investigate operational issues but cannot be
+            used to examine data from the content body. </para>
         <para>
             &PRODNAME;'s HTTP logging component implements a subset of the Apache logging functionality described at 
             <link xlink:href="http://httpd.apache.org/docs/2.2/mod/mod_log_config.html">http://httpd.apache.org/docs/2.2/mod/mod_log_config.html</link>.
@@ -430,41 +431,50 @@
     </chapter>
     <chapter xml:id="Using_Log-d1e531">
         <title>Using the Log</title>
-        <para> 
-            The log file is a text file, so it can be viewed with
-            any text viewer. An example of a text viewer that you can
-            use is <emphasis role="bold">Notepad</emphasis>. 
-        </para>
-        <para>
-            You control the location of the log file by specifying its <code>location</code> in the logging configuration.
-            See <xref linkend="Configuration-d1e365"></xref> for examples of specifying <code>location</code>.
-        </para>
+        <para> The log file is a text file, so it can be viewed with
+            any text viewer. Examples of text viewers you can use are
+                <emphasis role="bold">gedit</emphasis> (on a GNOME
+            Linux system) and <emphasis role="bold">Notepad</emphasis>
+            (on a Windows system). </para>
         <para> 
             The log file can be formatted as a tab-delimited file,
             so it can be opened and manipulated as a spreadsheet.
-            Examples of spreadsheet software you can use are <emphasis
-                role="bold">OpenOffice.org Calc</emphasis> and
-                <emphasis role="bold">Microsoft Excel</emphasis>. 
+            Examples of spreadsheet software you can use are 
+            <emphasis role="bold">OpenOffice.org Calc</emphasis> and
+            <emphasis role="bold">Microsoft Excel</emphasis>. 
         </para>
-        <para> 
-            The log file can be huge, so you may wish to examine it
-            via an external parser. An example of an external parser
-            that you can use is <emphasis role="bold"
-            >Flume</emphasis>. 
-        </para>
-        <para> 
-            The log file will grow until it is rotated, moved, or
-            deleted. An example of a utility that you can configure to
+        <para> The log file can be huge, so you may wish to examine it
+            via an external parser. Examples of external parsers you
+            can use are <emphasis role="bold">Flume</emphasis> and
+                <emphasis role="bold">AWStats</emphasis>. </para>
+        <para> The log file will grow until it is rotated, moved, or
+            deleted. An example of a utility you can configure to
             rotate and archive the log file is <emphasis role="bold"
-                >logrotate</emphasis>. 
-        </para>
-        <para>
-            If you define <code>http-log</code> specifying
-            <code>format="Remote IP=%a Local IP=%A Response Size(bytes)=%b Remote Host=%h Request Method=%m Server Port=%p Query String=%q Time Request Received=%t Status=%s Remote User=%u URL Path Requested=%U"/</code>, 
-            you will see HTTP responses and log entries as shown in the table below:
+                >logrotate</emphasis>. </para>
+        <important>
+            <para> 
+                You control the location of the log file by specifying
+                <code>location</code> in the logging configuration.
+            </para>
+            <para> 
+                You control the content of the log file by specifying
+                <code>http-log</code> in the logging configuration.
+            </para>
+            <para>
+                See <xref linkend="Configuration-d1e365"/> for examples of
+                specifying <code>location</code> and <code>http-log</code>. 
+            </para>
+        </important>    
+        <para> The following table shows the HTTP responses and log
+            output generated if you specify <code>http-log</code> as<?sbr?>
+            <code>format="Remote IP=%a/tLocal IP=%A/tResponse
+                Size(bytes)=%b/tRemote Host=%h/tRequest Method=%m/tServer
+                Port=%p/tQuery String=%q/tTime Request Received=%t/t
+                Status=%s/tRemote User=%u/tURL Path
+                Requested=%U"/n</code>.
         </para>
         <table border="1" frame="box">
-            <caption>Requests, Responses, and Log Entries</caption>
+            <caption>Requests, Responses, and Log Output</caption>
             <col width="25%"/>
             <col width="10%"/>
             <col width="66%"/>
@@ -472,7 +482,7 @@
                 <tr>
                     <td>Request</td>
                     <th>Response</th>
-                    <td>Log Entry</td>
+                    <td>Log Output</td>
                 </tr>
             </thead>
             <tbody>
@@ -481,13 +491,13 @@
                         "x-auth-token:358484212:99493"</code></td>
                     <td>200 OK</td>
                     <td>
-                        <para> Remote IP=64.39.4.132 Local
-                            IP=50.57.184.12 Response Size(bytes)=2048
-                            Remote Host=64.39.4.132 Request Method=GET
-                            Server Port=8887 Query String=null Time
-                            Request Received=13-12-2011-10:17:34.335
+                        <para> Remote IP=127.0.0.1 Local IP=127.0.0.1
+                            Response Size(bytes)=2048 Remote
+                            Host=127.0.0.1 Request Method=GET Server
+                            Port=8887 Query String=null Time Request
+                            Received=13-12-2011-10:17:34.335
                             Status=200 Remote User=usertest1 URL Path
-                            Requested=http://valve:8887/resources/mockendservice/v1/usertest1 </para>
+                            Requested=http://localhost:8887/resources/mockendservice/v1/usertest1 </para>
                     </td>
                 </tr>
                 <tr>
@@ -495,13 +505,13 @@
                         "x-auth-token:358484212:99493"</code></td>
                     <td><errorcode>413</errorcode> Request Entity Too Large</td>
                     <td>
-                        <para> Remote IP=64.39.4.132 Local
-                            IP=50.57.184.12 Response Size(bytes)=2048
-                            Remote Host=64.39.4.132 Request Method=GET
-                            Server Port=8887 Query String=null Time
-                            Request Received=13-12-2011-10:22:17.320
+                        <para> Remote IP=127.0.0.1 Local IP=127.0.0.1
+                            Response Size(bytes)=2048 Remote
+                            Host=127.0.0.1 Request Method=GET Server
+                            Port=8887 Query String=null Time Request
+                            Received=13-12-2011-10:22:17.320
                             Status=413 Remote User=usertest1 URL Path
-                            Requested=http://valve:8887/resources/mockendservice/v1/usertest1</para>
+                            Requested=http://localhost:8887/resources/mockendservice/v1/usertest1</para>
                     </td>
                 </tr>
             </tbody>

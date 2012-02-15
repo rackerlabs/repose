@@ -41,6 +41,9 @@
                                 <para>Authentication</para>
                             </listitem>
                             <listitem>
+                                <para>Authorization</para>
+                            </listitem>
+                            <listitem>
                                 <para>Logging</para>
                             </listitem>
                             <listitem>

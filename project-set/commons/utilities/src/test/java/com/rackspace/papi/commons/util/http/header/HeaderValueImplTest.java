@@ -34,7 +34,7 @@ public class HeaderValueImplTest {
          
          assertEquals("Null header values must compare against valid values as lesser than valid values", 1, first.compareTo(null));
       }
-
+      
       @Test
       public void shouldHandleNullHeaderValueString() {
          final HeaderValue first = new HeaderValueImpl("", 0.8), second = new HeaderValueImpl(null, 0.8);
