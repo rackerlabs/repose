@@ -90,30 +90,55 @@ public class HeaderValueImpl implements HeaderValue {
       if (obj == null) {
          return false;
       }
-      
+
       if (getClass() != obj.getClass()) {
          return false;
       }
-      
+
       final HeaderValueImpl other = (HeaderValueImpl) obj;
-      
-      if (this.parameters != other.parameters && (this.parameters == null || !this.parameters.equals(other.parameters))) {
-         return false;
-      }
-      
-      if ((this.value == null) ? (other.value != null) : !this.value.equals(other.value)) {
-         return false;
-      }
-      
-      return true;
+
+      return compareTo(other) == 0;
    }
 
    @Override
    public int hashCode() {
       int hash = 7;
+      
       hash = 67 * hash + (this.parameters != null ? this.parameters.hashCode() : 0);
       hash = 67 * hash + (this.value != null ? this.value.hashCode() : 0);
+      
       return hash;
+   }
+
+   @Override
+   public int compareTo(HeaderValue that) {
+      int comparasionValue = 1;
+
+      if (that != null) {
+         if (this.getQualityFactor() != that.getQualityFactor()) {
+            comparasionValue = this.getQualityFactor() > that.getQualityFactor() ? 1 : -1;
+         } else {
+            comparasionValue = compareHeaderValues(this.getValue(), that.getValue());
+         }
+      }
+      
+      return comparasionValue;
+   }
+
+   private int compareHeaderValues(String first, String second) {
+      int comparasionValue = -1;
+
+      if (first != null) {
+         if (second == null) {
+            comparasionValue = 1;
+         } else {
+            comparasionValue = first.compareTo(second);
+         }
+      } else if (second == null) {
+         comparasionValue = 0;
+      }
+
+      return comparasionValue;
    }
 
    @Override
