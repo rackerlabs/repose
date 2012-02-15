@@ -1,6 +1,7 @@
 package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.jmx.agents.SystemJmxAgent;
 import com.rackspace.papi.model.Filter;
 import com.rackspace.papi.model.Host;
 import com.rackspace.papi.model.PowerProxy;
@@ -29,6 +30,9 @@ public class FilterContextInitializer {
       final Host localHost = new SystemModelInterrogator(powerProxy, port).getLocalHost();
 
       if (localHost != null) {
+         // TODO: This may need to move once we determine what parts of repose should be instrumented via JMX.
+         new SystemJmxAgent(localHost).registerMBean();
+
          for (com.rackspace.papi.model.Filter papiFilter : localHost.getFilters().getFilter()) {
             if (StringUtilities.isBlank(papiFilter.getName())) {
                LOG.error("Filter declaration has a null or empty name value - please check your system model configuration");
