@@ -35,10 +35,11 @@ public class RateLimitingRequestInfoTest {
          when(mockedRequest.getMethod()).thenReturn("GET");
 
          List<String> headerValues = new LinkedList<String>();
-         headerValues.add("group-4");
-         headerValues.add("group-2");
-         headerValues.add("group-1");
-         headerValues.add("group-3");
+         headerValues.add("group-4;q=0.1");
+         headerValues.add("group-2;q=0.1");
+         headerValues.add("group-1;q=0.1");
+         headerValues.add("group-3;q=0.1");
+         headerValues.add("group-3;q=0.002");
 
          when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenReturn(Collections.enumeration(headerValues));
 
@@ -54,7 +55,7 @@ public class RateLimitingRequestInfoTest {
       public void shouldCopyGroupHeaders() {
          final RateLimitingRequestInfo info = new RateLimitingRequestInfo(mockedRequest,MEDIA_TYPE);
 
-         assertTrue("Request info must copy user group information from request", info.getUserGroups().size() == 4);
+         assertEquals("Request info must copy user group information from request", 4, info.getUserGroups().size());
       }
 
       @Test

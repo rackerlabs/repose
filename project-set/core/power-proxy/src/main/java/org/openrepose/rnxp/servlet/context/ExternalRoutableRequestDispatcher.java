@@ -39,7 +39,7 @@ public class ExternalRoutableRequestDispatcher implements RequestDispatcher {
       final List<HeaderValue> headerValues = new HeaderFieldParser(httpRequest.getHeaders(PowerApiHeader.NEXT_ROUTE.toString())).parse();
 
       if (!headerValues.isEmpty()) {
-         final HeaderValue nextRoute = QualityFactorUtility.choosePreferedHeaderValue(headerValues);
+         final HeaderValue nextRoute = QualityFactorUtility.choosePreferredHeaderValue(headerValues);
          final URL destination = asURL(nextRoute.getValue());
 
          final InetSocketAddress address = new InetSocketAddress(destination.getHost(), httpPort(destination));

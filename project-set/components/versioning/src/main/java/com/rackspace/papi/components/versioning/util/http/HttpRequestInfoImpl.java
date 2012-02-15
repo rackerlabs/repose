@@ -25,7 +25,7 @@ public class HttpRequestInfoImpl implements HttpRequestInfo {
     }
 
     public HttpRequestInfoImpl(List<MediaType> acceptMediaRange, String uri, String url, String host) {
-        this.preferedMediaRange = QualityFactorUtility.choosePreferedHeaderValue(acceptMediaRange);
+        this.preferedMediaRange = QualityFactorUtility.choosePreferredHeaderValue(acceptMediaRange);
         this.acceptMediaRange = acceptMediaRange;
         this.uri = uri;
         this.url = url;
