@@ -24,7 +24,8 @@ public class MockServiceResource {
     @GET
     @Path("{id : .*}")
     public Response getEndService(@Context HttpHeaders headers, @Context UriInfo uri) {
-
+        
+        
         Set<String> headerPairs = headers.getRequestHeaders().keySet();
         Set<String> queryParams = uri.getQueryParameters().keySet();
         String resp = "<html>\n\t<head>\n\t\t<title>Servlet version</title>\n\t</head>\n\t<body>\n\t\t<h1>Servlet version at "
@@ -56,7 +57,7 @@ public class MockServiceResource {
     }
 
     @GET
-    @Path("*/limits")
+    @Path("/{version}/{user}/limits")
     @Produces("application/xml")
     public Response getAbsoluteLimits() {
 
@@ -79,6 +80,22 @@ public class MockServiceResource {
         LimitsEntityTransformer transformer = new LimitsEntityTransformer();
         return Response.ok(transformer.entityAsJson(limits)).build();
     }
+    
+    @GET
+    @Path("*/statuscode/{statusCode}")
+    public Response getStatusCode(@PathParam("statusCode") String statusCode){
+        
+        int status;
+        try{
+            status = Integer.parseInt(statusCode);
+        }catch (NumberFormatException e){
+            status = 404;
+        }
+        
+        return Response.status(status).build();
+        
+    }
+   
     
 
     public AbsoluteLimitList buildAbsoluteLimits() {
