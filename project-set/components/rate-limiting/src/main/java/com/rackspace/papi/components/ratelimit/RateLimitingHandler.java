@@ -51,7 +51,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
         originalAcceptHeaders = request.getHeaders("Accept");
         if (originalAcceptHeaders != null) {
             mediaRanges = new MediaRangeParser(originalAcceptHeaders).parse();
-            acceptType = QualityFactorUtility.choosePreferedHeaderValue(mediaRanges);
+            acceptType = QualityFactorUtility.choosePreferredHeaderValue(mediaRanges);
         }else{
             acceptType = new MediaType(MimeType.APPLICATION_JSON);  //we will default to a json response
         }
@@ -120,7 +120,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
         MediaType preferredMediaRange = new MediaType(MimeType.APPLICATION_JSON); // defaulting this to json for now
         // TODO: figure out a better way of detecting this besides null; feels dirty =/
         if (originalAcceptHeaders != null) {
-            preferredMediaRange = QualityFactorUtility.choosePreferedHeaderValue(mediaRanges);
+            preferredMediaRange = QualityFactorUtility.choosePreferredHeaderValue(mediaRanges);
         }
 
         new RateLimiterResponse(rateLimitCache, rateLimitingConfig).writeCombinedLimits(new RateLimitingRequestInfo(request, preferredMediaRange), response, director);

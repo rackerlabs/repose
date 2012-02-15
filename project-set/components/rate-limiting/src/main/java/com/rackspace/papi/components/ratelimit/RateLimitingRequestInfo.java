@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 
 public class RateLimitingRequestInfo {
 
-   private final Deque<String> allUserGroups;
+   private final List<HeaderValue> userGroups;
    private final HttpMethod requestMethod;
    private final HeaderValue userName;
    private final HttpServletRequest request;
@@ -29,23 +29,20 @@ public class RateLimitingRequestInfo {
       this.acceptType = acceptType;
 
       final List<HeaderValue> values = new HeaderFieldParser(request.getHeaders(PowerApiHeader.USER.toString())).parse();
-      userName = QualityFactorUtility.choosePreferedHeaderValue(values);
+      userName = QualityFactorUtility.choosePreferredHeaderValue(values);
 
-      allUserGroups = new LinkedList<String>();
-
-      for (Enumeration<String> groupHeaders = request.getHeaders(PowerApiHeader.GROUPS.toString()); groupHeaders.hasMoreElements();) {
-         allUserGroups.add(groupHeaders.nextElement());
-      }
-
+      final List<HeaderValue> groups = new HeaderFieldParser(request.getHeaders(PowerApiHeader.GROUPS.toString())).parse();
+      userGroups = QualityFactorUtility.choosePreferredHeaderValues(groups);
+              
       requestMethod = HttpMethod.fromValue(request.getMethod().toUpperCase());
    }
 
    public String getFirstUserGroup() {
-      return allUserGroups.isEmpty() ? null : allUserGroups.getFirst();
+      return userGroups.isEmpty() || userGroups.size() == 0 ? null : userGroups.get(0).getValue();
    }
 
-   public Collection<String> getUserGroups() {
-      return allUserGroups;
+   public List<HeaderValue> getUserGroups() {
+      return userGroups;
    }
 
    public String getUserName() {

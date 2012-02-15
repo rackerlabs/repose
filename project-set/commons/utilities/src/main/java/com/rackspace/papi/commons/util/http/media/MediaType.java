@@ -6,7 +6,7 @@ import java.util.Map;
 
 public class MediaType extends HeaderValueImpl {
 
-   private final MimeType mediaType;
+   private final MimeType mimeType;
 
    public MediaType(MimeType mimeType) {
       this(mimeType.getMimeType(), mimeType);
@@ -15,17 +15,17 @@ public class MediaType extends HeaderValueImpl {
    public MediaType(String value, MimeType mimeTYpe) {
       super(value, Collections.EMPTY_MAP);
 
-      this.mediaType = mimeTYpe;
+      this.mimeType = mimeTYpe;
    }
 
    public MediaType(String value, MimeType mediaType, Map<String, String> parameters) {
       super(value, parameters);
 
-      this.mediaType = mediaType;
+      this.mimeType = mediaType;
    }
 
    public MimeType getMimeType() {
-      return mediaType;
+      return mimeType;
    }
 
    @Override
@@ -40,7 +40,7 @@ public class MediaType extends HeaderValueImpl {
       
       final MediaType other = (MediaType) obj;
       
-      if (this.mediaType != other.mediaType) {
+      if (this.mimeType != other.mimeType) {
          return false;
       }
       
@@ -50,7 +50,7 @@ public class MediaType extends HeaderValueImpl {
    @Override
    public int hashCode() {
       int hash = 3;
-      hash = 79 * hash + (this.mediaType != null ? this.mediaType.hashCode() : 0);
+      hash = 79 * hash + (this.mimeType != null ? this.mimeType.hashCode() : 0);
       
       return hash + super.hashCode();
    }

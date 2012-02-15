@@ -6,7 +6,7 @@ import java.util.Map;
  *
  * @author zinic
  */
-public interface HeaderValue {
+public interface HeaderValue extends Comparable<HeaderValue> {
 
    /**
     * Gets the string that represents the header value.

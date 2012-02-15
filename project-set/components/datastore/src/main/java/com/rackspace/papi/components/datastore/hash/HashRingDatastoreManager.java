@@ -10,12 +10,13 @@ import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
 public class HashRingDatastoreManager implements DatastoreManager {
 
    public static final String DATASTORE_MANAGER_NAME = "distributed/hash-ring";
+   private final String HOST_KEY = "temp-host-key";
    private final HashedDatastore datastore;
    private boolean available;
 
    public HashRingDatastoreManager(String hostKey, EncodingProvider encodingProvider, MessageDigestFactory hashProvider, MutableClusterView clusterView, Datastore localDatastore) {
       final HashRingDatastore newHashRingDatastore = new HashRingDatastore(clusterView, hostKey, localDatastore, hashProvider, encodingProvider);
-      newHashRingDatastore.setRemoteCacheClient(newRemoteHttpCacheClient(hostKey, 300, 5000));
+      newHashRingDatastore.setRemoteCacheClient(newRemoteHttpCacheClient(HOST_KEY, 300, 5000));
 
       datastore = newHashRingDatastore;
       available = true;
