@@ -99,7 +99,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
 
         if (matchedCode != null) {
             final List<MediaType> mediaRanges = new MediaRangeParser(request.getHeaders(CommonHttpHeader.ACCEPT.toString())).parse();
-            final MediaType preferedMediaRange = QualityFactorUtility.choosePreferedHeaderValue(mediaRanges);
+            final MediaType preferedMediaRange = QualityFactorUtility.choosePreferredHeaderValue(mediaRanges);
             
             final Message statusCodeMessage = getMatchingStatusCodeMessage(matchedCode, preferedMediaRange);
 
