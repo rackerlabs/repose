@@ -11,8 +11,6 @@ import java.util.List;
  */
 public final class QualityFactorUtility {
 
-   
-   
    private QualityFactorUtility() {
    }
    

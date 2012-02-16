@@ -130,12 +130,13 @@ public class AuthenticationHeaderManager {
      */
     private void setGroups() {
         if (groups != null) {
+
             List<String> groupIds = new ArrayList<String>();
             for(Group group : groups.getGroup()) {
                 groupIds.add(group.getId());
             }
 
-            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.toString(), groupIds.toArray(new String[0]) + quality);
+            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.toString(), groupIds.toArray()[0].toString() + quality);
         }
     }
 }

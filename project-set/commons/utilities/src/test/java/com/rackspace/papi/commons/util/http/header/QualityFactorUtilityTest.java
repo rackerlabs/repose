@@ -15,8 +15,6 @@ import static org.junit.Assert.*;
 @RunWith(Enclosed.class)
 public class QualityFactorUtilityTest {
 
-   
-   
    public static class WhenChoosingHeaderValuesByQuality {
 
       private static final String MEDIA_TYPE = "application/vnd.rackspace.services.a+xml; q=0.8, application/json; q=0.5, application/xml; q=0.9, */*; q=0.1";

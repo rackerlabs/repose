@@ -48,7 +48,7 @@
                 <orgname>
                     The Apache Software Foundation
                 </orgname>
-                <title>Apache Module mod_log_config<link
+                <title>Apache Module mod_log_config <link
                     xlink:href="http://httpd.apache.org/docs/2.2/mod/mod_log_config.html"
                     >http://httpd.apache.org/docs/2.2/mod/mod_log_config.html</link>
                 </title>   

@@ -81,7 +81,7 @@ module ValveCluster
             puts "Starting repose cluster..."
             
             Net::SSH.start( "#{host}" , "root", :password => "#{node[9]}") do |ssh|
-                ssh.exec! "service repose-valve start"
+                ssh.exec! "service repose-regression start"
             end
             
             self.waitForRepose(node[7])

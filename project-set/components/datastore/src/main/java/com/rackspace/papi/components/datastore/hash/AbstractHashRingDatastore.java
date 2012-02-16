@@ -33,7 +33,7 @@ public abstract class AbstractHashRingDatastore extends AbstractHashedDatastore 
       this.remoteCache = remoteCache;
    }
 
-   private InetSocketAddress getTarget(byte[] hashBytes) {
+   public InetSocketAddress getTarget(byte[] hashBytes) {
       final InetSocketAddress[] ringMembers = clusterView.members();
 
       if (ringMembers.length <= 0) {
@@ -42,13 +42,7 @@ public abstract class AbstractHashRingDatastore extends AbstractHashedDatastore 
          return clusterView.localMember();
       }
 
-      final BigInteger ringSliceSize = getHashProvider().largestDigestValue().divide(BigInteger.valueOf(ringMembers.length));
-      final int memberAddress = new BigInteger(hashBytes).divide(ringSliceSize).abs().intValue();
-
-      if (memberAddress > ringMembers.length) {
-         throw new UnaddressableKeyException("Unable to address given key");
-      }
-
+      final int memberAddress = new BigInteger(hashBytes).mod(BigInteger.valueOf(ringMembers.length)).abs().intValue();
       return ringMembers[memberAddress];
    }
 
