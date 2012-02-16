@@ -5,10 +5,7 @@
 package com.rackspace.papi.components.versioning;
 
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
-import org.junit.Ignore;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import com.rackspace.papi.commons.util.http.media.MimeType;
-import com.rackspace.papi.commons.util.http.media.MediaType;
 import java.util.HashMap;
 import com.rackspace.papi.components.versioning.config.MediaTypeList;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
@@ -16,17 +13,13 @@ import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList
 import java.util.Map;
 import com.rackspace.papi.components.versioning.domain.ConfigurationData;
 import com.rackspace.papi.model.FilterList;
-import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.versioning.util.ContentTransformer;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.model.Host;
 import javax.servlet.http.HttpServletRequest;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
