@@ -18,19 +18,23 @@ public class HeaderFieldParser {
 
    public HeaderFieldParser(String rawHeaderString) {
       this();
-
-      final String[] splitHeaderValues = rawHeaderString.split(",");
       
-      for (String splitHeaderValue : splitHeaderValues) {
-         headerValueStrings.add(splitHeaderValue.trim());
-      }
+      addValue(rawHeaderString);
    }
 
    public HeaderFieldParser(Enumeration<String> headerValueEnumeration) {
       this();
       
       while(headerValueEnumeration.hasMoreElements()) {
-         this.headerValueStrings.add(headerValueEnumeration.nextElement());
+         addValue(headerValueEnumeration.nextElement());
+      }
+   }
+   
+   private void addValue(String rawHeaderString) {
+      final String[] splitHeaderValues = rawHeaderString.split(",");
+      
+      for (String splitHeaderValue : splitHeaderValues) {
+         headerValueStrings.add(splitHeaderValue.trim());
       }
    }
    
