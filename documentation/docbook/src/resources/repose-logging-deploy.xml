@@ -36,7 +36,6 @@
       xmlns:svg="http://www.w3.org/2000/svg"
       xmlns:m="http://www.w3.org/1998/Math/MathML"
       xmlns:html="http://www.w3.org/1999/xhtml"
-      xmlns:db="http://docbook.org/ns/docbook" 
       xml:id="Repose-Logging-Deployment-Guide">
     <?rax pdf.url="../../repose-logging-deploy.pdf"?>
     <title>&PRODNAME; HTTP Logging Component Deployment
@@ -487,7 +486,8 @@
             </thead>
             <tbody>
                 <tr>
-                    <td><code>curl http://50.57.184.12:8887/v1/usertest1 -H
+                    <td><code>curl http://localhost:8887/v1/usertest1
+                            -H
                         "x-auth-token:358484212:99493"</code></td>
                     <td>200 OK</td>
                     <td>
@@ -501,7 +501,8 @@
                     </td>
                 </tr>
                 <tr>
-                    <td><code>curl http://50.57.184.12:8887/v1/usertest1 -H
+                    <td><code>curl http://localhost:8887/v1/usertest1
+                            -H
                         "x-auth-token:358484212:99493"</code></td>
                     <td><errorcode>413</errorcode> Request Entity Too Large</td>
                     <td>
