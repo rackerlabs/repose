@@ -48,7 +48,7 @@ public class HttpLoggingHandlerFactoryTest {
             Targets targets = new Targets();
             FileTarget target = new FileTarget();
             target.setLocation(file.getAbsolutePath());
-            targets.setFile(target);
+            targets.getFile().add(target);
 
             HttpLog log = new HttpLog();
             log.setFormat("format" + i);
@@ -60,7 +60,7 @@ public class HttpLoggingHandlerFactoryTest {
          
          nullFileTargetLoggerConfig = new HttpLoggingConfig();
          Targets targets = new Targets();
-         targets.setFile(null);
+//         targets.getFile() =null;
 
          int id = loggerCount + 1;
          HttpLog log = new HttpLog();

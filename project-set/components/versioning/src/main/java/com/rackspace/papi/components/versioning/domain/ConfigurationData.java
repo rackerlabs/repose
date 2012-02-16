@@ -7,9 +7,7 @@ import com.rackspace.papi.commons.util.StringUriUtilities;
 
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
-import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
 import com.rackspace.papi.commons.util.http.header.HeaderValueParser;
-import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.components.versioning.config.MediaTypeList;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 import com.rackspace.papi.components.versioning.schema.VersionChoice;
@@ -17,10 +15,8 @@ import com.rackspace.papi.components.versioning.schema.VersionChoiceList;
 import com.rackspace.papi.components.versioning.util.VersionChoiceFactory;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.model.Host;
-import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import org.ietf.atom.schema.Link;
 import org.ietf.atom.schema.Relation;
@@ -111,31 +107,21 @@ public class ConfigurationData {
             mediaType = getMatchingMediaType((ServiceVersionMapping)serviceMapping.getValue(), preferedMediaRange);
             if(mediaType != null){
                 return new VersionedMapType((ServiceVersionMapping)serviceMapping.getValue(), mediaType);
-            }
-           
+            }  
         }
-
         return null;
     }
     
     public com.rackspace.papi.components.versioning.config.MediaType getMatchingMediaType(ServiceVersionMapping serviceVersionMapping, MediaType preferedMediaType) {
         final MediaTypeList configuredMediaTypes = serviceVersionMapping.getMediaTypes();
         for (com.rackspace.papi.components.versioning.config.MediaType configuredMediaType : configuredMediaTypes.getMediaType()) {
-            //List<MediaType> mediaTypes = RequestMediaRangeInterrogator.interrogate("", configuredMediaType.getType());
-            //MediaType mediaType = new MediaType(configuredMediaType.getType(), MimeType.guessMediaTypeFromString(configuredMediaType.getBase()));
-            HeaderValue mediaType = new HeaderValueParser(configuredMediaType.getType()).parse();
-            
-            if(preferedMediaType.equals(mediaType)){
+            HeaderValue mediaType = new HeaderValueParser(configuredMediaType.getType()).parse();            
+            if(preferedMediaType.getValue().equalsIgnoreCase(mediaType.getValue()) && preferedMediaType.getParameters().equals(mediaType.getParameters())){
                 return configuredMediaType;
-            }else if(preferedMediaType.getValue().equalsIgnoreCase(mediaType.getValue()) && preferedMediaType.getParameters().equals(mediaType.getParameters())){
-                return configuredMediaType;
-            }
-             
+            }    
         }
-
         return null;
     }
-    
 
     public boolean isRequestForVersions(UniformResourceInfo uniformResourceInfo) {
         return StringUriUtilities.formatUri(uniformResourceInfo.getUri()).equals("/");

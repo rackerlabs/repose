@@ -56,11 +56,11 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:all>
-            <xs:element name="file" type="htlog:file-target" minOccurs="1" maxOccurs="1" />
+        <xs:sequence>
+            <xs:element name="file" type="htlog:file-target" minOccurs="1" maxOccurs="unbounded" />
             <!-- The syslog support is future functionality -->
             <!--<xs:element name="syslog" type="htlog:syslog-target" minOccurs="1" maxOccurs="1" />-->
-        </xs:all>
+        </xs:sequence>
     </xs:complexType>
 
     <xs:complexType name="file-target">

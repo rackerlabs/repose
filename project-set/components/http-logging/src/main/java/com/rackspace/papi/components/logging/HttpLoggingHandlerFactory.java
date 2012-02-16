@@ -7,9 +7,7 @@ import com.rackspace.papi.components.logging.config.HttpLog;
 import com.rackspace.papi.components.logging.config.HttpLoggingConfig;
 import com.rackspace.papi.components.logging.config.Targets;
 import com.rackspace.papi.components.logging.util.FileLogger;
-import com.rackspace.papi.commons.util.io.charset.CharacterSets;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import com.rackspace.papi.model.PowerProxy;
 import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -53,12 +51,9 @@ public class HttpLoggingHandlerFactory extends AbstractConfiguredFilterHandlerFa
             final HttpLoggerWrapper loggerWrapper = new HttpLoggerWrapper(new HttpLogFormatter(log.getFormat()));
             final Targets targets = log.getTargets();
 
-            if (targets.getFile() != null) {
-               final FileTarget fTarget = targets.getFile();
-
-               loggerWrapper.addLogger(new FileLogger(new File(fTarget.getLocation())));
+            for(FileTarget target: targets.getFile()){
+                loggerWrapper.addLogger(new FileLogger(new File(target.getLocation())));
             }
-
             loggers.add(loggerWrapper);
          }
       }
