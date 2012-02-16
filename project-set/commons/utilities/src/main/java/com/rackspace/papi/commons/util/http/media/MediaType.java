@@ -44,6 +44,11 @@ public class MediaType extends HeaderValueImpl {
          return false;
       }
       
+      // This check may need to be moved up to the parent class
+      if (!this.getParameters().equals(other.getParameters())){
+          return false;
+      }
+      
       return super.equals(obj);
    }
 

@@ -118,7 +118,7 @@ public class ConfigurationData {
         final MediaTypeList configuredMediaTypes = serviceVersionMapping.getMediaTypes();
         for (com.rackspace.papi.components.versioning.config.MediaType configuredMediaType : configuredMediaTypes.getMediaType()) {
             List<MediaType> mediaTypes = RequestMediaRangeInterrogator.interrogate("", configuredMediaType.getType());
-            if(mediaTypes.contains(preferedMediaType)){
+            if(mediaTypes.get(0).equals(preferedMediaType)){
                 return configuredMediaType;
             }
              
