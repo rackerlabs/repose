@@ -41,7 +41,7 @@ public class ServiceAuthenticationHandler extends AbstractFilterLogicHandler {
 
          case FORBIDDEN:
             //If the WWW-Authenticate header is not present or it is not set to delegated then relay a 500
-            if (StringUtilities.isBlank(wwwAuthenticateHeader) && !wwwAuthenticateHeader.equalsIgnoreCase("delegated")) {
+            if (StringUtilities.isBlank(wwwAuthenticateHeader) || !wwwAuthenticateHeader.equalsIgnoreCase("delegated")) {
                response.setStatus(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue());
             } else {
                //Remove the header

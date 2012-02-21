@@ -3,6 +3,7 @@ package com.rackspace.papi.commons.util.http.header;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -27,6 +28,14 @@ public class HeaderFieldParser {
       
       while(headerValueEnumeration.hasMoreElements()) {
          addValue(headerValueEnumeration.nextElement());
+      }
+   }
+   
+   public HeaderFieldParser(Set<String> headers) {
+      this();
+      
+      for(String header: headers) {
+         addValue(header);
       }
    }
    
