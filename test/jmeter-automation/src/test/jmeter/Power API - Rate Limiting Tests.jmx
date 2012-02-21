@@ -415,7 +415,7 @@
                 </collectionProp>
               </HeaderManager>
               <hashTree/>
-              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Should allow requests with new group" enabled="true">
+              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Should allow requests with new group with higher priority" enabled="true">
                 <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
                   <collectionProp name="Arguments.arguments"/>
                 </elementProp>
@@ -466,7 +466,7 @@
                 </collectionProp>
               </HeaderManager>
               <hashTree/>
-              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Should allow requests with new group" enabled="true">
+              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Should allow requests with multiple X-PP-GROUPS headers" enabled="true">
                 <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
                   <collectionProp name="Arguments.arguments"/>
                 </elementProp>
@@ -487,7 +487,7 @@
                 <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
               </HTTPSamplerProxy>
               <hashTree>
-                <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Must return 200 when user/group still has avaiable requests" enabled="true">
+                <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Must return 200 when user/group still has avaiable requests" enabled="false">
                   <collectionProp name="Asserion.test_strings">
                     <stringProp name="49586">200</stringProp>
                   </collectionProp>
