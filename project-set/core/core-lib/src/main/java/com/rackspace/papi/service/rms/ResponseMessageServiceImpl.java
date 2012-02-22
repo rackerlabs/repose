@@ -146,18 +146,19 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
 
     private HttpLogFormatter getFormatter(StatusCodeMatcher code, Message message) {
         HttpLogFormatter formatter = null;
+        final String messageKey = code.getId()+message.getMediaType();
 
         configurationLock.lock(update);
 
         try {
-            formatter = formatTemplates.get(code.getId());
+            formatter = formatTemplates.get(messageKey);
 
             if (formatter == null) {
                 final String href = message.getHref();
                 final String stringTemplate = !StringUtilities.isBlank(href) ? readHref(href, code) : message.getValue();
 
                 formatter = new HttpLogFormatter(stringTemplate);
-                formatTemplates.put(code.getId(), formatter);
+                formatTemplates.put(messageKey, formatter);
             }
         } finally {
             configurationLock.unlock(update);
@@ -190,7 +191,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
 
         final Matcher m = URI_PATTERN.matcher(messageHref);
 
-        if (m.matches() && messageHref.startsWith("file://")) {
+        if (m.find() && messageHref.startsWith("file://")) {
             try {
                 f = new File(new URI(messageHref));
             } catch (URISyntaxException urise) {
