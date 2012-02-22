@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.api.rackspacecloud.com/powerapi/content-identity-auth/v1.0"
+           xmlns:content-identity-auth="http://docs.api.rackspacecloud.com/powerapi/content-identity-auth/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:atom="http://www.w3.org/2005/Atom"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Auth 1.1 message body content Identity Configuration -->
+    <xs:element name="content-identity-auth" type="content-identity-auth:ContentIdentityAuthConfig" />
+
+    <xs:complexType name="ContentIdentityAuthConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:all>
+            <xs:element name="group" type="xs:string" minOccurs="0" maxOccurs="1" default="PreAuth_1_1" />
+            <xs:element name="quality" type="xs:string" minOccurs="0" maxOccurs="1" default="0.6" />
+        </xs:all>
+    </xs:complexType>
+
+</xs:schema>

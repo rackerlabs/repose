@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<content-identity-auth  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+   xmlns='http://docs.api.rackspacecloud.com/powerapi/content-identity-auth/v1.0'
+   xsi:schemaLocation='http://docs.api.rackspacecloud.com/powerapi/content-identity-auth/v1.0 ../config/content-identity-auth-1.1-configuration.xsd'>
+
+  <group>My Group</group>
+  <quality>0.75</quality>
+      
+</content-identity-auth>
