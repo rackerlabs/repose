@@ -6,6 +6,7 @@ import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.header.QualityFactorUtility;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
+import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.io.FileReader;
 import com.rackspace.papi.commons.util.io.FileReaderImpl;
 import com.rackspace.papi.commons.util.logging.apache.HttpLogFormatter;
@@ -203,14 +204,18 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
     }
 
     private Message getMatchingStatusCodeMessage(StatusCodeMatcher code, MediaType requestedMediaType) {
+        Message wildcard =null;
         for (Message message : code.getMessage()) {
-            final List<MediaType> configurationRanges = new MediaRangeParser(message.getMediaType()).parse();
-
-            if (configurationRanges.contains(requestedMediaType)) {
+            MediaType mediaType = new MediaType(requestedMediaType.getValue(),MimeType.getMatchingMimeType(message.getMediaType()), requestedMediaType.getParameters());
+            if(mediaType.equals(requestedMediaType)){
                 return message;
+            }
+            // A configured wildcard (*/*) will be returned if an exact match is not found
+            if(mediaType.getMimeType().equals(MimeType.WILDCARD)){
+                wildcard = message;
             }
         }
 
-        return null;
+        return wildcard;
     }
 }
