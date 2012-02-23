@@ -6,11 +6,9 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import java.io.IOException;
 import javax.servlet.*;
-import org.slf4j.Logger;
 
 public class HeaderIdentityFilter implements Filter {
 
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(HeaderIdentityFilter.class);
     private HeaderIdentityHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;
 

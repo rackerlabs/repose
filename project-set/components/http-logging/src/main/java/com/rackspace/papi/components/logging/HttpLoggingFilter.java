@@ -4,7 +4,6 @@ import com.rackspace.papi.components.logging.config.HttpLoggingConfig;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
-import org.slf4j.Logger;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -20,7 +19,6 @@ import java.io.IOException;
  */
 public class HttpLoggingFilter implements Filter {
 
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(HttpLoggingFilter.class);
     private ConfigurationService manager;
     private HttpLoggingHandlerFactory handlerFactory;
 

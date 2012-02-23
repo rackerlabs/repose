@@ -7,6 +7,7 @@ public enum HttpStatusCode {
 
     OK(200),
     ACCEPTED(202),
+    NO_CONTENT(204),
     MULTIPLE_CHOICES(300),
     BAD_REQUEST(400),
     UNAUTHORIZED(401),

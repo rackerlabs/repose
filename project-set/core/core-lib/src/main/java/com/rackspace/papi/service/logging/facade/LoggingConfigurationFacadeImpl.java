@@ -13,7 +13,6 @@ import org.slf4j.LoggerFactory;
  * @author fran
  */
 public class LoggingConfigurationFacadeImpl implements LoggingConfigurationFacade {
-    private static final Logger LOG = LoggerFactory.getLogger(LoggingConfigurationFacadeImpl.class);
 
     private final LogFrameworks logFramework;
 

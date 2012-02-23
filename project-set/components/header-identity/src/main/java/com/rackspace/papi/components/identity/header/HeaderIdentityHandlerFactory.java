@@ -6,11 +6,11 @@ import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class HeaderIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFactory<HeaderIdentityHandler> {
 
 
    private HeaderIdentityConfig config;
-   private String quality;
 
    public HeaderIdentityHandlerFactory() {
    }
@@ -27,20 +27,9 @@ public class HeaderIdentityHandlerFactory extends AbstractConfiguredFilterHandle
 
    private class HeaderIdentityConfigurationListener implements UpdateListener<HeaderIdentityConfig> {
 
-//      private String determineQuality() {
-//         String q = DEFAULT_QUALITY;
-//
-//         if (config.getQuality() != null && !config.getQuality().trim().isEmpty()) {
-//            q = config.getQuality().trim();
-//         }
-//
-//         return ";q=" + q;
-//      }
-
       @Override
       public void configurationUpdated(HeaderIdentityConfig configurationObject) {
          config = configurationObject;
-         //quality = determineQuality();
       }
    }
 
