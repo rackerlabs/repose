@@ -6,6 +6,6 @@
         schemaLocation="content-identity-auth-1.1-configuration.xsd">
             
     <schemaBindings>
-        <package name="com.rackspace.papi.components.identity.content.auth.config" />
+        <package name="org.openrepose.rackspace.auth.content_identity.config" />
     </schemaBindings>
 </bindings>
