@@ -101,7 +101,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
         if (matchedCode != null) {
             final List<MediaType> mediaRanges = new MediaRangeParser(request.getHeaders(CommonHttpHeader.ACCEPT.toString())).parse();
             final MediaType preferedMediaRange = QualityFactorUtility.choosePreferredHeaderValue(mediaRanges);
-            
+
             final Message statusCodeMessage = getMatchingStatusCodeMessage(matchedCode, preferedMediaRange);
 
             if (statusCodeMessage != null) {
@@ -114,9 +114,15 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
                 if (formatter != null) {
                     final String formattedOutput = formatter.format(message, request, response).trim();
                     
+                    if (!statusCodeMessage.isPrependOrigin()) {
+                        response.resetBuffer();
+                    }else{
+                        final int contentlength = Integer.parseInt(response.getHeader("content-length")); //there's gotta be a better way of retrieving this...
+                        response.setContentLength(contentlength+formattedOutput.length());
+                    }
                     //Write the content type header and then write out our content
                     response.setHeader(CommonHttpHeader.CONTENT_TYPE.toString(), preferedMediaRange.getMimeType().toString());
-                    
+
                     // TODO:Enhancement - Update formatter logic for streaming
                     // TODO:Enhancement - Update getBytes(...) to use requested content encoding
                     response.getOutputStream().write(formattedOutput.getBytes());
@@ -147,7 +153,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
 
     private HttpLogFormatter getFormatter(StatusCodeMatcher code, Message message) {
         HttpLogFormatter formatter = null;
-        final String messageKey = code.getId()+message.getMediaType();
+        final String messageKey = code.getId() + message.getMediaType();
 
         configurationLock.lock(update);
 
@@ -204,14 +210,14 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
     }
 
     private Message getMatchingStatusCodeMessage(StatusCodeMatcher code, MediaType requestedMediaType) {
-        Message wildcard =null;
+        Message wildcard = null;
         for (Message message : code.getMessage()) {
-            MediaType mediaType = new MediaType(requestedMediaType.getValue(),MimeType.getMatchingMimeType(message.getMediaType()), requestedMediaType.getParameters());
-            if(mediaType.equals(requestedMediaType)){
+            MediaType mediaType = new MediaType(requestedMediaType.getValue(), MimeType.getMatchingMimeType(message.getMediaType()), requestedMediaType.getParameters());
+            if (mediaType.equals(requestedMediaType)) {
                 return message;
             }
             // A configured wildcard (*/*) will be returned if an exact match is not found
-            if(mediaType.getMimeType().equals(MimeType.WILDCARD)){
+            if (mediaType.getMimeType().equals(MimeType.WILDCARD)) {
                 wildcard = message;
             }
         }
