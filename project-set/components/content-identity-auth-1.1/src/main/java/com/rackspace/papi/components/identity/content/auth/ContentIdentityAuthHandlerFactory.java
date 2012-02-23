@@ -1,18 +1,21 @@
 package com.rackspace.papi.components.identity.content.auth;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.components.identity.content.auth.config.ContentIdentityAuthConfig;
+import com.rackspace.papi.commons.util.transform.json.JacksonJaxbTransform;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import java.util.HashMap;
 import java.util.Map;
+import org.openrepose.rackspace.auth.content_identity.config.ContentIdentityAuthConfig;
 import org.slf4j.Logger;
 
 public class ContentIdentityAuthHandlerFactory extends AbstractConfiguredFilterHandlerFactory<ContentIdentityAuthHandler> {
 
    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ContentIdentityAuthHandlerFactory.class);
    private ContentIdentityAuthConfig config;
+   private JacksonJaxbTransform jsonTranformer;
 
    public ContentIdentityAuthHandlerFactory() {
+      jsonTranformer = new JacksonJaxbTransform();
    }
 
    @Override
@@ -36,6 +39,6 @@ public class ContentIdentityAuthHandlerFactory extends AbstractConfiguredFilterH
 
    @Override
    protected ContentIdentityAuthHandler buildHandler() {
-      return new ContentIdentityAuthHandler(config);
+      return new ContentIdentityAuthHandler(config, jsonTranformer);
    }
 }

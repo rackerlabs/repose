@@ -4,6 +4,15 @@ import com.rackspace.papi.components.identity.content.wrappers.MossoCredentialsW
 import com.rackspace.papi.components.identity.content.wrappers.NastCredentialsWrapper;
 import com.rackspace.papi.components.identity.content.wrappers.PasswordCredentialsWrapper;
 import com.rackspace.papi.components.identity.content.wrappers.UserCredentialsWrapper;
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map.Entry;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.JsonNode;
+import org.codehaus.jackson.JsonParser;
+import org.codehaus.jackson.JsonToken;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.node.ObjectNode;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -21,6 +30,58 @@ public class JacksonJaxbTransformTest {
       public void setUp() {
 
          transform = new JacksonJaxbTransform();
+      }
+      
+      @Test
+      public void should() throws IOException {
+         
+         JsonFactory jsonFactory = new JsonFactory();
+         String credentials = "{ \"passwordCredentials\": { \"username\": \"user\", \"password\": \"pass\" } }";
+
+         ObjectMapper mapper = new ObjectMapper();
+         JsonNode rootNode = mapper.readTree(credentials);
+         
+         Iterator<Entry<String, JsonNode>> nodes = rootNode.getFields();
+         
+         while (nodes.hasNext()) {
+            Entry<String, JsonNode> node = nodes.next();
+            System.out.println(node.getKey() + ": " + node.getValue().getTextValue());
+         }
+         JsonNode o = rootNode.get("passwordCredentials");
+         ObjectNode objectNode;
+         
+         System.out.println(o.getTextValue());
+         
+         
+         
+         System.out.println(rootNode.getTextValue());
+
+         /*
+         
+         JsonParser jp = jsonFactory.createJsonParser(credentials);
+         JsonToken nextToken = jp.nextToken();
+         
+         while (nextToken != null && !JsonToken.FIELD_NAME.name().equals(nextToken.name())) {
+            nextToken = jp.nextToken();
+         }
+         
+         JsonToken currentToken = jp.getCurrentToken();
+         System.out.println("**************************");
+         System.out.println(currentToken.name());
+         System.out.println(jp.getCurrentName());
+         System.out.println("**************************");
+         jp.nextToken();
+         currentToken = jp.getCurrentToken();
+         JsonNode node = jp.readValueAsTree();
+         System.out.println(node.getTextValue());
+         //PasswordCredentialsWrapper readValueAs = jp.readValueAs(PasswordCredentialsWrapper.class);
+         System.out.println(currentToken.name());
+         System.out.println(jp.getCurrentName());
+         System.out.println(currentToken.asString());
+         System.out.println("**************************");
+         * 
+         */
+         
       }
       
       @Test
