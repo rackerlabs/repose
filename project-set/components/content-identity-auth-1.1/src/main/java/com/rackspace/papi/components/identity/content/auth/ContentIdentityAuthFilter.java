@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.identity.content.auth;
 
-import com.rackspace.papi.components.identity.content.auth.config.ContentIdentityAuthConfig;
+import org.openrepose.rackspace.auth.content_identity.config.ContentIdentityAuthConfig;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
