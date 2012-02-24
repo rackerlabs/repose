@@ -90,6 +90,10 @@ class EmptyHeaderManager implements HeaderManager {
    }
 
    @Override
+   public void appendHeader(String key, String value, Double quality) {
+   }
+
+   @Override
    public void appendToHeader(HttpServletRequest request, String key, String value) {
    }
 }

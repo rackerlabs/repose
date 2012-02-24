@@ -16,6 +16,8 @@ public interface HeaderManager {
     
     void appendHeader(String key, String... values);
 
+    void appendHeader(String key, String value, Double quality);
+    
     @Deprecated // TODO: Review if we still need this with the recent append changes to the manager
     void appendToHeader(HttpServletRequest request, String key, String value);
 

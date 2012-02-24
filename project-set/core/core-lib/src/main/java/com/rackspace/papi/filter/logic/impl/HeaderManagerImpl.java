@@ -1,5 +1,6 @@
 package com.rackspace.papi.filter.logic.impl;
 
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.filter.logic.HeaderApplicationLogic;
 import com.rackspace.papi.filter.logic.HeaderManager;
@@ -87,6 +88,26 @@ public class HeaderManagerImpl implements HeaderManager {
       }
       
       headerValues.addAll(Arrays.asList(values));
+   }
+
+   private String valueWithQuality(String value, Double quality) {
+      String result = value;
+      if (quality != null) {
+         result += ";q=" + quality;
+      }
+      return result;
+   }
+
+   @Override
+   public void appendHeader(String key, String value, Double quality) {
+      Set<String> headerValues = headersToAdd.get(key.toLowerCase());
+      
+      if (headerValues == null) {
+         headerValues = new HashSet<String>();
+         headersToAdd.put(key.toLowerCase(), headerValues);
+      }
+      
+      headerValues.add(valueWithQuality(value, quality));
    }
 
    @Override

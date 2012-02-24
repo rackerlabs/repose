@@ -5,8 +5,8 @@ import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.commons.util.transform.json.JacksonJaxbTransform;
-import com.rackspace.papi.components.identity.content.wrappers.CredentialsWrapper;
-import com.rackspace.papi.components.identity.parsers.JsonAuthBodyParser;
+import com.rackspace.papi.components.identity.content.credentials.AuthCredentials;
+import com.rackspace.papi.components.identity.parsers.json.JsonJaxbAuthContentParser;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.HeaderManager;
@@ -19,24 +19,15 @@ import org.openrepose.rackspace.auth.content_identity.config.ContentIdentityAuth
 public class ContentIdentityAuthHandler extends AbstractFilterLogicHandler {
 
    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ContentIdentityAuthHandler.class);
+   private static final String DEFAULT_QUALITY = "0.6";
+   private final Double quality;
    private final ContentIdentityAuthConfig config;
-   private final JacksonJaxbTransform jsonTranformer;
+   private final JacksonJaxbTransform jsonTransformer;
 
-   public ContentIdentityAuthHandler(ContentIdentityAuthConfig config, JacksonJaxbTransform jsonTranformer) {
+   public ContentIdentityAuthHandler(ContentIdentityAuthConfig config, JacksonJaxbTransform jsonTransformer) {
       this.config = config;
-      this.jsonTranformer = jsonTranformer;
-   }
-
-   private boolean isJson(MimeType mimeType) {
-      return mimeType != null && MimeType.APPLICATION_JSON.getSubType().equals(mimeType.getSubType());
-   }
-   
-   private String valueWithQuality(String value, String quality) {
-      String result = value;
-      if (!StringUtilities.isBlank(result) && !StringUtilities.isBlank(quality)) {
-         result += ";q=" + quality;
-      }
-      return result;
+      this.jsonTransformer = jsonTransformer;
+      this.quality = Double.valueOf(config.getQuality() != null? config.getQuality(): DEFAULT_QUALITY);
    }
 
    @Override
@@ -47,20 +38,12 @@ public class ContentIdentityAuthHandler extends AbstractFilterLogicHandler {
       filterDirector.setFilterAction(FilterAction.PASS);
 
       try {
-         String contentType = request.getHeader("Content-Type");
-
-         MimeType mimeType = MimeType.guessMediaTypeFromString(contentType);
-         CredentialsWrapper credentials = null;
-
-         if (isJson(mimeType)) {
-            credentials = new JsonAuthBodyParser(jsonTranformer).parse(request.getInputStream());
-         } else {
-            // TODO extract XML
-         }
+         MimeType mimeType = MimeType.guessMediaTypeFromString(request.getHeader("Content-Type"));
+         AuthCredentials credentials = new ContentParser(jsonTransformer).parse(mimeType, request.getInputStream());
 
          if (credentials != null) {
-            headerManager.appendHeader(PowerApiHeader.USER.toString(), valueWithQuality(credentials.getId(), config.getQuality()));
-            headerManager.appendHeader(PowerApiHeader.GROUPS.toString(), valueWithQuality(config.getGroup(), config.getQuality()));
+            headerManager.appendHeader(PowerApiHeader.USER.toString(), credentials.getId(), quality);
+            headerManager.appendHeader(PowerApiHeader.GROUPS.toString(), config.getGroup(), quality);
          }
 
       } catch (IOException ex) {

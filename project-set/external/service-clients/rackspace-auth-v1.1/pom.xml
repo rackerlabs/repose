@@ -1,45 +1,78 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+   <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>com.rackspace.papi.external.clients</groupId>
-        <artifactId>service-client-support</artifactId>
-        <version>1.1.3-SNAPSHOT</version>
-    </parent>
+   <parent>
+      <groupId>com.rackspace.papi.external.clients</groupId>
+      <artifactId>service-client-support</artifactId>
+      <version>1.1.3-SNAPSHOT</version>
+   </parent>
 
-    <groupId>com.rackspace.cloud.services.clients</groupId>
-    <artifactId>rackspace-auth-v1.1</artifactId>
-    <version>1.1.3-SNAPSHOT</version>
+   <groupId>com.rackspace.cloud.services.clients</groupId>
+   <artifactId>rackspace-auth-v1.1</artifactId>
+   <version>1.1.3-SNAPSHOT</version>
 
-    <name>Power API Service Clients - Rackspace Auth v1.1</name>
+   <name>Power API Service Clients - Rackspace Auth v1.1</name>
     
-    <packaging>jar</packaging>
+   <packaging>jar</packaging>
 
-    <dependencies>
-        <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache-core</artifactId>
-        </dependency>
+   <dependencies>
+      <dependency>
+         <groupId>net.sf.ehcache</groupId>
+         <artifactId>ehcache-core</artifactId>
+      </dependency>
 
-        <dependency>
-          <groupId>com.rackspace.papi.commons</groupId>
-          <artifactId>utilities</artifactId>
-        </dependency>
+      <dependency>
+         <groupId>com.rackspace.papi.commons</groupId>
+         <artifactId>utilities</artifactId>
+      </dependency>
 
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-client</artifactId>
-        </dependency>
+      <dependency>
+         <groupId>com.sun.jersey</groupId>
+         <artifactId>jersey-client</artifactId>
+      </dependency>
 
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-server</artifactId>
-        </dependency>
-    </dependencies>
+      <dependency>
+         <groupId>com.sun.jersey</groupId>
+         <artifactId>jersey-server</artifactId>
+      </dependency>
+   </dependencies>
     
-    <build>
-        <plugins>
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.jvnet.jaxb2.maven2</groupId>
+            <artifactId>maven-jaxb2-plugin</artifactId>
+            <version>0.8.1</version>
+            
+            <executions>
+               <execution>
+                  <goals>
+                     <goal>generate</goal>
+                  </goals>
+                  
+                  <phase>process-sources</phase>
+               </execution>
+            </executions>
+                
+            <configuration>                    
+               <schemaDirectory>src/main/resources/META-INF/schema/auth-1/1-service/</schemaDirectory>
+               <!--<schemaDirectory>src/main/resources</schemaDirectory>-->
+               <schemasInclude>
+                  <include>*.xsd</include>
+               </schemasInclude>
+                    
+               <bindingsInclude>
+                  <include>*.xjb</include>
+               </bindingsInclude>
+               <specVersion>2.2</specVersion>
+                    
+               <strict>true</strict>
+               <verbose>true</verbose>
+            </configuration>
+         </plugin>
+       
+         <!--
             <plugin>
                 <groupId>com.sun.tools.xjc.maven2</groupId>
                 <artifactId>maven-jaxb-plugin</artifactId>
@@ -57,7 +90,8 @@
                     <verbose>false</verbose>
                 </configuration>
             </plugin>
-        </plugins>
-    </build>
+        -->
+      </plugins>
+   </build>
 </project>
 

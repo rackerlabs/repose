@@ -1,11 +1,28 @@
-package com.rackspace.papi.components.identity.content.wrappers;
+package com.rackspace.papi.components.identity.content.credentials.wrappers;
 
 import com.rackspacecloud.docs.auth.api.v1.MossoCredentials;
+import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;
 
 @XmlRootElement(name = "mossoCredentials")
 public class MossoCredentialsWrapper extends CredentialsWrapper<MossoCredentials> {
 
+   private static final String[] fields = {"mossoId", "key"};
+   
+   public MossoCredentialsWrapper() {
+      super(fields);
+   }
+   
+   public MossoCredentialsWrapper(Map map) {
+      super(fields);
+      validate(map);
+      
+      MossoCredentials credentials = new MossoCredentials();
+      credentials.setMossoId((Integer)map.get("mossoId"));
+      credentials.setKey((String)map.get("key"));
+      setCredentials(credentials);
+   }
+   
    public void setMossoCredentials(MossoCredentials credentials) {
       setCredentials(credentials);
    }

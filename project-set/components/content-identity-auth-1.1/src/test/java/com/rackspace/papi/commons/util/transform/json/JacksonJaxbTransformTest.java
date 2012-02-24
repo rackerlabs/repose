@@ -1,9 +1,9 @@
 package com.rackspace.papi.commons.util.transform.json;
 
-import com.rackspace.papi.components.identity.content.wrappers.MossoCredentialsWrapper;
-import com.rackspace.papi.components.identity.content.wrappers.NastCredentialsWrapper;
-import com.rackspace.papi.components.identity.content.wrappers.PasswordCredentialsWrapper;
-import com.rackspace.papi.components.identity.content.wrappers.UserCredentialsWrapper;
+import com.rackspace.papi.components.identity.content.credentials.wrappers.MossoCredentialsWrapper;
+import com.rackspace.papi.components.identity.content.credentials.wrappers.NastCredentialsWrapper;
+import com.rackspace.papi.components.identity.content.credentials.wrappers.PasswordCredentialsWrapper;
+import com.rackspace.papi.components.identity.content.credentials.wrappers.UserCredentialsWrapper;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map.Entry;
