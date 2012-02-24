@@ -56,7 +56,7 @@ public class ServletContextWrapper implements ServletContext {
         String targetHostPort = null;
         try {
             uri = new URI(targetContext);
-            targetHostPort = uri.getHost() + ":" + uri.getPort();
+            targetHostPort = uri.getScheme() + "://" + uri.getHost() + ":" + uri.getPort();
         } catch (URISyntaxException ex) {
             LOG.error("Invalid target context: " + targetContext, ex);
         }

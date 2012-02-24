@@ -54,6 +54,14 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        
+        <xs:attribute name="scheme" type="xs:string" use="optional" default="http">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Port number of the http service of the host</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="FilterList">

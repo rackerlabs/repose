@@ -74,7 +74,7 @@ public class JerseyClientProxyService implements ProxyService {
     
     private String asUri(URI host) {
       try {
-        return new URL(HTTP, host.getHost(), host.getPort(), "").toExternalForm();
+        return new URL(host.getScheme(), host.getHost(), host.getPort(), "").toExternalForm();
       } catch (MalformedURLException ex) {
         LOG.error("Invalid host url: " + host, ex);
       }

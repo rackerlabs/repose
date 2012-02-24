@@ -5,13 +5,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 public class HostUtilities {
-    private static final String HTTP_PREFIX = "http";
+    private static final String HTTP_PREFIX = "https";
 
     public static String asUrl(Host host) throws MalformedURLException {
-        return new URL(HTTP_PREFIX, host.getHostname(), host.getServicePort(), "").toExternalForm();
+        return new URL(host.getScheme(), host.getHostname(), host.getServicePort(), "").toExternalForm();
     }
     
     public static String asUrl(Host host, String uri) throws MalformedURLException {
-        return new URL(HTTP_PREFIX, host.getHostname(), host.getServicePort(), uri).toExternalForm();
+        return new URL(host.getScheme(), host.getHostname(), host.getServicePort(), uri).toExternalForm();
     }
 }
