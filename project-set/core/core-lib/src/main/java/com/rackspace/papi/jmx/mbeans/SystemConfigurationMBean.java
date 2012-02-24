@@ -1,5 +1,8 @@
 package com.rackspace.papi.jmx.mbeans;
 
+import com.rackspace.papi.model.Host;
+import com.rackspace.papi.model.PowerProxy;
+
 import java.util.List;
 
 /**
@@ -10,4 +13,6 @@ import java.util.List;
 public interface SystemConfigurationMBean {
 
    public List<String> getLoadedFilters();
+
+   public PowerProxy updatePowerProxy(PowerProxy powerProxy);
 }

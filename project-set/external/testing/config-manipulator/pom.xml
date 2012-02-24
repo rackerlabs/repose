@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.rackspace.papi.external</groupId>
         <artifactId>external-lib-support</artifactId>
-        <version>1.0.2-SNAPSHOT</version>
+        <version>1.1.3-SNAPSHOT</version>
         <!--<relativePath>../../pom.xml</relativePath>-->
     </parent>
 
@@ -60,10 +60,11 @@
             <!--<artifactId>configuration</artifactId>-->
         <!--</dependency>-->
 
-        <!--<dependency>-->
-            <!--<groupId>com.rackspace.papi.core</groupId>-->
-            <!--<artifactId>core-lib</artifactId>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>com.rackspace.papi.core</groupId>
+            <artifactId>core-support</artifactId>
+            <version>${project.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>

@@ -20,31 +20,31 @@ import com.rackspace.papi.components.normalization.config.ContentNormalizationCo
  */
 @Path("/normalization")
 public class NormalizationConfiguration {
-    private static final String NORMALIZATION_CONFIG_FILE_NAME = "content-normalization.cfg.xml";
-    private static final String NORMALIZATION_CONFIG_FILE_PATH = "/etc/powerapi/";
-    private JAXBContext jaxbContext = null;
-    private  Marshaller marshaller = null;
+   private static final String NORMALIZATION_CONFIG_FILE_NAME = "content-normalization.cfg.xml";
+   private static final String NORMALIZATION_CONFIG_FILE_PATH = "/etc/powerapi/";
+   private JAXBContext jaxbContext = null;
+   private Marshaller marshaller = null;
 
-    @POST
-    @Consumes("application/xml")
-    public Response create(ContentNormalizationConfig config) {
-        try {
+   @POST
+   @Consumes("application/xml")
+   public Response create(ContentNormalizationConfig config) {
+      try {
 
-            if (jaxbContext == null) {
-                jaxbContext = JAXBContext.newInstance("com.rackspace.papi.components.normalization.config");
-                marshaller = jaxbContext.createMarshaller();
-            }
+         if (jaxbContext == null) {
+            jaxbContext = JAXBContext.newInstance("com.rackspace.papi.components.normalization.config");
+            marshaller = jaxbContext.createMarshaller();
+         }
 
-            marshaller.marshal(new JAXBElement(new QName("uri","local"), ContentNormalizationConfig.class, config ),
-                               new FileOutputStream(NORMALIZATION_CONFIG_FILE_PATH + NORMALIZATION_CONFIG_FILE_NAME));
-        } catch (JAXBException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+         marshaller.marshal(new JAXBElement(new QName("uri", "local"), ContentNormalizationConfig.class, config),
+                 new FileOutputStream(NORMALIZATION_CONFIG_FILE_PATH + NORMALIZATION_CONFIG_FILE_NAME));
+      } catch (JAXBException e) {
+         e.printStackTrace();
+      } catch (FileNotFoundException e) {
+         e.printStackTrace();
+      }
 
-        System.out.println("Created content-normalization.cfg.xml file: " + config.toString());
+      System.out.println("Created content-normalization.cfg.xml file: " + config.toString());
 
-        return Response.created(URI.create("/normalization/")).build();
-    }
+      return Response.created(URI.create("/normalization/")).build();
+   }
 }
