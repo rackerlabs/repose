@@ -22,7 +22,7 @@ import java.lang.management.ManagementFactory;
 public class SystemJmxAgent {
 
    private static final Logger LOG = LoggerFactory.getLogger(SystemJmxAgent.class);
-   private static final String OBJECT_NAME = "com.rackspace.papi.jmx.mbeans:type=SystemConfiguration";
+   private static final String OBJECT_NAME = "com.rackspace.papi.jmx.mxbeans:type=SystemConfiguration";
    private final Host localHost;
    private ObjectName name;
 

@@ -8,4 +8,7 @@
     <schemaBindings>
         <package name="com.rackspace.papi.model" />
     </schemaBindings>
+    <globalBindings>
+        <serializable uid="100" />
+    </globalBindings>
 </bindings>

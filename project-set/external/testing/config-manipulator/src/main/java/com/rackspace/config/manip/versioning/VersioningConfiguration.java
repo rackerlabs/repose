@@ -20,31 +20,31 @@ import java.net.URI;
  */
 @Path("/versioning")
 public class VersioningConfiguration {
-    private static final String VERSIONING_CONFIG_FILE_NAME = "versioning.cfg.xml";
-    private static final String VERSIONING_CONFIG_FILE_PATH = "/etc/powerapi/";
-    private JAXBContext jaxbContext = null;
-    private  Marshaller marshaller = null;
+   private static final String VERSIONING_CONFIG_FILE_NAME = "versioning.cfg.xml";
+   private static final String VERSIONING_CONFIG_FILE_PATH = "/etc/powerapi/";
+   private JAXBContext jaxbContext = null;
+   private Marshaller marshaller = null;
 
-    @POST
-    @Consumes("application/xml")
-    public Response create(ServiceVersionMappingList config) {
-        try {
+   @POST
+   @Consumes("application/xml")
+   public Response create(ServiceVersionMappingList config) {
+      try {
 
-            if (jaxbContext == null) {
-                jaxbContext = JAXBContext.newInstance("com.rackspace.papi.components.versioning.config");
-                marshaller = jaxbContext.createMarshaller();
-            }
+         if (jaxbContext == null) {
+            jaxbContext = JAXBContext.newInstance("com.rackspace.papi.components.versioning.config");
+            marshaller = jaxbContext.createMarshaller();
+         }
 
-            marshaller.marshal(new JAXBElement(new QName("uri","local"), ServiceVersionMappingList.class, config ),
-                               new FileOutputStream(VERSIONING_CONFIG_FILE_PATH + VERSIONING_CONFIG_FILE_NAME));
-        } catch (JAXBException e) {
-            e.printStackTrace();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
+         marshaller.marshal(new JAXBElement(new QName("uri", "local"), ServiceVersionMappingList.class, config),
+                 new FileOutputStream(VERSIONING_CONFIG_FILE_PATH + VERSIONING_CONFIG_FILE_NAME));
+      } catch (JAXBException e) {
+         e.printStackTrace();
+      } catch (FileNotFoundException e) {
+         e.printStackTrace();
+      }
 
-        System.out.println("Created versioning.cfg.xml file: " + config.toString());
+      System.out.println("Created versioning.cfg.xml file: " + config.toString());
 
-        return Response.created(URI.create("/versioning/" + config.getServiceRoot())).build();
-    }
+      return Response.created(URI.create("/versioning/" + config.getServiceRoot())).build();
+   }
 }
