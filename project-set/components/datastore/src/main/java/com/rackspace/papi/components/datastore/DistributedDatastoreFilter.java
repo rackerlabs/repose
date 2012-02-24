@@ -12,7 +12,6 @@ import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
 import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.hash.HashedDatastore;
 import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
-import org.slf4j.Logger;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -26,7 +25,6 @@ import org.openrepose.components.datastore.config.DistributedDatastoreConfigurat
 
 public class DistributedDatastoreFilter implements Filter {
    
-   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(DistributedDatastoreFilter.class);
    private final String datastoreId;
    private DatastoreFilterLogicHandlerFactory handlerFactory;
    private DatastoreService datastoreService;

@@ -5,7 +5,6 @@ import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import org.slf4j.Logger;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -15,11 +14,9 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import java.io.IOException;
 import org.openrepose.components.authz.rackspace.config.RackspaceAuthorization;
-import org.slf4j.LoggerFactory;
 
 public class RackspaceAuthorizationFilter implements Filter {
 
-   private static final Logger LOG = LoggerFactory.getLogger(RackspaceAuthorizationFilter.class);
    private RequestAuthorizationHandlerFactory handlerFactory;
 
    @Override

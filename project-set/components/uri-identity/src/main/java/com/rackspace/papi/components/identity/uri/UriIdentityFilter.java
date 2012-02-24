@@ -7,11 +7,9 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import java.io.IOException;
 import javax.servlet.*;
-import org.slf4j.Logger;
 
 public class UriIdentityFilter implements Filter {
 
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(UriIdentityFilter.class);
     private UriIdentityHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;
 

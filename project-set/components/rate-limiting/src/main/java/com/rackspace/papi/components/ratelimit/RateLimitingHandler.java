@@ -124,7 +124,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
         }
 
         new RateLimiterResponse(rateLimitCache, rateLimitingConfig).writeCombinedLimits(new RateLimitingRequestInfo(request, preferredMediaRange), response, director);
-
+        director.responseHeaderManager().appendHeader("Content-Type", preferredMediaRange.getMimeType().getMimeType());
         return director;
     }
 }
