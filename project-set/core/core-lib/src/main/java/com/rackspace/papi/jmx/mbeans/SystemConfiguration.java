@@ -2,6 +2,7 @@ package com.rackspace.papi.jmx.mbeans;
 
 import com.rackspace.papi.model.Filter;
 import com.rackspace.papi.model.Host;
+import com.rackspace.papi.model.PowerProxy;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,5 +38,11 @@ public class SystemConfiguration implements SystemConfigurationMBean {
       }       
 
       return loadedFilters;
+   }
+
+   @Override
+   public PowerProxy updatePowerProxy(PowerProxy powerProxy) {
+      System.out.print("In MBean " + powerProxy.getHost().get(0).getHostname());
+      return powerProxy;
    }
 }
