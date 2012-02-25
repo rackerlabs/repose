@@ -26,7 +26,7 @@
         </if>
         
         <if test="count($absoluteDoc)!=1">
-            <message terminate="yes">Could not load <value-of select="$absoluteURL"/></message>
+            <message>Could not load <value-of select="$absoluteURL"/></message>
         </if>
         
         <limits xmlns="http://docs.openstack.org/common/api/v1.0">
