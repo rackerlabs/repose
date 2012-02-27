@@ -11,7 +11,7 @@ import com.rackspace.papi.components.ratelimit.util.*;
  *
  * @author malconis
  */
-@Path("/mockendservice/")
+@Path("/")
 public class MockServiceResource {
 
     private ObjectFactory factory;
@@ -55,17 +55,19 @@ public class MockServiceResource {
     public Response getService(@Context HttpHeaders headers, @Context UriInfo uri) {
         return this.getEndService(headers, uri);
     }
-
+    
     @GET
-    @Path("/{version}/{user}/limits")
+    @Path("/{service}/limits")
+    @Produces("application/json")
+    public Response getLimitsJson(){
+        return getAbsoluteLimitsJson();
+    }
+    
+    @GET
+    @Path("/{service}/limits")
     @Produces("application/xml")
-    public Response getAbsoluteLimits() {
-
-        Limits limits = new Limits();
-        AbsoluteLimitList absList = buildAbsoluteLimits();
-        limits.setAbsolute(absList);
-
-        return Response.ok(factory.createLimits(limits)).build();
+    public Response getLimitsXml(){
+        return getAbsoluteLimits();
     }
     
     @GET
@@ -79,6 +81,18 @@ public class MockServiceResource {
         
         LimitsEntityTransformer transformer = new LimitsEntityTransformer();
         return Response.ok(transformer.entityAsJson(limits)).build();
+    }
+    
+    @GET
+    @Path("/{version}/{user}/limits")
+    @Produces("application/xml")
+    public Response getAbsoluteLimits() {
+
+        Limits limits = new Limits();
+        AbsoluteLimitList absList = buildAbsoluteLimits();
+        limits.setAbsolute(absList);
+
+        return Response.ok(factory.createLimits(limits)).build();
     }
     
     @GET
