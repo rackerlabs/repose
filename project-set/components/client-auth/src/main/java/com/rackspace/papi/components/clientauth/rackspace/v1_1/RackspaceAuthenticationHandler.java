@@ -113,7 +113,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
       // (since we are a proxy) how to correctly authenticate itself
       final String wwwAuthenticateHeader = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString());
 
-      switch (HttpStatusCode.fromInt(response.getStatus())) {
+      switch (myDirector.getResponseStatus()) {
          // NOTE: We should only mutate the WWW-Authenticate header on a
          // 401 (unauthorized) or 403 (forbidden) response from the origin service
          case UNAUTHORIZED:
