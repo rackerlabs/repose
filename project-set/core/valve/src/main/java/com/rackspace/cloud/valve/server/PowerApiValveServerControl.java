@@ -21,7 +21,6 @@ public class PowerApiValveServerControl {
 
    private static final Logger LOG = LoggerFactory.getLogger(ProxyApp.class);
    private static final String LOCALHOST_IP = "127.0.0.1";
-   
    private Server serverInstance;
    private CommandLineArguments commandLineArgs;
 
@@ -46,7 +45,7 @@ public class PowerApiValveServerControl {
       monitor.start();
 
       try {
-         final int startPort = readPortNumberFromConfiguration(commandLineArgs.getConfigDirectory());
+         final int startPort = commandLineArgs.getPort() != null ? commandLineArgs.getPort() : readPortNumberFromConfiguration(commandLineArgs.getConfigDirectory());
 
          serverInstance = new ValveJettyServerBuilder(startPort, commandLineArgs.getConfigDirectory()).newServer();
          serverInstance.setStopAtShutdown(true);
@@ -58,7 +57,7 @@ public class PowerApiValveServerControl {
          LOG.error("Power API Valve will now stop.");
 
          monitor.interrupt();
-         
+
          if (serverInstance != null) {
             serverInstance.stop();
          }
