@@ -5,6 +5,9 @@ package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.commons.util.http.header.HeaderChooser;
+import com.rackspace.papi.commons.util.http.header.HeaderValue;
+import com.rackspace.papi.commons.util.http.header.QualityFactorHeaderChooser;
 import com.rackspace.papi.commons.util.http.header.QualityFactorUtility;
 import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
 import com.rackspace.papi.commons.util.http.media.MediaType;
@@ -29,102 +32,98 @@ import org.slf4j.Logger;
  */
 public class RateLimitingHandler extends AbstractFilterLogicHandler {
 
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingHandler.class);
-    private final Map<String, Map<String, Pattern>> regexCache;
-    private final RateLimitCache rateLimitCache;
-    private final Pattern describeLimitsUriRegex;
-    private final RateLimitingConfiguration rateLimitingConfig;
-    private Enumeration<String> originalAcceptHeaders;
-    private List<MediaType> mediaRanges;
-    private MediaType acceptType;
+   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingHandler.class);
+   private static final HeaderChooser<MediaType> ACCEPT_TYPE_CHOOSER = new QualityFactorHeaderChooser<MediaType>(new MediaType(MimeType.APPLICATION_JSON));
+   
+   private final Map<String, Map<String, Pattern>> regexCache;
+   private final RateLimitCache rateLimitCache;
+   private final Pattern describeLimitsUriRegex;
+   private final RateLimitingConfiguration rateLimitingConfig;
+   private final RateLimiterBuilder rateLimiterBuilder;
+   private Enumeration<String> originalAcceptHeaders;
+   private List<MediaType> mediaRanges;
+   private MediaType acceptType;
 
-    public RateLimitingHandler(Map<String, Map<String, Pattern>> regexCache, RateLimitCache rateLimitCache, Pattern describeLimitsUriRegex, RateLimitingConfiguration rateLimitingConfig) {
-        this.regexCache = regexCache;
-        this.rateLimitCache = rateLimitCache;
-        this.describeLimitsUriRegex = describeLimitsUriRegex;
-        this.rateLimitingConfig = rateLimitingConfig;
-    }
+   public RateLimitingHandler(Map<String, Map<String, Pattern>> regexCache, RateLimitCache rateLimitCache, Pattern describeLimitsUriRegex, RateLimitingConfiguration rateLimitingConfig, RateLimiterBuilder rateLimiterBuilder) {
+      this.regexCache = regexCache;
+      this.rateLimitCache = rateLimitCache;
+      this.describeLimitsUriRegex = describeLimitsUriRegex;
+      this.rateLimitingConfig = rateLimitingConfig;
+      this.rateLimiterBuilder = rateLimiterBuilder;
+   }
 
-    @Override
-    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
-        final FilterDirector director = new FilterDirectorImpl();
-        originalAcceptHeaders = request.getHeaders("Accept");
-        if (originalAcceptHeaders != null) {
-            mediaRanges = new MediaRangeParser(originalAcceptHeaders).parse();
-            acceptType = QualityFactorUtility.choosePreferredHeaderValue(mediaRanges);
-        }else{
-            acceptType = new MediaType(MimeType.APPLICATION_JSON);  //we will default to a json response
-        }
+   @Override
+   public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
+      final FilterDirector director = new FilterDirectorImpl();
 
-        // Does the request contain expected headers?
-        if (requestHasExpectedHeaders(request)) {
-            final String requestUri = request.getRequestURI();
+      originalAcceptHeaders = request.getHeaders("Accept");
+      acceptType = ACCEPT_TYPE_CHOOSER.choosePreferredHeaderValue(new MediaRangeParser(originalAcceptHeaders).parse());
 
-            // We set the default action to PASS in this case since further
-            // logic may or may not change the action and this request can now
-            // be considered valid.
-            director.setFilterAction(FilterAction.PASS);
+      // Does the request contain expected headers?
+      if (requestHasExpectedHeaders(request)) {
+         final String requestUri = request.getRequestURI();
 
-            // Does the request match the configured getCurrentLimits API call endpoint?
-            if (describeLimitsUriRegex.matcher(requestUri).matches()) {
-                describeLimitsForRequest(director, request);
-            } else {
-                recordLimitedRequest(new RateLimitingRequestInfo(request, acceptType), director);
-            }
-        } else {
-            LOG.warn("Expected header: " + PowerApiHeader.USER.toString()
-                    + " was not supplied in the request. Rate limiting requires this header to operate.");
+         // We set the default action to PASS in this case since further
+         // logic may or may not change the action and this request can now
+         // be considered valid.
+         director.setFilterAction(FilterAction.PASS);
 
-            // Auto return a 401 if the request does not meet expectations
-            director.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
-            director.setFilterAction(FilterAction.RETURN);
-        }
+         // Does the request match the configured getCurrentLimits API call endpoint?
+         if (describeLimitsUriRegex.matcher(requestUri).matches()) {
+            describeLimitsForRequest(director, request);
+         } else {
+            recordLimitedRequest(new RateLimitingRequestInfo(request, acceptType), director);
+         }
+      } else {
+         LOG.warn("Expected header: " + PowerApiHeader.USER.toString()
+                 + " was not supplied in the request. Rate limiting requires this header to operate.");
 
-        return director;
-    }
+         // Auto return a 401 if the request does not meet expectations
+         director.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
+         director.setFilterAction(FilterAction.RETURN);
+      }
 
-    public void recordLimitedRequest(RateLimitingRequestInfo info, FilterDirector director) {
-        new RateLimiter(rateLimitCache, regexCache, rateLimitingConfig).recordLimitedRequest(info, director);
-    }
+      return director;
+   }
 
-    public boolean requestHasExpectedHeaders(HttpServletRequest request) {
-        return request.getHeader(PowerApiHeader.USER.toString()) != null;
-    }
+   public void recordLimitedRequest(RateLimitingRequestInfo info, FilterDirector director) {
+      rateLimiterBuilder.buildRateLimiter(rateLimitCache, regexCache, rateLimitingConfig).recordLimitedRequest(info, director);
+   }
 
-    private void describeLimitsForRequest(final FilterDirector director, HttpServletRequest request) {
-        
-        // Should we include the absolute limits from the service origin?
-        if (rateLimitingConfig.getRequestEndpoint().isIncludeAbsoluteLimits()) {
+   public boolean requestHasExpectedHeaders(HttpServletRequest request) {
+      return request.getHeader(PowerApiHeader.USER.toString()) != null;
+   }
 
-            // Process the response on the way back up the filter chain
-            director.setFilterAction(FilterAction.PROCESS_RESPONSE);
+   private void describeLimitsForRequest(final FilterDirector director, HttpServletRequest request) {
 
-            if (acceptType == null || acceptType.getValue().equalsIgnoreCase(MimeType.APPLICATION_JSON.toString())) {
-                director.requestHeaderManager().putHeader("Accept", MimeType.APPLICATION_XML.toString());
-            }
+      // Should we include the absolute limits from the service origin?
+      if (rateLimitingConfig.getRequestEndpoint().isIncludeAbsoluteLimits()) {
 
-        } else {
-            if(acceptType.toString().equals(MimeType.WILDCARD.getMimeType())){
-                acceptType = new MediaType(MimeType.APPLICATION_JSON);
-            }
-            new RateLimiterResponse(rateLimitCache, rateLimitingConfig).writeActiveLimits(new RateLimitingRequestInfo(request, acceptType), director);
+         // Process the response on the way back up the filter chain
+         director.setFilterAction(FilterAction.PROCESS_RESPONSE);
 
-            director.setFilterAction(FilterAction.RETURN);
-            director.setResponseStatus(HttpStatusCode.OK);
-        }
-    }
+         if (acceptType == null || acceptType.getValue().equalsIgnoreCase(MimeType.APPLICATION_JSON.toString())) {
+            director.requestHeaderManager().putHeader("Accept", MimeType.APPLICATION_XML.toString());
+         }
 
-    @Override
-    public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
-        final FilterDirector director = new FilterDirectorImpl();
-        MediaType preferredMediaRange = new MediaType(MimeType.APPLICATION_JSON); // defaulting this to json for now
-        // TODO: figure out a better way of detecting this besides null; feels dirty =/
-        if (originalAcceptHeaders != null) {
-            preferredMediaRange = QualityFactorUtility.choosePreferredHeaderValue(mediaRanges);
-        }
+      } else {
+         if (acceptType.toString().equals(MimeType.WILDCARD.getMimeType())) {
+            acceptType = new MediaType(MimeType.APPLICATION_JSON);
+         }
+         new RateLimiterResponse(rateLimitCache, rateLimitingConfig).writeActiveLimits(new RateLimitingRequestInfo(request, acceptType), director);
 
-        new RateLimiterResponse(rateLimitCache, rateLimitingConfig).writeCombinedLimits(new RateLimitingRequestInfo(request, preferredMediaRange), response, director);
-        director.responseHeaderManager().appendHeader("Content-Type", preferredMediaRange.getMimeType().getMimeType());
-        return director;
-    }
+         director.setFilterAction(FilterAction.RETURN);
+         director.setResponseStatus(HttpStatusCode.OK);
+      }
+   }
+
+   @Override
+   public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
+      final FilterDirector director = new FilterDirectorImpl();
+      final MediaType preferredMediaRange = ACCEPT_TYPE_CHOOSER.choosePreferredHeaderValue(new MediaRangeParser(originalAcceptHeaders).parse());
+
+      new RateLimiterResponse(rateLimitCache, rateLimitingConfig).writeCombinedLimits(new RateLimitingRequestInfo(request, preferredMediaRange), response, director);
+      director.responseHeaderManager().appendHeader("Content-Type", preferredMediaRange.getMimeType().getMimeType());
+      return director;
+   }
 }

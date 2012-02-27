@@ -24,10 +24,22 @@ public final class RateLimitingHandlerFactory extends AbstractConfiguredFilterHa
    
    private final Map<String, Map<String, Pattern>> regexCache;
    private final RateLimitCache rateLimitCache;
+   private final RateLimiterBuilder rateLimiterBuilder;
    
    //Volatile
    private Pattern describeLimitsUriRegex;
    private RateLimitingConfiguration rateLimitingConfig;
+
+   public RateLimitingHandlerFactory(Datastore datastore) {
+      this(datastore, DefaultRateLimiterBuilder.getInstance());
+   }
+
+   public RateLimitingHandlerFactory(Datastore datastore, RateLimiterBuilder rateLimiterBuilder) {
+      rateLimitCache = new ManagedRateLimitCache(datastore);
+      regexCache = new HashMap<String, Map<String, Pattern>>();
+      
+      this.rateLimiterBuilder = rateLimiterBuilder;
+   }
 
    @Override
    protected Map<Class, UpdateListener<?>> getListeners() {
@@ -70,13 +82,8 @@ public final class RateLimitingHandlerFactory extends AbstractConfiguredFilterHa
       }
    }
 
-   public RateLimitingHandlerFactory(Datastore datastore) {
-      rateLimitCache = new ManagedRateLimitCache(datastore);
-      regexCache = new HashMap<String, Map<String, Pattern>>();
-   }
-
    @Override
    protected RateLimitingHandler buildHandler() {
-      return new RateLimitingHandler(regexCache, rateLimitCache, describeLimitsUriRegex, rateLimitingConfig);
+      return new RateLimitingHandler(regexCache, rateLimitCache, describeLimitsUriRegex, rateLimitingConfig, rateLimiterBuilder);
    }
 }
