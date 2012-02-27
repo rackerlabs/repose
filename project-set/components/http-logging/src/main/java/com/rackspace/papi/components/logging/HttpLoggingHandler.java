@@ -9,11 +9,14 @@ import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Dan Daley
  */
 public class HttpLoggingHandler extends AbstractFilterLogicHandler {
+    private static final Logger LOG = LoggerFactory.getLogger(HttpLoggingHandler.class);
     private final List<HttpLoggerWrapper> loggers;
 
     public HttpLoggingHandler(List<HttpLoggerWrapper> loggers) {
@@ -23,7 +26,7 @@ public class HttpLoggingHandler extends AbstractFilterLogicHandler {
     @Override
     public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
         FilterDirector filterDirector = new FilterDirectorImpl();
-        filterDirector.setResponseStatus(HttpStatusCode.fromInt(response.getStatus()));
+        filterDirector.setResponseStatusCode(response.getStatus());
         filterDirector.setFilterAction(FilterAction.PASS);
 
         for (HttpLoggerWrapper loggerWrapper : loggers) {

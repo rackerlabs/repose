@@ -89,4 +89,14 @@ public class AbstractFilterDirector implements FilterDirector {
     public void setResponseStatus(HttpStatusCode delegatedStatus) {
         throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
     }
+
+    @Override
+    public int getResponseStatusCode() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void setResponseStatusCode(int status) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }

@@ -29,10 +29,14 @@ public interface FilterDirector {
 
     HttpStatusCode getResponseStatus();
 
+    int getResponseStatusCode();
+
     void setFilterAction(FilterAction action);
 
     void setResponseStatus(HttpStatusCode delegatedStatus);
 
+    public void setResponseStatusCode(int status);
+    
     String getResponseMessageBody();
 
     byte[] getResponseMessageBodyBytes();
