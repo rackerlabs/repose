@@ -11,7 +11,7 @@ import com.rackspace.papi.components.ratelimit.util.*;
  *
  * @author malconis
  */
-@Path("/mockendservice/")
+@Path("/")
 public class MockServiceResource {
 
     private ObjectFactory factory;
@@ -54,7 +54,21 @@ public class MockServiceResource {
     @Path("/")
     public Response getService(@Context HttpHeaders headers, @Context UriInfo uri) {
         return this.getEndService(headers, uri);
-    }  
+    }
+    
+    @GET
+    @Path("/{service}/limits")
+    @Produces("application/json")
+    public Response getLimitsJson(){
+        return getAbsoluteLimitsJson();
+    }
+    
+    @GET
+    @Path("/{service}/limits")
+    @Produces("application/xml")
+    public Response getLimitsXml(){
+        return getAbsoluteLimits();
+    }
     
     @GET
     @Path("/{version}/{user}/limits")
