@@ -7,10 +7,6 @@ import com.rackspace.papi.commons.util.http.header.QualityFactorUtility;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.components.limits.schema.HttpMethod;
 
-import java.util.Collection;
-import java.util.Deque;
-import java.util.Enumeration;
-import java.util.LinkedList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 

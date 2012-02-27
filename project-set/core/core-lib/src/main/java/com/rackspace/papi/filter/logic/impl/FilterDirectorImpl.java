@@ -13,13 +13,16 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import javax.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class FilterDirectorImpl implements FilterDirector {
 
+    private static final Logger LOG = LoggerFactory.getLogger(FilterDirectorImpl.class);
     private final ByteArrayOutputStream directorOutputStream;
     private final PrintWriter responsePrintWriter;
     private HeaderManagerImpl requestHeaderManager, responseHeaderManager;
-    private HttpStatusCode delegatedStatus;
+    private int status;
     private FilterAction delegatedAction;
     private StringBuffer requestUrl;
     private String requestUri;
@@ -29,7 +32,7 @@ public class FilterDirectorImpl implements FilterDirector {
     }
 
     private FilterDirectorImpl(HttpStatusCode delegatedStatus, FilterAction delegatedAction) {
-        this.delegatedStatus = delegatedStatus;
+        this.status = delegatedStatus.intValue();
         this.delegatedAction = delegatedAction;
 
         directorOutputStream = new ByteArrayOutputStream();
@@ -57,8 +60,10 @@ public class FilterDirectorImpl implements FilterDirector {
             responseHeaderManager().applyTo(response);
         }
 
-        if (delegatedAction != FilterAction.NOT_SET) {
-            response.setStatus(delegatedStatus.intValue());
+        if (HttpStatusCode.UNSUPPORTED_RESPONSE_CODE.intValue() != status) {
+            if (delegatedAction != FilterAction.NOT_SET) {
+                response.setStatus(status);
+            }
         }
 
         if (directorOutputStream.size() > 0) {
@@ -119,12 +124,22 @@ public class FilterDirectorImpl implements FilterDirector {
 
     @Override
     public HttpStatusCode getResponseStatus() {
-        return delegatedStatus;
+        return HttpStatusCode.fromInt(status);
+    }
+    
+    @Override
+    public int getResponseStatusCode() {
+        return status;
     }
 
     @Override
     public void setResponseStatus(HttpStatusCode delegatedStatus) {
-        this.delegatedStatus = delegatedStatus;
+        this.status = delegatedStatus.intValue();
+    }
+
+    @Override
+    public void setResponseStatusCode(int status) {
+        this.status = status;
     }
 
     @Override

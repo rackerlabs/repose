@@ -3,7 +3,6 @@ package com.rackspace.papi.filter;
 import com.rackspace.papi.filter.resource.ResourceMonitor;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 
 import com.rackspace.papi.filter.logic.DispatchPathBuilder;
 import javax.servlet.FilterChain;

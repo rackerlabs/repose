@@ -7,20 +7,21 @@ import java.util.List;
 
 /**
  *
- * @deprecated @see(com.rackspace.papi.commons.util.http.header.QualityFactorHeaderChooser)
- * 
  * @author zinic
  */
-@Deprecated
-public final class QualityFactorUtility {
+public class QualityFactorHeaderChooser<T extends HeaderValue> implements HeaderChooser<T> {
 
-   private QualityFactorUtility() {
+   private final T defaultValue;
+
+   public QualityFactorHeaderChooser(T defaultValue) {
+      this.defaultValue = defaultValue;
    }
 
-   public static <T extends HeaderValue> T choosePreferredHeaderValue(Iterable<T> headerValues) {
+   @Override
+   public T choosePreferredHeaderValue(Iterable<T> headerValues) {
       final Iterator<T> headerValueIterator = headerValues != null ? headerValues.iterator() : Collections.EMPTY_LIST.iterator();
 
-      T prefered = headerValueIterator.hasNext() ? headerValueIterator.next() : null;
+      T prefered = headerValueIterator.hasNext() ? headerValueIterator.next() : defaultValue;
 
       while (headerValueIterator.hasNext()) {
          final T next = headerValueIterator.next();
@@ -33,10 +34,10 @@ public final class QualityFactorUtility {
       return prefered;
    }
 
-   public static <T extends HeaderValue> List<T> choosePreferredHeaderValues(Iterable<T> headerValues) {
+   @Override
+   public List<T> choosePreferredHeaderValues(Iterable<T> headerValues) {
       final Iterator<T> headerValueIterator = headerValues != null ? headerValues.iterator() : Collections.EMPTY_LIST.iterator();
-
-      List<T> preferred = new ArrayList<T>();
+      final List<T> preferredHeaders = new ArrayList<T>();
 
       double currentQuality = -1;
 
@@ -44,14 +45,18 @@ public final class QualityFactorUtility {
          final T next = headerValueIterator.next();
 
          if (next.getQualityFactor() > currentQuality) {
-            preferred.clear();
-            preferred.add(next);
+            preferredHeaders.clear();
+            preferredHeaders.add(next);
             currentQuality = next.getQualityFactor();
          } else if (next.getQualityFactor() == currentQuality) {
-            preferred.add(next);
+            preferredHeaders.add(next);
          }
       }
 
-      return preferred;
+      if (preferredHeaders.isEmpty()) {
+         preferredHeaders.add(defaultValue);
+      }
+
+      return preferredHeaders;
    }
 }

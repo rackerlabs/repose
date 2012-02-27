@@ -108,7 +108,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
    @Override
    public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
       FilterDirector myDirector = new FilterDirectorImpl();
-      myDirector.setResponseStatus(HttpStatusCode.fromInt(response.getStatus()));
+      myDirector.setResponseStatusCode(response.getStatus());
       /// The WWW Authenticate header can be used to communicate to the client
       // (since we are a proxy) how to correctly authenticate itself
       final String wwwAuthenticateHeader = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString());
