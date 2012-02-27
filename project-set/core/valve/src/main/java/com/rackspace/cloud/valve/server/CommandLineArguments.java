@@ -7,6 +7,10 @@ public class CommandLineArguments {
     public static final String ACTION_START = "start";
     public static final String ACTION_STOP = "stop";
 
+    @Option(name = "-p", aliases = {"--port"},
+            usage = "Power API Valve port number " + defaultPortInfo)
+    private Integer port = 8080;
+
     @Option(name = "-s", aliases = {"--shutdown-port"},
             usage = "The port used to communicate a shutdown to Power API Valve " + defaultPortInfo)
     private Integer stopPort = 8818;
@@ -18,6 +22,14 @@ public class CommandLineArguments {
     //Note: I recommend keeping this an argument to stay inline with what people expect from a daemon script
     @Argument(usage = "Action to take - start | stop", required = true)
     private String action = ACTION_START;
+
+   public Integer getPort() {
+      return port;
+   }
+
+   public void setPort(Integer port) {
+      this.port = port;
+   }
 
    public Integer getStopPort() {
       return stopPort;

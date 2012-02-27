@@ -21,5 +21,13 @@
          <xs:element name="group" type="xs:string" minOccurs="0" maxOccurs="1" default="PreAuth_2_0" />
          <xs:element name="quality" type="xs:string" minOccurs="0" maxOccurs="1" default="0.6" />
       </xs:all>
+      
+      <xs:attribute  name="content-body-read-limit" type="xs:positiveInteger" use="optional" default="4096">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p></html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
    </xs:complexType>
 </xs:schema>
