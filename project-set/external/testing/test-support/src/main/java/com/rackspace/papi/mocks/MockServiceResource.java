@@ -54,19 +54,7 @@ public class MockServiceResource {
     @Path("/")
     public Response getService(@Context HttpHeaders headers, @Context UriInfo uri) {
         return this.getEndService(headers, uri);
-    }
-
-    @GET
-    @Path("/{version}/{user}/limits")
-    @Produces("application/xml")
-    public Response getAbsoluteLimits() {
-
-        Limits limits = new Limits();
-        AbsoluteLimitList absList = buildAbsoluteLimits();
-        limits.setAbsolute(absList);
-
-        return Response.ok(factory.createLimits(limits)).build();
-    }
+    }  
     
     @GET
     @Path("/{version}/{user}/limits")
@@ -79,6 +67,18 @@ public class MockServiceResource {
         
         LimitsEntityTransformer transformer = new LimitsEntityTransformer();
         return Response.ok(transformer.entityAsJson(limits)).build();
+    }
+    
+    @GET
+    @Path("/{version}/{user}/limits")
+    @Produces("application/xml")
+    public Response getAbsoluteLimits() {
+
+        Limits limits = new Limits();
+        AbsoluteLimitList absList = buildAbsoluteLimits();
+        limits.setAbsolute(absList);
+
+        return Response.ok(factory.createLimits(limits)).build();
     }
     
     @GET
