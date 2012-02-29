@@ -18,8 +18,7 @@ public class HashRingDatastore extends AbstractHashRingDatastore {
 
    @Override
    protected void clusterMemberDamaged(InetSocketAddress member, MutableClusterView clusterView, RemoteConnectionException ex) {
-      LOG.warn(clusterView.localMember().toString()
-              + ":: Dropping member: "
+      LOG.warn("Dropping cluster member: "
               + member.getAddress().toString()
               + ":" + member.getPort()
               + " - Reason: " + ex.getCause().getClass().getName() + ": " + ex.getCause().getMessage());

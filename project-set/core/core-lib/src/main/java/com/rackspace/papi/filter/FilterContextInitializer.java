@@ -31,7 +31,7 @@ public class FilterContextInitializer {
 
       if (localHost != null) {
          // TODO: This may need to move once we determine what parts of repose should be instrumented via JMX.
-         new SystemJmxAgent(localHost).registerMBean();
+//         new SystemJmxAgent(localHost).registerMBean();
 
          for (com.rackspace.papi.model.Filter papiFilter : localHost.getFilters().getFilter()) {
             if (StringUtilities.isBlank(papiFilter.getName())) {

@@ -3,6 +3,8 @@ package com.rackspace.papi.components.ratelimit;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.commons.util.http.header.HeaderValue;
+import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
 import com.rackspace.papi.components.limits.schema.HttpMethod;
 import com.rackspace.papi.components.ratelimit.cache.NextAvailableResponse;
 import com.rackspace.papi.components.ratelimit.cache.RateLimitCache;
@@ -19,9 +21,9 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.*;
-import org.junit.Ignore;
 import static org.mockito.Mockito.*;
 import static com.rackspace.papi.components.ratelimit.FilterDirectorTestHelper.*;
+import java.util.Arrays;
 
 @RunWith(Enclosed.class)
 public class RateLimiterTest extends RateLimitingTestSupport {
@@ -49,7 +51,7 @@ public class RateLimiterTest extends RateLimitingTestSupport {
          final HttpServletRequest servletRequest = mock(HttpServletRequest.class);
 
          when(requestInfo.getUserName()).thenReturn("user");
-         when(requestInfo.getFirstUserGroup()).thenReturn("group");
+         when(requestInfo.getUserGroups()).thenReturn(Arrays.asList(new HeaderValue[] {new HeaderValueImpl("group", 1.0)}));
          when(requestInfo.getRequestMethod()).thenReturn(HttpMethod.GET);
          when(requestInfo.getRequest()).thenReturn(servletRequest);
          when(servletRequest.getRequestURI()).thenReturn("/v1.0/12345/resource");
@@ -68,7 +70,7 @@ public class RateLimiterTest extends RateLimitingTestSupport {
          final HttpServletRequest servletRequest = mock(HttpServletRequest.class);
 
          when(requestInfo.getUserName()).thenReturn("user");
-         when(requestInfo.getFirstUserGroup()).thenReturn("group");
+         when(requestInfo.getUserGroups()).thenReturn(Arrays.asList(new HeaderValue[] {new HeaderValueImpl("group", 1.0)}));
          when(requestInfo.getRequestMethod()).thenReturn(HttpMethod.PUT);
          when(requestInfo.getRequest()).thenReturn(servletRequest);
          when(servletRequest.getRequestURI()).thenReturn("/v1.0/12345/resource");
@@ -93,7 +95,7 @@ public class RateLimiterTest extends RateLimitingTestSupport {
          final HttpServletRequest servletRequest = mock(HttpServletRequest.class);
 
          when(requestInfo.getUserName()).thenReturn("user");
-         when(requestInfo.getFirstUserGroup()).thenReturn("group");
+         when(requestInfo.getUserGroups()).thenReturn(Arrays.asList(new HeaderValue[] {new HeaderValueImpl("group", 1.0)}));
          when(requestInfo.getRequestMethod()).thenReturn(HttpMethod.POST);
          when(requestInfo.getRequest()).thenReturn(servletRequest);
          when(servletRequest.getRequestURI()).thenReturn("/v1.0/12345/resource");

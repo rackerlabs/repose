@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util.http.header;
 
+import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import java.util.Collections;
@@ -22,19 +23,27 @@ public class QualityFactorHeaderChooserTest {
    @Ignore
    public static class TestParent {
 
-      protected QualityFactorHeaderChooser<HeaderValue> qualityFactorHeaderChooser;
+      protected QualityFactorHeaderChooser qualityFactorHeaderChooser;
       protected HeaderValue defaultHeaderValue;
 
       @Before
       public void beforeAny() {
          defaultHeaderValue = new MediaType(MimeType.APPLICATION_JSON.getMimeType(), MimeType.APPLICATION_JSON);
-         qualityFactorHeaderChooser = new QualityFactorHeaderChooser<HeaderValue>(defaultHeaderValue);
+         qualityFactorHeaderChooser = new QualityFactorHeaderChooser(defaultHeaderValue);
       }
    }
 
    public static class WhenChoosingHeaderValuesByQuality extends TestParent {
 
       private static final String MEDIA_TYPE = "application/vnd.rackspace.services.a+xml; q=0.8, application/json; q=0.5, application/xml; q=0.9, */*; q=0.1";
+
+      @Test
+      public void shouldCastHeaderValueType() {
+         QualityFactorHeaderChooser<MediaType> mediaTypeChooser = new QualityFactorHeaderChooser<MediaType>(new MediaType(MimeType.WILDCARD));
+         final List<MediaType> headerValues = new MediaRangeParser(MEDIA_TYPE).parse();
+
+         assertEquals("Should choose highest value quality media type", MimeType.APPLICATION_XML, mediaTypeChooser.choosePreferredHeaderValue(headerValues).getMimeType());
+      }
 
       @Test
       public void shouldHandleNullHeaderValues() {
@@ -81,8 +90,8 @@ public class QualityFactorHeaderChooserTest {
          assertEquals("Should choose highest value quality media type", "application/xml", qualityFactorHeaderChooser.choosePreferredHeaderValue(headerValues).getValue());
       }
    }
-
-   public static class WhenChoosingAllHeaderValuesByQuality extends TestParent {
+   
+      public static class WhenChoosingAllHeaderValuesByQuality extends TestParent {
 
       private static final String GROUPS_WITH_UNIQUE_HIGHEST_QUALITY = "group1;q=0.1,group2;q=0.1,highest;q=1.0,lowest;q=0.001";
       private static final String GROUPS_WITH_DUPLICATE_HIGHEST_QUALITY = "group1;q=0.1,group2;q=0.1,highest1;q=1.0,highest2;q=1.0,lowest;q=0.001";

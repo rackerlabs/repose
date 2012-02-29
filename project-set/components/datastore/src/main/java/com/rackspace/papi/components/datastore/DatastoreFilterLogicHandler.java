@@ -45,7 +45,6 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
 
       if (CacheRequest.isCacheRequest(request)) {
          if (isAllowed(request)) {
-            clusterView.updateLocalAddress(new InetSocketAddress(request.getLocalAddr(), request.getLocalPort()));
             director = performCacheRequest(request);
          } else {
             director.setResponseStatus(HttpStatusCode.FORBIDDEN);

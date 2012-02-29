@@ -17,9 +17,7 @@ import java.io.ByteArrayOutputStream;
 import org.slf4j.Logger;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
 
 public class RateLimiterResponse extends RateLimitingOperation {
 
@@ -36,7 +34,7 @@ public class RateLimiterResponse extends RateLimitingOperation {
     public void writeActiveLimits(RateLimitingRequestInfo requestInfo, FilterDirector filterDirector) {
         final RateLimitList liveRateLimits = new RateLimitListBuilder(
                 getCachedRateLimitsByUser(requestInfo.getUserName()),
-                getRatelimitsForRole(requestInfo.getFirstUserGroup())).toRateLimitList();
+                getRateLimitGroupForRole(requestInfo.getUserGroups())).toRateLimitList();
 
         try {
             final Limits limits = new Limits();
@@ -54,7 +52,7 @@ public class RateLimiterResponse extends RateLimitingOperation {
     public void writeCombinedLimits(RateLimitingRequestInfo requestInfo, ReadableHttpServletResponse response, FilterDirector filterDirector) {
         final RateLimitList liveRateLimits = new RateLimitListBuilder(
                 getCachedRateLimitsByUser(requestInfo.getUserName()),
-                getRatelimitsForRole(requestInfo.getFirstUserGroup())).toRateLimitList();
+                getRateLimitGroupForRole(requestInfo.getUserGroups())).toRateLimitList();
 
         try {
             final LimitsTransformPair transformPair = new LimitsTransformPair(response.getBufferedOutputAsInputStream(), liveRateLimits);
@@ -81,8 +79,6 @@ public class RateLimiterResponse extends RateLimitingOperation {
 
     private void writeLimitsResponse(byte[] readableContents, RateLimitingRequestInfo requestInfo, FilterDirector filterDirector) throws IOException {
         filterDirector.setResponseStatus(HttpStatusCode.OK);
-        
-        // TODO:Review - Possible null guard required for preferredMediaRange
         
         switch (requestInfo.getAcceptType().getMimeType()) {
             case APPLICATION_XML:

@@ -1,13 +1,18 @@
 package com.rackspace.papi.components.datastore.hash;
 
+import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
+import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
+import com.rackspace.papi.service.datastore.cluster.member.ClusterMember;
 import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
 import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
 import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -27,7 +32,7 @@ public class AbstractHashRingDatastoreTest {
    public static class WhenAddressingTargets {
 
       protected InetAddress[] addresses;
-      protected MutableClusterView clusterVew, emptyClusterView;
+      protected MutableClusterView clusterVew, singleNodeClusterView;
       protected Datastore mockedDatastore;
       protected TestingHashRingDatastore datastore;
 
@@ -41,11 +46,13 @@ public class AbstractHashRingDatastoreTest {
          };
 
          clusterVew = mock(MutableClusterView.class);
-         emptyClusterView = mock(MutableClusterView.class);
          
-         when(emptyClusterView.localMember()).thenReturn(new InetSocketAddress(addresses[0], 2200));
-         when(emptyClusterView.members()).thenReturn(new InetSocketAddress[0]);
-
+         final NetworkInterfaceProvider networkInterfaceProvider = mock(NetworkInterfaceProvider.class);
+         when(networkInterfaceProvider.hasInterfaceFor(any(InetAddress.class))).thenReturn(true);
+         
+         final List<ClusterMember> members = Arrays.asList(new ClusterMember[]{new ClusterMember(new InetSocketAddress(addresses[0], 2200), 10000)});
+         singleNodeClusterView = new ThreadSafeClusterView(networkInterfaceProvider, members, 2200);
+         
          when(clusterVew.members()).thenReturn(new InetSocketAddress[]{
                     new InetSocketAddress(addresses[0], 2200),
                     new InetSocketAddress(addresses[1], 2200),
@@ -58,21 +65,21 @@ public class AbstractHashRingDatastoreTest {
       @Test
       public void shouldSelectCorrectTarget() throws Exception {
          datastore = new TestingHashRingDatastore(clusterVew, "", mockedDatastore, MD5MessageDigestFactory.getInstance(), UUIDEncodingProvider.getInstance());
-         
-         final byte[] id = new byte[] {1};
 
-         for (byte i=0; i<127; i++) {
+         final byte[] id = new byte[]{1};
+
+         for (byte i = 0; i < 127; i++) {
             id[0] = i;
-            
+
             assertEquals("Addressing must select correct target", addresses[i % 4], datastore.getTarget(id).getAddress());
          }
       }
 
       @Test
       public void shouldUseLocalTarget() throws Exception {
-         datastore = new TestingHashRingDatastore(emptyClusterView, "", mockedDatastore, MD5MessageDigestFactory.getInstance(), UUIDEncodingProvider.getInstance());
-         
-         final byte[] id = new byte[] {1};
+         datastore = new TestingHashRingDatastore(singleNodeClusterView, "", mockedDatastore, MD5MessageDigestFactory.getInstance(), UUIDEncodingProvider.getInstance());
+
+         final byte[] id = new byte[]{1};
 
          assertEquals("If cluster is empty, datastore must use local member", addresses[0], datastore.getTarget(id).getAddress());
       }

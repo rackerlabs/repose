@@ -6,6 +6,7 @@ import com.rackspace.papi.components.ratelimit.cache.RateLimitCache;
 import com.rackspace.papi.components.ratelimit.config.ConfiguredLimitGroup;
 import com.rackspace.papi.components.ratelimit.config.ConfiguredRatelimit;
 import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
+import com.rackspace.papi.components.ratelimit.util.RateLimitKeyGenerator;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import java.io.IOException;
@@ -49,27 +50,24 @@ public class RateLimiter extends RateLimitingOperation {
 
    public void recordLimitedRequest(RateLimitingRequestInfo requestInfo, FilterDirector filterDirector) {
       final String requestUri = requestInfo.getRequest().getRequestURI();
-      final List<ConfiguredLimitGroup> availableLimitGroups = getRatelimitsForRole(requestInfo.getFirstUserGroup());
+      final ConfiguredLimitGroup currentLimitGroup = getRateLimitGroupForRole(requestInfo.getUserGroups());
 
-      for (ConfiguredLimitGroup currentLimitGroup : availableLimitGroups) {
+      // Go through all of the configured limits for this group
+      for (ConfiguredRatelimit rateLimit : currentLimitGroup.getLimit()) {
+         final Pattern p = getPattern(currentLimitGroup.getId(), rateLimit);
+         final Matcher uriMatcher = p.matcher(requestUri);
 
-         // Go through all of the configured limits for this group
-         for (ConfiguredRatelimit rateLimit : currentLimitGroup.getLimit()) {
-            final Pattern p = getPattern(currentLimitGroup.getId(), rateLimit);
-            final Matcher uriMatcher = p.matcher(requestUri);
-
-            // Did we find a limit that matches the current request?
-            if (uriMatcher.matches() && rateLimit.getHttpMethods().contains(requestInfo.getRequestMethod())) {
-               handleRateLimit(requestInfo, uriMatcher, rateLimit, filterDirector);
-               return;
-            }
+         // Did we find a limit that matches the current request?
+         if (uriMatcher.matches() && rateLimit.getHttpMethods().contains(requestInfo.getRequestMethod())) {
+            handleRateLimit(requestInfo, uriMatcher, rateLimit, filterDirector);
+            return;
          }
       }
    }
 
    private Pattern getPattern(String appliedRatesId, ConfiguredRatelimit rateLimit) {
       final Map<String, Pattern> ratesRegexCache = regexCache.get(appliedRatesId);
-      Pattern uriRegexPattern = ratesRegexCache != null ? ratesRegexCache.get(rateLimit.getUri()) : null;
+      Pattern uriRegexPattern = ratesRegexCache != null ? ratesRegexCache.get(RateLimitKeyGenerator.createMapKey(rateLimit)) : null;
 
       if (uriRegexPattern == null) {
          LOG.error("Unable to locate prebuilt regular expression pattern in "

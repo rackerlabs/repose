@@ -9,31 +9,31 @@ import java.util.List;
  *
  * @author zinic
  */
-public class QualityFactorHeaderChooser<T extends HeaderValue> implements HeaderChooser<T> {
-
+public class QualityFactorHeaderChooser <T extends HeaderValue> implements HeaderChooser<T> {
+   
    private final T defaultValue;
-
+      
    public QualityFactorHeaderChooser(T defaultValue) {
       this.defaultValue = defaultValue;
    }
-
+   
    @Override
    public T choosePreferredHeaderValue(Iterable<T> headerValues) {
       final Iterator<T> headerValueIterator = headerValues != null ? headerValues.iterator() : Collections.EMPTY_LIST.iterator();
-
+      
       T prefered = headerValueIterator.hasNext() ? headerValueIterator.next() : defaultValue;
-
+      
       while (headerValueIterator.hasNext()) {
          final T next = headerValueIterator.next();
-
+         
          if (next != null) {
             prefered = prefered.compareTo(next) < 0 ? next : prefered;
          }
       }
-
+      
       return prefered;
    }
-
+   
    @Override
    public List<T> choosePreferredHeaderValues(Iterable<T> headerValues) {
       final Iterator<T> headerValueIterator = headerValues != null ? headerValues.iterator() : Collections.EMPTY_LIST.iterator();
@@ -54,7 +54,7 @@ public class QualityFactorHeaderChooser<T extends HeaderValue> implements Header
       }
 
       if (preferredHeaders.isEmpty()) {
-         preferredHeaders.add(defaultValue);
+         preferredHeaders.add((T) defaultValue);
       }
 
       return preferredHeaders;
