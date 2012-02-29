@@ -41,22 +41,20 @@ public class PowerApiValveServerControl {
    }
 
    public void startPowerApiValve() throws Exception {
-      final Thread monitor = new MonitorThread(serverInstance, commandLineArgs.getStopPort(), LOCALHOST_IP);
-      monitor.start();
-
+      
       try {
          final int startPort = commandLineArgs.getPort() != null ? commandLineArgs.getPort() : readPortNumberFromConfiguration(commandLineArgs.getConfigDirectory());
 
          serverInstance = new ValveJettyServerBuilder(startPort, commandLineArgs.getConfigDirectory()).newServer();
          serverInstance.setStopAtShutdown(true);
          serverInstance.start();
+         final Thread monitor = new MonitorThread(serverInstance, commandLineArgs.getStopPort(), LOCALHOST_IP);
+         monitor.start();
 
          LOG.info("Power API Valve running and listening on port: " + startPort);
       } catch (Exception e) {
          LOG.error("Power API Valve could not be started. Reason: " + e.getMessage(), e);
          LOG.error("Power API Valve will now stop.");
-
-         monitor.interrupt();
 
          if (serverInstance != null) {
             serverInstance.stop();
