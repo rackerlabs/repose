@@ -6,6 +6,7 @@ import com.rackspace.papi.components.ratelimit.cache.RateLimitCache;
 import com.rackspace.papi.components.ratelimit.config.ConfiguredLimitGroup;
 import com.rackspace.papi.components.ratelimit.config.ConfiguredRatelimit;
 import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
+import com.rackspace.papi.components.ratelimit.util.RateLimitKeyGenerator;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.datastore.Datastore;
 import org.slf4j.Logger;
@@ -70,8 +71,8 @@ public final class RateLimitingHandlerFactory extends AbstractConfiguredFilterHa
                defaultSet = true;
             }
 
-            for (ConfiguredRatelimit configuredLimitGroup : limitGroup.getLimit()) {
-               compiledRegexMap.put(configuredLimitGroup.getUri(), Pattern.compile(configuredLimitGroup.getUriRegex()));
+            for (ConfiguredRatelimit configuredRatelimit : limitGroup.getLimit()) {
+               compiledRegexMap.put(RateLimitKeyGenerator.createMapKey(configuredRatelimit), Pattern.compile(configuredRatelimit.getUriRegex()));
             }
 
             regexCache.put(limitGroup.getId(), compiledRegexMap);
