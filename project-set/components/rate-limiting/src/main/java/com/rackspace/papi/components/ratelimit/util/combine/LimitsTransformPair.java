@@ -14,7 +14,7 @@ public class LimitsTransformPair {
 
     public LimitsTransformPair(InputStream is, RateLimitList rll) {
         this.is = is;
-        this.rll = rll == null ? new RateLimitList() : rll;
+        this.rll = rll;
     }
 
     public InputStream getInputStream() {
