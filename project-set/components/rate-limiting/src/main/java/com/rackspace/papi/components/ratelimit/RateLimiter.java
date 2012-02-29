@@ -6,6 +6,7 @@ import com.rackspace.papi.components.ratelimit.cache.RateLimitCache;
 import com.rackspace.papi.components.ratelimit.config.ConfiguredLimitGroup;
 import com.rackspace.papi.components.ratelimit.config.ConfiguredRatelimit;
 import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
+import com.rackspace.papi.components.ratelimit.util.RateLimitKeyGenerator;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import java.io.IOException;
@@ -66,7 +67,7 @@ public class RateLimiter extends RateLimitingOperation {
 
    private Pattern getPattern(String appliedRatesId, ConfiguredRatelimit rateLimit) {
       final Map<String, Pattern> ratesRegexCache = regexCache.get(appliedRatesId);
-      Pattern uriRegexPattern = ratesRegexCache != null ? ratesRegexCache.get(rateLimit.getUri()) : null;
+      Pattern uriRegexPattern = ratesRegexCache != null ? ratesRegexCache.get(RateLimitKeyGenerator.createMapKey(rateLimit)) : null;
 
       if (uriRegexPattern == null) {
          LOG.error("Unable to locate prebuilt regular expression pattern in "
