@@ -52,7 +52,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
       final FilterDirector director = new FilterDirectorImpl();
 
       originalAcceptHeaders = request.getHeaders("Accept");
-      final MediaType preferredMediaType = ACCEPT_TYPE_CHOOSER.choosePreferredHeaderValue(new MediaRangeParser(originalAcceptHeaders).parse());
+      final MediaType preferredMediaType = ACCEPT_TYPE_CHOOSER.choosePreferredHeaderValue(new MediaRangeParser(request.getHeaders("Accept")).parse());
 
       // Does the request contain expected headers?
       if (requestHasExpectedHeaders(request)) {
@@ -116,7 +116,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
       final FilterDirector director = new FilterDirectorImpl();
       
       final MediaType preferredMediaType = ACCEPT_TYPE_CHOOSER.choosePreferredHeaderValue(new MediaRangeParser(originalAcceptHeaders).parse());
-      director.responseHeaderManager().appendHeader("Content-Type", preferredMediaType.getMimeType().getMimeType());
+      director.responseHeaderManager().putHeader("content-Type", preferredMediaType.getMimeType().getMimeType());
 
       new RateLimiterResponse(rateLimitCache, rateLimitingConfig).writeCombinedLimits(new RateLimitingRequestInfo(request, preferredMediaType), response, director);
       
