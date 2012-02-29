@@ -35,7 +35,7 @@ public class AuthenticationHeaderManager {
 
     // Hard code quality for now as the auth component will have
     // the highest quality in terms of using the user it supplies for rate limiting
-    private final String quality = ";q=1";
+    private final String quality = ";q=1.0";
 
     public AuthenticationHeaderManager(String authToken, CachableUserInfo cachableTokenInfo, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, Groups groups, HttpServletRequest request) {
         this.authToken =authToken;
@@ -134,9 +134,8 @@ public class AuthenticationHeaderManager {
             List<String> groupIds = new ArrayList<String>();
             for(Group group : groups.getGroup()) {
                 groupIds.add(group.getId());
+                filterDirector.requestHeaderManager().appendHeader(PowerApiHeader.GROUPS.toString(), group.getId()+quality);
             }
-
-            filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.toString(), groupIds.toArray()[0].toString() + quality);
         }
     }
 }
