@@ -1,10 +1,11 @@
 package com.rackspace.papi.service.datastore.cluster;
 
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 
 public interface ClusterView {
 
     InetSocketAddress[] members();
 
-    InetSocketAddress localMember();
+    boolean isLocal(InetSocketAddress addr) throws SocketException;
 }

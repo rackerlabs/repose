@@ -53,12 +53,11 @@ public class PowerAPICacheInserter {
     protected static volatile long total, beginTimestamp;
 
     public static void main(String[] args) throws Exception {
-        final MutableClusterView view = new ThreadSafeClusterView();
+        final MutableClusterView view = new ThreadSafeClusterView(20000);
         final EHCacheDatastoreManager localManager = new EHCacheDatastoreManager(new CacheManager());
         final HashRingDatastoreManager remoteManager = new HashRingDatastoreManager("", UUIDEncodingProvider.getInstance(), MD5MessageDigestFactory.getInstance(), view, localManager.getDatastore());
         final Datastore datastore = remoteManager.getDatastore();
 
-        view.updateLocalAddress(new InetSocketAddress(InetAddress.getLocalHost(), 20000));
         view.updateMembers(new InetSocketAddress[]{
                     new InetSocketAddress(InetAddress.getLocalHost(), 2101),
                     new InetSocketAddress(InetAddress.getLocalHost(), 2102),

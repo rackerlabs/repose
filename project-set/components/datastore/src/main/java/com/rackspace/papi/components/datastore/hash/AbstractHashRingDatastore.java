@@ -9,6 +9,7 @@ import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
 import com.rackspace.papi.service.datastore.impl.AbstractHashedDatastore;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
+import java.net.SocketException;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,15 +38,23 @@ public abstract class AbstractHashRingDatastore extends AbstractHashedDatastore 
       final InetSocketAddress[] ringMembers = clusterView.members();
 
       if (ringMembers.length <= 0) {
-         LOG.debug("No members to route to in datastore cluster. Returning local node.");
+         LOG.debug("No members to route to in datastore cluster... unable to route this datastore request.");
 
-         return clusterView.localMember();
+         return null;
       }
 
       final int memberAddress = new BigInteger(hashBytes).mod(BigInteger.valueOf(ringMembers.length)).abs().intValue();
       return ringMembers[memberAddress];
    }
 
+   private boolean isRemoteTarget(InetSocketAddress target) throws DatastoreOperationException {
+      try {
+         return !clusterView.isLocal(target);
+      } catch(SocketException se) {
+         throw new DatastoreOperationException("Unable to identify local cluster target datastore", se);
+      }
+   }
+   
    @Override
    protected StoredElement get(String name, byte[] id) throws DatastoreOperationException {
       boolean retry;
@@ -55,8 +64,8 @@ public abstract class AbstractHashRingDatastore extends AbstractHashedDatastore 
 
          final InetSocketAddress target = getTarget(id);
 
-         if (target != null && !target.equals(clusterView.localMember())) {
-            LOG.debug(clusterView.localMember() + ":: Routing datastore get request for, \"" + name + "\" to: " + target.toString());
+         if (target != null && isRemoteTarget(target)) {
+            LOG.debug("Routing datastore get request for, \"" + name + "\" to: " + target.toString());
 
             try {
                return remoteCache.get(name, target);
@@ -79,8 +88,8 @@ public abstract class AbstractHashRingDatastore extends AbstractHashedDatastore 
 
          final InetSocketAddress target = getTarget(id);
 
-         if (target != null && !target.equals(clusterView.localMember())) {
-            LOG.debug(clusterView.localMember() + ":: Routing datastore delete request for, \"" + name + "\" to: " + target.toString());
+         if (target != null && isRemoteTarget(target)) {
+            LOG.debug("Routing datastore get request for, \"" + name + "\" to: " + target.toString());
 
             try {
                return remoteCache.delete(name, target);
@@ -103,8 +112,8 @@ public abstract class AbstractHashRingDatastore extends AbstractHashedDatastore 
 
          final InetSocketAddress target = getTarget(id);
 
-         if (target != null && !target.equals(clusterView.localMember())) {
-            LOG.debug(clusterView.localMember() + ":: Routing datastore put request for, \"" + name + "\" to: " + target.toString());
+         if (target != null && isRemoteTarget(target)) {
+            LOG.debug("Routing datastore get request for, \"" + name + "\" to: " + target.toString());
 
             try {
                remoteCache.put(name, value, ttl, timeUnit, target);

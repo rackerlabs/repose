@@ -92,17 +92,10 @@ public class RateLimitingRequestInfoTest {
       }
 
       @Test
-      public void shouldReturnNullWhenNoGroupsHeaderIsPresent() {
+      public void shouldReturnDefaultWhenNoGroupsHeaderIsPresent() {
          final RateLimitingRequestInfo info = new RateLimitingRequestInfo(mockedRequest,MEDIA_TYPE);
 
-         assertTrue("Rate limiting request info must return null for groups when no group information is present in the request", info.getFirstUserGroup() == null);
-      }
-
-      @Test
-      public void shouldReturnFirstGroup() {
-         final RateLimitingRequestInfo info = new RateLimitingRequestInfo(mockedRequest,MEDIA_TYPE);
-
-         assertTrue("Rate limiting request info must return null for groups when no group information is present in the request", info.getFirstUserGroup() == null);
+         assertEquals("Rate limiting request info must return null for groups when no group information is present in the request", "", info.getUserGroups().get(0).getValue());
       }
    }
 }
