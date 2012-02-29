@@ -18,6 +18,10 @@ public class MonitorThread extends Thread {
    private final String MONITOR_NAME = "StopMonitor";
 
    public MonitorThread(Server serverInstance, final int stopPort, final String ipAddress) {
+      if (serverInstance == null) {
+         throw new RuntimeException("The Jetty server instance is null.  The Repose stop Monitor can not be initialized.");
+      }
+
       this.serverInstance = serverInstance;
 
       setDaemon(true);
