@@ -12,18 +12,18 @@
     </template>
 
     <template match="lim:rates">
-        <text> "rate" : { "values" : [</text>
+        <text> "rate" : [</text>
         <apply-templates select="./lim:rate"/>
-        <text>]}</text>
+        <text>]</text>
     </template>
 
     <template match="lim:absolute">
         <if test="/lim:limits/lim:rates">
             <text>,</text>
         </if>
-        <text>"absolute" : { "values" : {</text>
+        <text>"absolute" : {</text>
         <apply-templates select="./lim:limit" mode="absolute"/>
-        <text>}}</text>
+        <text>}</text>
     </template>
 
     <template match="lim:rate">
@@ -55,9 +55,10 @@
         <if test="position() != 1">
             <text>,</text>
         </if>
-        <text>"</text>
-        <value-of select="@name"/>
-        <text>" : </text>
+        <call-template name="json-string">
+            <with-param name="in" select="@name"/>
+        </call-template>
+        <text> : </text>
         <value-of select="@value"/>
     </template>
 
@@ -65,9 +66,10 @@
         <if test="position() != 1">
             <text>,</text>
         </if>
-        <text>"</text>
-        <value-of select="name()"/>
-        <text>" : </text>
+        <call-template name="json-string">
+            <with-param name="in" select="name()"/>
+        </call-template>
+        <text> : </text>
         <value-of select="."/>
     </template>
 
@@ -75,10 +77,48 @@
         <if test="position() != 1">
             <text>,</text>
         </if>
-        <text>"</text>
-        <value-of select="name()"/>
-        <text>" : "</text>
-        <value-of select="."/>
-        <text>"</text>
+        <call-template name="json-string">
+            <with-param name="in" select="name()"/>
+        </call-template>
+        <text> : </text>
+        <call-template name="json-string">
+            <with-param name="in" select="."/>
+        </call-template>
+    </template>
+
+    <template name="json-string">
+        <param name="in"/>
+        <variable name="no-backslash">
+            <call-template name="escape-out">
+                <with-param name="in" select="$in"/>
+                <with-param name="char" select="'\'"/>
+            </call-template>
+        </variable>
+        <variable name="no-quote">
+            <call-template name="escape-out">
+                <with-param name="in" select="$no-backslash"/>
+                <with-param name="char" select="'&quot;'"/>
+            </call-template>
+        </variable>
+        <value-of select="concat('&quot;',$no-quote,'&quot;')"/>
+    </template>
+
+    <template name="escape-out">
+        <param name="in" />
+        <param name="char"/>
+        <variable name="before" select="substring-before($in, $char)"/>
+        <variable name="after" select="substring-after($in, $char)"/>
+        <choose>
+            <when test="string-length($before) &gt; 0 or string-length($after) &gt; 0">
+                <value-of select="concat($before,'\',$char)"/>
+                <call-template name="escape-out">
+                    <with-param name="in" select="$after"/>
+                    <with-param name="char" select="$char"/>
+                </call-template>
+            </when>
+            <otherwise>
+                <value-of select="$in"/>
+            </otherwise>
+        </choose>
     </template>
 </transform>
