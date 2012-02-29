@@ -12,18 +12,18 @@
     </template>
 
     <template match="lim:rates">
-        <text> "rate" : { "values" : [</text>
+        <text> "rate" : [</text>
         <apply-templates select="./lim:rate"/>
-        <text>]}</text>
+        <text>]</text>
     </template>
 
     <template match="lim:absolute">
         <if test="/lim:limits/lim:rates">
             <text>,</text>
         </if>
-        <text>"absolute" : { "values" : {</text>
+        <text>"absolute" : {</text>
         <apply-templates select="./lim:limit" mode="absolute"/>
-        <text>}}</text>
+        <text>}</text>
     </template>
 
     <template match="lim:rate">
