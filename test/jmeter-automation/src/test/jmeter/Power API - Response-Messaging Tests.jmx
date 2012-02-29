@@ -47,7 +47,7 @@
             <collectionProp name="Arguments.arguments">
               <elementProp name="path" elementType="Argument">
                 <stringProp name="Argument.name">path</stringProp>
-                <stringProp name="Argument.value">/resources/mockendservice/statuscode</stringProp>
+                <stringProp name="Argument.value">/statuscode</stringProp>
                 <stringProp name="Argument.metadata">=</stringProp>
               </elementProp>
             </collectionProp>
