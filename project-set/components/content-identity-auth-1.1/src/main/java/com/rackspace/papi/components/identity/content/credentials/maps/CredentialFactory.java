@@ -5,6 +5,8 @@ import com.rackspace.papi.components.identity.content.credentials.wrappers.Mosso
 import com.rackspace.papi.components.identity.content.credentials.wrappers.NastCredentialsWrapper;
 import com.rackspace.papi.components.identity.content.credentials.wrappers.PasswordCredentialsWrapper;
 import com.rackspace.papi.components.identity.content.credentials.wrappers.UserCredentialsWrapper;
+import com.rackspacecloud.docs.auth.api.v1.*;
+
 import java.util.Map;
 
 public class CredentialFactory {
@@ -21,6 +23,35 @@ public class CredentialFactory {
             return new UserCredentialsWrapper(credentials);
       }
       
+      return null;
+   }
+
+   public static AuthCredentials getCredentials(Credentials credentials) {
+
+      if (credentials != null) {
+         if (credentials instanceof MossoCredentials) {
+
+            MossoCredentialsWrapper credentialsWrapper = new MossoCredentialsWrapper();
+            credentialsWrapper.setMossoCredentials((MossoCredentials)credentials);
+            return credentialsWrapper;
+         } else if (credentials instanceof NastCredentials) {
+
+            NastCredentialsWrapper credentialsWrapper = new NastCredentialsWrapper();
+            credentialsWrapper.setNastCredentials((NastCredentials) credentials);
+            return credentialsWrapper;
+         } else if (credentials instanceof PasswordCredentials) {
+
+            PasswordCredentialsWrapper credentialsWrapper = new PasswordCredentialsWrapper();
+            credentialsWrapper.setPasswordCredentials((PasswordCredentials) credentials);
+            return credentialsWrapper;
+         } else if (credentials instanceof UserCredentials) {
+
+            UserCredentialsWrapper credentialsWrapper = new UserCredentialsWrapper();
+            credentialsWrapper.setUserCredentials((UserCredentials) credentials);
+            return credentialsWrapper;
+         }
+      }
+                 
       return null;
    }
 }
