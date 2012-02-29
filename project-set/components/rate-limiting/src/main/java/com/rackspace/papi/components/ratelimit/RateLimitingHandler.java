@@ -96,7 +96,10 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
          // Process the response on the way back up the filter chain
          director.setFilterAction(FilterAction.PROCESS_RESPONSE);
 
-         if (preferredMediaType == null || preferredMediaType.getValue().equalsIgnoreCase(MimeType.APPLICATION_JSON.toString())) {
+         if (preferredMediaType == null 
+                 || preferredMediaType.getValue().equalsIgnoreCase(MimeType.WILDCARD.toString())
+                 || preferredMediaType.getValue().equalsIgnoreCase(MimeType.UNKNOWN.toString())
+                 || preferredMediaType.getValue().equalsIgnoreCase(MimeType.APPLICATION_JSON.toString())) {
             director.requestHeaderManager().putHeader("Accept", MimeType.APPLICATION_XML.toString());
          }
 

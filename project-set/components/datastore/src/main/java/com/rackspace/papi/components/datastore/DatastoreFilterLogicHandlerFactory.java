@@ -81,8 +81,15 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
                   LOG.error("Unable to resolve name: " + host.getHost() + " - Ignoring this host.");
                }
             }
-            
-            hostACL = new DatastoreAccessControl(newHostList, configurationObject.getAllowedHosts().isAllowAll());
+
+            boolean allowAll = configurationObject.getAllowedHosts().isAllowAll();
+            if (allowAll) {
+               LOG.info("The distributed datastore component is configured to start in allow-all mode meaning that any host can access, store and delete cached objects.");
+            } else {
+               LOG.info("The distributed datastore component is configured to start in non allow-all mode meaning that only the configured hosts can access, store and delete cached objects.");
+            }
+
+            hostACL = new DatastoreAccessControl(newHostList, allowAll);
          }
       }
    }
