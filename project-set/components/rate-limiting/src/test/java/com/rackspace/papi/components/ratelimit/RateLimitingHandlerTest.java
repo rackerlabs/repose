@@ -111,6 +111,20 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
          assertEquals("On rejected media type, filter must return a response", FilterAction.RETURN, director.getFilterAction());
          assertEquals("On rejected media type, returned status code must be 406", HttpStatusCode.NOT_ACCEPTABLE, director.getResponseStatus());
       }
+
+      @Test
+      public void shouldDescribeLimitsCallWithEmptyAcceptType() {
+         when(mockedRequest.getMethod()).thenReturn("GET");
+         when(mockedRequest.getRequestURI()).thenReturn("/v1.0/limits");
+         when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/limits"));
+         when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton("")));
+
+         final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
+
+         assertEquals("On rejected media type, filter must return a response", FilterAction.PROCESS_RESPONSE, director.getFilterAction());
+         assertTrue("Filter Director is set to add application/xml to the accept header",
+                 director.requestHeaderManager().headersToAdd().get("accept").toArray()[0].toString().equals(MimeType.APPLICATION_XML.getMimeType()));
+      }
    }
 
    @Ignore
