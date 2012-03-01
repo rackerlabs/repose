@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="2.2">
+<jmeterTestPlan version="1.2" properties="2.1">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -605,6 +605,30 @@
               <hashTree/>
               <XMLAssertion guiclass="XMLAssertionGui" testclass="XMLAssertion" testname="XML Assertion" enabled="true"/>
               <hashTree/>
+              <SizeAssertion guiclass="SizeAssertionGui" testclass="SizeAssertion" testname="Size Assertion" enabled="true">
+                <stringProp name="Assertion.test_field">SizeAssertion.response_data</stringProp>
+                <stringProp name="SizeAssertion.size">0</stringProp>
+                <intProp name="SizeAssertion.operator">3</intProp>
+              </SizeAssertion>
+              <hashTree/>
+              <XPathAssertion guiclass="XPathAssertionGui" testclass="XPathAssertion" testname="Should have limits" enabled="true">
+                <boolProp name="XPath.negate">false</boolProp>
+                <stringProp name="XPath.xpath">count(/limits/rates/rate/limit) &gt; 0</stringProp>
+                <boolProp name="XPath.validate">false</boolProp>
+                <boolProp name="XPath.whitespace">false</boolProp>
+                <boolProp name="XPath.tolerant">false</boolProp>
+                <boolProp name="XPath.namespace">false</boolProp>
+              </XPathAssertion>
+              <hashTree/>
+              <XPathAssertion guiclass="XPathAssertionGui" testclass="XPathAssertion" testname="Should have absolute limits" enabled="true">
+                <boolProp name="XPath.negate">false</boolProp>
+                <stringProp name="XPath.xpath">count(/limits/absolute/limit) &gt; 0</stringProp>
+                <boolProp name="XPath.validate">false</boolProp>
+                <boolProp name="XPath.whitespace">false</boolProp>
+                <boolProp name="XPath.tolerant">false</boolProp>
+                <boolProp name="XPath.namespace">false</boolProp>
+              </XPathAssertion>
+              <hashTree/>
             </hashTree>
           </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When requesting rate limits as application/json" enabled="true"/>
@@ -667,6 +691,12 @@
                 <intProp name="Assertion.test_type">2</intProp>
               </ResponseAssertion>
               <hashTree/>
+              <SizeAssertion guiclass="SizeAssertionGui" testclass="SizeAssertion" testname="Size Assertion" enabled="true">
+                <stringProp name="Assertion.test_field">SizeAssertion.response_data</stringProp>
+                <stringProp name="SizeAssertion.size">0</stringProp>
+                <intProp name="SizeAssertion.operator">3</intProp>
+              </SizeAssertion>
+              <hashTree/>
             </hashTree>
           </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When requesting rate limits with no Accept header" enabled="true"/>
@@ -724,6 +754,12 @@
                 <boolProp name="Assertion.assume_success">false</boolProp>
                 <intProp name="Assertion.test_type">2</intProp>
               </ResponseAssertion>
+              <hashTree/>
+              <SizeAssertion guiclass="SizeAssertionGui" testclass="SizeAssertion" testname="Size Assertion" enabled="true">
+                <stringProp name="Assertion.test_field">SizeAssertion.response_data</stringProp>
+                <stringProp name="SizeAssertion.size">0</stringProp>
+                <intProp name="SizeAssertion.operator">3</intProp>
+              </SizeAssertion>
               <hashTree/>
             </hashTree>
           </hashTree>
@@ -787,6 +823,12 @@
                 <intProp name="Assertion.test_type">2</intProp>
               </ResponseAssertion>
               <hashTree/>
+              <SizeAssertion guiclass="SizeAssertionGui" testclass="SizeAssertion" testname="Size Assertion" enabled="true">
+                <stringProp name="Assertion.test_field">SizeAssertion.response_data</stringProp>
+                <stringProp name="SizeAssertion.size">0</stringProp>
+                <intProp name="SizeAssertion.operator">3</intProp>
+              </SizeAssertion>
+              <hashTree/>
             </hashTree>
           </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When requesting rate limits as */*" enabled="true"/>
@@ -849,6 +891,12 @@
                 <intProp name="Assertion.test_type">2</intProp>
               </ResponseAssertion>
               <hashTree/>
+              <SizeAssertion guiclass="SizeAssertionGui" testclass="SizeAssertion" testname="Size Assertion" enabled="true">
+                <stringProp name="Assertion.test_field">SizeAssertion.response_data</stringProp>
+                <stringProp name="SizeAssertion.size">0</stringProp>
+                <intProp name="SizeAssertion.operator">3</intProp>
+              </SizeAssertion>
+              <hashTree/>
             </hashTree>
           </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When requesting rate limits with invalid Accept header" enabled="true"/>
@@ -901,6 +949,12 @@
                 <stringProp name="Scope.variable">respCode</stringProp>
                 <stringProp name="Assertion.scope">all</stringProp>
               </ResponseAssertion>
+              <hashTree/>
+              <SizeAssertion guiclass="SizeAssertionGui" testclass="SizeAssertion" testname="Size Assertion" enabled="true">
+                <stringProp name="Assertion.test_field">SizeAssertion.response_data</stringProp>
+                <stringProp name="SizeAssertion.size">0</stringProp>
+                <intProp name="SizeAssertion.operator">3</intProp>
+              </SizeAssertion>
               <hashTree/>
             </hashTree>
           </hashTree>
