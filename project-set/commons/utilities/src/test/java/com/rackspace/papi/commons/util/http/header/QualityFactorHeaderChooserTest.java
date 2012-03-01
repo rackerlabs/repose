@@ -4,6 +4,7 @@ import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -54,7 +55,7 @@ public class QualityFactorHeaderChooserTest {
       }
 
       @Test
-      public void shouldHandleNullHeaderValueObjects() {
+      public void shouldHandleNullHeaderValueInPopulatedList() {
          final List<HeaderValue> headerValues = new HeaderFieldParser(MEDIA_TYPE).parse();
          headerValues.add(null);
 
@@ -62,12 +63,12 @@ public class QualityFactorHeaderChooserTest {
       }
 
       @Test
-      public void shouldReturnNullWhenGivenNull() {
+      public void shouldReturnDefaultWhenGivenNull() {
          assertEquals("Quality factor utility must return default when an empty header value is given", defaultHeaderValue, qualityFactorHeaderChooser.choosePreferredHeaderValue(null));
       }
 
       @Test
-      public void shouldReturnNullWhenGivenEmptyListOfHeaderValues() {
+      public void shouldReturnDefaultWhenGivenEmptyListOfHeaderValues() {
          assertEquals("Quality factor utility must return default when an empty header value list is given", defaultHeaderValue, qualityFactorHeaderChooser.choosePreferredHeaderValue(Collections.EMPTY_LIST));
       }
 

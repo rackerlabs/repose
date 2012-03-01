@@ -89,7 +89,7 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
          when(mockedRequest.getMethod()).thenReturn("GET");
          when(mockedRequest.getRequestURI()).thenReturn("/v1.0/limits");
          when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/limits"));
-         when(mockedRequest.getHeader("Accept")).thenReturn(MimeType.APPLICATION_JSON.toString());
+         when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton(MimeType.APPLICATION_JSON.toString())));
 
          final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
 
@@ -100,16 +100,30 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
       }
 
       @Test
-      public void shouldDOThing() {
+      public void shouldRejectDescribeLimitsCallwith406() {
          when(mockedRequest.getMethod()).thenReturn("GET");
          when(mockedRequest.getRequestURI()).thenReturn("/v1.0/limits");
          when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/limits"));
-         when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.EMPTY_LIST));
+         when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton("leqz")));
 
-         final RateLimitingHandler handler = handlerFactory.newHandler();
+         final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
 
-         handler.handleRequest(mockedRequest, mockedResponse);
-         handler.handleResponse(mockedRequest, mockedResponse);
+         assertEquals("On rejected media type, filter must return a response", FilterAction.RETURN, director.getFilterAction());
+         assertEquals("On rejected media type, returned status code must be 406", HttpStatusCode.NOT_ACCEPTABLE, director.getResponseStatus());
+      }
+
+      @Test
+      public void shouldDescribeLimitsCallWithEmptyAcceptType() {
+         when(mockedRequest.getMethod()).thenReturn("GET");
+         when(mockedRequest.getRequestURI()).thenReturn("/v1.0/limits");
+         when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/limits"));
+         when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton("")));
+
+         final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
+
+         assertEquals("On rejected media type, filter must return a response", FilterAction.PROCESS_RESPONSE, director.getFilterAction());
+         assertTrue("Filter Director is set to add application/xml to the accept header",
+                 director.requestHeaderManager().headersToAdd().get("accept").toArray()[0].toString().equals(MimeType.APPLICATION_XML.getMimeType()));
       }
    }
 

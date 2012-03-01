@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util.http.header;
 
+import com.rackspace.papi.commons.util.StringUtilities;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -21,12 +22,12 @@ public class QualityFactorHeaderChooser <T extends HeaderValue> implements Heade
    public T choosePreferredHeaderValue(Iterable<T> headerValues) {
       final Iterator<T> headerValueIterator = headerValues != null ? headerValues.iterator() : Collections.EMPTY_LIST.iterator();
       
-      T prefered = headerValueIterator.hasNext() ? headerValueIterator.next() : defaultValue;
+      T prefered = defaultValue;
       
       while (headerValueIterator.hasNext()) {
          final T next = headerValueIterator.next();
          
-         if (next != null) {
+         if (next != null && StringUtilities.isNotBlank(next.getValue())) {
             prefered = prefered.compareTo(next) < 0 ? next : prefered;
          }
       }

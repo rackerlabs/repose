@@ -18,7 +18,6 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import java.util.Enumeration;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
@@ -90,32 +89,33 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
    }
 
    private void describeLimitsForRequest(FilterDirector director, HttpServletRequest request, MediaType preferredMediaType) {
-      // Should we include the absolute limits from the service origin?
-      if (rateLimitingConfig.getRequestEndpoint().isIncludeAbsoluteLimits()) {
-
-         // Process the response on the way back up the filter chain
-         director.setFilterAction(FilterAction.PROCESS_RESPONSE);
-         director.requestHeaderManager().putHeader("Accept", MimeType.APPLICATION_XML.toString());
-      } else {
-         if (preferredMediaType.toString().equals(MimeType.WILDCARD.getMimeType())) {
-            preferredMediaType = new MediaType(MimeType.APPLICATION_JSON);
-         }
-         new RateLimiterResponse(rateLimitCache, rateLimitingConfig).writeActiveLimits(new RateLimitingRequestInfo(request, preferredMediaType), director);
-
+      if (preferredMediaType.getMimeType() == MimeType.UNKNOWN) {
          director.setFilterAction(FilterAction.RETURN);
-         director.setResponseStatus(HttpStatusCode.OK);
+         director.setResponseStatus(HttpStatusCode.NOT_ACCEPTABLE);
+      } else {
+
+         // Should we include the absolute limits from the service origin?
+         if (rateLimitingConfig.getRequestEndpoint().isIncludeAbsoluteLimits()) {
+            director.setFilterAction(FilterAction.PROCESS_RESPONSE);
+            director.requestHeaderManager().putHeader("Accept", MimeType.APPLICATION_XML.toString());
+         } else {
+            new RateLimiterResponse(rateLimitCache, rateLimitingConfig).writeActiveLimits(new RateLimitingRequestInfo(request, preferredMediaType), director);
+
+            director.setFilterAction(FilterAction.RETURN);
+            director.setResponseStatus(HttpStatusCode.OK);
+         }
       }
    }
 
    @Override
    public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
       final FilterDirector director = new FilterDirectorImpl();
-      
+
       final MediaType preferredMediaType = ACCEPT_TYPE_CHOOSER.choosePreferredHeaderValue(new MediaRangeParser(originalAcceptHeaders).parse());
       director.responseHeaderManager().putHeader("content-Type", preferredMediaType.getMimeType().getMimeType());
 
       new RateLimiterResponse(rateLimitCache, rateLimitingConfig).writeCombinedLimits(new RateLimitingRequestInfo(request, preferredMediaType), response, director);
-      
+
       return director;
    }
 }
