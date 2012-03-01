@@ -697,6 +697,24 @@
                 <intProp name="SizeAssertion.operator">3</intProp>
               </SizeAssertion>
               <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Should have absolute limits" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="-662469159">&quot;absolute&quot;[ :]*</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Should have limits" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="56773373">\{[ ]*&quot;limits&quot;[ :]*\{[ ]*&quot;rate&quot;[ :]*.*&quot;limit&quot;[ :]*</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
             </hashTree>
           </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When requesting rate limits with no Accept header" enabled="true"/>
@@ -760,6 +778,24 @@
                 <stringProp name="SizeAssertion.size">0</stringProp>
                 <intProp name="SizeAssertion.operator">3</intProp>
               </SizeAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Should have absolute limits" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="-662469159">&quot;absolute&quot;[ :]*</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Should have limits" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="56773373">\{[ ]*&quot;limits&quot;[ :]*\{[ ]*&quot;rate&quot;[ :]*.*&quot;limit&quot;[ :]*</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
               <hashTree/>
             </hashTree>
           </hashTree>
@@ -829,6 +865,24 @@
                 <intProp name="SizeAssertion.operator">3</intProp>
               </SizeAssertion>
               <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Should have absolute limits" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="-662469159">&quot;absolute&quot;[ :]*</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Should have limits" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="56773373">\{[ ]*&quot;limits&quot;[ :]*\{[ ]*&quot;rate&quot;[ :]*.*&quot;limit&quot;[ :]*</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
             </hashTree>
           </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When requesting rate limits as */*" enabled="true"/>
@@ -896,6 +950,24 @@
                 <stringProp name="SizeAssertion.size">0</stringProp>
                 <intProp name="SizeAssertion.operator">3</intProp>
               </SizeAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Should have absolute limits" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="-662469159">&quot;absolute&quot;[ :]*</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Should have limits" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="56773373">\{[ ]*&quot;limits&quot;[ :]*\{[ ]*&quot;rate&quot;[ :]*.*&quot;limit&quot;[ :]*</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
               <hashTree/>
             </hashTree>
           </hashTree>
