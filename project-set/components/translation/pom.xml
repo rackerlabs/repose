@@ -54,25 +54,27 @@
     </dependencies>
 
     <build>
-        <plugins>            
+        <plugins>
             <plugin>
-                <groupId>com.sun.tools.xjc.maven2</groupId>
-                <artifactId>maven-jaxb-plugin</artifactId>
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb2-plugin</artifactId>
 
                 <configuration>
-                    
-                    <includeSchemas>
-                        <includeSchema>**/*.xsd</includeSchema>
-                    </includeSchemas>
 
-                    <includeBindings>
-                        <includeBinding>**/*.xjb</includeBinding>
-                    </includeBindings>
+                    <specVersion>2.1</specVersion>
+
+                    <schemaIncludes>
+                        <include>**/*.xsd</include>
+                    </schemaIncludes>
+                    <bindingIncludes>
+                        <include>**/*.xjb</include>
+                    </bindingIncludes>
 
                     <strict>true</strict>
-                    <verbose>true</verbose>
+                    <verbose>false</verbose>
+
                 </configuration>
-            </plugin>
+            </plugin>                       
         </plugins>
     </build>
 </project>

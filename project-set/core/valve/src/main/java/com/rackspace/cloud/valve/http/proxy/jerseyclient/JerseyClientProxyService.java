@@ -19,6 +19,7 @@ package com.rackspace.cloud.valve.http.proxy.jerseyclient;
 import java.net.MalformedURLException;
 
 import com.rackspace.cloud.valve.http.proxy.common.ProxyService;
+import com.sun.jersey.api.client.filter.LoggingFilter;
 import org.apache.http.HttpException;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -70,6 +71,8 @@ public class JerseyClientProxyService implements ProxyService {
         cc.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, false);
         cc.getProperties().put(ClientConfig.PROPERTY_THREADPOOL_SIZE, new Integer(20));
         client = Client.create(cc);
+
+        client.addFilter(new LoggingFilter());
     }
     
     private String asUri(URI host) {

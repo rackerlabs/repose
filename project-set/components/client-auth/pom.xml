@@ -1,80 +1,86 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-   <modelVersion>4.0.0</modelVersion>
-    
-   <parent>
-      <groupId>com.rackspace.papi.components</groupId>
-      <artifactId>components-support</artifactId>
-      <version>1.2.1-SNAPSHOT</version>
-   </parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-   <groupId>com.rackspace.papi.components</groupId>
-   <artifactId>client-auth</artifactId>
+    <parent>
+        <groupId>com.rackspace.papi.components</groupId>
+        <artifactId>components-support</artifactId>
+        <version>1.2.1-SNAPSHOT</version>
+    </parent>
 
-   <name>Power API Components - Client Authentication</name>
-   <description>TODO</description>
+    <groupId>com.rackspace.papi.components</groupId>
+    <artifactId>client-auth</artifactId>
 
-   <packaging>jar</packaging>
-    
-   <dependencies>
+    <name>Power API Components - Client Authentication</name>
+    <description>TODO</description>
+
+    <packaging>jar</packaging>
+
+    <dependencies>
         <!-- This dependency will pull in an implementation of necessary javaee-api
              classes used during testing -->
-      <dependency>
-         <groupId>javax.mail</groupId>
-         <artifactId>mail</artifactId>
-         <scope>test</scope>
-      </dependency>
-                    
-      <dependency>
-         <groupId>com.rackspace.cloud.services.clients</groupId>
-         <artifactId>rackspace-auth-v1.1</artifactId>
-      </dependency>
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <scope>test</scope>
+        </dependency>
 
-      <dependency>
-         <groupId>com.rackspace.cloud.services.clients</groupId>
-         <artifactId>openstack-ids</artifactId>
-      </dependency>
-        
-      <dependency>
-         <groupId>net.sf.ehcache</groupId>
-         <artifactId>ehcache-core</artifactId>
-      </dependency>
-        
-      <dependency>
-         <groupId>com.rackspace.papi.core</groupId>
-         <artifactId>core-lib</artifactId>
-      </dependency>
+        <dependency>
+            <groupId>com.rackspace.cloud.services.clients</groupId>
+            <artifactId>rackspace-auth-v1.1</artifactId>
+        </dependency>
 
-      <dependency>
-         <groupId>com.rackspace.papi.commons</groupId>
-         <artifactId>configuration</artifactId>
-      </dependency>
+        <dependency>
+            <groupId>com.rackspace.cloud.services.clients</groupId>
+            <artifactId>openstack-ids</artifactId>
+        </dependency>
 
-      <dependency>
-         <groupId>com.rackspace.papi.commons</groupId>
-         <artifactId>utilities</artifactId>
-      </dependency>
-   </dependencies>
+        <dependency>
+            <groupId>net.sf.ehcache</groupId>
+            <artifactId>ehcache-core</artifactId>
+        </dependency>
 
-   <build>
-      <plugins>
-         <plugin>
-            <groupId>com.sun.tools.xjc.maven2</groupId>
-            <artifactId>maven-jaxb-plugin</artifactId>
-                
-            <configuration>                    
-               <includeSchemas>
-                  <includeSchema>**/*.xsd</includeSchema>
-               </includeSchemas>
-                    
-               <includeBindings>
-                  <includeBinding>**/*.xjb</includeBinding>
-               </includeBindings>
-                    
-               <strict>true</strict>
-               <verbose>false</verbose>
-            </configuration>
-         </plugin>                        
-      </plugins>
-   </build>
+        <dependency>
+            <groupId>com.rackspace.papi.core</groupId>
+            <artifactId>core-lib</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>configuration</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.commons</groupId>
+            <artifactId>utilities</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+
+            <plugin>
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb2-plugin</artifactId>
+
+                <configuration>
+
+                    <specVersion>2.1</specVersion>
+
+                    <schemaIncludes>
+                        <include>**/*.xsd</include>
+                    </schemaIncludes>
+                    <bindingIncludes>
+                        <include>**/*.xjb</include>
+                    </bindingIncludes>
+
+                    <strict>true</strict>
+                    <verbose>false</verbose>
+
+                </configuration>
+            </plugin>
+            
+        </plugins>
+    </build>
 </project>
