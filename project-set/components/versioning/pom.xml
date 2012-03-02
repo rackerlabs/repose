@@ -93,24 +93,25 @@
             <!--</plugin>-->
 
             <plugin>
-                <groupId>com.sun.tools.xjc.maven2</groupId>
-                <artifactId>maven-jaxb-plugin</artifactId>
-                
-                <configuration>
-                    <!--<schemaDirectory>${basedir}/target/generated-resources/xml/xslt</schemaDirectory>-->
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb2-plugin</artifactId>
 
-                    <includeSchemas>
-                        <includeSchema>**/*.xsd</includeSchema>
-                    </includeSchemas>
-                    
-                    <includeBindings>
-                        <includeBinding>**/*.xjb</includeBinding>
-                    </includeBindings>
-                    
+                <configuration>
+
+                    <specVersion>2.1</specVersion>
+
+                    <schemaIncludes>
+                        <include>**/*.xsd</include>
+                    </schemaIncludes>
+                    <bindingIncludes>
+                        <include>**/*.xjb</include>
+                    </bindingIncludes>
+
                     <strict>true</strict>
-                    <verbose>true</verbose>
+                    <verbose>false</verbose>
+
                 </configuration>
-            </plugin>
+            </plugin>           
         </plugins>
     </build>
 </project>
