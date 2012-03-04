@@ -104,7 +104,7 @@
                     <xsl:value-of select="$version/atom:link[@rel='self']/@href"/>
                 </xsl:when>
                 <xsl:otherwise>
-                    <xsl:message>Warning:  Expected link with rel=alternate or rel=self!</xsl:message>
+                    <xsl:message>version-atom.xsl:  Expected link with rel=alternate or rel=self!</xsl:message>
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>
