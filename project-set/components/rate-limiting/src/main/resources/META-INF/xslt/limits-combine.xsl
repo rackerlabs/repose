@@ -25,9 +25,14 @@
             <message terminate="yes">limits-combine.xsl: absoluteURL parameter must be set</message>
         </if>
 
-        <if test="count($absoluteDoc)!=1">
-            <message>limits-combine.xsl: Could not load <value-of select="$absoluteURL"/></message>
-        </if>
+        <choose>
+            <when test="count($absoluteDoc)!=1">
+                <message>limits-combine.xsl: Could not load origin URL: <value-of select="$absoluteURL"/></message>
+            </when>
+            <when test="not($absoluteDoc/lim:limits/lim:absolute)">
+                <message>limits-combine.xsl: Missing /limits/absolute from origin URL : <value-of select="$absoluteURL"/> Got : <xsl:copy-of select="$absoluteDoc"/></message>
+            </when>
+        </choose>
 
         <limits xmlns="http://docs.openstack.org/common/api/v1.0">
             <xsl:apply-templates select="lim:rates"/>
