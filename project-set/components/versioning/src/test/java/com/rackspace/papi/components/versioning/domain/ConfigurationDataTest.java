@@ -118,7 +118,7 @@ public class ConfigurationDataTest {
     @Test
     public void shouldReturnVersionChoicesAsList(){
         HttpRequestInfo requestInfo = mock(HttpRequestInfo.class);
-        MediaType preferedMediaRange = new MediaType("application/vnd.vendor.service-v1+xml", MimeType.APPLICATION_XML);
+        MediaType preferedMediaRange = new MediaType("application/vnd.vendor.service-v1+xml", MimeType.APPLICATION_XML, -1);
         when(requestInfo.getUri()).thenReturn("/v1");
         when(requestInfo.getPreferedMediaRange()).thenReturn(preferedMediaRange);
         
@@ -141,7 +141,7 @@ public class ConfigurationDataTest {
         
         HttpRequestInfo requestInfo = mock(HttpRequestInfo.class);
         FilterDirector director = new FilterDirectorImpl();
-        MediaType preferedMediaRange = new MediaType("application/vnd.vendor.service-v3+xml", MimeType.APPLICATION_XML);
+        MediaType preferedMediaRange = new MediaType("application/vnd.vendor.service-v3+xml", MimeType.APPLICATION_XML, -1);
         when(requestInfo.getUri()).thenReturn("/service/rs");
         when(requestInfo.getPreferedMediaRange()).thenReturn(preferedMediaRange);
         

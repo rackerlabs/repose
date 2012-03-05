@@ -14,12 +14,13 @@ import java.util.Map.Entry;
 public class HeaderValueImpl implements HeaderValue {
 
    public static final String QUALITY_FACTOR_PARAM_NAME = "q";
+   public static final double DEFAULT_QUALITY = 1.0;
    private final Map<String, String> parameters;
    private final String value;
    private double parsedQualityFactor;
 
    private static double getQualityFactor(Map<String, String> parameters) throws MalformedHeaderValueException {
-      double qualityFactor = -1;
+      double qualityFactor = 1;
 
       final String qualityFactorString = parameters.get(QUALITY_FACTOR_PARAM_NAME);
 
@@ -36,7 +37,9 @@ public class HeaderValueImpl implements HeaderValue {
 
    private static Map<String, String> qualityFactorToParameterMap(double qualityFactor) {
       final Map<String, String> parameters = new HashMap<String, String>();
-      parameters.put(QUALITY_FACTOR_PARAM_NAME, String.valueOf(qualityFactor));
+      if (qualityFactor != DEFAULT_QUALITY) {
+        parameters.put(QUALITY_FACTOR_PARAM_NAME, String.valueOf(qualityFactor));
+      }
 
       return parameters;
    }

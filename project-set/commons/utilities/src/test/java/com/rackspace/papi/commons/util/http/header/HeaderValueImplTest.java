@@ -77,7 +77,7 @@ public class HeaderValueImplTest {
       public void shouldReturnNegativeOneWhenNoQualityFactorCanBeDetermined() {
          final HeaderValueImpl headerValue = new HeaderValueImpl("value", Collections.EMPTY_MAP);
 
-         assertTrue("Header value must match expected output", -1 == headerValue.getQualityFactor());
+         assertTrue("Header value must match expected output", 1 == headerValue.getQualityFactor());
       }
    }
 

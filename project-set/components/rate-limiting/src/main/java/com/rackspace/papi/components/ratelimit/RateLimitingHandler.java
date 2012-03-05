@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 public class RateLimitingHandler extends AbstractFilterLogicHandler {
 
    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingHandler.class);
-   private static final HeaderChooser<MediaType> ACCEPT_TYPE_CHOOSER = new QualityFactorHeaderChooser<MediaType>(new MediaType(MimeType.APPLICATION_JSON));
+   private static final HeaderChooser<MediaType> ACCEPT_TYPE_CHOOSER = new QualityFactorHeaderChooser<MediaType>(new MediaType(MimeType.APPLICATION_JSON, -1));
    private final Map<String, Map<String, Pattern>> regexCache;
    private final RateLimitCache rateLimitCache;
    private final Pattern describeLimitsUriRegex;

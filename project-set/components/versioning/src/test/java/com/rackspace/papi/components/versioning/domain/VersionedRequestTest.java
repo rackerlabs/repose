@@ -27,7 +27,7 @@ public class VersionedRequestTest {
       @Before
       public void standUp() {
          mediaRangeList = new LinkedList<MediaType>();
-         mediaRangeList.add(new MediaType("", MimeType.UNKNOWN));
+         mediaRangeList.add(new MediaType("", MimeType.UNKNOWN, -1));
 
          mapping = new ServiceVersionMapping();
          mapping.setId("v1.0");
