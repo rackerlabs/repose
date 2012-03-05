@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -11,13 +12,13 @@
     <groupId>com.rackspace.papi</groupId>
     <artifactId>profile-support</artifactId>
     <version>1.2.1-SNAPSHOT</version>
-    
+
     <name>Power API - Build Support Profiles</name>
-    
+
     <description>
-            POM file to provide build profile management
+        POM file to provide build profile management
     </description>
-    
+
     <packaging>pom</packaging>
 
     <modules>
@@ -27,22 +28,22 @@
         <module>components</module>
     </modules>
 
-    <profiles>             
+    <profiles>
         <profile>
             <id>JAXB Schema Compilation Support</id>
-                        
+
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-        
+
             <build>
                 <pluginManagement>
                     <plugins>
                         <plugin>
                             <groupId>org.codehaus.mojo</groupId>
-                            <artifactId>xml-maven-plugin</artifactId>               
+                            <artifactId>xml-maven-plugin</artifactId>
                             <version>1.0</version>
-                            
+
                             <executions>
                                 <execution>
                                     <goals>
@@ -51,13 +52,13 @@
                                     <phase>generate-sources</phase>
                                 </execution>
                             </executions>
-                        </plugin>         
-                        
+                        </plugin>                        
+
                         <plugin>
-                            <groupId>com.sun.tools.xjc.maven2</groupId>
-                            <artifactId>maven-jaxb-plugin</artifactId>
-                            <version>1.1.1</version>
-                            
+                            <groupId>org.jvnet.jaxb2.maven2</groupId>
+                            <artifactId>maven-jaxb2-plugin</artifactId>
+                            <version>0.8.1</version>
+
                             <executions>
                                 <execution>
                                     <goals>
@@ -67,19 +68,19 @@
                                     <phase>process-sources</phase>
                                 </execution>
                             </executions>
-                        </plugin>                                                
+                        </plugin>
                     </plugins>
                 </pluginManagement>
             </build>
         </profile>
-        
+
         <profile>
             <id>RPM Build Support</id>
-                        
+
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-        
+
             <build>
                 <pluginManagement>
                     <plugins>
@@ -87,11 +88,11 @@
                             <groupId>org.codehaus.mojo</groupId>
                             <artifactId>rpm-maven-plugin</artifactId>
                             <version>2.1-alpha-1</version>
-                
+
                             <executions>
                                 <execution>
                                     <id>Build RPM</id>
-                        
+
                                     <phase>package</phase>
 
                                     <goals>
@@ -100,32 +101,32 @@
                                     </goals>
                                 </execution>
                             </executions>
-                            
+
                             <configuration>
                                 <group>Rackspace Repose</group>
                                 <packager>Rackspace - Cloud Integration Team</packager>
-                    
+
                                 <description>
-                                    Power API is a stack of reusable, software components 
-                                    that can be leveraged by service developers to perform 
+                                    Power API is a stack of reusable, software components
+                                    that can be leveraged by service developers to perform
                                     common API processing tasks.
                                 </description>
-                    
+
                                 <copyright>Apache License, Version 2.0</copyright>
                             </configuration>
                         </plugin>
                     </plugins>
-                </pluginManagement>  
+                </pluginManagement>
             </build>
         </profile>
-        
+
         <profile>
             <id>Javax Library Support</id>
-                        
+
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-                
+
             <dependencyManagement>
                 <dependencies>
                     <dependency>
@@ -141,21 +142,21 @@
                         <version>1.4.4</version>
                         <scope>test</scope>
                     </dependency>
-                    
+
                     <dependency>
                         <groupId>javax</groupId>
                         <artifactId>javaee-web-api</artifactId>
                         <version>6.0</version>
                         <scope>provided</scope>
                     </dependency>
-                    
+
                     <dependency>
                         <groupId>javax</groupId>
                         <artifactId>javaee-api</artifactId>
                         <version>6.0</version>
                         <scope>provided</scope>
                     </dependency>
-                    
+
                     <dependency>
                         <groupId>javax.transaction</groupId>
                         <artifactId>transaction-api</artifactId>
@@ -164,18 +165,18 @@
                     </dependency>
                 </dependencies>
             </dependencyManagement>
-            
+
             <dependencies>
                 <dependency>
                     <groupId>org.glassfish</groupId>
                     <artifactId>javax.servlet</artifactId>
                 </dependency>
-                
+
                 <dependency>
                     <groupId>javax</groupId>
                     <artifactId>javaee-web-api</artifactId>
                 </dependency>
-                
+
                 <dependency>
                     <groupId>javax.transaction</groupId>
                     <artifactId>transaction-api</artifactId>
@@ -185,11 +186,11 @@
 
         <profile>
             <id>Default JUL Logging Support</id>
-                        
+
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-                
+
             <dependencyManagement>
                 <dependencies>
                     <dependency>
@@ -199,11 +200,11 @@
                     </dependency>
 
                     <!--<dependency>-->
-                        <!--<groupId>org.slf4j</groupId>-->
-                        <!--<artifactId>slf4j-jdk14</artifactId>-->
-                        <!--<version>1.6.1</version>-->
+                    <!--<groupId>org.slf4j</groupId>-->
+                    <!--<artifactId>slf4j-jdk14</artifactId>-->
+                    <!--<version>1.6.1</version>-->
                     <!--</dependency>-->
-                    
+
                     <dependency>
                         <groupId>org.slf4j</groupId>
                         <artifactId>slf4j-log4j12</artifactId>
@@ -211,7 +212,7 @@
                     </dependency>
                 </dependencies>
             </dependencyManagement>
-            
+
             <dependencies>
                 <dependency>
                     <groupId>org.slf4j</groupId>
@@ -219,10 +220,10 @@
                 </dependency>
 
                 <!--<dependency>-->
-                    <!--<groupId>org.slf4j</groupId>-->
-                    <!--<artifactId>slf4j-jdk14</artifactId>-->
+                <!--<groupId>org.slf4j</groupId>-->
+                <!--<artifactId>slf4j-jdk14</artifactId>-->
                 <!--</dependency>-->
-                    
+
                 <dependency>
                     <groupId>org.slf4j</groupId>
                     <artifactId>slf4j-log4j12</artifactId>
@@ -254,14 +255,14 @@
                 </pluginManagement>
             </build>
         </profile>
-        
+
         <profile>
             <id>Testing Support</id>
-            
+
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-                
+
             <dependencyManagement>
                 <dependencies>
                     <dependency>
@@ -279,7 +280,7 @@
                     </dependency>
                 </dependencies>
             </dependencyManagement>
-            
+
             <dependencies>
                 <dependency>
                     <groupId>org.mockito</groupId>
@@ -289,7 +290,7 @@
                 <dependency>
                     <groupId>junit</groupId>
                     <artifactId>junit</artifactId>
-                </dependency>    
+                </dependency>
             </dependencies>
 
             <build>
