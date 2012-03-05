@@ -68,7 +68,7 @@ public class ContentTransformerTest {
 
             final JAXBElement jaxbElement
                     = xmlTransformer.transform(((FilePathReaderImpl)versionXmlFileReader).getResourceAsStream());
-            String actual = contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON));
+            String actual = contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON, -1));
             
             Map<String, Object> expectedMap = mapper.readValue(expected, Map.class);
             Map<String, Object> actualMap = mapper.readValue(actual, Map.class);
@@ -84,7 +84,7 @@ public class ContentTransformerTest {
 
             final JAXBElement jaxbElement
                     = xmlTransformer.transform(((FilePathReaderImpl)versionXmlFileReader).getResourceAsStream());
-            String actual = contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_XML));
+            String actual = contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_XML, -1));
             Diff diff = new Diff(expected, actual);
             assertTrue("XML Should be equivalent", diff.similar());
         }
@@ -98,7 +98,7 @@ public class ContentTransformerTest {
             final JAXBElement jaxbElement
                     = xmlTransformer.transform(((FilePathReaderImpl)versionXmlFileReader).getResourceAsStream());
             
-            String actual = contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON));
+            String actual = contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON, -1));
             
             Map<String, Object> expectedMap = mapper.readValue(expected, Map.class);
             Map<String, Object> actualMap = mapper.readValue(actual, Map.class);
@@ -116,7 +116,7 @@ public class ContentTransformerTest {
             final JAXBElement jaxbElement
                     = xmlTransformer.transform(((FilePathReaderImpl)choicesXmlFileReader).getResourceAsStream());
             
-            String actual = contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON));
+            String actual = contentTransformer.transform(jaxbElement, new MediaType(MimeType.APPLICATION_JSON, -1));
             Map<String, Object> expectedMap = mapper.readValue(expected, Map.class);
             Map<String, Object> actualMap = mapper.readValue(actual, Map.class);
             

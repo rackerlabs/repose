@@ -22,7 +22,7 @@ import static org.junit.Assert.*;
 public class RateLimitingRequestInfoTest {
 
    private static final String MOST_QUALIFIED_USER = "the best user of them all";
-   private static final MediaType MEDIA_TYPE = new MediaType(MimeType.APPLICATION_XML);
+   private static final MediaType MEDIA_TYPE = new MediaType(MimeType.APPLICATION_XML, -1);
 
    public static class WhenInstantiatingRequestInformation {
 

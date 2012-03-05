@@ -29,7 +29,7 @@ public class QualityFactorHeaderChooserTest {
 
       @Before
       public void beforeAny() {
-         defaultHeaderValue = new MediaType(MimeType.APPLICATION_JSON.getMimeType(), MimeType.APPLICATION_JSON);
+         defaultHeaderValue = new MediaType(MimeType.APPLICATION_JSON.getMimeType(), MimeType.APPLICATION_JSON, -1);
          qualityFactorHeaderChooser = new QualityFactorHeaderChooser(defaultHeaderValue);
       }
    }
@@ -40,7 +40,7 @@ public class QualityFactorHeaderChooserTest {
 
       @Test
       public void shouldCastHeaderValueType() {
-         QualityFactorHeaderChooser<MediaType> mediaTypeChooser = new QualityFactorHeaderChooser<MediaType>(new MediaType(MimeType.WILDCARD));
+         QualityFactorHeaderChooser<MediaType> mediaTypeChooser = new QualityFactorHeaderChooser<MediaType>(new MediaType(MimeType.WILDCARD, -1));
          final List<MediaType> headerValues = new MediaRangeParser(MEDIA_TYPE).parse();
 
          assertEquals("Should choose highest value quality media type", MimeType.APPLICATION_XML, mediaTypeChooser.choosePreferredHeaderValue(headerValues).getMimeType());

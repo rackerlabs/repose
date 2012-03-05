@@ -21,11 +21,11 @@ public abstract class RequestMediaRangeInterrogator {
       if (mediaType == null) {
          ranges.addAll(new MediaRangeParser(acceptHeader).parse());
       } else {
-         ranges.add(new MediaType(mediaType.getMimeType(), mediaType));
+         ranges.add(new MediaType(mediaType.getMimeType(), mediaType, 1));
       }
 
       if (ranges.isEmpty()) {
-         ranges.add(new MediaType(MimeType.UNSPECIFIED.getMimeType(), MimeType.UNSPECIFIED));
+         ranges.add(new MediaType(MimeType.UNSPECIFIED.getMimeType(), MimeType.UNSPECIFIED, -1));
       }
 
       return ranges;
