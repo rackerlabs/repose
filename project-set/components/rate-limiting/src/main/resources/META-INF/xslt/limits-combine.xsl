@@ -22,11 +22,11 @@
 
     <template match="lim:limits">
         <if test="not($absoluteURL)">
-            <message terminate="yes">absoluteURL parameter must be set</message>
+            <message terminate="yes">limits-combine.xsl: absoluteURL parameter must be set</message>
         </if>
 
         <if test="count($absoluteDoc)!=1">
-            <message>Could not load <value-of select="$absoluteURL"/></message>
+            <message>limits-combine.xsl: Could not load <value-of select="$absoluteURL"/></message>
         </if>
 
         <limits xmlns="http://docs.openstack.org/common/api/v1.0">
