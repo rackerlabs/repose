@@ -162,12 +162,6 @@
             <hashTree/>
           </hashTree>
         </hashTree>
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Get Limits Custom URI" enabled="true">
-=======
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
         <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Make requests while user has requests remaining custom uri" enabled="true"/>
         <hashTree>
           <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Get Limits" enabled="true">
@@ -230,10 +224,6 @@
           </hashTree>
         </hashTree>
         <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Get Limits Named Limit" enabled="true">
-<<<<<<< HEAD
-=======
->>>>>>> 30e2740... readded rl jmeter test
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
           <stringProp name="TestPlan.comments">Exports Variables: remainingRequests</stringProp>
         </GenericController>
         <hashTree>
@@ -278,30 +268,14 @@
             <hashTree/>
           </hashTree>
         </hashTree>
-<<<<<<< HEAD
         <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Wait for request limits to reset Named Limit" enabled="true"/>
-=======
-<<<<<<< HEAD
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Wait for request limits to reset Name Limit" enabled="true"/>
-=======
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Wait for request limits to reset Named Limit" enabled="true"/>
->>>>>>> 30e2740... readded rl jmeter test
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
         <hashTree>
           <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Get Limits" enabled="true">
             <collectionProp name="ModuleController.node_path">
               <stringProp name="-1227702913">WorkBench</stringProp>
               <stringProp name="764597751">Test Plan</stringProp>
               <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
-<<<<<<< HEAD
               <stringProp name="-1407383274">Get Limits Named Limit</stringProp>
-=======
-<<<<<<< HEAD
-              <stringProp name="1066517179">Get Limits Custom URI</stringProp>
-=======
-              <stringProp name="-1407383274">Get Limits Named Limit</stringProp>
->>>>>>> 30e2740... readded rl jmeter test
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
             </collectionProp>
           </ModuleController>
           <hashTree/>
@@ -318,87 +292,14 @@
                 <stringProp name="-1227702913">WorkBench</stringProp>
                 <stringProp name="764597751">Test Plan</stringProp>
                 <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
-<<<<<<< HEAD
                 <stringProp name="-1407383274">Get Limits Named Limit</stringProp>
-=======
-<<<<<<< HEAD
-                <stringProp name="1066517179">Get Limits Custom URI</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-          </hashTree>
-        </hashTree>
-        <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Make requests while user has requests remaining Name Limit" enabled="true"/>
-        <hashTree>
-          <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Get Limits" enabled="true">
-            <collectionProp name="ModuleController.node_path">
-              <stringProp name="-1227702913">WorkBench</stringProp>
-              <stringProp name="764597751">Test Plan</stringProp>
-              <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
-              <stringProp name="1066517179">Get Limits Custom URI</stringProp>
-            </collectionProp>
-          </ModuleController>
-          <hashTree/>
-          <WhileController guiclass="WhileControllerGui" testclass="WhileController" testname="While user has requests remaining" enabled="true">
-            <stringProp name="WhileController.condition">${__javaScript(${remainingRequests} &gt; 0)}</stringProp>
-          </WhileController>
-          <hashTree>
-            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Should allow requests when user has requests remaining" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain"></stringProp>
-              <stringProp name="HTTPSampler.port"></stringProp>
-              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-              <stringProp name="HTTPSampler.response_timeout"></stringProp>
-              <stringProp name="HTTPSampler.protocol"></stringProp>
-              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-              <stringProp name="HTTPSampler.path"></stringProp>
-              <stringProp name="HTTPSampler.method">GET</stringProp>
-              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-              <boolProp name="HTTPSampler.use_keepalive">false</boolProp>
-              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-              <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
-              <boolProp name="HTTPSampler.monitor">false</boolProp>
-              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-            </HTTPSamplerProxy>
-            <hashTree>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Must return 200 when user still has avaiable requests" enabled="true">
-                <collectionProp name="Asserion.test_strings">
-                  <stringProp name="49586">200</stringProp>
-                </collectionProp>
-                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
-                <boolProp name="Assertion.assume_success">false</boolProp>
-                <intProp name="Assertion.test_type">2</intProp>
-              </ResponseAssertion>
-              <hashTree/>
-            </hashTree>
-            <ConstantTimer guiclass="ConstantTimerGui" testclass="ConstantTimer" testname="Wait" enabled="true">
-              <stringProp name="ConstantTimer.delay">500</stringProp>
-            </ConstantTimer>
-            <hashTree/>
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Get Limits" enabled="true">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
-                <stringProp name="1066517179">Get Limits Custom URI</stringProp>
-=======
-                <stringProp name="-1407383274">Get Limits Named Limit</stringProp>
->>>>>>> 30e2740... readded rl jmeter test
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
               </collectionProp>
             </ModuleController>
             <hashTree/>
           </hashTree>
         </hashTree>
       </hashTree>
-<<<<<<< HEAD
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Rate Limiting" enabled="false">
-=======
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Rate Limiting" enabled="true">
->>>>>>> 30e2740... readded rl jmeter test
         <stringProp name="ThreadGroup.on_sample_error">stoptest</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -462,15 +363,7 @@
             <boolProp name="displaySystemProperties">false</boolProp>
           </DebugSampler>
           <hashTree/>
-<<<<<<< HEAD
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When rate limiting requests" enabled="false"/>
-=======
-<<<<<<< HEAD
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When rate limiting requests" enabled="true"/>
-=======
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When rate limiting requests" enabled="false"/>
->>>>>>> 30e2740... readded rl jmeter test
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
           <hashTree>
             <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Wait until user has available requests" enabled="true">
               <collectionProp name="ModuleController.node_path">
@@ -563,15 +456,7 @@
               <hashTree/>
             </hashTree>
           </hashTree>
-<<<<<<< HEAD
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When rate limiting requests with multiple X-PP-User values" enabled="false"/>
-=======
-<<<<<<< HEAD
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When rate limiting requests with multiple X-PP-User values" enabled="true"/>
-=======
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When rate limiting requests with multiple X-PP-User values" enabled="false"/>
->>>>>>> 30e2740... readded rl jmeter test
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
           <hashTree>
             <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Wait until user has available requests" enabled="true">
               <collectionProp name="ModuleController.node_path">
@@ -635,15 +520,7 @@
               </hashTree>
             </hashTree>
           </hashTree>
-<<<<<<< HEAD
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When rate limiting requests with multiple X-PP-Group values" enabled="false"/>
-=======
-<<<<<<< HEAD
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When rate limiting requests with multiple X-PP-Group values" enabled="true"/>
-=======
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When rate limiting requests with multiple X-PP-Group values" enabled="false"/>
->>>>>>> 30e2740... readded rl jmeter test
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
           <hashTree>
             <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Wait until user has available requests" enabled="true">
               <collectionProp name="ModuleController.node_path">
@@ -758,14 +635,6 @@
               </hashTree>
             </hashTree>
           </hashTree>
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-        </hashTree>
-      </hashTree>
-      <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Limits Requests" enabled="false">
-=======
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When rate limiting against multiple regexes" enabled="true"/>
           <hashTree>
             <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
@@ -889,7 +758,6 @@
         </hashTree>
       </hashTree>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Limits Requests" enabled="true">
->>>>>>> 30e2740... readded rl jmeter test
         <stringProp name="ThreadGroup.on_sample_error">stoptest</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
           <boolProp name="LoopController.continue_forever">false</boolProp>
@@ -3535,36 +3403,13 @@
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
             <stringProp name="HTTPSampler.protocol">http</stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-<<<<<<< HEAD
             <stringProp name="HTTPSampler.path">service/endpoint1</stringProp>
-=======
-<<<<<<< HEAD
-            <stringProp name="HTTPSampler.path">/service/endpoint1</stringProp>
-=======
-            <stringProp name="HTTPSampler.path">service/endpoint1</stringProp>
->>>>>>> 30e2740... readded rl jmeter test
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
             <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
           </ConfigTestElement>
           <hashTree/>
           <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Headers" enabled="true">
             <collectionProp name="HeaderManager.headers">
               <elementProp name="" elementType="Header">
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-                <stringProp name="Header.name">X-PP-Groups</stringProp>
-                <stringProp name="Header.value">multiregex;q=3</stringProp>
-              </elementProp>
-              <elementProp name="" elementType="Header">
-                <stringProp name="Header.name">Accept</stringProp>
-                <stringProp name="Header.value">application/xml</stringProp>
-              </elementProp>
-              <elementProp name="" elementType="Header">
-                <stringProp name="Header.name">X-PP-Users</stringProp>
-                <stringProp name="Header.value">multiregex;q=3</stringProp>
-=======
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
                 <stringProp name="Header.name">x-pp-groups</stringProp>
                 <stringProp name="Header.value">multiregex;q=2</stringProp>
               </elementProp>
@@ -3575,10 +3420,6 @@
               <elementProp name="" elementType="Header">
                 <stringProp name="Header.name">accept</stringProp>
                 <stringProp name="Header.value">application/xml</stringProp>
-<<<<<<< HEAD
-=======
->>>>>>> 30e2740... readded rl jmeter test
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
               </elementProp>
             </collectionProp>
           </HeaderManager>
@@ -3606,15 +3447,7 @@
                 <stringProp name="-1227702913">WorkBench</stringProp>
                 <stringProp name="764597751">Test Plan</stringProp>
                 <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
-<<<<<<< HEAD
                 <stringProp name="-1379612237">Wait for request limits to reset Named Limit</stringProp>
-=======
-<<<<<<< HEAD
-                <stringProp name="-564309977">Wait for request limits to reset Name Limit</stringProp>
-=======
-                <stringProp name="-1379612237">Wait for request limits to reset Named Limit</stringProp>
->>>>>>> 30e2740... readded rl jmeter test
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
               </collectionProp>
             </ModuleController>
             <hashTree/>
@@ -3623,15 +3456,7 @@
                 <stringProp name="-1227702913">WorkBench</stringProp>
                 <stringProp name="764597751">Test Plan</stringProp>
                 <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
-<<<<<<< HEAD
                 <stringProp name="-1335784575">Make requests while user has requests remaining custom uri</stringProp>
-=======
-<<<<<<< HEAD
-                <stringProp name="-4243158">Make requests while user has requests remaining Name Limit</stringProp>
-=======
-                <stringProp name="-1335784575">Make requests while user has requests remaining custom uri</stringProp>
->>>>>>> 30e2740... readded rl jmeter test
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
               </collectionProp>
             </ModuleController>
             <hashTree/>
@@ -3645,15 +3470,7 @@
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
               <stringProp name="HTTPSampler.protocol"></stringProp>
               <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-<<<<<<< HEAD
               <stringProp name="HTTPSampler.path">service/endpoint1</stringProp>
-=======
-<<<<<<< HEAD
-              <stringProp name="HTTPSampler.path">/service/endpoint1</stringProp>
-=======
-              <stringProp name="HTTPSampler.path">service/endpoint1</stringProp>
->>>>>>> 30e2740... readded rl jmeter test
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
               <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -3675,24 +3492,7 @@
               </ResponseAssertion>
               <hashTree/>
             </hashTree>
-<<<<<<< HEAD
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Should not limit requests against a different regex" enabled="true">
-=======
-<<<<<<< HEAD
-            <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Wait until user has available requests" enabled="false">
-              <collectionProp name="ModuleController.node_path">
-                <stringProp name="-1227702913">WorkBench</stringProp>
-                <stringProp name="764597751">Test Plan</stringProp>
-                <stringProp name="-1679899186">Rate Limiting Test Fragments</stringProp>
-                <stringProp name="1200555135">Wait for request limits to reset</stringProp>
-              </collectionProp>
-            </ModuleController>
-            <hashTree/>
-            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Should allow requests when user has requests remaining" enabled="false">
-=======
-            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Should not limit requests against a different regex" enabled="true">
->>>>>>> 30e2740... readded rl jmeter test
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
               <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
                 <collectionProp name="Arguments.arguments"/>
               </elementProp>
@@ -3702,15 +3502,7 @@
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
               <stringProp name="HTTPSampler.protocol"></stringProp>
               <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-<<<<<<< HEAD
               <stringProp name="HTTPSampler.path">service/endpoint2</stringProp>
-=======
-<<<<<<< HEAD
-              <stringProp name="HTTPSampler.path">/service/test</stringProp>
-=======
-              <stringProp name="HTTPSampler.path">service/endpoint2</stringProp>
->>>>>>> 30e2740... readded rl jmeter test
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
               <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -3721,30 +3513,11 @@
               <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
             </HTTPSamplerProxy>
             <hashTree>
-<<<<<<< HEAD
               <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
-=======
-<<<<<<< HEAD
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Must return 200 when user still has avaiable requests" enabled="true">
-=======
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
->>>>>>> 30e2740... readded rl jmeter test
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
                 <collectionProp name="Asserion.test_strings">
                   <stringProp name="49586">200</stringProp>
                 </collectionProp>
                 <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-                <boolProp name="Assertion.assume_success">false</boolProp>
-                <intProp name="Assertion.test_type">2</intProp>
-              </ResponseAssertion>
-              <hashTree/>
-            </hashTree>
-            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Should not limit request while hitting different regex" enabled="true">
-=======
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
                 <boolProp name="Assertion.assume_success">true</boolProp>
                 <intProp name="Assertion.test_type">2</intProp>
                 <stringProp name="Scope.variable">respCode</stringProp>
@@ -3761,10 +3534,6 @@
             </ModuleController>
             <hashTree/>
             <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Should allow requests when user has requests remaining" enabled="false">
-<<<<<<< HEAD
-=======
->>>>>>> 30e2740... readded rl jmeter test
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
               <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
                 <collectionProp name="Arguments.arguments"/>
               </elementProp>
@@ -3774,15 +3543,7 @@
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
               <stringProp name="HTTPSampler.protocol"></stringProp>
               <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-<<<<<<< HEAD
               <stringProp name="HTTPSampler.path">service/endpoint1</stringProp>
-=======
-<<<<<<< HEAD
-              <stringProp name="HTTPSampler.path">/service/endpoint2</stringProp>
-=======
-              <stringProp name="HTTPSampler.path">service/endpoint1</stringProp>
->>>>>>> 30e2740... readded rl jmeter test
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
               <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -3793,32 +3554,13 @@
               <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
             </HTTPSamplerProxy>
             <hashTree>
-<<<<<<< HEAD
               <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Must return 200 when user still has avaiable requests" enabled="true">
-=======
-<<<<<<< HEAD
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
-=======
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Must return 200 when user still has avaiable requests" enabled="true">
->>>>>>> 30e2740... readded rl jmeter test
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
                 <collectionProp name="Asserion.test_strings">
                   <stringProp name="49586">200</stringProp>
                 </collectionProp>
                 <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
-<<<<<<< HEAD
                 <boolProp name="Assertion.assume_success">false</boolProp>
                 <intProp name="Assertion.test_type">2</intProp>
-=======
-<<<<<<< HEAD
-                <boolProp name="Assertion.assume_success">true</boolProp>
-                <intProp name="Assertion.test_type">2</intProp>
-                <stringProp name="Scope.variable">respCode</stringProp>
-=======
-                <boolProp name="Assertion.assume_success">false</boolProp>
-                <intProp name="Assertion.test_type">2</intProp>
->>>>>>> 30e2740... readded rl jmeter test
->>>>>>> 957376e8f5bc2d9e371efadc15c9ab08abee6295
               </ResponseAssertion>
               <hashTree/>
             </hashTree>
