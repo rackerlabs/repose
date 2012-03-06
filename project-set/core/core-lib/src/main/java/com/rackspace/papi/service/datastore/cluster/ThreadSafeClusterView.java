@@ -1,21 +1,21 @@
 package com.rackspace.papi.service.datastore.cluster;
 
 import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
-import com.rackspace.papi.commons.util.net.NetworkNameResolver;
 import com.rackspace.papi.commons.util.net.StaticNetworkInterfaceProvider;
-import com.rackspace.papi.commons.util.net.StaticNetworkNameResolver;
 import com.rackspace.papi.service.datastore.cluster.member.ClusterMember;
 import java.math.BigInteger;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ThreadSafeClusterView implements MutableClusterView {
 
+   private static final Logger LOG = LoggerFactory.getLogger(ThreadSafeClusterView.class);
    private static final Comparator<ClusterMember> CLUSTER_MEMBER_COMPARATOR = new Comparator<ClusterMember>() {
 
       @Override
@@ -28,7 +28,6 @@ public class ThreadSafeClusterView implements MutableClusterView {
    };
    
    private static final int DEFAULT_REST_DURATION_IN_MILISECONDS = 10000;
-   
    private final NetworkInterfaceProvider networkInterfaceProvider;
    private final List<ClusterMember> clusterMembers;
    private final int listenPort;
@@ -58,15 +57,18 @@ public class ThreadSafeClusterView implements MutableClusterView {
    }
 
    @Override
-   public synchronized void memberDropoped(InetSocketAddress address) {
+   public synchronized void memberDamaged(InetSocketAddress address, String reason) {
       for (ClusterMember member : clusterMembers) {
          if (member.getMemberAddress().equals(address)) {
+            LOG.warn("Cluster member \"" + member.getMemberAddress().toString() 
+                    + "\" has been marked as damaged. We will retry this cluster "
+                    + "member later. Reason: " + reason);
+
             member.setOffline();
             break;
          }
       }
    }
-
    @Override
    public synchronized void updateMembers(InetSocketAddress[] view) {
       clusterMembers.clear();
@@ -83,12 +85,29 @@ public class ThreadSafeClusterView implements MutableClusterView {
       final LinkedList<InetSocketAddress> activeClusterMembers = new LinkedList<InetSocketAddress>();
 
       for (ClusterMember member : clusterMembers) {
-         if (member.isOnline() || member.shouldRetry()) {
+         final boolean memberIsOnline = member.isOnline();
+         
+         if (memberIsOnline || member.shouldRetry()) {
+            if (!memberIsOnline) {
+               LOG.warn("Cluster member \"" + member.getMemberAddress().toString() + "\" was previously marked as damaged but is now eligible for retry.");
+            }
+            
             activeClusterMembers.add(member.getMemberAddress());
          }
       }
 
       return activeClusterMembers.toArray(new InetSocketAddress[activeClusterMembers.size()]);
+   }
+
+   @Override
+   public synchronized boolean hasDamagedMembers() {
+      for (ClusterMember member : clusterMembers) {
+         if (!member.isOnline()) {
+            return true;
+         }
+      }
+      
+      return false;
    }
 
    @Override
@@ -98,7 +117,7 @@ public class ThreadSafeClusterView implements MutableClusterView {
             return true;
          }
       }
-      
+
       return false;
    }
 }

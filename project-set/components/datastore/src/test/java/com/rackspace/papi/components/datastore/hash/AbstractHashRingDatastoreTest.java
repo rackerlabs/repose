@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.datastore.hash;
 
+import com.rackspace.papi.components.datastore.hash.remote.RemoteConnectionException;
 import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
@@ -86,15 +87,10 @@ public class AbstractHashRingDatastoreTest {
    }
 
    @Ignore
-   public static class TestingHashRingDatastore extends AbstractHashRingDatastore {
+   public static class TestingHashRingDatastore extends HashRingDatastore {
 
       public TestingHashRingDatastore(MutableClusterView clusterView, String datastorePrefix, Datastore localDatastore, MessageDigestFactory hashProvider, EncodingProvider encodingProvider) {
          super(clusterView, datastorePrefix, localDatastore, hashProvider, encodingProvider);
-      }
-
-      @Override
-      protected void clusterMemberDamaged(InetSocketAddress member, MutableClusterView clusterView, RemoteConnectionException ex) {
-         throw new UnsupportedOperationException("Not supported yet.");
       }
    }
 }

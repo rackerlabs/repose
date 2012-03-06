@@ -6,6 +6,7 @@ import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
 import com.rackspace.papi.commons.util.http.HeaderConstant;
 import com.rackspace.papi.commons.util.io.BufferCapacityException;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
+import com.rackspace.papi.components.datastore.hash.RemoteBehavior;
 
 import java.net.InetSocketAddress;
 
@@ -35,11 +36,12 @@ public class CacheRequest {
    }
 
    private static String getHostKey(HttpServletRequest request) {
-      final String hostKeyHeader = request.getHeader(DatastoreRequestHeaders.DATASTORE_HOST_KEY);
+      final String hostKeyHeader = request.getHeader(DatastoreHeader.HOST_KEY.toString());
 
       if (StringUtilities.isBlank(hostKeyHeader)) {
          throw new MalformedCacheRequestException("No host key specified in header "
-                 + DatastoreRequestHeaders.DATASTORE_HOST_KEY + " - this is a required header for this operation");
+                 + DatastoreHeader.HOST_KEY.toString()
+                 + " - this is a required header for this operation");
       }
 
       return hostKeyHeader;
@@ -49,14 +51,29 @@ public class CacheRequest {
       return request.getRequestURI().startsWith(CACHE_URI_PATH);
    }
 
-   public static CacheRequest marshallCacheGetRequest(HttpServletRequest request) throws MalformedCacheRequestException {
-      final String cacheKey = getCacheKey(request);
-
-      return new CacheRequest(cacheKey, getHostKey(request), -1, null);
-   }
-
    public static String urlFor(InetSocketAddress remoteEndpoint, String key) {
       return new StringBuilder("http://").append(remoteEndpoint.getAddress().getHostName()).append(":").append(remoteEndpoint.getPort()).append(CACHE_URI_PATH).append(key).toString();
+   }
+
+   public static RemoteBehavior getRequestedRemoteBehavior(HttpServletRequest request) {
+      final String remoteBehaviorHeader = request.getHeader(DatastoreHeader.REMOTE_BEHAVIOR.toString());
+      RemoteBehavior remoteBehavior = RemoteBehavior.ALLOW_FORWARDING;
+      
+      if (StringUtilities.isNotBlank(remoteBehaviorHeader)) {
+         remoteBehavior = RemoteBehavior.valueOf(remoteBehaviorHeader.toUpperCase());
+
+         if (remoteBehavior == null) {
+            throw new MalformedCacheRequestException("X-PP-Datastore-Behavior header is not an expected value");
+         }
+      }
+
+      return remoteBehavior;
+   }
+
+   public static CacheRequest marshallCacheRequest(HttpServletRequest request) throws MalformedCacheRequestException {
+      final String cacheKey = getCacheKey(request);
+
+      return new CacheRequest(cacheKey, getHostKey(request), -1, null, getRequestedRemoteBehavior(request));
    }
 
    public static CacheRequest marshallCachePutRequest(HttpServletRequest request) throws MalformedCacheRequestException {
@@ -71,7 +88,7 @@ public class CacheRequest {
             throw new MalformedCacheRequestException(TTL_HEADER.toString() + " must be a valid, positive integer number");
          }
 
-         return new CacheRequest(cacheKey, hostKey, ttlInSeconds, RawInputStreamReader.instance().readFully(request.getInputStream(), TWO_MEGABYTES_IN_BYTES));
+         return new CacheRequest(cacheKey, hostKey, ttlInSeconds, RawInputStreamReader.instance().readFully(request.getInputStream(), TWO_MEGABYTES_IN_BYTES), getRequestedRemoteBehavior(request));
       } catch (NumberFormatException nfe) {
          throw new MalformedCacheRequestException(TTL_HEADER.toString() + " must be a valid, positive integer number", nfe);
       } catch (BufferCapacityException bce) {
@@ -80,15 +97,21 @@ public class CacheRequest {
          throw new MalformedCacheRequestException("Unable to parse object stream contents", ex);
       }
    }
+   private final RemoteBehavior requestedRemoteBehavior;
    private final String cacheKey, hostKey;
    private final int ttlInSeconds;
    private final byte[] payload;
 
    public CacheRequest(String cacheKey, String hostKey, int ttlInSeconds, byte[] payload) {
+      this(cacheKey, hostKey, ttlInSeconds, payload, RemoteBehavior.ALLOW_FORWARDING);
+   }
+
+   public CacheRequest(String cacheKey, String hostKey, int ttlInSeconds, byte[] payload, RemoteBehavior requestedRemoteBehavior) {
       this.cacheKey = cacheKey;
       this.hostKey = hostKey;
       this.ttlInSeconds = ttlInSeconds;
       this.payload = ArrayUtilities.nullSafeCopy(payload);
+      this.requestedRemoteBehavior = requestedRemoteBehavior;
    }
 
    public int getTtlInSeconds() {
@@ -113,5 +136,9 @@ public class CacheRequest {
 
    public boolean hasPayload() {
       return payload != null;
+   }
+
+   public RemoteBehavior getRequestedRemoteBehavior() {
+      return requestedRemoteBehavior;
    }
 }
