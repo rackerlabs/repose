@@ -2,7 +2,7 @@
 
 <response-messaging xmlns="http://docs.rackspacecloud.com/power-api/response-messaging/v1.0">
 
-    <status-code id="413" code-regex="413" overwrite-origin="true">
+    <status-code id="413" code-regex="413">
         <message media-type="application/json">
 {
     "overLimit" : {
@@ -14,12 +14,14 @@
         </message>
 
         <message media-type="application/xml">
+<![CDATA[
 <overLimit
     xmlns="http://docs.openstack.org/compute/api/v1.1"
     code="413">
   <message>OverLimit Retry...</message>
   <details>Error Details...</details>
 </overLimit>
+]]>
         </message>
     </status-code>
     
