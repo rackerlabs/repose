@@ -8,6 +8,20 @@
 
     <xs:element name="response-messaging" type="rms:ResponseMessagingConfiguration" />
 
+    <!-- Enumerations -->
+    <xs:simpleType name="overwrite-type">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The types that control overwriting of the response body</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="ALWAYS" />
+            <xs:enumeration value="IF_EMPTY" />
+        </xs:restriction>
+    </xs:simpleType>
+
     <xs:complexType name="ResponseMessagingConfiguration">
         <xs:annotation>
             <xs:documentation>
@@ -47,13 +61,14 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="overwrite-origin" type="xs:boolean" use="optional" default="false">
+        <xs:attribute name="overwrite" type="rms:overwrite-type" use="optional" default="IF_EMPTY">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        Tells Repose whether or not to overwrite the response body from the origin
-                        service with the configured message.  The response body is only overwritten
-                        if the response body returned from the origin service is empty.
+                        Tells Repose what logic to use when determining whether or not to overwrite the response body
+                        from the origin service with the configured message.  If the overwrite value is set to
+                        "IF_EMPTY" and the body is not empty Repose will not modify the response body.  In all other
+                        cases, Repose will overwrite the response body with the RMS message.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>

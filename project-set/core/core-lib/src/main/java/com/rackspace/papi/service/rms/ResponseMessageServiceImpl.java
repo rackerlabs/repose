@@ -16,6 +16,7 @@ import com.rackspace.papi.commons.util.thread.KeyedStackLock;
 import com.rackspace.papi.service.config.ConfigurationService;
 
 import com.rackspace.papi.service.rms.config.Message;
+import com.rackspace.papi.service.rms.config.OverwriteType;
 import com.rackspace.papi.service.rms.config.ResponseMessagingConfiguration;
 import com.rackspace.papi.service.rms.config.StatusCodeMatcher;
 import org.slf4j.Logger;
@@ -114,14 +115,16 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
                final String formattedOutput = formatter.format(message, request, response).trim();
 
                final boolean emptyBody = !responseHasBody(response);
-               if (!(emptyBody ^ matchedCode.isOverwriteOrigin())) {
+
+               if (!(StringUtilities.nullSafeEqualsIgnoreCase(matchedCode.getOverwrite().value(), OverwriteType.IF_EMPTY.value()) &&
+                   !emptyBody)) {
                   // overwrite body
                   response.resetBuffer();
                   response.setContentLength(formattedOutput.length());
                   response.setHeader(CommonHttpHeader.CONTENT_TYPE.toString(), preferedMediaRange.getMimeType().toString());
 
                   // TODO:Enhancement - Update formatter logic for streaming
-                  // TODO:Enhancement - Update getBytes(...) to use requested content encoding                  
+                  // TODO:Enhancement - Update getBytes(...) to use requested content encoding
                   response.getOutputStream().write(formattedOutput.getBytes());
                }
             } else{
