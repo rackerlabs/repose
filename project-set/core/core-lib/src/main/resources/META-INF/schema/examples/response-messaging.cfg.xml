@@ -1,17 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <response-messaging xmlns="http://docs.rackspacecloud.com/power-api/response-messaging/v1.0">
-    <status-code id="401" code-regex="401">
-        <message prepend-origin="false" media-type="application/xml" href="file:///some/file/location.xml" />
-        
-        <message prepend-origin="false" media-type="application/text">
-            You are not authorized.
+
+    <status-code id="413" code-regex="413" overwrite-origin="true">
+        <message media-type="application/json">
+{
+    "overLimit" : {
+        "code" : 413,
+        "message" : "OverLimit Retry...",
+        "details" : "Error Details..."
+    }
+}
+        </message>
+
+        <message media-type="application/xml">
+<overLimit
+    xmlns="http://docs.openstack.org/compute/api/v1.1"
+    code="413">
+  <message>OverLimit Retry...</message>
+  <details>Error Details...</details>
+</overLimit>
         </message>
     </status-code>
     
-    <status-code id="5xx" code-regex="5\d\d">
-        <message prepend-origin="false" media-type="*/*">
-            An error has occurred. Please contact support... the printer may be on fire.
-        </message>
-    </status-code>
 </response-messaging>
