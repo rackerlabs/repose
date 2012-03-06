@@ -4,17 +4,16 @@ import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.datastore.common.CacheRequest;
 import com.rackspace.papi.components.datastore.common.MalformedCacheRequestException;
+import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.StoredElement;
-import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
-import com.rackspace.papi.service.datastore.hash.HashedDatastore;
+import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.TimeUnit;
 import javax.servlet.http.HttpServletRequest;
@@ -28,12 +27,12 @@ import org.slf4j.LoggerFactory;
 public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
 
    private static final Logger LOG = LoggerFactory.getLogger(DatastoreFilterLogicHandler.class);
-   private final MutableClusterView clusterView;
+   private final EncodingProvider encodingProvider;
    private final DatastoreAccessControl hostAcl;
-   private HashedDatastore hashRingDatastore;
+   private HashRingDatastore hashRingDatastore;
 
-   public DatastoreFilterLogicHandler(MutableClusterView clusterView, String lastLocalAddr, HashedDatastore hashRingDatastore, DatastoreAccessControl hostAcl) {
-      this.clusterView = clusterView;
+   public DatastoreFilterLogicHandler(EncodingProvider encodingProvider, HashRingDatastore hashRingDatastore, DatastoreAccessControl hostAcl) {
+      this.encodingProvider = encodingProvider;
       this.hostAcl = hostAcl;
       this.hashRingDatastore = hashRingDatastore;
    }
@@ -87,7 +86,7 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
          final String requestMethod = request.getMethod();
 
          if ("GET".equalsIgnoreCase(requestMethod)) {
-            onCacheGet(CacheRequest.marshallCacheGetRequest(request), director);
+            onCacheGet(CacheRequest.marshallCacheRequest(request), director);
          } else if ("PUT".equalsIgnoreCase(requestMethod)) {
             onCachePut(request, director);
          } else if ("DELETE".equalsIgnoreCase(requestMethod)) {
@@ -110,8 +109,8 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
    }
 
    public void onCacheDelete(HttpServletRequest request, final FilterDirector director) throws DatastoreOperationException, MalformedCacheRequestException {
-      final CacheRequest cacheDelete = CacheRequest.marshallCacheGetRequest(request);
-      hashRingDatastore.removeByHash(cacheDelete.getCacheKey());
+      final CacheRequest cacheDelete = CacheRequest.marshallCacheRequest(request);
+      hashRingDatastore.remove(cacheDelete.getCacheKey(), encodingProvider.decode(cacheDelete.getCacheKey()), cacheDelete.getRequestedRemoteBehavior());
 
       director.setResponseStatus(HttpStatusCode.ACCEPTED);
       director.setFilterAction(FilterAction.RETURN);
@@ -119,14 +118,14 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
 
    public void onCachePut(HttpServletRequest request, final FilterDirector director) throws MalformedCacheRequestException, DatastoreOperationException {
       final CacheRequest cachePut = CacheRequest.marshallCachePutRequest(request);
-      hashRingDatastore.putByHash(cachePut.getCacheKey(), cachePut.getPayload(), cachePut.getTtlInSeconds(), TimeUnit.SECONDS);
+      hashRingDatastore.put(cachePut.getCacheKey(), encodingProvider.decode(cachePut.getCacheKey()), cachePut.getPayload(), cachePut.getTtlInSeconds(), TimeUnit.SECONDS, cachePut.getRequestedRemoteBehavior());
 
       director.setResponseStatus(HttpStatusCode.ACCEPTED);
       director.setFilterAction(FilterAction.RETURN);
    }
 
    public void onCacheGet(CacheRequest cacheGet, FilterDirector director) {
-      final StoredElement element = hashRingDatastore.getByHash(cacheGet.getCacheKey());
+      final StoredElement element = hashRingDatastore.get(cacheGet.getCacheKey(), encodingProvider.decode(cacheGet.getCacheKey()), cacheGet.getRequestedRemoteBehavior());
 
       if (!element.elementIsNull()) {
          try {

@@ -6,7 +6,7 @@
     It doesn't make sense to convert a choices document.
 -->
 <xsl:transform xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
-               xmlns:ver="http://docs.openstack.org/api/versioning/v1.0"
+               xmlns:ver="http://docs.openstack.org/common/api/v1.0"
                xmlns:atom="http://www.w3.org/2005/Atom"
                xmlns="http://www.w3.org/2005/Atom"
                exclude-result-prefixes="ver atom"
@@ -16,6 +16,7 @@
     <xsl:param name="authorURI" select="'http://www.rackspace.com/'"/>
 
     <xsl:output method="xml" version="1.0"
+                indent="yes"
                 encoding="UTF-8"
                 media-type="application/atom+xml"
                 omit-xml-declaration="no"/>
@@ -103,7 +104,7 @@
                     <xsl:value-of select="$version/atom:link[@rel='self']/@href"/>
                 </xsl:when>
                 <xsl:otherwise>
-                    <xsl:message>Warning:  Expected link with rel=alternate or rel=self!</xsl:message>
+                    <xsl:message>version-atom.xsl:  Expected link with rel=alternate or rel=self!</xsl:message>
                 </xsl:otherwise>
             </xsl:choose>
         </xsl:variable>

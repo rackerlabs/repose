@@ -1,12 +1,13 @@
 package com.rackspace.papi.components.datastore;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.model.Filter;
 import com.rackspace.papi.model.Host;
 import com.rackspace.papi.model.PowerProxy;
-import com.rackspace.papi.service.datastore.hash.HashedDatastore;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
+import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,18 +21,23 @@ import org.openrepose.components.datastore.config.HostAccessControl;
 public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilterHandlerFactory<DatastoreFilterLogicHandler> {
 
    private static final Logger LOG = LoggerFactory.getLogger(DatastoreFilterLogicHandlerFactory.class);
+   private static final DatastoreAccessControl DEFAULT_DATASTORE_ACL = new DatastoreAccessControl(Collections.EMPTY_LIST, true);
+   
    private final MutableClusterView clusterView;
-   private final HashedDatastore hashRingDatastore;
+   private final HashRingDatastore hashRingDatastore;
    private DatastoreAccessControl hostACL;
-   private String lastLocalAddr;
 
-   public DatastoreFilterLogicHandlerFactory(MutableClusterView clusterView, HashedDatastore hashRingDatastore) {
+   public DatastoreFilterLogicHandlerFactory(MutableClusterView clusterView, HashRingDatastore hashRingDatastore) {
       this.clusterView = clusterView;
       this.hashRingDatastore = hashRingDatastore;
       
-      hostACL = new DatastoreAccessControl(Collections.EMPTY_LIST, true);
+      hostACL = DEFAULT_DATASTORE_ACL;
       
-      LOG.warn("The distributed datastore component starts in allow-all mode, meaning that any host can access, store and delete cached objects. Please configure this component if you wish to restrict access.");
+      LOG.info("By default, the distributed datastore component is configured to "
+              + "start in allow-all mode meaning that any host can access, store "
+              + "and delete cached objects. Please configure this component if "
+              + "you wish to restrict access. This message may be ignored if you "
+              + "have already configured this component.");
    }
 
    @Override
@@ -82,11 +88,12 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
                }
             }
 
-            boolean allowAll = configurationObject.getAllowedHosts().isAllowAll();
+            final boolean allowAll = configurationObject.getAllowedHosts().isAllowAll();
+            
             if (allowAll) {
-               LOG.info("The distributed datastore component is configured to start in allow-all mode meaning that any host can access, store and delete cached objects.");
+               LOG.info("The distributed datastore component is configured in allow-all mode meaning that any host can access, store and delete cached objects.");
             } else {
-               LOG.info("The distributed datastore component is configured to start in non allow-all mode meaning that only the configured hosts can access, store and delete cached objects.");
+               LOG.info("The distributed datastore component has access controls configured meaning that only the configured hosts can access, store and delete cached objects.");
             }
 
             hostACL = new DatastoreAccessControl(newHostList, allowAll);
@@ -109,6 +116,6 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
 
    @Override
    protected DatastoreFilterLogicHandler buildHandler() {
-      return new DatastoreFilterLogicHandler(clusterView, lastLocalAddr, hashRingDatastore, hostACL);
+      return new DatastoreFilterLogicHandler(UUIDEncodingProvider.getInstance(), hashRingDatastore, hostACL);
    }
 }
