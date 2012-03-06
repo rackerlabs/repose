@@ -22,6 +22,10 @@ public final class TemplatesFactory {
     private static final TemplatesFactory TEMPLATES_FACTORY_INSTANCE = new TemplatesFactory();
     private static final TransformerFactory XSLT_TRANSFORMER_FACTORY = TransformerFactory.newInstance();
 
+    static {
+       XSLT_TRANSFORMER_FACTORY.setErrorListener (new LogErrorListener());
+    }
+
     private TemplatesFactory() {}
 
     public Templates parseXslt(InputStream is) throws TransformerConfigurationException {
@@ -34,6 +38,6 @@ public final class TemplatesFactory {
 
     //TODO: Verify that the factory is thread safe
     public synchronized Templates parseXslt(Source s) throws TransformerConfigurationException {
-        return XSLT_TRANSFORMER_FACTORY.newTemplates(s);
+       return new LogTemplatesWrapper(XSLT_TRANSFORMER_FACTORY.newTemplates(s));
     }
 }
