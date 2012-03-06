@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.datastore;
 
+import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
 import com.rackspace.papi.components.datastore.hash.HashRingDatastoreManager;
 import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
@@ -10,7 +11,6 @@ import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
 import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
-import com.rackspace.papi.service.datastore.hash.HashedDatastore;
 import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
 
 import javax.servlet.Filter;
@@ -48,7 +48,7 @@ public class DistributedDatastoreFilter implements Filter {
       datastoreService = contextAdapter.datastoreService();
       
       final MutableClusterView clusterView = new ThreadSafeClusterView(ServletContextHelper.getServerPort(filterConfig.getServletContext()));
-      final HashedDatastore hashRingDatastore;
+      final HashRingDatastore hashRingDatastore;
       
       DatastoreManager localDatastoreManager = datastoreService.defaultDatastore();
       
@@ -63,7 +63,7 @@ public class DistributedDatastoreFilter implements Filter {
       }
       
       final HashRingDatastoreManager hashRingDatastoreManager = new HashRingDatastoreManager("", UUIDEncodingProvider.getInstance(), MD5MessageDigestFactory.getInstance(), clusterView, localDatastoreManager.getDatastore());
-      hashRingDatastore = (HashedDatastore) hashRingDatastoreManager.getDatastore();
+      hashRingDatastore = (HashRingDatastore) hashRingDatastoreManager.getDatastore();
       
       datastoreService.registerDatastoreManager(datastoreId, hashRingDatastoreManager);
       
