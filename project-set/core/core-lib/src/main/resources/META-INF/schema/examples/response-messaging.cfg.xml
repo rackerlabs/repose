@@ -3,7 +3,7 @@
 <response-messaging xmlns="http://docs.rackspacecloud.com/power-api/response-messaging/v1.0">
 
     <status-code id="413" code-regex="413">
-        <message media-type="application/json">
+        <message media-type="*/*">
 {
     "overLimit" : {
         "code" : 413,
