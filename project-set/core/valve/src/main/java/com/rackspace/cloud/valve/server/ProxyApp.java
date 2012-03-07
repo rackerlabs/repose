@@ -1,6 +1,6 @@
 package com.rackspace.cloud.valve.server;
 
-import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.PropertyConfigurator;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.slf4j.Logger;
@@ -17,7 +17,9 @@ public class ProxyApp {
 
    public static void main(String[] args) throws Exception {
       // Use default logging confg which sets to DEBUG
-      BasicConfigurator.configure();
+      //BasicConfigurator.configure();
+       PropertyConfigurator.configure("log4j.properties");
+      
 
       // Turn off Jetty logging
       org.apache.log4j.Logger.getLogger("org.eclipse.jetty").setLevel(org.apache.log4j.Level.OFF);
