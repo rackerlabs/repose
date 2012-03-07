@@ -17,7 +17,6 @@ public class HttpLogFormatter {
 
    private static final Pattern TABS = Pattern.compile("\\\\t+");
    private static final Pattern NEWLINES = Pattern.compile("\\\\n+");
-   private static final Pattern STATUS_CODE_RX = Pattern.compile(",");
    private final String formatTemplate;
    private final List<FormatArgumentHandler> handlerList;
 
@@ -68,16 +67,9 @@ public class HttpLogFormatter {
 
    private LogArgumentFormatter handleApacheArgument(LogArgumentGroupExtractor extractor) {
       final LogArgumentFormatter argFormatter = new LogArgumentFormatter();
-      String statusCodeModifiers = extractor.getStatusCodes();
-      if (!isBlank(statusCodeModifiers)) {
-         final String prunedModifiers = !statusCodeModifiers.startsWith("!") ? statusCodeModifiers : statusCodeModifiers.substring(1);
-         final StatusCodeConstraint constraint = new StatusCodeConstraint(prunedModifiers.equals(statusCodeModifiers));
 
-         for (String st : STATUS_CODE_RX.split(prunedModifiers)) {
-            constraint.addStatusCode(Integer.parseInt(st));
-         }
-
-         argFormatter.setStatusCodeConstraint(constraint);
+      if (!isBlank(extractor.getStatusCodes())) {
+         argFormatter.setStatusCodeConstraint(new StatusCodeConstraint(extractor.getStatusCodes()));
       }
 
       setLogic(extractor, argFormatter);
