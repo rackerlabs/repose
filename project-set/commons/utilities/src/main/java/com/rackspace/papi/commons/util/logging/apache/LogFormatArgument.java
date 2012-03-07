@@ -20,7 +20,9 @@ public enum LogFormatArgument {
     TIME_RECIEVED("t"),
     STATUS_CODE("s"),
     REMOTE_USER("u"),
-    URL_REQUESTED("U");
+    URL_REQUESTED("U"),
+    REQUEST_HEADER("i"),
+    RESPONSE_HEADER("o");
 
     public static LogFormatArgument fromString(String st) {
         return ReverseLookup.LOOKUP_MAP.get(st);

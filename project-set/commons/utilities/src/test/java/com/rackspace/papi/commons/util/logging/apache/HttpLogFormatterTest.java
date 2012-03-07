@@ -18,191 +18,218 @@ import static org.mockito.Mockito.when;
 @RunWith(Enclosed.class)
 public class HttpLogFormatterTest {
 
-    public static HttpLogFormatter newFormatter(String format) {
-        return new HttpLogFormatter(format);
-    }
+   public static HttpLogFormatter newFormatter(String format) {
+      return new HttpLogFormatter(format);
+   }
 
-    public static class WhenParsingSimpleArguments {
-        public HttpServletResponse response;
-        public HttpServletRequest request;
+   public static class WhenParsingSimpleArguments {
 
-        @Before
-        public void setup() {
-            request = mock(HttpServletRequest.class);
-            when(request.getRequestURL()).thenReturn(new StringBuffer("http://some.place.net/u/r/l"));
-            response = mock(HttpServletResponse.class);
-        }
+      public HttpServletResponse response;
+      public HttpServletRequest request;
 
-        @Test
-        public void shouldCorrectlyDetectEscapeSequences() {
-            final HttpLogFormatter formatter = newFormatter("%h %% %u %U");
+      @Before
+      public void setup() {
+         request = mock(HttpServletRequest.class);
+         when(request.getRequestURL()).thenReturn(new StringBuffer("http://some.place.net/u/r/l"));
+         response = mock(HttpServletResponse.class);
+      }
 
-            assertTrue("Should have parsed seven handlers. Only found: " + formatter.getHandlerList().size(), formatter.getHandlerList().size() == 7);
-        }
+      @Test
+      public void shouldCorrectlyDetectEscapeSequences() {
+         final HttpLogFormatter formatter = newFormatter("%h %% %u %U");
 
-        @Test
-        public void shouldCorrectlyParseEmptySpace() {
-            final HttpLogFormatter formatter = newFormatter("%h%%%u%U");
+         assertTrue("Should have parsed seven handlers. Only found: " + formatter.getHandlerList().size(), formatter.getHandlerList().size() == 7);
+      }
 
-            assertTrue("Should have parsed four handlers. Only found: " + formatter.getHandlerList().size(), formatter.getHandlerList().size() == 4);
-        }
+      @Test
+      public void shouldCorrectlyParseEmptySpace() {
+         final HttpLogFormatter formatter = newFormatter("%h%%%u%U");
 
-        @Test
-        public void shouldPreserveStringFormatting() {
-            final HttpLogFormatter formatter = newFormatter("%%log output%% %U");
-            final String expected = "%log output% http://some.place.net/u/r/l";
+         assertTrue("Should have parsed four handlers. Only found: " + formatter.getHandlerList().size(), formatter.getHandlerList().size() == 4);
+      }
 
-            assertEquals(expected, formatter.format(request, response));
-        }
-    }
+      @Test
+      public void shouldPreserveStringFormatting() {
+         final HttpLogFormatter formatter = newFormatter("%%log output%% %U");
+         final String expected = "%log output% http://some.place.net/u/r/l";
 
-    public static class WhenParsingComplexArguments {
-        public HttpServletResponse response;
-        public HttpServletRequest request;
+         assertEquals(expected, formatter.format(request, response));
+      }
+   }
 
-        @Before
-        public void setup() {
-            request = mock(HttpServletRequest.class);
-            when(request.getRequestURL()).thenReturn(new StringBuffer("http://some.place.net/u/r/l"));
-            response = mock(HttpServletResponse.class);
-        }
+   public static class WhenParsingComplexArguments {
 
-        @Test
-        public void shouldParseInclusiveStatusCodeRestrictions() {
-            final HttpLogFormatter formatter = newFormatter("%200,201U");
-            final String expected = "http://some.place.net/u/r/l";
+      public HttpServletResponse response;
+      public HttpServletRequest request;
 
-            when(response.getStatus()).thenReturn(200);
-            assertEquals(expected, formatter.format(request, response));
-            when(response.getStatus()).thenReturn(401);
-            assertEquals("-", formatter.format(request, response));
-        }
+      @Before
+      public void setup() {
+         request = mock(HttpServletRequest.class);
+         when(request.getRequestURL()).thenReturn(new StringBuffer("http://some.place.net/u/r/l"));
+         response = mock(HttpServletResponse.class);
+      }
 
-        @Test
-        public void shouldParseExclusiveStatusCodeRestrictions() {
-            final HttpLogFormatter formatter = newFormatter("%!401,403U");
-            final String expected = "http://some.place.net/u/r/l";
+      @Test
+      public void shouldParseInclusiveStatusCodeRestrictions() {
+         final HttpLogFormatter formatter = newFormatter("%200,201U");
+         final String expected = "http://some.place.net/u/r/l";
 
-            assertEquals(expected, formatter.format(request, response));
-            when(response.getStatus()).thenReturn(401);
-            assertEquals("-", formatter.format(request, response));
-        }
-    }
+         when(response.getStatus()).thenReturn(200);
+         assertEquals(expected, formatter.format(request, response));
+         when(response.getStatus()).thenReturn(401);
+         assertEquals("-", formatter.format(request, response));
+      }
 
-    public static class WhenSettingLogic {
-        private String lastEntity;
-        private LogArgumentFormatter formatter;
-        private FormatterLogic logic;
+      @Test
+      public void shouldParseExclusiveStatusCodeRestrictions() {
+         final HttpLogFormatter formatter = newFormatter("%!401,403U");
+         final String expected = "http://some.place.net/u/r/l";
 
-        @Before
-        public void setup() {
-            lastEntity = null;
+         assertEquals(expected, formatter.format(request, response));
+         when(response.getStatus()).thenReturn(401);
+         assertEquals("-", formatter.format(request, response));
+      }
+   }
 
-            formatter = new LogArgumentFormatter();
-        }
+   public static class WhenSettingLogic {
 
-        @Test
-        public void shouldNotHaveSetLogicByDefault() {
-            assertNull(formatter.getLogic());
-        }
+      private LogArgumentFormatter formatter;
+      private FormatterLogic logic;
 
-        @Test
-        public void CanonicalPortHandler() {
-            lastEntity = LogFormatArgument.CANONICAL_PORT.toString();
+      @Before
+      public void setup() {
+         formatter = new LogArgumentFormatter();
+      }
 
-            HttpLogFormatter.setLogic(lastEntity, formatter);
+      @Test
+      public void shouldNotHaveSetLogicByDefault() {
+         assertNull(formatter.getLogic());
+      }
 
-            assertTrue(formatter.getLogic() instanceof CanonicalPortHandler);
-        }
+      @Test
+      public void CanonicalPortHandler() {
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.CANONICAL_PORT.toString());
 
-        @Test
-        public void LocalAddressHandler() {
-            lastEntity = LogFormatArgument.LOCAL_ADDRESS.toString();
+         HttpLogFormatter.setLogic(extractor, formatter);
 
-            HttpLogFormatter.setLogic(lastEntity, formatter);
+         assertTrue(formatter.getLogic() instanceof CanonicalPortHandler);
+      }
 
-            assertTrue(formatter.getLogic() instanceof LocalAddressHandler);
-        }
+      @Test
+      public void LocalAddressHandler() {
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.LOCAL_ADDRESS.toString());
 
-        @Test
-        public void StatusCodeHandler() {
-            lastEntity = LogFormatArgument.STATUS_CODE.toString();
+         HttpLogFormatter.setLogic(extractor, formatter);
 
-            HttpLogFormatter.setLogic(lastEntity, formatter);
+         assertTrue(formatter.getLogic() instanceof LocalAddressHandler);
+      }
 
-            assertTrue(formatter.getLogic() instanceof StatusCodeHandler);
-        }
+      @Test
+      public void StatusCodeHandler() {
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.STATUS_CODE.toString());
 
-        @Test
-        public void QueryStringHandler() {
-            lastEntity = LogFormatArgument.QUERY_STRING.toString();
+         HttpLogFormatter.setLogic(extractor, formatter);
 
-            HttpLogFormatter.setLogic(lastEntity, formatter);
+         assertTrue(formatter.getLogic() instanceof StatusCodeHandler);
+      }
 
-            assertTrue(formatter.getLogic() instanceof QueryStringHandler);
-        }
+      @Test
+      public void PercentHandler() {
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.PERCENT.toString());
 
-        @Test
-        public void RemoteAddressHandler() {
-            lastEntity = LogFormatArgument.REMOTE_ADDRESS.toString();
+         HttpLogFormatter.setLogic(extractor, formatter);
 
-            HttpLogFormatter.setLogic(lastEntity, formatter);
+         assertTrue(formatter.getLogic() instanceof StringHandler);
+      }
 
-            assertTrue(formatter.getLogic() instanceof RemoteAddressHandler);
-        }
+      @Test
+      public void RequestHeaderHandler() {
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.REQUEST_HEADER.toString());
 
-        @Test
-        public void RemoteHostHandler() {
-            lastEntity = LogFormatArgument.REMOTE_HOST.toString();
+         HttpLogFormatter.setLogic(extractor, formatter);
 
-            HttpLogFormatter.setLogic(lastEntity, formatter);
+         assertTrue(formatter.getLogic() instanceof RequestHeaderHandler);
+      }
 
-            assertTrue(formatter.getLogic() instanceof RemoteHostHandler);
-        }
+      @Test
+      public void ResponseHeaderHandler() {
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.RESPONSE_HEADER.toString());
 
-        @Test
-        public void RemoteUserHandler() {
-            lastEntity = LogFormatArgument.REMOTE_USER.toString();
+         HttpLogFormatter.setLogic(extractor, formatter);
 
-            HttpLogFormatter.setLogic(lastEntity, formatter);
+         assertTrue(formatter.getLogic() instanceof ResponseHeaderHandler);
+      }
 
-            assertTrue(formatter.getLogic() instanceof RemoteUserHandler);
-        }
+      @Test
+      public void QueryStringHandler() {
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.QUERY_STRING.toString());
 
-        @Test
-        public void RequestMethodHandler() {
-            lastEntity = LogFormatArgument.REQUEST_METHOD.toString();
+         HttpLogFormatter.setLogic(extractor, formatter);
 
-            HttpLogFormatter.setLogic(lastEntity, formatter);
+         assertTrue(formatter.getLogic() instanceof QueryStringHandler);
+      }
 
-            assertTrue(formatter.getLogic() instanceof RequestMethodHandler);
-        }
+      @Test
+      public void RemoteAddressHandler() {
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.REMOTE_ADDRESS.toString());
 
-        @Test
-        public void ResponseBytesHandler() {
-            lastEntity = LogFormatArgument.RESPONSE_BYTES.toString();
+         HttpLogFormatter.setLogic(extractor, formatter);
 
-            HttpLogFormatter.setLogic(lastEntity, formatter);
+         assertTrue(formatter.getLogic() instanceof RemoteAddressHandler);
+      }
 
-            assertTrue(formatter.getLogic() instanceof ResponseBytesHandler);
-        }
+      @Test
+      public void RemoteHostHandler() {
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.REMOTE_HOST.toString());
 
-        @Test
-        public void TimeReceivedHandler() {
-            lastEntity = LogFormatArgument.TIME_RECIEVED.toString();
+         HttpLogFormatter.setLogic(extractor, formatter);
 
-            HttpLogFormatter.setLogic(lastEntity, formatter);
+         assertTrue(formatter.getLogic() instanceof RemoteHostHandler);
+      }
 
-            assertTrue(formatter.getLogic() instanceof TimeReceivedHandler);
-        }
+      @Test
+      public void RemoteUserHandler() {
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.REMOTE_USER.toString());
 
-        @Test
-        public void UrlRequestedHandler() {
-            lastEntity = LogFormatArgument.URL_REQUESTED.toString();
+         HttpLogFormatter.setLogic(extractor, formatter);
 
-            HttpLogFormatter.setLogic(lastEntity, formatter);
+         assertTrue(formatter.getLogic() instanceof RemoteUserHandler);
+      }
 
-            assertTrue(formatter.getLogic() instanceof UrlRequestedHandler);
-        }
-     }
+      @Test
+      public void RequestMethodHandler() {
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.REQUEST_METHOD.toString());
+
+         HttpLogFormatter.setLogic(extractor, formatter);
+
+         assertTrue(formatter.getLogic() instanceof RequestMethodHandler);
+      }
+
+      @Test
+      public void ResponseBytesHandler() {
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.RESPONSE_BYTES.toString());
+
+         HttpLogFormatter.setLogic(extractor, formatter);
+
+         assertTrue(formatter.getLogic() instanceof ResponseBytesHandler);
+      }
+
+      @Test
+      public void TimeReceivedHandler() {
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.TIME_RECIEVED.toString());
+
+         HttpLogFormatter.setLogic(extractor, formatter);
+
+         assertTrue(formatter.getLogic() instanceof TimeReceivedHandler);
+      }
+
+      @Test
+      public void UrlRequestedHandler() {
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.URL_REQUESTED.toString());
+
+         HttpLogFormatter.setLogic(extractor, formatter);
+
+         assertTrue(formatter.getLogic() instanceof UrlRequestedHandler);
+      }
+   }
 }
