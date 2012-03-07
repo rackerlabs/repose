@@ -75,7 +75,7 @@
               </elementProp>
               <elementProp name="" elementType="Header">
                 <stringProp name="Header.name">x-pp-groups</stringProp>
-                <stringProp name="Header.value">rms_groups;q=5</stringProp>
+                <stringProp name="Header.value">unlimited;q=5</stringProp>
               </elementProp>
             </collectionProp>
           </HeaderManager>
