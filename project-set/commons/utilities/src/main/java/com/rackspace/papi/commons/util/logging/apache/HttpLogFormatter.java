@@ -40,22 +40,16 @@ public class HttpLogFormatter {
       int previousTokenEnd = 0;
 
       while (m.find()) {
-         handleStringContent(previousTokenEnd, m, handlerList);
-
+         handleStringContent(previousTokenEnd, m.start(), handlerList);
          handlerList.add(handleApacheArgument(new LogArgumentGroupExtractor(m)));
          previousTokenEnd = m.end();
       }
 
-      if (previousTokenEnd != formatTemplate.length()) {
-         final LogArgumentFormatter plainStringFormatter = new LogArgumentFormatter();
-         plainStringFormatter.setLogic(new StringHandler(formatTemplate.substring(previousTokenEnd)));
-
-         handlerList.add(plainStringFormatter);
-      }
+      handleStringContent(previousTokenEnd, formatTemplate.length(), handlerList);
    }
 
-   private void handleStringContent(int previousTokenEnd, Matcher m, List<FormatArgumentHandler> argHandlerList) {
-      final String betweenElements = formatTemplate.substring(previousTokenEnd, m.start());
+   private void handleStringContent(int previousTokenEnd, int currentTokenStart, List<FormatArgumentHandler> argHandlerList) {
+      final String betweenElements = formatTemplate.substring(previousTokenEnd, currentTokenStart);
 
       if (!isEmpty(betweenElements)) {
          final LogArgumentFormatter plainStringFormatter = new LogArgumentFormatter();
