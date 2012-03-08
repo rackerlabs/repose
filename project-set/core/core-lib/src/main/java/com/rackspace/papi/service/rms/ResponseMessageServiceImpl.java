@@ -3,7 +3,8 @@ package com.rackspace.papi.service.rms;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
-import com.rackspace.papi.commons.util.http.header.QualityFactorUtility;
+import com.rackspace.papi.commons.util.http.header.HeaderChooser;
+import com.rackspace.papi.commons.util.http.header.QualityFactorHeaderChooser;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
 import com.rackspace.papi.commons.util.http.media.MimeType;
@@ -39,6 +40,7 @@ import java.util.regex.Pattern;
 public class ResponseMessageServiceImpl implements ResponseMessageService {
 
    private static final Logger LOG = LoggerFactory.getLogger(ResponseMessageServiceImpl.class);
+   private static final HeaderChooser<MediaType> ACCEPT_TYPE_CHOOSER = new QualityFactorHeaderChooser<MediaType>(new MediaType(MimeType.WILDCARD, -1));
    private static final Pattern URI_PATTERN = Pattern.compile(":\\/\\/");
    private final UpdateListener<ResponseMessagingConfiguration> updateMessageConfig;
    private final List<StatusCodeMatcher> statusCodeMatcherList;
@@ -94,7 +96,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
    @Override
    public void handle(String message, HttpServletRequest request, HttpServletResponse response) throws IOException {
       // In the case where we pass/route the request, there is a chance that
-      // the repsonse will be committed by and underlying service, outside of papi
+      // the response will be committed by and underlying service, outside of repose
       if (response.isCommitted()) {
          return;
       }
@@ -102,10 +104,9 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
       final StatusCodeMatcher matchedCode = getMatchingStatusCode(String.valueOf(response.getStatus()));
 
       if (matchedCode != null) {
-         final List<MediaType> mediaRanges = new MediaRangeParser(request.getHeaders(CommonHttpHeader.ACCEPT.toString())).parse();
-         final MediaType preferedMediaRange = QualityFactorUtility.choosePreferredHeaderValue(mediaRanges);
+         final MediaType preferredMediaType = ACCEPT_TYPE_CHOOSER.choosePreferredHeaderValue(new MediaRangeParser(request.getHeaders("Accept")).parse());
 
-         final Message statusCodeMessage = getMatchingStatusCodeMessage(matchedCode, preferedMediaRange);
+         final Message statusCodeMessage = getMatchingStatusCodeMessage(matchedCode, preferredMediaType);
 
          if (statusCodeMessage != null) {
 
@@ -121,7 +122,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
                   // overwrite body
                   response.resetBuffer();
                   response.setContentLength(formattedOutput.length());
-                  response.setHeader(CommonHttpHeader.CONTENT_TYPE.toString(), preferedMediaRange.getMimeType().toString());
+                  response.setHeader(CommonHttpHeader.CONTENT_TYPE.toString(), preferredMediaType.getMimeType().toString());
 
                   // TODO:Enhancement - Update formatter logic for streaming
                   // TODO:Enhancement - Update getBytes(...) to use requested content encoding
@@ -232,12 +233,12 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
    private Message getMatchingStatusCodeMessage(StatusCodeMatcher code, MediaType requestedMediaType) {
       Message wildcard = null;
       for (Message message : code.getMessage()) {
-         MediaType mediaType = new MediaType(requestedMediaType.getValue(), MimeType.getMatchingMimeType(message.getMediaType()), requestedMediaType.getParameters());
-         if (mediaType.equals(requestedMediaType)) {
+         final String messageMediaType = message.getMediaType();
+         if (StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, requestedMediaType.getValue())) {
             return message;
          }
          // A configured wildcard (*/*) will be returned if an exact match is not found
-         if (mediaType.getMimeType().equals(MimeType.WILDCARD)) {
+         if (StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, MimeType.WILDCARD.getMimeType())) {
             wildcard = message;
          }
       }
