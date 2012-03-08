@@ -7,6 +7,7 @@ import com.rackspace.papi.commons.util.http.HeaderConstant;
 import com.rackspace.papi.commons.util.io.BufferCapacityException;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.components.datastore.hash.RemoteBehavior;
+import java.io.IOException;
 
 import java.net.InetSocketAddress;
 
@@ -16,23 +17,18 @@ import javax.servlet.http.HttpServletRequest;
 public class CacheRequest {
 
    public static final String CACHE_URI_PATH = "/powerapi/dist-datastore/objects/";
-   public static final int TWO_MEGABYTES_IN_BYTES = 2097152;
+   public static final int TWO_MEGABYTES_IN_BYTES = 2097152, EXPECTED_UUID_STRING_LENGTH = 36, DEFAULT_TTL_IN_SECONDS = 60;
    public static final HeaderConstant TTL_HEADER = ExtendedHttpHeader.X_TTL;
 
    private static String getCacheKey(HttpServletRequest request) {
       final String requestUri = request.getRequestURI();
+      final String cacheKey = requestUri.substring(CACHE_URI_PATH.length()).trim();
 
-      if (requestUri.startsWith(CACHE_URI_PATH) && requestUri.length() > CACHE_URI_PATH.length()) {
-         final String cacheKey = requestUri.substring(CACHE_URI_PATH.length());
-
-         if (StringUtilities.isBlank(cacheKey)) {
-            throw new MalformedCacheRequestException("Cache key specified is invalid");
-         }
-
-         return cacheKey;
+      if (StringUtilities.isBlank(cacheKey) || cacheKey.length() != EXPECTED_UUID_STRING_LENGTH) {
+         throw new MalformedCacheRequestException("Cache key specified is invalid");
       }
 
-      return null;
+      return cacheKey;
    }
 
    private static String getHostKey(HttpServletRequest request) {
@@ -52,15 +48,15 @@ public class CacheRequest {
    }
 
    public static String urlFor(InetSocketAddress remoteEndpoint, String key) {
-      return new StringBuilder("http://").append(remoteEndpoint.getAddress().getHostName()).append(":").append(remoteEndpoint.getPort()).append(CACHE_URI_PATH).append(key).toString();
+      return new StringBuilder("http://").append(remoteEndpoint.getAddress().getHostAddress()).append(":").append(remoteEndpoint.getPort()).append(CACHE_URI_PATH).append(key).toString();
    }
 
    public static RemoteBehavior getRequestedRemoteBehavior(HttpServletRequest request) {
       final String remoteBehaviorHeader = request.getHeader(DatastoreHeader.REMOTE_BEHAVIOR.toString());
       RemoteBehavior remoteBehavior = RemoteBehavior.ALLOW_FORWARDING;
-      
+
       if (StringUtilities.isNotBlank(remoteBehaviorHeader)) {
-         remoteBehavior = RemoteBehavior.valueOf(remoteBehaviorHeader.toUpperCase());
+         remoteBehavior = RemoteBehavior.valueOfOrNull(remoteBehaviorHeader.toUpperCase());
 
          if (remoteBehavior == null) {
             throw new MalformedCacheRequestException("X-PP-Datastore-Behavior header is not an expected value");
@@ -82,7 +78,7 @@ public class CacheRequest {
 
       try {
          final String ttlHeader = request.getHeader(TTL_HEADER.toString());
-         final int ttlInSeconds = StringUtilities.isBlank(ttlHeader) ? 60 : Integer.parseInt(ttlHeader);
+         final int ttlInSeconds = StringUtilities.isBlank(ttlHeader) ? DEFAULT_TTL_IN_SECONDS : Integer.parseInt(ttlHeader);
 
          if (ttlInSeconds <= 0) {
             throw new MalformedCacheRequestException(TTL_HEADER.toString() + " must be a valid, positive integer number");
@@ -93,8 +89,8 @@ public class CacheRequest {
          throw new MalformedCacheRequestException(TTL_HEADER.toString() + " must be a valid, positive integer number", nfe);
       } catch (BufferCapacityException bce) {
          throw new MalformedCacheRequestException("Object is too large to store into the cache.", bce);
-      } catch (Exception ex) {
-         throw new MalformedCacheRequestException("Unable to parse object stream contents", ex);
+      } catch (IOException ioe) {
+         throw new MalformedCacheRequestException("Unable to read content", ioe);
       }
    }
    private final RemoteBehavior requestedRemoteBehavior;

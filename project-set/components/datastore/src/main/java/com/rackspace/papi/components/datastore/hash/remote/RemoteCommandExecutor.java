@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.datastore.hash.remote;
 
 import com.rackspace.papi.commons.util.pooling.*;
+import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import java.io.IOException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -49,7 +50,7 @@ public class RemoteCommandExecutor {
       this.hostKey = hostKey;
    }
 
-   public Object execute(final RemoteCommand command) {
+   public Object execute(final RemoteCommand command) throws DatastoreOperationException, RemoteConnectionException {
       return httpClientPool.use(new ResourceContext<HttpClient, Object>() {
 
          @Override
