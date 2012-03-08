@@ -8,7 +8,8 @@
     "overLimit" : {
         "code" : 413,
         "message" : "OverLimit Retry...",
-        "details" : "Error Details..."
+        "details" : "Error Details...",
+	    "retryAt" : "%{Retry-After}o"
     }
 }
         </message>
@@ -17,7 +18,8 @@
 <![CDATA[
 <overLimit
     xmlns="http://docs.openstack.org/compute/api/v1.1"
-    code="413">
+    code="413"
+    retryAt="%{Retry-After}o">
   <message>OverLimit Retry...</message>
   <details>Error Details...</details>
 </overLimit>
