@@ -13,7 +13,7 @@ public class LogArgumentGroupExtractor {
       public static final String LIFECYCLE_MODIFIER_EXTRACTOR = "([<>])?";           // Group 1
       public static final String STATUS_CODE_EXTRACTOR = "([!]?([0-9]{3}[,]?)*)?";   // Group 2, 3 (ignore)
       //private static final String VARIABLE_EXTRACTOR = "(\\{([\\-a-zA-Z0-9]*)\\})?";  // Group 4 (ignore), 5
-      public static final String VARIABLE_EXTRACTOR = "(\\{([\\-a-zA-Z0-9]*)[ ,]?([\\-a-zA-Z0-9,]*)\\})?";  // Group 4 (ignore), 5, 6 
+      public static final String VARIABLE_EXTRACTOR = "(\\{([\\-a-zA-Z0-9]*)[ ,]?([_\\-a-zA-Z0-9 ,]*)\\})?";  // Group 4 (ignore), 5, 6 
       public static final String ENTITY_EXTRACTOR = "([%a-zA-Z])";                   // Group 6
       public static final Pattern PATTERN = Pattern.compile("%" + LIFECYCLE_MODIFIER_EXTRACTOR + STATUS_CODE_EXTRACTOR + VARIABLE_EXTRACTOR + ENTITY_EXTRACTOR);
       public static final int LIFECYCLE_GROUP_INDEX = 1;
@@ -57,7 +57,7 @@ public class LogArgumentGroupExtractor {
       List<String> result = new ArrayList<String>();
 
       if (arguments != null) {
-         Collections.addAll(result, arguments.split(","));
+         Collections.addAll(result, arguments.split("[, ]"));
       }
 
       return result;

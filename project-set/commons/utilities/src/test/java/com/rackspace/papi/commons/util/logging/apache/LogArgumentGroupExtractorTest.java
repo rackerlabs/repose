@@ -92,6 +92,21 @@ public class LogArgumentGroupExtractorTest {
          assertEquals(">", extractor.getLifeCycleModifier());
       }
 
+      @Test
+      public void shouldExtractFormats2() {
+         final String template = "%>!100,200,300{SOMEVAR format1 format2}i";
+         final LogArgumentGroupExtractor expected = LogArgumentGroupExtractor.instance(">", "!100,200,300", "SOMEVAR", "format1,format2", "i");
+         final Matcher m = LogArgumentGroupExtractor.LOG_CONSTANTS.PATTERN.matcher(template);
+         
+         m.find();
+         
+         LogArgumentGroupExtractor extractor = new LogArgumentGroupExtractor(m);
+         
+         assertEquals(expected, extractor);
+         assertEquals(2, extractor.getArguments().size());
+         assertEquals(">", extractor.getLifeCycleModifier());
+      }
+
    }
 
    public static class WhenComparing {
