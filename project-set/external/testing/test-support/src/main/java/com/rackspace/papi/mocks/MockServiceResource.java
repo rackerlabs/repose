@@ -109,6 +109,20 @@ public class MockServiceResource {
         return Response.status(status).build();
         
     }
+    
+    @GET
+    @Path("/nova/limits")
+    public Response getNovaLimits(){
+        
+        StringBuilder limits = new StringBuilder();
+        
+        limits.append("<limits xmlns:atom=\"http://www.w3.org/2005/Atom\"");
+        limits.append(" xmlns=\"http://docs.openstack.org/common/api/v1.1\"><rates/><absolute><limit name=\"maxServerMeta\"");
+        limits.append(" value=\"5\"/><limit name=\"maxPersonality\" value=\"5\"/><limit name=\"maxImageMeta\" value=\"5\"/><limit name=\"maxPersonalitySize\"");
+        limits.append(" value=\"1000\"/><limit name=\"maxTotalInstances\" value=\"1000\"/><limit name=\"maxTotalRAMSize\" value=\"10240000\"/></absolute></limits>");
+        
+        return Response.ok(limits.toString()).build();
+    }
    
     
 

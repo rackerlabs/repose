@@ -14,8 +14,12 @@
     <name>Power API Core - Power API Core Library</name>
     <description>TODO</description>
 
+    <properties>
+        <reposeVersion>${project.version}</reposeVersion>
+    </properties>
+
     <packaging>jar</packaging>
-    
+
     <dependencies>
         <dependency>
             <groupId>net.sf.ehcache</groupId>
@@ -73,5 +77,26 @@
                 </configuration>
             </plugin>          
         </plugins>
+        <resources>
+            <resource>
+                <directory>src/main/resources/</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+        <!--
+        <resources>
+            <resource>
+                <directory>src/main/resources/com/rackspace/papi/service/context/banner</directory>
+                <filtering>true</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources/META-INF/**</directory>
+                <filtering>false</filtering>
+                <includes>
+                    <include>**/*</include>
+                </includes>
+            </resource>
+        </resources>
+        -->
     </build>
 </project>
