@@ -3,15 +3,16 @@ package com.rackspace.papi.commons.util.logging.apache.format.stock;
 import com.rackspace.papi.commons.util.logging.apache.format.converters.FormatConverter;
 import com.rackspace.papi.commons.util.logging.apache.format.converters.TypeConversionFormatFactory;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
 public abstract class HeaderHandler {
    private final String headerName;
    private final List<String> arguments;
-   private String type;
    private String outputFormat;
    private String inputFormat;
+   private FormatConverter converter;
    
    public HeaderHandler(String headerName, List<String> arguments) {
       this.headerName = headerName;
@@ -21,7 +22,7 @@ public abstract class HeaderHandler {
    
    private void checkArguments() {
       if (arguments.size() > 0) {
-         this.type = arguments.get(0);
+         this.converter = TypeConversionFormatFactory.getConverter(arguments.get(0));
       }
       
       if (arguments.size() > 1) {
@@ -34,8 +35,8 @@ public abstract class HeaderHandler {
    }
 
    protected String convert(String value) {
-      FormatConverter converter = TypeConversionFormatFactory.getConverter(type);
       if (converter != null) {
+         // TODO handle quality?
          return converter.convert(value, outputFormat, inputFormat);
       }
       return value;
@@ -56,20 +57,7 @@ public abstract class HeaderHandler {
    }
 
    protected String getValues(Collection<String> values) {
-      StringBuilder builder = new StringBuilder();
-      boolean first = true;
-
-      if (values != null) {
-         for (String value : values) {
-            if (!first) {
-               builder.append(",");
-            }
-            builder.append(convert(value));
-            first = false;
-         }
-      }
-
-      return builder.toString();
+      return getValues(Collections.enumeration(values));
    }
 
    public String getHeaderName() {
