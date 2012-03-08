@@ -35,13 +35,13 @@ public class HttpLogFormatter {
    }
 
    private void build() {
-      final Matcher m = LogArgumentGroupExtractor.PATTERN.matcher(formatTemplate);
+      final Matcher m = LogArgumentGroupExtractor.LOG_CONSTANTS.PATTERN.matcher(formatTemplate);
 
       int previousTokenEnd = 0;
 
       while (m.find()) {
          handleStringContent(previousTokenEnd, m.start(), handlerList);
-         handlerList.add(handleApacheArgument(new LogArgumentGroupExtractor(m)));
+         handlerList.add(handleArgument(new LogArgumentGroupExtractor(m)));
          previousTokenEnd = m.end();
       }
 
@@ -52,14 +52,11 @@ public class HttpLogFormatter {
       final String betweenElements = formatTemplate.substring(previousTokenEnd, currentTokenStart);
 
       if (!isEmpty(betweenElements)) {
-         final LogArgumentFormatter plainStringFormatter = new LogArgumentFormatter();
-         plainStringFormatter.setLogic(new StringHandler(betweenElements));
-
-         argHandlerList.add(plainStringFormatter);
+         argHandlerList.add(handleArgument(LogArgumentGroupExtractor.stringEntity(betweenElements)));
       }
    }
 
-   private LogArgumentFormatter handleApacheArgument(LogArgumentGroupExtractor extractor) {
+   private LogArgumentFormatter handleArgument(LogArgumentGroupExtractor extractor) {
       final LogArgumentFormatter argFormatter = new LogArgumentFormatter();
 
       if (!isBlank(extractor.getStatusCodes())) {
@@ -74,10 +71,10 @@ public class HttpLogFormatter {
    public static void setLogic(final LogArgumentGroupExtractor extractor, final LogArgumentFormatter formatter) {
       switch (LogFormatArgument.fromString(extractor.getEntity())) {
          case REQUEST_HEADER:
-            formatter.setLogic(new RequestHeaderHandler(extractor.getVariable()));
+            formatter.setLogic(new RequestHeaderHandler(extractor.getVariable(), extractor.getArguments()));
             break;
          case RESPONSE_HEADER:
-            formatter.setLogic(new ResponseHeaderHandler(extractor.getVariable()));
+            formatter.setLogic(new ResponseHeaderHandler(extractor.getVariable(), extractor.getArguments()));
             break;
          case CANONICAL_PORT:
             formatter.setLogic(new CanonicalPortHandler());
@@ -114,6 +111,9 @@ public class HttpLogFormatter {
             break;
          case PERCENT:
             formatter.setLogic(new StringHandler(LogFormatArgument.PERCENT.toString()));
+            break;
+         case STRING:
+            formatter.setLogic(new StringHandler(extractor.getVariable()));
             break;
       }
    }
