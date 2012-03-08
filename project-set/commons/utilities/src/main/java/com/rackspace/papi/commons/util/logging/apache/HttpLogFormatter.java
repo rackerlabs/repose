@@ -71,10 +71,10 @@ public class HttpLogFormatter {
    public static void setLogic(final LogArgumentGroupExtractor extractor, final LogArgumentFormatter formatter) {
       switch (LogFormatArgument.fromString(extractor.getEntity())) {
          case REQUEST_HEADER:
-            formatter.setLogic(new RequestHeaderHandler(extractor.getVariable()));
+            formatter.setLogic(new RequestHeaderHandler(extractor.getVariable(), extractor.getArguments()));
             break;
          case RESPONSE_HEADER:
-            formatter.setLogic(new ResponseHeaderHandler(extractor.getVariable()));
+            formatter.setLogic(new ResponseHeaderHandler(extractor.getVariable(), extractor.getArguments()));
             break;
          case CANONICAL_PORT:
             formatter.setLogic(new CanonicalPortHandler());

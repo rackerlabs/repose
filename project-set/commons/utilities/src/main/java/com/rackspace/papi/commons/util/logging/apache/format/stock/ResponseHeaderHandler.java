@@ -2,14 +2,17 @@ package com.rackspace.papi.commons.util.logging.apache.format.stock;
 
 import com.rackspace.papi.commons.util.logging.apache.format.FormatterLogic;
 import java.util.Enumeration;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class ResponseHeaderHandler extends HeaderHandler implements FormatterLogic {
    private final String headerName;
+   private final List<String> arguments;
 
-   public ResponseHeaderHandler(String headerName) {
+   public ResponseHeaderHandler(String headerName, List<String> arguments) {
       this.headerName = headerName;
+      this.arguments = arguments;
    }
    
    @Override
