@@ -93,8 +93,6 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
             onCacheDelete(request, director);
          }
       } catch (MalformedCacheRequestException mcre) {
-         LOG.error(mcre.getMessage(), mcre);
-
          director.getResponseWriter().write(mcre.getMessage() == null ? "" : mcre.getMessage());
          director.setResponseStatus(HttpStatusCode.BAD_REQUEST);
          director.setFilterAction(FilterAction.RETURN);
