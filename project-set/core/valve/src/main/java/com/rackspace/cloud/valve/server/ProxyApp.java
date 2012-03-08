@@ -1,5 +1,7 @@
 package com.rackspace.cloud.valve.server;
 
+import com.rackspace.papi.service.logging.common.log4jconf.Log4jAppender;
+import com.rackspace.papi.service.logging.common.log4jconf.Log4jPropertiesBuilder;
 import org.apache.log4j.PropertyConfigurator;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -12,61 +14,64 @@ import org.slf4j.LoggerFactory;
  */
 public class ProxyApp {
 
-   private static final Logger LOG = LoggerFactory.getLogger(ProxyApp.class);
-   private static final String DEFAULT_CFG_DIR = "/etc/powerapi";
+    private static final Logger LOG = LoggerFactory.getLogger(ProxyApp.class);
+    private static final String DEFAULT_CFG_DIR = "/etc/powerapi";
+    private static Log4jAppender defaultLog4j = new Log4jAppender("consoleOut", "ConsoleAppender", "PatternLayout", "%d %-4r [%t] %-5p %c %x - %m%n");
+    private static Log4jPropertiesBuilder log4jPropertiesBuilder = new Log4jPropertiesBuilder();
 
-   public static void main(String[] args) throws Exception {
-      // Use default logging confg which sets to DEBUG
-      //BasicConfigurator.configure();
-       PropertyConfigurator.configure("log4j.properties");
-      
+    public static void main(String[] args) throws Exception {
+        // Use default logging confg which sets to DEBUG
+        //BasicConfigurator.configure();
+        log4jPropertiesBuilder.addLog4jAppender(defaultLog4j);
+        PropertyConfigurator.configure(log4jPropertiesBuilder.getLoggingConfig());
 
-      // Turn off Jetty logging
-      org.apache.log4j.Logger.getLogger("org.eclipse.jetty").setLevel(org.apache.log4j.Level.OFF);
 
-      final CommandLineArguments commandLineArgs = new CommandLineArguments();
-      final CmdLineParser cmdLineParser = new CmdLineParser(commandLineArgs);
+        // Turn off Jetty logging
+        org.apache.log4j.Logger.getLogger("org.eclipse.jetty").setLevel(org.apache.log4j.Level.OFF);
 
-      try {
-         cmdLineParser.parseArgument(args);
-      } catch (CmdLineException e) {
-         displayUsage(cmdLineParser, e);
-         return;
-      }
+        final CommandLineArguments commandLineArgs = new CommandLineArguments();
+        final CmdLineParser cmdLineParser = new CmdLineParser(commandLineArgs);
 
-      if ((!(portIsInRange(commandLineArgs.getPort()))) || (!(portIsInRange(commandLineArgs.getStopPort())))) {
-         LOG.info("Invalid Power API Valve port setting, use a value between 1024 and 49150");
-         return;
-      }
+        try {
+            cmdLineParser.parseArgument(args);
+        } catch (CmdLineException e) {
+            displayUsage(cmdLineParser, e);
+            return;
+        }
 
-      validateConfigDirectory(commandLineArgs);
+        if ((!(portIsInRange(commandLineArgs.getPort()))) || (!(portIsInRange(commandLineArgs.getStopPort())))) {
+            LOG.info("Invalid Power API Valve port setting, use a value between 1024 and 49150");
+            return;
+        }
 
-      final PowerApiValveServerControl serverControl = new PowerApiValveServerControl(commandLineArgs);
+        validateConfigDirectory(commandLineArgs);
 
-      if (commandLineArgs.getAction().equalsIgnoreCase(CommandLineArguments.ACTION_START)) {
-         serverControl.startPowerApiValve();
-      }
-      if (commandLineArgs.getAction().equalsIgnoreCase(CommandLineArguments.ACTION_STOP)) {
-         serverControl.stopPowerApiValve();
-      }
-   }
+        final PowerApiValveServerControl serverControl = new PowerApiValveServerControl(commandLineArgs);
 
-   private static void validateConfigDirectory(CommandLineArguments commandLineArgs) {
-      if (commandLineArgs.getConfigDirectory() == null || commandLineArgs.getConfigDirectory().length() <= 0) {
-         commandLineArgs.setConfigDirectory(DEFAULT_CFG_DIR);
-      }
-   }
+        if (commandLineArgs.getAction().equalsIgnoreCase(CommandLineArguments.ACTION_START)) {
+            serverControl.startPowerApiValve();
+        }
+        if (commandLineArgs.getAction().equalsIgnoreCase(CommandLineArguments.ACTION_STOP)) {
+            serverControl.stopPowerApiValve();
+        }
+    }
 
-   private static void displayUsage(CmdLineParser cmdLineParser, Exception e) {
-      System.err.println(e.getMessage());
-      System.err.println("java -jar PowerApiServer.jar [options...] arguments...");
-      cmdLineParser.printUsage(System.err);
-   }
+    private static void validateConfigDirectory(CommandLineArguments commandLineArgs) {
+        if (commandLineArgs.getConfigDirectory() == null || commandLineArgs.getConfigDirectory().length() <= 0) {
+            commandLineArgs.setConfigDirectory(DEFAULT_CFG_DIR);
+        }
+    }
 
-   private static boolean portIsInRange(int portNum) {
-      if ((portNum < 49150) && (portNum > 1024)) {
-         return true;
-      }
-      return false;
-   }
+    private static void displayUsage(CmdLineParser cmdLineParser, Exception e) {
+        System.err.println(e.getMessage());
+        System.err.println("java -jar PowerApiServer.jar [options...] arguments...");
+        cmdLineParser.printUsage(System.err);
+    }
+
+    private static boolean portIsInRange(int portNum) {
+        if ((portNum < 49150) && (portNum > 1024)) {
+            return true;
+        }
+        return false;
+    }
 }
