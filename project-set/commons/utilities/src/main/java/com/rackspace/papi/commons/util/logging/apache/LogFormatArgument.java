@@ -22,7 +22,8 @@ public enum LogFormatArgument {
     REMOTE_USER("u"),
     URL_REQUESTED("U"),
     REQUEST_HEADER("i"),
-    RESPONSE_HEADER("o");
+    RESPONSE_HEADER("o"),
+    STRING("STRING");
 
     public static LogFormatArgument fromString(String st) {
         return ReverseLookup.LOOKUP_MAP.get(st);

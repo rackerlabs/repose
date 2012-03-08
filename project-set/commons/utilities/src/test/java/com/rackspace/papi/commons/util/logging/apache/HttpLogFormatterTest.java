@@ -108,7 +108,7 @@ public class HttpLogFormatterTest {
 
       @Test
       public void CanonicalPortHandler() {
-         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.CANONICAL_PORT.toString());
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.CANONICAL_PORT.toString());
 
          HttpLogFormatter.setLogic(extractor, formatter);
 
@@ -117,7 +117,7 @@ public class HttpLogFormatterTest {
 
       @Test
       public void LocalAddressHandler() {
-         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.LOCAL_ADDRESS.toString());
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.LOCAL_ADDRESS.toString());
 
          HttpLogFormatter.setLogic(extractor, formatter);
 
@@ -126,7 +126,7 @@ public class HttpLogFormatterTest {
 
       @Test
       public void StatusCodeHandler() {
-         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.STATUS_CODE.toString());
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.STATUS_CODE.toString());
 
          HttpLogFormatter.setLogic(extractor, formatter);
 
@@ -135,7 +135,7 @@ public class HttpLogFormatterTest {
 
       @Test
       public void PercentHandler() {
-         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.PERCENT.toString());
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.PERCENT.toString());
 
          HttpLogFormatter.setLogic(extractor, formatter);
 
@@ -144,7 +144,7 @@ public class HttpLogFormatterTest {
 
       @Test
       public void RequestHeaderHandler() {
-         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.REQUEST_HEADER.toString());
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.REQUEST_HEADER.toString());
 
          HttpLogFormatter.setLogic(extractor, formatter);
 
@@ -153,7 +153,7 @@ public class HttpLogFormatterTest {
 
       @Test
       public void ResponseHeaderHandler() {
-         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.RESPONSE_HEADER.toString());
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.RESPONSE_HEADER.toString());
 
          HttpLogFormatter.setLogic(extractor, formatter);
 
@@ -162,7 +162,7 @@ public class HttpLogFormatterTest {
 
       @Test
       public void QueryStringHandler() {
-         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.QUERY_STRING.toString());
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.QUERY_STRING.toString());
 
          HttpLogFormatter.setLogic(extractor, formatter);
 
@@ -171,7 +171,7 @@ public class HttpLogFormatterTest {
 
       @Test
       public void RemoteAddressHandler() {
-         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.REMOTE_ADDRESS.toString());
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.REMOTE_ADDRESS.toString());
 
          HttpLogFormatter.setLogic(extractor, formatter);
 
@@ -180,7 +180,7 @@ public class HttpLogFormatterTest {
 
       @Test
       public void RemoteHostHandler() {
-         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.REMOTE_HOST.toString());
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.REMOTE_HOST.toString());
 
          HttpLogFormatter.setLogic(extractor, formatter);
 
@@ -189,7 +189,7 @@ public class HttpLogFormatterTest {
 
       @Test
       public void RemoteUserHandler() {
-         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.REMOTE_USER.toString());
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.REMOTE_USER.toString());
 
          HttpLogFormatter.setLogic(extractor, formatter);
 
@@ -198,7 +198,7 @@ public class HttpLogFormatterTest {
 
       @Test
       public void RequestMethodHandler() {
-         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.REQUEST_METHOD.toString());
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.REQUEST_METHOD.toString());
 
          HttpLogFormatter.setLogic(extractor, formatter);
 
@@ -207,7 +207,7 @@ public class HttpLogFormatterTest {
 
       @Test
       public void ResponseBytesHandler() {
-         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.RESPONSE_BYTES.toString());
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.RESPONSE_BYTES.toString());
 
          HttpLogFormatter.setLogic(extractor, formatter);
 
@@ -216,7 +216,7 @@ public class HttpLogFormatterTest {
 
       @Test
       public void TimeReceivedHandler() {
-         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.TIME_RECIEVED.toString());
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.TIME_RECIEVED.toString());
 
          HttpLogFormatter.setLogic(extractor, formatter);
 
@@ -225,7 +225,7 @@ public class HttpLogFormatterTest {
 
       @Test
       public void UrlRequestedHandler() {
-         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", LogFormatArgument.URL_REQUESTED.toString());
+         LogArgumentGroupExtractor extractor = LogArgumentGroupExtractor.instance("", "", "", "", LogFormatArgument.URL_REQUESTED.toString());
 
          HttpLogFormatter.setLogic(extractor, formatter);
 
