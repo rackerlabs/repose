@@ -16,10 +16,11 @@
  */
 package com.rackspace.cloud.valve.http.proxy.jerseyclient;
 
+import com.rackspace.cloud.valve.http.proxy.jerseyclient.logging.LoggingFilter;
 import java.net.MalformedURLException;
 
 import com.rackspace.cloud.valve.http.proxy.common.ProxyService;
-import com.sun.jersey.api.client.filter.LoggingFilter;
+//import com.sun.jersey.api.client.filter.LoggingFilter;
 import org.apache.http.HttpException;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;

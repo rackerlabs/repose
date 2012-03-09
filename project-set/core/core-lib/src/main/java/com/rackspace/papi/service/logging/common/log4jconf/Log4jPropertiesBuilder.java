@@ -4,11 +4,9 @@
  */
 package com.rackspace.papi.service.logging.common.log4jconf;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.logging.Level;
+import org.apache.log4j.Level;
 /**
  *
  * @author malconis
@@ -17,14 +15,22 @@ public class Log4jPropertiesBuilder {
     
     //bunch of default values
     private Properties properties;
-    private String logLevel = "DEBUG";
+    private Level logLevel;
     private ArrayList<Log4jAppender> appenders;
     private final String ROOT_LOGGER = "log4j.rootLogger";
     
     public Log4jPropertiesBuilder() {
         this.properties = new Properties();
         this.appenders = new ArrayList<Log4jAppender>();
-        this.properties.put(ROOT_LOGGER, logLevel);
+        this.logLevel = Level.DEBUG;
+        this.properties.put(ROOT_LOGGER, logLevel.toString());
+    }
+    
+    public Log4jPropertiesBuilder(Level level){
+        this.properties = new Properties();
+        this.appenders = new ArrayList<Log4jAppender>();
+        this.logLevel = level;
+        this.properties.put(ROOT_LOGGER, logLevel.toString());
     }
     
     public Properties getLoggingConfig(){
@@ -46,15 +52,21 @@ public class Log4jPropertiesBuilder {
         properties.putAll(prop);
     }
     
-    public void setLogLevel(String level){
+    public void setLogLevel(Level level){
         this.logLevel = level;
         
-        StringBuilder rootLogger = new StringBuilder(this.logLevel);
+        StringBuilder rootLogger = new StringBuilder(this.logLevel.toString());
         
         for(Log4jAppender app: appenders){
             rootLogger.append(",").append(app.getAppenderName().toString());
         }
         properties.put(ROOT_LOGGER, rootLogger.toString());
     }
+    
+    public Level getLogLevel(){
+        
+        return logLevel;
+    }
+            
 
 }
