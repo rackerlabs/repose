@@ -7,6 +7,7 @@ package com.rackspace.papi.service.logging.common.log4jconf;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.apache.log4j.Level;
 
 /**
  *
@@ -42,7 +43,7 @@ public class Log4jPropertiesBuilderTest {
     
     @Test
     public void shouldChangeLogLevel(){
-        log4jPropertiesBuilder.setLogLevel("WARN");
+        log4jPropertiesBuilder.setLogLevel(Level.WARN);
         String[] rootLogger= log4jPropertiesBuilder.getLoggingConfig().getProperty("log4j.rootLogger").split(",");
         assertTrue(rootLogger[0].equals("WARN"));
     }
