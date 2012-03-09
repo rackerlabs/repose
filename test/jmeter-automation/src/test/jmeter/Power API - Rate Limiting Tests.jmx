@@ -363,7 +363,7 @@
             <boolProp name="displaySystemProperties">false</boolProp>
           </DebugSampler>
           <hashTree/>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When rate limiting requests" enabled="false"/>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When rate limiting requests" enabled="true"/>
           <hashTree>
             <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Wait until user has available requests" enabled="true">
               <collectionProp name="ModuleController.node_path">
@@ -414,6 +414,15 @@
                 <stringProp name="Scope.variable">respCode</stringProp>
               </ResponseAssertion>
               <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Contains retryAfter in correct format" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="572387573">retryAfter=&quot;\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}UTC&quot;</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">true</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
             </hashTree>
             <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Wait until user has available requests" enabled="true">
               <collectionProp name="ModuleController.node_path">
@@ -456,7 +465,7 @@
               <hashTree/>
             </hashTree>
           </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When rate limiting requests with multiple X-PP-User values" enabled="false"/>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When rate limiting requests with multiple X-PP-User values" enabled="true"/>
           <hashTree>
             <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Wait until user has available requests" enabled="true">
               <collectionProp name="ModuleController.node_path">
@@ -520,7 +529,7 @@
               </hashTree>
             </hashTree>
           </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When rate limiting requests with multiple X-PP-Group values" enabled="false"/>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When rate limiting requests with multiple X-PP-Group values" enabled="true"/>
           <hashTree>
             <ModuleController guiclass="ModuleControllerGui" testclass="ModuleController" testname="Wait until user has available requests" enabled="true">
               <collectionProp name="ModuleController.node_path">
@@ -583,7 +592,7 @@
                 <hashTree/>
               </hashTree>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Header Scope Controller" enabled="true"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Header Scope Controller" enabled="false"/>
             <hashTree>
               <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="Add multiple group headers with higher quality to avoid being rate limited" enabled="true">
                 <collectionProp name="HeaderManager.headers">
