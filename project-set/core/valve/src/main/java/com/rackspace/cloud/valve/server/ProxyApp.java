@@ -2,6 +2,7 @@ package com.rackspace.cloud.valve.server;
 
 import com.rackspace.papi.service.logging.common.log4jconf.Log4jAppender;
 import com.rackspace.papi.service.logging.common.log4jconf.Log4jPropertiesBuilder;
+import org.apache.log4j.Level;
 import org.apache.log4j.PropertyConfigurator;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -27,7 +28,8 @@ public class ProxyApp {
 
 
         // Turn off Jetty logging
-        org.apache.log4j.Logger.getLogger("org.eclipse.jetty").setLevel(org.apache.log4j.Level.OFF);
+        org.apache.log4j.Logger.getLogger("org.eclipse.jetty").setLevel(Level.OFF);
+        org.apache.log4j.Logger.getLogger("com.sun.jersey").setLevel(Level.OFF);
 
         final CommandLineArguments commandLineArgs = new CommandLineArguments();
         final CmdLineParser cmdLineParser = new CmdLineParser(commandLineArgs);
