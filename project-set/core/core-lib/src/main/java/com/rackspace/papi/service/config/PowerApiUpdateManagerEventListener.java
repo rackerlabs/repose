@@ -9,11 +9,14 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+
 /**
  * @author fran
  */
 public class PowerApiUpdateManagerEventListener implements EventListener<ConfigurationEvent, ConfigurationResource> {
     private final Map<String, Map<Integer, ParserListenerPair>> listenerMap;
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(PowerApiUpdateManagerEventListener.class);
 
     public PowerApiUpdateManagerEventListener(Map<String, Map<Integer, ParserListenerPair>> listenerMap) {
         this.listenerMap = listenerMap;
@@ -25,7 +28,8 @@ public class PowerApiUpdateManagerEventListener implements EventListener<Configu
             UpdateListener updateListener = parserListener.getListener();
 
             if (updateListener != null) {
-                updateListener.configurationUpdated(parserListener.getParser().read(e.payload()));
+               
+                configUpdate(updateListener,parserListener.getParser().read(e.payload()));
             }
         }
     }
@@ -34,5 +38,13 @@ public class PowerApiUpdateManagerEventListener implements EventListener<Configu
         final Map<Integer, ParserListenerPair> mapReference = new HashMap<Integer, ParserListenerPair>(listenerMap.get(resourceName));
 
         return Collections.unmodifiableMap(mapReference != null ? mapReference : Collections.EMPTY_MAP);
+    }
+    
+    
+    private void configUpdate(UpdateListener upd, Object cfg){
+        
+        upd.configurationUpdated(cfg);
+        LOG.debug("Configuration Updated:\n" + cfg.toString());
+        
     }
 }
