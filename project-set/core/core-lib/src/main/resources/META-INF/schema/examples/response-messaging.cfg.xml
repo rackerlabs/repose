@@ -9,7 +9,7 @@
         "code" : 413,
         "message" : "OverLimit Retry...",
         "details" : "Error Details...",
-	    "retryAfter" : "%{Retry-After}o"
+	    "retryAfter" : "%{Retry-After DATE ISO_8601}o"
     }
 }
         </message>
