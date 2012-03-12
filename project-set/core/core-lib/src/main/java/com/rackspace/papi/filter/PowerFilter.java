@@ -135,7 +135,11 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
          LOG.error("Exception encountered while processing filter chain", ex);
       } finally {
-         papiContext.responseMessageService().handle(mutableHttpRequest, mutableHttpResponse);
+         // In the case where we pass/route the request, there is a chance that
+         // the response will be committed by an underlying service, outside of repose
+         if (!mutableHttpResponse.isCommitted()) {
+            papiContext.responseMessageService().handle(mutableHttpRequest, mutableHttpResponse);
+         }
 
          mutableHttpResponse.commitBufferToServletOutputStream();
       }

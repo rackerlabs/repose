@@ -29,6 +29,4 @@ import java.io.IOException;
 public interface ResponseMessageService extends Destroyable {
     
     void handle(HttpServletRequest request, HttpServletResponse response) throws IOException;
-
-    void handle(String message, HttpServletRequest request, HttpServletResponse response) throws IOException;
 }
