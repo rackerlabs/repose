@@ -42,7 +42,7 @@ public class ConfigurationResourceWatcher implements RecurringTask {
                LOG.info("Updated " + resource.name());
             }
          } catch (Exception e) {
-            //TODO: Create a logger that is smart enough not to print out errors we don't care about more than once
+            // TODO:Log - Create a logger that is smart enough not to print out errors we don't care about more than once
          }
       }
    }

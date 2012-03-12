@@ -58,7 +58,7 @@ public class PowerApiConfigurationManager implements ConfigurationService {
          if (ex.getCause() instanceof FileNotFoundException) {
             LOG.error("An I/O error has occured while trying to read resource " + configurationName + " - Reason: file not found.");
          } else {
-            LOG.error("Configuration update error: " + ex.getMessage(), ex);
+            LOG.error("Configuration update error. Reason: " + ex.getMessage(), ex);
          }
       }
    }

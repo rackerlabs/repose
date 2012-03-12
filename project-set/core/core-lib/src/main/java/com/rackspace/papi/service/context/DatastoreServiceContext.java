@@ -36,6 +36,7 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
       try {
          namingContext.destroySubcontext(SERVICE_NAME);
       } catch (NamingException ne) {
+         // TODO:Log
       }
    }
 

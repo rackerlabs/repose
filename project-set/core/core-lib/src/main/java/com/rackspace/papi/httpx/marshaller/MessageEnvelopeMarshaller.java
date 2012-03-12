@@ -26,7 +26,7 @@ public class MessageEnvelopeMarshaller extends ObjectFactoryUser implements com.
 
             marshaller.marshal(getObjectFactory().createHttpx(messageEnvelope), outputStream);
         } catch (JAXBException e) {
-            throw new MarshallerException("An exception occurred when attempting to marshal the http message envelope.", e);
+            throw new MarshallerException("An exception occurred when attempting to marshal the http message envelope. Reason: " + e.getMessage(), e);
         }
 
         return new ByteArrayInputStream(outputStream.toByteArray());
