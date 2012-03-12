@@ -19,7 +19,7 @@
 <overLimit
     xmlns="http://docs.openstack.org/compute/api/v1.1"
     code="413"
-    retryAt="%{Retry-After}o">
+    retryAfter="%{Retry-After DATE ISO_8601}o">
   <message>OverLimit Retry...</message>
   <details>Error Details...</details>
 </overLimit>
