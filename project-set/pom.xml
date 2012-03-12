@@ -57,7 +57,32 @@
                         <plugin>
                             <groupId>org.jvnet.jaxb2.maven2</groupId>
                             <artifactId>maven-jaxb2-plugin</artifactId>
-                            <version>0.8.1</version>
+                            <configuration>
+
+                                <specVersion>2.1</specVersion>
+
+                                <schemaIncludes>
+                                    <include>**/*.xsd</include>
+                                </schemaIncludes>
+                                <bindingIncludes>
+                                    <include>**/*.xjb</include>
+                                </bindingIncludes>
+
+                                <strict>true</strict>
+                                <verbose>false</verbose>
+                                <extension>true</extension>
+
+                                <args>
+                                    <arg>-XtoString</arg>
+                                </args>
+                                <plugins>
+                                    <plugin>
+                                        <groupId>org.jvnet.jaxb2_commons</groupId>
+                                        <artifactId>jaxb2-basics</artifactId>
+                                        <version>0.5.1</version>
+                                    </plugin>
+                                </plugins>
+                            </configuration>
 
                             <executions>
                                 <execution>
@@ -181,6 +206,12 @@
                     <groupId>javax.transaction</groupId>
                     <artifactId>transaction-api</artifactId>
                 </dependency>
+                <dependency>
+                    <groupId>org.jvnet.jaxb2_commons</groupId>
+                    <artifactId>jaxb2-basics-runtime</artifactId>
+                    <version>0.5.2</version>
+                </dependency>
+
             </dependencies>
         </profile>
 
