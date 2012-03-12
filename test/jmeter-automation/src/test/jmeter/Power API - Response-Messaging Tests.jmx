@@ -557,7 +557,7 @@
                 <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
               </HTTPSamplerProxy>
               <hashTree>
-                <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Should Return 403" enabled="true">
+                <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Should Return 333" enabled="true">
                   <collectionProp name="Asserion.test_strings">
                     <stringProp name="50643">333</stringProp>
                   </collectionProp>
