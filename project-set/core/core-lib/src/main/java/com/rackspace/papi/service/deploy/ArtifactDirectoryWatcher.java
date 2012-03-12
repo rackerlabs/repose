@@ -8,8 +8,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ArtifactDirectoryWatcher implements Runnable, Destroyable {
+   private static final Logger LOG = LoggerFactory.getLogger(ArtifactDirectoryWatcher.class);
 
    private static final int DEFAULT_DIRECTORY_CHECK_INTERVAL = 12000;
    private final EventService eventManagerReference;
@@ -43,7 +46,7 @@ public class ArtifactDirectoryWatcher implements Runnable, Destroyable {
          try {
             wait(checkIntervalInMilliseconds);
          } catch (InterruptedException ie) {
-            // TODO:Log
+            LOG.info("Artifact directory watcher recieved an interrupt. Reason: " + ie.getMessage(), ie);
             
             destroy();
             Thread.currentThread().interrupt();
