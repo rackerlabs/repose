@@ -15,8 +15,8 @@ set -e
 # Source function library.
 . /lib/lsb/init-functions
 
-RUN_PORT=8080
-SHUTDOWN_PORT=8818
+RUN_PORT=8774
+SHUTDOWN_PORT=8123
 CONFIG_DIRECTORY=/etc/repose
 
 JAVA=/usr/bin/java
