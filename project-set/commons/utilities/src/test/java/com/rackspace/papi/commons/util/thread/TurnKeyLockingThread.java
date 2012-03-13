@@ -8,6 +8,7 @@ public class TurnKeyLockingThread extends Thread implements KeyedStackLockTestTh
 
     protected final KeyedStackLock lockReference;
     protected final Object key;
+    /// TODO: Review.  Should any of these be marked as volatile?  Or should their updates and reads be synchronized?
     protected boolean finished, passed, run, shouldStop, lock;
 
     public TurnKeyLockingThread(KeyedStackLock lockReference, Object key) {
