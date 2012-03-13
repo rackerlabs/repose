@@ -46,6 +46,11 @@
          <artifactId>jackson-xc</artifactId>
       </dependency>
       
+      <dependency>
+         <groupId>com.sun.jersey</groupId>
+         <artifactId>jersey-client</artifactId>
+         <version>1.9.1</version>
+      </dependency>
    </dependencies>
 </project>
 

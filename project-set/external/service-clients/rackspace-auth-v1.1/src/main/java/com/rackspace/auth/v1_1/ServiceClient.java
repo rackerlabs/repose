@@ -1,6 +1,7 @@
 package com.rackspace.auth.v1_1;
 
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import com.rackspace.papi.commons.util.logging.jersey.LoggingFilter;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -8,7 +9,6 @@ import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 
-import com.sun.jersey.api.client.filter.LoggingFilter;
 import com.sun.ws.rs.ext.RuntimeDelegateImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

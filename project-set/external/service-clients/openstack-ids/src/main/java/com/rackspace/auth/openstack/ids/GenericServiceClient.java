@@ -8,11 +8,11 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
-import com.sun.jersey.api.client.filter.LoggingFilter;
 import com.sun.ws.rs.ext.RuntimeDelegateImpl;
 import org.openstack.docs.identity.api.v2.AuthenticationRequest;
 import org.openstack.docs.identity.api.v2.PasswordCredentialsRequiredUsername;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import com.rackspace.papi.commons.util.logging.jersey.LoggingFilter;
 
 import javax.ws.rs.ext.RuntimeDelegate;
 import javax.xml.bind.JAXBElement;
