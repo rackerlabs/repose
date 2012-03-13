@@ -33,7 +33,8 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
    private final Object updateKey = new Object();
    private final Object readKey = new Object();
 
-   private ImmutableRMSConfiguration immutableRMSConfiguration;
+   private ImmutableStatusCodes immutableStatusCodes;
+   private ImmutableFormatTemplates immutableFormatTemplates;
 
    @Override
    public void destroy() {
@@ -67,7 +68,8 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
       configurationLock.lock(updateKey);
 
       try {
-        immutableRMSConfiguration = ImmutableRMSConfiguration.build(statusCodeMatchers);
+        immutableStatusCodes = ImmutableStatusCodes.build(statusCodeMatchers);
+        immutableFormatTemplates = ImmutableFormatTemplates.build(statusCodeMatchers);
       } finally {
          configurationLock.unlock(updateKey);
       }
@@ -82,7 +84,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
          configurationLock.lock(readKey);
 
          try {
-            httpLogFormatter = immutableRMSConfiguration.getMatchingLogFormatter(matchedCode.getId(), message.getMediaType());
+            httpLogFormatter = immutableFormatTemplates.getMatchingLogFormatter(matchedCode.getId(), message.getMediaType());
          } finally {
             configurationLock.unlock(readKey);
          }
@@ -97,8 +99,8 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
       configurationLock.lock(readKey);
 
       try {
-         if (immutableRMSConfiguration != null) {
-            matchedCode = immutableRMSConfiguration.getMatchingStatusCode(responseCode);
+         if (immutableStatusCodes != null) {
+            matchedCode = immutableStatusCodes.getMatchingStatusCode(responseCode);
          }
       } finally {
          configurationLock.unlock(readKey);
