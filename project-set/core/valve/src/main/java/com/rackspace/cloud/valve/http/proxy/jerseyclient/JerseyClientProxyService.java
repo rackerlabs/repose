@@ -73,6 +73,7 @@ public class JerseyClientProxyService implements ProxyService {
         cc.getProperties().put(ClientConfig.PROPERTY_THREADPOOL_SIZE, new Integer(20));
         client = Client.create(cc);
 
+        LOG.info("Enabling info logging of jersey client requests");
         client.addFilter(new LoggingFilter());
     }
     

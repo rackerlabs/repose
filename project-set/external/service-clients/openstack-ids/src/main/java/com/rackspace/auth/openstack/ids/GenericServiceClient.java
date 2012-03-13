@@ -17,11 +17,15 @@ import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import javax.ws.rs.ext.RuntimeDelegate;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author fran
  */
 public class GenericServiceClient {
+   private static final Logger LOG = LoggerFactory.getLogger(GenericServiceClient.class);
+   
     static {
         // TODO: This should be removed, relocated or ignored. This is related to the issues we were seeing
         // where Jersey would work on some JVM installations but not all. This was rectified by adding a dependency
@@ -45,6 +49,7 @@ public class GenericServiceClient {
         HTTPBasicAuthFilter authFilter = new HTTPBasicAuthFilter(username, password);
         client.addFilter(authFilter);
 
+        LOG.info("Enabling info logging of OpenStack Identity Service client requests");
         client.addFilter(new LoggingFilter());
     }
 

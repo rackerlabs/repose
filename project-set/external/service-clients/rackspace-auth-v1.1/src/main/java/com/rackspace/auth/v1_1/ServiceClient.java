@@ -37,6 +37,7 @@ public class ServiceClient {
       client.addFilter(authFilter);
 
       if (LOG.isDebugEnabled() || LOG.isTraceEnabled()) {
+         LOG.info("Enabling info logging of Rackspace Auth v1.1 client requests");
          client.addFilter(new LoggingFilter());
       }
    }

@@ -4,11 +4,10 @@ import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspacecloud.docs.auth.api.v1.FullToken;
 import com.rackspacecloud.docs.auth.api.v1.GroupsList;
+import com.rackspacecloud.docs.auth.api.v1.User;
 import com.sun.jersey.api.client.ClientResponse;
-import net.sf.ehcache.CacheManager;
-
-import java.util.Calendar;
-import java.util.GregorianCalendar;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -16,6 +15,7 @@ import java.util.GregorianCalendar;
  */
 public class AuthenticationServiceClient {
 
+   private static final Logger LOG = LoggerFactory.getLogger(AuthenticationServiceClient.class);
    private final String targetHostUri;
    private final ServiceClient serviceClient;
    private final ResponseUnmarshaller responseUnmarshaller;
@@ -70,16 +70,17 @@ public class AuthenticationServiceClient {
             final FullToken tokenResponse = responseUnmarshaller.unmarshall(validateTokenMethod.getData(), FullToken.class);
 
             tokenInfo = new CachableTokenInfo(account.getResult(), tokenResponse);
+            break;
+            
+         case 404: // User's token is bad
+            break;
+            
+         case 401: // Admin token is bad most likely
+            LOG.warn("Unable to validate token for tenant.  Has the admin token expired? " + validateTokenMethod.getStatusCode());
+            break;
       }
 
       return tokenInfo;
-   }
-
-   // ehcache expects ttl in seconds
-   private static Long convertFromMillisecondsToSeconds(long milliseconds) {
-      final long numberOfMillisecondsInASecond = 1000;
-
-      return milliseconds / numberOfMillisecondsInASecond;
    }
 
    private String getLastPart(String value, String sep) {
@@ -102,7 +103,20 @@ public class AuthenticationServiceClient {
       final String url = "/" + prefix + "/" + userId;
       final ClientResponse response = serviceClient.getClientResponse(targetHostUri + url);
 
-      return getLastPart(response.getHeaders().getFirst("Location"), "/");
+      switch (response.getStatus()) {
+         case 200:
+            User user = response.getEntity(User.class);
+            if (user != null) {
+               return user.getId();
+            }
+            break;
+            
+         default:
+            LOG.warn("Unable to determine user name from user id." + response.getStatus());
+            break;
+      }
+      
+      return "";
    }
 
    public GroupsList getGroups(String userName) {
@@ -113,6 +127,11 @@ public class AuthenticationServiceClient {
       switch (response) {
          case 200:
             groups = responseUnmarshaller.unmarshall(serviceResponse.getData(), GroupsList.class);
+            break;
+            
+         default:
+            LOG.warn("Unable to get groups for user id: " + serviceResponse.getStatusCode());
+            break;
       }
 
       return groups;

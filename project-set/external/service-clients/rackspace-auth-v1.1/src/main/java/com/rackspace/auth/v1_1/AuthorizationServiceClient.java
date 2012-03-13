@@ -4,61 +4,70 @@ import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspacecloud.docs.auth.api.v1.Endpoint;
 import com.rackspacecloud.docs.auth.api.v1.Service;
 import com.rackspacecloud.docs.auth.api.v1.ServiceCatalog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author fran
  */
 public class AuthorizationServiceClient {
-    private final String targetHostUri;
-    private final ServiceClient serviceClient;
-    private final ResponseUnmarshaller responseUnmarshaller;
 
-    public AuthorizationServiceClient(String targetHostUri, String username, String password) {
-        this.targetHostUri = targetHostUri;
-        this.serviceClient = new ServiceClient(username, password);
-        this.responseUnmarshaller = new ResponseUnmarshaller();
-    }
-    
-    public ServiceCatalog getServiceCatalogForUser(String user) throws AuthServiceException {
-        final ServiceClientResponse getServiceCatalogMethod = serviceClient.get(targetHostUri + "/users/" + user + "/serviceCatalog");
-        final int response = getServiceCatalogMethod.getStatusCode();
-        ServiceCatalog catalog = null;
+   private static final Logger LOG = LoggerFactory.getLogger(AuthorizationServiceClient.class);
+   private final String targetHostUri;
+   private final ServiceClient serviceClient;
+   private final ResponseUnmarshaller responseUnmarshaller;
 
-        switch (response) {
-            case 200:
-                catalog = responseUnmarshaller.unmarshall(getServiceCatalogMethod.getData(), ServiceCatalog.class);
-        }
+   public AuthorizationServiceClient(String targetHostUri, String username, String password) {
+      this.targetHostUri = targetHostUri;
+      this.serviceClient = new ServiceClient(username, password);
+      this.responseUnmarshaller = new ResponseUnmarshaller();
+   }
 
-        return catalog;
-    }
+   public ServiceCatalog getServiceCatalogForUser(String user) throws AuthServiceException {
+      final ServiceClientResponse getServiceCatalogMethod = serviceClient.get(targetHostUri + "/users/" + user + "/serviceCatalog");
+      final int response = getServiceCatalogMethod.getStatusCode();
+      ServiceCatalog catalog = null;
 
-    public AuthorizationResponse authorizeUser(String user, String requestedUri) throws AuthServiceException {
-        final ServiceClientResponse getServiceCatalogMethod = serviceClient.get(targetHostUri + "/users/" + user + "/serviceCatalog", null);
-        final int response = getServiceCatalogMethod.getStatusCode();
-        AuthorizationResponse authorizationResponse = null;
+      switch (response) {
+         case 200:
+            catalog = responseUnmarshaller.unmarshall(getServiceCatalogMethod.getData(), ServiceCatalog.class);
+            break;
+            
+         default:
+            LOG.warn("Unable to obtain service catalog for user: " + user + " - " + response);
+            break;
+      }
 
-        switch (response) {
-            case 200:
-                final ServiceCatalog catalog = responseUnmarshaller.unmarshall(getServiceCatalogMethod.getData(), ServiceCatalog.class);
+      return catalog;
+   }
 
-                if (catalog != null) {
-                    for (Service service : catalog.getService()) {
-                        for (Endpoint endpoint : service.getEndpoint()) {
-                            if (requestedUri.startsWith(endpoint.getPublicURL())) {
-                                authorizationResponse = new AuthorizationResponse(response, true);
-                            }
-                        }
-                    }
-                }
+   public AuthorizationResponse authorizeUser(String user, String requestedUri) throws AuthServiceException {
+      final ServiceClientResponse getServiceCatalogMethod = serviceClient.get(targetHostUri + "/users/" + user + "/serviceCatalog", null);
+      final int response = getServiceCatalogMethod.getStatusCode();
+      AuthorizationResponse authorizationResponse = null;
 
-                if (authorizationResponse == null) {
-                    authorizationResponse = new AuthorizationResponse(403, false);
-                }
-                break;
-            default :
-                authorizationResponse = new AuthorizationResponse(response, false);
-        }
+      switch (response) {
+         case 200:
+            final ServiceCatalog catalog = responseUnmarshaller.unmarshall(getServiceCatalogMethod.getData(), ServiceCatalog.class);
 
-        return authorizationResponse;
-    }
+            if (catalog != null) {
+               for (Service service : catalog.getService()) {
+                  for (Endpoint endpoint : service.getEndpoint()) {
+                     if (requestedUri.startsWith(endpoint.getPublicURL())) {
+                        authorizationResponse = new AuthorizationResponse(response, true);
+                     }
+                  }
+               }
+            }
+
+            if (authorizationResponse == null) {
+               authorizationResponse = new AuthorizationResponse(403, false);
+            }
+            break;
+         default:
+            authorizationResponse = new AuthorizationResponse(response, false);
+      }
+
+      return authorizationResponse;
+   }
 }
