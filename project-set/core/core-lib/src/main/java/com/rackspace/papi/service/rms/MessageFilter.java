@@ -10,7 +10,10 @@ import java.util.List;
 /**
  * @author fran
  */
-public class MessageFilter {
+public final class MessageFilter {
+
+   private MessageFilter() {      
+   }
 
    public static Message filterByMediaType(List<Message> messages, MediaType mediaType) {
       Message wildcard = null;

@@ -14,7 +14,7 @@ import java.util.regex.Pattern;
 /**
  * @author fran
  */
-public class ImmutableRMSConfiguration {
+public final class ImmutableRMSConfiguration {
    private final List<StatusCodeMatcher> statusCodeMatcherList = new LinkedList<StatusCodeMatcher>();
    private final Map<String, Pattern> statusCodeRegexes = new HashMap<String, Pattern>();
    private final Map<String, HttpLogFormatter> formatTemplates = new HashMap<String, HttpLogFormatter>();

@@ -97,7 +97,9 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
       configurationLock.lock(readKey);
 
       try {
-         matchedCode = immutableRMSConfiguration.getMatchingStatusCode(responseCode);
+         if (immutableRMSConfiguration != null) {
+            matchedCode = immutableRMSConfiguration.getMatchingStatusCode(responseCode);
+         }
       } finally {
          configurationLock.unlock(readKey);
       }
