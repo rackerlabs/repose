@@ -56,7 +56,7 @@ public abstract class AbstractPipeline implements Pipeline {
          try {
             ((InputStream)source).close();
          } catch (IOException ex) {
-            LOG.error("Unable to close input stream", ex);
+            LOG.error("Unable to close input stream. Reason: " + ex.getMessage(), ex);
          }
          resolver.removeStream((InputStream)source);
       }
