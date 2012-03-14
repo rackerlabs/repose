@@ -44,7 +44,7 @@ public class TransformerImpl implements Transformer {
 
             templates.newTransformer().transform(new StreamSource(inputStream), new StreamResult(outputStream));
         } catch (TransformerException e) {
-            throw new TransformationException("The translation could not be performed.", e);
+            throw new TransformationException("The translation could not be performed. Reason: " + e.getMessage(), e);
         }
     }
 }

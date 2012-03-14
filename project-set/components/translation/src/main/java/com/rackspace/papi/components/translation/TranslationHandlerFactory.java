@@ -49,7 +49,7 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
                    return new CalabashPipelineBuilder(false).build(config.getRequestTranslationProcess().getHref());
 
                   } catch (PipelineException ex) {
-                     throw new ResourceConstructionException("Unable to build request pipeline", ex);
+                     throw new ResourceConstructionException("Unable to build request pipeline.  Reason: " + ex.getMessage(), ex);
                   }
                }
             });
@@ -61,7 +61,7 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
                    return new CalabashPipelineBuilder(false).build(config.getResponseTranslationProcess().getHref());
 
                   } catch (PipelineException ex) {
-                     throw new ResourceConstructionException("Unable to build request pipeline", ex);
+                     throw new ResourceConstructionException("Unable to build request pipeline. Reason: " + ex.getMessage(), ex);
                   }
                }
             });
