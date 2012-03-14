@@ -52,8 +52,10 @@ public class RequestStreamPostProcessor implements InputStreamPostProcessor {
          return resultStream;
          
       } catch (TransformerException ex) {
+         // TODO: Should we log the exception here?
          throw new PostProcessorException(ex);
       } catch (IOException ex) {
+         // TODO: Should we log the exception here?
          throw new PostProcessorException(ex);
       }
    }

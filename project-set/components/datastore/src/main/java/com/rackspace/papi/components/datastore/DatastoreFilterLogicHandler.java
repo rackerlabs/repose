@@ -68,7 +68,7 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
                }
             }
          } catch (UnknownHostException uhe) {
-            LOG.error("Unknown host exception caught while trying to resolve host: " + request.getRemoteHost());
+            LOG.error("Unknown host exception caught while trying to resolve host: " + request.getRemoteHost() + " Reason: " + uhe.getMessage(), uhe);
          }
       }
 
@@ -93,6 +93,7 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
             onCacheDelete(request, director);
          }
       } catch (MalformedCacheRequestException mcre) {
+         LOG.error("The request to interact with the cache is malformed: " + request.getMethod() + " Reason: " + mcre.getMessage(), mcre);
          director.getResponseWriter().write(mcre.getMessage() == null ? "" : mcre.getMessage());
          director.setResponseStatus(HttpStatusCode.BAD_REQUEST);
          director.setFilterAction(FilterAction.RETURN);
