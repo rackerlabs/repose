@@ -12,53 +12,49 @@ import java.util.jar.JarInputStream;
 
 public class EarUnpacker {
 
-    private final File deploymentDirectory;
+   private final File deploymentDirectory;
 
-    public EarUnpacker(File rootDeploymentDirectory) {
-        deploymentDirectory = new File(rootDeploymentDirectory, UUID.randomUUID().toString());
-    }
+   public EarUnpacker(File rootDeploymentDirectory) {
+      deploymentDirectory = new File(rootDeploymentDirectory, UUID.randomUUID().toString());
+   }
 
-    public File getDeploymentDirectory() {
-        return deploymentDirectory;
-    }
+   public File getDeploymentDirectory() {
+      return deploymentDirectory;
+   }
 
-    public EarClassLoaderContext read(EarArchiveEntryListener entryListener, File earFile) throws IOException {
-        JarInputStream jarInputStream = new JarInputStream(new FileInputStream(earFile));
-        final Stack<ArchiveStackElement> archiveStack = new Stack<ArchiveStackElement>();
-        archiveStack.push(new ArchiveStackElement(jarInputStream, ArchiveEntryDescriptor.ROOT_ARCHIVE));
+   public EarClassLoaderContext read(EarArchiveEntryListener entryListener, File earFile) throws IOException {
+      JarInputStream jarInputStream = new JarInputStream(new FileInputStream(earFile));
+      final Stack<ArchiveStackElement> archiveStack = new Stack<ArchiveStackElement>();
+      archiveStack.push(new ArchiveStackElement(jarInputStream, ArchiveEntryDescriptor.ROOT_ARCHIVE));
 
-        ManifestProcessor.processManifest(ArchiveEntryDescriptorBuilder.build(ArchiveEntryDescriptor.ROOT_ARCHIVE, ManifestProcessor.MANIFEST_PATH), jarInputStream, entryListener);
+      ManifestProcessor.processManifest(ArchiveEntryDescriptorBuilder.build(ArchiveEntryDescriptor.ROOT_ARCHIVE, ManifestProcessor.MANIFEST_PATH), jarInputStream, entryListener);
 
-        while (archiveStack.size() > 0) {
-            ArchiveStackElement currentStackElement = archiveStack.pop();
-            JarEntry nextJarEntry = currentStackElement.getInputStream().getNextJarEntry();
+      while (archiveStack.size() > 0) {
+         ArchiveStackElement currentStackElement = archiveStack.pop();
+         JarEntry nextJarEntry = currentStackElement.getInputStream().getNextJarEntry();
 
-            while (nextJarEntry != null) {
-                final ArchiveEntryDescriptor entryDescriptor = ArchiveEntryDescriptorBuilder.build(currentStackElement.getArchiveName(), nextJarEntry.getName());
-                final EntryAction actionToTake = entryDescriptor != null ? entryListener.nextJarEntry(entryDescriptor) : EntryAction.SKIP;
+         while (nextJarEntry != null) {
+            final ArchiveEntryDescriptor entryDescriptor = ArchiveEntryDescriptorBuilder.build(currentStackElement.getArchiveName(), nextJarEntry.getName());
+            final EntryAction actionToTake = entryDescriptor != null ? entryListener.nextJarEntry(entryDescriptor) : EntryAction.SKIP;
 
-                if (actionToTake.processingAction() != ProcessingAction.SKIP) {
-                    try {
-                        final ArchiveEntryProcessor archiveEntryProcessor = new ArchiveEntryProcessor(entryDescriptor, deploymentDirectory, entryListener);
-                        final ArchiveStackElement newStackElement = archiveEntryProcessor.processEntry(actionToTake, currentStackElement);
+            if (actionToTake.processingAction() != ProcessingAction.SKIP) {
+               final ArchiveEntryProcessor archiveEntryProcessor = new ArchiveEntryProcessor(entryDescriptor, deploymentDirectory, entryListener);
+               final ArchiveStackElement newStackElement = archiveEntryProcessor.processEntry(actionToTake, currentStackElement);
 
-                        if (!newStackElement.equals(currentStackElement)) {
-                            archiveStack.push(currentStackElement);
-                            currentStackElement = newStackElement;
-                        }
-                    } catch (IOException iioe) {
-                        throw iioe;
-                    }
-                }
-
-                nextJarEntry = currentStackElement.getInputStream().getNextJarEntry();
+               if (!newStackElement.equals(currentStackElement)) {
+                  archiveStack.push(currentStackElement);
+                  currentStackElement = newStackElement;
+               }
             }
 
-            currentStackElement.getInputStream().close();
-        }
+            nextJarEntry = currentStackElement.getInputStream().getNextJarEntry();
+         }
 
-        jarInputStream.close();
+         currentStackElement.getInputStream().close();
+      }
 
-        return entryListener.getClassLoaderContext();
-    }
+      jarInputStream.close();
+
+      return entryListener.getClassLoaderContext();
+   }
 }
