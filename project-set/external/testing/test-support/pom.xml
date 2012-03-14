@@ -30,7 +30,6 @@
       <dependency>
          <groupId>com.sun.jersey</groupId>
          <artifactId>jersey-server</artifactId>
-         <version>1.9.1</version>
       </dependency>
         
       <dependency>
@@ -48,7 +47,6 @@
       <dependency>
          <groupId>com.sun.jersey</groupId>
          <artifactId>jersey-client</artifactId>
-         <version>1.9.1</version>
       </dependency>
 
       <dependency>
@@ -76,7 +74,6 @@
       <dependency>
          <groupId>com.sun.jersey.test.framework</groupId>
          <artifactId>jersey-test-framework</artifactId>
-         <version>1.0.3.1</version>
          <scope>test</scope>
       </dependency>
       <!-- javax.mail provides a functional version of javaee jar required for tests -->
