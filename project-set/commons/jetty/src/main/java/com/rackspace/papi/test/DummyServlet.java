@@ -8,9 +8,9 @@ import javax.servlet.http.HttpServletResponse;
 
 public class DummyServlet extends HttpServlet {
 
-    @Override
-    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setStatus(200);
-        resp.getWriter().write(req.getRequestURI());
-    }
+   @Override
+   protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+      resp.setStatus(200);
+      resp.getWriter().write(req.getRequestURI());
+   }
 }
