@@ -11,14 +11,13 @@ public class InputStreamConfigurationParser extends AbstractConfigurationObjectP
    public InputStreamConfigurationParser() {
       super(InputStream.class);
    }
-   
+
    @Override
    public InputStream read(ConfigurationResource cr) {
       try {
          return cr.newInputStream();
       } catch (IOException ex) {
-            throw new ResourceResolutionException("Unable to read configuration file: " + cr.name(), ex);
+         throw new ResourceResolutionException("Unable to read configuration file: " + cr.name(), ex);
       }
    }
-   
 }

@@ -7,10 +7,6 @@ import javax.servlet.http.HttpServletResponse;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-/**
- *
- * 
- */
 public class TimeReceivedHandler implements FormatterLogic {
 
     @Override

@@ -76,7 +76,8 @@ public class InputStreamMerger extends InputStream {
          remaining -= skipped;
          totalSkipped += skipped;
 
-         if (skipped < count) {
+         if (skipped < count && getCurrentStream().available() <= 0) {
+            // Skip to next stream to continue skipping
             index++;
          }
       }

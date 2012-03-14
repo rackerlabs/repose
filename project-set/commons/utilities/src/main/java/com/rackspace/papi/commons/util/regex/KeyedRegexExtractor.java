@@ -19,7 +19,7 @@ public class KeyedRegexExtractor<K> {
    public void addPattern(String regexString) {
       compiledPatternMap.put(Pattern.compile(regexString), null);
    }
-   
+
    public void addPattern(String regexString, K key) {
       compiledPatternMap.put(Pattern.compile(regexString), key);
    }
@@ -32,7 +32,7 @@ public class KeyedRegexExtractor<K> {
             return new ExtractorResult<K>(matcher.group(1), patternToKeyEntry.getValue());
          }
       }
-      
+
       return null;
    }
 }

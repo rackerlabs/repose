@@ -11,17 +11,15 @@ public class PropertiesFileConfigurationParser extends AbstractConfigurationObje
    public PropertiesFileConfigurationParser() {
       super(Properties.class);
    }
-   
+
    @Override
    public Properties read(ConfigurationResource cr) {
       Properties properties = new Properties();
       try {
          properties.load(cr.newInputStream());
       } catch (IOException ex) {
-            throw new ResourceResolutionException("Unable to read configuration file: " + cr.name(), ex);
+         throw new ResourceResolutionException("Unable to read configuration file: " + cr.name(), ex);
       }
       return properties;
    }
-
-   
 }

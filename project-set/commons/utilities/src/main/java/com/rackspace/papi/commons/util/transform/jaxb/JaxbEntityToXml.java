@@ -10,31 +10,27 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
-/**
- *
- * 
- */
 public class JaxbEntityToXml extends AbstractJaxbTransform implements Transform<JAXBElement, String> {
 
-    public JaxbEntityToXml(JAXBContext ctx) {
-        super(ctx);
-    }
+   public JaxbEntityToXml(JAXBContext ctx) {
+      super(ctx);
+   }
 
-    @Override
-    public String transform(final JAXBElement source) {
-        return getMarshallerPool().use(new ResourceContext<Marshaller, String>() {
+   @Override
+   public String transform(final JAXBElement source) {
+      return getMarshallerPool().use(new ResourceContext<Marshaller, String>() {
 
-            @Override
-            public String perform(Marshaller resource) throws ResourceContextException {
-                final StringWriter w = new StringWriter();
+         @Override
+         public String perform(Marshaller resource) throws ResourceContextException {
+            final StringWriter w = new StringWriter();
 
-                try {
-                    resource.marshal(source, w);
-                    return w.getBuffer().toString();
-                } catch (JAXBException jaxbe) {
-                    throw new ResourceConstructionException(jaxbe.getMessage(), jaxbe);
-                }
+            try {
+               resource.marshal(source, w);
+               return w.getBuffer().toString();
+            } catch (JAXBException jaxbe) {
+               throw new ResourceConstructionException(jaxbe.getMessage(), jaxbe);
             }
-        });
-    }
+         }
+      });
+   }
 }

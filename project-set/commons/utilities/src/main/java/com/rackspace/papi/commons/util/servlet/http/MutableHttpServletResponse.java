@@ -2,15 +2,14 @@ package com.rackspace.papi.commons.util.servlet.http;
 
 import com.rackspace.papi.commons.util.io.ByteBufferInputStream;
 import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
-import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
-
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpServletResponseWrapper;
+import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpServletResponseWrapper;
 
 public class MutableHttpServletResponse extends HttpServletResponseWrapper implements ReadableHttpServletResponse {
 
