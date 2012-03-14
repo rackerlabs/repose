@@ -5,12 +5,12 @@
    <parent>
       <groupId>com.rackspace.papi</groupId>
       <artifactId>profile-support</artifactId>
-      <version>1.2.1-SNAPSHOT</version>
+      <version>1.2.1</version>
    </parent>
 
    <groupId>com.rackspace.papi.core</groupId>
    <artifactId>core-support</artifactId>
-   <version>1.2.1-SNAPSHOT</version>
+   <version>1.2.1</version>
 
    <name>Power API Core - Core Support</name>
     
@@ -35,7 +35,7 @@
          <dependency>
             <groupId>org.openrepose.servlet</groupId>
             <artifactId>servlet-api</artifactId>
-            <version>1.2.1-SNAPSHOT</version>
+            <version>1.2.1</version>
          </dependency>
 
          <dependency>
@@ -47,7 +47,7 @@
          <dependency>
             <groupId>com.rackspace.papi.external</groupId>
             <artifactId>jee6-schemas</artifactId>
-            <version>1.2.1-SNAPSHOT</version>
+            <version>1.2.1</version>
          </dependency>
         
          <dependency>
@@ -59,25 +59,25 @@
          <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>configuration</artifactId>
-            <version>1.2.1-SNAPSHOT</version>
+            <version>1.2.1</version>
          </dependency>
 
          <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>utilities</artifactId>
-            <version>1.2.1-SNAPSHOT</version>
+            <version>1.2.1</version>
          </dependency>
             
          <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>jetty-container</artifactId>
-            <version>1.2.1-SNAPSHOT</version>
+            <version>1.2.1</version>
          </dependency>
             
          <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>classloader</artifactId>
-            <version>1.2.1-SNAPSHOT</version>
+            <version>1.2.1</version>
          </dependency>
       </dependencies>
    </dependencyManagement>
