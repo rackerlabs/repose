@@ -103,7 +103,7 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
       try {
          cache.storeToken(user.getTenantId(), user, user.tokenTtl().intValue());
       } catch (IOException ex) {
-         LOG.warn("Unable to cache user token information: " + user.getUserId());
+         LOG.warn("Unable to cache user token information: " + user.getUserId() + " Reason: " + ex.getMessage(), ex);
       }
    }
 

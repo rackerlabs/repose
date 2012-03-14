@@ -3,7 +3,6 @@ package com.rackspace.papi.components.identity.parsers.json;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.transform.json.JacksonJaxbTransform;
 import com.rackspace.papi.components.identity.content.credentials.AuthCredentials;
-import com.rackspace.papi.components.identity.content.credentials.maps.CredentialMap;
 import com.rackspace.papi.components.identity.content.credentials.wrappers.CredentialsWrapper;
 import com.rackspace.papi.components.identity.parsers.AuthContentParser;
 import java.io.IOException;
@@ -23,7 +22,7 @@ public class JsonJaxbAuthContentParser implements AuthContentParser {
       try {
          return parse(new String(RawInputStreamReader.instance().readFully(stream)));
       } catch(IOException ex) {
-         LOG.warn("Error reading JSON stream", ex);
+         LOG.warn("Error reading JSON stream. Reason: " + ex.getMessage(), ex);
       }
       
       return null;

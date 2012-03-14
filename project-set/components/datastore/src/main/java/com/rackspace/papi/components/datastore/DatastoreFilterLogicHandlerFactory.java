@@ -84,7 +84,7 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
                   final InetAddress hostAddress = InetAddress.getByName(host.getHost());
                   newHostList.add(hostAddress);
                } catch(UnknownHostException uhe) {
-                  LOG.error("Unable to resolve name: " + host.getHost() + " - Ignoring this host.");
+                  LOG.error("Unable to resolve name: " + host.getHost() + " - Ignoring this host. Reason: " + uhe.getMessage(), uhe);
                }
             }
 
