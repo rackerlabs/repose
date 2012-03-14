@@ -38,7 +38,7 @@ public class HeaderValueImpl implements HeaderValue {
    private static Map<String, String> qualityFactorToParameterMap(double qualityFactor) {
       final Map<String, String> parameters = new HashMap<String, String>();
       if (qualityFactor != DEFAULT_QUALITY) {
-        parameters.put(QUALITY_FACTOR_PARAM_NAME, String.valueOf(qualityFactor));
+         parameters.put(QUALITY_FACTOR_PARAM_NAME, String.valueOf(qualityFactor));
       }
 
       return parameters;
@@ -57,8 +57,7 @@ public class HeaderValueImpl implements HeaderValue {
    }
 
    /**
-    * This constructor copies the parameter map into the header value parameter
-    * map.
+    * This constructor copies the parameter map into the header value parameter map.
     *
     * @param value
     * @param parameters
@@ -106,10 +105,10 @@ public class HeaderValueImpl implements HeaderValue {
    @Override
    public int hashCode() {
       int hash = 7;
-      
+
       hash = 67 * hash + (this.parameters != null ? this.parameters.hashCode() : 0);
       hash = 67 * hash + (this.value != null ? this.value.hashCode() : 0);
-      
+
       return hash;
    }
 
@@ -124,7 +123,7 @@ public class HeaderValueImpl implements HeaderValue {
             comparasionValue = compareHeaderValues(this.getValue(), that.getValue());
          }
       }
-      
+
       return comparasionValue;
    }
 

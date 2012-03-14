@@ -7,19 +7,19 @@ import java.io.ObjectStreamClass;
 
 public class ThreadContextAwareObjectInputStream extends ObjectInputStream {
 
-    public ThreadContextAwareObjectInputStream(InputStream in) throws IOException {
-        super(in);
-    }
+   public ThreadContextAwareObjectInputStream(InputStream in) throws IOException {
+      super(in);
+   }
 
-    @Override
-    protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
-        final ClassLoader threadContextClassLoader = Thread.currentThread().getContextClassLoader();
+   @Override
+   protected Class<?> resolveClass(ObjectStreamClass desc) throws IOException, ClassNotFoundException {
+      final ClassLoader threadContextClassLoader = Thread.currentThread().getContextClassLoader();
 
-        try {
-            return threadContextClassLoader.loadClass(desc.getName());
-        } catch (ClassNotFoundException cnfe) {
-        }
+      try {
+         return threadContextClassLoader.loadClass(desc.getName());
+      } catch (ClassNotFoundException cnfe) {
+      }
 
-        return super.resolveClass(desc);
-    }
+      return super.resolveClass(desc);
+   }
 }

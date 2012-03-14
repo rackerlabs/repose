@@ -9,24 +9,24 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 
-public class JaxbToStreamTransform <T extends OutputStream> extends AbstractJaxbTransform implements StreamTransform<JAXBElement, T> {
+public class JaxbToStreamTransform<T extends OutputStream> extends AbstractJaxbTransform implements StreamTransform<JAXBElement, T> {
 
-    public JaxbToStreamTransform(JAXBContext ctx) {
-        super(ctx);
-    }
+   public JaxbToStreamTransform(JAXBContext ctx) {
+      super(ctx);
+   }
 
-    @Override
-    public void transform(final JAXBElement source, final T target) {
-        getMarshallerPool().use(new SimpleResourceContext<Marshaller>() {
+   @Override
+   public void transform(final JAXBElement source, final T target) {
+      getMarshallerPool().use(new SimpleResourceContext<Marshaller>() {
 
-            @Override
-            public void perform(Marshaller resource) throws ResourceContextException {
-                try {
-                    resource.marshal(source, target);
-                } catch (JAXBException jaxbe) {
-                    throw new ResourceContextException(jaxbe.getMessage(), jaxbe);
-                }
+         @Override
+         public void perform(Marshaller resource) throws ResourceContextException {
+            try {
+               resource.marshal(source, target);
+            } catch (JAXBException jaxbe) {
+               throw new ResourceContextException(jaxbe.getMessage(), jaxbe);
             }
-        });
-    }
+         }
+      });
+   }
 }

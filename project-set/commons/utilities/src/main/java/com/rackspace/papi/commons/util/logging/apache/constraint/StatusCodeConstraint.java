@@ -1,14 +1,10 @@
 package com.rackspace.papi.commons.util.logging.apache.constraint;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
+import javax.servlet.http.HttpServletResponse;
 
-/**
- *
- *
- */
 public class StatusCodeConstraint {
 
    private static final Pattern STATUS_CODE_RX = Pattern.compile(",");
@@ -29,9 +25,9 @@ public class StatusCodeConstraint {
          statusCodes.add(Integer.parseInt(st));
       }
    }
-   
+
    private String removeNegation(String codes) {
-      return codes.startsWith("!")? codes.substring(1): codes;
+      return codes.startsWith("!") ? codes.substring(1) : codes;
    }
 
    public void addStatusCode(Integer statusCode) {

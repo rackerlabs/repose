@@ -1,15 +1,11 @@
 package com.rackspace.papi.commons.util.logging.apache.format;
 
 import com.rackspace.papi.commons.util.logging.apache.constraint.StatusCodeConstraint;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- *
- * 
- */
 public class LogArgumentFormatter implements FormatArgumentHandler {
+
    private StatusCodeConstraint statusCodeConstraint;
    private FormatterLogic logic;
 
@@ -32,7 +28,7 @@ public class LogArgumentFormatter implements FormatArgumentHandler {
       return pass && getLogic() != null ? getLogic().handle(request, response) : "-";
    }
 
-    public FormatterLogic getLogic() {
-        return logic;
-    }
+   public FormatterLogic getLogic() {
+      return logic;
+   }
 }

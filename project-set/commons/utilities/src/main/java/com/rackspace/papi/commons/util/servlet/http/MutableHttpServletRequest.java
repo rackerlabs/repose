@@ -1,13 +1,13 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 
 /**
  *
@@ -15,106 +15,105 @@ import java.util.Map;
  */
 public final class MutableHttpServletRequest extends HttpServletRequestWrapper {
 
-    public static MutableHttpServletRequest wrap(HttpServletRequest request) {
-        return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request);
-    }
-    
-    private final Map<String, List<String>> headers;
-    private StringBuffer requestUrl;
-    private String requestUri;
+   public static MutableHttpServletRequest wrap(HttpServletRequest request) {
+      return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request);
+   }
+   private final Map<String, List<String>> headers;
+   private StringBuffer requestUrl;
+   private String requestUri;
 
-    private MutableHttpServletRequest(HttpServletRequest request) {
-        super(request);
+   private MutableHttpServletRequest(HttpServletRequest request) {
+      super(request);
 
-        requestUrl = request.getRequestURL();
-        requestUri = request.getRequestURI();
+      requestUrl = request.getRequestURL();
+      requestUri = request.getRequestURI();
 
-        headers = new HashMap<String, List<String>>();
-        
-        copyHeaders(request);
-    }
-    
-    private void copyHeaders(HttpServletRequest request) {
-        final Enumeration<String> headerNames = request.getHeaderNames();
-        
-        while (headerNames.hasMoreElements()) {
-            final String headerName = headerNames.nextElement().toLowerCase();  //Normalize to lowercase
-            
-            final Enumeration<String> headerValues = request.getHeaders(headerName);
-            final List<String> copiedHeaderValues = new LinkedList<String>();
-            
-            while (headerValues.hasMoreElements()) {
-                copiedHeaderValues.add(headerValues.nextElement());
-            }
-            
-            headers.put(headerName, copiedHeaderValues);
-        }
-    }
+      headers = new HashMap<String, List<String>>();
 
-    @Override
-    public String getRequestURI() {
-        return requestUri;
-    }
+      copyHeaders(request);
+   }
 
-    public void setRequestUri(String requestUri) {
-        this.requestUri = requestUri;
-    }
+   private void copyHeaders(HttpServletRequest request) {
+      final Enumeration<String> headerNames = request.getHeaderNames();
 
-    @Override
-    public StringBuffer getRequestURL() {
-        return requestUrl;
-    }
+      while (headerNames.hasMoreElements()) {
+         final String headerName = headerNames.nextElement().toLowerCase();  //Normalize to lowercase
 
-    public void setRequestUrl(StringBuffer requestUrl) {
-        this.requestUrl = requestUrl;
-    }
+         final Enumeration<String> headerValues = request.getHeaders(headerName);
+         final List<String> copiedHeaderValues = new LinkedList<String>();
 
-    public void addHeader(String name, String value) {
-        final String lowerCaseName = name.toLowerCase();
+         while (headerValues.hasMoreElements()) {
+            copiedHeaderValues.add(headerValues.nextElement());
+         }
 
-        List<String> headerValues = headers.get(lowerCaseName);
+         headers.put(headerName, copiedHeaderValues);
+      }
+   }
 
-        if (headerValues == null) {
-            headerValues = new LinkedList<String>();
-        }
+   @Override
+   public String getRequestURI() {
+      return requestUri;
+   }
 
-        headerValues.add(value);
+   public void setRequestUri(String requestUri) {
+      this.requestUri = requestUri;
+   }
 
-        headers.put(lowerCaseName, headerValues);
-    }
+   @Override
+   public StringBuffer getRequestURL() {
+      return requestUrl;
+   }
 
-    public void replaceHeader(String name, String value) {
-        final List<String> headerValues = new LinkedList<String>();
+   public void setRequestUrl(StringBuffer requestUrl) {
+      this.requestUrl = requestUrl;
+   }
 
-        headerValues.add(value);
+   public void addHeader(String name, String value) {
+      final String lowerCaseName = name.toLowerCase();
 
-        headers.put(name.toLowerCase(), headerValues);
-    }
+      List<String> headerValues = headers.get(lowerCaseName);
 
-    public void removeHeader(String name) {
-        headers.remove(name.toLowerCase());
-    }
+      if (headerValues == null) {
+         headerValues = new LinkedList<String>();
+      }
 
-    @Override
-    public String getHeader(String name) {
-        return fromMap(headers, name.toLowerCase());
-    }
+      headerValues.add(value);
 
-    @Override
-    public Enumeration<String> getHeaderNames() {
-        return Collections.enumeration(headers.keySet());
-    }
+      headers.put(lowerCaseName, headerValues);
+   }
 
-    @Override
-    public Enumeration<String> getHeaders(String name) {
-        final List<String> headerValues = headers.get(name.toLowerCase());
-        
-        return Collections.enumeration(headerValues != null ? headerValues : Collections.EMPTY_SET);
-    }
+   public void replaceHeader(String name, String value) {
+      final List<String> headerValues = new LinkedList<String>();
 
-    static String fromMap(Map<String, List<String>> headers, String headerName) {
-        final List<String> headerValues = headers.get(headerName);
+      headerValues.add(value);
 
-        return (headerValues != null && headerValues.size() > 0) ? headerValues.get(0) : null;
-    }   
+      headers.put(name.toLowerCase(), headerValues);
+   }
+
+   public void removeHeader(String name) {
+      headers.remove(name.toLowerCase());
+   }
+
+   @Override
+   public String getHeader(String name) {
+      return fromMap(headers, name.toLowerCase());
+   }
+
+   @Override
+   public Enumeration<String> getHeaderNames() {
+      return Collections.enumeration(headers.keySet());
+   }
+
+   @Override
+   public Enumeration<String> getHeaders(String name) {
+      final List<String> headerValues = headers.get(name.toLowerCase());
+
+      return Collections.enumeration(headerValues != null ? headerValues : Collections.EMPTY_SET);
+   }
+
+   static String fromMap(Map<String, List<String>> headers, String headerName) {
+      final List<String> headerValues = headers.get(headerName);
+
+      return (headerValues != null && headerValues.size() > 0) ? headerValues.get(0) : null;
+   }
 }

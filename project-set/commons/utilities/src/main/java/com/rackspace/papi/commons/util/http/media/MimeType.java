@@ -2,10 +2,6 @@ package com.rackspace.papi.commons.util.http.media;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 
-/**
- *
- *
- */
 public enum MimeType {
 
    APPLICATION_XML("application", "xml"),

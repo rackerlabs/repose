@@ -1,123 +1,118 @@
 package com.rackspace.papi.commons.util.thread;
 
+import java.util.HashSet;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.HashSet;
-import java.util.Set;
-
-/**
- *
- * 
- */
 public class KeyedStackLock {
-    private static final Logger LOG = LoggerFactory.getLogger(KeyedStackLock.class);
 
-    private final Set<Thread> threadsHoldingLock;
-    private boolean locked;
-    private int waitDepth;
-    private Object currentKey;
+   private static final Logger LOG = LoggerFactory.getLogger(KeyedStackLock.class);
+   private final Set<Thread> threadsHoldingLock;
+   private boolean locked;
+   private int waitDepth;
+   private Object currentKey;
 
-    public KeyedStackLock() {
-        waitDepth = 0;
-        locked = false;
-        currentKey = null;
+   public KeyedStackLock() {
+      waitDepth = 0;
+      locked = false;
+      currentKey = null;
 
-        threadsHoldingLock = new HashSet<Thread>();
-    }
+      threadsHoldingLock = new HashSet<Thread>();
+   }
 
-    public boolean isLocked() {
-        return locked;
-    }
+   public boolean isLocked() {
+      return locked;
+   }
 
-    public void lock(Object key) {
-        try {
-            lockInterruptibly(key);
-        } catch (InterruptedException ie) {
-            String keyString = (key != null ? key.toString() : "UNDEFINED");
-            LOG.warn("failed lock attempt using key: " + keyString, ie);
-            
-            Thread.currentThread().interrupt();
-        }
-    }
+   public void lock(Object key) {
+      try {
+         lockInterruptibly(key);
+      } catch (InterruptedException ie) {
+         String keyString = (key != null ? key.toString() : "UNDEFINED");
+         LOG.warn("failed lock attempt using key: " + keyString, ie);
 
-    public synchronized boolean tryLock(Object key) {
-        if (!locked || currentKey.equals(key)) {
-            registerThread(new LockRequest(Thread.currentThread(), key));
+         Thread.currentThread().interrupt();
+      }
+   }
 
-            return true;
-        }
+   public synchronized boolean tryLock(Object key) {
+      if (!locked || currentKey.equals(key)) {
+         registerThread(new LockRequest(Thread.currentThread(), key));
 
-        return false;
-    }
+         return true;
+      }
 
-    public synchronized void lockInterruptibly(Object key) throws InterruptedException {
-        final LockRequest qlr = new LockRequest(Thread.currentThread(), key);
+      return false;
+   }
 
-        if (waitDepth > 0 || (locked && !currentKey.equals(key))) {
-            unsafeWaitOnLock(qlr);
-        }
+   public synchronized void lockInterruptibly(Object key) throws InterruptedException {
+      final LockRequest qlr = new LockRequest(Thread.currentThread(), key);
 
-        registerThread(qlr);
-    }
+      if (waitDepth > 0 || (locked && !currentKey.equals(key))) {
+         unsafeWaitOnLock(qlr);
+      }
 
-    /**
-     * WARNING! WARNING! WARNING!
-     *
-     * This method expects that the object monitor is already captured by the
-     * caller's thread.
-     * @param lockRequest lockRequest
-     * @throws InterruptedException InterruptedException
-     */
-    private void unsafeWaitOnLock(LockRequest lockRequest) throws InterruptedException {
-        do {
-            waitDepth++;
-            wait();
-            waitDepth--;
-        } while (locked && currentKey != lockRequest.getLockKey());
-    }
+      registerThread(qlr);
+   }
 
-    private void clearLockStatus() {
-        currentKey = null;
-        locked = false;
-    }
+   /**
+    * WARNING! WARNING! WARNING!
+    *
+    * This method expects that the object monitor is already captured by the caller's thread.
+    *
+    * @param lockRequest lockRequest
+    * @throws InterruptedException InterruptedException
+    */
+   private void unsafeWaitOnLock(LockRequest lockRequest) throws InterruptedException {
+      do {
+         waitDepth++;
+         wait();
+         waitDepth--;
+      } while (locked && currentKey != lockRequest.getLockKey());
+   }
 
-    private void registerThread(LockRequest qlr) {
-        LOG.debug("Registering thread: " + qlr.getThreadReference().toString());
+   private void clearLockStatus() {
+      currentKey = null;
+      locked = false;
+   }
 
-        if (!threadsHoldingLock.add(qlr.getThreadReference())) {
-            LOG.warn("failed thread registration [lockKey: " + qlr.getLockKey() + "]");
-        }
+   private void registerThread(LockRequest qlr) {
+      LOG.debug("Registering thread: " + qlr.getThreadReference().toString());
 
-        if (!locked) {
-            locked = true;
-            currentKey = qlr.getLockKey();
-        }
-    }
+      if (!threadsHoldingLock.add(qlr.getThreadReference())) {
+         LOG.warn("failed thread registration [lockKey: " + qlr.getLockKey() + "]");
+      }
 
-    public synchronized void unlock(Object key) {
-        if (!locked) {
-            throw new IllegalStateException("Keyed lock is not currently locked");
-        }
+      if (!locked) {
+         locked = true;
+         currentKey = qlr.getLockKey();
+      }
+   }
 
-        if (!currentKey.equals(key)) {
-            throw new IllegalArgumentException("Key does not match the key used to hold the lock");
-        }
+   public synchronized void unlock(Object key) {
+      if (!locked) {
+         throw new IllegalStateException("Keyed lock is not currently locked");
+      }
 
-        final Thread currentThreadReference = Thread.currentThread();
+      if (!currentKey.equals(key)) {
+         throw new IllegalArgumentException("Key does not match the key used to hold the lock");
+      }
 
-        if (!threadsHoldingLock.remove(currentThreadReference)) {
-            throw new IllegalMonitorStateException("Thread reference: "
-                    + currentThreadReference.getName()
-                    + " does not have a keyed lock on this lock");
-        }
+      final Thread currentThreadReference = Thread.currentThread();
 
-        if (threadsHoldingLock.isEmpty()) {
-            clearLockStatus();
-        }
+      if (!threadsHoldingLock.remove(currentThreadReference)) {
+         throw new IllegalMonitorStateException("Thread reference: "
+                 + currentThreadReference.getName()
+                 + " does not have a keyed lock on this lock");
+      }
 
-        if (waitDepth > 0) {
-            notify();
-        }
-    }
+      if (threadsHoldingLock.isEmpty()) {
+         clearLockStatus();
+      }
+
+      if (waitDepth > 0) {
+         notify();
+      }
+   }
 }

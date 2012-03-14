@@ -17,13 +17,13 @@ public class LimitedReadInputStream extends InputStream {
       this.delegateStream = delegateStream;
       this.readLimit = readLimit;
    }
-   
+
    @Override
    public int read() throws IOException {
       if (++bytesRead > readLimit) {
          throw new ReadLimitReachedException("Read limit of " + readLimit + " for input stream has been reached");
       }
-      
+
       return delegateStream.read();
    }
 }

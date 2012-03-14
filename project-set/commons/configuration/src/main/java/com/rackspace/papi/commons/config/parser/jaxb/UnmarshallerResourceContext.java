@@ -22,13 +22,6 @@ public class UnmarshallerResourceContext implements ResourceContext<Unmarshaller
    @Override
    public Object perform(Unmarshaller resource) throws ResourceContextException {
       try {
-         // This should not belong in production code. The boolean value that controls this is switchable only at compile time.
-         
-//         if (log) {
-//            LoggerFactory.getLogger(UnmarshallerResourceContext.class).error(
-//                    new String(RawInputStreamReader.instance().readFully(cfgResource.newInputStream())));
-//         }
-
          return resource.unmarshal(cfgResource.newInputStream());
       } catch (JAXBException jaxbe) {
          throw new ResourceContextException("Failed to unmarshall resource " + cfgResource.name()

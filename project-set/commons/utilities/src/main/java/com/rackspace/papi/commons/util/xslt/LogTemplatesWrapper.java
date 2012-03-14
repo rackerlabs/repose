@@ -1,7 +1,6 @@
 package com.rackspace.papi.commons.util.xslt;
 
 import java.util.Properties;
-
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -15,10 +14,12 @@ public final class LogTemplatesWrapper implements Templates {
       this.templates = templates;
    }
 
+   @Override
    public Properties getOutputProperties() {
       return templates.getOutputProperties();
    }
 
+   @Override
    public Transformer newTransformer() 
       throws TransformerConfigurationException {
       Transformer tr = templates.newTransformer();

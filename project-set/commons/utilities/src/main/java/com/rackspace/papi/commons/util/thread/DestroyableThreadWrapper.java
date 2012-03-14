@@ -6,51 +6,49 @@ import org.slf4j.LoggerFactory;
 
 public class DestroyableThreadWrapper implements Destroyable {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DestroyableThreadWrapper.class);
-    
-    public static <T extends Destroyable & Runnable> DestroyableThreadWrapper newThread(T threadLogic) {
-        return new DestroyableThreadWrapper(new Thread(threadLogic), threadLogic);
-    }
-    
-    
-    private final Thread threadReference;
-    private final Destroyable threadLogic;
+   private static final Logger LOG = LoggerFactory.getLogger(DestroyableThreadWrapper.class);
 
-    public DestroyableThreadWrapper(Thread threadReference, Destroyable threadLogic) {
-        if (threadReference == null || threadLogic == null) {
-            throw new IllegalArgumentException("References for creating a destroyable thread reference must not be null." +
-                    "Thread Reference: " + threadReference + " - Thread Logic: " + threadLogic);
-        }
-        
-        this.threadReference = threadReference;
-        this.threadLogic = threadLogic;
-    }
+   public static <T extends Destroyable & Runnable> DestroyableThreadWrapper newThread(T threadLogic) {
+      return new DestroyableThreadWrapper(new Thread(threadLogic), threadLogic);
+   }
+   private final Thread threadReference;
+   private final Destroyable threadLogic;
 
-    public void start() {
-        // Was it started?
-        if (threadReference.getState() != Thread.State.NEW) {
-            throw new IllegalStateException("Thread already started. Thread object: " + threadReference);
-        }
-        
-        threadReference.start();
-    }
+   public DestroyableThreadWrapper(Thread threadReference, Destroyable threadLogic) {
+      if (threadReference == null || threadLogic == null) {
+         throw new IllegalArgumentException("References for creating a destroyable thread reference must not be null."
+                 + "Thread Reference: " + threadReference + " - Thread Logic: " + threadLogic);
+      }
 
-    @Override
-    public synchronized void destroy() {
-        threadLogic.destroy();
+      this.threadReference = threadReference;
+      this.threadLogic = threadLogic;
+   }
 
-        // Was it started?
-        if (threadReference.getState() != Thread.State.NEW) {
-            threadReference.interrupt();
-        
-            while (threadReference.getState() != Thread.State.TERMINATED) {
-                try {
-                    wait(15);
-                } catch (InterruptedException ie) {
-                    LOG.error("Caught an interrupted exception while waiting for thread death.", ie);
-                    break;
-                }
+   public void start() {
+      // Was it started?
+      if (threadReference.getState() != Thread.State.NEW) {
+         throw new IllegalStateException("Thread already started. Thread object: " + threadReference);
+      }
+
+      threadReference.start();
+   }
+
+   @Override
+   public synchronized void destroy() {
+      threadLogic.destroy();
+
+      // Was it started?
+      if (threadReference.getState() != Thread.State.NEW) {
+         threadReference.interrupt();
+
+         while (threadReference.getState() != Thread.State.TERMINATED) {
+            try {
+               wait(15);
+            } catch (InterruptedException ie) {
+               LOG.error("Caught an interrupted exception while waiting for thread death.", ie);
+               break;
             }
-        }
-    }
+         }
+      }
+   }
 }

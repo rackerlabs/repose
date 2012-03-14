@@ -17,23 +17,23 @@ import javax.xml.transform.stream.StreamSource;
  */
 public class StreamToXsltTransform extends AbstractXslTransform implements StreamTransform<InputStream, OutputStream> {
 
-    public StreamToXsltTransform(Templates transformationTemplates) {
-        super(transformationTemplates);
-    }
+   public StreamToXsltTransform(Templates transformationTemplates) {
+      super(transformationTemplates);
+   }
 
-    @Override
-    public void transform(final InputStream source, final OutputStream target) {
-        getXslTransformerPool().use(new SimpleResourceContext<Transformer>() {
+   @Override
+   public void transform(final InputStream source, final OutputStream target) {
+      getXslTransformerPool().use(new SimpleResourceContext<Transformer>() {
 
-            @Override
-            public void perform(Transformer resource) throws ResourceContextException {
-                try {
-                    resource.transform(new StreamSource(source), new StreamResult(target));
-                } catch (TransformerException te) {
-                    throw new XsltTransformationException("Failed while attempting XSLT transformation;. Reason: "
-                            + te.getMessage(), te);
-                }
+         @Override
+         public void perform(Transformer resource) throws ResourceContextException {
+            try {
+               resource.transform(new StreamSource(source), new StreamResult(target));
+            } catch (TransformerException te) {
+               throw new XsltTransformationException("Failed while attempting XSLT transformation;. Reason: "
+                       + te.getMessage(), te);
             }
-        });
-    }
+         }
+      });
+   }
 }

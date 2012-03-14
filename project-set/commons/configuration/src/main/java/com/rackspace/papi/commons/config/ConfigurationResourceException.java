@@ -1,9 +1,5 @@
 package com.rackspace.papi.commons.config;
 
-/**
- *
- *
- */
 public class ConfigurationResourceException extends RuntimeException {
 
    public ConfigurationResourceException(String string) {
