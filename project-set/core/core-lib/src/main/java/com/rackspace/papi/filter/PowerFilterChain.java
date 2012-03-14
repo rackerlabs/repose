@@ -84,7 +84,7 @@ public class PowerFilterChain implements FilterChain {
             containerFilterChain.doFilter(servletRequest, servletResponse);
             route(servletRequest, servletResponse);
          } catch (Exception ex) {
-            LOG.error("Failure in filter within container filter chain. Please debug.", ex);
+            LOG.error("Failure in filter within container filter chain. Reason: " + ex.getMessage(), ex);
          } finally {
             currentThread.setContextClassLoader(previousClassLoader);
          }

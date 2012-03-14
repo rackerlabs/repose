@@ -34,7 +34,7 @@ public class RequestBodyNode extends ObjectFactoryUser implements Node {
       try {
          body.getContent().add(processor.getBodyStream());
       } catch (IOException e) {
-         LOG.error("Error adding body stream", e);
+         LOG.error("Error adding body stream. Reason: " + e.getMessage(), e);
       }
 
       messageRequest.setBody(body);

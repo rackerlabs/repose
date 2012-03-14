@@ -8,20 +8,24 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
-import com.sun.jersey.api.client.filter.LoggingFilter;
 import com.sun.ws.rs.ext.RuntimeDelegateImpl;
 import org.openstack.docs.identity.api.v2.AuthenticationRequest;
 import org.openstack.docs.identity.api.v2.PasswordCredentialsRequiredUsername;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import com.rackspace.papi.commons.util.logging.jersey.LoggingFilter;
 
 import javax.ws.rs.ext.RuntimeDelegate;
 import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author fran
  */
 public class GenericServiceClient {
+   private static final Logger LOG = LoggerFactory.getLogger(GenericServiceClient.class);
+   
     static {
         // TODO: This should be removed, relocated or ignored. This is related to the issues we were seeing
         // where Jersey would work on some JVM installations but not all. This was rectified by adding a dependency
@@ -45,6 +49,7 @@ public class GenericServiceClient {
         HTTPBasicAuthFilter authFilter = new HTTPBasicAuthFilter(username, password);
         client.addFilter(authFilter);
 
+        LOG.info("Enabling info logging of OpenStack Identity Service client requests");
         client.addFilter(new LoggingFilter());
     }
 

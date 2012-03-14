@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rackspace.cloud.valve.http.proxy.jerseyclient.logging;
+package com.rackspace.papi.commons.util.logging.jersey;
 
 import com.sun.jersey.api.client.AbstractClientRequestAdapter;
 import com.sun.jersey.api.client.ClientHandlerException;

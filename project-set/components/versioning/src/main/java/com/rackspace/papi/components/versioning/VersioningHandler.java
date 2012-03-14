@@ -5,7 +5,6 @@ import com.rackspace.papi.components.versioning.util.http.HttpRequestInfo;
 import com.rackspace.papi.components.versioning.util.http.HttpRequestInfoImpl;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.versioning.domain.ConfigurationData;
 import com.rackspace.papi.components.versioning.domain.VersionedHostNotFoundException;
@@ -59,12 +58,12 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
             filterDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
             filterDirector.setFilterAction(FilterAction.RETURN);
 
-            LOG.warn("Configured versioned service mapping refers to a bad pp-host-id", vhnfe);
+            LOG.warn("Configured versioned service mapping refers to a bad pp-host-id. Reason: " + vhnfe.getMessage(), vhnfe);
         } catch (MalformedURLException murlex) {
             filterDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
             filterDirector.setFilterAction(FilterAction.RETURN);
 
-            LOG.warn("Configured versioned service mapping refers to a bad host definition", murlex);
+            LOG.warn("Configured versioned service mapping refers to a bad host definition. Reason: " + murlex.getMessage(), murlex);
         }
 
         // This is not a version we recognize - tell the client what's up

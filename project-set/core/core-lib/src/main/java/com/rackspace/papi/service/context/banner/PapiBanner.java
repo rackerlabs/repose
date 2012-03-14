@@ -22,7 +22,7 @@ public final class PapiBanner {
                 log.info(bannerString);
             }
         } catch (IOException ioe) {
-            LOG.warn("NON-FATAL: " + ioe.getMessage(), ioe);
+            LOG.warn("NON-FATAL - Failure in reading Papi the Narwhal's start banner. Reason: " + ioe.getMessage(), ioe);
         }
     }
 }

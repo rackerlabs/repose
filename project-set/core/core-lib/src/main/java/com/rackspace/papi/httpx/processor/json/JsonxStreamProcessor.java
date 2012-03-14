@@ -2,9 +2,7 @@ package com.rackspace.papi.httpx.processor.json;
 
 import com.rackspace.papi.commons.util.Destroyable;
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
-//import com.rackspace.papi.components.translation.preprocessor.Element;
-//import com.rackspace.papi.components.translation.preprocessor.InputStreamProcessor;
-//import com.rackspace.papi.components.translation.preprocessor.PreProcessorException;
+
 import com.rackspace.papi.httpx.processor.common.Element;
 import com.rackspace.papi.httpx.processor.common.InputStreamProcessor;
 import com.rackspace.papi.httpx.processor.common.PreProcessorException;
@@ -81,7 +79,7 @@ public class JsonxStreamProcessor implements InputStreamProcessor {
             handler.endDocument();
             out.close();
          } catch (Exception ex) {
-            LOG.error("Error processing JSON input stream", ex);
+            LOG.error("Error processing JSON input stream. Reason: " + ex.getMessage(), ex);
          }
       }
 

@@ -6,12 +6,15 @@ import org.openstack.docs.identity.api.v2.Role;
 import java.io.Serializable;
 import java.util.Calendar;
 import org.openstack.docs.identity.api.v2.Token;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author fran
  */
 public class CachableUserInfo implements Serializable {
 
+   private static final Logger LOG = LoggerFactory.getLogger(CachableUserInfo.class);
    private final String tokenId;
    private final String userId;
    private final String username;
@@ -46,6 +49,8 @@ public class CachableUserInfo implements Serializable {
       long result = 0;
       if (token != null && token.getExpires() != null) {
          result = token.getExpires().toGregorianCalendar().getTimeInMillis();
+      } else {
+         LOG.warn("Unable to determine token expiration for tenant: " + tenantId);
       }
 
       return result;

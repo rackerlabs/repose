@@ -4,7 +4,7 @@
     <parent>
         <groupId>com.rackspace.papi.core</groupId>
         <artifactId>core-support</artifactId>
-        <version>1.2.1-SNAPSHOT</version>
+        <version>1.2.2-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.core</groupId>
@@ -202,15 +202,26 @@
                                     </mapper>
                                 </data>
 
-                                    <!-- The log file -->
+                                    <!-- The /var/log/repose directory -->
                                 <data>
-                                    <src>${project.build.directory}/../src/deb/current.log</src>
+                                    <src>${project.build.directory}/../src/deb/.log_dir_placeholder</src>
                                     <type>file</type>
                                     <mapper>
                                         <type>perm</type>
                                         <prefix>/var/log/repose</prefix>
                                     </mapper>
                                 </data>
+
+                                    <!-- The /var/repose directory -->
+                                <data>
+                                    <src>${project.build.directory}/../src/deb/.var_repose_dir_placeholder</src>
+                                    <type>file</type>
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>/var/repose</prefix>
+                                    </mapper>
+                                </data>
+
 
                                     <!--The git.properties file -->
                                 <data>

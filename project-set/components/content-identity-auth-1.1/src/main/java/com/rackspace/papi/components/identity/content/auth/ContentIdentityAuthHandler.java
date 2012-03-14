@@ -51,7 +51,7 @@ public class ContentIdentityAuthHandler extends AbstractFilterLogicHandler {
          jaxbContext = JAXBContext.newInstance(com.rackspacecloud.docs.auth.api.v1.ObjectFactory.class);
          xmlTransformer = new StreamToJaxbTransform(jaxbContext);
       } catch (JAXBException e) {
-         LOG.error("Error when create JABXContext for auth credentials.", e);
+         LOG.error("Error when create JABXContext for auth credentials. Reason: " + e.getMessage(), e);
       }
    }
 
@@ -75,7 +75,7 @@ public class ContentIdentityAuthHandler extends AbstractFilterLogicHandler {
 
       } catch (IOException ex) {
          filterDirector.setFilterAction(FilterAction.NOT_SET);
-         LOG.error("Unable to read message body stream", ex);
+         LOG.error("Unable to read message body stream. Reason: " + ex.getMessage(), ex);
       }
 
       return filterDirector;

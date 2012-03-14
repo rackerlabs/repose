@@ -109,6 +109,7 @@ public class CalabashPipeline extends AbstractPipeline implements Pipeline {
             clearParameters(inputs);
          }
       } catch (SaxonApiException ex) {
+         // TODO: Should we log the exception here?
          throw new PipelineException(ex);
       }
    }
@@ -138,6 +139,7 @@ public class CalabashPipeline extends AbstractPipeline implements Pipeline {
 
          return nodes;
       } catch (SaxonApiException ex) {
+         // TODO: Should we log the exception here?
          throw new PipelineException(ex);
       }
    }
@@ -159,8 +161,10 @@ public class CalabashPipeline extends AbstractPipeline implements Pipeline {
 
          return ret;
       }catch (TransformerConfigurationException tce) {
+         // TODO: Should we log the exception here?
          throw new PipelineException (tce);
       }catch (TransformerException te) {
+         // TODO: Should we log the exception here?
          throw new PipelineException (te);
       }
    }

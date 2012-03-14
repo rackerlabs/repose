@@ -3,8 +3,11 @@ package com.rackspace.auth.v1_1;
 import com.rackspacecloud.docs.auth.api.v1.FullToken;
 import java.io.Serializable;
 import java.util.Calendar;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CachableTokenInfo implements Serializable {
+   private static final Logger LOG = LoggerFactory.getLogger(CachableTokenInfo.class);
    private final String tenantId;
    private final String userId;
    private final String tokenId;
@@ -25,6 +28,8 @@ public class CachableTokenInfo implements Serializable {
       long result = 0;
       if (token != null && token.getExpires() != null) {
          result = token.getExpires().toGregorianCalendar().getTimeInMillis();
+      } else {
+         LOG.warn("Unable to determine token expiration for tenant: " + tenantId);
       }
       
       return result;

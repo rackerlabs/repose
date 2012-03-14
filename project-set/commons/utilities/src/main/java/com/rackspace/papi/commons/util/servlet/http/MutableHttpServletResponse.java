@@ -12,69 +12,86 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 
-public final class MutableHttpServletResponse extends HttpServletResponseWrapper implements ReadableHttpServletResponse {
+public class MutableHttpServletResponse extends HttpServletResponseWrapper implements ReadableHttpServletResponse {
 
-    public static MutableHttpServletResponse wrap(HttpServletResponse response) {
-        return response instanceof MutableHttpServletResponse
-                ? (MutableHttpServletResponse) response
-                : new MutableHttpServletResponse(response);
-    }
-    private final ByteBuffer internalBuffer;
-    private final ServletOutputStream outputStream;
-    private final PrintWriter outputStreamWriter;
+   public static MutableHttpServletResponse wrap(HttpServletResponse response) {
+      return response instanceof MutableHttpServletResponse
+              ? (MutableHttpServletResponse) response
+              : new MutableHttpServletResponse(response);
+   }
 
-    private MutableHttpServletResponse(HttpServletResponse response) {
-        super(response);
+   private final ByteBuffer internalBuffer;
+   private final ServletOutputStream outputStream;
+   private final PrintWriter outputStreamWriter;
 
-        internalBuffer = new CyclicByteBuffer();
-        outputStream = new ByteBufferServletOutputStream(internalBuffer);
-        outputStreamWriter = new PrintWriter(outputStream);
-    }
+   private MutableHttpServletResponse(HttpServletResponse response) {
+      super(response);
 
-    @Override
-    public InputStream getBufferedOutputAsInputStream() {
-        return new ByteBufferInputStream(internalBuffer);
-    }
+      internalBuffer = new CyclicByteBuffer();
+      outputStream = new ByteBufferServletOutputStream(internalBuffer);
+      outputStreamWriter = new PrintWriter(outputStream);
+   }
 
-    @Override
-    public void flushBuffer() throws IOException {
-        commitBufferToServletOutputStream();
+   @Override
+   public InputStream getBufferedOutputAsInputStream() {
+      return new ByteBufferInputStream(internalBuffer);
+   }
 
-        super.flushBuffer();
-    }
+   @Override
+   public void flushBuffer() throws IOException {
+      commitBufferToServletOutputStream();
 
-    public void commitBufferToServletOutputStream() throws IOException {
-        // The writer has its own buffer
-        outputStreamWriter.flush();
+      super.flushBuffer();
+   }
 
-        final byte[] bytes = new byte[2048];
-        final ServletOutputStream realOutputStream = super.getOutputStream();
+   public void commitBufferToServletOutputStream() throws IOException {
+      // The writer has its own buffer
+      outputStreamWriter.flush();
 
-        while (internalBuffer.available() > 0) {
-            final int read = internalBuffer.get(bytes);
-            realOutputStream.write(bytes, 0, read);
-        }
-    }
+      final byte[] bytes = new byte[2048];
+      final ServletOutputStream realOutputStream = super.getOutputStream();
 
-    @Override
-    public void resetBuffer() {
-        internalBuffer.clear();
+      while (internalBuffer.available() > 0) {
+         final int read = internalBuffer.get(bytes);
+         realOutputStream.write(bytes, 0, read);
+      }
+   }
 
-        super.resetBuffer();
-    }
+   public boolean hasBody() {
+      boolean hasBody = false;
 
-    @Override
-    public int getBufferSize() {
-        return internalBuffer.available() + internalBuffer.remaining();
-    }
+      InputStream body = this.getBufferedOutputAsInputStream();
 
-    @Override
-    public ServletOutputStream getOutputStream() throws IOException {
-        return outputStream;
-    }
+      try {
+         if (body != null && body.available() > 0) {
+            hasBody = true;
+         }
+      } catch (IOException e) {
+         hasBody = false;
+      }
 
-    @Override
-    public PrintWriter getWriter() throws IOException {
-        return outputStreamWriter;
-    }   
+      return hasBody;
+   }
+
+   @Override
+   public void resetBuffer() {
+      internalBuffer.clear();
+
+      super.resetBuffer();
+   }
+
+   @Override
+   public int getBufferSize() {
+      return internalBuffer.available() + internalBuffer.remaining();
+   }
+
+   @Override
+   public ServletOutputStream getOutputStream() throws IOException {
+      return outputStream;
+   }
+
+   @Override
+   public PrintWriter getWriter() throws IOException {
+      return outputStreamWriter;
+   }
 }

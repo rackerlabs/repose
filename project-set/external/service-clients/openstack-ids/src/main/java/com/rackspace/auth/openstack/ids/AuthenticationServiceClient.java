@@ -8,12 +8,15 @@ import java.util.List;
 import org.openstack.docs.identity.api.v2.Endpoint;
 import org.openstack.docs.identity.api.v2.EndpointList;
 import org.openstack.docs.identity.api.v2.Token;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author fran
  */
 public class AuthenticationServiceClient implements OpenStackAuthenticationService {
 
+   private static final Logger LOG = LoggerFactory.getLogger(AuthenticationServiceClient.class);
    private final String targetHostUri;
    private final GenericServiceClient serviceClient;
    private final OpenStackCoreResponseUnmarshaller openStackCoreResponseUnmarshaller;
@@ -30,13 +33,21 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
    @Override
    public CachableUserInfo validateToken(String tenant, String userToken) {
       CachableUserInfo token = null;
-
+      
       final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, getAdminToken(), "belongsTo", tenant);
 
       switch (serviceResponse.getStatusCode()) {
          case 200:
             final AuthenticateResponse authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
             token = new CachableUserInfo(tenant, authenticateResponse);
+            break;
+            
+         case 404: // User's token is bad
+            break;
+            
+         case 401: // Admin token is bad most likely
+            LOG.warn("Unable to validate token for tenant.  Has the admin token expired? " + serviceResponse.getStatusCode());
+            break;
       }
 
       return token;
@@ -54,6 +65,12 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
             if (unmarshalledEndpoints != null) {
                endpointList = unmarshalledEndpoints.getEndpoint();
             }
+            
+            break;
+            
+         default:
+            LOG.warn("Unable to get endpoints for token: " + endpointListResponse.getStatusCode());
+            break;
       }
 
       return endpointList;
@@ -67,6 +84,12 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
       switch (serviceResponse.getStatusCode()) {
          case 200:
             groups = openStackGroupsResponseUnmarshaller.unmarshall(serviceResponse.getData(), Groups.class);
+            break;
+            
+         default:
+            LOG.warn("Unable to get groups for user id: " + serviceResponse.getStatusCode());
+            break;
+            
       }
 
       return groups;
@@ -85,6 +108,11 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
                Token token = authenticateResponse.getToken();
                currentAdminToken = new AdminToken(token.getId(), token.getExpires().toGregorianCalendar());
                adminToken = currentAdminToken.getToken();
+               break;
+               
+            default:
+               LOG.error("Unable to get admin token.  Verify admin credentials. " + serviceResponse.getStatusCode());
+               break;
          }
       }
 

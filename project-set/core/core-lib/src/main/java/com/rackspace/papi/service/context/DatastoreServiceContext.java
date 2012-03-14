@@ -12,9 +12,12 @@ import net.sf.ehcache.config.Configuration;
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.servlet.ServletContextEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DatastoreServiceContext implements ServiceContext<DatastoreService> {
 
+   private static final Logger LOG = LoggerFactory.getLogger(DatastoreServiceContext.class);
    public static final String DATASTORE_NAME = "powerapi:/datastore";
    public static final String SERVICE_NAME = "powerapi:/datastore/service";
    private DatastoreService datastoreService;
@@ -36,6 +39,7 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
       try {
          namingContext.destroySubcontext(SERVICE_NAME);
       } catch (NamingException ne) {
+         LOG.warn("Failure in attempting to destroy sub-context \"" + SERVICE_NAME + "\" - Reason: " + ne.getMessage(), ne);
       }
    }
 
