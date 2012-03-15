@@ -27,7 +27,7 @@
     </filter>
 
     <filter>
-        <filter-name>content-identity-auth</filter-name>
+        <filter-name>content-identity-rs-auth-1.1</filter-name>
         <filter-class>com.rackspace.papi.components.identity.content.auth.ContentIdentityAuthFilter</filter-class>
     </filter>
 
