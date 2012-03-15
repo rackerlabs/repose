@@ -68,7 +68,7 @@ public class EarClassLoader extends ClassLoader {
          }
          
          if (c == null) {
-            LOG.warn("Unable to load class: " + name);
+            LOG.debug("Unable to load class: " + name);
          }
       }
 
@@ -106,7 +106,7 @@ public class EarClassLoader extends ClassLoader {
          if (descriptor != null) {
             resourceUrl = descriptorToUrl(descriptor);
          } else {
-            LOG.warn("Unable to find resource: " + resourcePath);
+            LOG.debug("Unable to find resource: " + resourcePath);
          }
       }
 
