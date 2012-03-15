@@ -10,78 +10,75 @@ import java.util.jar.JarInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- */
 public class ArchiveEntryProcessor {
-    private static final Logger LOG = LoggerFactory.getLogger(ArchiveEntryProcessor.class);
-    
-    private final ArchiveEntryDescriptor archiveEntryDescriptor;
-    private final File unpackRootDirectory;
-    private final ArchiveEntryListener listener;
-    static final int BUFFER_READ_LENGTH_IN_BYTES = 1024;
 
-    public ArchiveEntryProcessor(ArchiveEntryDescriptor archiveEntryDescriptor, File unpackRootDirectory, ArchiveEntryListener listener) {
-        this.archiveEntryDescriptor = archiveEntryDescriptor;
-        this.unpackRootDirectory = unpackRootDirectory;
-        this.listener = listener;
-    }
+   private static final Logger LOG = LoggerFactory.getLogger(ArchiveEntryProcessor.class);
+   private final ArchiveEntryDescriptor archiveEntryDescriptor;
+   private final File unpackRootDirectory;
+   private final ArchiveEntryListener listener;
+   static final int BUFFER_READ_LENGTH_IN_BYTES = 1024;
 
-    public ArchiveStackElement processEntry(EntryAction actionToTake, ArchiveStackElement entry) throws IOException {
-        ArchiveStackElement currentStackElement = entry;
-        final byte[] entryBytes = loadNextEntry(currentStackElement.getInputStream(), actionToTake.deploymentAction());
+   public ArchiveEntryProcessor(ArchiveEntryDescriptor archiveEntryDescriptor, File unpackRootDirectory, ArchiveEntryListener listener) {
+      this.archiveEntryDescriptor = archiveEntryDescriptor;
+      this.unpackRootDirectory = unpackRootDirectory;
+      this.listener = listener;
+   }
 
-        switch (actionToTake.processingAction()) {
-            case PROCESS_AS_CLASS:
-                listener.newClass(archiveEntryDescriptor, entryBytes);
-                break;
-            case PROCESS_AS_RESOURCE:
-                listener.newResource(archiveEntryDescriptor, entryBytes);
-                break;
-            case DESCEND_INTO_JAR_FORMAT_ARCHIVE :
-                currentStackElement = descendIntoEntry(entryBytes);
-                break;
-        }
+   public ArchiveStackElement processEntry(EntryAction actionToTake, ArchiveStackElement entry) throws IOException {
+      ArchiveStackElement currentStackElement = entry;
+      final byte[] entryBytes = loadNextEntry(currentStackElement.getInputStream(), actionToTake.deploymentAction());
 
-        return currentStackElement;
-    }
-             
-    public byte[] loadNextEntry(JarInputStream jarInputStream, DeploymentAction packingAction) throws IOException {
-        final ByteArrayOutputStream byteArrayOutput = new ByteArrayOutputStream();
-        OutputStream outputStreamReference = byteArrayOutput;
+      switch (actionToTake.processingAction()) {
+         case PROCESS_AS_CLASS:
+            listener.newClass(archiveEntryDescriptor, entryBytes);
+            break;
+         case PROCESS_AS_RESOURCE:
+            listener.newResource(archiveEntryDescriptor, entryBytes);
+            break;
+         case DESCEND_INTO_JAR_FORMAT_ARCHIVE:
+            currentStackElement = descendIntoEntry(entryBytes);
+            break;
+      }
 
-        if (packingAction == DeploymentAction.UNPACK_ENTRY) {
-            outputStreamReference = new OutputStreamSplitter(byteArrayOutput, unpackEntry());
-        }
+      return currentStackElement;
+   }
 
-        RawInputStreamReader.instance().copyTo(jarInputStream, outputStreamReference);
+   public byte[] loadNextEntry(JarInputStream jarInputStream, DeploymentAction packingAction) throws IOException {
+      final ByteArrayOutputStream byteArrayOutput = new ByteArrayOutputStream();
+      OutputStream outputStreamReference = byteArrayOutput;
 
-        // add to internal resource hashtable
-        return byteArrayOutput.toByteArray();
-    }
+      if (packingAction == DeploymentAction.UNPACK_ENTRY) {
+         outputStreamReference = new OutputStreamSplitter(byteArrayOutput, unpackEntry());
+      }
 
-    public FileOutputStream unpackEntry() throws FileNotFoundException {
-        final String prefix = archiveEntryDescriptor.getPrefix();
-        final File targetDir = new File(unpackRootDirectory, StringUtilities.isBlank(prefix) ? "" : prefix);
-        final DirectoryHelper directoryHelper = new DirectoryHelper(targetDir);
-        
-        if (!directoryHelper.exists()) {
-            if (!directoryHelper.createTargetDirectory()) {
-                LOG.error("Unable to create target directory for unpacking artifact - Target directory: " + targetDir);
-            }
-        }
-        
-        final File target = new File(targetDir, archiveEntryDescriptor.getSimpleName() + "." + archiveEntryDescriptor.getExtension());
-        
-        return new FileOutputStream(target);
-    }
+      RawInputStreamReader.instance().copyTo(jarInputStream, outputStreamReference);
 
-    public ArchiveStackElement descendIntoEntry(final byte[] entryBytes) throws IOException {
-        final JarInputStream embeddedJarInputStream = new JarInputStream(new ByteArrayInputStream(entryBytes));
-        final ArchiveStackElement newArchiveStackElement = new ArchiveStackElement(embeddedJarInputStream, archiveEntryDescriptor.fullName());
+      // add to internal resource hashtable
+      return byteArrayOutput.toByteArray();
+   }
 
-        ManifestProcessor.processManifest(ArchiveEntryDescriptorBuilder.build(ArchiveEntryDescriptor.ROOT_ARCHIVE, ManifestProcessor.MANIFEST_PATH), embeddedJarInputStream, listener);
+   public FileOutputStream unpackEntry() throws FileNotFoundException {
+      final String prefix = archiveEntryDescriptor.getPrefix();
+      final File targetDir = new File(unpackRootDirectory, StringUtilities.isBlank(prefix) ? "" : prefix);
+      final DirectoryHelper directoryHelper = new DirectoryHelper(targetDir);
 
-        return newArchiveStackElement;
-    }
+      if (!directoryHelper.exists()) {
+         if (!directoryHelper.createTargetDirectory()) {
+            LOG.error("Unable to create target directory for unpacking artifact - Target directory: " + targetDir);
+         }
+      }
+
+      final File target = new File(targetDir, archiveEntryDescriptor.getSimpleName() + "." + archiveEntryDescriptor.getExtension());
+
+      return new FileOutputStream(target);
+   }
+
+   public ArchiveStackElement descendIntoEntry(final byte[] entryBytes) throws IOException {
+      final JarInputStream embeddedJarInputStream = new JarInputStream(new ByteArrayInputStream(entryBytes));
+      final ArchiveStackElement newArchiveStackElement = new ArchiveStackElement(embeddedJarInputStream, archiveEntryDescriptor.fullName());
+
+      ManifestProcessor.processManifest(ArchiveEntryDescriptorBuilder.build(ArchiveEntryDescriptor.ROOT_ARCHIVE, ManifestProcessor.MANIFEST_PATH), embeddedJarInputStream, listener);
+
+      return newArchiveStackElement;
+   }
 }
