@@ -27,31 +27,32 @@ public class CredentialFactory {
    }
 
    public static AuthCredentials getCredentials(Credentials credentials) {
+      AuthCredentials authCredentials = null;
 
       if (credentials != null) {
          if (credentials instanceof MossoCredentials) {
 
             MossoCredentialsWrapper credentialsWrapper = new MossoCredentialsWrapper();
             credentialsWrapper.setMossoCredentials((MossoCredentials)credentials);
-            return credentialsWrapper;
+            authCredentials = credentialsWrapper;
          } else if (credentials instanceof NastCredentials) {
 
             NastCredentialsWrapper credentialsWrapper = new NastCredentialsWrapper();
             credentialsWrapper.setNastCredentials((NastCredentials) credentials);
-            return credentialsWrapper;
+            authCredentials = credentialsWrapper;
          } else if (credentials instanceof PasswordCredentials) {
 
             PasswordCredentialsWrapper credentialsWrapper = new PasswordCredentialsWrapper();
             credentialsWrapper.setPasswordCredentials((PasswordCredentials) credentials);
-            return credentialsWrapper;
+            authCredentials = credentialsWrapper;
          } else if (credentials instanceof UserCredentials) {
 
             UserCredentialsWrapper credentialsWrapper = new UserCredentialsWrapper();
             credentialsWrapper.setUserCredentials((UserCredentials) credentials);
-            return credentialsWrapper;
+            authCredentials = credentialsWrapper;
          }
       }
                  
-      return null;
+      return authCredentials;
    }
 }
