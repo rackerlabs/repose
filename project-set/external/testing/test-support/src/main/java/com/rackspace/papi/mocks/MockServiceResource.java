@@ -29,6 +29,18 @@ public class MockServiceResource {
         return provider.getEndService(body,headers, uri);
     }
     
+    @POST
+    @Path("{id : .*}")
+    public Response postEndService(String body, @Context HttpHeaders headers, @Context UriInfo uri) {
+        return provider.getEndService(body,headers, uri);
+    }
+    
+    @POST
+    @Path("/")
+    public Response postService(String body, @Context HttpHeaders headers, @Context UriInfo uri) {
+        return provider.getEndService(body,headers, uri);
+    }
+    
     @GET
     @Path("/{service}/limits")
     @Produces("application/json")
