@@ -1,11 +1,15 @@
 package com.rackspace.papi.components.identity.content.auth;
 
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.commons.util.http.header.HeaderChooser;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.io.stream.LimitedReadInputStream;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.commons.util.transform.Transform;
 import com.rackspace.papi.commons.util.transform.json.JacksonJaxbTransform;
+import com.rackspace.papi.commons.util.http.header.QualityFactorHeaderChooser;
+import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
+import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.components.identity.content.credentials.AuthCredentials;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -23,50 +27,51 @@ import org.openrepose.rackspace.auth.content_identity.config.ContentIdentityAuth
 
 public class ContentIdentityAuthHandler extends AbstractFilterLogicHandler {
 
-   private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ContentIdentityAuthHandler.class);
-   private static final String DEFAULT_QUALITY = "0.6";
-   private final Double quality;
-   private final long streamLimit;
-   private final ContentIdentityAuthConfig config;
-   private final JacksonJaxbTransform jsonTransformer;
-   private final Transform<InputStream, JAXBElement<Credentials>> xmlTransformer;
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ContentIdentityAuthHandler.class);
+    private static final String DEFAULT_QUALITY = "0.6";
+    private static final HeaderChooser<MediaType> CONTENT_TYPE_CHOOSER = new QualityFactorHeaderChooser<MediaType>(new MediaType(MimeType.APPLICATION_JSON, -1));
+    private final Double quality;
+    private final long streamLimit;
+    private final ContentIdentityAuthConfig config;
+    private final JacksonJaxbTransform jsonTransformer;
+    private final Transform<InputStream, JAXBElement<Credentials>> xmlTransformer;
 
-   public ContentIdentityAuthHandler(ContentIdentityAuthConfig config, JacksonJaxbTransform jsonTransformer, Transform<InputStream, JAXBElement<Credentials>> xmlTransformer) {
-      this.config = config;
-      this.jsonTransformer = jsonTransformer;
-      this.xmlTransformer = xmlTransformer;
-      this.quality = Double.valueOf(config.getQuality() != null? config.getQuality(): DEFAULT_QUALITY);
-      
-      // TODO Read the limit from the config file
-      this.streamLimit = 2 * 1024; // 2k for now
-   }
+    public ContentIdentityAuthHandler(ContentIdentityAuthConfig config, JacksonJaxbTransform jsonTransformer, Transform<InputStream, JAXBElement<Credentials>> xmlTransformer) {
+        this.config = config;
+        this.jsonTransformer = jsonTransformer;
+        this.xmlTransformer = xmlTransformer;
+        this.quality = Double.valueOf(config.getQuality() != null ? config.getQuality() : DEFAULT_QUALITY);
 
-   @Override
-   public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
+        // TODO Read the limit from the config file
+        this.streamLimit = 2 * 1024; // 2k for now
+    }
 
-      final FilterDirector filterDirector = new FilterDirectorImpl();
-      HeaderManager headerManager = filterDirector.requestHeaderManager();
-      filterDirector.setFilterAction(FilterAction.PASS);
+    @Override
+    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
 
-      try {
-         MimeType mimeType = MimeType.guessMediaTypeFromString(request.getHeader("Content-Type"));
-         AuthCredentials credentials = new ContentParser(jsonTransformer, xmlTransformer).parse(
-                 mimeType, 
-                 new LimitedReadInputStream(streamLimit, request.getInputStream()));
+        final FilterDirector filterDirector = new FilterDirectorImpl();
+        HeaderManager headerManager = filterDirector.requestHeaderManager();
+        filterDirector.setFilterAction(FilterAction.PASS);
 
-         if (credentials != null) {
-            headerManager.appendHeader(PowerApiHeader.USER.toString(), credentials.getId(), quality);
-            headerManager.appendHeader(PowerApiHeader.GROUPS.toString(), config.getGroup(), quality);
-         }
+        try {
+            MimeType mimeType = CONTENT_TYPE_CHOOSER.choosePreferredHeaderValue(new MediaRangeParser(request.getHeaders("Content-Type")).parse()).getMimeType();
+            AuthCredentials credentials = new ContentParser(jsonTransformer, xmlTransformer).parse(
+                    mimeType,
+                    new LimitedReadInputStream(streamLimit, request.getInputStream()));
 
-      } catch (IOException ex) {
-         filterDirector.setFilterAction(FilterAction.NOT_SET);
-         LOG.error("Unable to read message body stream. Reason: " + ex.getMessage(), ex);
-      } catch (Exception ex) {
-         filterDirector.setFilterAction(FilterAction.NOT_SET);
-         LOG.error("Unable to read message body stream. Reason: " + ex.getMessage(), ex);
-      }
+            if (credentials != null) {
+                headerManager.appendHeader(PowerApiHeader.USER.toString(), credentials.getId(), quality);
+                headerManager.appendHeader(PowerApiHeader.GROUPS.toString(), config.getGroup(), quality);
+            }
 
-      return filterDirector;
-   }
+        } catch (IOException ex) {
+            filterDirector.setFilterAction(FilterAction.NOT_SET);
+            LOG.error("Unable to read message body stream. Reason: " + ex.getMessage(), ex);
+        } catch (Exception ex) {
+            filterDirector.setFilterAction(FilterAction.NOT_SET);
+            LOG.error("Unable to read message body stream. Reason: " + ex.getMessage(), ex);
+        }
+
+        return filterDirector;
+    }
 }
