@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.identity.content.auth;
 
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.http.header.HeaderChooser;
 import com.rackspace.papi.commons.util.http.media.MimeType;
@@ -62,7 +63,7 @@ public class ContentIdentityAuthHandler extends AbstractFilterLogicHandler {
             inputStream.reset();
          }
 
-         if (credentials != null) {
+         if (credentials != null && StringUtilities.isNotBlank(credentials.getId())) {
             headerManager.appendHeader(PowerApiHeader.USER.toString(), credentials.getId(), quality);
             headerManager.appendHeader(PowerApiHeader.GROUPS.toString(), config.getGroup(), quality);
          }
