@@ -3,7 +3,6 @@ package com.rackspace.papi.components.identity.content.auth;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.http.header.HeaderChooser;
 import com.rackspace.papi.commons.util.http.media.MimeType;
-import com.rackspace.papi.commons.util.io.BufferedServletInputStream;
 import com.rackspace.papi.commons.util.io.stream.LimitedReadInputStream;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.commons.util.transform.Transform;
@@ -20,7 +19,6 @@ import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import java.io.IOException;
 import java.io.InputStream;
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 
 import com.rackspacecloud.docs.auth.api.v1.Credentials;
