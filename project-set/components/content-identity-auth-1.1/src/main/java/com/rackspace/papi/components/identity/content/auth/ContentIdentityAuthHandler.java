@@ -1,12 +1,16 @@
 package com.rackspace.papi.components.identity.content.auth;
 
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.commons.util.http.header.HeaderChooser;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.io.BufferedServletInputStream;
 import com.rackspace.papi.commons.util.io.stream.LimitedReadInputStream;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.commons.util.transform.Transform;
 import com.rackspace.papi.commons.util.transform.json.JacksonJaxbTransform;
+import com.rackspace.papi.commons.util.http.header.QualityFactorHeaderChooser;
+import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
+import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.components.identity.content.credentials.AuthCredentials;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -26,6 +30,7 @@ public class ContentIdentityAuthHandler extends AbstractFilterLogicHandler {
 
    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ContentIdentityAuthHandler.class);
    private static final String DEFAULT_QUALITY = "0.6";
+   private static final HeaderChooser<MediaType> CONTENT_TYPE_CHOOSER = new QualityFactorHeaderChooser<MediaType>(new MediaType(MimeType.APPLICATION_JSON, -1));
    private final Double quality;
    private final int streamLimit;
    private final ContentIdentityAuthConfig config;
@@ -36,22 +41,21 @@ public class ContentIdentityAuthHandler extends AbstractFilterLogicHandler {
       this.config = config;
       this.jsonTransformer = jsonTransformer;
       this.xmlTransformer = xmlTransformer;
-      this.quality = Double.valueOf(config.getQuality() != null? config.getQuality(): DEFAULT_QUALITY);
+      this.quality = Double.valueOf(config.getQuality() != null ? config.getQuality() : DEFAULT_QUALITY);
       this.streamLimit = config.getContentBodyReadLimit().intValue();
    }
 
    @Override
    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
-
       final FilterDirector filterDirector = new FilterDirectorImpl();
       HeaderManager headerManager = filterDirector.requestHeaderManager();
       filterDirector.setFilterAction(FilterAction.PASS);
 
       try {
-         MimeType mimeType = MimeType.guessMediaTypeFromString(request.getHeader("Content-Type"));
+         MimeType mimeType = CONTENT_TYPE_CHOOSER.choosePreferredHeaderValue(new MediaRangeParser(request.getHeaders("Content-Type")).parse()).getMimeType();
          InputStream inputStream = new LimitedReadInputStream(streamLimit, request.getInputStream());
          AuthCredentials credentials;
-         
+
          try {
             inputStream.mark(streamLimit);
             credentials = new ContentParser(jsonTransformer, xmlTransformer).parse(mimeType, inputStream);
@@ -59,7 +63,7 @@ public class ContentIdentityAuthHandler extends AbstractFilterLogicHandler {
          } finally {
             inputStream.reset();
          }
-         
+
          if (credentials != null) {
             headerManager.appendHeader(PowerApiHeader.USER.toString(), credentials.getId(), quality);
             headerManager.appendHeader(PowerApiHeader.GROUPS.toString(), config.getGroup(), quality);
