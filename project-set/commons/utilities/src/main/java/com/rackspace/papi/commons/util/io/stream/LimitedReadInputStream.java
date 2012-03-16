@@ -17,6 +17,21 @@ public class LimitedReadInputStream extends InputStream {
       this.delegateStream = delegateStream;
       this.readLimit = readLimit;
    }
+   
+   @Override
+   public void mark(int readlimit) {
+      delegateStream.mark(readlimit);
+   }
+   
+   @Override
+   public void reset() throws IOException {
+      delegateStream.reset();
+   }
+   
+   @Override
+   public boolean markSupported() {
+      return delegateStream.markSupported();
+   }
 
    @Override
    public int read() throws IOException {
