@@ -1,11 +1,16 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
+import com.rackspace.papi.commons.util.io.BufferedServletInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 
@@ -19,6 +24,7 @@ public final class MutableHttpServletRequest extends HttpServletRequestWrapper {
       return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request);
    }
    private final Map<String, List<String>> headers;
+   private BufferedServletInputStream inputStream;
    private StringBuffer requestUrl;
    private String requestUri;
 
@@ -32,7 +38,17 @@ public final class MutableHttpServletRequest extends HttpServletRequestWrapper {
 
       copyHeaders(request);
    }
-
+   
+   @Override
+   public ServletInputStream getInputStream() throws IOException {
+      synchronized (this) {
+         if (inputStream == null) {
+            inputStream = new BufferedServletInputStream(super.getInputStream());
+         }
+      }
+      return inputStream;
+   }
+   
    private void copyHeaders(HttpServletRequest request) {
       final Enumeration<String> headerNames = request.getHeaderNames();
 
