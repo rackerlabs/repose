@@ -1,48 +1,90 @@
-#! /bin/sh
+#!/bin/bash
 #
-### BEGIN INIT INFO
-# Provides: repose-valve
-# Required-Start: $network
-# Required-Stop:  $network
-# Default-Start: 2 3 4 5
-# Default-Stop: 0 1 6
-# Short Description: Startup script for Repose Valve
-# Description: Script for starting Repose Valve as a daemon on system startup
-### END INIT INFO
-
-set -e
+# Startup script for Repose
+#
+# chkconfig: 345 85 15     - start or stop process definition within the boot process
+# description: Script for starting Repose as a daemon on system startup
+# processname: repose
 
 # Source function library.
-. /lib/lsb/init-functions
+. /etc/rc.d/init.d/functions
 
 RUN_PORT=8774
 SHUTDOWN_PORT=8123
 CONFIG_DIRECTORY=/etc/repose
 
-JAVA=/usr/bin/java
-
-NAME=repose-valve
+NAME=valve
 DAEMON_HOME=/usr/share/lib/repose
 PID_FILE=/var/run/repose-valve.pid
 REPOSE_JAR=${DAEMON_HOME}/repose-valve.jar
-START_ARGS="--start --quiet --oknodo --make-pidfile --pidfile ${PID_FILE} --background"
+START_PRIORITY=S85
+TRUE=1
+FALSE=0
+EXIT_STATUS=0
+daemon_running=$FALSE
+
+###########################
+# See if daemon is running
+###########################
+SeeIfDaemonIsRunning()
+{
+  PS_CMD="ps -e -o pid,args"
+
+  # Get the list of processes whose status contains "papi" and filter
+  # out the ones due to grep, [g]vi[m], this script executing, etc.
+  #                    find daemon  no greps       no sh -x     no editing
+  proc_list=`$PS_CMD | grep $NAME | grep -v grep | grep -v sh | grep -v vi`
+
+  # producing a process id or a list of process ids.
+   procs=`echo $proc_list | awk '{print $1}'`
+
+  # If we're left with anything, then it means the daemon is running!
+  if [ -n "$procs" ]; then
+    daemon_running=$TRUE
+  else
+    daemon_running=$FALSE
+  fi
+}
 
 ###########################
 # Start daemon
 ###########################
-start_repose()
+start()
 {
-  start-stop-daemon $START_ARGS --exec $JAVA -- -jar $REPOSE_JAR START -p $RUN_PORT -s $SHUTDOWN_PORT -c $CONFIG_DIRECTORY
-  log_progress_msg "repose-valve"
+  echo -n "Starting $NAME: "
+
+  daemon java -jar ${REPOSE_JAR} START -p $RUN_PORT -s $SHUTDOWN_PORT -c $CONFIG_DIRECTORY
+  EXIT_STATUS=$?
+
+  echo
+  [ $EXIT_STATUS -eq 0 ] && touch /var/lock/subsys/$NAME;
+
 }
 
 ###########################
 # Stop daemon
 ###########################
-stop_repose()
+stop()
 {
-  start-stop-daemon -p $PID_FILE --stop --exec $JAVA -- -jar $REPOSE_JAR STOP
-  log_progress_msg "repose-valve"
+  echo -n "Stopping $NAME: "
+
+  daemon java -jar ${REPOSE_JAR} STOP
+
+  EXIT_STATUS=$?
+  # remove lock file
+  rm -f /var/lock/subsys/$NAME
+  echo
+}
+
+###########################
+# Get daemon status
+###########################
+getstatus()
+{
+  echo -n "Checking $NAME: "
+
+  status $START_PRIORITY$NAME
+  EXIT_STATUS=$?
 }
 
 # -----------------------------------------------------------------------------
@@ -56,28 +98,44 @@ if [ $? -ne 0 ]; then
   exit 1
 fi
 
+EXIT_STATUS=0
+
+# Check to see if the daemon is already running.
+SeeIfDaemonIsRunning
+
 case "$1" in
   start)
-    log_daemon_msg "Starting $NAME"
-    start_repose
-    log_end_msg 0
+    if [ $daemon_running -eq $FALSE ]; then
+      start
+    else
+      echo "$NAME appears already to be running."
+    fi
     ;;
+
   stop)
-    log_daemon_msg "Stopping $NAME"
-    stop_repose
-    log_end_msg 0
+    if [ $daemon_running -eq $TRUE ]; then
+      stop
+    else
+      echo "$NAME does not appear to be running."
+    fi
     ;;
+
   restart)
-    log_daemon_msg "Restarting $NAME"
-    stop_repose
-    start_repose
-    log_end_msg 0
+    if [ $daemon_running -eq $TRUE ]; then
+      stop
+      sleep 1
+    fi
+    start
+    EXIT_STATUS=$?
     ;;
+
   status)
-    status_of_proc -p $PID_FILE $JAVA $NAME && exit 0 || exit $?
+    getstatus
     ;;
 
   *)
     echo "Usage: /etc/init.d/$NAME {start|stop|restart|status}"
     exit 1
 esac
+
+exit $EXIT_STATUS
