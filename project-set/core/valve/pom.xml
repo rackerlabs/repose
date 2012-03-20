@@ -384,6 +384,7 @@ getent passwd intermediary || groupadd -r -g intermediary -s /sbin/nologin inter
 
                             <requires>
                                 <require>java</require>
+                                <require>logrotate</require>
                             </requires>
                         </configuration>
                     </plugin>
