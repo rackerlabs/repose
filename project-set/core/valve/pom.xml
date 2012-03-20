@@ -313,6 +313,7 @@
                                     <username>intermediary</username>
                                     <groupname>intermediary</groupname>
                                     <filemode>644</filemode>
+                                    <directoryIncluded>false</directoryIncluded>
 
                                     <sources>
                                         <source>
@@ -365,6 +366,7 @@
                                     <username>root</username>
                                     <groupname>root</groupname>
                                     <filemode>644</filemode>
+                                    <directoryIncluded>false</directoryIncluded>
 
                                     <sources>
                                         <source>

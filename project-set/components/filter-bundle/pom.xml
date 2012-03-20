@@ -405,6 +405,7 @@
                                     <groupname>intermediary</groupname>
                                     <configuration>noreplace</configuration>
                                     <filemode>755</filemode>
+                                    <directoryIncluded>false</directoryIncluded>
 
                                     <sources>
                                         <source>
@@ -435,7 +436,7 @@
                                 </mapping>
 
                                 <mapping>
-                                    <directory>/usr/share/doc/repose</directory>
+                                    <directory>/usr/share/doc/repose-filter-bundle</directory>
                                     <username>root</username>
                                     <groupname>root</groupname>
                                     <filemode>644</filemode>
