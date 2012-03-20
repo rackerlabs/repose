@@ -252,4 +252,156 @@
             </plugin>
         </plugins>
     </build>
+
+    <profiles>
+        <profile>
+            <id>Build Valve RPM</id>
+
+            <activation>
+                <property>
+                    <name>build-system-packages</name>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>rpm-maven-plugin</artifactId>
+                        <version>2.1-alpha-1</version>
+
+                        <configuration>
+                            <mappings>
+                                <mapping>
+                                    <directory>/usr/share/repose/filters</directory>
+                                    <username>intermediary</username>
+                                    <groupname>intermediary</groupname>
+                                    <filemode>755</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>${project.build.directory}/${project.build.finalName}.ear</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/etc/repose/</directory>
+                                    <username>intermediary</username>
+                                    <groupname>intermediary</groupname>
+                                    <configuration>noreplace</configuration>
+                                    <filemode>755</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>../core-lib/src/main/resources/META-INF/schema/examples/containter.cfg.xml</location>
+                                        </source>
+                                        <source>
+                                            <location>../core-lib/src/main/resources/META-INF/schema/examples/log4j.properties</location>
+                                        </source>
+                                        <source>
+                                            <location>../core-lib/src/main/resources/META-INF/schema/examples/power-proxy.cfg.xml</location>
+                                        </source>
+                                        <source>
+                                            <location>../core-lib/src/main/resources/META-INF/schema/examples/response-messaging.cfg.xml</location>
+                                        </source>
+                                   </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/usr/share/lib/repose</directory>
+                                    <username>intermediary</username>
+                                    <groupname>intermediary</groupname>
+                                    <filemode>644</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>${project.build.directory}/${project.build.finalName}.jar</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/etc/init.d</directory>
+                                    <username>intermediary</username>
+                                    <groupname>intermediary</groupname>
+                                    <filemode>644</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>src/main/resources/repose-valve</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/var/log/repose</directory>
+                                    <username>intermediary</username>
+                                    <groupname>intermediary</groupname>
+                                    <filemode>644</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>${project.build.directory}/../src/deb/.log_dir_placeholder</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/var/repose</directory>
+                                    <username>intermediary</username>
+                                    <groupname>intermediary</groupname>
+                                    <filemode>644</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>${project.build.directory}/../src/deb/.var_repose_dir_placeholder</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/usr/share/doc/repose-valve</directory>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <filemode>644</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>${basedir}/target/git.properties</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/etc/logrotate.d</directory>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <filemode>644</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>src/deb/etc/logrotate.d/repose</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                             </mappings>
+
+                            <preinstallScriptlet>
+                                <script>
+getent group intermediary || groupadd -r intermediary
+getent passwd intermediary || groupadd -r -g intermediary -s /sbin/nologin intermediary
+                                </script>
+                            </preinstallScriptlet>
+
+                            <requires>
+                                <require>java-1.6.0-openjdk</require>
+                            </requires>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
