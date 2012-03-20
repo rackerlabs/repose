@@ -383,7 +383,7 @@ getent passwd intermediary || groupadd -r -g intermediary -s /sbin/nologin inter
                             </preinstallScriptlet>
 
                             <requires>
-                                <require>java-1.6.0-openjdk</require>
+                                <require>java</require>
                             </requires>
                         </configuration>
                     </plugin>
