@@ -386,33 +386,62 @@
                         <configuration>                   
                             <mappings>
                                 <mapping>
-                                    <directory>/usr/share/powerapi/filters</directory>
+                                    <directory>/usr/share/repose/filters</directory>
                                     <username>tomcat7</username>
                                     <groupname>tomcat7</groupname>
                                     <filemode>755</filemode>
                                     
                                     <sources>
                                         <source>
-                                            <location>target/filter-bundle-${project.version}.ear</location>
+                                            <location>$project.build.directory}/$project.build.finalName}.ear</location>
                                         </source>
                                     </sources>
                                 </mapping>
                                 
                                 <mapping>
-                                    <directory>/etc/powerapi/</directory>
+                                    <directory>/etc/repose/</directory>
                                     <username>tomcat7</username>
                                     <groupname>tomcat7</groupname>
+                                    <configuration>noreplace</configuration>
                                     <filemode>755</filemode>
                                     
                                     <sources>
                                         <source>
-                                            <location>../versioning/src/main/resources/META-INF/schema/examples/versioning.cfg.xml</location>
-                                        </source>
-                                        <source>
                                             <location>../client-auth/src/main/resources/META-INF/schema/examples/rackspace/client-auth-n.cfg.xml</location>
                                         </source>
                                         <source>
+                                            <location>../client-authorization/src/main/resources/META-INF/schema/examples/openstack-authorization.cfg.xml</location>
+                                        </source>
+                                        <source>
+                                            <location>../content-mormalization/src/main/resources/META-INF/schema/examples/content-normalization.cfg.xml</location>
+                                        </source>
+                                        <source>
+                                            <location>../datastore/src/main/resources/META-INF/schema/examples/dist-datastore.cfg.xml</location>
+                                        </source>
+                                        <source>
+                                            <location>../http-logging/src/main/resources/META-INF/schema/examples/http-logging.cfg.xml</location>
+                                        </srouce>
+                                        <source>
                                             <location>../rate-limiting/src/main/resources/META-INF/schema/examples/rate-limiting.cfg.xml</location>
+                                        </source>
+                                        <source>
+                                            <location>../root-context-router/src/main/resources/META-INF/schema/examples/root-context-router.cfg.xml</location>
+                                        </source>
+                                        <source>
+                                            <location>../versioning/src/main/resources/META-INF/schema/examples/versioning.cfg.xml</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/usr/share/doc/repose</directory>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <filemode>644</filemode>
+                                    
+                                    <sources>
+                                        <source>
+                                            <location>${basedir}/target/git.properties</location>
                                         </source>
                                     </sources>
                                 </mapping>
