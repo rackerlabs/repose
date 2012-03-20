@@ -312,7 +312,7 @@
                                     <directory>/etc/init.d</directory>
                                     <username>intermediary</username>
                                     <groupname>intermediary</groupname>
-                                    <filemode>644</filemode>
+                                    <filemode>755</filemode>
                                     <directoryIncluded>false</directoryIncluded>
 
                                     <sources>
