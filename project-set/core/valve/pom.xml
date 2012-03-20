@@ -192,7 +192,7 @@
 
                                     <!-- The start script -->
                                 <data>
-                                    <src>src/main/resources/repose-valve</src>
+                                    <src>src/deb/etc/init.d/repose-valve</src>
                                     <type>file</type>
                                     <mapper>
                                         <type>perm</type>
@@ -273,19 +273,6 @@
                         <configuration>
                             <mappings>
                                 <mapping>
-                                    <directory>/usr/share/repose/filters</directory>
-                                    <username>intermediary</username>
-                                    <groupname>intermediary</groupname>
-                                    <filemode>755</filemode>
-
-                                    <sources>
-                                        <source>
-                                            <location>${project.build.directory}/${project.build.finalName}.ear</location>
-                                        </source>
-                                    </sources>
-                                </mapping>
-
-                                <mapping>
                                     <directory>/etc/repose/</directory>
                                     <username>intermediary</username>
                                     <groupname>intermediary</groupname>
@@ -294,7 +281,7 @@
 
                                     <sources>
                                         <source>
-                                            <location>../core-lib/src/main/resources/META-INF/schema/examples/containter.cfg.xml</location>
+                                            <location>../core-lib/src/main/resources/META-INF/schema/examples/container.cfg.xml</location>
                                         </source>
                                         <source>
                                             <location>../core-lib/src/main/resources/META-INF/schema/examples/log4j.properties</location>
@@ -329,7 +316,7 @@
 
                                     <sources>
                                         <source>
-                                            <location>src/main/resources/repose-valve</location>
+                                            <location>src/rpm/etc/init.d/repose-valve</location>
                                         </source>
                                     </sources>
                                 </mapping>
@@ -342,7 +329,7 @@
 
                                     <sources>
                                         <source>
-                                            <location>${project.build.directory}/../src/deb/.log_dir_placeholder</location>
+                                            <location>${project.build.directory}/../src/rpm/.log_dir_placeholder</location>
                                         </source>
                                     </sources>
                                 </mapping>
@@ -355,7 +342,7 @@
 
                                     <sources>
                                         <source>
-                                            <location>${project.build.directory}/../src/deb/.var_repose_dir_placeholder</location>
+                                            <location>${project.build.directory}/../src/rpm/.var_repose_dir_placeholder</location>
                                         </source>
                                     </sources>
                                 </mapping>
@@ -381,7 +368,7 @@
 
                                     <sources>
                                         <source>
-                                            <location>src/deb/etc/logrotate.d/repose</location>
+                                            <location>src/rpm/etc/logrotate.d/repose</location>
                                         </source>
                                     </sources>
                                 </mapping>
