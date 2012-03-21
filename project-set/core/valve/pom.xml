@@ -292,6 +292,9 @@
                                         <source>
                                             <location>../core-lib/src/main/resources/META-INF/schema/examples/response-messaging.cfg.xml</location>
                                         </source>
+                                        <source>
+                                            <location>src/rpm/etc/repose/repose.conf</location>
+                                        </source>
                                    </sources>
                                 </mapping>
 
@@ -299,7 +302,7 @@
                                     <directory>/usr/share/lib/repose</directory>
                                     <username>intermediary</username>
                                     <groupname>intermediary</groupname>
-                                    <filemode>644</filemode>
+                                    <filemode>755</filemode>
 
                                     <sources>
                                         <source>
@@ -326,7 +329,7 @@
                                     <directory>/var/log/repose</directory>
                                     <username>intermediary</username>
                                     <groupname>intermediary</groupname>
-                                    <filemode>644</filemode>
+                                    <filemode>755</filemode>
 
                                     <sources>
                                         <source>
@@ -387,6 +390,7 @@ getent passwd intermediary || useradd -r -g intermediary -s /sbin/nologin interm
                             <requires>
                                 <require>java</require>
                                 <require>logrotate</require>
+                                <require>daemonize</require>
                             </requires>
                         </configuration>
                     </plugin>

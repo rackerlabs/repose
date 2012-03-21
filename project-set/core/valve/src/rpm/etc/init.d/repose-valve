@@ -1,10 +1,10 @@
 #!/bin/bash
 #
-# Startup script for Repose
+# Startup script for Repose Valve
 #
 # chkconfig: 345 85 15     - start or stop process definition within the boot process
-# description: Script for starting Repose as a daemon on system startup
-# processname: repose
+# description: Script for starting Repose Valve as a daemon on system startup
+# processname: repose-valve
 
 # Source function library.
 . /etc/rc.d/init.d/functions
@@ -13,129 +13,69 @@ RUN_PORT=8774
 SHUTDOWN_PORT=8123
 CONFIG_DIRECTORY=/etc/repose
 
-NAME=valve
-DAEMON_HOME=/usr/share/lib/repose
+USER=root
+NAME=repose-valve
+LOG_PATH=/var/log/repose
 PID_FILE=/var/run/repose-valve.pid
-REPOSE_JAR=${DAEMON_HOME}/repose-valve.jar
-START_PRIORITY=S85
-TRUE=1
-FALSE=0
-EXIT_STATUS=0
-daemon_running=$FALSE
+DAEMON_HOME=/usr/share/lib/repose
 
-###########################
-# See if daemon is running
-###########################
-SeeIfDaemonIsRunning()
-{
-  PS_CMD="ps -e -o pid,args"
+# Source /etc/repose/repose.conf
+. /etc/repose/repose.conf
 
-  # Get the list of processes whose status contains "papi" and filter
-  # out the ones due to grep, [g]vi[m], this script executing, etc.
-  #                    find daemon  no greps       no sh -x     no editing
-  proc_list=`$PS_CMD | grep $NAME | grep -v grep | grep -v sh | grep -v vi`
+if [ ! -d $DAEMON_HOME ]; then
+  echo "Unable to find $NAME's directory: $DEAMON_HOME."
+  exit 1
+fi
 
-  # producing a process id or a list of process ids.
-   procs=`echo $proc_list | awk '{print $1}'`
+if [ ! -d $CONFIG_DIRECTORY ]; then
+  echo "Unable to find $CONFIG_DIRECTORY."
+  exit 1
+fi
 
-  # If we're left with anything, then it means the daemon is running!
-  if [ -n "$procs" ]; then
-    daemon_running=$TRUE
-  else
-    daemon_running=$FALSE
-  fi
-}
+if [ ! -d $LOG_PATH ]; then
+  echo "Unable to log to $LOG_PATH."
+  exit 1
+fi
 
-###########################
-# Start daemon
-###########################
+daemonize=/usr/sbin/daemonize
+daemonize_opts="-c $DAEMON_HOME -p $PID_FILE -u $USER -o $LOG_PATH/stdout.log -e $LOG_PATH/stderr.log -l /var/lock/subsys/$NAME"
+run_opts="-s $SHUTDOWN_PORT -p $RUN_PORT -c $CONFIG_DIRECTORY"
+
 start()
 {
   echo -n "Starting $NAME: "
-
-  daemon java -jar ${REPOSE_JAR} START -p $RUN_PORT -s $SHUTDOWN_PORT -c $CONFIG_DIRECTORY
-  EXIT_STATUS=$?
-
+  daemon $daemonize $daemonize_opts /usr/bin/java -jar $DAEMON_HOME/$NAME.jar START $run_opts
   echo
-  [ $EXIT_STATUS -eq 0 ] && touch /var/lock/subsys/$NAME;
-
 }
 
-###########################
-# Stop daemon
-###########################
 stop()
 {
   echo -n "Stopping $NAME: "
 
-  daemon java -jar ${REPOSE_JAR} STOP
-
-  EXIT_STATUS=$?
-  # remove lock file
-  rm -f /var/lock/subsys/$NAME
+  /usr/bin/java -jar $DAEMON_HOME/$NAME.jar STOP $run_opts > /dev/null 2>&1
+  killproc -p $PID_FILE -d 3 $NAME && rm -f /var/lock/subsys/$NAME
   echo
 }
 
-###########################
-# Get daemon status
-###########################
-getstatus()
-{
-  echo -n "Checking $NAME: "
-
-  status $START_PRIORITY$NAME
-  EXIT_STATUS=$?
-}
-
-# -----------------------------------------------------------------------------
-# Script entry point...
-# -----------------------------------------------------------------------------
-# Switch to the daemon's home directory to do all of this...
-cd $DAEMON_HOME
-
-if [ $? -ne 0 ]; then
-  echo "Unable to find $NAME's directory."
-  exit 1
-fi
-
-EXIT_STATUS=0
-
-# Check to see if the daemon is already running.
-SeeIfDaemonIsRunning
-
 case "$1" in
   start)
-    if [ $daemon_running -eq $FALSE ]; then
-      start
-    else
-      echo "$NAME appears already to be running."
-    fi
+    start
     ;;
 
   stop)
-    if [ $daemon_running -eq $TRUE ]; then
-      stop
-    else
-      echo "$NAME does not appear to be running."
-    fi
+    stop
     ;;
 
   restart)
-    if [ $daemon_running -eq $TRUE ]; then
-      stop
-      sleep 1
-    fi
+    stop
     start
-    EXIT_STATUS=$?
     ;;
 
   status)
-    getstatus
+    status -p $PID_FILE repose-valve
     ;;
 
   *)
     echo "Usage: /etc/init.d/$NAME {start|stop|restart|status}"
     exit 1
 esac
-
-exit $EXIT_STATUS
