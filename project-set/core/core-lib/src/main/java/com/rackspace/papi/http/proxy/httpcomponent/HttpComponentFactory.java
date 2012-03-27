@@ -1,4 +1,4 @@
-package com.rackspace.cloud.valve.http.proxy.httpcomponent;
+package com.rackspace.papi.http.proxy.httpcomponent;
 
 import java.io.IOException;
 import java.lang.reflect.Constructor;

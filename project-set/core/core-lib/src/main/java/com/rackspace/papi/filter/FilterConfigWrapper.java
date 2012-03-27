@@ -1,4 +1,4 @@
-package com.rackspace.cloud.valve.filter;
+package com.rackspace.papi.filter;
 
 import java.util.Enumeration;
 import javax.servlet.FilterConfig;

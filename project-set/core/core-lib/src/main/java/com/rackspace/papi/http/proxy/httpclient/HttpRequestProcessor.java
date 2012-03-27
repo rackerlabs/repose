@@ -1,48 +1,55 @@
-package com.rackspace.cloud.valve.http.proxy.jerseyclient;
+package com.rackspace.papi.http.proxy.httpclient;
 
-import com.sun.jersey.core.util.MultivaluedMapImpl;
-import javax.ws.rs.core.MultivaluedMap;
-import com.sun.jersey.api.client.WebResource.Builder;
-import java.io.ByteArrayOutputStream;
-import java.io.BufferedInputStream;
-import java.io.InputStream;
-import java.net.URI;
-import com.sun.jersey.api.client.WebResource;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.Header;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import org.apache.commons.httpclient.HostConfiguration;
+import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.httpclient.NameValuePair;
+import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
+import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
 
-import static com.rackspace.cloud.valve.http.Headers.*;
+import static com.rackspace.papi.http.Headers.*;
 
 /**
  * Process a request to copy over header values, query string parameters, and
  * request body as necessary.
  * 
  */
-class JerseyRequestProcessor {
+class HttpRequestProcessor {
     private final HttpServletRequest sourceRequest;
-    private final URI targetHost;
+    private final HostConfiguration targetHost;
 
-    public JerseyRequestProcessor(HttpServletRequest request, URI host) {
+    public HttpRequestProcessor(HttpServletRequest request, HostConfiguration host) {
       this.sourceRequest = request;
       this.targetHost = host;
     }
-    
-    public WebResource setRequestParameters(WebResource method) {
+
+    /**
+     * Copy request parameters (query string) from source request to the
+     * http method.
+     * 
+     * @param method 
+     */
+    private void setRequestParameters(HttpMethodBase method) {
+      List<NameValuePair> pairs = new ArrayList<NameValuePair>();
       Enumeration<String> names = sourceRequest.getParameterNames();
-      MultivaluedMap<String,String> params = new MultivaluedMapImpl();
 
       while (names.hasMoreElements()) {
         String name = names.nextElement();
         String[] values = sourceRequest.getParameterValues(name);
         for (String value: values) {
-          params.add(name, value);
-          //method = method.queryParam(name, value);
+          pairs.add(new NameValuePair(name, value));
         }
       }
-      
-      return (!params.isEmpty()? method.queryParams(params):  method);
 
+      if (!pairs.isEmpty()) {
+        method.setQueryString(pairs.toArray(new NameValuePair[0]));
+      }
     }
     
     /**
@@ -71,7 +78,7 @@ class JerseyRequestProcessor {
      * 
      * @param method 
      */
-    private void setHeaders(Builder builder) {
+    private void setHeaders(HttpMethod method) {
         final Enumeration<String> headerNames = sourceRequest.getHeaderNames();
 
         while (headerNames.hasMoreElements()) {
@@ -80,31 +87,23 @@ class JerseyRequestProcessor {
 
             while (headerValues.hasMoreElements()) {
                 String headerValue = headerValues.nextElement();
-                builder.header(headerName, processHeaderValue(headerName, headerValue));
+                method.setRequestHeader(new Header(headerName, processHeaderValue(headerName, headerValue)));
             }
         }
     }
-    
-    private byte[] getData() throws IOException {
-      final InputStream source = sourceRequest.getInputStream();
-              
-      if (source != null) {
 
-        final BufferedInputStream httpIn = new BufferedInputStream(source);
-        final ByteArrayOutputStream clientOut = new ByteArrayOutputStream();
+    /**
+     * Process a base http request.  Base http methods will not contain a
+     * message body.
+     * 
+     * @param method
+     * @return 
+     */
+    public HttpMethod process(HttpMethodBase method) {
+      setHeaders(method);
+      setRequestParameters(method);
+      return method;
 
-        int readData;
-
-        while ((readData = httpIn.read()) != -1) {
-            clientOut.write(readData);
-        }
-
-        clientOut.flush();
-        
-        return clientOut.toByteArray();
-      }
-      
-      return null;
     }
 
     /**
@@ -115,19 +114,10 @@ class JerseyRequestProcessor {
      * @return
      * @throws IOException 
      */
-    public Builder process(WebResource method) throws IOException {
-      return process(setRequestParameters(method).getRequestBuilder());
-    }
-
-    public Builder process(Builder builder) throws IOException {
-      
-      setHeaders(builder);
-      byte[] data = getData();
-      if (data != null && data.length > 0) {
-        builder.entity(data);
-      }
-
-      //method.entity(sourceRequest.getInputStream());
-      return builder;
+    public HttpMethod process(EntityEnclosingMethod method) throws IOException {
+      setHeaders(method);
+      setRequestParameters(method);
+      method.setRequestEntity(new InputStreamRequestEntity(sourceRequest.getInputStream()));
+      return method;
     }
 }

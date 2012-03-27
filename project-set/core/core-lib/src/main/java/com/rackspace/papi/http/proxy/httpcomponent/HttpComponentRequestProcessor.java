@@ -1,30 +1,25 @@
-package com.rackspace.cloud.valve.http.proxy.httpclient;
+package com.rackspace.papi.http.proxy.httpcomponent;
 
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.Header;
+import org.apache.http.HttpHost;
+import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpRequestBase;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.List;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpMethodBase;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
-import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
 
-import static com.rackspace.cloud.valve.http.Headers.*;
+import static com.rackspace.papi.http.Headers.*;
 
 /**
  * Process a request to copy over header values, query string parameters, and
  * request body as necessary.
  * 
  */
-class HttpRequestProcessor {
+class HttpComponentRequestProcessor {
     private final HttpServletRequest sourceRequest;
-    private final HostConfiguration targetHost;
+    private final HttpHost targetHost;
 
-    public HttpRequestProcessor(HttpServletRequest request, HostConfiguration host) {
+    public HttpComponentRequestProcessor(HttpServletRequest request, HttpHost host) {
       this.sourceRequest = request;
       this.targetHost = host;
     }
@@ -35,20 +30,15 @@ class HttpRequestProcessor {
      * 
      * @param method 
      */
-    private void setRequestParameters(HttpMethodBase method) {
-      List<NameValuePair> pairs = new ArrayList<NameValuePair>();
+    private void setRequestParameters(HttpRequestBase method) {
       Enumeration<String> names = sourceRequest.getParameterNames();
 
       while (names.hasMoreElements()) {
         String name = names.nextElement();
         String[] values = sourceRequest.getParameterValues(name);
         for (String value: values) {
-          pairs.add(new NameValuePair(name, value));
+          method.getParams().setParameter(value, value);
         }
-      }
-
-      if (!pairs.isEmpty()) {
-        method.setQueryString(pairs.toArray(new NameValuePair[0]));
       }
     }
     
@@ -67,7 +57,7 @@ class HttpRequestProcessor {
         // rewrite the Host header to ensure that we get content from
         // the correct virtual server
         if (headerName.equalsIgnoreCase(HOST.toString())) {
-            result = targetHost.getHost() + ":" + targetHost.getPort();
+            result = targetHost.getHostName() + ":" + targetHost.getPort();
         }
         
         return result;
@@ -78,16 +68,20 @@ class HttpRequestProcessor {
      * 
      * @param method 
      */
-    private void setHeaders(HttpMethod method) {
+    private void setHeaders(HttpRequestBase method) {
         final Enumeration<String> headerNames = sourceRequest.getHeaderNames();
 
         while (headerNames.hasMoreElements()) {
-            String headerName = headerNames.nextElement();
+            final String headerName = headerNames.nextElement();
+            if ("Content-Length".equalsIgnoreCase(headerName)) {
+              continue;
+            }
+
             final Enumeration<String> headerValues = sourceRequest.getHeaders(headerName);
 
             while (headerValues.hasMoreElements()) {
                 String headerValue = headerValues.nextElement();
-                method.setRequestHeader(new Header(headerName, processHeaderValue(headerName, headerValue)));
+                method.addHeader(headerName, processHeaderValue(headerName, headerValue));
             }
         }
     }
@@ -99,7 +93,7 @@ class HttpRequestProcessor {
      * @param method
      * @return 
      */
-    public HttpMethod process(HttpMethodBase method) {
+    public HttpRequestBase process(HttpRequestBase method) {
       setHeaders(method);
       setRequestParameters(method);
       return method;
@@ -114,10 +108,10 @@ class HttpRequestProcessor {
      * @return
      * @throws IOException 
      */
-    public HttpMethod process(EntityEnclosingMethod method) throws IOException {
+    public HttpRequestBase process(HttpEntityEnclosingRequestBase method) throws IOException {
       setHeaders(method);
       setRequestParameters(method);
-      method.setRequestEntity(new InputStreamRequestEntity(sourceRequest.getInputStream()));
+      method.setEntity(new InputStreamEntity(sourceRequest.getInputStream(), sourceRequest.getContentLength()));
       return method;
     }
 }

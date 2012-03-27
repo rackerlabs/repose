@@ -1,4 +1,4 @@
-package com.rackspace.cloud.valve.http.proxy.httpclient;
+package com.rackspace.papi.http.proxy.httpclient;
 
 import java.io.IOException;
 import org.apache.commons.httpclient.HttpMethod;

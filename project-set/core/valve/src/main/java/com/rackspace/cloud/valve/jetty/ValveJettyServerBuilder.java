@@ -1,6 +1,6 @@
 package com.rackspace.cloud.valve.jetty;
 
-import com.rackspace.cloud.valve.filter.ValvePowerFilter;
+import com.rackspace.papi.filter.ValvePowerFilter;
 import com.rackspace.cloud.valve.jetty.servlet.ProxyServlet;
 import com.rackspace.papi.service.context.PowerApiContextManager;
 import com.rackspace.papi.servlet.InitParameter;
@@ -11,40 +11,63 @@ import org.eclipse.jetty.servlet.ServletHolder;
 
 import javax.servlet.DispatcherType;
 import java.util.EnumSet;
+import org.eclipse.jetty.webapp.WebAppContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class ValveJettyServerBuilder {    
-    private final int portNumber;
-    private String configurationPathAndFile = "";
+public class ValveJettyServerBuilder {
 
-    public ValveJettyServerBuilder(int portNumber, String configurationPathAndFile) {
-        this.portNumber = portNumber;
-        this.configurationPathAndFile = configurationPathAndFile;
-    }
+   private static final Logger LOG = LoggerFactory.getLogger(ValveJettyServerBuilder.class);
+   private final int portNumber;
+   private String configurationPathAndFile = "";
 
-    public Server newServer() {
-        final Server jettyServerReference = new Server(portNumber);
-        final ServletContextHandler rootContext = buildRootContext(jettyServerReference);
-        final ServletHolder valveServer = new ServletHolder(new ProxyServlet());
+   public ValveJettyServerBuilder(int portNumber, String configurationPathAndFile) {
+      this.portNumber = portNumber;
+      this.configurationPathAndFile = configurationPathAndFile;
+   }
 
-        rootContext.addFilter(new FilterHolder(ValvePowerFilter.class), "/*", EnumSet.allOf(DispatcherType.class));
-        rootContext.addServlet(valveServer, "/*");
+   public Server newServer() {
+      //return buildWarContext(new Server(portNumber));
 
-        return jettyServerReference;
-    }
+      Server server = new Server(portNumber);
+      final ServletContextHandler rootContext = buildRootContext(server);
+      final ServletHolder valveServer = new ServletHolder(new ProxyServlet());
 
-    private ServletContextHandler buildRootContext(Server serverReference) {
-        final ServletContextHandler servletContext = new ServletContextHandler(serverReference, "/");
-        servletContext.getInitParams().put(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), configurationPathAndFile);
-        servletContext.getAttributes().setAttribute(InitParameter.PORT.getParameterName(), portNumber);
-        
-        try {
-            servletContext.addEventListener(PowerApiContextManager.class.newInstance());
-        } catch (InstantiationException e) {
-            throw new PowerAppException("Unable to instantiate PowerApiContextManager", e);
-        } catch (IllegalAccessException e) {
-            throw new PowerAppException("Unable to instantiate PowerApiContextManager", e);
-        }
+      rootContext.addFilter(new FilterHolder(ValvePowerFilter.class), "/*", EnumSet.allOf(DispatcherType.class));
+      rootContext.addServlet(valveServer, "/*");
 
-        return servletContext;
-    }   
+      return server;
+   }
+
+   private Server buildWarContext(Server server) {
+      // Load ROOT.war from an external location
+      String ROOT = configurationPathAndFile + "/ROOT.war";
+      WebAppContext context = new WebAppContext(ROOT, "/");
+      
+      // Load valve.jar as a "executable" war
+      //URL ROOT = ValveJettyServerBuilder.class.getProtectionDomain().getCodeSource().getLocation();
+      //WebAppContext context = new WebAppContext(ROOT.toExternalForm(), "/");
+      
+      context.getAttributes().setAttribute(InitParameter.PORT.getParameterName(), portNumber);
+      context.getInitParams().put(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), configurationPathAndFile);
+      context.setServer(server);
+      server.setHandler(context);
+      return server;
+   }
+
+   private ServletContextHandler buildRootContext(Server serverReference) {
+      final ServletContextHandler servletContext = new ServletContextHandler(serverReference, "/");
+      servletContext.getInitParams().put(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), configurationPathAndFile);
+      servletContext.getAttributes().setAttribute(InitParameter.PORT.getParameterName(), portNumber);
+
+      try {
+         servletContext.addEventListener(PowerApiContextManager.class.newInstance());
+      } catch (InstantiationException e) {
+         throw new PowerAppException("Unable to instantiate PowerApiContextManager", e);
+      } catch (IllegalAccessException e) {
+         throw new PowerAppException("Unable to instantiate PowerApiContextManager", e);
+      }
+
+      return servletContext;
+   }
 }

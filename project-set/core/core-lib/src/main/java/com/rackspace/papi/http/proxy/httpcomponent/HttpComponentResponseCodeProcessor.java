@@ -1,4 +1,4 @@
-package com.rackspace.cloud.valve.http.proxy.httpcomponent;
+package com.rackspace.papi.http.proxy.httpcomponent;
 
 import javax.servlet.http.HttpServletResponse;
 

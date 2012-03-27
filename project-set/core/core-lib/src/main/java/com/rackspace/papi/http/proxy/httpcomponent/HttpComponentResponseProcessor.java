@@ -1,58 +1,48 @@
-package com.rackspace.cloud.valve.http.proxy.httpclient;
+package com.rackspace.papi.http.proxy.httpcomponent;
 
+import org.apache.http.HttpException;
+import org.apache.http.Header;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
 import com.rackspace.papi.commons.util.StringUtilities;
-import org.apache.commons.httpclient.HttpException;
-import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpMethod;
-import static com.rackspace.cloud.valve.http.Headers.*;
+import static com.rackspace.papi.http.Headers.*;
 
-public class HttpResponseProcessor {
-    private final HttpMethod httpMethodResponse;
+public class HttpComponentResponseProcessor {
+    private final HttpResponse httpResponse;
     private final HttpServletResponse response;
-    private final HttpResponseCodeProcessor responseCode;
+    private final HttpComponentResponseCodeProcessor responseCode;
     
-    public HttpResponseProcessor(HttpMethod httpMethodProxyRequest, HttpServletResponse response, HttpResponseCodeProcessor responseCode) {
-      this.httpMethodResponse = httpMethodProxyRequest;
+    public HttpComponentResponseProcessor(HttpResponse httpResponse, HttpServletResponse response, HttpComponentResponseCodeProcessor responseCode) {
+      this.httpResponse = httpResponse;
       this.response = response;
       this.responseCode = responseCode;
     }
     
     private void setResponseHeaders() throws IOException {
-      for (Header header : httpMethodResponse.getResponseHeaders()) {
+      for (Header header : httpResponse.getAllHeaders()) {
           response.setHeader(header.getName(), header.getValue());
       }
     }
     
     private void setResponseBody() throws IOException {
-      final InputStream source = httpMethodResponse.getResponseBodyAsStream();
-      if (source != null) {
-
-        final BufferedInputStream httpIn = new BufferedInputStream(source);
+      HttpEntity entity = httpResponse.getEntity();
+      if (entity != null) {
         final OutputStream clientOut = response.getOutputStream();
-
-        //Using a buffered stream so this isn't nearly as expensive as it looks
-        int readData;
-
-        while ((readData = httpIn.read()) != -1) {
-            clientOut.write(readData);
-        }
-
+        entity.writeTo(clientOut);
         clientOut.flush();
       }
     }
     
     private String getResponseHeaderValue(String headerName) throws HttpException {
-        final Header locationHeader = httpMethodResponse.getResponseHeader(headerName);
-        if (locationHeader == null) {
+        final Header[] locationHeader = httpResponse.getHeaders(headerName);
+        if (locationHeader == null || locationHeader.length == 0) {
             throw new HttpException("Expected header was not found in response: " + headerName + " (Response Code: " + responseCode + ")");
         }
 
-        final String locationValue = locationHeader.getValue();
+        final String locationValue = locationHeader[0].getValue();
         if (locationValue == null) {
             throw new HttpException("Expected header was not found in response: " + headerName + " (Response Code: " + responseCode + ")");
         }

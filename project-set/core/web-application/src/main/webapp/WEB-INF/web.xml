@@ -29,7 +29,7 @@
     <!-- Filters -->
     <filter id="power-api-filter">
         <filter-name>power-api-filter</filter-name>
-        <filter-class>com.rackspace.papi.filter.PowerFilter</filter-class>
+        <filter-class>com.rackspace.papi.filter.ValvePowerFilter</filter-class>
     </filter>
     
     <filter-mapping id="power-api-filter-mapping">

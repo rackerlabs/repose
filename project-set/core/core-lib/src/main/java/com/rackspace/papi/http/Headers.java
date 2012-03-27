@@ -14,7 +14,7 @@
  *  limitations under the License.
  *  under the License.
  */
-package com.rackspace.cloud.valve.http;
+package com.rackspace.papi.http;
 
 /**
  *

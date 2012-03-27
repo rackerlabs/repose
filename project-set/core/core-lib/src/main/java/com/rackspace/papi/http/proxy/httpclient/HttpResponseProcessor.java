@@ -1,42 +1,35 @@
-package com.rackspace.cloud.valve.http.proxy.jerseyclient;
+package com.rackspace.papi.http.proxy.httpclient;
 
-import org.apache.http.HttpException;
-import java.util.List;
-import javax.ws.rs.core.MultivaluedMap;
-import com.sun.jersey.api.client.ClientResponse;
-import com.rackspace.cloud.valve.http.proxy.httpclient.*;
 import com.rackspace.papi.commons.util.StringUtilities;
+import org.apache.commons.httpclient.HttpException;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import javax.servlet.http.HttpServletResponse;
-import static com.rackspace.cloud.valve.http.Headers.*;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpMethod;
+import static com.rackspace.papi.http.Headers.*;
 
-public class JerseyResponseProcessor {
-    private final ClientResponse clientResponse;
+public class HttpResponseProcessor {
+    private final HttpMethod httpMethodResponse;
     private final HttpServletResponse response;
     private final HttpResponseCodeProcessor responseCode;
     
-    public JerseyResponseProcessor(ClientResponse clientResponse, HttpServletResponse response) {
-      this.clientResponse = clientResponse;
+    public HttpResponseProcessor(HttpMethod httpMethodProxyRequest, HttpServletResponse response, HttpResponseCodeProcessor responseCode) {
+      this.httpMethodResponse = httpMethodProxyRequest;
       this.response = response;
-      this.responseCode = new HttpResponseCodeProcessor(clientResponse.getStatus());
+      this.responseCode = responseCode;
     }
     
     private void setResponseHeaders() throws IOException {
-      MultivaluedMap<String, String> headers = clientResponse.getHeaders();
-      for (String headerName: headers.keySet()) {
-        for (String value: headers.get(headerName)) {
-          response.setHeader(headerName, value);
-        }
+      for (Header header : httpMethodResponse.getResponseHeaders()) {
+          response.setHeader(header.getName(), header.getValue());
       }
     }
     
     private void setResponseBody() throws IOException {
-      final InputStream source = clientResponse.getEntityInputStream();
-      final int BUFFER_SIZE = 1024;
-              
+      final InputStream source = httpMethodResponse.getResponseBodyAsStream();
       if (source != null) {
 
         final BufferedInputStream httpIn = new BufferedInputStream(source);
@@ -44,26 +37,22 @@ public class JerseyResponseProcessor {
 
         //Using a buffered stream so this isn't nearly as expensive as it looks
         int readData;
-        byte bytes[] = new byte[BUFFER_SIZE];
 
-        while ((readData = httpIn.read(bytes)) != -1) {
-            clientOut.write(bytes, 0, readData);
+        while ((readData = httpIn.read()) != -1) {
+            clientOut.write(readData);
         }
 
-        httpIn.close();
         clientOut.flush();
-        clientOut.close();
       }
-      clientResponse.close();
     }
     
     private String getResponseHeaderValue(String headerName) throws HttpException {
-        final List<String> locationHeader = clientResponse.getHeaders().get(headerName);
-        if (locationHeader == null || locationHeader.isEmpty()) {
+        final Header locationHeader = httpMethodResponse.getResponseHeader(headerName);
+        if (locationHeader == null) {
             throw new HttpException("Expected header was not found in response: " + headerName + " (Response Code: " + responseCode + ")");
         }
 
-        final String locationValue = locationHeader.get(0);
+        final String locationValue = locationHeader.getValue();
         if (locationValue == null) {
             throw new HttpException("Expected header was not found in response: " + headerName + " (Response Code: " + responseCode + ")");
         }

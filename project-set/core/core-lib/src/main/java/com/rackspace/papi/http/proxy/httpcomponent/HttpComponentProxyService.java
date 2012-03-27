@@ -14,11 +14,11 @@
  *  limitations under the License.
  *  under the License.
  */
-package com.rackspace.cloud.valve.http.proxy.httpcomponent;
+package com.rackspace.papi.http.proxy.httpcomponent;
 
 import java.net.URISyntaxException;
 
-import com.rackspace.cloud.valve.http.proxy.common.ProxyService;
+import com.rackspace.papi.http.proxy.common.ProxyService;
 import org.apache.http.HttpException;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;

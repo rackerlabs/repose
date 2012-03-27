@@ -1,4 +1,4 @@
-package com.rackspace.cloud.valve.filter;
+package com.rackspace.papi.filter;
 
 import com.rackspace.papi.filter.PowerFilter;
 import javax.servlet.FilterConfig;
