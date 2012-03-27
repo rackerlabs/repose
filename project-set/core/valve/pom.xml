@@ -1,255 +1,268 @@
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+   <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>com.rackspace.papi.core</groupId>
-        <artifactId>core-support</artifactId>
-        <version>1.2.2-SNAPSHOT</version>
-    </parent>
+   <parent>
+      <groupId>com.rackspace.papi.core</groupId>
+      <artifactId>core-support</artifactId>
+      <version>1.2.2-SNAPSHOT</version>
+   </parent>
 
-    <groupId>com.rackspace.papi.core</groupId>
-    <artifactId>valve</artifactId>
-    <packaging>jar</packaging>
-    <name>Repose Valve - Integration Proxy Container</name>
+   <groupId>com.rackspace.papi.core</groupId>
+   <artifactId>valve</artifactId>
+   <packaging>jar</packaging>
+   <name>Repose Valve - Integration Proxy Container</name>
 
-    <dependencies>
-        <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>classloader</artifactId>
-        </dependency>
+   <dependencies>
+      <dependency>
+         <groupId>com.rackspace.papi.core</groupId>
+         <artifactId>core-lib</artifactId>
+      </dependency>
 
-        <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>jetty-container</artifactId>
-        </dependency>
+      <dependency>
+         <groupId>com.rackspace.papi.commons</groupId>
+         <artifactId>configuration</artifactId>
+      </dependency>
 
-        <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>utilities</artifactId>
-        </dependency>
+      <dependency>
+         <groupId>com.rackspace.papi.commons</groupId>
+         <artifactId>classloader</artifactId>
+      </dependency>
 
-        <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>configuration</artifactId>
-        </dependency>
+      <dependency>
+         <groupId>com.rackspace.papi.commons</groupId>
+         <artifactId>utilities</artifactId>
+      </dependency>
 
-        <dependency>
-            <groupId>com.rackspace.papi.core</groupId>
-            <artifactId>core-lib</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.1.2</version>
-        </dependency>
+      <dependency>
+         <groupId>org.apache.httpcomponents</groupId>
+         <artifactId>httpclient</artifactId>
+         <version>4.1.2</version>
+      </dependency>
         
-        <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
-            <version>3.1</version>
-        </dependency>
+      <dependency>
+         <groupId>commons-httpclient</groupId>
+         <artifactId>commons-httpclient</artifactId>
+         <version>3.1</version>
+      </dependency>
 
-        <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-client</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>args4j</groupId>
-            <artifactId>args4j</artifactId>
-            <version>2.0.16</version>
-        </dependency>
+      <dependency>
+         <groupId>com.sun.jersey</groupId>
+         <artifactId>jersey-client</artifactId>
+      </dependency>
+      
+      <dependency>
+         <groupId>com.rackspace.papi.commons</groupId>
+         <artifactId>jetty-container</artifactId>
+      </dependency>
+      
+      <dependency>
+         <groupId>args4j</groupId>
+         <artifactId>args4j</artifactId>
+         <version>2.0.16</version>
+      </dependency>
         
-        <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>rate-limiting</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>            
-        </dependency>
+      <dependency>
+         <groupId>com.rackspace.papi.components</groupId>
+         <artifactId>rate-limiting</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>            
+      </dependency>
 
-        <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>versioning</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
+      <dependency>
+         <groupId>com.rackspace.papi.components</groupId>
+         <artifactId>versioning</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
 
-        <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>client-auth</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>            
-        </dependency>
-    </dependencies>
+      <dependency>
+         <groupId>com.rackspace.papi.components</groupId>
+         <artifactId>client-auth</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>            
+      </dependency>
+      
+   </dependencies>
 
-    <build>
-        <finalName>repose-valve</finalName>
-        
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-shade-plugin</artifactId>
-                <version>1.4</version>
+   <build>
+      <finalName>repose-valve</finalName>
 
-                <executions>
-                    <execution>
-                        <phase>package</phase>
+      <!--
+      <resources>
+         <resource>
+            <directory>../web-application/target/ROOT</directory>
+            <includes>
+               <include>**/*.*</include>
+            </includes>
+         </resource>
+      </resources>
+      -->
+      
+      <plugins>
+         <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+            <version>1.4</version>
 
-                        <goals>
-                            <goal>shade</goal>
-                        </goals>
+            <executions>
+               <execution>
+                  <phase>package</phase>
 
-                        <configuration>
-                            <transformers>
-                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.rackspace.cloud.valve.server.ProxyApp</mainClass>
-                                </transformer>
-                            </transformers>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+                  <goals>
+                     <goal>shade</goal>
+                  </goals>
 
-            <plugin>
-                <groupId>pl.project13.maven</groupId>
-                <artifactId>git-commit-id-plugin</artifactId>
-                <version>1.9</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>revision</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <prefix>git</prefix>
-                    <verbose>false</verbose>
-                    <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
-                    <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                    <generateGitPropertiesFilename>target/git.properties</generateGitPropertiesFilename>
-                </configuration>
-            </plugin>
+                  <configuration>
+                     <transformers>
+                        <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                           <mainClass>com.rackspace.cloud.valve.server.ProxyApp</mainClass>
+                        </transformer>
+                     </transformers>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
 
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>properties-maven-plugin</artifactId>
-                <version>1.0-alpha-2</version>
-                <executions>
-                    <execution>
-                        <phase>process-resources</phase>
-                        <goals>
-                            <goal>read-project-properties</goal>
-                        </goals>
-                        <configuration>
-                            <files>
-                                <file>${basedir}/target/git.properties</file>
-                            </files>
-                        </configuration>
-                    </execution>
-               </executions>
-            </plugin>
+         <plugin>
+            <groupId>pl.project13.maven</groupId>
+            <artifactId>git-commit-id-plugin</artifactId>
+            <version>1.9</version>
+            <executions>
+               <execution>
+                  <goals>
+                     <goal>revision</goal>
+                  </goals>
+               </execution>
+            </executions>
+            <configuration>
+               <prefix>git</prefix>
+               <verbose>false</verbose>
+               <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+               <generateGitPropertiesFile>true</generateGitPropertiesFile>
+               <generateGitPropertiesFilename>target/git.properties</generateGitPropertiesFilename>
+            </configuration>
+         </plugin>
 
-            <plugin>
-                <groupId>org.vafer</groupId>
-                <artifactId>jdeb</artifactId>
-                <version>0.9</version>
+         <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>properties-maven-plugin</artifactId>
+            <version>1.0-alpha-2</version>
+            <executions>
+               <execution>
+                  <phase>process-resources</phase>
+                  <goals>
+                     <goal>read-project-properties</goal>
+                  </goals>
+                  <configuration>
+                     <files>
+                        <file>${basedir}/target/git.properties</file>
+                     </files>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
 
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>jdeb</goal>
-                        </goals>
+         <plugin>
+            <groupId>org.vafer</groupId>
+            <artifactId>jdeb</artifactId>
+            <version>0.9</version>
 
-                        <configuration>
-                            <deb>[[buildDir]]/repose-[[artifactId]]-[[version]]-${git.commit.id.abbrev}.deb</deb> 
-                            <timestamped>true</timestamped>
-                            <dataSet>
+            <executions>
+               <execution>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>jdeb</goal>
+                  </goals>
+
+                  <configuration>
+                     <deb>[[buildDir]]/repose-[[artifactId]]-[[version]]-${git.commit.id.abbrev}.deb</deb> 
+                     <timestamped>true</timestamped>
+                     <dataSet>
 
                                     <!-- The config directory and files -->
-                                <data>
-                                    <src>../core-lib/src/main/resources/META-INF/schema/examples/</src>
-                                    <type>directory</type>
+                        <data>
+                           <src>../core-lib/src/main/resources/META-INF/schema/examples/</src>
+                           <type>directory</type>
 
-                                    <mapper>
-                                        <type>perm</type>
-                                        <prefix>/etc/repose</prefix>
-                                        <filemode>600</filemode>
-                                    </mapper>
-                                </data>
+                           <mapper>
+                              <type>perm</type>
+                              <prefix>/etc/repose</prefix>
+                              <filemode>600</filemode>
+                           </mapper>
+                        </data>
 
 
                                     <!-- The jar file -->
-                                <data>
-                                    <src>${project.build.directory}/${project.build.finalName}.jar</src>
-                                    <type>file</type>
-                                    <mapper>
-                                        <type>perm</type>
-                                        <prefix>/usr/share/lib/repose</prefix>
-                                    </mapper>
-                                </data>
+                        <data>
+                           <src>${project.build.directory}/${project.build.finalName}.jar</src>
+                           <type>file</type>
+                           <mapper>
+                              <type>perm</type>
+                              <prefix>/usr/share/lib/repose</prefix>
+                           </mapper>
+                        </data>
 
                                     <!-- The start script -->
-                                <data>
-                                    <src>src/main/resources/repose-valve</src>
-                                    <type>file</type>
-                                    <mapper>
-                                        <type>perm</type>
-                                        <prefix>/etc/init.d</prefix>
-                                        <filemode>755</filemode>
-                                    </mapper>
-                                </data>
+                        <data>
+                           <src>src/main/resources/repose-valve</src>
+                           <type>file</type>
+                           <mapper>
+                              <type>perm</type>
+                              <prefix>/etc/init.d</prefix>
+                              <filemode>755</filemode>
+                           </mapper>
+                        </data>
 
                                     <!-- The /var/log/repose directory -->
-                                <data>
-                                    <src>${project.build.directory}/../src/deb/.log_dir_placeholder</src>
-                                    <type>file</type>
-                                    <mapper>
-                                        <type>perm</type>
-                                        <prefix>/var/log/repose</prefix>
-                                    </mapper>
-                                </data>
+                        <data>
+                           <src>${project.build.directory}/../src/deb/.log_dir_placeholder</src>
+                           <type>file</type>
+                           <mapper>
+                              <type>perm</type>
+                              <prefix>/var/log/repose</prefix>
+                           </mapper>
+                        </data>
 
                                     <!-- The /var/repose directory -->
-                                <data>
-                                    <src>${project.build.directory}/../src/deb/.var_repose_dir_placeholder</src>
-                                    <type>file</type>
-                                    <mapper>
-                                        <type>perm</type>
-                                        <prefix>/var/repose</prefix>
-                                    </mapper>
-                                </data>
+                        <data>
+                           <src>${project.build.directory}/../src/deb/.var_repose_dir_placeholder</src>
+                           <type>file</type>
+                           <mapper>
+                              <type>perm</type>
+                              <prefix>/var/repose</prefix>
+                           </mapper>
+                        </data>
 
 
                                     <!--The git.properties file -->
-                                <data>
-                                    <src>${basedir}/target/git.properties</src>
-                                    <type>file</type>
-                                    <mapper>
-                                        <type>perm</type>
-                                        <prefix>/usr/share/doc/repose-valve</prefix>
-                                        <filemode>644</filemode>
-                                    </mapper>
-                                </data>
+                        <data>
+                           <src>${basedir}/target/git.properties</src>
+                           <type>file</type>
+                           <mapper>
+                              <type>perm</type>
+                              <prefix>/usr/share/doc/repose-valve</prefix>
+                              <filemode>644</filemode>
+                           </mapper>
+                        </data>
 
                                     <!-- The logrotate script -->
-                                <data>
-                                    <src>src/deb/etc/logrotate.d/repose</src>
-                                    <type>file</type>
-                                    <mapper>
-                                        <type>perm</type>
-                                        <prefix>/etc/logrotate.d</prefix>
-                                        <filemode>644</filemode>
+                        <data>
+                           <src>src/deb/etc/logrotate.d/repose</src>
+                           <type>file</type>
+                           <mapper>
+                              <type>perm</type>
+                              <prefix>/etc/logrotate.d</prefix>
+                              <filemode>644</filemode>
 
-                                    </mapper>
-                                </data>
+                           </mapper>
+                        </data>
 
-                            </dataSet>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
+                     </dataSet>
+                  </configuration>
+               </execution>
+            </executions>
+         </plugin>
+      </plugins>
+   </build>
 </project>
