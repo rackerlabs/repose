@@ -6,4 +6,8 @@
 
         <client-mapping id-regex=".*/servers/(\w*)/.*"/>
     </openstack-auth>
+
+    <white-list>
+        <uri-pattern uri-id="wadl" uri-regex="[^=]/application\.wadl$" />    
+    </white-list>
 </client-auth>

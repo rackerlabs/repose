@@ -21,75 +21,76 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.apache.commons.httpclient.*;
 import java.io.IOException;
+import java.util.logging.Level;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-
 
 /**
  *
  * @author John Hopper
  */
 public class HttpClientProxyService implements ProxyService {
-    private static final Logger LOG = LoggerFactory.getLogger(HttpClientProxyService.class);
 
-    private final HttpConnectionManager manager;
-    private final HttpClient client;
-    private final HostConfiguration proxiedHost;
+   private static final Logger LOG = LoggerFactory.getLogger(HttpClientProxyService.class);
+   private final HttpConnectionManager manager;
+   private final HttpClient client;
+   private final HostConfiguration proxiedHost;
 
-    public HttpClientProxyService(String targetHost) {
-        proxiedHost = new HostConfiguration();
-        try {
-            proxiedHost.setHost(new URI(targetHost, false));
-        } catch (URIException e) {
-            LOG.error("Invalid target host url: " + targetHost, e);
-        }
+   public HttpClientProxyService(String targetHost) {
+      proxiedHost = new HostConfiguration();
+      try {
+         proxiedHost.setHost(new URI(targetHost, false));
+      } catch (URIException e) {
+         LOG.error("Invalid target host url: " + targetHost, e);
+      }
 
-        manager = new MultiThreadedHttpConnectionManager();
-        client = new HttpClient(manager);
-    }
+      manager = new MultiThreadedHttpConnectionManager();
+      client = new HttpClient(manager);
+   }
 
-    @Override
-    public int proxyRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        final String target = proxiedHost.getHostURL() + request.getRequestURI();
-        final HttpRequestProcessor processor = new HttpRequestProcessor(request, proxiedHost);
-        final ProcessableRequest method = HttpMethodFactory.getMethod(request.getMethod(), target);
+   @Override
+   public int proxyRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+      final String target = proxiedHost.getHostURL() + request.getRequestURI();
+      final HttpRequestProcessor processor = new HttpRequestProcessor(request, proxiedHost);
+      final ProcessableRequest method = HttpMethodFactory.getMethod(request.getMethod(), target);
 
-        if (method != null) {
-            HttpMethod processedMethod = method.process(processor);
-            
+      if (method != null) {
+         HttpMethod processedMethod = method.process(processor);
+         try {
             return executeProxyRequest(processedMethod, request, response);
-        }
+         } catch (org.apache.http.HttpException ex) {
+            LOG.error("Error executing proxied request", ex);
+            return -1;
+         }
+      }
 
-        //Something exploded; return a status code that doesn't exist
-        return -1;
-    }
+      //Something exploded; return a status code that doesn't exist
+      return -1;
+   }
 
-    private String extractHostPath(HttpServletRequest request) {
-        final StringBuilder myHostName = new StringBuilder(request.getServerName());
+   private String extractHostPath(HttpServletRequest request) {
+      final StringBuilder myHostName = new StringBuilder(request.getServerName());
 
-        if (request.getServerPort() != 80) {
-            myHostName.append(":").append(request.getServerPort());
-        }
+      if (request.getServerPort() != 80) {
+         myHostName.append(":").append(request.getServerPort());
+      }
 
-        return myHostName.append(request.getContextPath()).toString();
-    }
+      return myHostName.append(request.getContextPath()).toString();
+   }
 
-    private int executeProxyRequest(HttpMethod httpMethodProxyRequest, HttpServletRequest sourceRequest, HttpServletResponse response) throws IOException {
-        
-        httpMethodProxyRequest.setFollowRedirects(false);
+   private int executeProxyRequest(HttpMethod httpMethodProxyRequest, HttpServletRequest sourceRequest, HttpServletResponse response) throws IOException, org.apache.http.HttpException {
 
-        HttpResponseCodeProcessor responseCode = new HttpResponseCodeProcessor(client.executeMethod(httpMethodProxyRequest));
-        HttpResponseProcessor responseProcessor = new HttpResponseProcessor(httpMethodProxyRequest, response, responseCode);
+      httpMethodProxyRequest.setFollowRedirects(false);
 
-        if (responseCode.isRedirect()) {
-            responseProcessor.sendTranslatedRedirect(proxiedHost.getHostURL(), extractHostPath(sourceRequest));
-        } else {
-            responseProcessor.process();
-        }
+      HttpResponseCodeProcessor responseCode = new HttpResponseCodeProcessor(client.executeMethod(httpMethodProxyRequest));
+      HttpResponseProcessor responseProcessor = new HttpResponseProcessor(httpMethodProxyRequest, response, responseCode);
 
-        return responseCode.getCode();
-    }
+      if (responseCode.isRedirect()) {
+         responseProcessor.sendTranslatedRedirect(proxiedHost.getHostURL(), extractHostPath(sourceRequest));
+      } else {
+         responseProcessor.process();
+      }
+
+      return responseCode.getCode();
+   }
 }
-
-
