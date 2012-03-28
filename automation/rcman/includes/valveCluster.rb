@@ -16,7 +16,7 @@ module ValveCluster
         chefRepo = getChefRepo
         image = 112
         flavor = 3
-        cmd = "knife rackspace server create -r 'recipe[java],recipe[powerapi-valve]' --server-name #{name} --node-name #{name} --image #{image} --flavor #{flavor} --template-file #{chefRepo}/.chef/default-template.erb -c #{chefRepo}/.chef/knife.rb"
+        cmd = "knife rackspace server create -r 'recipe[java],recipe[tomcat7],recipe[powerapi-valve],recipe[powerapi-valve::rootwarnode]' --server-name #{name} --node-name #{name} --image #{image} --flavor #{flavor} --template-file #{chefRepo}/.chef/default-template.erb -c #{chefRepo}/.chef/knife.rb"
 
         puts cmd
         puts "Building node #{name}..."
@@ -81,6 +81,7 @@ module ValveCluster
             puts "Starting repose cluster..."
             
             Net::SSH.start( "#{host}" , "root", :password => "#{node[9]}") do |ssh|
+                ssh.exec! "chef-client"
                 ssh.exec! "service repose-regression start"
             end
             
