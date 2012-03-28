@@ -48,7 +48,7 @@ public class MockServiceProvider {
             
         }
         resp += "\n\t</body>\n</html>";
-        return Response.ok(resp).header("x-request-id", "somevalue").build();
+        return Response.ok(resp).header("x-request-id", "somevalue").header("Content-Length", resp.length()).build();
     }
     
     public Response getAbsoluteLimitsJSON() {
