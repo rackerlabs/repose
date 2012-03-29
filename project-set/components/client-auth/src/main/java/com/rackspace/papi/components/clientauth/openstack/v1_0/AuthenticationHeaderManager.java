@@ -51,7 +51,10 @@ public class AuthenticationHeaderManager {
 
    public void setFilterDirectorValues() {
 
-      if (validToken) {
+      if (uriOnWhiteList) {
+         // If the request uri is on the configured white list then just let the request pass thru.
+         filterDirector.setFilterAction(FilterAction.PASS);
+      } else if (validToken) {
          filterDirector.setFilterAction(FilterAction.PASS);
          setExtendedAuthorization();
          setUser();
@@ -66,9 +69,6 @@ public class AuthenticationHeaderManager {
          filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
          setExtendedAuthorization();
          setIdentityStatus();
-      } else if (uriOnWhiteList) {
-         // If the request uri is on the configured white list then just let the request pass thru.
-         filterDirector.setFilterAction(FilterAction.PASS);   
       }
    }
 
