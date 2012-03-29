@@ -81,7 +81,7 @@
                                 </mapping>
                         
                                 <mapping>
-                                    <directory>/etc/powerapi/</directory>
+                                    <directory>/etc/repose/</directory>
                                     <username>tomcat7</username>
                                     <groupname>tomcat7</groupname>
                                     <filemode>755</filemode>
@@ -99,15 +99,15 @@
                     
                             <postinstallScriptlet>
                                 <script>
-                                    mkdir "/var/powerapi/logs/" -p -m 765;
-                                    mkdir "/usr/share/powerapi/filters" -p -m 755;
-                                    chown tomcat7:tomcat7 /var/powerapi /usr/share/powerapi -R;
+                                    mkdir "/var/repose/logs/" -p -m 765;
+                                    mkdir "/usr/share/repose/filters" -p -m 755;
+                                    chown tomcat7:tomcat7 /var/repose /usr/share/repose -R;
                                 </script>
                             </postinstallScriptlet>
                     
                             <postremoveScriptlet>
                                 <script>
-                                    rm -rf /var/powerapi /usr/share/powerapi/;
+                                    rm -rf /var/repose /usr/share/repose/;
                                 </script>
                             </postremoveScriptlet>
                     
