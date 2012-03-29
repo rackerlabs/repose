@@ -17,13 +17,21 @@ public class ProxyApp {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProxyApp.class);
     private static final String DEFAULT_CFG_DIR = "/etc/powerapi";
-    private static Log4jAppender defaultLog4j = new Log4jAppender("consoleOut", "ConsoleAppender", "PatternLayout", "%d %-4r [%t] %-5p %c %x - %m%n");
+    private static final String DEFAULT_LOG_DIR = "/var/log/repose/current.log";
+    private static final String DEFAULT_LAYOUT = "PatternLayout";
+    private static final String DEFAULT_LOG_FRMT = "%d %-4r [%t] %-5p %c %x - %m%n";
+    private static Log4jAppender consoleAppender = new Log4jAppender("consoleOut", "ConsoleAppender", DEFAULT_LAYOUT, DEFAULT_LOG_FRMT);
+    private static Log4jAppender fileAppender = new Log4jAppender("defaultFile", "RollingFileAppender", DEFAULT_LAYOUT, DEFAULT_LOG_FRMT);
     private static Log4jPropertiesBuilder log4jPropertiesBuilder = new Log4jPropertiesBuilder();
 
     public static void main(String[] args) throws Exception {
         // Use default logging confg which sets to DEBUG
         //BasicConfigurator.configure();
-        log4jPropertiesBuilder.addLog4jAppender(defaultLog4j);
+        fileAppender.addProp("MaxFileSize", "2MB");
+        fileAppender.addProp("MaxBackupIndex", "2");
+        fileAppender.addProp("File", DEFAULT_LOG_DIR);
+        log4jPropertiesBuilder.addLog4jAppender(consoleAppender);
+        log4jPropertiesBuilder.addLog4jAppender(fileAppender);
         PropertyConfigurator.configure(log4jPropertiesBuilder.getLoggingConfig());
 
 
