@@ -5,14 +5,21 @@ import com.rackspace.papi.commons.config.manager.UpdateListener;
 
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
+import com.rackspace.papi.components.clientauth.config.URIPattern;
+import com.rackspace.papi.components.clientauth.config.WhiteList;
 import com.rackspace.papi.components.clientauth.openstack.config.ClientMapping;
 import com.rackspace.papi.components.clientauth.openstack.v1_0.OpenStackAuthenticationHandlerFactory;
 import com.rackspace.papi.components.clientauth.rackspace.config.AccountMapping;
 import com.rackspace.papi.components.clientauth.rackspace.v1_1.RackspaceAuthenticationHandlerFactory;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.datastore.Datastore;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 
 /**
@@ -29,10 +36,12 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ClientAuthenticationHandlerFactory.class);
    private AuthModule authenticationModule;
    private KeyedRegexExtractor<String> accountRegexExtractor = new KeyedRegexExtractor<String>();
+   private List<Pattern> whiteListRegexPatterns; 
    private final Datastore datastore;
 
    public ClientAuthenticationHandlerFactory(Datastore datastore) {
       this.datastore = datastore;
+      whiteListRegexPatterns = new ArrayList<Pattern>();
    }
 
    @Override
@@ -47,6 +56,14 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
 
       @Override
       public void configurationUpdated(ClientAuthConfig modifiedConfig) {
+
+         whiteListRegexPatterns.clear();
+         final WhiteList whiteList = modifiedConfig.getWhiteList();
+         if (whiteList != null) {
+            for (URIPattern pattern : whiteList.getUriPattern()) {
+               whiteListRegexPatterns.add(Pattern.compile(pattern.getUriRegex()));
+            }
+         }
 
          if (modifiedConfig.getRackspaceAuth() != null) {
             authenticationModule = getAuth1_1Handler(modifiedConfig);
@@ -68,11 +85,11 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
    }
 
    private AuthModule getAuth1_1Handler(ClientAuthConfig cfg) {
-      return RackspaceAuthenticationHandlerFactory.newInstance(cfg, accountRegexExtractor, datastore);
+      return RackspaceAuthenticationHandlerFactory.newInstance(cfg, accountRegexExtractor, datastore, whiteListRegexPatterns);
    }
 
    private AuthModule getOpenStackAuthHandler(ClientAuthConfig config) {
-      return OpenStackAuthenticationHandlerFactory.newInstance(config, accountRegexExtractor, datastore);
+      return OpenStackAuthenticationHandlerFactory.newInstance(config, accountRegexExtractor, datastore, whiteListRegexPatterns);
    }
 
    @Override
