@@ -20,107 +20,114 @@ import java.util.List;
  */
 public class AuthenticationHeaderManager {
 
-    // Proxy is specified in the OpenStack auth blue print:
-    // http://wiki.openstack.org/openstack-authn
-    private static final String X_AUTH_PROXY = "Proxy";
-    
-    private final boolean validToken;
-    private final boolean isDelegatable;
-    private final boolean keystone;
-    private final UserRoles userRoles;
-    private final FilterDirector filterDirector;
-    private final String accountUsername;
-    private final GroupsList groups;
-    private final HttpServletRequest request;
+   // Proxy is specified in the OpenStack auth blue print:
+   // http://wiki.openstack.org/openstack-authn
+   private static final String X_AUTH_PROXY = "Proxy";
 
-    // Hard code quality for now as the auth component will have
-    // the highest quality in terms of using the user it supplies for rate limiting
-    private final String quality = ";q=1";
+   private final boolean validToken;
+   private final boolean isDelegatable;
+   private final boolean keystone;
+   private final UserRoles userRoles;
+   private final FilterDirector filterDirector;
+   private final String accountUsername;
+   private final GroupsList groups;
+   private final HttpServletRequest request;
+   private final boolean uriOnWhiteList;
 
-    public AuthenticationHeaderManager(boolean validToken, RackspaceAuth cfg, FilterDirector filterDirector, String accountUsername, GroupsList groups, HttpServletRequest request) {
-        this.validToken = validToken;
-        this.isDelegatable = cfg.isDelegatable();
-        this.keystone = cfg.isKeystoneActive();
-        this.userRoles = cfg.getUserRoles();
-        this.filterDirector = filterDirector;
-        this.accountUsername = accountUsername;
-        this.groups = groups;
-        this.request = request;
-    }
+   // Hard code quality for now as the auth component will have
+   // the highest quality in terms of using the user it supplies for rate limiting
+   private final String quality = ";q=1";
 
-    public void setFilterDirectorValues() {
+   public AuthenticationHeaderManager(boolean validToken, RackspaceAuth cfg, FilterDirector filterDirector, String accountUsername, GroupsList groups, HttpServletRequest request, boolean uriOnWhiteList) {
+      this.validToken = validToken;
+      this.isDelegatable = cfg.isDelegatable();
+      this.keystone = cfg.isKeystoneActive();
+      this.userRoles = cfg.getUserRoles();
+      this.filterDirector = filterDirector;
+      this.accountUsername = accountUsername;
+      this.groups = groups;
+      this.request = request;
+      this.uriOnWhiteList = uriOnWhiteList;
+   }
 
-        setIdentityStatus();
+   public void setFilterDirectorValues() {
 
-        if (validToken || isDelegatable) {
+      if (uriOnWhiteList) {
+         // If the request uri is on the configured white list then just let the request pass thru.
+         filterDirector.setFilterAction(FilterAction.PASS);   
+      } else {
+         setIdentityStatus();
+
+         if (validToken || isDelegatable) {
             filterDirector.setFilterAction(FilterAction.PASS);
-        }
+         }
 
-        if (validToken) {
-         getGroupsListIds();
+         if (validToken) {
+            getGroupsListIds();
             filterDirector.requestHeaderManager().appendToHeader(request, PowerApiHeader.USER.toString(), accountUsername + quality);
             setRoles();
-        }
-    }
+         }
+      }
+   }
 
    private void getGroupsListIds() {
 
       if (groups != null) {
-        int groupCount = groups.getGroup().size();
+         int groupCount = groups.getGroup().size();
 
-        String[] groupsArray = new String[groupCount];
+         String[] groupsArray = new String[groupCount];
 
-        for (int i = 0; i < groupCount; i++) {
+         for (int i = 0; i < groupCount; i++) {
             groupsArray[i] = groups.getGroup().get(i).getId() + quality;
-        }
+         }
 
          filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.toString(), groupsArray);
-    }
+      }
    }
 
-    /**
-     * Set Identity Status and X-Authorization headers
-     */
-    private void setIdentityStatus() {
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString(), StringUtilities.isBlank(accountUsername) ? X_AUTH_PROXY : X_AUTH_PROXY + " " + accountUsername);
+   /**
+    * Set Identity Status and X-Authorization headers
+    */
+   private void setIdentityStatus() {
+      filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString(), StringUtilities.isBlank(accountUsername) ? X_AUTH_PROXY : X_AUTH_PROXY + " " + accountUsername);
 
-        if (isDelegatable) {
-            IdentityStatus identityStatus = IdentityStatus.Confirmed;
+      if (isDelegatable) {
+         IdentityStatus identityStatus = IdentityStatus.Confirmed;
 
-            if (!validToken) {
-                identityStatus = IdentityStatus.Indeterminate;
+         if (!validToken) {
+            identityStatus = IdentityStatus.Indeterminate;
+         }
+
+         filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString(), identityStatus.name());
+      }
+   }
+
+   /**
+    * Set Roles
+    * This is temporary to support roles until REPOSE supports the OpenStack Identity Service Specification
+    */
+   private void setRoles() {
+      if (keystone) {
+         filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.toString(), accountUsername);
+         filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), accountUsername);
+
+         List<String> roleList = new ArrayList<String>();
+
+         for (String r : userRoles.getDefault().getRoles().getRole()) {
+            roleList.add(r);
+         }
+
+         for (User user : userRoles.getUser()) {
+            if (user.getName().equalsIgnoreCase(accountUsername)) {
+               for (String r : user.getRoles().getRole()) {
+                  roleList.add(r);
+               }
             }
+         }
 
-            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString(), identityStatus.name());
-        }
-    }
-
-    /**
-     * Set Roles
-     * This is temporary to support roles until REPOSE supports the OpenStack Identity Service Specification
-     */
-    private void setRoles() {
-        if (keystone) {
-            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.toString(), accountUsername);
-            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), accountUsername);
-
-            List<String> roleList = new ArrayList<String>();
-
-            for (String r : userRoles.getDefault().getRoles().getRole()) {
-                roleList.add(r);
-            }
-
-            for (User user : userRoles.getUser()) {
-                if (user.getName().equalsIgnoreCase(accountUsername)) {
-                    for (String r : user.getRoles().getRole()) {
-                        roleList.add(r);
-                    }
-                }
-            }
-
-            if (roleList.size() > 0) {
-                filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.ROLES.toString(), roleList.toArray(new String[0]));
-            }
-        }
-    }
+         if (roleList.size() > 0) {
+            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.ROLES.toString(), roleList.toArray(new String[0]));
+         }
+      }
+   }
 }

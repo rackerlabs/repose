@@ -16,126 +16,130 @@ import java.util.List;
 
 /**
  * @author fran
- * 
  */
 public class AuthenticationHeaderManager {
 
-    // Proxy is specified in the OpenStack auth blue print:
-    // http://wiki.openstack.org/openstack-authn
-    private static final String X_AUTH_PROXY = "Proxy";
+   // Proxy is specified in the OpenStack auth blue print:
+   // http://wiki.openstack.org/openstack-authn
+   private static final String X_AUTH_PROXY = "Proxy";
 
-    private final String authToken;
-    private final CachableUserInfo cachableTokenInfo;
-    private final Boolean isDelegatable;
-    private final FilterDirector filterDirector;
-    private final String tenantId;
-    private final Boolean validToken;
-    private final Groups groups;
-    private final HttpServletRequest request;
+   private final String authToken;
+   private final CachableUserInfo cachableTokenInfo;
+   private final Boolean isDelegatable;
+   private final FilterDirector filterDirector;
+   private final String tenantId;
+   private final Boolean validToken;
+   private final Groups groups;
+   private final HttpServletRequest request;
+   private final boolean uriOnWhiteList;
 
-    // Hard code quality for now as the auth component will have
-    // the highest quality in terms of using the user it supplies for rate limiting
-    private final String quality = ";q=1.0";
+   // Hard code quality for now as the auth component will have
+   // the highest quality in terms of using the user it supplies for rate limiting
+   private final String quality = ";q=1.0";
 
-    public AuthenticationHeaderManager(String authToken, CachableUserInfo cachableTokenInfo, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, Groups groups, HttpServletRequest request) {
-        this.authToken =authToken;
-        this.cachableTokenInfo = cachableTokenInfo;
-        this.isDelegatable = isDelegatable;
-        this.filterDirector = filterDirector;
-        this.tenantId = tenantId;
-        this.validToken = cachableTokenInfo != null && cachableTokenInfo.getTokenId() != null;       
-        this.groups = groups;
-        this.request = request;
-    }
+   public AuthenticationHeaderManager(String authToken, CachableUserInfo cachableTokenInfo, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, Groups groups, HttpServletRequest request, boolean uriOnWhiteList) {
+      this.authToken = authToken;
+      this.cachableTokenInfo = cachableTokenInfo;
+      this.isDelegatable = isDelegatable;
+      this.filterDirector = filterDirector;
+      this.tenantId = tenantId;
+      this.validToken = cachableTokenInfo != null && cachableTokenInfo.getTokenId() != null;
+      this.groups = groups;
+      this.request = request;
+      this.uriOnWhiteList = uriOnWhiteList;
+   }
 
-    public void setFilterDirectorValues() {
+   public void setFilterDirectorValues() {
 
-        if (validToken) {
-            filterDirector.setFilterAction(FilterAction.PASS);
-            setExtendedAuthorization();
-            setUser();
-            setRoles();
-            setGroups();
-            setTenant();
+      if (uriOnWhiteList) {
+         // If the request uri is on the configured white list then just let the request pass thru.
+         filterDirector.setFilterAction(FilterAction.PASS);
+      } else if (validToken) {
+         filterDirector.setFilterAction(FilterAction.PASS);
+         setExtendedAuthorization();
+         setUser();
+         setRoles();
+         setGroups();
+         setTenant();
 
-            if (isDelegatable) {
-                setIdentityStatus();
-            }
-        } else if (isDelegatable && nullCredentials()) {
-            filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
-            setExtendedAuthorization();
+         if (isDelegatable) {
             setIdentityStatus();
-        }
-    }
+         }
+      } else if (isDelegatable && nullCredentials()) {
+         filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
+         setExtendedAuthorization();
+         setIdentityStatus();
+      }
+   }
 
-    private boolean nullCredentials() {
-        return StringUtilities.isBlank(authToken) || StringUtilities.isBlank(tenantId);
-    }
+   private boolean nullCredentials() {
+      return StringUtilities.isBlank(authToken) || StringUtilities.isBlank(tenantId);
+   }
 
-    /**
-     * EXTENDED AUTHORIZATION
-     */
-    private void setExtendedAuthorization() {
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString(), StringUtilities.isBlank(tenantId) ? X_AUTH_PROXY : X_AUTH_PROXY + " " + tenantId);
-    }
+   /**
+    * EXTENDED AUTHORIZATION
+    */
+   private void setExtendedAuthorization() {
+      filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.EXTENDED_AUTHORIZATION.toString(), StringUtilities.isBlank(tenantId) ? X_AUTH_PROXY : X_AUTH_PROXY + " " + tenantId);
+   }
 
-    /**
-     * IDENTITY STATUS
-     */
-    private void setIdentityStatus() {
-        IdentityStatus identityStatus = IdentityStatus.Confirmed;
+   /**
+    * IDENTITY STATUS
+    */
+   private void setIdentityStatus() {
+      IdentityStatus identityStatus = IdentityStatus.Confirmed;
 
-        if (!validToken) {
-            identityStatus = IdentityStatus.Indeterminate;
-        }
+      if (!validToken) {
+         identityStatus = IdentityStatus.Indeterminate;
+      }
 
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString(), identityStatus.name());
-    }
+      filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString(), identityStatus.name());
+   }
 
-    /**
-     * TENANT
-     */
-    private void setTenant() {
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.toString(), tenantId);
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), tenantId);
-    }
+   /**
+    * TENANT
+    */
+   private void setTenant() {
+      filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.toString(), tenantId);
+      filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), tenantId);
+   }
 
-    /**
-     * USER
-     * The PowerApiHeader is used for Rate Limiting
-     * The OpenStackServiceHeader is used for an OpenStack service
-     */
-    private void setUser() {
-        filterDirector.requestHeaderManager().appendToHeader(request, PowerApiHeader.USER.toString(), cachableTokenInfo.getUsername() + quality);
+   /**
+    * USER
+    * The PowerApiHeader is used for Rate Limiting
+    * The OpenStackServiceHeader is used for an OpenStack service
+    */
+   private void setUser() {
+      filterDirector.requestHeaderManager().appendToHeader(request, PowerApiHeader.USER.toString(), cachableTokenInfo.getUsername() + quality);
 
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_NAME.toString(), cachableTokenInfo.getUsername());
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_ID.toString(), cachableTokenInfo.getUserId());
-    }
+      filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_NAME.toString(), cachableTokenInfo.getUsername());
+      filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_ID.toString(), cachableTokenInfo.getUserId());
+   }
 
-    /**
-     * ROLES
-     * The OpenStackServiceHeader is used for an OpenStack service
-     */
-    private void setRoles() {
-        String roles = cachableTokenInfo.getRoles();
+   /**
+    * ROLES
+    * The OpenStackServiceHeader is used for an OpenStack service
+    */
+   private void setRoles() {
+      String roles = cachableTokenInfo.getRoles();
 
-        if (StringUtilities.isNotBlank(roles)) {
-            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.ROLES.toString(), roles);
-        }
-    }
+      if (StringUtilities.isNotBlank(roles)) {
+         filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.ROLES.toString(), roles);
+      }
+   }
 
-    /**
-     * GROUPS
-     * The PowerApiHeader is used for Rate Limiting
-     */
-    private void setGroups() {
-        if (groups != null) {
+   /**
+    * GROUPS
+    * The PowerApiHeader is used for Rate Limiting
+    */
+   private void setGroups() {
+      if (groups != null) {
 
-            List<String> groupIds = new ArrayList<String>();
-            for(Group group : groups.getGroup()) {
-                groupIds.add(group.getId());
-                filterDirector.requestHeaderManager().appendHeader(PowerApiHeader.GROUPS.toString(), group.getId()+quality);
-            }
-        }
-    }
+         List<String> groupIds = new ArrayList<String>();
+         for (Group group : groups.getGroup()) {
+            groupIds.add(group.getId());
+            filterDirector.requestHeaderManager().appendHeader(PowerApiHeader.GROUPS.toString(), group.getId() + quality);
+         }
+      }
+   }
 }

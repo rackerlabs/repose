@@ -5,6 +5,7 @@ import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.auth.openstack.ids.CachableUserInfo;
 import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
+import com.rackspace.papi.components.clientauth.UriMatcher;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 
 import com.rackspace.papi.auth.AuthModule;
@@ -18,6 +19,9 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import java.io.IOException;
+import java.util.List;
+import java.util.regex.Pattern;
+
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -33,13 +37,15 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
    private final String authServiceUri;
    private final KeyedRegexExtractor<Object> keyedRegexExtractor;
    private final UserAuthTokenCache<CachableUserInfo> cache;
+   private final UriMatcher uriMatcher;
 
-   public OpenStackAuthenticationHandler(OpenstackAuth cfg, OpenStackAuthenticationService serviceClient, KeyedRegexExtractor keyedRegexExtractor, UserAuthTokenCache cache) {
+   public OpenStackAuthenticationHandler(OpenstackAuth cfg, OpenStackAuthenticationService serviceClient, KeyedRegexExtractor keyedRegexExtractor, UserAuthTokenCache cache, List<Pattern> whiteListRegexPatterns) {
       this.authenticationService = serviceClient;
       this.delegatable = cfg.isDelegatable();
       this.authServiceUri = cfg.getIdentityService().getUri();
       this.keyedRegexExtractor = keyedRegexExtractor;
       this.cache = cache;
+      this.uriMatcher = new UriMatcher(whiteListRegexPatterns);
    }
 
    @Override
@@ -81,12 +87,14 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
          groups = authenticationService.getGroups(user.getUserId());
       }
 
-      final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(authToken, user, delegatable, filterDirector, account == null ? "" : account.getResult(), groups, request);
+      final boolean uriOnWhiteList = uriMatcher.isUriOnWhiteList(request.getRequestURI());
+
+      final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(authToken, user, delegatable, filterDirector, account == null ? "" : account.getResult(), groups, request, uriOnWhiteList);
       headerManager.setFilterDirectorValues();
 
       return filterDirector;
    }
-   
+
    private CachableUserInfo checkUserCache(String userId, String token) {
       if (cache == null) {
          return null;
