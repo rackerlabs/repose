@@ -7,7 +7,7 @@
     <!-- This tells Power API where to look for its configurations -->
     <context-param>
         <param-name>powerapi-config-directory</param-name>
-        <param-value>/etc/powerapi</param-value>
+        <param-value>/etc/repose</param-value>
     </context-param>
     
     <listener>
