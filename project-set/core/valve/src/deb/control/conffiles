@@ -1,4 +1,4 @@
-/etc/powerapi/container.cfg.xml
-/etc/powerapi/power-proxy.cfg.xml
-/etc/powerapi/response-messaging.cfg.xml
-/etc/powerapi/log4j.properties
+/etc/repose/container.cfg.xml
+/etc/repose/power-proxy.cfg.xml
+/etc/repose/response-messaging.cfg.xml
+/etc/repose/log4j.properties
