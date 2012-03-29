@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.clientauth.rackspace.v1_1;
 
+import com.rackspace.papi.components.clientauth.UriMatcher;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 
 
@@ -20,6 +21,8 @@ import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import java.io.IOException;
+import java.util.List;
+import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -32,12 +35,14 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
    private final RackspaceAuth cfg;
    private final KeyedRegexExtractor<String> keyedRegexExtractor;
    private final RackspaceUserInfoCache cache;
+   private final UriMatcher uriMatcher;
 
-   public RackspaceAuthenticationHandler(RackspaceAuth cfg, AuthenticationServiceClient authServiceClient, KeyedRegexExtractor keyedRegexExtractor, RackspaceUserInfoCache cache) {
+   public RackspaceAuthenticationHandler(RackspaceAuth cfg, AuthenticationServiceClient authServiceClient, KeyedRegexExtractor keyedRegexExtractor, RackspaceUserInfoCache cache, List<Pattern> whiteListRegexPatterns) {
       this.authenticationService = authServiceClient;
       this.cfg = cfg;
       this.keyedRegexExtractor = keyedRegexExtractor;
       this.cache = cache;
+      this.uriMatcher = new UriMatcher(whiteListRegexPatterns);
    }
 
    @Override
@@ -80,7 +85,9 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
          groups = authenticationService.getGroups(token.getUserId());
       }
 
-      final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(token != null, cfg, filterDirector, extractedResult == null ? "" : extractedResult.getResult(), groups, request);
+      final boolean uriOnWhiteList = uriMatcher.isUriOnWhiteList(request.getRequestURI());
+
+      final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(token != null, cfg, filterDirector, extractedResult == null ? "" : extractedResult.getResult(), groups, request, uriOnWhiteList);
       headerManager.setFilterDirectorValues();
 
       return filterDirector;
