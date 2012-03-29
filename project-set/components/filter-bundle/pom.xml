@@ -386,7 +386,7 @@
                         <configuration>                   
                             <mappings>
                                 <mapping>
-                                    <directory>/usr/share/powerapi/filters</directory>
+                                    <directory>/usr/share/repose/filters</directory>
                                     <username>tomcat7</username>
                                     <groupname>tomcat7</groupname>
                                     <filemode>755</filemode>
@@ -399,7 +399,7 @@
                                 </mapping>
                                 
                                 <mapping>
-                                    <directory>/etc/powerapi/</directory>
+                                    <directory>/etc/repose/</directory>
                                     <username>tomcat7</username>
                                     <groupname>tomcat7</groupname>
                                     <filemode>755</filemode>
