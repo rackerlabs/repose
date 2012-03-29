@@ -90,8 +90,9 @@ public class RackspaceAuthenticationHandlerTest {
          rackAuthConfig.setAuthenticationServer(authenticationServer);
 
          authServiceClient = mock(AuthenticationServiceClient.class);
-         // TODO: Add white list values to test
+
          whiteListRegexPatterns = new ArrayList<Pattern>();
+         whiteListRegexPatterns.add(Pattern.compile("/v1.0/application\\.wadl"));
          handler = new RackspaceAuthenticationHandler(rackAuthConfig, authServiceClient, keyedRegexExtractor, null, whiteListRegexPatterns);
       }
 
@@ -332,6 +333,50 @@ public class RackspaceAuthenticationHandlerTest {
          final FilterDirector responseDirector = handler.handleResponse(request, response);
 
          assertEquals("Auth component must return a 501 when un-delegatable origin service returns a 501", HttpStatusCode.NOT_IMPLEMENTED, responseDirector.getResponseStatus());
+      }
+   }
+
+   public static class WhenHandlingWhiteListNotInDelegatedMode extends TestParent {
+
+      @Override
+      protected boolean delegatable() {
+         return false;
+      }
+
+      @Test
+      public void shouldPassUriOnWhiteList() {
+         when(request.getRequestURI()).thenReturn("/v1.0/application.wadl");
+         final FilterDirector requestDirector = handler.handleRequest(request, response);
+         assertEquals("Auth component must pass requests with uri on white list", FilterAction.PASS, requestDirector.getFilterAction());
+      }
+
+      @Test
+      public void shouldReturnForUriNotOnWhiteList() {
+         when(request.getRequestURI()).thenReturn("?param=/v1.0/application.wadl");
+         final FilterDirector requestDirector = handler.handleRequest(request, response);
+         assertEquals("Auth component must return requests with uri not on white list", FilterAction.RETURN, requestDirector.getFilterAction());
+      }
+   }
+
+   public static class WhenHandlingWhiteListInDelegatedMode extends TestParent {
+
+      @Override
+      protected boolean delegatable() {
+         return true;
+      }
+
+      @Test
+      public void shouldPassUriOnWhiteList() {
+         when(request.getRequestURI()).thenReturn("/v1.0/application.wadl");
+         final FilterDirector requestDirector = handler.handleRequest(request, response);
+         assertEquals("Auth component must pass requests with uri on white list", FilterAction.PASS, requestDirector.getFilterAction());
+      }
+
+      @Test
+      public void shouldPassUriNotOnWhiteListAsNonAuthedRequest() {
+         when(request.getRequestURI()).thenReturn("?param=/v1.0/application.wadl");
+         final FilterDirector requestDirector = handler.handleRequest(request, response);
+         assertEquals("Auth component must pass requests with uri not on white list when in delegated mode", FilterAction.PASS, requestDirector.getFilterAction());
       }
    }
 }
