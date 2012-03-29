@@ -42,7 +42,7 @@ public class Log4jPropertiesBuilder {
         StringBuilder rootLogger = new StringBuilder(properties.getProperty(ROOT_LOGGER));
         
         appenders.add(log4jAppender);
-        properties.put("log4j.rootLogger", rootLogger.append(",").append(log4jAppender.getAppenderName()).toString());
+        properties.put(ROOT_LOGGER, rootLogger.append(",").append(log4jAppender.getAppenderName()).toString());
         properties.putAll(log4jAppender.getAppender());
     }
     
