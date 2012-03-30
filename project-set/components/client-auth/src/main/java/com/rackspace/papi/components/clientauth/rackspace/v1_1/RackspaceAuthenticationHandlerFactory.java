@@ -10,6 +10,9 @@ import com.rackspace.papi.components.clientauth.rackspace.config.RackspaceAuth;
 import com.rackspace.papi.service.datastore.Datastore;
 
 public class RackspaceAuthenticationHandlerFactory {
+
+   private RackspaceAuthenticationHandlerFactory() {}
+   
    public static AuthModule newInstance(ClientAuthConfig cfg, KeyedRegexExtractor accountRegexExtractor, Datastore datastore, UriMatcher uriMatcher) {
       final RackspaceAuth authConfig = cfg.getRackspaceAuth();
       final RackspaceUserInfoCache cache = new RackspaceUserInfoCache(datastore);

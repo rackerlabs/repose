@@ -57,8 +57,11 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
       filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
       filterDirector.setFilterAction(FilterAction.RETURN);
 
+      String uri = request.getRequestURI();
+      LOG.debug("Uri is " + uri);
       if (uriMatcher.isUriOnWhiteList(request.getRequestURI())) {
          filterDirector.setFilterAction(FilterAction.PASS);
+         LOG.debug("Uri is on whitelist!  Letting request pass through.");
       } else {
          filterDirector = this.authenticate(request);
       }
@@ -123,46 +126,6 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
 
    @Override
    public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
-      FilterDirector myDirector = new FilterDirectorImpl();
-
-      /// The WWW Authenticate header can be used to communicate to the client
-      // (since we are a proxy) how to correctly authenticate itself
-      final String wwwAuthenticateHeader = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString());
-
-      switch (HttpStatusCode.fromInt(response.getStatus())) {
-         // NOTE: We should only mutate the WWW-Authenticate header on a
-         // 401 (unauthorized) or 403 (forbidden) response from the origin service
-         case UNAUTHORIZED:
-         case FORBIDDEN:
-            myDirector = updateHttpResponse(myDirector, wwwAuthenticateHeader);
-            break;
-         case NOT_IMPLEMENTED:
-            if ((!StringUtilities.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains("Delegated"))) {
-               myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-               LOG.error("Repose authentication component is configured as delegetable but origin service does not support delegated mode.");
-            } else {
-               myDirector.setResponseStatus(HttpStatusCode.NOT_IMPLEMENTED);
-            }
-            break;
-      }
-
-      return myDirector;
-   }
-
-   private FilterDirector updateHttpResponse(FilterDirector director, String wwwAuthenticateHeader) {
-      // If in the case that the origin service supports delegated authentication
-      // we should then communicate to the client how to authenticate with us
-      if (!StringUtilities.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains("Delegated")) {
-         final String replacementWwwAuthenticateHeader = getWWWAuthenticateHeaderContents();
-         director.responseHeaderManager().putHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString(), replacementWwwAuthenticateHeader);
-      } else {
-         // In the case where authentication has failed and we did not receive
-         // a delegated WWW-Authenticate header, this means that our own authentication
-         // with the origin service has failed and must then be communicated as
-         // a 500 (internal server error) to the client
-         director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-      }
-
-      return director;
+      return new ResponseHandler(response, getWWWAuthenticateHeaderContents()).handle();
    }
 }
