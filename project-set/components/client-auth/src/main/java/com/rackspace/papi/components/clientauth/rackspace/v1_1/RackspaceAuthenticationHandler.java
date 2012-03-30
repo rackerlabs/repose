@@ -21,8 +21,6 @@ import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import java.io.IOException;
-import java.util.List;
-import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -37,12 +35,12 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
    private final RackspaceUserInfoCache cache;
    private final UriMatcher uriMatcher;
 
-   public RackspaceAuthenticationHandler(RackspaceAuth cfg, AuthenticationServiceClient authServiceClient, KeyedRegexExtractor keyedRegexExtractor, RackspaceUserInfoCache cache, List<Pattern> whiteListRegexPatterns) {
+   public RackspaceAuthenticationHandler(RackspaceAuth cfg, AuthenticationServiceClient authServiceClient, KeyedRegexExtractor keyedRegexExtractor, RackspaceUserInfoCache cache, UriMatcher uriMatcher) {
       this.authenticationService = authServiceClient;
       this.cfg = cfg;
       this.keyedRegexExtractor = keyedRegexExtractor;
       this.cache = cache;
-      this.uriMatcher = new UriMatcher(whiteListRegexPatterns);
+      this.uriMatcher = uriMatcher;
    }
 
    @Override
@@ -52,7 +50,17 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
 
    @Override
    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
-      return authenticate(request);
+      FilterDirector filterDirector = new FilterDirectorImpl();
+      filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
+      filterDirector.setFilterAction(FilterAction.RETURN);
+
+      if (uriMatcher.isUriOnWhiteList(request.getRequestURI())) {
+         filterDirector.setFilterAction(FilterAction.PASS);
+      } else {
+         filterDirector = this.authenticate(request);
+      }
+
+      return filterDirector;
    }
 
    @Override
@@ -85,9 +93,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
          groups = authenticationService.getGroups(token.getUserId());
       }
 
-      final boolean uriOnWhiteList = uriMatcher.isUriOnWhiteList(request.getRequestURI());
-
-      final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(token != null, cfg, filterDirector, extractedResult == null ? "" : extractedResult.getResult(), groups, request, uriOnWhiteList);
+      final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(token != null, cfg, filterDirector, extractedResult == null ? "" : extractedResult.getResult(), groups, request);
       headerManager.setFilterDirectorValues();
 
       return filterDirector;

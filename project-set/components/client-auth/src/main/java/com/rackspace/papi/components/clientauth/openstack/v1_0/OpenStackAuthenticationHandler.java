@@ -19,8 +19,6 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import java.io.IOException;
-import java.util.List;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 
@@ -39,13 +37,13 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
    private final UserAuthTokenCache<CachableUserInfo> cache;
    private final UriMatcher uriMatcher;
 
-   public OpenStackAuthenticationHandler(OpenstackAuth cfg, OpenStackAuthenticationService serviceClient, KeyedRegexExtractor keyedRegexExtractor, UserAuthTokenCache cache, List<Pattern> whiteListRegexPatterns) {
+   public OpenStackAuthenticationHandler(OpenstackAuth cfg, OpenStackAuthenticationService serviceClient, KeyedRegexExtractor keyedRegexExtractor, UserAuthTokenCache cache, UriMatcher uriMatcher) {
       this.authenticationService = serviceClient;
       this.delegatable = cfg.isDelegatable();
       this.authServiceUri = cfg.getIdentityService().getUri();
       this.keyedRegexExtractor = keyedRegexExtractor;
       this.cache = cache;
-      this.uriMatcher = new UriMatcher(whiteListRegexPatterns);
+      this.uriMatcher = uriMatcher;
    }
 
    @Override
@@ -55,7 +53,17 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
 
    @Override
    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
-      return this.authenticate(request);
+      FilterDirector filterDirector = new FilterDirectorImpl();
+      filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
+      filterDirector.setFilterAction(FilterAction.RETURN);
+
+      if (uriMatcher.isUriOnWhiteList(request.getRequestURI())) {
+         filterDirector.setFilterAction(FilterAction.PASS);
+      } else {
+         filterDirector = this.authenticate(request);
+      }
+
+      return filterDirector;
    }
 
    @Override
@@ -87,9 +95,7 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
          groups = authenticationService.getGroups(user.getUserId());
       }
 
-      final boolean uriOnWhiteList = uriMatcher.isUriOnWhiteList(request.getRequestURI());
-
-      final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(authToken, user, delegatable, filterDirector, account == null ? "" : account.getResult(), groups, request, uriOnWhiteList);
+      final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(authToken, user, delegatable, filterDirector, account == null ? "" : account.getResult(), groups, request);
       headerManager.setFilterDirectorValues();
 
       return filterDirector;
