@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 public class ProxyApp {
 
     private static final Logger LOG = LoggerFactory.getLogger(ProxyApp.class);
-    private static final String DEFAULT_CFG_DIR = "/etc/powerapi";
+    private static final String DEFAULT_CFG_DIR = "/etc/repose";
     private static final String DEFAULT_LOG_DIR = "/var/log/repose/current.log";
     private static final String DEFAULT_LAYOUT = "PatternLayout";
     private static final String DEFAULT_LOG_FRMT = "%d %-4r [%t] %-5p %c %x - %m%n";
