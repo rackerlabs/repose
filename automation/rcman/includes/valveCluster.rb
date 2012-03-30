@@ -86,6 +86,7 @@ module ValveCluster
             end
             
             self.waitForRepose(node[7])
+            log("\t#{node[2]} : #{node[7]} : #{node[9]}")
         end
 
         hostsCsv = hostsCsv.chop # list of server ips, formatted for our jmeter tests
