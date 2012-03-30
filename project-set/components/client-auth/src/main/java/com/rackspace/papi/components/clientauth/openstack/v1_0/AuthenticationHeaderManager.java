@@ -31,13 +31,12 @@ public class AuthenticationHeaderManager {
    private final Boolean validToken;
    private final Groups groups;
    private final HttpServletRequest request;
-   private final boolean uriOnWhiteList;
 
    // Hard code quality for now as the auth component will have
    // the highest quality in terms of using the user it supplies for rate limiting
    private final String quality = ";q=1.0";
 
-   public AuthenticationHeaderManager(String authToken, CachableUserInfo cachableTokenInfo, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, Groups groups, HttpServletRequest request, boolean uriOnWhiteList) {
+    public AuthenticationHeaderManager(String authToken, CachableUserInfo cachableTokenInfo, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, Groups groups, HttpServletRequest request) {
       this.authToken = authToken;
       this.cachableTokenInfo = cachableTokenInfo;
       this.isDelegatable = isDelegatable;
@@ -46,15 +45,11 @@ public class AuthenticationHeaderManager {
       this.validToken = cachableTokenInfo != null && cachableTokenInfo.getTokenId() != null;
       this.groups = groups;
       this.request = request;
-      this.uriOnWhiteList = uriOnWhiteList;
    }
 
    public void setFilterDirectorValues() {
 
-      if (uriOnWhiteList) {
-         // If the request uri is on the configured white list then just let the request pass thru.
-         filterDirector.setFilterAction(FilterAction.PASS);
-      } else if (validToken) {
+        if (validToken) {
          filterDirector.setFilterAction(FilterAction.PASS);
          setExtendedAuthorization();
          setUser();

@@ -32,13 +32,12 @@ public class AuthenticationHeaderManager {
    private final String accountUsername;
    private final GroupsList groups;
    private final HttpServletRequest request;
-   private final boolean uriOnWhiteList;
 
    // Hard code quality for now as the auth component will have
    // the highest quality in terms of using the user it supplies for rate limiting
    private final String quality = ";q=1";
 
-   public AuthenticationHeaderManager(boolean validToken, RackspaceAuth cfg, FilterDirector filterDirector, String accountUsername, GroupsList groups, HttpServletRequest request, boolean uriOnWhiteList) {
+    public AuthenticationHeaderManager(boolean validToken, RackspaceAuth cfg, FilterDirector filterDirector, String accountUsername, GroupsList groups, HttpServletRequest request) {
       this.validToken = validToken;
       this.isDelegatable = cfg.isDelegatable();
       this.keystone = cfg.isKeystoneActive();
@@ -47,15 +46,10 @@ public class AuthenticationHeaderManager {
       this.accountUsername = accountUsername;
       this.groups = groups;
       this.request = request;
-      this.uriOnWhiteList = uriOnWhiteList;
    }
 
    public void setFilterDirectorValues() {
 
-      if (uriOnWhiteList) {
-         // If the request uri is on the configured white list then just let the request pass thru.
-         filterDirector.setFilterAction(FilterAction.PASS);   
-      } else {
          setIdentityStatus();
 
          if (validToken || isDelegatable) {
@@ -68,7 +62,6 @@ public class AuthenticationHeaderManager {
             setRoles();
          }
       }
-   }
 
    private void getGroupsListIds() {
 

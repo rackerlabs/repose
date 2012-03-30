@@ -36,12 +36,11 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ClientAuthenticationHandlerFactory.class);
    private AuthModule authenticationModule;
    private KeyedRegexExtractor<String> accountRegexExtractor = new KeyedRegexExtractor<String>();
-   private List<Pattern> whiteListRegexPatterns; 
+   private UriMatcher uriMatcher;
    private final Datastore datastore;
 
    public ClientAuthenticationHandlerFactory(Datastore datastore) {
       this.datastore = datastore;
-      whiteListRegexPatterns = new ArrayList<Pattern>();
    }
 
    @Override
@@ -57,13 +56,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
       @Override
       public void configurationUpdated(ClientAuthConfig modifiedConfig) {
 
-         whiteListRegexPatterns.clear();
-         final WhiteList whiteList = modifiedConfig.getWhiteList();
-         if (whiteList != null) {
-            for (URIPattern pattern : whiteList.getUriPattern()) {
-               whiteListRegexPatterns.add(Pattern.compile(pattern.getUriRegex()));
-            }
-         }
+         updateUriMatcher(modifiedConfig.getWhiteList());         
 
          if (modifiedConfig.getRackspaceAuth() != null) {
             authenticationModule = getAuth1_1Handler(modifiedConfig);
@@ -84,12 +77,24 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
       }
    }
 
+   private void updateUriMatcher(WhiteList whiteList) {
+      final List<Pattern> whiteListRegexPatterns = new ArrayList<Pattern>();
+
+      if (whiteList != null) {
+         for (URIPattern pattern : whiteList.getUriPattern()) {
+            whiteListRegexPatterns.add(Pattern.compile(pattern.getUriRegex()));
+         }
+      }
+
+      uriMatcher = new UriMatcher(whiteListRegexPatterns);
+   }
+
    private AuthModule getAuth1_1Handler(ClientAuthConfig cfg) {
-      return RackspaceAuthenticationHandlerFactory.newInstance(cfg, accountRegexExtractor, datastore, whiteListRegexPatterns);
+      return RackspaceAuthenticationHandlerFactory.newInstance(cfg, accountRegexExtractor, datastore, uriMatcher);
    }
 
    private AuthModule getOpenStackAuthHandler(ClientAuthConfig config) {
-      return OpenStackAuthenticationHandlerFactory.newInstance(config, accountRegexExtractor, datastore, whiteListRegexPatterns);
+      return OpenStackAuthenticationHandlerFactory.newInstance(config, accountRegexExtractor, datastore, uriMatcher);
    }
 
    @Override
