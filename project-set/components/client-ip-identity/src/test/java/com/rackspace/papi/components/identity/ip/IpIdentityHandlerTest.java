@@ -26,7 +26,7 @@ public class IpIdentityHandlerTest {
         config = new IpIdentityConfig();
         config.setQuality(QUALITY);
 
-        handler = new IpIdentityHandler(config, QUALITY_VALUE);
+        handler = new IpIdentityHandler(config);
         request = mock(HttpServletRequest.class);
         response = mock(ReadableHttpServletResponse.class);
 

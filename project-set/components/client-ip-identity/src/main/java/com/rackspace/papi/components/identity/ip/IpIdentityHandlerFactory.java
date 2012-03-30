@@ -8,9 +8,7 @@ import java.util.Map;
 
 public class IpIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFactory<IpIdentityHandler> {
 
-   public static final String DEFAULT_QUALITY = "0.1";
    private IpIdentityConfig config;
-   private String quality;
 
    public IpIdentityHandlerFactory() {
    }
@@ -27,25 +25,15 @@ public class IpIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
    private class ClientIpIdentityConfigurationListener implements UpdateListener<IpIdentityConfig> {
 
-      private String determineQuality() {
-         String q = DEFAULT_QUALITY;
-
-         if (config.getQuality() != null && !config.getQuality().trim().isEmpty()) {
-            q = config.getQuality().trim();
-         }
-
-         return ";q=" + q;
-      }
 
       @Override
       public void configurationUpdated(IpIdentityConfig configurationObject) {
          config = configurationObject;
-         quality = determineQuality();
       }
    }
 
    @Override
    protected IpIdentityHandler buildHandler() {
-      return new IpIdentityHandler(config, quality);
+      return new IpIdentityHandler(config);
    }
 }
