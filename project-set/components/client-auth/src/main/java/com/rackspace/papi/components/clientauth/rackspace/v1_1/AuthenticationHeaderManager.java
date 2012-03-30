@@ -33,9 +33,9 @@ public class AuthenticationHeaderManager {
    private final GroupsList groups;
    private final HttpServletRequest request;
 
-   // Hard code quality for now as the auth component will have
-   // the highest quality in terms of using the user it supplies for rate limiting
-   private final String quality = ";q=1";
+   // Hard code QUALITY for now as the auth component will have
+   // the highest QUALITY in terms of using the user it supplies for rate limiting
+   private final static String QUALITY = ";q=1";
 
     public AuthenticationHeaderManager(boolean validToken, RackspaceAuth cfg, FilterDirector filterDirector, String accountUsername, GroupsList groups, HttpServletRequest request) {
       this.validToken = validToken;
@@ -58,7 +58,7 @@ public class AuthenticationHeaderManager {
 
          if (validToken) {
             getGroupsListIds();
-            filterDirector.requestHeaderManager().appendToHeader(request, PowerApiHeader.USER.toString(), accountUsername + quality);
+            filterDirector.requestHeaderManager().appendToHeader(request, PowerApiHeader.USER.toString(), accountUsername + QUALITY);
             setRoles();
          }
       }
@@ -71,7 +71,7 @@ public class AuthenticationHeaderManager {
          String[] groupsArray = new String[groupCount];
 
          for (int i = 0; i < groupCount; i++) {
-            groupsArray[i] = groups.getGroup().get(i).getId() + quality;
+            groupsArray[i] = groups.getGroup().get(i).getId() + QUALITY;
          }
 
          filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.toString(), groupsArray);
