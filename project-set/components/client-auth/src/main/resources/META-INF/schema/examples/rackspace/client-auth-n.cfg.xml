@@ -4,8 +4,8 @@
     <rackspace-auth delegatable="true" keystone-active="true" xmlns="http://docs.rackspacecloud.com/power-api/client-auth/rs-auth-1.1/v1.0">
         <authentication-server username="admin_username" password="admin_password" uri="http://184.106.208.75:8080/auth-mock/" />
 
-        <account-mapping id-regex=".*/v1/(\w*)/.*" type="CLOUD"/>
-        <account-mapping id-regex=".*.com/service/(\d*)/" type="MOSSO"/>
+        <account-mapping id-regex=".*/v1/([-|\w]+)/?.*" type="CLOUD"/>
+        <account-mapping id-regex=".*.com/service/([-|\w]+)" type="MOSSO"/>
 
         <user-roles>
             <default>
