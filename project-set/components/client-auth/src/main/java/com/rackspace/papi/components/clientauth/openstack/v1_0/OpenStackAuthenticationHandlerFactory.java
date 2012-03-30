@@ -11,6 +11,8 @@ import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
 import com.rackspace.papi.service.datastore.Datastore;
 
 public class OpenStackAuthenticationHandlerFactory {
+
+   private OpenStackAuthenticationHandlerFactory() {}
    
    public static AuthModule newInstance(ClientAuthConfig config, KeyedRegexExtractor accountRegexExtractor, Datastore datastore, UriMatcher uriMatcher) {
       final OpenStackUserInfoCache cache = new OpenStackUserInfoCache(datastore);

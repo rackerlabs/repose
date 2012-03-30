@@ -32,9 +32,9 @@ public class AuthenticationHeaderManager {
    private final Groups groups;
    private final HttpServletRequest request;
 
-   // Hard code quality for now as the auth component will have
-   // the highest quality in terms of using the user it supplies for rate limiting
-   private final String quality = ";q=1.0";
+   // Hard code QUALITY for now as the auth component will have
+   // the highest QUALITY in terms of using the user it supplies for rate limiting
+   private final static String QUALITY = ";q=1.0";
 
     public AuthenticationHeaderManager(String authToken, CachableUserInfo cachableTokenInfo, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, Groups groups, HttpServletRequest request) {
       this.authToken = authToken;
@@ -105,7 +105,7 @@ public class AuthenticationHeaderManager {
     * The OpenStackServiceHeader is used for an OpenStack service
     */
    private void setUser() {
-      filterDirector.requestHeaderManager().appendToHeader(request, PowerApiHeader.USER.toString(), cachableTokenInfo.getUsername() + quality);
+      filterDirector.requestHeaderManager().appendToHeader(request, PowerApiHeader.USER.toString(), cachableTokenInfo.getUsername() + QUALITY);
 
       filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_NAME.toString(), cachableTokenInfo.getUsername());
       filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_ID.toString(), cachableTokenInfo.getUserId());
@@ -133,7 +133,7 @@ public class AuthenticationHeaderManager {
          List<String> groupIds = new ArrayList<String>();
          for (Group group : groups.getGroup()) {
             groupIds.add(group.getId());
-            filterDirector.requestHeaderManager().appendHeader(PowerApiHeader.GROUPS.toString(), group.getId() + quality);
+            filterDirector.requestHeaderManager().appendHeader(PowerApiHeader.GROUPS.toString(), group.getId() + QUALITY);
          }
       }
    }

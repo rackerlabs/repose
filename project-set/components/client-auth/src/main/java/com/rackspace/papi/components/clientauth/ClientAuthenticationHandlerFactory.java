@@ -59,7 +59,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
          updateUriMatcher(modifiedConfig.getWhiteList());         
 
          if (modifiedConfig.getRackspaceAuth() != null) {
-            authenticationModule = getAuth1_1Handler(modifiedConfig);
+            authenticationModule = getRackspaceAuthHandler(modifiedConfig);
             for (AccountMapping accountMapping : modifiedConfig.getRackspaceAuth().getAccountMapping()) {
                accountRegexExtractor.addPattern(accountMapping.getIdRegex(), accountMapping.getType().value());
             }
@@ -89,7 +89,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
       uriMatcher = new UriMatcher(whiteListRegexPatterns);
    }
 
-   private AuthModule getAuth1_1Handler(ClientAuthConfig cfg) {
+   private AuthModule getRackspaceAuthHandler(ClientAuthConfig cfg) {
       return RackspaceAuthenticationHandlerFactory.newInstance(cfg, accountRegexExtractor, datastore, uriMatcher);
    }
 

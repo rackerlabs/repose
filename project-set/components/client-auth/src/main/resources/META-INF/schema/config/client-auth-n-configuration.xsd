@@ -28,14 +28,6 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:attribute name="uri-id" type="xs:string" use="required">
-         <xs:annotation>
-            <xs:documentation>
-               <html:p>A unique identifier of this uri pattern.</html:p>
-            </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-
       <xs:attribute name="uri-regex" type="xs:string" use="required">
          <xs:annotation>
             <xs:documentation>
@@ -44,7 +36,6 @@
          </xs:annotation>
       </xs:attribute>
         
-
     </xs:complexType>
 
     <xs:complexType name="WhiteList">

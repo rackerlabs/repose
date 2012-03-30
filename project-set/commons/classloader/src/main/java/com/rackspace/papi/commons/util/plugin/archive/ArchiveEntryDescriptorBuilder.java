@@ -9,12 +9,12 @@ public final class ArchiveEntryDescriptorBuilder {
 
    public static ArchiveEntryDescriptor build(String archiveName, String entryName) {
       final String sanitizedEntryName = entryName; //StringUtilities.trim(entryName, "/");
-      final int lastSeperatorIndex = sanitizedEntryName.lastIndexOf("/");
+      final int lastSeperatorIndex = sanitizedEntryName.lastIndexOf('/');
 
       final String resourceName = lastSeperatorIndex > 0 ? sanitizedEntryName.substring(lastSeperatorIndex + 1, sanitizedEntryName.length()) : sanitizedEntryName;
       final String resourcePath = lastSeperatorIndex > 0 ? sanitizedEntryName.substring(0, lastSeperatorIndex + 1) : "";
 
-      final int extensionIndex = resourceName.lastIndexOf(".");
+      final int extensionIndex = resourceName.lastIndexOf('.');
 
       ArchiveEntryDescriptor archiveEntryDescriptor = null;
 
