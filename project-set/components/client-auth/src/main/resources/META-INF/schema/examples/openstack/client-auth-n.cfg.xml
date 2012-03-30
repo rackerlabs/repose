@@ -8,6 +8,6 @@
     </openstack-auth>
 
     <white-list>
-        <uri-pattern uri-id="wadl" uri-regex="[^=]/application\.wadl$" />    
+        <uri-pattern uri-regex="/application\.wadl$" />
     </white-list>
 </client-auth>
