@@ -48,6 +48,31 @@
         <boolProp name="UserParameters.per_iteration">true</boolProp>
       </UserParameters>
       <hashTree/>
+      <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="authHost" elementType="Argument">
+            <stringProp name="Argument.name">authHost</stringProp>
+            <stringProp name="Argument.value">50.57.189.15</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="authPort" elementType="Argument">
+            <stringProp name="Argument.name">authPort</stringProp>
+            <stringProp name="Argument.value">8080</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="name" elementType="Argument">
+            <stringProp name="Argument.name">name</stringProp>
+            <stringProp name="Argument.value">cmarin2</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+          <elementProp name="password" elementType="Argument">
+            <stringProp name="Argument.name">password</stringProp>
+            <stringProp name="Argument.value">pass1</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
+      </Arguments>
+      <hashTree/>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="RootWar" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
@@ -69,6 +94,77 @@
           <stringProp name="TestPlan.comments">This controller determines what repose environment to hit when running these JMeter tests</stringProp>
         </IfController>
         <hashTree>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Simple Controller" enabled="true"/>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Request User Token" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">&lt;auth xmlns=&quot;http://docs.openstack.org/identity/api/v2.0&quot;&gt;&lt;passwordCredentials username=&quot;${name}&quot; password=&quot;${password}&quot;/&gt;&lt;/auth&gt;</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain">${authHost}</stringProp>
+              <stringProp name="HTTPSampler.port">${authPort}</stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/keystone/tokens</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extract Response Code" enabled="true">
+                <stringProp name="RegexExtractor.useHeaders">code</stringProp>
+                <stringProp name="RegexExtractor.refname">respcode</stringProp>
+                <stringProp name="RegexExtractor.regex">(.*)</stringProp>
+                <stringProp name="RegexExtractor.template">$1$</stringProp>
+                <stringProp name="RegexExtractor.default">null</stringProp>
+                <stringProp name="RegexExtractor.match_number">1</stringProp>
+              </RegexExtractor>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <XPathExtractor guiclass="XPathExtractorGui" testclass="XPathExtractor" testname="XPath Extractor" enabled="true">
+                <stringProp name="XPathExtractor.default">null</stringProp>
+                <stringProp name="XPathExtractor.refname">user-token</stringProp>
+                <stringProp name="XPathExtractor.xpathQuery">/access/token/@id</stringProp>
+                <boolProp name="XPathExtractor.validate">false</boolProp>
+                <boolProp name="XPathExtractor.tolerant">false</boolProp>
+                <boolProp name="XPathExtractor.namespace">false</boolProp>
+              </XPathExtractor>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Local Dispatch" enabled="true"/>
           <hashTree>
             <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
@@ -81,7 +177,7 @@
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
               <stringProp name="HTTPSampler.protocol">http</stringProp>
               <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-              <stringProp name="HTTPSampler.path">/v1/mockendservice</stringProp>
+              <stringProp name="HTTPSampler.path">/v1/${name}/mockendservice</stringProp>
               <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
             </ConfigTestElement>
             <hashTree/>
@@ -94,6 +190,10 @@
                 <elementProp name="" elementType="Header">
                   <stringProp name="Header.name">Accept</stringProp>
                   <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">X-Auth-Token</stringProp>
+                  <stringProp name="Header.value">${user-token}</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
@@ -162,7 +262,7 @@
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
               <stringProp name="HTTPSampler.protocol">http</stringProp>
               <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-              <stringProp name="HTTPSampler.path">/v2/mockendservice</stringProp>
+              <stringProp name="HTTPSampler.path">/v2/${name}/mockendservice</stringProp>
               <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
             </ConfigTestElement>
             <hashTree/>
@@ -175,6 +275,10 @@
                 <elementProp name="" elementType="Header">
                   <stringProp name="Header.name">Accept</stringProp>
                   <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">X-Auth-Token</stringProp>
+                  <stringProp name="Header.value">${user-token}</stringProp>
                 </elementProp>
               </collectionProp>
             </HeaderManager>
