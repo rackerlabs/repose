@@ -2,6 +2,7 @@ package com.rackspace.papi.filter;
 
 import com.rackspace.papi.filter.resource.ResourceMonitor;
 import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 
 import com.rackspace.papi.filter.logic.DispatchPathBuilder;
@@ -115,7 +116,7 @@ public class PowerFilterChain implements FilterChain {
                dispatcher.forward(servletRequest, servletResponse);
                }catch(ClientHandlerException e){
                    LOG.error("Connection Refused to " + routeDestination + " " + e.getMessage(), e);
-                   ((HttpServletResponse) servletResponse).setStatus(503);
+                   ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.SERVICE_UNAVAIL.intValue());
                }
             }
          }
