@@ -5,6 +5,7 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 
 import com.rackspace.papi.filter.logic.DispatchPathBuilder;
+import com.sun.jersey.api.client.ClientHandlerException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
@@ -17,6 +18,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import java.net.ConnectException;
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author fran
@@ -108,7 +111,12 @@ public class PowerFilterChain implements FilterChain {
                LOG.debug("Attempting to route to " + routeDestination);
                LOG.debug("Request URI: " + ((HttpServletRequest)servletRequest).getRequestURI());
                LOG.debug("Context path = " + targetContext.getContextPath());
+               try{
                dispatcher.forward(servletRequest, servletResponse);
+               }catch(ClientHandlerException e){
+                   LOG.error("Connection Refused to " + routeDestination + " " + e.getMessage(), e);
+                   ((HttpServletResponse) servletResponse).setStatus(503);
+               }
             }
          }
       }
