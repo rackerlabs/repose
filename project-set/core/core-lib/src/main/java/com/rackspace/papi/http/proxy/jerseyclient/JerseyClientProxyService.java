@@ -70,7 +70,12 @@ public class JerseyClientProxyService implements ProxyService {
 
         DefaultClientConfig cc = new DefaultClientConfig();
         cc.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, false);
-        cc.getProperties().put(ClientConfig.PROPERTY_THREADPOOL_SIZE, new Integer(20));
+        cc.getProperties().put(ClientConfig.PROPERTY_THREADPOOL_SIZE, 20);
+
+        // TODO: Eventually make these values configurable in Repose and implement
+        // a "backoff" approach with logging.
+        cc.getProperties().put(ClientConfig.PROPERTY_CONNECT_TIMEOUT, 30000);
+        cc.getProperties().put(ClientConfig.PROPERTY_READ_TIMEOUT, 30000);
         client = Client.create(cc);
 
         LOG.info("Enabling info logging of jersey client requests");
