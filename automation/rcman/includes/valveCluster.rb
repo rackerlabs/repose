@@ -106,15 +106,15 @@ module ValveCluster
     end
 
     def waitForRepose(node)
-        for i in 7..8
-            uri = URI("http://#{node}:888#{i}/v1/usertest1")
+        ["8887","8888","8080"].each do |i|
+            uri = URI("http://#{node}:#{i}/v1/usertest1")
             count=0
             begin
                 if count>60
                     raise "An error occured while starting repose..."
                 end
                 sleep 3
-                puts "Waiting for repose to start on port 888#{i}"
+                puts "Waiting for repose to start on port #{i}"
                 resp = Net::HTTP.get_response(uri).code
                 count+=1
             end while resp=="200"
