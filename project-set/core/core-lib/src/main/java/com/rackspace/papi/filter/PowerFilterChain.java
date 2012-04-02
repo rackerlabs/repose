@@ -18,7 +18,6 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.net.ConnectException;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -111,8 +110,10 @@ public class PowerFilterChain implements FilterChain {
                LOG.debug("Attempting to route to " + routeDestination);
                LOG.debug("Request URI: " + ((HttpServletRequest)servletRequest).getRequestURI());
                LOG.debug("Context path = " + targetContext.getContextPath());
+
                try{
-               dispatcher.forward(servletRequest, servletResponse);
+                  dispatcher.forward(servletRequest, servletResponse);
+                  LOG.debug("Response code from origin service is " + ((HttpServletResponse) servletResponse).getStatus());
                }catch(ClientHandlerException e){
                    LOG.error("Connection Refused to " + routeDestination + " " + e.getMessage(), e);
                    ((HttpServletResponse) servletResponse).setStatus(503);
