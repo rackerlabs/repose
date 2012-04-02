@@ -10,7 +10,7 @@
             e.g: /servers/-741057/action => x-pp-user=-741057
             e.g: /servers/reposeuser/action => x-pp-user=reposeuser
             -->
-        <client-mapping id-regex=".*/servers/([-|\w]+)/.*"/>
+        <client-mapping id-regex=".*/servers/([-|\w]+)/?.*"/>
     </openstack-auth>
 
     <white-list>
