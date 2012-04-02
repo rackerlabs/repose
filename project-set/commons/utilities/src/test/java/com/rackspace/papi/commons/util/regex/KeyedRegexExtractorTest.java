@@ -45,8 +45,7 @@ public class KeyedRegexExtractorTest {
           final KeyedRegexExtractor<Object> extractor = new KeyedRegexExtractor<Object>();
          final Object expectedKey = new Object();
 
-
-         final String pattern = ".*/servers/([-|\\w]+)/.*";
+         final String pattern = ".*/servers/([-|\\w]+)/?.*";
          extractor.addPattern(pattern, expectedKey);
          
 
