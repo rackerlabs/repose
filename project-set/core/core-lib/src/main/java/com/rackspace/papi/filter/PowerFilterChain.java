@@ -113,7 +113,6 @@ public class PowerFilterChain implements FilterChain {
 
                try{
                   dispatcher.forward(servletRequest, servletResponse);
-                  LOG.debug("Response code from origin service is " + ((HttpServletResponse) servletResponse).getStatus());
                }catch(ClientHandlerException e){
                    LOG.error("Connection Refused to " + routeDestination + " " + e.getMessage(), e);
                    ((HttpServletResponse) servletResponse).setStatus(503);
