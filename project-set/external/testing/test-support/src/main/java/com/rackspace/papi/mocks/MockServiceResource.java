@@ -75,6 +75,12 @@ public class MockServiceResource {
     public Response getStatusCode(@PathParam("statusCode") String statusCode) {
         return provider.getStatusCode(statusCode);
     }
+    
+    @GET
+    @Path("*/delayedresponse/{time}")
+    public Response getDelayedResponse(@PathParam("time") int time, @Context HttpHeaders headers, @Context UriInfo uri){
+        return provider.getDelayedResponse(time, headers, uri);
+    }
 
     @GET
     @Path("/nova/limits")
