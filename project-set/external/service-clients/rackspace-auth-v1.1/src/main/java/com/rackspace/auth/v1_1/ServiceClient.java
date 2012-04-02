@@ -31,6 +31,10 @@ public class ServiceClient {
    public ServiceClient(String username, String password) {
       DefaultClientConfig cc = new DefaultClientConfig();
       cc.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, false);
+      // TODO: Eventually make these values configurable in Repose and implement
+      // a "backoff" approach with logging.
+      cc.getProperties().put(ClientConfig.PROPERTY_CONNECT_TIMEOUT, 30000);
+      cc.getProperties().put(ClientConfig.PROPERTY_READ_TIMEOUT, 30000);
       client = Client.create(cc);
 
       HTTPBasicAuthFilter authFilter = new HTTPBasicAuthFilter(username, password);

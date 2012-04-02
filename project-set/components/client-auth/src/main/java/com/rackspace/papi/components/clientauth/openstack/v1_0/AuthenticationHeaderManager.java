@@ -9,6 +9,7 @@ import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.List;
  * @author fran
  */
 public class AuthenticationHeaderManager {
+   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationHeaderManager.class);
 
    // Proxy is specified in the OpenStack auth blue print:
    // http://wiki.openstack.org/openstack-authn
@@ -68,7 +70,10 @@ public class AuthenticationHeaderManager {
    }
 
    private boolean nullCredentials() {
-      return StringUtilities.isBlank(authToken) || StringUtilities.isBlank(tenantId);
+      final boolean nullCreds = StringUtilities.isBlank(authToken) || StringUtilities.isBlank(tenantId);
+
+      LOG.debug("Credentials null = " + nullCreds);
+      return nullCreds;
    }
 
    /**
