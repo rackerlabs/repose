@@ -43,10 +43,15 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
             break;
             
          case 404: // User's token is bad
+            LOG.warn("Unable to validate token for tenant.  Invalid token. " + serviceResponse.getStatusCode());
             break;
             
          case 401: // Admin token is bad most likely
             LOG.warn("Unable to validate token for tenant.  Has the admin token expired? " + serviceResponse.getStatusCode());
+            break;
+
+         case 500: // Internal server error from auth
+            LOG.warn("Internal server error from auth. " + serviceResponse.getStatusCode());
             break;
       }
 

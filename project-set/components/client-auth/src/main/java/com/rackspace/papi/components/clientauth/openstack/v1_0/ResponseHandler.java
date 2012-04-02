@@ -21,7 +21,9 @@ public class ResponseHandler {
    }
 
    public FilterDirector handle() {
+      LOG.debug("Handling service response in OpenStack auth filter.");
       FilterDirector myDirector = new FilterDirectorImpl();
+      LOG.debug("Incoming response code is " + response.getStatus());
       myDirector.setResponseStatusCode(response.getStatus());
 
       /// The WWW Authenticate header can be used to communicate to the client
@@ -45,6 +47,7 @@ public class ResponseHandler {
             break;
       }
 
+      LOG.debug("Outgoing response code is " + myDirector.getResponseStatus().intValue());
       return myDirector;
    }
 
