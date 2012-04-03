@@ -20,6 +20,19 @@
       <xs:list itemType="live-limits:HttpMethod" />
    </xs:simpleType>
 
+    <xs:simpleType name="LimitsFormat">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>The format of the json limits.  The default is the Opentack format.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="OPENSTACK" />
+            <xs:enumeration value="LBAAS" />
+        </xs:restriction>
+    </xs:simpleType>
+
 
     <!-- Configuration Schema Definitions -->
    <xs:element name="rate-limiting" type="rl:RateLimitingConfiguration" />
@@ -74,6 +87,17 @@
             </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+
+      <xs:attribute name="limits-format" type="rl:LimitsFormat" use="optional" default="OPENSTACK">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Tells Repose the json format to use when returning the Repose rate limits.  The default is the
+                        OPENSTACK format.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
 
       <xs:attribute name="uri-regex" type="xs:string" use="optional" default="\/limits\/(\d*)\/">
          <xs:annotation>
