@@ -5,6 +5,7 @@ import com.rackspace.papi.commons.util.transform.jaxb.JaxbToStreamTransform;
 import com.rackspace.papi.commons.util.transform.xslt.StreamToXsltTransform;
 import com.rackspace.papi.components.limits.schema.Limits;
 import com.rackspace.papi.components.limits.schema.ObjectFactory;
+import com.rackspace.papi.components.ratelimit.config.LimitsFormat;
 import com.rackspace.papi.components.ratelimit.util.combine.CombinedLimitsTransformer;
 import com.rackspace.papi.components.ratelimit.util.combine.LimitsTransformPair;
 
@@ -18,10 +19,12 @@ public class LimitsEntityStreamTransformer {
     private static final ObjectFactory LIMITS_OBJECT_FACTORY = new ObjectFactory();
     
     public static final String JSON_XSL_LOCATION = "/META-INF/xslt/limits-json.xsl",
-            COMBINER_XSL_LOCATION = "/META-INF/xslt/limits-combine.xsl";
+            COMBINER_XSL_LOCATION = "/META-INF/xslt/limits-combine.xsl",
+            LBAAS_JSON_XSL_LOCATION = "/META-INF/xslt/lbaas-limits-json.xsl";
     
     private final StreamTransform<LimitsTransformPair, OutputStream> combiner;
     private final StreamTransform<InputStream, OutputStream> jsonTransform;
+    private final StreamTransform<InputStream, OutputStream> lbaasJsonTransform;
     private final StreamTransform<JAXBElement<Limits>, OutputStream> entiyTransform;
 
     public LimitsEntityStreamTransformer() {
@@ -32,6 +35,10 @@ public class LimitsEntityStreamTransformer {
         jsonTransform = new StreamToXsltTransform(
                 TransformHelper.getTemplatesFromInputStream(
                 LimitsEntityStreamTransformer.class.getResourceAsStream(JSON_XSL_LOCATION)));
+
+        lbaasJsonTransform = new StreamToXsltTransform(
+                TransformHelper.getTemplatesFromInputStream(
+                LimitsEntityStreamTransformer.class.getResourceAsStream(LBAAS_JSON_XSL_LOCATION)));
 
         combiner = new CombinedLimitsTransformer(
                 TransformHelper.getTemplatesFromInputStream(
@@ -48,8 +55,15 @@ public class LimitsEntityStreamTransformer {
         combiner.transform(pair, out);
     }
 
-    public void streamAsJson(InputStream in, OutputStream out) {
-        jsonTransform.transform(in, out);
+    public void streamAsJson(InputStream in, OutputStream out, LimitsFormat limitsFormat) {
+
+       switch(limitsFormat) {
+          case LBAAS :
+            lbaasJsonTransform.transform(in, out);
+            break;
+          default :
+            jsonTransform.transform(in, out);
+       }
     }
 
     public void entityAsXml(Limits l, OutputStream output) {

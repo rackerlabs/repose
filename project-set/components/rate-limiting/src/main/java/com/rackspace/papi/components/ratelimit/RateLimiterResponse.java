@@ -88,7 +88,7 @@ public class RateLimiterResponse extends RateLimitingOperation {
 
             case APPLICATION_JSON:
             default:
-                RESPONSE_TRANSFORMER.streamAsJson(new ByteArrayInputStream(readableContents), filterDirector.getResponseOutputStream());
+                RESPONSE_TRANSFORMER.streamAsJson(new ByteArrayInputStream(readableContents), filterDirector.getResponseOutputStream(), super.cfg.getRequestEndpoint().getLimitsFormat());
                 filterDirector.responseHeaderManager().appendHeader(CommonHttpHeader.CONTENT_TYPE.toString(), MimeType.APPLICATION_JSON.toString());
         }
     }
