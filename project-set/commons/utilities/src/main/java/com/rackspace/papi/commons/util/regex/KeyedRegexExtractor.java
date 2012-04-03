@@ -16,6 +16,10 @@ public class KeyedRegexExtractor<K> {
       compiledPatternMap = new HashMap<Pattern, K>();
    }
 
+   public void clear() {
+      compiledPatternMap.clear();
+   }
+
    public void addPattern(String regexString) {
       compiledPatternMap.put(Pattern.compile(regexString), null);
    }
