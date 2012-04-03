@@ -58,6 +58,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
 
          updateUriMatcher(modifiedConfig.getWhiteList());         
 
+         accountRegexExtractor.clear();
          if (modifiedConfig.getRackspaceAuth() != null) {
             authenticationModule = getRackspaceAuthHandler(modifiedConfig);
             for (AccountMapping accountMapping : modifiedConfig.getRackspaceAuth().getAccountMapping()) {
