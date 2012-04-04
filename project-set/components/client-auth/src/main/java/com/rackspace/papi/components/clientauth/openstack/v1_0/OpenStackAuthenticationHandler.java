@@ -20,6 +20,7 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import java.io.IOException;
 
+import com.sun.jersey.api.client.ClientHandlerException;
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
@@ -86,6 +87,9 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
             try {
                user = authenticationService.validateToken(account.getResult(), authToken);
                cacheUserInfo(user);
+            } catch (ClientHandlerException ex) {
+               LOG.error("Failure communicating with the auth service: " + ex.getMessage(), ex);
+               filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
             } catch (Exception ex) {
                LOG.error("Failure in auth: " + ex.getMessage(), ex);
                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
