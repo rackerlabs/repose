@@ -11,7 +11,7 @@ import com.rackspace.papi.mocks.providers.MockServiceProvider;
 @Path("/")
 public class MockServiceResource {
 
-   MockServiceProvider provider;
+   private MockServiceProvider provider;
 
    public MockServiceResource() {
       provider = new MockServiceProvider();
