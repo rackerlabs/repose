@@ -12,7 +12,7 @@ public abstract class RateLimitingOperation {
    private static final Logger LOG = LoggerFactory.getLogger(RateLimitingOperation.class);
    protected static final ConfiguredLimitGroup DEFAULT_EMPTY_LIMIT_GROUP = new ConfiguredLimitGroup();
    
-   private final RateLimitingConfiguration cfg;
+   protected final RateLimitingConfiguration cfg;
 
    public RateLimitingOperation(RateLimitingConfiguration cfg) {
       this.cfg = cfg;

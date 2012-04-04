@@ -22,6 +22,8 @@ import javax.servlet.ServletRegistration.Dynamic;
 import javax.servlet.SessionCookieConfig;
 import javax.servlet.SessionTrackingMode;
 import javax.servlet.descriptor.JspConfigDescriptor;
+
+import com.rackspace.papi.servlet.InitParameter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +38,9 @@ public class ServletContextWrapper implements ServletContext {
    private final String targetContext;
    private static final Map<String, RequestDispatcher> dispatchers = new HashMap<String, RequestDispatcher>();
    private final String target;
+   private static int connectionTimeout = 0;
+   private static int readTimeout = 0;
+   private final Object timeoutLock = new Object();
 
    public static ServletContext getContext(ServletContext context) {
       return new ServletContextWrapper(context);
@@ -123,6 +128,30 @@ public class ServletContextWrapper implements ServletContext {
       return context.getResourceAsStream(path);
    }
 
+   private int getConnectionTimeout() {
+      return (Integer) context.getAttribute(InitParameter.CONNECTION_TIMEOUT.getParameterName());
+   }
+
+   private int getReadTimeout() {
+      return (Integer) context.getAttribute(InitParameter.READ_TIMEOUT.getParameterName());
+   }
+
+   private boolean timeoutsChanged() {
+      int connectionTo = getConnectionTimeout();
+      int readTo = getReadTimeout();
+      boolean changed = false;
+
+      synchronized (timeoutLock) {
+         if ( (connectionTimeout != connectionTo) || (readTimeout != readTo) ) {
+            changed = true;
+            connectionTimeout = connectionTo;
+            readTimeout = readTo;
+         }
+      }
+
+      return changed;
+   }
+
    private RequestDispatcher getDispatcher() {
       RequestDispatcher dispatcher = null;
 
@@ -130,7 +159,7 @@ public class ServletContextWrapper implements ServletContext {
          synchronized (dispatchers) {
             dispatcher = dispatchers.get(target);
             if (dispatcher == null) {
-               dispatcher = new HttpRequestDispatcher(targetContext);
+               dispatcher = new HttpRequestDispatcher(targetContext, getConnectionTimeout(), getReadTimeout());
                dispatchers.put(target, dispatcher);
             }
          }
@@ -144,9 +173,19 @@ public class ServletContextWrapper implements ServletContext {
       RequestDispatcher dispatcher;
 
       if (targetContext.matches("^https?://.*")) {
+
+         // if timeouts have changed in the config then force a rebuild of the dispatchers map
+         if (timeoutsChanged()) {
+            synchronized (dispatchers) {
+               dispatchers.clear();
+            }
+            
+            LOG.info("Timeouts have changed.  Clearing request dispatcher map.");
+         }
+
          dispatcher = getDispatcher();
          if (dispatcher == null) {
-            dispatcher = new HttpRequestDispatcher(targetContext);
+            dispatcher = new HttpRequestDispatcher(targetContext, getConnectionTimeout(), getReadTimeout());
          }
       } else {
          String dispatchPath = path.startsWith("/")? path: "/" + path;

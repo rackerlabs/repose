@@ -17,10 +17,10 @@ import java.io.IOException;
 public class HttpRequestDispatcher implements RequestDispatcher {
     private final ProxyService proxyService;
 
-    public HttpRequestDispatcher(String targetHost) {
+    public HttpRequestDispatcher(String targetHost, Integer connectionTimeout, Integer readTimeout) {
         //proxyService = new HttpClientProxyService(targetHost);    // Http Client 3.1
         //proxyService = new HttpComponentProxyService(targetHost); // Http Client 4.1
-        proxyService = new JerseyClientProxyService(targetHost);
+        proxyService = new JerseyClientProxyService(targetHost, connectionTimeout, readTimeout);
     }
 
     @Override
