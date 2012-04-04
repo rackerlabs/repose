@@ -7,7 +7,7 @@ import java.util.Set;
 
 public class RequestHeaderApplicationLogic implements HeaderApplicationLogic {
 
-    final MutableHttpServletRequest request;
+    private final MutableHttpServletRequest request;
 
     public RequestHeaderApplicationLogic(final MutableHttpServletRequest request) {
         this.request = request;

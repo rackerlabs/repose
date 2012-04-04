@@ -6,7 +6,7 @@ package org.openrepose.cli.command.results;
  */
 public class MessageResult implements CommandResult {
 
-   public final String message;
+   private final String message;
 
    public MessageResult(String message) {
       this.message = message;
