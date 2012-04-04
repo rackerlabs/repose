@@ -31,6 +31,7 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -41,110 +42,108 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 
-
 /**
- *
  * @author John Hopper
  */
 public class JerseyClientProxyService implements ProxyService {
-    private static final String HTTP = "http";
-    private static final Logger LOG = LoggerFactory.getLogger(JerseyClientProxyService.class);
-    
-    private static final Map<String, WebResource> resourceMap = new HashMap<String, WebResource>();
+   private static final String HTTP = "http";
+   private static final Logger LOG = LoggerFactory.getLogger(JerseyClientProxyService.class);
 
-    private final Client client;
-    private final URI proxiedHost;
-    private final String proxiedHostUrl;
+   private static final Map<String, WebResource> resourceMap = new HashMap<String, WebResource>();
 
-    public JerseyClientProxyService(String targetHost) {
-        URI targetUri = null;
-        
-        try {
-          targetUri = new URI(targetHost);
-        } catch (URISyntaxException e) {
-            LOG.error("Invalid target host url: " + targetHost, e);
-        }
-        
-        proxiedHost = targetUri;
-        proxiedHostUrl = asUri(proxiedHost);
+   private final Client client;
+   private final URI proxiedHost;
+   private final String proxiedHostUrl;
 
-        DefaultClientConfig cc = new DefaultClientConfig();
-        cc.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, false);
-        cc.getProperties().put(ClientConfig.PROPERTY_THREADPOOL_SIZE, 20);
+   public JerseyClientProxyService(String targetHost, Integer connectionTimeout, Integer readTimeout) {
+      URI targetUri = null;
 
-        // TODO: Eventually make these values configurable in Repose and implement
-        // a "backoff" approach with logging.
-        cc.getProperties().put(ClientConfig.PROPERTY_CONNECT_TIMEOUT, 30000);
-        cc.getProperties().put(ClientConfig.PROPERTY_READ_TIMEOUT, 30000);
-        client = Client.create(cc);
-
-        LOG.info("Enabling info logging of jersey client requests");
-        client.addFilter(new LoggingFilter());
-    }
-    
-    private String asUri(URI host) {
       try {
-        return new URL(HTTP, host.getHost(), host.getPort(), "").toExternalForm();
+         targetUri = new URI(targetHost);
+      } catch (URISyntaxException e) {
+         LOG.error("Invalid target host url: " + targetHost, e);
+      }
+
+      proxiedHost = targetUri;
+      proxiedHostUrl = asUri(proxiedHost);
+
+      DefaultClientConfig cc = new DefaultClientConfig();
+      cc.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, false);
+      cc.getProperties().put(ClientConfig.PROPERTY_THREADPOOL_SIZE, 20);
+
+      // TODO: Eventually make these values configurable in Repose and implement
+      // a "backoff" approach with logging.
+      cc.getProperties().put(ClientConfig.PROPERTY_CONNECT_TIMEOUT, connectionTimeout);
+      cc.getProperties().put(ClientConfig.PROPERTY_READ_TIMEOUT, readTimeout);
+      client = Client.create(cc);
+
+      LOG.info("Enabling info logging of jersey client requests");
+      client.addFilter(new LoggingFilter());
+   }
+
+   private String asUri(URI host) {
+      try {
+         return new URL(HTTP, host.getHost(), host.getPort(), "").toExternalForm();
       } catch (MalformedURLException ex) {
-        LOG.error("Invalid host url: " + host, ex);
+         LOG.error("Invalid host url: " + host, ex);
       }
       return "";
-    }
-    
-    private WebResource getResource(JerseyRequestProcessor processor, String target) {
+   }
+
+   private WebResource getResource(JerseyRequestProcessor processor, String target) {
       synchronized (resourceMap) {
-        WebResource resource = resourceMap.get(target);
-        
-        if (resource == null) {
-          resource = processor.setRequestParameters(client.resource(target));
-          resourceMap.put(target, resource);
-        }
-        
-        return resource;
+         WebResource resource = resourceMap.get(target);
+
+         if (resource == null) {
+            resource = processor.setRequestParameters(client.resource(target));
+            resourceMap.put(target, resource);
+         }
+
+         return resource;
       }
-    }
-    
-    @Override
-    public int proxyRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        final String target = proxiedHostUrl + request.getRequestURI();
-        
-        JerseyRequestProcessor processor = new JerseyRequestProcessor(request, proxiedHost);
-        WebResource resource = client.resource(target);
-        Builder builder = processor.process(resource);
-        try {
-          return executeProxyRequest(builder, request, response);
-        } catch (HttpException ex) {
-           LOG.error("Error processing request", ex);
-        }
-        
-        return -1;
-    }
+   }
 
-    private String extractHostPath(HttpServletRequest request) {
-        final StringBuilder myHostName = new StringBuilder(request.getServerName());
+   @Override
+   public int proxyRequest(HttpServletRequest request, HttpServletResponse response) throws IOException {
+      final String target = proxiedHostUrl + request.getRequestURI();
 
-        if (request.getServerPort() != 80) {
-            myHostName.append(":").append(request.getServerPort());
-        }
+      JerseyRequestProcessor processor = new JerseyRequestProcessor(request, proxiedHost);
+      WebResource resource = client.resource(target);
+      Builder builder = processor.process(resource);
+      try {
+         return executeProxyRequest(builder, request, response);
+      } catch (HttpException ex) {
+         LOG.error("Error processing request", ex);
+      }
 
-        return myHostName.append(request.getContextPath()).toString();
-    }
+      return -1;
+   }
 
-    private int executeProxyRequest(Builder builder, HttpServletRequest sourceRequest, HttpServletResponse sourceResponse) throws IOException, HttpException {
+   private String extractHostPath(HttpServletRequest request) {
+      final StringBuilder myHostName = new StringBuilder(request.getServerName());
+
+      if (request.getServerPort() != 80) {
+         myHostName.append(":").append(request.getServerPort());
+      }
+
+      return myHostName.append(request.getContextPath()).toString();
+   }
+
+   private int executeProxyRequest(Builder builder, HttpServletRequest sourceRequest, HttpServletResponse sourceResponse) throws IOException, HttpException {
 
       ClientResponse response = builder.method(sourceRequest.getMethod(), ClientResponse.class);
-        
+
       HttpResponseCodeProcessor responseCode = new HttpResponseCodeProcessor(response.getStatus());
       JerseyResponseProcessor responseProcessor = new JerseyResponseProcessor(response, sourceResponse);
 
       if (responseCode.isRedirect()) {
-          responseProcessor.sendTranslatedRedirect(proxiedHostUrl, extractHostPath(sourceRequest));
+         responseProcessor.sendTranslatedRedirect(proxiedHostUrl, extractHostPath(sourceRequest));
       } else {
-          responseProcessor.process();
+         responseProcessor.process();
       }
 
       return responseCode.getCode();
-    }
+   }
 }
 
 
