@@ -58,6 +58,17 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
          
          return port;
       }
+
+      private void setTimeoutParameters(DeploymentConfiguration deployConfig) {
+         Integer connectionTimeout = deployConfig.getConnectionTimeout();
+         Integer readTimeout = deployConfig.getReadTimeout();
+
+         servletContext.setAttribute(InitParameter.CONNECTION_TIMEOUT.getParameterName(), connectionTimeout);
+         LOG.info("Setting " + InitParameter.CONNECTION_TIMEOUT.getParameterName() + " to " + connectionTimeout);
+
+         servletContext.setAttribute(InitParameter.READ_TIMEOUT.getParameterName(), readTimeout);
+         LOG.info("Setting " + InitParameter.READ_TIMEOUT.getParameterName() + " to " + readTimeout);
+      }
       
       @Override
       public void configurationUpdated(ContainerConfiguration configurationObject) {
@@ -84,6 +95,7 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
             }
          }
 
+         setTimeoutParameters(deployConfig);
       }
    }
 
