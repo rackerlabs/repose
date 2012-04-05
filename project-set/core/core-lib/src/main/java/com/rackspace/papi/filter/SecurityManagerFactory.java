@@ -8,6 +8,9 @@ import com.rackspace.papi.security.DelegatingSecurityManager;
  * @author zinic
  */
 public class SecurityManagerFactory {
+    
+    private SecurityManagerFactory(){
+    }
 
    public static SecurityManager newDefaultSecurityManager() {
       final SecurityManager currentManager = System.getSecurityManager();

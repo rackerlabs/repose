@@ -8,6 +8,9 @@ import com.rackspace.papi.components.ratelimit.config.ConfiguredRatelimit;
  */
 public class RateLimitKeyGenerator {
    private static final String UNDERSCORE = "_";
+   
+   private RateLimitKeyGenerator(){
+   }
 
    public static String createMapKey(ConfiguredRatelimit limit) {
       StringBuilder builder = new StringBuilder();
@@ -17,11 +20,11 @@ public class RateLimitKeyGenerator {
       builder.append(limit.getUriRegex());
 
       for (HttpMethod httpMethod : limit.getHttpMethods()) {
-         builder.append(UNDERSCORE + httpMethod.value());
+         builder.append(UNDERSCORE).append(httpMethod.value());
       }
 
-      builder.append(UNDERSCORE + limit.getUnit().value());
-      builder.append(UNDERSCORE + new Integer(limit.getValue()).toString());
+      builder.append(UNDERSCORE).append(limit.getUnit().value());
+      builder.append(UNDERSCORE).append(new Integer(limit.getValue()).toString());
 
       return builder.toString();
    }

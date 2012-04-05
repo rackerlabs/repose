@@ -8,6 +8,9 @@ import java.security.PermissionCollection;
  * @author zinic
  */
 public class DefaultSecurityPermissions {
+    
+    private DefaultSecurityPermissions(){
+    }
 
    public static PermissionCollection buildDefaultPermissions() {
       final SecurityPermissions permissions = new SecurityPermissions();

@@ -11,48 +11,51 @@ import java.util.Map;
 
 public class CredentialFactory {
 
-   public static AuthCredentials getCredentials(CredentialType type, Map<String, Object> credentials) {
-      switch(type) {
-         case MOSSO:
-            return new MossoCredentialsWrapper(credentials);
-         case NAST:
-            return new NastCredentialsWrapper(credentials);
-         case PASSWORD: 
-            return new PasswordCredentialsWrapper(credentials);
-         case USER: 
-            return new UserCredentialsWrapper(credentials);
-      }
-      
-      return null;
-   }
+    private CredentialFactory() {
+    }
 
-   public static AuthCredentials getCredentials(Credentials credentials) {
-      AuthCredentials authCredentials = null;
+    public static AuthCredentials getCredentials(CredentialType type, Map<String, Object> credentials) {
+        switch (type) {
+            case MOSSO:
+                return new MossoCredentialsWrapper(credentials);
+            case NAST:
+                return new NastCredentialsWrapper(credentials);
+            case PASSWORD:
+                return new PasswordCredentialsWrapper(credentials);
+            case USER:
+                return new UserCredentialsWrapper(credentials);
+        }
 
-      if (credentials != null) {
-         if (credentials instanceof MossoCredentials) {
+        return null;
+    }
 
-            MossoCredentialsWrapper credentialsWrapper = new MossoCredentialsWrapper();
-            credentialsWrapper.setMossoCredentials((MossoCredentials)credentials);
-            authCredentials = credentialsWrapper;
-         } else if (credentials instanceof NastCredentials) {
+    public static AuthCredentials getCredentials(Credentials credentials) {
+        AuthCredentials authCredentials = null;
 
-            NastCredentialsWrapper credentialsWrapper = new NastCredentialsWrapper();
-            credentialsWrapper.setNastCredentials((NastCredentials) credentials);
-            authCredentials = credentialsWrapper;
-         } else if (credentials instanceof PasswordCredentials) {
+        if (credentials != null) {
+            if (credentials instanceof MossoCredentials) {
 
-            PasswordCredentialsWrapper credentialsWrapper = new PasswordCredentialsWrapper();
-            credentialsWrapper.setPasswordCredentials((PasswordCredentials) credentials);
-            authCredentials = credentialsWrapper;
-         } else if (credentials instanceof UserCredentials) {
+                MossoCredentialsWrapper credentialsWrapper = new MossoCredentialsWrapper();
+                credentialsWrapper.setMossoCredentials((MossoCredentials) credentials);
+                authCredentials = credentialsWrapper;
+            } else if (credentials instanceof NastCredentials) {
 
-            UserCredentialsWrapper credentialsWrapper = new UserCredentialsWrapper();
-            credentialsWrapper.setUserCredentials((UserCredentials) credentials);
-            authCredentials = credentialsWrapper;
-         }
-      }
-                 
-      return authCredentials;
-   }
+                NastCredentialsWrapper credentialsWrapper = new NastCredentialsWrapper();
+                credentialsWrapper.setNastCredentials((NastCredentials) credentials);
+                authCredentials = credentialsWrapper;
+            } else if (credentials instanceof PasswordCredentials) {
+
+                PasswordCredentialsWrapper credentialsWrapper = new PasswordCredentialsWrapper();
+                credentialsWrapper.setPasswordCredentials((PasswordCredentials) credentials);
+                authCredentials = credentialsWrapper;
+            } else if (credentials instanceof UserCredentials) {
+
+                UserCredentialsWrapper credentialsWrapper = new UserCredentialsWrapper();
+                credentialsWrapper.setUserCredentials((UserCredentials) credentials);
+                authCredentials = credentialsWrapper;
+            }
+        }
+
+        return authCredentials;
+    }
 }
