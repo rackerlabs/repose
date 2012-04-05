@@ -6,6 +6,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 public final class InputStreamUtilities {
+    
+    private InputStreamUtilities(){
+    }
 
    public static String streamToString(InputStream stream) throws IOException {
       String stringValue = "";

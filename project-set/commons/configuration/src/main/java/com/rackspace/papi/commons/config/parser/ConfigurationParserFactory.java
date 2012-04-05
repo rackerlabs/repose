@@ -12,33 +12,36 @@ import javax.xml.bind.JAXBException;
 
 public class ConfigurationParserFactory {
 
-   public static <T> ConfigurationParser<T> newConfigurationParser(ConfigurationParserType type, Class<T> configurationClass) {
-      switch (type) {
-         case XML:
-            return getXmlConfigurationParser(configurationClass);
-         case PROPERTIES:
-            return (ConfigurationParser<T>) newPropertiesFileConfigurationParser();
-         case RAW:
-            return (ConfigurationParser<T>) newInputStreamConfigurationParser();
-      }
+    private ConfigurationParserFactory() {
+    }
 
-      throw new IllegalArgumentException("Unknown configuration parser type: " + type);
-   }
+    public static <T> ConfigurationParser<T> newConfigurationParser(ConfigurationParserType type, Class<T> configurationClass) {
+        switch (type) {
+            case XML:
+                return getXmlConfigurationParser(configurationClass);
+            case PROPERTIES:
+                return (ConfigurationParser<T>) newPropertiesFileConfigurationParser();
+            case RAW:
+                return (ConfigurationParser<T>) newInputStreamConfigurationParser();
+        }
 
-   public static ConfigurationParser<InputStream> newInputStreamConfigurationParser() {
-      return new InputStreamConfigurationParser();
-   }
+        throw new IllegalArgumentException("Unknown configuration parser type: " + type);
+    }
 
-   public static ConfigurationParser<Properties> newPropertiesFileConfigurationParser() {
-      return new PropertiesFileConfigurationParser();
-   }
+    public static ConfigurationParser<InputStream> newInputStreamConfigurationParser() {
+        return new InputStreamConfigurationParser();
+    }
 
-   public static <T> JaxbConfigurationParser<T> getXmlConfigurationParser(Class<T> configurationClass) {
-      try {
-         final JAXBContext jaxbCtx = JAXBContext.newInstance(configurationClass.getPackage().getName());
-         return new JaxbConfigurationParser<T>(configurationClass, jaxbCtx);
-      } catch (JAXBException jaxbe) {
-         throw new ConfigurationResourceException("Failed to create a JAXB context for a configuration parser. Reason: " + jaxbe.getMessage(), jaxbe);
-      }
-   }
+    public static ConfigurationParser<Properties> newPropertiesFileConfigurationParser() {
+        return new PropertiesFileConfigurationParser();
+    }
+
+    public static <T> JaxbConfigurationParser<T> getXmlConfigurationParser(Class<T> configurationClass) {
+        try {
+            final JAXBContext jaxbCtx = JAXBContext.newInstance(configurationClass.getPackage().getName());
+            return new JaxbConfigurationParser<T>(configurationClass, jaxbCtx);
+        } catch (JAXBException jaxbe) {
+            throw new ConfigurationResourceException("Failed to create a JAXB context for a configuration parser. Reason: " + jaxbe.getMessage(), jaxbe);
+        }
+    }
 }

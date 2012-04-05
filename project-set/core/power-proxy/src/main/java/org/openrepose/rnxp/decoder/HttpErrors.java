@@ -22,6 +22,9 @@ public class HttpErrors {
     
     // String Constants
     private static final String BUFFER_OVERFLOW_MESSAGE = "Your message has an element that is too large to process.";
+    
+    private HttpErrors(){
+    }
 
     public static HttpErrorPartial bufferOverflow(DecoderState decoderState) {
         switch (decoderState) {
