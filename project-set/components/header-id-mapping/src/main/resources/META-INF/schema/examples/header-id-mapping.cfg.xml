@@ -5,7 +5,7 @@
    xsi:schemaLocation='http://docs.api.rackspacecloud.com/powerapi/header-id-mapping/v1.0 ../config/header-id-mapping-configuration.xsd'>
 
    <source-headers>
-      <header id="header-mapping-1" user-header="X-RAX-USER" groups-header="X-RAX-GROUPS" quality="0.2"/>
+      <header id="header-mapping-1" user-header="X-RAX-USER" group-header="X-RAX-GROUPS" quality="0.2"/>
    </source-headers>
       
 </header-id-mapping>
