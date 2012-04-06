@@ -97,44 +97,35 @@ public class MockServiceResource {
    }
 
    @GET
-   @Path("/loadbalancers/absolutelimits")
+   @Path("*/loadbalancers/absolutelimits")
    @Produces("application/xml")
    public Response getLBaaSLimitsXml() {
 
-      StringBuilder limits = new StringBuilder();
-
-      limits.append("<limits xmlns=\"http://docs.openstack.org/loadbalancers/api/v1.0\">");
-      limits.append("<absolute>");
-      limits.append("<limit name=\"IPV6_LIMIT\" value=\"25\"/>");
-      limits.append("<limit name=\"LOADBALANCER_LIMIT\" value=\"25\"/>");
-      limits.append("<limit name=\"BATCH_DELETE_LIMIT\" value=\"10\"/>");
-      limits.append("<limit name=\"ACCESS_LIST_LIMIT\" value=\"100\"/>");
-      limits.append("<limit name=\"NODE_LIMIT\" value=\"25\"/>");
-      limits.append("<absolute>");
-      limits.append("</limits>");
-
-      return Response.ok(limits.toString()).build();
+      return provider.getLBaaSLimitsXml();
    }
 
    @GET
-   @Path("/loadbalancers/absolutelimits")
+   @Path("*/loadbalancers/absolutelimits")
    @Produces("application/json")
    public Response getLBaaSLimitsJson() {
 
-      StringBuilder limits = new StringBuilder();
+      return provider.getLBaaSLimitsJson();
+   }
+   
+   @GET
+   @Path("/{user}/loadbalancers/absolutelimits")
+   @Produces("application/xml")
+   public Response getLBaaSLimitsXmlUser() {
 
-      limits.append("{");
-      limits.append("\"absolute\":");
-      limits.append("[");
-      limits.append("{\"name\":\"IPV6_LIMIT\",\"value\":25},");
-      limits.append("{\"name\":\"LOADBALANCER_LIMIT\",\"value\":25},");
-      limits.append("{\"name\":\"BATCH_DELETE_LIMIT\",\"value\":10},");
-      limits.append("{\"name\":\"ACCESS_LIST_LIMIT\",\"value\":100},");
-      limits.append("{\"name\":\"NODE_LIMIT\",\"value\":25}");
-      limits.append("]");
-      limits.append("}");      
+      return provider.getLBaaSLimitsXml();
+   }
+   
+   @GET
+   @Path("/{user}/loadbalancers/absolutelimits")
+   @Produces("application/json")
+   public Response getLBaaSLimitsJsonUser() {
 
-      return Response.ok(limits.toString()).build();
+      return provider.getLBaaSLimitsJson();
    }
 
 }

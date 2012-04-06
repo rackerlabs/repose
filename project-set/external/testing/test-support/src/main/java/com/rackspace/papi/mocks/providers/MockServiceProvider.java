@@ -109,7 +109,7 @@ public class MockServiceProvider {
 
     }
 
-    public Response getDelayedResponse(int time,HttpHeaders headers, UriInfo uri) {
+    public Response getDelayedResponse(int time, HttpHeaders headers, UriInfo uri) {
         int t = time;
         while (t > 0) {
             try {
@@ -122,5 +122,40 @@ public class MockServiceProvider {
         StringBuilder body = new StringBuilder("Response delayed by ");
         body.append(time).append(" seconds");
         return this.getEndService(body.toString(), headers, uri);
+    }
+
+    public Response getLBaaSLimitsJson() {
+
+        StringBuilder limits = new StringBuilder();
+
+        limits.append("{");
+        limits.append("\"absolute\":");
+        limits.append("[");
+        limits.append("{\"name\":\"IPV6_LIMIT\",\"value\":25},");
+        limits.append("{\"name\":\"LOADBALANCER_LIMIT\",\"value\":25},");
+        limits.append("{\"name\":\"BATCH_DELETE_LIMIT\",\"value\":10},");
+        limits.append("{\"name\":\"ACCESS_LIST_LIMIT\",\"value\":100},");
+        limits.append("{\"name\":\"NODE_LIMIT\",\"value\":25}");
+        limits.append("]");
+        limits.append("}");
+
+        return Response.ok(limits.toString()).build();
+    }
+
+    public Response getLBaaSLimitsXml() {
+
+        StringBuilder limits = new StringBuilder();
+
+        limits.append("<limits xmlns=\"http://docs.openstack.org/loadbalancers/api/v1.0\">");
+        limits.append("<absolute>");
+        limits.append("<limit name=\"IPV6_LIMIT\" value=\"25\"/>");
+        limits.append("<limit name=\"LOADBALANCER_LIMIT\" value=\"25\"/>");
+        limits.append("<limit name=\"BATCH_DELETE_LIMIT\" value=\"10\"/>");
+        limits.append("<limit name=\"ACCESS_LIST_LIMIT\" value=\"100\"/>");
+        limits.append("<limit name=\"NODE_LIMIT\" value=\"25\"/>");
+        limits.append("</absolute>");
+        limits.append("</limits>");
+
+        return Response.ok(limits.toString()).build();
     }
 }
