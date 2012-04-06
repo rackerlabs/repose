@@ -44,6 +44,11 @@
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>header-id-mapping</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
             <artifactId>uri-identity</artifactId>
         </dependency>
         
