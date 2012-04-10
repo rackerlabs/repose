@@ -5,6 +5,7 @@ import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
 import com.rackspace.papi.commons.util.net.NetworkNameResolver;
 import com.rackspace.papi.commons.util.net.StaticNetworkInterfaceProvider;
+import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.DomainNode;
 import com.rackspace.papi.model.ServiceDomain;
@@ -13,7 +14,6 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,19 +29,17 @@ public class SystemModelInterrogator {
    private final NetworkInterfaceProvider networkInterfaceProvider;
    private final NetworkNameResolver nameResolver;
    private final PowerProxy systemModel;
-   private final int httpPort;
-   private final int httpsPort;
+   private final List<Port> ports;
 
-   public SystemModelInterrogator(PowerProxy powerProxy, int httpPort, int httpsPort) {
-      this(StaticNetworkNameResolver.getInstance(), StaticNetworkInterfaceProvider.getInstance(), powerProxy, httpPort, httpsPort);
+   public SystemModelInterrogator(PowerProxy powerProxy, List<Port> ports) {
+      this(StaticNetworkNameResolver.getInstance(), StaticNetworkInterfaceProvider.getInstance(), powerProxy, ports);
    }
 
-   public SystemModelInterrogator(NetworkNameResolver nameResolver, NetworkInterfaceProvider nip, PowerProxy systemModel, int httpPort, int httpsPort) {
+   public SystemModelInterrogator(NetworkNameResolver nameResolver, NetworkInterfaceProvider nip, PowerProxy systemModel, List<Port> ports) {
       this.nameResolver = nameResolver;
       this.networkInterfaceProvider = nip;
       this.systemModel = systemModel;
-      this.httpPort = httpPort;
-      this.httpsPort = httpsPort;
+      this.ports = ports;
    }
 
    public class DomainNodeWrapper {
@@ -55,7 +53,7 @@ public class SystemModelInterrogator {
          this.node = node;
       }
 
-      public boolean hasLocalInterfaceForPorts(int httpPort, int httpsPorts) {
+      public boolean hasLocalInterface() {
          boolean result = false;
 
          try {
@@ -69,6 +67,23 @@ public class SystemModelInterrogator {
 
          return result;
       }
+
+      private List<Port> getPortsList() {
+         List<Port> ports = new ArrayList<Port>();
+         
+         
+         // TODO Model: use constants or enum for possible protocols
+         if (node.getHttpPort() > 0) {
+            ports.add(new Port("http", node.getHttpPort()));
+         }
+         
+         if (node.getHttpsPort() > 0) {
+            ports.add(new Port("https", node.getHttpsPort()));
+         }
+         
+         return ports;
+      }
+
    }
 
    public class ServiceDomainWrapper {
@@ -82,35 +97,27 @@ public class SystemModelInterrogator {
          this.domain = domain;
       }
 
-      public boolean containsLocalNodeForPorts(int httpPort, int httpsPort) {
-         return getLocalNodeForPorts(httpPort, httpsPort) != null;
+      public boolean containsLocalNodeForPorts(List<Port> ports) {
+         return getLocalNodeForPorts(ports) != null;
       }
+      
+      public DomainNode getLocalNodeForPorts(List<Port> ports) {
 
-      public DomainNode getLocalNodeForPorts(int httpPort, int httpsPort) {
-
-         final List<DomainNode> possibleHosts = new LinkedList<DomainNode>();
          DomainNode localhost = null;
-
-         for (DomainNode host : domain.getServiceDomainNodes().getNode()) {
-            if ((host.getHttpPort() == httpPort || httpPort <= 0)
-                    && (host.getHttpsPort() == httpsPort || httpsPort <= 0)) {
-
-               // If localPort <= 0 then this is the case where we are running ROOT.war so we
-               // don't have easy programmatic access to the port on which
-               // the local Repose is running.  So, just use the hostname to
-               // resolve which is the local Repose node.
-               possibleHosts.add(host);
-            }
+         
+         if (ports.isEmpty()) {
+            return localhost;
          }
 
-         for (DomainNode powerProxyHost : possibleHosts) {
-            DomainNodeWrapper wrapper = new DomainNodeWrapper(powerProxyHost);
-
-            if (wrapper.hasLocalInterfaceForPorts(httpPort, httpsPort)) {
-               localhost = powerProxyHost;
+         for (DomainNode host : domain.getServiceDomainNodes().getNode()) {
+            DomainNodeWrapper wrapper = new DomainNodeWrapper(host);
+            List<Port> hostPorts = wrapper.getPortsList();
+            
+            if (hostPorts.equals(ports) && wrapper.hasLocalInterface()) {
+               localhost = host;
                break;
-            }
 
+            }
          }
 
          return localhost;
@@ -139,7 +146,7 @@ public class SystemModelInterrogator {
       ServiceDomain domain = null;
 
       for (ServiceDomain possibleDomain : systemModel.getServiceDomain()) {
-         if (new ServiceDomainWrapper(possibleDomain).containsLocalNodeForPorts(httpPort, httpsPort)) {
+         if (new ServiceDomainWrapper(possibleDomain).containsLocalNodeForPorts(ports)) {
             domain = possibleDomain;
             break;
          }
@@ -152,7 +159,7 @@ public class SystemModelInterrogator {
       DomainNode localHost = null;
 
       for (ServiceDomain domain : systemModel.getServiceDomain()) {
-         DomainNode node = new ServiceDomainWrapper(domain).getLocalNodeForPorts(httpPort, httpsPort);
+         DomainNode node = new ServiceDomainWrapper(domain).getLocalNodeForPorts(ports);
 
          if (node != null) {
             localHost = node;

@@ -6,6 +6,7 @@ import com.rackspace.papi.commons.util.servlet.filter.ApplicationContextAwareFil
 import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.service.context.jndi.ContextAdapter;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
@@ -31,7 +32,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
    private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
    private final EventListener<ApplicationDeploymentEvent, String> applicationDeploymentListener;
    private final UpdateListener<PowerProxy> systemModelConfigurationListener;
-   private int port;
+   private List<Port> ports;
    
    private boolean firstInitialization;
    private PowerFilterChainBuilder powerFilterChainBuilder;
@@ -63,7 +64,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
                   papiContext.eventService().newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
                } else {
-                  final List<FilterContext> newFilterChain = new FilterContextInitializer(filterConfig).buildFilterContexts(papiContext.classLoader(), currentSystemModel, port);
+                  final List<FilterContext> newFilterChain = new FilterContextInitializer(filterConfig).buildFilterContexts(papiContext.classLoader(), currentSystemModel, ports);
                   updateFilterChainBuilder(newFilterChain);
                }
             }
@@ -77,7 +78,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
             LOG.info("Application collection has been modified. Application that changed: " + e.payload());
 
             if (currentSystemModel != null) {
-               final List<FilterContext> newFilterChain = new FilterContextInitializer(filterConfig).buildFilterContexts(papiContext.classLoader(), currentSystemModel, port);
+               final List<FilterContext> newFilterChain = new FilterContextInitializer(filterConfig).buildFilterContexts(papiContext.classLoader(), currentSystemModel, ports);
 
                updateFilterChainBuilder(newFilterChain);
             }
@@ -106,7 +107,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
       super.init(filterConfig);
       this.filterConfig = filterConfig;
       
-      port = ServletContextHelper.getServerPort(filterConfig.getServletContext());
+      ports = ServletContextHelper.getServerPorts(filterConfig.getServletContext());
       papiContext = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext());
       
       papiContext.eventService().listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);

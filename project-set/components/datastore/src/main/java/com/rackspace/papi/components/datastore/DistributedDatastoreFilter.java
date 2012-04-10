@@ -47,7 +47,7 @@ public class DistributedDatastoreFilter implements Filter {
       final ContextAdapter contextAdapter = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext());
       datastoreService = contextAdapter.datastoreService();
       
-      final MutableClusterView clusterView = new ThreadSafeClusterView(ServletContextHelper.getServerPort(filterConfig.getServletContext()));
+      final MutableClusterView clusterView = new ThreadSafeClusterView(ServletContextHelper.getServerPorts(filterConfig.getServletContext()));
       final HashRingDatastore hashRingDatastore;
       
       DatastoreManager localDatastoreManager = datastoreService.defaultDatastore();

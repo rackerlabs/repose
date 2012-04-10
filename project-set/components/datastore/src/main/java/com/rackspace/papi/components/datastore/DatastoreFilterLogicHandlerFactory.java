@@ -2,6 +2,7 @@ package com.rackspace.papi.components.datastore;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
+import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.model.Filter;
 import com.rackspace.papi.model.Host;

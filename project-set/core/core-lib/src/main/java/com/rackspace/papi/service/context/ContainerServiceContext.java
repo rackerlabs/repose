@@ -4,6 +4,7 @@ import com.rackspace.papi.commons.config.manager.UpdateListener;
 
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.DeploymentConfiguration;
+import com.rackspace.papi.domain.Port;
 
 import com.rackspace.papi.service.ServiceContext;
 import com.rackspace.papi.service.config.ConfigurationService;
@@ -11,6 +12,8 @@ import com.rackspace.papi.service.context.container.ContainerConfigurationServic
 import com.rackspace.papi.service.context.container.ContainerConfigurationServiceImpl;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.servlet.InitParameter;
+import java.util.ArrayList;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,16 +50,17 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
     */
    private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
 
-      private int determinePort(DeploymentConfiguration deployConfig) {
-         int port = -1;
+      private List<Port> determinePorts(DeploymentConfiguration deployConfig) {
+         List<Port> ports = new ArrayList<Port>();
 
          if (deployConfig != null && deployConfig.getPort() != null) {
-            port = deployConfig.getPort();
+            // TODO Model: add https
+            Port servicePort = new Port("http", deployConfig.getPort());
          } else {
             LOG.error("Service port not specified in container.cfg.xml");
          }
          
-         return port;
+         return ports;
       }
 
       private void setTimeoutParameters(DeploymentConfiguration deployConfig) {
@@ -73,24 +77,24 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
       @Override
       public void configurationUpdated(ContainerConfiguration configurationObject) {
          DeploymentConfiguration deployConfig = configurationObject.getDeploymentConfig();
-         int currentPort = ServletContextHelper.getServerPort(servletContext);
-         int port = determinePort(deployConfig);
+         List<Port> currentPorts = ServletContextHelper.getServerPorts(servletContext);
+         List<Port> ports = determinePorts(deployConfig);
 
-         if (currentPort == -1) {
+         if (currentPorts.isEmpty()) {
             // No port has been set into the servlet context
 
-            if (port > 0) {
-               containerConfigurationService = new ContainerConfigurationServiceImpl(port);
-               servletContext.setAttribute(InitParameter.PORT.getParameterName(), port);
-               LOG.info("Setting " + InitParameter.PORT.getParameterName() + " to " + port);
+            if (!ports.isEmpty()) {
+               containerConfigurationService = new ContainerConfigurationServiceImpl(ports);
+               servletContext.setAttribute(InitParameter.PORT.getParameterName(), ports);
+               LOG.info("Setting " + InitParameter.PORT.getParameterName() + " to " + ports);
             } else {
                // current port and port specified in container.cfg.xml are -1 (not set)
                LOG.error("Cannot determine " + InitParameter.PORT.getParameterName() + ". Port must be specified in container.cfg.xml or on the command line.");
             }
          } else {
-            if (port > 0 && currentPort != port) {
+            if (!currentPorts.equals(ports)) {
                // Port changed and is different from port already available in servlet context.
-               LOG.warn("****** " + InitParameter.PORT.getParameterName() + " changed from " + currentPort + " --> " + port 
+               LOG.warn("****** " + InitParameter.PORT.getParameterName() + " changed from " + currentPorts + " --> " + ports
                        + ".  Restart is required for this change.");
             }
          }

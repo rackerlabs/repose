@@ -2,8 +2,10 @@ package com.rackspace.cloud.valve.jetty;
 
 import com.rackspace.papi.filter.ValvePowerFilter;
 import com.rackspace.cloud.valve.jetty.servlet.ProxyServlet;
+import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.service.context.PowerApiContextManager;
 import com.rackspace.papi.servlet.InitParameter;
+import java.util.ArrayList;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -11,6 +13,7 @@ import org.eclipse.jetty.servlet.ServletHolder;
 
 import javax.servlet.DispatcherType;
 import java.util.EnumSet;
+import java.util.List;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +51,10 @@ public class ValveJettyServerBuilder {
       //URL ROOT = ValveJettyServerBuilder.class.getProtectionDomain().getCodeSource().getLocation();
       //WebAppContext context = new WebAppContext(ROOT.toExternalForm(), "/");
       
-      context.getAttributes().setAttribute(InitParameter.PORT.getParameterName(), portNumber);
+      List<Port> ports = new ArrayList<Port>();
+      ports.add(new Port("http", portNumber));
+      
+      context.getAttributes().setAttribute(InitParameter.PORT.getParameterName(), ports);
       context.getInitParams().put(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), configurationPathAndFile);
       context.setServer(server);
       server.setHandler(context);
@@ -58,7 +64,11 @@ public class ValveJettyServerBuilder {
    private ServletContextHandler buildRootContext(Server serverReference) {
       final ServletContextHandler servletContext = new ServletContextHandler(serverReference, "/");
       servletContext.getInitParams().put(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), configurationPathAndFile);
-      servletContext.getAttributes().setAttribute(InitParameter.PORT.getParameterName(), portNumber);
+
+      List<Port> ports = new ArrayList<Port>();
+      ports.add(new Port("http", portNumber));
+      
+      servletContext.getAttributes().setAttribute(InitParameter.PORT.getParameterName(), ports);
 
       try {
          servletContext.addEventListener(PowerApiContextManager.class.newInstance());

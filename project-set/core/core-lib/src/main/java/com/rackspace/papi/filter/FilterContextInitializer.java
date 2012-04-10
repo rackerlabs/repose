@@ -1,6 +1,7 @@
 package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.jmx.agents.SystemJmxAgent;
 import com.rackspace.papi.model.DomainNode;
 import com.rackspace.papi.model.Filter;
@@ -26,10 +27,9 @@ public class FilterContextInitializer {
       filterContextManager = new FilterContextManagerImpl(filterConfig);
    }
 
-   public List<FilterContext> buildFilterContexts(ClassLoaderManagerService classLoaderContextManager, PowerProxy powerProxy, int port) {
+   public List<FilterContext> buildFilterContexts(ClassLoaderManagerService classLoaderContextManager, PowerProxy powerProxy, List<Port> ports) {
       final List<FilterContext> filterContexts = new LinkedList<FilterContext>();
-      // TODO Model: add https port
-      SystemModelInterrogator interrogator = new SystemModelInterrogator(powerProxy, port, 0);
+      SystemModelInterrogator interrogator = new SystemModelInterrogator(powerProxy, ports);
       ServiceDomain domain = interrogator.getLocalServiceDomain();
       final DomainNode localHost = interrogator.getLocalHost();
 

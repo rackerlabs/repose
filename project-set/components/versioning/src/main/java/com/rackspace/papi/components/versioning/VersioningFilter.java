@@ -63,7 +63,7 @@ public class VersioningFilter implements Filter {
    @Override
    public void init(FilterConfig filterConfig) throws ServletException {
       final ServletContext servletContext = filterConfig.getServletContext();
-      final int port = ServletContextHelper.getServerPort(servletContext);
+      final int port = ServletContextHelper.getServerPorts(servletContext);
       
       handlerFactory = new VersioningHandlerFactory(port);
       
