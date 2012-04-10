@@ -29,7 +29,8 @@ public class RoutingFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         final ConfigurationService manager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
-        handlerFactory = new RoutingHandlerFactory(ServletContextHelper.getServerPort(filterConfig.getServletContext()));
+        // TODO Model: add https port
+        handlerFactory = new RoutingHandlerFactory(ServletContextHelper.getServerPort(filterConfig.getServletContext()), 0);
 
         manager.subscribeTo("power-proxy.cfg.xml", handlerFactory, PowerProxy.class);
     }

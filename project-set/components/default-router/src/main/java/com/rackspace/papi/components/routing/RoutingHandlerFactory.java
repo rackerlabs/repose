@@ -12,11 +12,13 @@ import org.slf4j.LoggerFactory;
 public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RoutingTagger> {
 
    private static final Logger LOG = LoggerFactory.getLogger(RoutingHandlerFactory.class);
-   private final int port;
+   private final int httpPort;
+   private final int httpsPort;
    private PowerProxy systemModel;
 
-   public RoutingHandlerFactory(int port) {
-      this.port = port;
+   public RoutingHandlerFactory(int httpPort, int httpsPort) {
+      this.httpPort = httpPort;
+      this.httpsPort = httpsPort;
    }
 
    private class RoutingConfigurationListener implements UpdateListener<PowerProxy> {
@@ -29,7 +31,7 @@ public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactor
 
    @Override
    protected RoutingTagger buildHandler() {
-      return new RoutingTagger(new SystemModelInterrogator(systemModel, port));
+      return new RoutingTagger(new SystemModelInterrogator(systemModel, httpPort, httpsPort));
    }
 
    @Override

@@ -9,7 +9,7 @@ import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import com.rackspace.papi.model.Host;
+import com.rackspace.papi.model.Destination;
 import java.net.MalformedURLException;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -32,8 +32,10 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
       final String firstRoutingDestination = request.getHeader(PowerApiHeader.NEXT_ROUTE.toString());
 
       if (firstRoutingDestination == null) {
-         final Host nextRoutableHost = modelInterrogator.getNextRoutableHost();
+         final Destination nextRoutableHost = modelInterrogator.getDefaultDestination();
 
+         // TODO Model: add destination to possible next routes
+         /*
          try {
             myDirector.requestHeaderManager().putHeader(PowerApiHeader.NEXT_ROUTE.toString(), HostUtilities.asUrl(nextRoutableHost, request.getRequestURI()));
          } catch (MalformedURLException murle) {
@@ -43,6 +45,8 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
             myDirector.setFilterAction(FilterAction.RETURN);
             myDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
          }
+         * 
+         */
       }
 
       return myDirector;

@@ -2,9 +2,10 @@ package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.jmx.agents.SystemJmxAgent;
+import com.rackspace.papi.model.DomainNode;
 import com.rackspace.papi.model.Filter;
-import com.rackspace.papi.model.Host;
 import com.rackspace.papi.model.PowerProxy;
+import com.rackspace.papi.model.ServiceDomain;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,13 +28,16 @@ public class FilterContextInitializer {
 
    public List<FilterContext> buildFilterContexts(ClassLoaderManagerService classLoaderContextManager, PowerProxy powerProxy, int port) {
       final List<FilterContext> filterContexts = new LinkedList<FilterContext>();
-      final Host localHost = new SystemModelInterrogator(powerProxy, port).getLocalHost();
+      // TODO Model: add https port
+      SystemModelInterrogator interrogator = new SystemModelInterrogator(powerProxy, port, 0);
+      ServiceDomain domain = interrogator.getLocalServiceDomain();
+      final DomainNode localHost = interrogator.getLocalHost();
 
       if (localHost != null) {
          // TODO: This may need to move once we determine what parts of repose should be instrumented via JMX.
 //         new SystemJmxAgent(localHost).registerMBean();
 
-         for (com.rackspace.papi.model.Filter papiFilter : localHost.getFilters().getFilter()) {
+         for (com.rackspace.papi.model.Filter papiFilter : domain.getFilters().getFilter()) {
             if (StringUtilities.isBlank(papiFilter.getName())) {
                LOG.error("Filter declaration has a null or empty name value - please check your system model configuration");
                continue;

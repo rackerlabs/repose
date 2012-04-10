@@ -4,13 +4,15 @@ import com.rackspace.papi.commons.util.classloader.ear.EarClassLoader;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.commons.util.classloader.ear.EarDescriptor;
 import com.rackspace.papi.model.Filter;
-import com.rackspace.papi.model.Host;
 import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import com.rackspace.papi.commons.util.net.NetUtilities;
+import com.rackspace.papi.model.DomainNode;
+import com.rackspace.papi.model.FilterList;
+import com.rackspace.papi.model.ServiceDomain;
 
 import javax.servlet.FilterConfig;
 
@@ -64,8 +66,8 @@ public class PowerFilterChainBuilderTest {
             FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig);
 
             PowerProxy mockedPowerProxy = mock(PowerProxy.class);
-            List<Host> hosts = createTestHosts();
-            when(mockedPowerProxy.getHost()).thenReturn(hosts);
+            List<ServiceDomain> hosts = createTestHosts();
+            when(mockedPowerProxy.getServiceDomain()).thenReturn(hosts);
 
             List<FilterContext> powerFilterChain = powerFilterChainBuilder.buildFilterContexts(mockedEarClassLoaderContextManager, mockedPowerProxy, 8080);
 
@@ -98,29 +100,33 @@ public class PowerFilterChainBuilderTest {
             FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig);
 
             PowerProxy mockedPowerProxy = mock(PowerProxy.class);
-            List<Host> hosts = createTestHosts();
-            when(mockedPowerProxy.getHost()).thenReturn(hosts);
+            List<ServiceDomain> hosts = createTestHosts();
+            when(mockedPowerProxy.getServiceDomain()).thenReturn(hosts);
 
             List<FilterContext> powerFilterChain = powerFilterChainBuilder.buildFilterContexts(mockedEarClassLoaderContextManager, mockedPowerProxy, 8080);
 
             assertEquals(0, powerFilterChain.size());
         }
 
-        private List<Host> createTestHosts() {
-            List<Host> hostList = new ArrayList<Host>();
+        private List<ServiceDomain> createTestHosts() {
+           ServiceDomain domain = new ServiceDomain();
+            List<DomainNode> hostList = new ArrayList<DomainNode>();
 
-            Filter mockedFilter = mock(Filter.class);
-            FakeFilterListClass filterListClass = new FakeFilterListClass();
-            filterListClass.addFilter(mockedFilter);
-
-            Host host = new Host();
+            domain.setFilters(mock(FilterList.class));
+            
+            DomainNode host = new DomainNode();
             host.setHostname(NetUtilities.getLocalHostName());
-            host.setFilters(filterListClass);
-            host.setServicePort(8080);
+            host.setHttpPort(8080);
+            host.setHttpsPort(0);
 
             hostList.add(host);
 
-            return hostList;
+            domain.getServiceDomainNodes().getNode().add(host);
+            List<ServiceDomain> result = new ArrayList<ServiceDomain>();
+            result.add(domain);
+            
+            return result;
         }
+
     }
 }

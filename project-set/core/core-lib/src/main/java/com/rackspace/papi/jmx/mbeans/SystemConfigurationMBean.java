@@ -1,6 +1,5 @@
 package com.rackspace.papi.jmx.mbeans;
 
-import com.rackspace.papi.model.Host;
 import com.rackspace.papi.model.PowerProxy;
 
 import java.util.List;

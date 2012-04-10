@@ -1,7 +1,8 @@
 package com.rackspace.papi.jmx.agents;
 
 import com.rackspace.papi.jmx.mbeans.SystemConfiguration;
-import com.rackspace.papi.model.Host;
+import com.rackspace.papi.model.DomainNode;
+import com.rackspace.papi.model.ServiceDomain;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,11 +24,13 @@ public class SystemJmxAgent {
 
    private static final Logger LOG = LoggerFactory.getLogger(SystemJmxAgent.class);
    private static final String OBJECT_NAME = "com.rackspace.papi.jmx.mxbeans:type=SystemConfiguration";
-   private final Host localHost;
+   private final DomainNode localHost;
    private ObjectName name;
+   private final ServiceDomain domain;
 
-   public SystemJmxAgent(Host localHost) {
+   public SystemJmxAgent(ServiceDomain domain, DomainNode localHost) {
       this.localHost = localHost;
+      this.domain = domain;
 
       try {
          name = new ObjectName(OBJECT_NAME);
@@ -44,7 +47,7 @@ public class SystemJmxAgent {
       // (see unregisterMBean()).
       unregisterMBean();
 
-      final SystemConfiguration mbean = new SystemConfiguration(localHost);
+      final SystemConfiguration mbean = new SystemConfiguration(domain, localHost);
       try {
          mbs.registerMBean(mbean, name);
       } catch (InstanceAlreadyExistsException e) {

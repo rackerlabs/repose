@@ -1,17 +1,17 @@
 package com.rackspace.papi.filter;
 
 import com.rackspace.papi.model.FilterList;
-import com.rackspace.papi.model.Host;
 import com.rackspace.papi.model.PowerProxy;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import com.rackspace.papi.commons.util.net.NetUtilities;
+import com.rackspace.papi.model.DomainNode;
+import com.rackspace.papi.model.ServiceDomain;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import org.junit.Ignore;
 import static org.junit.Assert.*;
 
 import static org.mockito.Mockito.*;
@@ -25,7 +25,8 @@ public class LocalhostFilterListTest {
         @Test
         public void shouldInstantiate() {
             PowerProxy powerProxy = new PowerProxy();
-            SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(powerProxy, 8080);
+            // TODO Model: HTTPS
+            SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(powerProxy, 8080, 0);
 
             assertNotNull(localhostFilterList);
         }
@@ -33,28 +34,38 @@ public class LocalhostFilterListTest {
         @Test
         public void shouldGetLocalhostFilters() {
             PowerProxy mockedPowerProxy = mock(PowerProxy.class);
-            List<Host> hosts = createTestHosts();
-            when(mockedPowerProxy.getHost()).thenReturn(hosts);
+            List<ServiceDomain> domains = createTestHosts();
+            when(mockedPowerProxy.getServiceDomain()).thenReturn(domains);
 
-            SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(mockedPowerProxy, 8080);
-            List<com.rackspace.papi.model.Filter> filters = localhostFilterList.getLocalHost().getFilters().getFilter();
+            // TODO Model: HTTPS
+            SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(mockedPowerProxy, 8080, 0);
+            List<com.rackspace.papi.model.Filter> filters = localhostFilterList.getLocalServiceDomain().getFilters().getFilter();
 
             assertNotNull(filters);
         }
 
-        private List<Host> createTestHosts() {
-            List<Host> hostList = new ArrayList<Host>();
+        private List<ServiceDomain> createTestHosts() {
+           ServiceDomain domain = new ServiceDomain();
+            List<DomainNode> hostList = new ArrayList<DomainNode>();
 
-            Host host = new Host();
+            domain.setFilters(mock(FilterList.class));
+            
+            DomainNode host = new DomainNode();
             host.setHostname(NetUtilities.getLocalHostName());
-            host.setFilters(mock(FilterList.class));
-            host.setServicePort(8080);
+            host.setHttpPort(8080);
+            host.setHttpsPort(0);
 
             hostList.add(host);
 
-            return hostList;
+            domain.getServiceDomainNodes().getNode().add(host);
+            List<ServiceDomain> result = new ArrayList<ServiceDomain>();
+            result.add(domain);
+            
+            return result;
         }
 
+        // TODO Model: fix test
+        /*
         @Test @Ignore("This test should be reviewed for intent and usage")
         public void shouldGetLocalhostFiltersWhenNoHostsPresent() {
             PowerProxy mockedPowerProxy = mock(PowerProxy.class);
@@ -65,6 +76,8 @@ public class LocalhostFilterListTest {
             List<com.rackspace.papi.model.Filter> filters = localhostFilterList.getLocalHost().getFilters().getFilter();
 
             assertNotNull(filters);
-        }                               
+        }          
+        * 
+        */
     }
 }
