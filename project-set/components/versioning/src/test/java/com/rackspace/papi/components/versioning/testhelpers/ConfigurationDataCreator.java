@@ -4,18 +4,13 @@ import com.rackspace.papi.components.versioning.config.MediaType;
 import com.rackspace.papi.components.versioning.config.MediaTypeList;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 import com.rackspace.papi.components.versioning.config.VersionStatus;
-import com.rackspace.papi.model.Host;
+import com.rackspace.papi.model.Destination;
+import com.rackspace.papi.model.DestinationEndpoint;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by IntelliJ IDEA.
- * User: joshualockwood
- * Date: 6/10/11
- * Time: 12:31 PM
- */
 public abstract class ConfigurationDataCreator {
 
     public static Set<String> createVersionIds(int numOfMappings) {
@@ -59,11 +54,11 @@ public abstract class ConfigurationDataCreator {
         return mappings;
     }
 
-    public static Map<String, Host> createConfiguredHosts(int numOfHosts) {
-        Map<String, Host> hosts = new HashMap<String, Host>();
+    public static Map<String, Destination> createConfiguredHosts(int numOfHosts) {
+        Map<String, Destination> hosts = new HashMap<String, Destination>();
 
         for (int i = 0; i < numOfHosts; i++) {
-            Host host = new Host();
+            DestinationEndpoint host = new DestinationEndpoint();
             host.setId("service-v1." + i);
 
             hosts.put("service-v1." + i, host);

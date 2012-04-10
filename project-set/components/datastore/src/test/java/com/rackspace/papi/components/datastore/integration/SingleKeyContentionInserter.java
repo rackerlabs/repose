@@ -2,6 +2,7 @@ package com.rackspace.papi.components.datastore.integration;
 
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.components.datastore.hash.HashRingDatastoreManager;
+import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
@@ -12,6 +13,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectOutputStream;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import net.sf.ehcache.CacheManager;
 
@@ -52,8 +55,14 @@ public class SingleKeyContentionInserter {
    }
    protected static volatile long total, beginTimestamp;
 
+   private static List<Port> getHttpPortList(int port) {
+      List<Port> ports = new ArrayList<Port>();
+      ports.add(new Port("http", port));
+      return ports;
+   }
+
    public static void main(String[] args) throws Exception {
-      final MutableClusterView view = new ThreadSafeClusterView(20000);
+      final MutableClusterView view = new ThreadSafeClusterView(getHttpPortList(20000));
       final EHCacheDatastoreManager localManager = new EHCacheDatastoreManager(new CacheManager());
       final HashRingDatastoreManager remoteManager = new HashRingDatastoreManager("", UUIDEncodingProvider.getInstance(), MD5MessageDigestFactory.getInstance(), view, localManager.getDatastore());
       final Datastore datastore = remoteManager.getDatastore();

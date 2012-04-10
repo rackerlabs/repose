@@ -1,21 +1,21 @@
 package com.rackspace.papi.components.versioning.domain;
 
-import com.rackspace.papi.components.versioning.util.http.HttpRequestInfo;
-import com.rackspace.papi.components.versioning.util.http.UniformResourceInfo;
-import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.StringUriUtilities;
-
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.header.HeaderValueParser;
+import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.components.versioning.config.MediaTypeList;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 import com.rackspace.papi.components.versioning.schema.VersionChoice;
 import com.rackspace.papi.components.versioning.schema.VersionChoiceList;
 import com.rackspace.papi.components.versioning.util.VersionChoiceFactory;
+import com.rackspace.papi.components.versioning.util.http.HttpRequestInfo;
+import com.rackspace.papi.components.versioning.util.http.UniformResourceInfo;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.model.Host;
-
+import com.rackspace.papi.model.Destination;
+import com.rackspace.papi.model.DomainNode;
+import com.rackspace.papi.model.ServiceDomain;
 import java.util.Collection;
 import java.util.Map;
 import org.ietf.atom.schema.Link;
@@ -24,12 +24,14 @@ import org.ietf.atom.schema.Relation;
 public class ConfigurationData {
 
     private final Map<String, ServiceVersionMapping> serviceMappings;
-    private final Map<String, Host> configuredHosts;
-    private final Host localHost;
+    private final Map<String, Destination> configuredHosts;
+    private final ServiceDomain localDomain;
+   private final DomainNode localHost;
 
-    public ConfigurationData(Host localHost, Map<String, Host> configuredHosts, Map<String, ServiceVersionMapping> serviceMappings) {
+    public ConfigurationData(ServiceDomain localDomain, DomainNode localHost, Map<String, Destination> configuredHosts, Map<String, ServiceVersionMapping> serviceMappings) {
         this.configuredHosts = configuredHosts;
         this.serviceMappings = serviceMappings;
+        this.localDomain = localDomain;
         this.localHost = localHost;
     }
 
@@ -37,12 +39,12 @@ public class ConfigurationData {
         return serviceMappings.values();
     }
 
-    public Map<String, Host> getConfiguredHosts() {
+    public Map<String, Destination> getConfiguredHosts() {
         return configuredHosts;
     }
 
-    public Host getHostForVersionMapping(ServiceVersionMapping mapping) throws VersionedHostNotFoundException {
-        final Host host = configuredHosts.get(mapping.getPpHostId());
+    public Destination getHostForVersionMapping(ServiceVersionMapping mapping) throws VersionedHostNotFoundException {
+        final Destination host = configuredHosts.get(mapping.getPpHostId());
         
         if (host == null) {
             throw new VersionedHostNotFoundException("Power Proxy Host: " + mapping.getPpHostId() + " is not specified in the power proxy system model");
@@ -62,7 +64,7 @@ public class ConfigurationData {
             
 
             if (currentServiceVersion != null) {
-                final Host host = getHostForVersionMapping(currentServiceVersion.getServiceVersionMapping());
+                final Destination host = getHostForVersionMapping(currentServiceVersion.getServiceVersionMapping());
                 director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.toString(), currentServiceVersion.getMediaType().getBase());
                 destination = new VersionedOriginService(currentServiceVersion.getServiceVersionMapping(),host);
             }
@@ -127,7 +129,11 @@ public class ConfigurationData {
         return StringUriUtilities.formatUri(uniformResourceInfo.getUri()).equals("/");
     }
 
-    public Host getLocalHost() {
-      return localHost;
+    public ServiceDomain getLocalDomain() {
+      return localDomain;
+    }
+    
+    public DomainNode getLocalHost() {
+       return localHost;
     }
 }

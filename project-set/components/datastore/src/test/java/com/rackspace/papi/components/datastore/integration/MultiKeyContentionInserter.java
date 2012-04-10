@@ -2,6 +2,7 @@ package com.rackspace.papi.components.datastore.integration;
 
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.components.datastore.hash.HashRingDatastoreManager;
+import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
@@ -10,6 +11,8 @@ import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
 import com.rackspace.papi.service.datastore.impl.ehcache.EHCacheDatastoreManager;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicIntegerArray;
 import net.sf.ehcache.CacheManager;
@@ -88,7 +91,7 @@ public class MultiKeyContentionInserter {
       @Override
       public void run() {
          double averageDriftRatio = 1;
-         
+
          while (shouldContinue()) {
             try {
                final int nextKey = nextKey();
@@ -105,7 +108,7 @@ public class MultiKeyContentionInserter {
                if (myValue != null && expectedValue != null && myValue.getValue() > 0 && expectedValue > 0) {
                   final double keyDrift = ((double) myValue.getValue() / expectedValue);
                   averageDriftRatio = (averageDriftRatio + keyDrift) / 2;
-                  
+
 //                  System.out.println("Anticipated cache value drift ratio for key \"" + nextCacheKey + "\" is " + keyDrift + " with actual of: " + myValue.getValue() + " and an expected of: " + expectedValue);
                }
             } catch (Exception ex) {
@@ -116,8 +119,14 @@ public class MultiKeyContentionInserter {
       }
    }
 
+   private static List<Port> getHttpPortList(int port) {
+      List<Port> ports = new ArrayList<Port>();
+      ports.add(new Port("http", port));
+      return ports;
+   }
+
    public static void main(String[] args) throws Exception {
-      final MutableClusterView view = new ThreadSafeClusterView(20000);
+      final MutableClusterView view = new ThreadSafeClusterView(getHttpPortList(20000));
       final EHCacheDatastoreManager localManager = new EHCacheDatastoreManager(new CacheManager());
       final HashRingDatastoreManager remoteManager = new HashRingDatastoreManager("", UUIDEncodingProvider.getInstance(), MD5MessageDigestFactory.getInstance(), view, localManager.getDatastore());
       final Datastore datastore = remoteManager.getDatastore();
@@ -148,7 +157,7 @@ public class MultiKeyContentionInserter {
       final Thread reader = new Thread(creader);
 
       reader.start();
-      
+
       inserter1.start();
       Thread.sleep(1300);
       inserter2.start();
@@ -165,9 +174,9 @@ public class MultiKeyContentionInserter {
 
       Thread.sleep(5000);
       creader.halt();
-      
+
       Thread.sleep(5000);
-      
+
       System.out.println("Exiting...");
       System.exit(0);
    }

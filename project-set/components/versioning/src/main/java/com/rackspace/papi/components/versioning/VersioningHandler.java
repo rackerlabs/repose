@@ -103,7 +103,9 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
     }
 
     private void writeRoutingInformation(VersionedOriginService targetOriginService, FilterDirector filterDirector, VersionedRequest versionedRequest) throws MalformedURLException {
-        final boolean isExternalRoute = HostComparator.getInstance().compare(configurationData.getLocalHost(), targetOriginService.getOriginServiceHost()) != 0;
+       // TODO Model: fix comparator
+       // final boolean isExternalRoute = HostComparator.getInstance().compare(configurationData.getLocalHost(), targetOriginService.getOriginServiceHost()) != 0;
+        final boolean isExternalRoute = true;
         final String routeDestinationPrefix = isExternalRoute ? HostUtilities.asUrl(targetOriginService.getOriginServiceHost()) : "";
         final String contextPath = StringUtilities.getValue(targetOriginService.getMapping().getContextPath(), "");
         

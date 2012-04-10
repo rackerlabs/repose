@@ -11,7 +11,6 @@ public class ContainerConfigurationServiceImpl implements ContainerConfiguration
    }
    
    public ContainerConfigurationServiceImpl(List<Port> ports) {
-      this.ports.clear();
       this.ports.addAll(ports);
    }
    

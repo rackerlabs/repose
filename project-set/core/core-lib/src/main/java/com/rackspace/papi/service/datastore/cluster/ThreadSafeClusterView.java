@@ -2,6 +2,7 @@ package com.rackspace.papi.service.datastore.cluster;
 
 import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
 import com.rackspace.papi.commons.util.net.StaticNetworkInterfaceProvider;
+import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.service.datastore.cluster.member.ClusterMember;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
@@ -30,20 +31,20 @@ public class ThreadSafeClusterView implements MutableClusterView {
    private static final int DEFAULT_REST_DURATION_IN_MILISECONDS = 10000;
    private final NetworkInterfaceProvider networkInterfaceProvider;
    private final List<ClusterMember> clusterMembers;
-   private final int listenPort;
+   private final List<Port> listenPorts;
 
-   public ThreadSafeClusterView(int listenPort) {
-      this(new LinkedList<ClusterMember>(), listenPort);
+   public ThreadSafeClusterView(List<Port> listenPorts) {
+      this(new LinkedList<ClusterMember>(), listenPorts);
    }
 
-   public ThreadSafeClusterView(List<ClusterMember> clusterMembers, int listenPort) {
-      this(StaticNetworkInterfaceProvider.getInstance(), new LinkedList<ClusterMember>(clusterMembers), listenPort);
+   public ThreadSafeClusterView(List<ClusterMember> clusterMembers, List<Port> listenPorts) {
+      this(StaticNetworkInterfaceProvider.getInstance(), new LinkedList<ClusterMember>(clusterMembers), listenPorts);
    }
 
-   public ThreadSafeClusterView(NetworkInterfaceProvider networkInterfaceProvider, List<ClusterMember> clusterMembers, int listenPort) {
+   public ThreadSafeClusterView(NetworkInterfaceProvider networkInterfaceProvider, List<ClusterMember> clusterMembers, List<Port> listenPorts) {
       this.networkInterfaceProvider = networkInterfaceProvider;
       this.clusterMembers = clusterMembers;
-      this.listenPort = listenPort;
+      this.listenPorts = listenPorts;
    }
 
    private static void normalizeClusterMembers(List<ClusterMember> members) {
@@ -53,7 +54,7 @@ public class ThreadSafeClusterView implements MutableClusterView {
 
    @Override
    public ThreadSafeClusterView copy() {
-      return new ThreadSafeClusterView(clusterMembers, listenPort);
+      return new ThreadSafeClusterView(clusterMembers, listenPorts);
    }
 
    @Override
@@ -112,12 +113,25 @@ public class ThreadSafeClusterView implements MutableClusterView {
 
    @Override
    public boolean isLocal(InetSocketAddress addr) throws SocketException {
-      if (addr.getPort() == listenPort) {
+      boolean havePort = false;
+      for (Port port: listenPorts) {
+         if (addr.getPort() == port.getPort()) {
+            havePort = true;
+            break;
+         }
+      }
+      
+      if (havePort) {
          if (networkInterfaceProvider.hasInterfaceFor(addr.getAddress())) {
             return true;
          }
       }
 
       return false;
+   }
+   
+   @Override
+   public List<Port> getListenPorts() {
+      return listenPorts;
    }
 }

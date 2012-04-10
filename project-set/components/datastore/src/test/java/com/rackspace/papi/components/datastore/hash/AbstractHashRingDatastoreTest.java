@@ -2,6 +2,7 @@ package com.rackspace.papi.components.datastore.hash;
 
 import com.rackspace.papi.components.datastore.hash.remote.RemoteConnectionException;
 import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
+import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
@@ -12,6 +13,7 @@ import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
 import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
@@ -37,6 +39,12 @@ public class AbstractHashRingDatastoreTest {
       protected Datastore mockedDatastore;
       protected TestingHashRingDatastore datastore;
 
+      private List<Port> getHttpPortList(int port) {
+         List<Port> ports = new ArrayList<Port>();
+         ports.add(new Port("http", port));
+         return ports;
+      }
+
       @Before
       public void standUp() throws Exception {
          addresses = new InetAddress[]{
@@ -52,7 +60,7 @@ public class AbstractHashRingDatastoreTest {
          when(networkInterfaceProvider.hasInterfaceFor(any(InetAddress.class))).thenReturn(true);
          
          final List<ClusterMember> members = Arrays.asList(new ClusterMember[]{new ClusterMember(new InetSocketAddress(addresses[0], 2200), 10000)});
-         singleNodeClusterView = new ThreadSafeClusterView(networkInterfaceProvider, members, 2200);
+         singleNodeClusterView = new ThreadSafeClusterView(networkInterfaceProvider, members, getHttpPortList(2200));
          
          when(clusterVew.members()).thenReturn(new InetSocketAddress[]{
                     new InetSocketAddress(addresses[0], 2200),

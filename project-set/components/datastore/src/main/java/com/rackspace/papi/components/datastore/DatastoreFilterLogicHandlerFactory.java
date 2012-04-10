@@ -4,9 +4,10 @@ import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
 import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import com.rackspace.papi.model.DomainNode;
 import com.rackspace.papi.model.Filter;
-import com.rackspace.papi.model.Host;
 import com.rackspace.papi.model.PowerProxy;
+import com.rackspace.papi.model.ServiceDomain;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
 import org.slf4j.Logger;
@@ -53,13 +54,17 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
    protected void updateClusterMembers(PowerProxy configuration) {
       try {
          final List<InetSocketAddress> cacheSiblings = new LinkedList<InetSocketAddress>();
+         
+         ServiceDomain domain = new SystemModelInterrogator(configuration, clusterView.getListenPorts()).getLocalServiceDomain();
 
-         for (Host hostInformation : configuration.getHost()) {
-            if (hostInformation.getFilters() != null) {
-               for (Filter f : hostInformation.getFilters().getFilter()) {
+         for (DomainNode node : domain.getServiceDomainNodes().getNode()) {
+            if (domain.getFilters() != null) {
+               for (Filter f : domain.getFilters().getFilter()) {
                   if (f.getName().equals("dist-datastore")) {
-                     final InetAddress hostAddress = InetAddress.getByName(hostInformation.getHostname());
-                     final InetSocketAddress hostSocketAddress = new InetSocketAddress(hostAddress, hostInformation.getServicePort());
+                     
+                     // TODO Model: Support https or other protocols
+                     final InetAddress hostAddress = InetAddress.getByName(node.getHostname());
+                     final InetSocketAddress hostSocketAddress = new InetSocketAddress(hostAddress, node.getHttpPort());
 
                      cacheSiblings.add(hostSocketAddress);
                   }
