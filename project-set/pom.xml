@@ -131,9 +131,7 @@
                                 <packager>Rackspace - Cloud Integration Team</packager>
 
                                 <description>
-                                    Power API is a stack of reusable, software components
-                                    that can be leveraged by service developers to perform
-                                    common API processing tasks.
+                                    Power API is a stack of reusable, software components that can be leveraged by service developers to perform common API processing tasks.
                                 </description>
 
                                 <copyright>Apache License, Version 2.0</copyright>
