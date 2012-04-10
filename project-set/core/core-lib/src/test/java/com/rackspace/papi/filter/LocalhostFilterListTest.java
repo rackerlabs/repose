@@ -7,6 +7,7 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import com.rackspace.papi.commons.util.net.NetUtilities;
 import com.rackspace.papi.model.DomainNode;
+import com.rackspace.papi.model.DomainNodeList;
 import com.rackspace.papi.model.ServiceDomain;
 
 import java.util.ArrayList;
@@ -56,8 +57,11 @@ public class LocalhostFilterListTest {
             host.setHttpsPort(0);
 
             hostList.add(host);
+            
+            DomainNodeList nodeList = new DomainNodeList();
+            nodeList.getNode().add(host);
+            domain.setServiceDomainNodes(nodeList);
 
-            domain.getServiceDomainNodes().getNode().add(host);
             List<ServiceDomain> result = new ArrayList<ServiceDomain>();
             result.add(domain);
             
