@@ -83,6 +83,7 @@ module ValveCluster
             Net::SSH.start( "#{host}" , "root", :password => "#{node[9]}") do |ssh|
                 ssh.exec! "chef-client"
                 ssh.exec! "service repose-regression start"
+                ssh.exec! "service tomcat7 restart"
             end
             
             self.waitForRepose(node[7])
