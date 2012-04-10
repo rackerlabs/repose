@@ -1,6 +1,9 @@
 package com.rackspace.papi.service.context.jndi;
 
+import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.servlet.InitParameter;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.naming.Context;
 import javax.servlet.ServletContext;
@@ -38,13 +41,13 @@ public final class ServletContextHelper {
       ctx.setAttribute(SERVLET_CONTEXT_ATTRIBUTE_NAME, namingContext);
    }
 
-   public static int getServerPort(ServletContext ctx) {
+   public static List<Port> getServerPorts(ServletContext ctx) {
       Object port = ctx.getAttribute(InitParameter.PORT.getParameterName());
 
       if (port != null) {
-         return (Integer) ctx.getAttribute(InitParameter.PORT.getParameterName());
+         return (List<Port>) ctx.getAttribute(InitParameter.PORT.getParameterName());
       } else {
-         return -1;
+         return new ArrayList<Port>();
       }
    }
 }
