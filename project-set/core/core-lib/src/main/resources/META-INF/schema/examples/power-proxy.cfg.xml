@@ -2,6 +2,8 @@
 
 <power-proxy xmlns="http://docs.rackspacecloud.com/power-api/system-model/v2.0">
   <service-domain id="repose">
+    <service-domain-nodes>
+      <node id="node1" hostname="localhost" http-port="8088"/>
     </service-domain-nodes>
     <filters>
       <!--
