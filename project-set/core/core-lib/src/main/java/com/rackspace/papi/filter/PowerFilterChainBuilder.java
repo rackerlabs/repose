@@ -6,6 +6,7 @@ package com.rackspace.papi.filter;
 
 import com.rackspace.papi.filter.resource.ResourceConsumerCounter;
 import com.rackspace.papi.commons.util.Destroyable;
+import com.rackspace.papi.model.ServiceDomain;
 import java.util.List;
 import javax.servlet.*;
 
@@ -17,10 +18,12 @@ public class PowerFilterChainBuilder implements Destroyable {
 
    private final ResourceConsumerCounter resourceConsumerMonitor;
    private final List<FilterContext> currentFilterChain;
+   private final ServiceDomain domain;
 
-   public PowerFilterChainBuilder(List<FilterContext> currentFilterChain) {
+   public PowerFilterChainBuilder(ServiceDomain domain, List<FilterContext> currentFilterChain) {
       this.currentFilterChain = currentFilterChain;
       resourceConsumerMonitor = new ResourceConsumerCounter();
+      this.domain = domain;
    }
 
    public ResourceConsumerCounter getResourceConsumerMonitor() {
@@ -28,7 +31,11 @@ public class PowerFilterChainBuilder implements Destroyable {
    }
    
    public PowerFilterChain newPowerFilterChain(FilterChain containerFilterChain, ServletContext servletContext) {
-      return new PowerFilterChain(currentFilterChain, containerFilterChain, servletContext, resourceConsumerMonitor);
+      return new PowerFilterChain(domain, currentFilterChain, containerFilterChain, servletContext, resourceConsumerMonitor);
+   }
+   
+   public ServiceDomain getServiceDomain() {
+      return domain;
    }
 
    @Override

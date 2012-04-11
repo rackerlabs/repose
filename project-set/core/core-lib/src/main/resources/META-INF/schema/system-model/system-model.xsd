@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://docs.rackspacecloud.com/power-api/system-model/v1.0"
-           xmlns:mod="http://docs.rackspacecloud.com/power-api/system-model/v1.0"
+           targetNamespace="http://docs.rackspacecloud.com/power-api/system-model/v2.0"
+           xmlns:mod="http://docs.rackspacecloud.com/power-api/system-model/v2.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
@@ -40,7 +40,7 @@
          <xs:element name="destinations" type="mod:DestinationList" minOccurs="0" maxOccurs="1" />
       </xs:sequence>
 
-      <xs:attribute name="id" type="xs:string" use="required">
+      <xs:attribute name="id" type="xs:ID" use="required">
          <xs:annotation>
             <xs:documentation>
                <html:p>Defines the service domain's id which may be referenced elsewhere in various configuration files</html:p>
@@ -84,7 +84,7 @@
          </xs:annotation>
       </xs:attribute>
 
-      <xs:attribute name="http-port" type="xs:int" use="optional" default="80">
+      <xs:attribute name="http-port" type="xs:int" use="optional" default="0">
          <xs:annotation>
             <xs:documentation>
                <html:p>Port number of the http service of the host</html:p>
@@ -92,7 +92,7 @@
          </xs:annotation>
       </xs:attribute>
 
-      <xs:attribute name="https-port" type="xs:int" use="optional" default="443">
+      <xs:attribute name="https-port" type="xs:int" use="optional" default="0">
          <xs:annotation>
             <xs:documentation>
                <html:p>Port number of the https service of the host</html:p>

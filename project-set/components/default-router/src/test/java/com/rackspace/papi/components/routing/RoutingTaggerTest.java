@@ -86,6 +86,7 @@ public class RoutingTaggerTest {
       domain.setServiceDomainNodes(nodeList);
 
       defaultDest = new DestinationEndpoint();
+      defaultDest.setId("default");
       defaultDest.setHostname(nextHostName);
       defaultDest.setPort(8081);
       defaultDest.setProtocol("http");

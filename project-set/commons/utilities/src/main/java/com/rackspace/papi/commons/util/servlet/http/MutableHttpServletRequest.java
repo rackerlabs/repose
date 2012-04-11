@@ -1,9 +1,8 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
 import com.rackspace.papi.commons.util.io.BufferedServletInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -24,10 +23,11 @@ public final class MutableHttpServletRequest extends HttpServletRequestWrapper {
       return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request);
    }
    private final Map<String, List<String>> headers;
+   private final List<RouteDestination> destinations;
    private BufferedServletInputStream inputStream;
    private StringBuffer requestUrl;
    private String requestUri;
-
+   
    private MutableHttpServletRequest(HttpServletRequest request) {
       super(request);
 
@@ -35,8 +35,29 @@ public final class MutableHttpServletRequest extends HttpServletRequestWrapper {
       requestUri = request.getRequestURI();
 
       headers = new HashMap<String, List<String>>();
+      destinations = new ArrayList<RouteDestination>();
 
       copyHeaders(request);
+   }
+   
+   public void addDestination(String id, String uri, float quality) {
+      addDestination(new RouteDestination(id, uri, quality));
+   }
+   
+   public void addDestination(RouteDestination dest) {
+      if (dest == null) {
+         throw new IllegalArgumentException("Destination cannot be null");
+      }
+      destinations.add(dest);
+   }
+   
+   public RouteDestination getDestination() {
+      if (destinations.isEmpty()) {
+         return null;
+      }
+      
+      Collections.sort(destinations);
+      return destinations.get(destinations.size() - 1);
    }
    
    @Override

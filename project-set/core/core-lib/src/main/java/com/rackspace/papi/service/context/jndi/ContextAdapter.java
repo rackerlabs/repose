@@ -9,6 +9,7 @@ import com.rackspace.papi.service.ServiceUnavailableException;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import com.rackspace.papi.service.context.container.ContainerConfigurationService;
 import com.rackspace.papi.service.filterchain.GarbageCollectionService;
+import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.service.threading.ThreadingService;
 
 public interface ContextAdapter {
@@ -30,4 +31,6 @@ public interface ContextAdapter {
     ResponseMessageService responseMessageService() throws ServiceUnavailableException;
 
     LoggingService loggingService() throws ServiceUnavailableException;
+    
+    RoutingService routingService() throws ServiceUnavailableException;
 }
