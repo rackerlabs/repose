@@ -1,0 +1,17 @@
+<rate-limiting xmlns="http://docs.rackspacecloud.com/power-api/rate-limiting/v1.0">
+
+  <request-endpoint include-absolute-limits="false" uri-regex=".*/loadbalancers/limits" limits-format="LBAAS"/>
+
+  <limit-group default="true" id="admin-limits" roles="Admin">
+      <limit uri="/loadbalancers*" http-methods="GET" unit="MINUTE" value="1000" uri-regex="/loadbalancers/([^/]+).*"/>
+  </limit-group>
+
+  <limit-group id="customer-limits" roles="customer">
+      <limit uri="/loadbalancers*" http-methods="GET" unit="MINUTE" value="100" uri-regex="/loadbalancers/([^/]+).*"/>
+  </limit-group>
+
+  <limit-group id="testing-limits" roles="test">
+      <limit uri="/loadbalancers*" http-methods="GET" unit="MINUTE" value="10" uri-regex="/loadbalancers/([^/]+).*"/>
+  </limit-group>
+
+</rate-limiting>
