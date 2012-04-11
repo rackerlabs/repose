@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 public class PowerApiValveServerControl {
 
-   private static final Logger LOG = LoggerFactory.getLogger(ProxyApp.class);
+   private static final Logger LOG = LoggerFactory.getLogger(PowerApiValveServerControl.class);
    private static final String LOCALHOST_IP = "127.0.0.1";
    private Server serverInstance;
    private CommandLineArguments commandLineArgs;
@@ -55,7 +55,7 @@ public class PowerApiValveServerControl {
          out.flush();
          s.close();
       } catch (IOException ioex) {
-         LOG.error("An error occured while attempting to stop Repose. Reason: " + ioex.getMessage());
+         LOG.error("An error occurred while attempting to stop Repose. Reason: " + ioex.getMessage());
       }
    }
 }
