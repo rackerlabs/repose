@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<header-identity  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+   xmlns='http://docs.api.rackspacecloud.com/powerapi/header-identity/v1.0'
+   xsi:schemaLocation='http://docs.api.rackspacecloud.com/powerapi/client-ip-identity/v1.0 ../config/client-ip-identity.xsd'>
+
+   <source-headers>
+      <header id="X-Header-User" quality="0.2"/>
+   </source-headers>
+</header-identity>

@@ -1,0 +1,30 @@
+{
+  "dependencies": {
+    "java": ">= 0.0.0"
+  },
+  "name": "powerapi-valve",
+  "maintainer_email": "YOUR_EMAIL",
+  "attributes": {
+  },
+  "license": "All rights reserved",
+  "suggestions": {
+  },
+  "platforms": {
+  },
+  "maintainer": "YOUR_COMPANY_NAME",
+  "long_description": "= DESCRIPTION:\n\n= REQUIREMENTS:\n\n= ATTRIBUTES:\n\n= USAGE:\n\n",
+  "version": "0.0.2",
+  "recommendations": {
+  },
+  "recipes": {
+  },
+  "groupings": {
+  },
+  "conflicting": {
+  },
+  "replacing": {
+  },
+  "description": "Installs/Configures powerapi-valve",
+  "providing": {
+  }
+}

@@ -1,0 +1,58 @@
+#!/bin/bash
+# description: Tomcat Start Stop Restart
+# processname: tomcat
+# chkconfig: 234 20 80
+CONFIG_DIRECTORY=/etc/repose
+
+LOG_PATH=/var/powerapi/logs
+JAR_DIRECTORY=/usr/share/lib/repose
+
+case $1 in
+   start)
+      java -jar $JAR_DIRECTORY/repose-valve.jar START -p 8887 -s 8818 -c $CONFIG_DIRECTORY/node1 > $LOG_PATH/node1/current.log 2>&1 &
+      java -jar $JAR_DIRECTORY/repose-valve.jar START -p 8888 -s 8819 -c $CONFIG_DIRECTORY/node2 > $LOG_PATH/node2/current.log 2>&1 &
+      java -jar $JAR_DIRECTORY/repose-valve.jar START -p 8889 -s 8820 -c $CONFIG_DIRECTORY/node3 > $LOG_PATH/node3/current.log 2>&1 &
+
+      #Dist-Datastore nodes
+      java -jar $JAR_DIRECTORY/repose-valve.jar START -p 8890 -s 8821 -c $CONFIG_DIRECTORY/node4 > $LOG_PATH/node4/current.log 2>&1 &
+      java -jar $JAR_DIRECTORY/repose-valve.jar START -p 8891 -s 8822 -c $CONFIG_DIRECTORY/node5 > $LOG_PATH/node5/current.log 2>&1 &
+      java -jar $JAR_DIRECTORY/repose-valve.jar START -p 8892 -s 8823 -c $CONFIG_DIRECTORY/node6 > $LOG_PATH/node6/current.log 2>&1 &
+      ;;
+
+   stop)
+      java -jar $JAR_DIRECTORY/repose-valve.jar STOP -p 8887 -s 8818 -c $CONFIG_DIRECTORY/node1 > $LOG_PATH/node1/current.log 2>&1 &
+      java -jar $JAR_DIRECTORY/repose-valve.jar STOP -p 8888 -s 8819 -c $CONFIG_DIRECTORY/node2 > $LOG_PATH/node2/current.log 2>&1 &
+      java -jar $JAR_DIRECTORY/repose-valve.jar STOP -p 8889 -s 8820 -c $CONFIG_DIRECTORY/node3 > $LOG_PATH/node3/current.log 2>&1 &
+
+      #Dist-Datastore nodes
+      java -jar $JAR_DIRECTORY/repose-valve.jar STOP -p 8890 -s 8821 -c $CONFIG_DIRECTORY/node4 > $LOG_PATH/node4/current.log 2>&1 &
+      java -jar $JAR_DIRECTORY/repose-valve.jar STOP -p 8891 -s 8822 -c $CONFIG_DIRECTORY/node5 > $LOG_PATH/node5/current.log 2>&1 &
+      java -jar $JAR_DIRECTORY/repose-valve.jar STOP -p 8892 -s 8823 -c $CONFIG_DIRECTORY/node6 > $LOG_PATH/node6/current.log 2>&1 &
+      ;;
+
+   restart)
+      java -jar $JAR_DIRECTORY/repose-valve.jar STOP -p 8887 -s 8818 -c $CONFIG_DIRECTORY/node1 > $LOG_PATH/node1/current.log 2>&1 &
+      java -jar $JAR_DIRECTORY/repose-valve.jar STOP -p 8888 -s 8819 -c $CONFIG_DIRECTORY/node2 > $LOG_PATH/node2/current.log 2>&1 &
+      java -jar $JAR_DIRECTORY/repose-valve.jar STOP -p 8889 -s 8820 -c $CONFIG_DIRECTORY/node3 > $LOG_PATH/node3/current.log 2>&1 &
+
+      #Dist-Datastore nodes
+      java -jar $JAR_DIRECTORY/repose-valve.jar STOP -p 8890 -s 8821 -c $CONFIG_DIRECTORY/node4 > $LOG_PATH/node4/current.log 2>&1 &
+      java -jar $JAR_DIRECTORY/repose-valve.jar STOP -p 8891 -s 8822 -c $CONFIG_DIRECTORY/node5 > $LOG_PATH/node5/current.log 2>&1 &
+      java -jar $JAR_DIRECTORY/repose-valve.jar STOP -p 8892 -s 8823 -c $CONFIG_DIRECTORY/node6 > $LOG_PATH/node6/current.log 2>&1 &
+
+      echo "sleeping to let threads settle"
+      sleep 4
+
+      java -jar $JAR_DIRECTORY/repose-valve.jar START -p 8887 -s 8818 -c $CONFIG_DIRECTORY/node1 > $LOG_PATH/node1/current.log 2>&1 &
+      java -jar $JAR_DIRECTORY/repose-valve.jar START -p 8888 -s 8819 -c $CONFIG_DIRECTORY/node2 > $LOG_PATH/node2/current.log 2>&1 &
+      java -jar $JAR_DIRECTORY/repose-valve.jar START -p 8889 -s 8820 -c $CONFIG_DIRECTORY/node3 > $LOG_PATH/node3/current.log 2>&1 &
+
+      #Dist-Datastore nodes
+      java -jar $JAR_DIRECTORY/repose-valve.jar START -p 8890 -s 8821 -c $CONFIG_DIRECTORY/node4 > $LOG_PATH/node4/current.log 2>&1 &
+      java -jar $JAR_DIRECTORY/repose-valve.jar START -p 8891 -s 8822 -c $CONFIG_DIRECTORY/node5 > $LOG_PATH/node5/current.log 2>&1 &
+      java -jar $JAR_DIRECTORY/repose-valve.jar START -p 8892 -s 8823 -c $CONFIG_DIRECTORY/node6 > $LOG_PATH/node6/current.log 2>&1 &
+      ;;
+esac
+
+exit 0
+

@@ -1,0 +1,25 @@
+{
+  "name": "repose-valve",
+  "default_attributes": {
+  },
+  "json_class": "Chef::Role",
+  "env_run_lists": {
+  },
+  "run_list": [
+    "recipe[java]",
+    "recipe[powerapi-valve::set-up]"
+    "recipe[powerapi-valve::rootwarnode]"
+  ],
+  "description": "",
+  "chef_type": "role",
+  "override_attributes": {
+    "powerapi-valve": {
+      "filterList": [
+        "dist-datastore",
+        "versioning",
+        "client-auth"
+      ],
+      "numNodes": "2"
+    }
+  }
+}
