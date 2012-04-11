@@ -87,7 +87,7 @@
                     <args>
                         <arg>-XtoString</arg>
                         <arg>
-                            -XtoString-toStringStrategyClass=com.rackspace.papi.components.clientauth.PasswordSensitiveToStringStrategy
+                            -XtoString-toStringStrategyClass=com.rackspace.papi.commons.util.string.PasswordSensitiveToStringStrategy
                         </arg>
                     </args>
                     <plugins>
