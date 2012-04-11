@@ -1,11 +1,9 @@
 package com.rackspace.papi.service.context;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.DeploymentConfiguration;
 import com.rackspace.papi.domain.Port;
-
 import com.rackspace.papi.service.ServiceContext;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.container.ContainerConfigurationService;
@@ -15,12 +13,10 @@ import com.rackspace.papi.servlet.InitParameter;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ContainerServiceContext implements ServiceContext<ContainerConfigurationService> {
 
@@ -68,7 +64,7 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
                LOG.info("Https service port not specified in container.cfg.xml");
             }
          }
-
+         
          return ports;
       }
 
@@ -82,7 +78,7 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
          servletContext.setAttribute(InitParameter.READ_TIMEOUT.getParameterName(), readTimeout);
          LOG.info("Setting " + InitParameter.READ_TIMEOUT.getParameterName() + " to " + readTimeout);
       }
-
+      
       @Override
       public void configurationUpdated(ContainerConfiguration configurationObject) {
          DeploymentConfiguration deployConfig = configurationObject.getDeploymentConfig();

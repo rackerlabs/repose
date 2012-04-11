@@ -29,13 +29,21 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
       final FilterDirector myDirector = new FilterDirectorImpl();
       myDirector.setFilterAction(FilterAction.PASS);
 
-      final String firstRoutingDestination = request.getHeader(PowerApiHeader.NEXT_ROUTE.toString());
+      Destination defaultDest = modelInterrogator.getDefaultDestination();
+      
+      if (defaultDest != null) {
+         myDirector.addDestination(defaultDest, -1);
+      } else {
+         LOG.warn("No default destination configured for service domain: " + modelInterrogator.getLocalServiceDomain().getId());
+      }
 
+      /*
+      final String firstRoutingDestination = request.getHeader(PowerApiHeader.NEXT_ROUTE.toString());
+      * 
       if (firstRoutingDestination == null) {
          final Destination nextRoutableHost = modelInterrogator.getDefaultDestination();
 
          // TODO Model: add destination to possible next routes
-         /*
          try {
             myDirector.requestHeaderManager().putHeader(PowerApiHeader.NEXT_ROUTE.toString(), HostUtilities.asUrl(nextRoutableHost, request.getRequestURI()));
          } catch (MalformedURLException murle) {
@@ -45,9 +53,9 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
             myDirector.setFilterAction(FilterAction.RETURN);
             myDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
          }
-         * 
-         */
       }
+      * 
+      */
 
       return myDirector;
    }

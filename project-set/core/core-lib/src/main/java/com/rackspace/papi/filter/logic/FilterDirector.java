@@ -2,6 +2,8 @@ package com.rackspace.papi.filter.logic;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
+import com.rackspace.papi.commons.util.servlet.http.RouteDestination;
+import com.rackspace.papi.model.Destination;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -13,39 +15,43 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface FilterDirector {
 
-    void setRequestUri(String newUri);
+   void setRequestUri(String newUri);
 
-    void setRequestUrl(StringBuffer newUrl);
+   void setRequestUrl(StringBuffer newUrl);
 
-    String getRequestUri();
+   String getRequestUri();
 
-    StringBuffer getRequestUrl();
+   StringBuffer getRequestUrl();
 
-    HeaderManager requestHeaderManager();
+   HeaderManager requestHeaderManager();
 
-    HeaderManager responseHeaderManager();
+   HeaderManager responseHeaderManager();
 
-    FilterAction getFilterAction();
+   FilterAction getFilterAction();
 
-    HttpStatusCode getResponseStatus();
+   HttpStatusCode getResponseStatus();
 
-    int getResponseStatusCode();
+   int getResponseStatusCode();
 
-    void setFilterAction(FilterAction action);
+   void setFilterAction(FilterAction action);
 
-    void setResponseStatus(HttpStatusCode delegatedStatus);
+   void setResponseStatus(HttpStatusCode delegatedStatus);
 
-    public void setResponseStatusCode(int status);
-    
-    String getResponseMessageBody();
+   public void setResponseStatusCode(int status);
 
-    byte[] getResponseMessageBodyBytes();
+   String getResponseMessageBody();
 
-    PrintWriter getResponseWriter();
+   byte[] getResponseMessageBodyBytes();
 
-    OutputStream getResponseOutputStream();
+   PrintWriter getResponseWriter();
 
-    void applyTo(MutableHttpServletRequest request);
+   OutputStream getResponseOutputStream();
 
-    void applyTo(HttpServletResponse response) throws IOException;
+   void applyTo(MutableHttpServletRequest request);
+
+   void applyTo(HttpServletResponse response) throws IOException;
+
+   void addDestination(String id, String uri, float quality);
+
+   void addDestination(Destination dest, float quality);
 }

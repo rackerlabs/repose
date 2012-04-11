@@ -14,6 +14,7 @@ import java.io.FileOutputStream;
 import java.net.URI;
 
 import com.rackspace.config.manip.jmx.Client;
+import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.model.PowerProxy;
 
 /**
@@ -39,7 +40,9 @@ public class PowerProxyConfiguration {
 
       System.out.println("Returned power proxy configuration file: " + returnedPowerProxy.toString());
 
-      return Response.created(URI.create("/powerproxy/" + returnedPowerProxy.getHost())).build();
+      // TODO Model: fix this
+      //return Response.created(URI.create("/powerproxy/" + returnedPowerProxy.getHost())).build();
+      return Response.created(URI.create("/powerproxy/" + returnedPowerProxy.getServiceDomain().get(0))).build();
    }
 
    private void marshal(PowerProxy config) {

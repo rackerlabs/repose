@@ -65,7 +65,9 @@ public class Client {
 
       PowerProxy returnedPowerProxy = systemConfigurationMbeanProxy.updatePowerProxy(powerProxy);
 
-      System.out.println("returned: " + powerProxy.getHost().get(0).getHostname());
+      // TODO Model: Fix this
+      //System.out.println("returned: " + powerProxy.getHost().get(0).getHostname());
+      System.out.println("returned: " + powerProxy.getServiceDomain().get(0).getId());
 
       return returnedPowerProxy;
    }

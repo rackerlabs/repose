@@ -16,8 +16,10 @@ import com.rackspace.papi.service.context.ContainerServiceContext;
 import com.rackspace.papi.service.context.ResponseMessageServiceContext;
 import com.rackspace.papi.service.context.DatastoreServiceContext;
 import com.rackspace.papi.service.context.FilterChainGCServiceContext;
+import com.rackspace.papi.service.context.RoutingServiceContext;
 import com.rackspace.papi.service.context.container.ContainerConfigurationService;
 import com.rackspace.papi.service.filterchain.GarbageCollectionService;
+import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.service.threading.ThreadingServiceContext;
 import com.rackspace.papi.service.threading.ThreadingService;
 
@@ -69,6 +71,11 @@ public class JndiContextAdapter implements ContextAdapter {
     @Override
     public ThreadingService threadingService() throws ServiceUnavailableException {
         return lookup(ThreadingServiceContext.SERVICE_NAME, namingContext);
+    }
+    
+    @Override
+    public RoutingService routingService() throws ServiceUnavailableException {
+       return lookup(RoutingServiceContext.SERVICE_NAME, namingContext);
     }
 
     @Override

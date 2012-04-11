@@ -8,6 +8,7 @@ import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.model.PowerProxy;
+import com.rackspace.papi.model.ServiceDomain;
 import com.rackspace.papi.service.context.jndi.ContextAdapter;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.service.deploy.ApplicationDeploymentEvent;
@@ -33,18 +34,18 @@ public class PowerFilter extends ApplicationContextAwareFilter {
    private final EventListener<ApplicationDeploymentEvent, String> applicationDeploymentListener;
    private final UpdateListener<PowerProxy> systemModelConfigurationListener;
    private List<Port> ports;
-   
    private boolean firstInitialization;
    private PowerFilterChainBuilder powerFilterChainBuilder;
    private ContextAdapter papiContext;
    private PowerProxy currentSystemModel;
    private FilterConfig filterConfig;
-   
+   private ServiceDomain domain;
+
    public PowerFilter() {
       firstInitialization = true;
 
       // Default to an empty filter chain so that artifact deployment doesn't gum up the works with a null pointer
-      powerFilterChainBuilder = new PowerFilterChainBuilder(Collections.EMPTY_LIST);
+      powerFilterChainBuilder = new PowerFilterChainBuilder(null, Collections.EMPTY_LIST);
 
       systemModelConfigurationListener = new UpdateListener<PowerProxy>() {
 
@@ -64,6 +65,8 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
                   papiContext.eventService().newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
                } else {
+                  SystemModelInterrogator interrogator = new SystemModelInterrogator(currentSystemModel, ports);
+                  domain = interrogator.getLocalServiceDomain();
                   final List<FilterContext> newFilterChain = new FilterContextInitializer(filterConfig).buildFilterContexts(papiContext.classLoader(), currentSystemModel, ports);
                   updateFilterChainBuilder(newFilterChain);
                }
@@ -78,6 +81,8 @@ public class PowerFilter extends ApplicationContextAwareFilter {
             LOG.info("Application collection has been modified. Application that changed: " + e.payload());
 
             if (currentSystemModel != null) {
+               SystemModelInterrogator interrogator = new SystemModelInterrogator(currentSystemModel, ports);
+               domain = interrogator.getLocalServiceDomain();
                final List<FilterContext> newFilterChain = new FilterContextInitializer(filterConfig).buildFilterContexts(papiContext.classLoader(), currentSystemModel, ports);
 
                updateFilterChainBuilder(newFilterChain);
@@ -95,7 +100,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
          papiContext.filterChainGarbageCollectorService().reclaimDestroyable(powerFilterChainBuilder, powerFilterChainBuilder.getResourceConsumerMonitor());
       }
 
-      powerFilterChainBuilder = new PowerFilterChainBuilder(newFilterChain);
+      powerFilterChainBuilder = new PowerFilterChainBuilder(domain, newFilterChain);
    }
 
    protected PowerProxy getCurrentSystemModel() {
@@ -106,10 +111,10 @@ public class PowerFilter extends ApplicationContextAwareFilter {
    public void init(FilterConfig filterConfig) throws ServletException {
       super.init(filterConfig);
       this.filterConfig = filterConfig;
-      
+
       ports = ServletContextHelper.getServerPorts(filterConfig.getServletContext());
       papiContext = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext());
-      
+
       papiContext.eventService().listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
       papiContext.configurationService().subscribeTo("power-proxy.cfg.xml", systemModelConfigurationListener, PowerProxy.class);
    }
