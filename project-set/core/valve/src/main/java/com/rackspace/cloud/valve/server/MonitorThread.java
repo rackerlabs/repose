@@ -42,9 +42,9 @@ public class MonitorThread extends Thread {
          accept = socket.accept();
          BufferedReader reader = new BufferedReader(new InputStreamReader(accept.getInputStream()));
          reader.readLine();
-         LOG.info("Stopping Power API Valve...");
+         LOG.info("Stopping Repose...");
          serverInstance.stop();
-         LOG.info("Power API Valve has been stopped");
+         LOG.info("Repose has been stopped");
          accept.close();
          socket.close();
       } catch (InterruptedException ie) {

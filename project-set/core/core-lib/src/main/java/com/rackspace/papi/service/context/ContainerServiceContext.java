@@ -12,8 +12,10 @@ import com.rackspace.papi.service.context.container.ContainerConfigurationServic
 import com.rackspace.papi.service.context.container.ContainerConfigurationServiceImpl;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.servlet.InitParameter;
+
 import java.util.ArrayList;
 import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -53,13 +55,20 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
       private List<Port> determinePorts(DeploymentConfiguration deployConfig) {
          List<Port> ports = new ArrayList<Port>();
 
-         if (deployConfig != null && deployConfig.getPort() != null) {
-            // TODO Model: add https
-            Port servicePort = new Port("http", deployConfig.getPort());
-         } else {
-            LOG.error("Service port not specified in container.cfg.xml");
+         if (deployConfig != null) {
+            if (deployConfig.getHttpPort() != null) {
+               ports.add(new Port("http", deployConfig.getHttpPort()));
+            } else {
+               LOG.error("Http service port not specified in container.cfg.xml");
+            }
+
+            if (deployConfig.getHttpsPort() != null) {
+               ports.add(new Port("https", deployConfig.getHttpsPort()));
+            } else {
+               LOG.info("Https service port not specified in container.cfg.xml");
+            }
          }
-         
+
          return ports;
       }
 
@@ -73,7 +82,7 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
          servletContext.setAttribute(InitParameter.READ_TIMEOUT.getParameterName(), readTimeout);
          LOG.info("Setting " + InitParameter.READ_TIMEOUT.getParameterName() + " to " + readTimeout);
       }
-      
+
       @Override
       public void configurationUpdated(ContainerConfiguration configurationObject) {
          DeploymentConfiguration deployConfig = configurationObject.getDeploymentConfig();

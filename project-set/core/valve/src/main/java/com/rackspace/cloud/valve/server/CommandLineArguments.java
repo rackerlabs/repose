@@ -3,32 +3,44 @@ package com.rackspace.cloud.valve.server;
 import org.kohsuke.args4j.*;
 
 public class CommandLineArguments {
-    private static final String defaultPortInfo = "(Default is port 8080, range is 1024 to 49150)";
-    public static final String ACTION_START = "start";
-    public static final String ACTION_STOP = "stop";
+   private static final String defaultHttpPortInfo = "(Default is http port 8080, range is 1024 to 49150)";
+   private static final String defaultHttpsPortInfo = "(Default is only run Repose on http if https port not specified, range is 1024 to 49150)";
+   public static final String ACTION_START = "start";
+   public static final String ACTION_STOP = "stop";
 
-    @Option(name = "-p", aliases = {"--port"},
-            usage = "Power API Valve port number " + defaultPortInfo)
-    private Integer port = 8080;
+   @Option(name = "-p", aliases = {"--http-port"},
+           usage = "Repose http port number " + defaultHttpPortInfo)
+   private Integer httpPort = 8080;
 
-    @Option(name = "-s", aliases = {"--shutdown-port"},
-            usage = "The port used to communicate a shutdown to Power API Valve " + defaultPortInfo)
-    private Integer stopPort = 8818;
+   @Option(name = "-ps", aliases = {"--https-port"},
+           usage = "Repose https port number " + defaultHttpsPortInfo)
+   private Integer httpsPort;
 
-    @Option(name = "-c", aliases = {"--config-file"},
-            usage = "The location of the Power API Valve configuration file")
-    private String configDirectory;
+   @Option(name = "-s", aliases = {"--shutdown-port"},
+           usage = "The port used to communicate a shutdown to Repose " + defaultHttpPortInfo)
+   private Integer stopPort = 8818;
 
-    //Note: I recommend keeping this an argument to stay inline with what people expect from a daemon script
-    @Argument(usage = "Action to take - start | stop", required = true)
-    private String action = ACTION_START;
+   @Option(name = "-c", aliases = {"--config-file"},
+           usage = "The location of the Repose configuration file")
+   private String configDirectory;
 
-   public Integer getPort() {
-      return port;
+   @Argument(usage = "Action to take - start | stop", required = true)
+   private String action = ACTION_START;
+
+   public Integer getHttpPort() {
+      return httpPort;
    }
 
-   public void setPort(Integer port) {
-      this.port = port;
+   public void setHttpPort(Integer httpPort) {
+      this.httpPort = httpPort;
+   }
+
+   public Integer getHttpsPort() {
+      return httpsPort;
+   }
+
+   public void setHttpsPort(Integer httpsPort) {
+      this.httpsPort = httpsPort;
    }
 
    public Integer getStopPort() {

@@ -21,18 +21,21 @@ import org.slf4j.LoggerFactory;
 public class ValveJettyServerBuilder {
 
    private static final Logger LOG = LoggerFactory.getLogger(ValveJettyServerBuilder.class);
-   private final int portNumber;
+   private final Integer httpPortNumber;
+   private final Integer httpsPortNumber;
    private String configurationPathAndFile = "";
 
-   public ValveJettyServerBuilder(int portNumber, String configurationPathAndFile) {
-      this.portNumber = portNumber;
+   public ValveJettyServerBuilder(Integer httpPortNumber, Integer httpsPortNumber, String configurationPathAndFile) {
+      this.httpPortNumber = httpPortNumber;
+      this.httpsPortNumber = httpsPortNumber;
       this.configurationPathAndFile = configurationPathAndFile;
    }
 
    public Server newServer() {
-      //return buildWarContext(new Server(portNumber));
+      //return buildWarContext(new Server(httpPortNumber));
 
-      Server server = new Server(portNumber);
+      // TODO: add https
+      Server server = new Server(httpPortNumber);
       final ServletContextHandler rootContext = buildRootContext(server);
       final ServletHolder valveServer = new ServletHolder(new ProxyServlet());
 
@@ -52,7 +55,11 @@ public class ValveJettyServerBuilder {
       //WebAppContext context = new WebAppContext(ROOT.toExternalForm(), "/");
       
       List<Port> ports = new ArrayList<Port>();
-      ports.add(new Port("http", portNumber));
+      ports.add(new Port("http", httpPortNumber));
+
+      if (httpsPortNumber != null) {
+         ports.add(new Port("https", httpsPortNumber));
+      }
       
       context.getAttributes().setAttribute(InitParameter.PORT.getParameterName(), ports);
       context.getInitParams().put(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), configurationPathAndFile);
@@ -66,7 +73,11 @@ public class ValveJettyServerBuilder {
       servletContext.getInitParams().put(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), configurationPathAndFile);
 
       List<Port> ports = new ArrayList<Port>();
-      ports.add(new Port("http", portNumber));
+      ports.add(new Port("http", httpPortNumber));
+
+      if (httpsPortNumber != null) {
+         ports.add(new Port("https", httpsPortNumber));
+      }
       
       servletContext.getAttributes().setAttribute(InitParameter.PORT.getParameterName(), ports);
 

@@ -31,10 +31,18 @@
             <xs:element name="logging-configuration" type="papic:LoggingConfiguration" minOccurs="0" maxOccurs="1" />
         </xs:sequence>
 
-        <xs:attribute name="port" type="xs:int" use="optional">
+        <xs:attribute name="http-port" type="xs:int" use="optional">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Port number of the http service of the host</html:p>
+                    <html:p>Http port number on which Repose listens for requests</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="https-port" type="xs:int" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Https port number on which Repose listens for requests</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
