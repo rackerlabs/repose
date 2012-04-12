@@ -16,9 +16,32 @@
                 <html:p></html:p>
             </xs:documentation>
         </xs:annotation>
-        
-        <xs:all>
+
+        <xs:sequence>            
             <xs:element name="quality" type="xs:string" minOccurs="0" maxOccurs="1" default="0.1" />
-        </xs:all>
+            <xs:element name="white-list" type="ip-identity:WhiteList" minOccurs="0" maxOccurs="1"/>
+        </xs:sequence>
+
+    </xs:complexType>
+
+    <xs:complexType name="WhiteList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>A list of ip addresses you don't want to rate limit.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="ip-address" type="xs:string" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+
+        <xs:attribute name="quality" type="xs:string" use="required">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>The quality used for addresses in the whitelist.</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+        
     </xs:complexType>
 </xs:schema>

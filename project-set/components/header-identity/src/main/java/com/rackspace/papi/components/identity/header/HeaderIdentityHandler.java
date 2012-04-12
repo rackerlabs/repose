@@ -32,11 +32,13 @@ public class HeaderIdentityHandler extends AbstractFilterLogicHandler {
       HeaderManager headerManager = filterDirector.requestHeaderManager();
       filterDirector.setFilterAction(FilterAction.PASS);
 
-      ExtractorResult<String> result = new HeaderValueExtractor(request).extractUserGroup(sourceHeaders);
-      
-      if(!result.getResult().isEmpty()){
-          headerManager.appendHeader(PowerApiHeader.USER.toString(), result.getResult());
-          headerManager.appendHeader(PowerApiHeader.GROUPS.toString(), result.getKey());
+      List<ExtractorResult<String>> results = new HeaderValueExtractor(request).extractUserGroup(sourceHeaders);
+
+      for (ExtractorResult<String> result : results) {
+         if(!result.getResult().isEmpty()){
+            headerManager.appendHeader(PowerApiHeader.USER.toString(), result.getResult());
+            headerManager.appendHeader(PowerApiHeader.GROUPS.toString(), result.getKey());
+         }   
       }
       
       return filterDirector;

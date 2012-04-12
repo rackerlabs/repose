@@ -58,10 +58,10 @@ public class ClientIpExtractorTest {
          header.setId(IP_HEADER_NAME);
          headers.add(header);
          
-         ExtractorResult<String> act = extractor.extractUserGroup(headers);
+         List<ExtractorResult<String>> act = extractor.extractUserGroup(headers);
          
-         assertEquals("Should find Header User", IP_HEADER + DEFAULT_QUALITY_VALUE, act.getResult());
-         assertEquals("Should find Header Group", IP_HEADER_NAME + DEFAULT_QUALITY_VALUE, act.getKey());
+         assertEquals("Should find Header User", IP_HEADER + DEFAULT_QUALITY_VALUE, act.get(0).getResult());
+         assertEquals("Should find Header Group", IP_HEADER_NAME + DEFAULT_QUALITY_VALUE, act.get(0).getKey());
       }
       
       @Test
@@ -72,9 +72,9 @@ public class ClientIpExtractorTest {
          header.setId(MULTIPLE_IP_HEADER_NAME);
          headers.add(header);
          
-         ExtractorResult<String> act = extractor.extractUserGroup(headers);
-         assertEquals("Should find Header User", expected + DEFAULT_QUALITY_VALUE, act.getResult());
-         assertEquals("Should find Header Group", MULTIPLE_IP_HEADER_NAME + DEFAULT_QUALITY_VALUE, act.getKey());
+         List<ExtractorResult<String>> act = extractor.extractUserGroup(headers);
+         assertEquals("Should find Header User", expected + DEFAULT_QUALITY_VALUE, act.get(0).getResult());
+         assertEquals("Should find Header Group", MULTIPLE_IP_HEADER_NAME + DEFAULT_QUALITY_VALUE, act.get(0).getKey());
          
       }
    }
