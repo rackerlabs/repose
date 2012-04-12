@@ -92,6 +92,12 @@
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>header-id-mapping</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
             <artifactId>header-identity</artifactId>
             <version>${project.version}</version>
         </dependency>

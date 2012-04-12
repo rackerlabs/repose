@@ -1,0 +1,16 @@
+{
+  "name": "repose-valve",
+  "default_attributes": {
+  },
+  "json_class": "Chef::Role",
+  "env_run_lists": {
+  },
+  "run_list": [
+    "recipe[java]",
+    "recipe[tomcat7]",
+    "recipe[powerapi-valve::powerapi-valve2]"
+  ],
+  "description": "",
+  "chef_type": "role",
+  "override_attributes":{} 
+}
