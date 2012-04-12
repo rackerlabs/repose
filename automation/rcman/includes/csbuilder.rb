@@ -20,8 +20,13 @@ module Clouds
     end
 
     def buildServer(cs,name,image=112,flavor=3)
+        begin
+            server = ReposeNode.new(cs.create_server(:name => name, :imageId => image, :flavorId => flavor))
+        rescue => e
+            puts "Error encountered while building server: #{e}"
+        end
 
-      return ReposeNode.new(cs.create_server(:name => name, :imageId => image, :flavorId => flavor))
+      return server     
     end
 
     def waitForServer(server)
