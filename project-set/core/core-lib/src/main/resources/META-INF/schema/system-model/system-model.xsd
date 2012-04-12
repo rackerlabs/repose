@@ -39,6 +39,14 @@
             </xs:annotation>
         </xs:attribute>
 
+        <xs:attribute name="scheme" type="xs:string" use="optional" default="http">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The scheme used to communicate with the host.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
         <xs:attribute name="hostname" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
