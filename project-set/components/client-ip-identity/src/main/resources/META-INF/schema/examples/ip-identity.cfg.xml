@@ -5,5 +5,9 @@
    xsi:schemaLocation='http://docs.api.rackspacecloud.com/powerapi/ip-identity/v1.0'>
    
    <quality>0.2</quality>
+
+    <white-list quality="1.0">
+        <ip-address>127.0.0.1</ip-address>
+    </white-list>
    
 </ip-identity>
