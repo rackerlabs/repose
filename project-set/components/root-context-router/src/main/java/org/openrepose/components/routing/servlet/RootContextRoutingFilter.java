@@ -3,7 +3,9 @@ package org.openrepose.components.routing.servlet;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
+import com.rackspace.papi.model.PowerProxy;
 import org.slf4j.Logger;
+import com.rackspace.papi.domain.Port;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -12,6 +14,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import java.io.IOException;
+import java.util.List;
+import javax.servlet.ServletContext;
 import org.openrepose.components.routing.servlet.config.RootContextRouterConfiguration;
 import org.slf4j.LoggerFactory;
 
@@ -31,9 +35,14 @@ public class RootContextRoutingFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+        
+        final ServletContext servletContext = filterConfig.getServletContext();
         final ConfigurationService manager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
-        handlerFactory = new RoutingHandlerFactory();
-
+        final List<Port> ports = ServletContextHelper.getServerPorts(servletContext);
+        
+        handlerFactory = new RoutingHandlerFactory(ports);
+        
+        manager.subscribeTo("power-proxy.cfg.xml", handlerFactory, PowerProxy.class);
         manager.subscribeTo("root-context-router.cfg.xml", handlerFactory, RootContextRouterConfiguration.class);
     }
 }

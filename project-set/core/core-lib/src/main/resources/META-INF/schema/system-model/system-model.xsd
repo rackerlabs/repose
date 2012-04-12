@@ -173,7 +173,7 @@
          </xs:simpleType>
       </xs:attribute>
 
-      <xs:attribute name="root-path" type="xs:string" use="optional">
+      <xs:attribute name="root-path" type="xs:string" use="optional" default="">
          <xs:annotation>
             <xs:documentation>
                <html:p>Defines the endpoint's base path element.  This will be used in building the URI/path

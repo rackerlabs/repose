@@ -7,35 +7,40 @@
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <!-- Configuration Schema Definitions -->
-   <xs:element name="root-context-router" type="scr:RootContextRouterConfiguration" />
+    <xs:element name="root-context-router" type="scr:RootContextRouterConfiguration" />
 
-   <xs:complexType name="RootContextRouterConfiguration">
-      <xs:annotation>
-         <xs:documentation>
-            <html:p>
+    <xs:complexType name="RootContextRouterConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
                Defines a collection of servlet context routing destinations and 
                their associated quality factors.
-            </html:p>
-         </xs:documentation>
-      </xs:annotation>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
 
-      <xs:sequence>
+        <xs:sequence>
          <!-- TODO:Review - Does 'minOccurs="0"' make sense? -->
-         <xs:element name="context-path" type="scr:ContextPathRoute" minOccurs="0" maxOccurs="unbounded" />
-      </xs:sequence>
-   </xs:complexType>
+         <!-- Setting this as simple as possible -->
+            <xs:element name="target" type="scr:Target" minOccurs="1" maxOccurs="1" />
+        </xs:sequence>
+    </xs:complexType>
     
-   <xs:complexType name="ContextPathRoute">
-      <xs:simpleContent>
-         <xs:extension base="xs:string">
+    <xs:complexType name="Target">
+        <xs:attribute name="id" type="xs:string" use="required">
             <xs:annotation>
-               <xs:documentation>
-                  <html:p>
-                     Defines a context path to add to the available routing destinations
-                  </html:p>
-               </xs:documentation>
+                <xs:documentation>
+                    <html:p>Defines a destination id within the service domain.</html:p>
+                </xs:documentation>
             </xs:annotation>
-         </xs:extension>
-      </xs:simpleContent>
-   </xs:complexType>
+        </xs:attribute>
+        
+        <xs:attribute name="quality" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Quality of this destination</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
 </xs:schema>
