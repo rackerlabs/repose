@@ -1,5 +1,7 @@
 package com.rackspace.papi.filter;
 
+import com.oracle.javaee6.FilterType;
+import com.oracle.javaee6.FullyQualifiedClassType;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoader;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.commons.util.classloader.ear.EarDescriptor;
@@ -35,13 +37,17 @@ public class FilterContextManagerTest {
         private EarClassLoaderContext getMockedEarClassLoader(String filterClassName, Boolean loadThrowsException) throws ClassNotFoundException {
             EarClassLoaderContext mockedEarClassLoaderContext = mock(EarClassLoaderContext.class);
             EarDescriptor mockedEarDescriptor = mock(EarDescriptor.class);
-            Map<String, String> mockedFiltersMap = mock(Map.class);
+            Map<String, FilterType> mockedFiltersMap = mock(Map.class);
             EarClassLoader mockedEarClassLoader = mock(EarClassLoader.class);
+            FilterType mockedFilterType = mock(FilterType.class);
+            FullyQualifiedClassType mockedClassType = mock(FullyQualifiedClassType.class);
 
             when(mockedEarClassLoaderContext.getEarDescriptor()).thenReturn(mockedEarDescriptor);
             when(mockedEarDescriptor.getRegisteredFilters()).thenReturn(mockedFiltersMap);
             when(mockedEarClassLoaderContext.getClassLoader()).thenReturn(mockedEarClassLoader);
-            when(mockedFiltersMap.get(any(String.class))).thenReturn(filterClassName);
+            when(mockedFiltersMap.get(any(String.class))).thenReturn(mockedFilterType);
+            when(mockedFilterType.getFilterClass()).thenReturn(mockedClassType);
+            when(mockedClassType.getValue()).thenReturn(filterClassName);
 
             if (loadThrowsException) {
                 when(mockedEarClassLoader.loadClass(any(String.class))).thenThrow(new ClassNotFoundException());

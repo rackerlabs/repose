@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<power-proxy xmlns="http://docs.rackspacecloud.com/power-api/system-model/v1.0">
+
+   <host id="proxy-n01" hostname="<%= node[:fqdn]%>" service-port="8890">
+      <filters>
+         <filter name="dist-datastore"/>
+      </filters>
+   </host>
+
+   <host id="proxy-n02" hostname="<%= node[:fqdn]%>" service-port="8891">
+      <filters>
+         <filter name="dist-datastore"/>
+      </filters>
+   </host>
+   
+   <host id="proxy-n03" hostname="<%= node[:fqdn]%>" service-port="8892">
+      <filters>
+         <filter name="dist-datastore"/>
+      </filters>
+   </host>
+</power-proxy>
+

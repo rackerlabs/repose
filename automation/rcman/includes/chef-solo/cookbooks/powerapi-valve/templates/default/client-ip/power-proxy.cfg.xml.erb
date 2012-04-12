@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<power-proxy xmlns="http://docs.rackspacecloud.com/power-api/system-model/v1.0">
+
+   <host id="proxy-n03" hostname="<%= node[:fqdn]%>" service-port="8889">
+      <filters>
+         <filter name="content-normalization" />
+         <filter name="dist-datastore"/>
+         <filter name="default-router"/>
+         <filter name="ip-identity"/>
+         <filter name="uri-identity"/>
+         <filter name="header-identity"/>
+         <filter name="header-id-mapping"/>
+         <filter name="content-identity-rs-auth-1.1"/>
+         <filter name="rate-limiting"/>
+      </filters>
+   </host>
+
+   <host id="service" hostname="50.57.189.15" service-port="8080"/>
+</power-proxy>

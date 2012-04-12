@@ -1,12 +1,15 @@
 package com.rackspace.papi.filter;
 
+import com.oracle.javaee6.FilterType;
+import com.oracle.javaee6.ParamValueType;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
+import java.util.*;
 import javax.servlet.ServletException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.FilterConfig;
-import java.util.Collection;
+import javax.servlet.ServletContext;
 
 public class FilterContextManagerImpl implements FilterContextManager {
 
@@ -26,14 +29,58 @@ public class FilterContextManagerImpl implements FilterContextManager {
 
    public static FilterClassFactory getFilterClassFactory(String filterName, Collection<EarClassLoaderContext> loadedApplications) {
       for (EarClassLoaderContext classLoaderCtx : loadedApplications) {
-         final String filterClassName = classLoaderCtx.getEarDescriptor().getRegisteredFilters().get(filterName);
+         final FilterType filterClass = classLoaderCtx.getEarDescriptor().getRegisteredFilters().get(filterName);
 
-         if (filterClassName != null) {
-            return new FilterClassFactory(filterClassName, classLoaderCtx.getClassLoader());
+         if (filterClass != null) {
+            return new FilterClassFactory(filterClass, classLoaderCtx.getClassLoader());
          }
       }
 
       throw new IllegalStateException("Unable to look up filter " + filterName + " - this is protected by a validation guard in a higher level of the architecture and should be logged as a defect");
+   }
+   
+   private static class FilterConfigWrapper implements FilterConfig {
+      private final FilterConfig parent;
+      private final FilterType filterType;
+      private final Map<String, String> initParams;
+      
+      public FilterConfigWrapper(FilterConfig parent, FilterType filterType) {
+         if (parent == null) {
+            throw new IllegalArgumentException("filter config cannot be null");
+         }
+         
+         if (filterType == null) {
+            throw new IllegalArgumentException("filter type cannot be null");
+         }
+         this.parent = parent;
+         this.filterType = filterType;
+         initParams = new HashMap<String, String>();
+         
+         for (ParamValueType param: filterType.getInitParam()) {
+            initParams.put(param.getParamName().getValue(), param.getParamValue().getValue());
+         }
+      }
+
+      @Override
+      public String getFilterName() {
+         return filterType.getFilterName().getValue();
+      }
+
+      @Override
+      public ServletContext getServletContext() {
+         return parent.getServletContext();
+      }
+
+      @Override
+      public String getInitParameter(String name) {
+         return initParams.get(name);
+      }
+
+      @Override
+      public Enumeration<String> getInitParameterNames() {
+         return new Vector(initParams.keySet()).elements();
+      }
+      
    }
 
    public FilterContext initializeFilter(FilterClassFactory filterClassFactory) {
@@ -45,7 +92,7 @@ public class FilterContextManagerImpl implements FilterContextManager {
          currentThread.setContextClassLoader(nextClassLoader);
          final javax.servlet.Filter newFilterInstance = filterClassFactory.newInstance();
 
-         newFilterInstance.init(filterConfig);
+         newFilterInstance.init(new FilterConfigWrapper(filterConfig, filterClassFactory.getFilterType()));
 
          LOG.info("Filter: " + newFilterInstance + " successfully created");
 
