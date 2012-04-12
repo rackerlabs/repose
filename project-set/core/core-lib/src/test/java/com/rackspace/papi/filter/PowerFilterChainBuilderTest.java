@@ -1,5 +1,7 @@
 package com.rackspace.papi.filter;
 
+import com.oracle.javaee6.FilterType;
+import com.oracle.javaee6.FullyQualifiedClassType;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoader;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.commons.util.classloader.ear.EarDescriptor;
@@ -44,13 +46,16 @@ public class PowerFilterChainBuilderTest {
 
             EarClassLoaderContext mockedEarClassLoaderContext = mock(EarClassLoaderContext.class);
             EarDescriptor mockedEarDescriptor = mock(EarDescriptor.class);
-            Map<String, String> mockedFiltersMap = mock(Map.class);
+            Map<String, FilterType> mockedFiltersMap = mock(Map.class);
             EarClassLoader mockedEarClassLoader = mock(EarClassLoader.class);
+            FilterType mockedFilterType = mock(FilterType.class);
+            FullyQualifiedClassType mockedClassType = mock(FullyQualifiedClassType.class);
 
             when(mockedEarClassLoaderContext.getEarDescriptor()).thenReturn(mockedEarDescriptor);
             when(mockedEarDescriptor.getRegisteredFilters()).thenReturn(mockedFiltersMap);
             when(mockedEarClassLoaderContext.getClassLoader()).thenReturn(mockedEarClassLoader);
-            when(mockedFiltersMap.get(any(String.class))).thenReturn("FilterClassName");
+            when(mockedFilterType.getFilterClass()).thenReturn(mockedClassType);
+            when(mockedClassType.getValue()).thenReturn("FilterClassName");
             when(mockedEarClassLoader.loadClass(any(String.class))).thenReturn((Class) FakeFilterClass.class);
 
             Collection<EarClassLoaderContext> loadedApplications = new LinkedList<EarClassLoaderContext>();
@@ -78,13 +83,17 @@ public class PowerFilterChainBuilderTest {
 
             EarClassLoaderContext mockedEarClassLoaderContext = mock(EarClassLoaderContext.class);
             EarDescriptor mockedEarDescriptor = mock(EarDescriptor.class);
-            Map<String, String> mockedFiltersMap = mock(Map.class);
+            Map<String, FilterType> mockedFiltersMap = mock(Map.class);
             EarClassLoader mockedEarClassLoader = mock(EarClassLoader.class);
+            FilterType mockedFilterType = mock(FilterType.class);
+            FullyQualifiedClassType mockedClassType = mock(FullyQualifiedClassType.class);
 
             when(mockedEarClassLoaderContext.getEarDescriptor()).thenReturn(mockedEarDescriptor);
             when(mockedEarDescriptor.getRegisteredFilters()).thenReturn(mockedFiltersMap);
             when(mockedEarClassLoaderContext.getClassLoader()).thenReturn(mockedEarClassLoader);
-            when(mockedFiltersMap.get(any(String.class))).thenReturn("FilterClassName");
+            when(mockedFilterType.getFilterClass()).thenReturn(mockedClassType);
+            when(mockedClassType.getValue()).thenReturn("FilterClassName");
+            when(mockedFiltersMap.get(any(String.class))).thenReturn(mockedFilterType);
             when(mockedEarClassLoader.loadClass(any(String.class))).thenReturn(null);
 
             Collection<EarClassLoaderContext> loadedApplications = new LinkedList<EarClassLoaderContext>();
