@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root-context-router xmlns='http://openrepose.org/repose/root-context-router/v1.0'>
+   
+   <!-- This defines a context path route to the context '/protected/servlet/*' -->
+   <context-path>/mocks</context-path>
+</root-context-router>
+

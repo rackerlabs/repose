@@ -59,6 +59,20 @@
                     <strict>true</strict>
                     <verbose>false</verbose>
 
+                    <args>
+                        <arg>-XtoString</arg>
+                        <arg>
+                            -XtoString-toStringStrategyClass=com.rackspace.papi.commons.util.string.PasswordSensitiveToStringStrategy
+                        </arg>
+                    </args>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.jvnet.jaxb2_commons</groupId>
+                            <artifactId>jaxb2-basics</artifactId>
+                            <version>0.6.3</version>
+                        </plugin>
+                    </plugins>
+
                 </configuration>
             </plugin>
             
