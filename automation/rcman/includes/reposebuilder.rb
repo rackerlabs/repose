@@ -20,11 +20,11 @@ module ReposeBuilder
 
     def buildReposeBox1
 
-        serverName = Time.new.strftime("%d%b%y%M-#{Etc.getlogin}")
+        serverName = Time.new.strftime("%d%b%y%M-#{Etc.getlogin}1")
         puts "Building #{serverName}..."
 
         cs = loginCs
-        server = buildServer(cs,serverName) 
+        server = buildServer(cs,serverName,112,3) 
 
         logger.info("Repose instance built: #{server.ip} : #{server.password}")
 
@@ -52,17 +52,58 @@ module ReposeBuilder
         executeCommand(server,"/usr/sbin/service tomcat7 restart")
 
         logger.info("Repose instance built: #{server.ip} : #{server.password}")
-        waitForRepose(server.ip)
 
         hostsCsv = buildHostsFile1 server.ip
         File.open("/tmp/hosts.csv", 'w') { |f| f.write(hostsCsv) }
         File.open("/tmp/rsInstances",'w'){|f| f.write(server.getId)}
         puts "Repose Regression Box built:\t#{server.ip}"
+        return server
 
     end
 
-    def waitForRepose(node)
-        ["8887","8888","8080"].each do |i|
+    def buildReposeBox2
+
+        serverName = Time.new.strftime("%d%b%y%M-#{Etc.getlogin}2")
+        puts "Building #{serverName}..."
+
+        cs = loginCs
+        server = buildServer(cs,serverName,112,2) 
+
+        logger.info("Repose instance built: #{server.ip} : #{server.password}")
+
+        waitForServer server
+
+        p "done!"
+
+
+        puts "Uploading install files..."
+        uploadChefFiles(server)
+        p "done!"
+
+        #executeCommand(server,"tar -C /root -xzvf /root/chef-solo.tar") 
+
+        puts "Installing ruby and chef..."
+        executeCommand(server,"/bin/bash /root/chef-solo/install.sh")
+
+        puts "Installing repose..."
+        executeCommand(server,"/usr/bin/chef-solo -c /root/chef-solo/solo.rb -j /root/chef-solo/papi_node2.json")
+
+        executeCommand(server,"/usr/bin/chef-solo -c /root/chef-solo/solo.rb -j /root/chef-solo/papi_node2.json")
+
+        puts "Starting repose..."
+        executeCommand(server,"/usr/sbin/service tomcat7 restart")
+
+        logger.info("Repose instance built: #{server.ip} : #{server.password}")
+
+        hostsCsv = buildHostsFile2 server.ip
+        File.open("/tmp/hosts.csv", 'a') { |f| f.write(hostsCsv) }
+        File.open("/tmp/rsInstances",'a'){|f| f.write(",#{server.getId}")}
+        puts "Repose Regression Box 2 built:\t#{server.ip}"
+        return server
+    end
+
+    def waitForRepose(node,portList)
+        portList.each do |i|
             uri = URI("http://#{node}:#{i}/v1/usertest1")
             count=0
             begin
@@ -71,9 +112,11 @@ module ReposeBuilder
                 end
                 sleep 3
                 puts "Waiting for repose to start on port #{i}"
-                resp = Net::HTTP.get_response(uri).code
+                resp = Net::HTTP.get_response(uri)
+                code = resp.code
+                body = resp.body
                 count+=1
-            end while resp=="200"
+            end while(resp=="200"&&body.size<1)
         end
     end
 

@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.clientauth;
+package com.rackspace.papi.commons.util.string;
 
 import org.jvnet.jaxb2_commons.lang.JAXBToStringStrategy;
 import org.jvnet.jaxb2_commons.lang.ToStringStrategy;
