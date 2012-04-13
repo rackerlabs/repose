@@ -107,7 +107,7 @@ public class AbstractFilterDirector implements FilterDirector {
    }
 
    @Override
-   public void addDestination(Destination dest, float quality) {
+   public void addDestination(Destination dest, String uri, float quality) {
       throw new UnsupportedOperationException("Not supported yet.");
    }
 }

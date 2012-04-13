@@ -21,6 +21,8 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -51,17 +53,19 @@ public class PowerFilterChain implements FilterChain {
    private final ClassLoader containerClassLoader;
    private final ServletContext context;
    private final ServiceDomain domain;
+   private final DomainNode localhost;
    private final Map<String, Destination> destinations;
    private final RoutingService routingService;
    private int position;
 
-   public PowerFilterChain(ServiceDomain domain, List<FilterContext> filterChainCopy, FilterChain containerFilterChain, ServletContext context, ResourceMonitor resourceMontior) {
+   public PowerFilterChain(ServiceDomain domain, DomainNode localhost, List<FilterContext> filterChainCopy, FilterChain containerFilterChain, ServletContext context, ResourceMonitor resourceMontior) {
       this.filterChainCopy = new LinkedList<FilterContext>(filterChainCopy);
       this.containerFilterChain = containerFilterChain;
       this.context = context;
       this.containerClassLoader = Thread.currentThread().getContextClassLoader();
       this.resourceMonitor = resourceMontior;
       this.domain = domain;
+      this.localhost = localhost;
       this.routingService = ServletContextHelper.getPowerApiContext(context).routingService();
       destinations = new HashMap<String, Destination>();
 
@@ -120,54 +124,38 @@ public class PowerFilterChain implements FilterChain {
          }
       }
    }
-   
-   private String buildUrl(String protocol, String hostname, int port, String baseUri, String uri) {
-      StringBuilder builder = new StringBuilder();
-      
-      builder.append(protocol).append("://");
-      builder.append(hostname);
-      builder.append(":").append(port);
-      builder.append(baseUri);
-      
-      return builder.toString();
-   }
 
-   private void route(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
-      //final String routeDestination = ((HttpServletRequest) servletRequest).getHeader(PowerApiHeader.NEXT_ROUTE.toString());
-      
-      String routeDestination = "";
+   private void route(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
+      URI routeDestination = null;
       MutableHttpServletRequest mutableRequest = (MutableHttpServletRequest) servletRequest;
       RouteDestination destination = mutableRequest.getDestination();
 
-      // TODO Model: This is very rough route determination code that doesn't support
-      // host and port defaults or internal dispatching.  Needs to be refactored and cleaned up!
+
       if (destination != null) {
-         Destination d = destinations.get(destination.getDestinationId());
-         
-         if (d instanceof DestinationEndpoint) {
-            DestinationEndpoint endpoint = (DestinationEndpoint)d;
-            routeDestination = buildUrl(endpoint.getProtocol(), endpoint.getHostname(), endpoint.getPort(), endpoint.getRootPath(), destination.getUri());
-         } else if (d instanceof DestinationDomain) {
-            DestinationDomain destDomain = (DestinationDomain)d;
-            DomainNode node = routingService.getRoutableNode(destDomain.getId());
-            routeDestination = buildUrl(destDomain.getProtocol(), node.getHostname(), node.getHttpPort(), destDomain.getRootPath(), destination.getUri());
+         Destination dest = destinations.get(destination.getDestinationId());
+         if (dest == null) {
+            LOG.warn("Invalid routing destination specified: " + destination.getDestinationId() + " for domain: " + domain.getId());
+            ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.SERVICE_UNAVAIL.intValue());
+         } else {
+            routeDestination = new DestinationUriBuilder(
+                    routingService,
+                    localhost,
+                    dest,
+                    destination.getUri()).build();
          }
       }
-      
-      //DomainNode routableNode = routingService.getRoutableNode(dest.getDestinationId());
 
-
-
-      if (!StringUtilities.isBlank(routeDestination)) {
+      if (routeDestination != null) {
          // According to the Java 6 javadocs the routeDestination passed into getContext:
          // "The given path [routeDestination] must begin with /, is interpreted relative to the server's document root
          // and is matched against the context roots of other web applications hosted on this container."
-         final ServletContext targetContext = context.getContext(routeDestination);
+         final ServletContext targetContext = context.getContext(routeDestination.toString());
 
          if (targetContext != null) {
-            final RequestDispatcher dispatcher = targetContext.getRequestDispatcher(
-                    new DispatchPathBuilder(servletRequest, routeDestination).build());
+            String uri = new DispatchPathBuilder(routeDestination.getPath(), targetContext.getContextPath()).build();
+            final RequestDispatcher dispatcher = targetContext.getRequestDispatcher(uri);
 
+            mutableRequest.setRequestUri(routeDestination.getPath());
             if (dispatcher != null) {
                LOG.debug("Attempting to route to " + routeDestination);
                LOG.debug("Request URI: " + ((HttpServletRequest) servletRequest).getRequestURI());

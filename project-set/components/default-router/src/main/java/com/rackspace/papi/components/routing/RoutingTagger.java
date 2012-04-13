@@ -32,7 +32,7 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
       Destination defaultDest = modelInterrogator.getDefaultDestination();
       
       if (defaultDest != null) {
-         myDirector.addDestination(defaultDest, -1);
+         myDirector.addDestination(defaultDest, request.getRequestURI(), -1);
       } else {
          LOG.warn("No default destination configured for service domain: " + modelInterrogator.getLocalServiceDomain().getId());
       }

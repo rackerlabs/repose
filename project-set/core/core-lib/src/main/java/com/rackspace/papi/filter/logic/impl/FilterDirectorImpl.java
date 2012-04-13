@@ -50,8 +50,8 @@ public class FilterDirectorImpl implements FilterDirector {
       destinations.add(new RouteDestination(id, uri, quality));
    }
    
-   public void addDestination(Destination dest, float quality) {
-      addDestination(dest.getId(), "", quality);
+   public void addDestination(Destination dest, String uri, float quality) {
+      addDestination(dest.getId(), uri, quality);
    }
    
    @Override

@@ -53,5 +53,5 @@ public interface FilterDirector {
 
    void addDestination(String id, String uri, float quality);
 
-   void addDestination(Destination dest, float quality);
+   void addDestination(Destination dest, String uri, float quality);
 }
