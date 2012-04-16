@@ -23,117 +23,117 @@ import org.ietf.atom.schema.Relation;
 
 public class ConfigurationData {
 
-    private final Map<String, ServiceVersionMapping> serviceMappings;
-    private final Map<String, Destination> configuredHosts;
-    private final ServiceDomain localDomain;
+   private final Map<String, ServiceVersionMapping> serviceMappings;
+   private final Map<String, Destination> configuredHosts;
+   private final ServiceDomain localDomain;
    private final DomainNode localHost;
 
-    public ConfigurationData(ServiceDomain localDomain, DomainNode localHost, Map<String, Destination> configuredHosts, Map<String, ServiceVersionMapping> serviceMappings) {
-        this.configuredHosts = configuredHosts;
-        this.serviceMappings = serviceMappings;
-        this.localDomain = localDomain;
-        this.localHost = localHost;
-    }
+   public ConfigurationData(ServiceDomain localDomain, DomainNode localHost, Map<String, Destination> configuredHosts, Map<String, ServiceVersionMapping> serviceMappings) {
+      this.configuredHosts = configuredHosts;
+      this.serviceMappings = serviceMappings;
+      this.localDomain = localDomain;
+      this.localHost = localHost;
+   }
 
-    public Collection<ServiceVersionMapping> getServiceMappings() {
-        return serviceMappings.values();
-    }
+   public Collection<ServiceVersionMapping> getServiceMappings() {
+      return serviceMappings.values();
+   }
 
-    public Map<String, Destination> getConfiguredHosts() {
-        return configuredHosts;
-    }
+   public Map<String, Destination> getConfiguredHosts() {
+      return configuredHosts;
+   }
 
-    public Destination getHostForVersionMapping(ServiceVersionMapping mapping) throws VersionedHostNotFoundException {
-        final Destination host = configuredHosts.get(mapping.getPpHostId());
-        
-        if (host == null) {
-            throw new VersionedHostNotFoundException("Power Proxy Host: " + mapping.getPpHostId() + " is not specified in the power proxy system model");
-        }
-        
-        return host;
-    }
+   public Destination getHostForVersionMapping(ServiceVersionMapping mapping) throws VersionedHostNotFoundException {
+      final Destination host = configuredHosts.get(mapping.getPpDestId());
 
-    public VersionedOriginService getOriginServiceForRequest(HttpRequestInfo requestInfo, FilterDirector director) throws VersionedHostNotFoundException {
-        // Check URI first to see if it matches configured host href
-        VersionedOriginService destination = findOriginServiceByUri(requestInfo);
+      if (host == null) {
+         throw new VersionedHostNotFoundException("Power Proxy Host: " + mapping.getPpDestId() + " is not specified in the power proxy system model");
+      }
 
-        // If version info not in URI look in accept header
-        if (destination == null) {
-            final MediaType range = requestInfo.getPreferedMediaRange();
-            final VersionedMapType currentServiceVersion = getServiceVersionForMediaRange(range);
-            
+      return host;
+   }
 
-            if (currentServiceVersion != null) {
-                final Destination host = getHostForVersionMapping(currentServiceVersion.getServiceVersionMapping());
-                director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.toString(), currentServiceVersion.getMediaType().getBase());
-                destination = new VersionedOriginService(currentServiceVersion.getServiceVersionMapping(),host);
-            }
-        }
+   public VersionedOriginService getOriginServiceForRequest(HttpRequestInfo requestInfo, FilterDirector director) throws VersionedHostNotFoundException {
+      // Check URI first to see if it matches configured host href
+      VersionedOriginService targetOriginService = findOriginServiceByUri(requestInfo);
 
-        return destination;
-    }
+      // If version info not in URI look in accept header
+      if (targetOriginService == null) {
+         final MediaType range = requestInfo.getPreferedMediaRange();
+         final VersionedMapType currentServiceVersion = getServiceVersionForMediaRange(range);
 
-    public VersionedOriginService findOriginServiceByUri(HttpRequestInfo requestResourceInfo) throws VersionedHostNotFoundException {
-        for (Map.Entry<String, ServiceVersionMapping> entry : serviceMappings.entrySet()) {
-            final VersionedRequest versionedRequest = new VersionedRequest(requestResourceInfo, entry.getValue());
 
-            if (versionedRequest.requestBelongsToVersionMapping()) {
-                return new VersionedOriginService(entry.getValue(), getHostForVersionMapping(entry.getValue()));
-            }
-        }
+         if (currentServiceVersion != null) {
+            final Destination destination = getHostForVersionMapping(currentServiceVersion.getServiceVersionMapping());
+            director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.toString(), currentServiceVersion.getMediaType().getBase());
+            targetOriginService = new VersionedOriginService(currentServiceVersion.getServiceVersionMapping(), destination);
+         }
+      }
 
-        return null;
-    }
+      return targetOriginService;
+   }
 
-    public VersionChoiceList versionChoicesAsList(HttpRequestInfo requestResourceInfo) {
-        final VersionChoiceList versionChoices = new VersionChoiceList();
+   public VersionedOriginService findOriginServiceByUri(HttpRequestInfo requestResourceInfo) throws VersionedHostNotFoundException {
+      for (Map.Entry<String, ServiceVersionMapping> entry : serviceMappings.entrySet()) {
+         final VersionedRequest versionedRequest = new VersionedRequest(requestResourceInfo, entry.getValue());
 
-        for (ServiceVersionMapping mapping : getServiceMappings()) {
-            final VersionedRequest versionedRequest = new VersionedRequest(requestResourceInfo, mapping);
-            final VersionChoice choice = new VersionChoiceFactory(mapping).create();
-            final Link selfReference = new Link();
+         if (versionedRequest.requestBelongsToVersionMapping()) {
+            return new VersionedOriginService(entry.getValue(), getHostForVersionMapping(entry.getValue()));
+         }
+      }
 
-            selfReference.setRel(Relation.SELF);
-            selfReference.setHref(versionedRequest.asExternalURL());
+      return null;
+   }
 
-            choice.getLink().add(selfReference);
-            versionChoices.getVersion().add(choice);
-        }
+   public VersionChoiceList versionChoicesAsList(HttpRequestInfo requestResourceInfo) {
+      final VersionChoiceList versionChoices = new VersionChoiceList();
 
-        return versionChoices;
-    }
+      for (ServiceVersionMapping mapping : getServiceMappings()) {
+         final VersionedRequest versionedRequest = new VersionedRequest(requestResourceInfo, mapping);
+         final VersionChoice choice = new VersionChoiceFactory(mapping).create();
+         final Link selfReference = new Link();
 
-    public VersionedMapType getServiceVersionForMediaRange(MediaType preferedMediaRange) {
-        com.rackspace.papi.components.versioning.config.MediaType mediaType;
-        for (Map.Entry<String, ServiceVersionMapping> serviceMapping : serviceMappings.entrySet()) {
-            mediaType = getMatchingMediaType((ServiceVersionMapping)serviceMapping.getValue(), preferedMediaRange);
-            if(mediaType != null){
-                return new VersionedMapType((ServiceVersionMapping)serviceMapping.getValue(), mediaType);
-            }  
-        }
-        return null;
-    }
-    
-    public com.rackspace.papi.components.versioning.config.MediaType getMatchingMediaType(ServiceVersionMapping serviceVersionMapping, MediaType preferedMediaType) {
-        final MediaTypeList configuredMediaTypes = serviceVersionMapping.getMediaTypes();
-        for (com.rackspace.papi.components.versioning.config.MediaType configuredMediaType : configuredMediaTypes.getMediaType()) {
-            HeaderValue mediaType = new HeaderValueParser(configuredMediaType.getType()).parse();            
-            if(preferedMediaType.getValue().equalsIgnoreCase(mediaType.getValue()) && preferedMediaType.getParameters().equals(mediaType.getParameters())){
-                return configuredMediaType;
-            }    
-        }
-        return null;
-    }
+         selfReference.setRel(Relation.SELF);
+         selfReference.setHref(versionedRequest.asExternalURL());
 
-    public boolean isRequestForVersions(UniformResourceInfo uniformResourceInfo) {
-        return StringUriUtilities.formatUri(uniformResourceInfo.getUri()).equals("/");
-    }
+         choice.getLink().add(selfReference);
+         versionChoices.getVersion().add(choice);
+      }
 
-    public ServiceDomain getLocalDomain() {
+      return versionChoices;
+   }
+
+   public VersionedMapType getServiceVersionForMediaRange(MediaType preferedMediaRange) {
+      com.rackspace.papi.components.versioning.config.MediaType mediaType;
+      for (Map.Entry<String, ServiceVersionMapping> serviceMapping : serviceMappings.entrySet()) {
+         mediaType = getMatchingMediaType((ServiceVersionMapping) serviceMapping.getValue(), preferedMediaRange);
+         if (mediaType != null) {
+            return new VersionedMapType((ServiceVersionMapping) serviceMapping.getValue(), mediaType);
+         }
+      }
+      return null;
+   }
+
+   public com.rackspace.papi.components.versioning.config.MediaType getMatchingMediaType(ServiceVersionMapping serviceVersionMapping, MediaType preferedMediaType) {
+      final MediaTypeList configuredMediaTypes = serviceVersionMapping.getMediaTypes();
+      for (com.rackspace.papi.components.versioning.config.MediaType configuredMediaType : configuredMediaTypes.getMediaType()) {
+         HeaderValue mediaType = new HeaderValueParser(configuredMediaType.getType()).parse();
+         if (preferedMediaType.getValue().equalsIgnoreCase(mediaType.getValue()) && preferedMediaType.getParameters().equals(mediaType.getParameters())) {
+            return configuredMediaType;
+         }
+      }
+      return null;
+   }
+
+   public boolean isRequestForVersions(UniformResourceInfo uniformResourceInfo) {
+      return StringUriUtilities.formatUri(uniformResourceInfo.getUri()).equals("/");
+   }
+
+   public ServiceDomain getLocalDomain() {
       return localDomain;
-    }
-    
-    public DomainNode getLocalHost() {
-       return localHost;
-    }
+   }
+
+   public DomainNode getLocalHost() {
+      return localHost;
+   }
 }

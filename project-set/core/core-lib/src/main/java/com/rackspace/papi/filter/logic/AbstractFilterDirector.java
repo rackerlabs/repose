@@ -2,9 +2,11 @@ package com.rackspace.papi.filter.logic;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
+import com.rackspace.papi.commons.util.servlet.http.RouteDestination;
 import com.rackspace.papi.model.Destination;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 public class AbstractFilterDirector implements FilterDirector {
@@ -108,6 +110,11 @@ public class AbstractFilterDirector implements FilterDirector {
 
    @Override
    public void addDestination(Destination dest, String uri, float quality) {
+      throw new UnsupportedOperationException("Not supported yet.");
+   }
+
+   @Override
+   public List<RouteDestination> getDestinations() {
       throw new UnsupportedOperationException("Not supported yet.");
    }
 }

@@ -7,6 +7,7 @@ import com.rackspace.papi.model.Destination;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -54,4 +55,6 @@ public interface FilterDirector {
    void addDestination(String id, String uri, float quality);
 
    void addDestination(Destination dest, String uri, float quality);
+   
+   List<RouteDestination> getDestinations();
 }
