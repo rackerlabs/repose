@@ -8,7 +8,7 @@
          <client-mapping id-regex="/([a-zA-Z\-][a-zA-Z\-]+\d+)[^\w]/?"/>
     </openstack-auth>
     <white-list>
-        <uri-pattern uri-regex="/application\.wadl" />
+        <uri-pattern uri-regex="/v2/application\.wadl" />
         <uri-pattern uri-regex="/delayedresponse/.*" />
     </white-list>
 </client-auth>
