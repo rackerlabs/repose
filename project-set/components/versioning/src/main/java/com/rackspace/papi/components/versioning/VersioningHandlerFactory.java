@@ -68,11 +68,6 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
       @Override
       public void configurationUpdated(ServiceVersionMappingList mappings) {
-         if (mappings.getServiceRoot() == null || StringUtilities.isBlank(mappings.getServiceRoot().getHref())) {
-            LOG.error("Service root not defined - bailing on config update");
-            return;
-         }
-
          configuredMappings.clear();
 
          for (ServiceVersionMapping mapping : mappings.getVersionMapping()) {
