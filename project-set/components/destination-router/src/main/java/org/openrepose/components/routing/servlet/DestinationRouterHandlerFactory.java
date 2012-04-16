@@ -4,7 +4,7 @@ import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import java.util.HashMap;
 import java.util.Map;
-import org.openrepose.components.routing.servlet.config.RootContextRouterConfiguration;
+import org.openrepose.components.routing.servlet.config.DestinationRouterConfiguration;
 import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.model.DomainNode;
 import com.rackspace.papi.model.PowerProxy;
@@ -13,23 +13,23 @@ import java.util.List;
 import com.rackspace.papi.domain.Port;
 
 
-public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RoutingTagger> {
+public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RoutingTagger> {
 
-   private RootContextRouterConfiguration contextRouterConfiguration;
+   private DestinationRouterConfiguration contextRouterConfiguration;
    private final List<Port> ports;
    private ServiceDomain localDomain;
    private DomainNode localHost;
    
-    public RoutingHandlerFactory(List<Port> ports) {
+    public DestinationRouterHandlerFactory(List<Port> ports) {
         this.ports = ports;
     }
    
    
 
-   private class RoutingConfigurationListener implements UpdateListener<RootContextRouterConfiguration> {
+   private class RoutingConfigurationListener implements UpdateListener<DestinationRouterConfiguration> {
 
       @Override
-      public void configurationUpdated(RootContextRouterConfiguration configurationObject) {
+      public void configurationUpdated(DestinationRouterConfiguration configurationObject) {
          contextRouterConfiguration = configurationObject;
       }
    }
@@ -52,7 +52,7 @@ public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactor
    @Override
    protected Map<Class, UpdateListener<?>> getListeners() {
       final Map<Class, UpdateListener<?>> updateListeners = new HashMap<Class, UpdateListener<?>>();
-      updateListeners.put(RootContextRouterConfiguration.class, new RoutingConfigurationListener());
+      updateListeners.put(DestinationRouterConfiguration.class, new RoutingConfigurationListener());
       updateListeners.put(PowerProxy.class, new SystemModelConfigurationListener());
       return updateListeners;
    }

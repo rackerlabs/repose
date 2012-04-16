@@ -69,7 +69,7 @@
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>root-context-router</artifactId>
+            <artifactId>destination-router</artifactId>
         </dependency>
 
         <dependency>
@@ -165,7 +165,7 @@
 
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
-                            <artifactId>root-context-router</artifactId>
+                            <artifactId>destination-router</artifactId>
                         </jarModule>
                             
                         <jarModule>
@@ -321,7 +321,7 @@
                                 </data>
 
                                 <data>
-                                    <src>../root-context-router/src/main/resources/META-INF/schema/examples</src>
+                                    <src>../destination-router/src/main/resources/META-INF/schema/examples</src>
                                     <type>directory</type>
                                     <includes>*.cfg.xml</includes>
 
@@ -432,7 +432,7 @@
                                             <location>../rate-limiting/src/main/resources/META-INF/schema/examples/rate-limiting.cfg.xml</location>
                                         </source>
                                         <source>
-                                            <location>../root-context-router/src/main/resources/META-INF/schema/examples/root-context-router.cfg.xml</location>
+                                            <location>../destination-router/src/main/resources/META-INF/schema/examples/destination-router.cfg.xml</location>
                                         </source>
                                         <source>
                                             <location>../versioning/src/main/resources/META-INF/schema/examples/versioning.cfg.xml</location>

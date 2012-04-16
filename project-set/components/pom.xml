@@ -30,7 +30,7 @@
         <module>versioning</module>
         <module>translation</module>
         <module>default-router</module>
-        <module>root-context-router</module>
+        <module>destination-router</module>
         <module>echo</module>
         <module>client-authorization</module>
         <module>client-ip-identity</module>
@@ -178,7 +178,7 @@
 
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
-                <artifactId>root-context-router</artifactId>
+                <artifactId>destination-router</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

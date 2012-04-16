@@ -52,8 +52,8 @@
     </filter>
 
     <filter>
-        <filter-name>root-context-router</filter-name>
-        <filter-class>org.openrepose.components.routing.servlet.RootContextRoutingFilter</filter-class>
+        <filter-name>destination-router</filter-name>
+        <filter-class>org.openrepose.components.routing.servlet.DestinationRouterFilter</filter-class>
     </filter>
 
     <filter>

@@ -9,9 +9,9 @@
    </parent>
 
    <groupId>com.rackspace.papi.components</groupId>
-   <artifactId>root-context-router</artifactId>
+   <artifactId>destination-router</artifactId>
 
-   <name>Power API Components - Root Context Router</name>
+   <name>Power API Components - Destination Router</name>
    <description>TODO</description>
 
    <packaging>jar</packaging>

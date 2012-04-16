@@ -16,13 +16,13 @@ import javax.servlet.ServletResponse;
 import java.io.IOException;
 import java.util.List;
 import javax.servlet.ServletContext;
-import org.openrepose.components.routing.servlet.config.RootContextRouterConfiguration;
+import org.openrepose.components.routing.servlet.config.DestinationRouterConfiguration;
 import org.slf4j.LoggerFactory;
 
-public class RootContextRoutingFilter implements Filter {
+public class DestinationRouterFilter implements Filter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RootContextRoutingFilter.class);
-    private RoutingHandlerFactory handlerFactory;
+    private static final Logger LOG = LoggerFactory.getLogger(DestinationRouterFilter.class);
+    private DestinationRouterHandlerFactory handlerFactory;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -40,9 +40,9 @@ public class RootContextRoutingFilter implements Filter {
         final ConfigurationService manager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
         final List<Port> ports = ServletContextHelper.getServerPorts(servletContext);
         
-        handlerFactory = new RoutingHandlerFactory(ports);
+        handlerFactory = new DestinationRouterHandlerFactory(ports);
         
         manager.subscribeTo("power-proxy.cfg.xml", handlerFactory, PowerProxy.class);
-        manager.subscribeTo("root-context-router.cfg.xml", handlerFactory, RootContextRouterConfiguration.class);
+        manager.subscribeTo("destination-router.cfg.xml", handlerFactory, DestinationRouterConfiguration.class);
     }
 }
