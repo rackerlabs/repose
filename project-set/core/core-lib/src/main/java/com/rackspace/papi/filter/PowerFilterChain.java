@@ -23,6 +23,7 @@ import javax.servlet.ServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -126,7 +127,8 @@ public class PowerFilterChain implements FilterChain {
    }
 
    private void route(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
-      URI routeDestination = null;
+      URI destinationUri = null;
+      URL destinationUrl = null;
       MutableHttpServletRequest mutableRequest = (MutableHttpServletRequest) servletRequest;
       RouteDestination destination = mutableRequest.getDestination();
 
@@ -137,7 +139,14 @@ public class PowerFilterChain implements FilterChain {
             LOG.warn("Invalid routing destination specified: " + destination.getDestinationId() + " for domain: " + domain.getId());
             ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.SERVICE_UNAVAIL.intValue());
          } else {
-            routeDestination = new DestinationUriBuilder(
+            destinationUrl = new DestinationUrlBuilder(
+                    routingService,
+                    localhost,
+                    dest,
+                    destination.getUri(),
+                    mutableRequest).build();
+            
+            destinationUri = new DestinationUriBuilder(
                     routingService,
                     localhost,
                     dest,
@@ -145,26 +154,28 @@ public class PowerFilterChain implements FilterChain {
          }
       }
 
-      if (routeDestination != null) {
+      if (destinationUri != null) {
          // According to the Java 6 javadocs the routeDestination passed into getContext:
          // "The given path [routeDestination] must begin with /, is interpreted relative to the server's document root
          // and is matched against the context roots of other web applications hosted on this container."
-         final ServletContext targetContext = context.getContext(routeDestination.toString());
+         final ServletContext targetContext = context.getContext(destinationUri.toString());
 
          if (targetContext != null) {
-            String uri = new DispatchPathBuilder(routeDestination.getPath(), targetContext.getContextPath()).build();
+            String uri = new DispatchPathBuilder(destinationUri.getPath(), targetContext.getContextPath()).build();
             final RequestDispatcher dispatcher = targetContext.getRequestDispatcher(uri);
 
-            mutableRequest.setRequestUri(routeDestination.getPath());
+            mutableRequest.setRequestUrl(new StringBuffer(destinationUrl.toExternalForm()));
+            mutableRequest.setRequestUri(destinationUri.getPath());
             if (dispatcher != null) {
-               LOG.debug("Attempting to route to " + routeDestination);
+               LOG.debug("Attempting to route to " + destinationUri);
+               LOG.debug("Request URL: " + ((HttpServletRequest) servletRequest).getRequestURL());
                LOG.debug("Request URI: " + ((HttpServletRequest) servletRequest).getRequestURI());
                LOG.debug("Context path = " + targetContext.getContextPath());
 
                try {
                   dispatcher.forward(servletRequest, servletResponse);
                } catch (ClientHandlerException e) {
-                  LOG.error("Connection Refused to " + routeDestination + " " + e.getMessage(), e);
+                  LOG.error("Connection Refused to " + destinationUri + " " + e.getMessage(), e);
                   ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.SERVICE_UNAVAIL.intValue());
                }
             }

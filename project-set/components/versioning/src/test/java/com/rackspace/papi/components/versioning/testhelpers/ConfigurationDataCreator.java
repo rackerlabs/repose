@@ -29,8 +29,7 @@ public abstract class ConfigurationDataCreator {
 
             mapping = new ServiceVersionMapping();
             mapping.setId(id);
-            mapping.setContextPath(id);
-            mapping.setPpHostId("service-v1." + i);
+            mapping.setPpDestId("service-v1." + i);
             mapping.setStatus(VersionStatus.CURRENT);
 
             MediaType mediaType;
@@ -77,8 +76,7 @@ public abstract class ConfigurationDataCreator {
 
             mapping = new ServiceVersionMapping();
             mapping.setId(id);
-            mapping.setContextPath(id);
-            mapping.setPpHostId("service-v1." + i);
+            mapping.setPpDestId("service-v1." + i);
             mapping.setStatus(VersionStatus.CURRENT);
 
             MediaType mediaType;

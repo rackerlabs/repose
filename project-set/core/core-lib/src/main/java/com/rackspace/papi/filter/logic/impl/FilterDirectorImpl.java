@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -52,6 +53,10 @@ public class FilterDirectorImpl implements FilterDirector {
    
    public void addDestination(Destination dest, String uri, float quality) {
       addDestination(dest.getId(), uri, quality);
+   }
+   
+   public List<RouteDestination> getDestinations() {
+      return Collections.unmodifiableList(destinations);
    }
    
    @Override

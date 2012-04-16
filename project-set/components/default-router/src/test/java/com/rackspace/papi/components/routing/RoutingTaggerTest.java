@@ -111,20 +111,16 @@ public class RoutingTaggerTest {
 
    }
 
-   // TODO Model: fix test
-   @Ignore
    @Test
    public void shouldRouteToNextNonLocalHost() throws MalformedURLException {
-      nextHostName = "nextHostToRoute";
-
-
       routingTagger = new RoutingTagger(interrogator);
 
       FilterDirector result = routingTagger.handleRequest(request, response);
 
-      final String nextRoute = HostUtilities.asUrl(defaultDest, requestUri);
-
-      assertTrue("Should route to next non-localhost host", result.requestHeaderManager().headersToAdd().get(PowerApiHeader.NEXT_ROUTE.toString().toLowerCase()).contains(nextRoute));
+      assertFalse("Should have destination", result.getDestinations().isEmpty());
+      assertEquals("Should have default destination", "default", result.getDestinations().get(0).getDestinationId());
+      // Filters no longer set NEXT_ROUTE.  Filters add to the destination list
+      //assertTrue("Should route to next non-localhost host", result.requestHeaderManager().headersToAdd().get(PowerApiHeader.NEXT_ROUTE.toString().toLowerCase()).contains(nextRoute));
 
    }
 }

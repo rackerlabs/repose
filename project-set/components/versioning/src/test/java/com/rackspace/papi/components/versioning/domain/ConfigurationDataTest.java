@@ -60,8 +60,7 @@ public class ConfigurationDataTest {
 
       version1 = new ServiceVersionMapping();
       version1.setId("/v1");
-      version1.setPpHostId("localhost");
-      version1.setContextPath("/version1");
+      version1.setPpDestId("localhost");
       MediaTypeList v1MediaTypeList = new MediaTypeList();
       com.rackspace.papi.components.versioning.config.MediaType v1MediaType1 = new com.rackspace.papi.components.versioning.config.MediaType();
       v1MediaType1.setBase("application/xml");
@@ -71,8 +70,7 @@ public class ConfigurationDataTest {
 
       version2 = new ServiceVersionMapping();
       version2.setId("/v2");
-      version2.setPpHostId("localhost");
-      version2.setContextPath("/");
+      version2.setPpDestId("localhost");
       MediaTypeList v2MediaTypeList = new MediaTypeList();
       com.rackspace.papi.components.versioning.config.MediaType v2MediaType1 = new com.rackspace.papi.components.versioning.config.MediaType();
       v2MediaType1.setBase("application/xml");

@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Ignore;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -67,8 +68,7 @@ public class VersioningHandlerTest {
 
       version1 = new ServiceVersionMapping();
       version1.setId("/v1");
-      version1.setPpHostId("localhost");
-      version1.setContextPath("/version1");
+      version1.setPpDestId("localhost");
       MediaTypeList v1MediaTypeList = new MediaTypeList();
       com.rackspace.papi.components.versioning.config.MediaType v1MediaType1 = new com.rackspace.papi.components.versioning.config.MediaType();
       v1MediaType1.setBase("application/xml");
@@ -85,8 +85,7 @@ public class VersioningHandlerTest {
 
       version2 = new ServiceVersionMapping();
       version2.setId("/v2");
-      version2.setPpHostId("localhost");
-      version2.setContextPath("/");
+      version2.setPpDestId("localhost");
       MediaTypeList v2MediaTypeList = new MediaTypeList();
       com.rackspace.papi.components.versioning.config.MediaType v2MediaType1 = new com.rackspace.papi.components.versioning.config.MediaType();
       v2MediaType1.setBase("application/xml");
@@ -99,8 +98,7 @@ public class VersioningHandlerTest {
 
       version3 = new ServiceVersionMapping();
       version3.setId("/v3");
-      version3.setPpHostId("badHost");
-      version3.setContextPath("/");
+      version3.setPpDestId("badHost");
       MediaTypeList v3MediaTypeList = new MediaTypeList();
       com.rackspace.papi.components.versioning.config.MediaType v3MediaType1 = new com.rackspace.papi.components.versioning.config.MediaType();
       v3MediaType1.setBase("application/xml");
@@ -189,7 +187,8 @@ public class VersioningHandlerTest {
       director = versioningHandler.handleRequest(request, null);
       assertTrue("Filter director should be set to send the request through", director.getFilterAction().equals(FilterAction.PASS));
       assertTrue("Response should still be set to Internal Server Error", director.getResponseStatus().equals(HttpStatusCode.INTERNAL_SERVER_ERROR));
-      assertTrue("The request URL has been rewritten to include the mapped version", director.getRequestUrl().toString().endsWith("/version1/somethingelse"));
+      // Versioning no longer sets URL.  This is determined by the filter chain
+      //assertTrue("The request URL has been rewritten to include the mapped version", director.getRequestUrl().toString().endsWith("/version1/somethingelse"));
    }
 
    @Test
