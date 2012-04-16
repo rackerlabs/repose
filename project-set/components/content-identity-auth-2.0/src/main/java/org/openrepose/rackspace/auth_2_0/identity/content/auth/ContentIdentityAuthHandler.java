@@ -19,7 +19,7 @@ import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.bind.JAXBElement;
 
-import org.openrepose.rackspace.auth.content_identity.config.ContentIdentityAuthConfig;
+import org.openrepose.rackspace.auth2.content_identity.config.ContentIdentityAuthConfig;
 import org.openrepose.rackspace.auth_2_0.identity.content.credentials.AuthCredentials;
 
 import java.io.IOException;

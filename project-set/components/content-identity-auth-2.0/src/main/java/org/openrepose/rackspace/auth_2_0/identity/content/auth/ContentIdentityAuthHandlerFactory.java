@@ -9,7 +9,7 @@ import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import org.openrepose.rackspace.auth.content_identity.config.ContentIdentityAuthConfig;
+import org.openrepose.rackspace.auth2.content_identity.config.ContentIdentityAuthConfig;
 import org.slf4j.Logger;
 
 import javax.xml.bind.JAXBContext;

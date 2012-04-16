@@ -5,7 +5,7 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import java.io.IOException;
 import javax.servlet.*;
-import org.openrepose.rackspace.auth.content_identity.config.ContentIdentityAuthConfig;
+import org.openrepose.rackspace.auth2.content_identity.config.ContentIdentityAuthConfig;
 import org.slf4j.Logger;
 
 public class ContentIdentityAuthFilter implements Filter {
