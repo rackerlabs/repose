@@ -2,10 +2,17 @@ package org.openrepose.rackspace.auth_2_0.identity.content.credentials.wrappers;
 
 import org.openstack.docs.identity.api.v2.PasswordCredentialsBase;
 
-public class PasswordCredentialsWrapper extends CredentialTypeWrapper<PasswordCredentialsBase> {
+import javax.xml.bind.annotation.XmlRootElement;
+
+@XmlRootElement(name = "passwordCredentials")
+public class PasswordCredentialsWrapper extends CredentialsWrapper<PasswordCredentialsBase> {
+
+   public PasswordCredentialsWrapper(PasswordCredentialsBase passwordCredentialsBase) {
+      setCredentials(passwordCredentialsBase);
+   }
 
    @Override
    public String getId() {
-      return null;  //To change body of implemented methods use File | Settings | File Templates.
+      return getCredentials() != null ? getCredentials().getUsername() : null;
    }
 }

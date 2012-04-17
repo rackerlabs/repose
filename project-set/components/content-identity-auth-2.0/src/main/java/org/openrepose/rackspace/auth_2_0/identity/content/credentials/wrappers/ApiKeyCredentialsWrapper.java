@@ -2,11 +2,17 @@ package org.openrepose.rackspace.auth_2_0.identity.content.credentials.wrappers;
 
 import com.rackspace.docs.identity.api.ext.rax_kskey.v1.ApiKeyCredentials;
 
+import javax.xml.bind.annotation.XmlRootElement;
 
-public class ApiKeyCredentialsWrapper extends CredentialTypeWrapper<ApiKeyCredentials> {
+@XmlRootElement(name = "apiKeyCredentials")
+public class ApiKeyCredentialsWrapper extends CredentialsWrapper<ApiKeyCredentials>{
+
+   public ApiKeyCredentialsWrapper(ApiKeyCredentials credentials) {
+      setCredentials(credentials);
+   }
 
    @Override
    public String getId() {
-      return null;  //To change body of implemented methods use File | Settings | File Templates.
+      return getCredentials() != null ? getCredentials().getUsername() : null;
    }
 }

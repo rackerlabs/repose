@@ -9,7 +9,6 @@ import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.io.stream.LimitedReadInputStream;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.commons.util.transform.Transform;
 import com.rackspace.papi.commons.util.transform.json.JacksonJaxbTransform;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -17,7 +16,7 @@ import com.rackspace.papi.filter.logic.HeaderManager;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.JAXBElement;
+import javax.xml.bind.Unmarshaller;
 
 import org.openrepose.rackspace.auth2.content_identity.config.ContentIdentityAuthConfig;
 import org.openrepose.rackspace.auth_2_0.identity.content.credentials.AuthCredentials;
@@ -34,12 +33,12 @@ public class ContentIdentityAuthHandler extends AbstractFilterLogicHandler {
    private final int streamLimit;
    private final ContentIdentityAuthConfig config;
    private final JacksonJaxbTransform jsonTransformer;
-   private final Transform<InputStream, JAXBElement<?>> xmlTransformer;
+   private final Unmarshaller unmarshaller;
 
-   public ContentIdentityAuthHandler(ContentIdentityAuthConfig config, JacksonJaxbTransform jsonTransformer, Transform<InputStream, JAXBElement<?>> xmlTransformer) {
+   public ContentIdentityAuthHandler(ContentIdentityAuthConfig config, JacksonJaxbTransform jsonTransformer, Unmarshaller unmarshaller) {
       this.config = config;
       this.jsonTransformer = jsonTransformer;
-      this.xmlTransformer = xmlTransformer;
+      this.unmarshaller = unmarshaller;
       this.quality = Double.valueOf(config.getQuality() != null ? config.getQuality() : DEFAULT_QUALITY);
       this.streamLimit = config.getContentBodyReadLimit().intValue();
    }
@@ -57,7 +56,7 @@ public class ContentIdentityAuthHandler extends AbstractFilterLogicHandler {
 
          try {
             inputStream.mark(streamLimit);
-            credentials = new ContentParser(jsonTransformer, xmlTransformer).parse(mimeType, inputStream);
+            credentials = new ContentParser(jsonTransformer, unmarshaller).parse(mimeType, inputStream);
 
          } finally {
             inputStream.reset();

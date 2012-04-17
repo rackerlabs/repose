@@ -2,9 +2,12 @@ package org.openrepose.rackspace.auth_2_0.identity.content.credentials.maps;
 
 import com.rackspace.docs.identity.api.ext.rax_kskey.v1.ApiKeyCredentials;
 import org.openrepose.rackspace.auth_2_0.identity.content.credentials.AuthCredentials;
-import org.openrepose.rackspace.auth_2_0.identity.content.credentials.wrappers.xml.ApiKeyCredentialsWrapper;
+import org.openrepose.rackspace.auth_2_0.identity.content.credentials.wrappers.*;
+import org.openstack.docs.identity.api.v2.AuthenticationRequest;
 import org.openstack.docs.identity.api.v2.CredentialType;
+import org.openstack.docs.identity.api.v2.PasswordCredentialsBase;
 
+import javax.xml.bind.JAXBElement;
 import java.util.Map;
 
 public class CredentialFactory {
@@ -28,30 +31,27 @@ public class CredentialFactory {
       return null;
    }
 
-   public static <T> AuthCredentials getCredentials(T credentials) {
+   public static <T> AuthCredentials getCredentials(JAXBElement<T> object) {
       AuthCredentials authCredentials = null;
 
-      if (credentials == null) {
-         int i = -1;         
-      }
+      if (object != null) {
+         if (object.getValue() instanceof AuthenticationRequest) {
+            AuthenticationRequest authRequest = (AuthenticationRequest) object.getValue();
 
-//      if (credentials != null) {
-//         if (credentials.getCredential() != null) {
-//            if (credentials.getCredential().getValue() instanceof ApiKeyCredentials) {
-//
-//               ApiKeyCredentialsWrapper credentialsWrapper = new ApiKeyCredentialsWrapper();
-//               credentialsWrapper.setMossoCredentials((ApiKeyCredentialsWrapper) credentials.getCredential().getValue());
-//               authCredentials = credentialsWrapper;
-//            } else if (credentials instanceof NastCredentials) {
-//
-//               NastCredentialsWrapper credentialsWrapper = new NastCredentialsWrapper();
-//               credentialsWrapper.setNastCredentials((NastCredentials) credentials);
-//               authCredentials = credentialsWrapper;
-//            }
-//         }
-//
-//
-//      }
+            if (authRequest.getCredential() != null) {
+               CredentialType credentialType = authRequest.getCredential().getValue();
+               if (credentialType instanceof ApiKeyCredentials) {
+
+                  authCredentials = new ApiKeyCredentialsWrapper((ApiKeyCredentials) credentialType);
+               } else if (credentialType instanceof PasswordCredentialsBase) {
+
+                  authCredentials = new PasswordCredentialsWrapper((PasswordCredentialsBase) credentialType);
+               }
+            } else {
+               authCredentials = new AuthenticationRequestWrapper(authRequest);
+            }
+         }
+      }
 
       return authCredentials;
    }
