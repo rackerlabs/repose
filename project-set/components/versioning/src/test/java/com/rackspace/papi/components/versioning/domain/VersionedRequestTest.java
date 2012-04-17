@@ -87,13 +87,11 @@ public class VersionedRequestTest {
          assertEquals("Formatting internal URI must match " + expected, expected, new VersionedRequest(requestInfo, mapping).asInternalURI());
       }
 
-      // TODO Model: is this test right?!?
-      @Ignore
       @Test
       public void shouldHandleVersionedRequestsWithContextRoot() {
          final HttpRequestInfo requestInfo = new HttpRequestInfoImpl(mediaRangeList, "/context/v1.0/a/requested/resource", "http://localhost/context/v1.0/a/requested/resource", "localhost", "http");
 
-         final String expected = "/context/_v1.0/a/requested/resource";
+         final String expected = "/context/a/requested/resource";
 
          assertEquals("Formatting internal URI must match " + expected, expected, new VersionedRequest(requestInfo, mapping).asInternalURI());
       }
