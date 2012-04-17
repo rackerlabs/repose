@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<power-proxy xmlns="http://docs.openrepose.org/repose/system-model/v1.1">
-   <service-domain name="repose-actional" cluster="repose-actional" port="8080" filter-chain="repose-filters" />
-   
-   <filter-chain name="repose-filters">
-      <filter name="client-authentication" />
-      <filter name="client-authorization" />
-      <filter name="dist-datastore" />
-      <filter name="rate-limiting" />
-      <filter name="root-context-router" />
-   </filter-chain>
-   
-   <cluster name="repose-actional">
-      <node alias="repose-actional-n01" host="repose-actional-n01.ord.internal.rackspace.corp" />
-      <node alias="repose-actional-n02" host="repose-actional-n02.ord.internal.rackspace.corp" />
-   </cluster>
+<power-proxy xmlns="http://docs.rackspacecloud.com/power-api/system-model/v2.0">
+   <service-domain id="root-war">
+      <service-domain-nodes>
+         <node id="repose-actional-n01" hostname="repose-actional-n01.ord.internal.rackspace.corp" http-port="8088"/>
+         <node id="repose-actional-n02" hostname="repose-actional-n02.ord.internal.rackspace.corp" http-port="8088"/>
+      </service-domain-nodes>
+      
+      <filters>
+         <filter name="client-authentication" />
+         <filter name="client-authorization" />
+         <filter name="dist-datastore" />
+         <filter name="rate-limiting" />
+         <!-- default router will look for a destination that has default="true" -->
+         <filter name="default-router" />
+      </filters>
+      
+      <destinations>
+         <endpoint id="internal" root-path="/somecontext" default="true" />
+      </destinations>
+   </service-domain>
 </power-proxy>
