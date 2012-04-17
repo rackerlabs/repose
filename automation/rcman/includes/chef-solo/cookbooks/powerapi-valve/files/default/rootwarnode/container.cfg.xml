@@ -1,4 +1,4 @@
-<powerapi-container xmlns='http://docs.rackspacecloud.com/power-api/container/v1.0'>
+<powerapi-container xmlns='http://docs.rackspacecloud.com/power-api/container/v2.0'>
     <deployment-config  http-port="8080">
         <deployment-directory auto-clean="false">/var/powerapi</deployment-directory>
         <artifact-directory check-interval="60000">/usr/share/repose/filters</artifact-directory>
