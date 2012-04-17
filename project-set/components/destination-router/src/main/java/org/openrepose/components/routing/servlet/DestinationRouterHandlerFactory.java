@@ -12,48 +12,45 @@ import com.rackspace.papi.model.ServiceDomain;
 import java.util.List;
 import com.rackspace.papi.domain.Port;
 
-
 public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RoutingTagger> {
 
-   private DestinationRouterConfiguration contextRouterConfiguration;
-   private final List<Port> ports;
-   private ServiceDomain localDomain;
-   private DomainNode localHost;
-   
+    private DestinationRouterConfiguration contextRouterConfiguration;
+    private final List<Port> ports;
+    private ServiceDomain localDomain;
+    private DomainNode localHost;
+
     public DestinationRouterHandlerFactory(List<Port> ports) {
         this.ports = ports;
     }
-   
-   
 
-   private class RoutingConfigurationListener implements UpdateListener<DestinationRouterConfiguration> {
+    private class RoutingConfigurationListener implements UpdateListener<DestinationRouterConfiguration> {
 
-      @Override
-      public void configurationUpdated(DestinationRouterConfiguration configurationObject) {
-         contextRouterConfiguration = configurationObject;
-      }
-   }
-   
-   private class SystemModelConfigurationListener implements UpdateListener<PowerProxy> {
+        @Override
+        public void configurationUpdated(DestinationRouterConfiguration configurationObject) {
+            contextRouterConfiguration = configurationObject;
+        }
+    }
 
-      @Override
-      public void configurationUpdated(PowerProxy configurationObject) {
-         SystemModelInterrogator interrogator = new SystemModelInterrogator(configurationObject, ports);
-         localDomain = interrogator.getLocalServiceDomain();
-         localHost = interrogator.getLocalHost();
-      }
-   }
+    private class SystemModelConfigurationListener implements UpdateListener<PowerProxy> {
 
-   @Override
-   protected RoutingTagger buildHandler() {
-      return new RoutingTagger(contextRouterConfiguration.getTarget());
-   }
+        @Override
+        public void configurationUpdated(PowerProxy configurationObject) {
+            SystemModelInterrogator interrogator = new SystemModelInterrogator(configurationObject, ports);
+            localDomain = interrogator.getLocalServiceDomain();
+            localHost = interrogator.getLocalHost();
+        }
+    }
 
-   @Override
-   protected Map<Class, UpdateListener<?>> getListeners() {
-      final Map<Class, UpdateListener<?>> updateListeners = new HashMap<Class, UpdateListener<?>>();
-      updateListeners.put(DestinationRouterConfiguration.class, new RoutingConfigurationListener());
-      updateListeners.put(PowerProxy.class, new SystemModelConfigurationListener());
-      return updateListeners;
-   }
+    @Override
+    protected RoutingTagger buildHandler() {
+        return new RoutingTagger(contextRouterConfiguration.getTarget());
+    }
+
+    @Override
+    protected Map<Class, UpdateListener<?>> getListeners() {
+        final Map<Class, UpdateListener<?>> updateListeners = new HashMap<Class, UpdateListener<?>>();
+        updateListeners.put(DestinationRouterConfiguration.class, new RoutingConfigurationListener());
+        updateListeners.put(PowerProxy.class, new SystemModelConfigurationListener());
+        return updateListeners;
+    }
 }
