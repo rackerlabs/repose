@@ -12,11 +12,12 @@
          <filter name="client-authorization" />
          <filter name="dist-datastore" />
          <filter name="rate-limiting" />
+         <filter name="default-router" />
       </filters>
 
       <destinations>
          <!-- hostname will default to localhost if not specified -->
-         <endpoint id="local" protocol="http" port="80" default="true"/>
+         <endpoint id="local" protocol="http" port="8774" default="true"/>
       </destinations>
    </service-domain>
 </power-proxy>
