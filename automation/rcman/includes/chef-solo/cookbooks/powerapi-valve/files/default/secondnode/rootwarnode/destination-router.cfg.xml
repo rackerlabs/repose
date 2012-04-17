@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<destination-router xmlns='http://openrepose.org/repose/destination-router/v1.0'>
+   
+   <!-- This defines a context path route to the context '/protected/servlet/*' -->
+   <target id="mocks"/>
+
+</destination-router>
+

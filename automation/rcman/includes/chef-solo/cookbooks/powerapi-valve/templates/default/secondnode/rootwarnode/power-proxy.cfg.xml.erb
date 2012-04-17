@@ -1,10 +1,17 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<power-proxy xmlns="http://docs.rackspacecloud.com/power-api/system-model/v2.0">
+  <service-domain id="repose">
 
-<power-proxy xmlns="http://docs.rackspacecloud.com/power-api/system-model/v1.0">
+    <service-domain-nodes>
+      <node id="proxy-n01" hostname="<%= node[:fqdn]%>" http-port="8080"/>
+    </service-domain-nodes>
 
-    <host id="proxy-n01" hostname="<%= node[:fqdn]%>" service-port="8080">
-        <filters>
-            <filter name="root-context-router" />
-        </filters>
-    </host>
+    <filters>
+        <filter name="destination-router" />
+    </filters>
+
+    <destinations>
+      <endpoint id="mocks" protocol="http" root-path="/mocks" port="8080"/>
+    </destinations>
+
+  </service-domain>
 </power-proxy>
