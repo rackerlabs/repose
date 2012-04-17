@@ -1,11 +1,11 @@
-package org.openrepose.rackspace.auth_2_0.identity.content;
+package org.openrepose.rackspace.auth_2_0.identity.content.auth;
 
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import java.io.IOException;
 import javax.servlet.*;
-import org.openrepose.rackspace.auth.content_identity.config.ContentIdentityAuthConfig;
+import org.openrepose.rackspace.auth2.content_identity.config.ContentIdentityAuthConfig;
 import org.slf4j.Logger;
 
 public class ContentIdentityAuthFilter implements Filter {
@@ -21,7 +21,7 @@ public class ContentIdentityAuthFilter implements Filter {
 
     @Override
     public void destroy() {
-        configurationManager.unsubscribeFrom("content-identity-auth.cfg.xml", handlerFactory);
+        configurationManager.unsubscribeFrom("content-identity-auth-2-0.cfg.xml", handlerFactory);
     }
 
     @Override
@@ -29,6 +29,6 @@ public class ContentIdentityAuthFilter implements Filter {
         configurationManager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
         handlerFactory = new ContentIdentityAuthHandlerFactory();
 
-        configurationManager.subscribeTo("content-identity-auth.cfg.xml", handlerFactory, ContentIdentityAuthConfig.class);
+        configurationManager.subscribeTo("content-identity-auth-2-0.cfg.xml", handlerFactory, ContentIdentityAuthConfig.class);
     }
 }
