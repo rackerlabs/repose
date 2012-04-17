@@ -159,7 +159,8 @@ public class DefaultEarArchiveEntryListener implements EarArchiveEntryListener {
                     if (filterType.getFilterName() != null && filterType.getFilterClass() != null) {
                         context.getEarDescriptor().getRegisteredFiltersMap().put(
                                 filterType.getFilterName().getValue(),
-                                filterType.getFilterClass().getValue());
+                                filterType);
+                        
                     }
                 }
             }

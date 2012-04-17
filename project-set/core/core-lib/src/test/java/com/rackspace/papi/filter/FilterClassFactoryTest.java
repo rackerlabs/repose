@@ -1,5 +1,7 @@
 package com.rackspace.papi.filter;
 
+import com.oracle.javaee6.FilterType;
+import com.oracle.javaee6.FullyQualifiedClassType;
 import com.rackspace.papi.filter.FilterClassFactory;
 import javax.servlet.*;
 
@@ -26,9 +28,13 @@ public class FilterClassFactoryTest {
         @Test
         public void shouldInstantiate() throws ClassNotFoundException {
             ClassLoader mockedClassLoader = mock(ClassLoader.class);
+            FilterType mockedFilterType = mock(FilterType.class);
+            FullyQualifiedClassType mockedClassType = mock(FullyQualifiedClassType.class);
+            
+
             when(mockedClassLoader.loadClass(any(String.class))).thenReturn((Class) Object.class);
 
-            FilterClassFactory filterClassFactory = new FilterClassFactory("Fake class name", mockedClassLoader);
+            FilterClassFactory filterClassFactory = new FilterClassFactory(mockedFilterType, mockedClassLoader);
 
             assertNotNull(filterClassFactory);
         }        
@@ -37,10 +43,13 @@ public class FilterClassFactoryTest {
         public void shouldGetClassLoader() throws ClassNotFoundException, MalformedURLException {
             URL url = new URL("http://fake url");
             ClassLoader mockedClassLoader = mock(ClassLoader.class);
+            FilterType mockedFilterType = mock(FilterType.class);
+            FullyQualifiedClassType mockedClassType = mock(FullyQualifiedClassType.class);
+
             when(mockedClassLoader.loadClass(any(String.class))).thenReturn((Class) Object.class);
             when(mockedClassLoader.getResource(any(String.class))).thenReturn(url);
 
-            FilterClassFactory filterClassFactory = new FilterClassFactory("Fake class name", mockedClassLoader);
+            FilterClassFactory filterClassFactory = new FilterClassFactory(mockedFilterType, mockedClassLoader);
 
             assertTrue(url.getPath().equalsIgnoreCase(filterClassFactory.getClassLoader().getResource("").getPath()));
         }
@@ -49,9 +58,14 @@ public class FilterClassFactoryTest {
         public void shouldToString() throws ClassNotFoundException {
             String className = "Fake class name";
             ClassLoader mockedClassLoader = mock(ClassLoader.class);
-            when(mockedClassLoader.loadClass(any(String.class))).thenReturn((Class) Object.class);
+            FilterType mockedFilterType = mock(FilterType.class);
+            FullyQualifiedClassType mockedClassType = mock(FullyQualifiedClassType.class);
 
-            FilterClassFactory filterClassFactory = new FilterClassFactory(className, mockedClassLoader);
+            when(mockedClassLoader.loadClass(any(String.class))).thenReturn((Class) Object.class);
+            when(mockedFilterType.getFilterClass()).thenReturn(mockedClassType);
+            when(mockedClassType.getValue()).thenReturn(className);
+
+            FilterClassFactory filterClassFactory = new FilterClassFactory(mockedFilterType, mockedClassLoader);
 
             assertTrue(className.equalsIgnoreCase(filterClassFactory.toString()));
         }
@@ -61,9 +75,14 @@ public class FilterClassFactoryTest {
         @Test
         public void shouldValidate() throws ClassNotFoundException {
             ClassLoader mockedClassLoader = mock(ClassLoader.class);
-            when(mockedClassLoader.loadClass(any(String.class))).thenReturn((Class) Filter.class);
+            FilterType mockedFilterType = mock(FilterType.class);
+            FullyQualifiedClassType mockedClassType = mock(FullyQualifiedClassType.class);
 
-            FilterClassFactory filterClassFactory = new FilterClassFactory("Fake class name", mockedClassLoader);
+            when(mockedClassLoader.loadClass(any(String.class))).thenReturn((Class) Filter.class);
+            when(mockedFilterType.getFilterClass()).thenReturn(mockedClassType);
+            when(mockedClassType.getValue()).thenReturn("Fake class name");
+
+            FilterClassFactory filterClassFactory = new FilterClassFactory(mockedFilterType, mockedClassLoader);
 
             filterClassFactory.validate(Filter.class);
         }
@@ -71,9 +90,14 @@ public class FilterClassFactoryTest {
         @Test(expected=PowerApiContextException.class)
         public void shouldThrowServletContextInitExceptionForNullClassOnValidate() throws ClassNotFoundException {
             ClassLoader mockedClassLoader = mock(ClassLoader.class);
-            when(mockedClassLoader.loadClass(any(String.class))).thenReturn(null);
+            FilterType mockedFilterType = mock(FilterType.class);
+            FullyQualifiedClassType mockedClassType = mock(FullyQualifiedClassType.class);
 
-            FilterClassFactory filterClassFactory = new FilterClassFactory("Fake class name", mockedClassLoader);
+            when(mockedClassLoader.loadClass(any(String.class))).thenReturn(null);
+            when(mockedFilterType.getFilterClass()).thenReturn(mockedClassType);
+            when(mockedClassType.getValue()).thenReturn("Fake class name");
+
+            FilterClassFactory filterClassFactory = new FilterClassFactory(mockedFilterType, mockedClassLoader);
 
             filterClassFactory.validate(null);
         }
@@ -81,9 +105,14 @@ public class FilterClassFactoryTest {
         @Test(expected=PowerApiContextException.class)
         public void shouldThrowServletContextInitExceptionForNonFilterClassOnValidate() throws ClassNotFoundException {
             ClassLoader mockedClassLoader = mock(ClassLoader.class);
-            when(mockedClassLoader.loadClass(any(String.class))).thenReturn((Class) Object.class);
+            FilterType mockedFilterType = mock(FilterType.class);
+            FullyQualifiedClassType mockedClassType = mock(FullyQualifiedClassType.class);
 
-            FilterClassFactory filterClassFactory = new FilterClassFactory("Fake class name", mockedClassLoader);
+            when(mockedClassLoader.loadClass(any(String.class))).thenReturn((Class) Object.class);
+            when(mockedFilterType.getFilterClass()).thenReturn(mockedClassType);
+            when(mockedClassType.getValue()).thenReturn("Fake class name");
+
+            FilterClassFactory filterClassFactory = new FilterClassFactory(mockedFilterType, mockedClassLoader);
 
             filterClassFactory.validate(null);
         }
@@ -93,9 +122,14 @@ public class FilterClassFactoryTest {
         @Test
         public void shouldCreateNewInstance() throws ClassNotFoundException {
             ClassLoader mockedClassLoader = mock(ClassLoader.class);
-            when(mockedClassLoader.loadClass(any(String.class))).thenReturn((Class) FakeFilterClass.class);
+            FilterType mockedFilterType = mock(FilterType.class);
+            FullyQualifiedClassType mockedClassType = mock(FullyQualifiedClassType.class);
 
-            FilterClassFactory filterClassFactory = new FilterClassFactory("Fake class name", mockedClassLoader);
+            when(mockedClassLoader.loadClass(any(String.class))).thenReturn((Class) FakeFilterClass.class);
+            when(mockedFilterType.getFilterClass()).thenReturn(mockedClassType);
+            when(mockedClassType.getValue()).thenReturn("Fake class name");
+
+            FilterClassFactory filterClassFactory = new FilterClassFactory(mockedFilterType, mockedClassLoader);
 
             Filter newFilter = filterClassFactory.newInstance();
 
@@ -105,9 +139,14 @@ public class FilterClassFactoryTest {
         @Test(expected= FilterClassException.class)
         public void shouldThrowFilterClassExceptionOnInstantiationException() throws ClassNotFoundException {
             ClassLoader mockedClassLoader = mock(ClassLoader.class);
-            when(mockedClassLoader.loadClass(any(String.class))).thenReturn((Class) Filter.class);
+            FilterType mockedFilterType = mock(FilterType.class);
+            FullyQualifiedClassType mockedClassType = mock(FullyQualifiedClassType.class);
 
-            FilterClassFactory filterClassFactory = new FilterClassFactory("Fake class name", mockedClassLoader);
+            when(mockedClassLoader.loadClass(any(String.class))).thenReturn((Class) Filter.class);
+            when(mockedFilterType.getFilterClass()).thenReturn(mockedClassType);
+            when(mockedClassType.getValue()).thenReturn("Fake class name");
+
+            FilterClassFactory filterClassFactory = new FilterClassFactory(mockedFilterType, mockedClassLoader);
 
             filterClassFactory.newInstance();
         }
@@ -115,9 +154,14 @@ public class FilterClassFactoryTest {
         @Test(expected= FilterClassException.class)
         public void shouldThrowFilterClassExceptionOnIllegalAccessException() throws ClassNotFoundException {
             ClassLoader mockedClassLoader = mock(ClassLoader.class);
-            when(mockedClassLoader.loadClass(any(String.class))).thenReturn((Class) FakeFilterClassWithPrivateConstructor.class);
+            FilterType mockedFilterType = mock(FilterType.class);
+            FullyQualifiedClassType mockedClassType = mock(FullyQualifiedClassType.class);
 
-            FilterClassFactory filterClassFactory = new FilterClassFactory("Fake class name", mockedClassLoader);
+            when(mockedClassLoader.loadClass(any(String.class))).thenReturn((Class) FakeFilterClassWithPrivateConstructor.class);
+            when(mockedFilterType.getFilterClass()).thenReturn(mockedClassType);
+            when(mockedClassType.getValue()).thenReturn("Fake class name");
+
+            FilterClassFactory filterClassFactory = new FilterClassFactory(mockedFilterType, mockedClassLoader);
 
             filterClassFactory.newInstance();
         }        

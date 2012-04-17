@@ -19,7 +19,7 @@ package com.rackspace.papi.http.proxy.jerseyclient;
 import java.net.MalformedURLException;
 
 import com.rackspace.papi.http.proxy.common.ProxyService;
-//import com.sun.jersey.api.client.filter.LoggingFilter;
+
 import org.apache.http.HttpException;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -29,15 +29,16 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
-import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -46,7 +47,6 @@ import javax.servlet.http.HttpServletResponse;
  * @author John Hopper
  */
 public class JerseyClientProxyService implements ProxyService {
-   private static final String HTTP = "http";
    private static final Logger LOG = LoggerFactory.getLogger(JerseyClientProxyService.class);
 
    private static final Map<String, WebResource> resourceMap = new HashMap<String, WebResource>();
@@ -67,23 +67,19 @@ public class JerseyClientProxyService implements ProxyService {
       proxiedHost = targetUri;
       proxiedHostUrl = asUri(proxiedHost);
 
-      DefaultClientConfig cc = new DefaultClientConfig();
-      cc.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, false);
-      cc.getProperties().put(ClientConfig.PROPERTY_THREADPOOL_SIZE, 20);
-
-      // TODO: Eventually make these values configurable in Repose and implement
-      // a "backoff" approach with logging.
-      cc.getProperties().put(ClientConfig.PROPERTY_CONNECT_TIMEOUT, connectionTimeout);
-      cc.getProperties().put(ClientConfig.PROPERTY_READ_TIMEOUT, readTimeout);
+      DefaultClientConfig cc = new JerseyPropertiesConfigurator(connectionTimeout, readTimeout).configure();              
+      
       client = Client.create(cc);
 
       LOG.info("Enabling info logging of jersey client requests");
       client.addFilter(new LoggingFilter());
    }
 
+   
+
    private String asUri(URI host) {
       try {
-         return new URL(HTTP, host.getHost(), host.getPort(), "").toExternalForm();
+         return new URL(host.getScheme(), host.getHost(), host.getPort(), "").toExternalForm();
       } catch (MalformedURLException ex) {
          LOG.error("Invalid host url: " + host, ex);
       }
