@@ -1,15 +1,10 @@
 package org.openrepose.components.routing.servlet;
 
-import com.rackspace.papi.commons.util.http.header.HeaderFieldParser;
-import com.rackspace.papi.commons.util.http.header.HeaderValue;
-import com.rackspace.papi.commons.util.http.header.QualityFactorUtility;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import java.util.List;
-import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import org.openrepose.components.routing.servlet.config.Target;
 import org.slf4j.Logger;
@@ -25,12 +20,6 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
    public RoutingTagger(Target target) {
       this.target = target;
       determineQuality();
-   }
-
-   private String determineRequestUri(Set<String> possibleRoutes) {
-      // Remove this code once we have a dispatcher that can handle quality
-      final List<HeaderValue> routes = new HeaderFieldParser(possibleRoutes).parse();
-      return QualityFactorUtility.choosePreferredHeaderValue(routes).getValue();
    }
 
    @Override
