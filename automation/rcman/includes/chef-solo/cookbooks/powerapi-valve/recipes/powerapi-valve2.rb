@@ -38,12 +38,14 @@ package "papiCore" do
    action :install
    source "/root/repose-valve.deb"
    provider Chef::Provider::Package::Dpkg
+   options "--force-all"
 end
 
 package "filterBundle" do
    action :install
    source "/root/filterBundle.deb"
    provider Chef::Provider::Package::Dpkg
+   options "--force-all"
 end
 
 
