@@ -54,8 +54,8 @@ template "/etc/repose/power-proxy.cfg.xml" do
  mode 0644
 end
 
-cookbook_file "/etc/repose/root-context-router.cfg.xml" do
-   source "secondnode/rootwarnode/root-context-router.cfg.xml"
+cookbook_file "/etc/repose/destination-router.cfg.xml" do
+   source "secondnode/rootwarnode/destination-router.cfg.xml"
    mode 0744
 end
 
