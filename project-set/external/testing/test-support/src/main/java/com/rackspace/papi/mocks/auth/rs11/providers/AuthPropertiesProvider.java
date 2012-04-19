@@ -101,8 +101,7 @@ public class AuthPropertiesProvider extends UserDataPropertiesProviderImpl imple
    @Override
    public String getUsername(String userId){
        
-       String username = getProperties().getProperty("username."+userId);
-       return username;
+       return getProperties().getProperty("username."+userId);
    }
    
    

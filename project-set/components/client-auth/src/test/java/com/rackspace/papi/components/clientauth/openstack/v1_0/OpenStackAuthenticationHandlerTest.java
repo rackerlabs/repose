@@ -65,7 +65,7 @@ public class OpenStackAuthenticationHandlerTest {
          response = mock(ReadableHttpServletResponse.class);
 
          osauthConfig = new OpenstackAuth();
-         osauthConfig.setDelegable(delegatable());
+         osauthConfig.setDelegable(delegable());
 
          keyedRegexExtractor = new KeyedRegexExtractor();
 
@@ -94,7 +94,7 @@ public class OpenStackAuthenticationHandlerTest {
          handlerWithCache = new OpenStackAuthenticationHandler(osauthConfig, authService, keyedRegexExtractor, cache, new UriMatcher(whiteListRegexPatterns));
       }
 
-      protected abstract boolean delegatable();
+      protected abstract boolean delegable();
 
       public CachableUserInfo generateCachableTokenInfo(String roles, String tokenId, String username) {
          return generateCachableTokenInfo(roles, tokenId, username, 10000);
@@ -130,7 +130,7 @@ public class OpenStackAuthenticationHandlerTest {
       AuthenticateResponse authResponse;
 
       @Override
-      protected boolean delegatable() {
+      protected boolean delegable() {
          return false;
       }
 
@@ -225,7 +225,7 @@ public class OpenStackAuthenticationHandlerTest {
    public static class WhenAuthenticatingDelegatableRequests extends TestParent {
 
       @Override
-      protected boolean delegatable() {
+      protected boolean delegable() {
          return true;
       }
 
@@ -252,7 +252,7 @@ public class OpenStackAuthenticationHandlerTest {
    public static class WhenAuthenticatingNonDelegatableRequests extends TestParent {
 
       @Override
-      protected boolean delegatable() {
+      protected boolean delegable() {
          return false;
       }
 
@@ -282,7 +282,7 @@ public class OpenStackAuthenticationHandlerTest {
 
    public static class WhenHandlingResponseFromServiceInDelegatedMode extends TestParent {
       @Override
-      protected boolean delegatable() {
+      protected boolean delegable() {
          return true;
       }
 
@@ -334,7 +334,7 @@ public class OpenStackAuthenticationHandlerTest {
 
    public static class WhenHandlingResponseFromServiceNotInDelegatedMode extends TestParent {
       @Override
-      protected boolean delegatable() {
+      protected boolean delegable() {
          return false;
       }
 
@@ -370,7 +370,7 @@ public class OpenStackAuthenticationHandlerTest {
    public static class WhenHandlingWhiteListNotInDelegatedMode extends TestParent {
 
       @Override
-      protected boolean delegatable() {
+      protected boolean delegable() {
          return false;
       }
 
@@ -392,7 +392,7 @@ public class OpenStackAuthenticationHandlerTest {
    public static class WhenHandlingWhiteListInDelegatedMode extends TestParent {
 
       @Override
-      protected boolean delegatable() {
+      protected boolean delegable() {
          return true;
       }
 

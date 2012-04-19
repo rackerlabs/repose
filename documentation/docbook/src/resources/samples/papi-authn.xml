@@ -3,7 +3,7 @@
 <client-auth 
     xmlns="http://docs.rackspacecloud.com/power-api/client-auth/v1.0">
     
-    <rackspace-auth delegatable="true" 
+    <rackspace-auth delegable="true" 
         xmlns="http://docs.rackspacecloud.com/power-api/client-auth/rs-auth-1.1/v1.0">
         
         <authentication-server username="auth" password="auth123" 
