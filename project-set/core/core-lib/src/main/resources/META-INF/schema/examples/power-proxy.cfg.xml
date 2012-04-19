@@ -1,63 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<power-proxy xmlns="http://docs.rackspacecloud.com/power-api/system-model/v1.0">
-    <!-- Usually, multiple hosts are only defined if Repose is operating as a cluster -->
-    
-    <!--
-        A single host definition that describes the host's ID,
-        its hostname and the filters it hosts. Whether or not
-        the host also hosts the service has no impact on how
-        Repose manages its components.
-    -->
-    <host id="proxy-n01" hostname="power-proxy-n01.wc1.dfw1.stabletransit.com">
-        <filters>
-            <filter name="http-logging" />
-            <filter name="versioning" />
-            <filter name="client-auth" />
-            <filter name="rate-limiting" />
-        </filters>
-    </host>
-    
-    <!--
-        In the case below, Repose will consider the two hosts
-        as the same and therefore automatically (in the future)
-        balance between the two both resource wise and request
-        wise. Rate Limiting is currently the only component that
-        is able to take advantage of this. For all other components
-        this feature does not matter.
-    -->
-    <host id="proxy-n02" hostname="power-proxy-n02.wc1.dfw1.stabletransit.com">
-        <filters>
-            <filter name="rate-limiting" />
-            <filter name="versioning" />
-        </filters>
-    </host>
-    
-    <host id="proxy-n03" hostname="power-proxy-n03.wc1.dfw1.stabletransit.com">
-        <filters>
-            <filter name="rate-limiting" />
-            <filter name="versioning" />
-        </filters>
-    </host>
-    
-    <!--
-        In this case we have a host that has no filters defined.
-        The hostname attribute represents the host's service
-        URI. In the future there may be an attribute that explicitly 
-        defines whether or not the host really is a service host
-         (i.e. where the service is hosted).
-    -->
-    <host id="service-v1.1" hostname="service-n04.wc1.dfw1.stabletransit.com" />
-    
-    <!--
-        In the case below we have a service host that also hosts
-        all of the Repose components locally (same app container
-        for example. This will be a common deployment strategy.
-    -->
-    <host id="service-v1.2" hostname="service-n05.wc1.dfw1.stabletransit.com" >
-        <filters>
-            <filter name="client-auth" />
-            <filter name="rate-limiting" />
-        </filters>
-    </host>
+<power-proxy xmlns="http://docs.rackspacecloud.com/power-api/system-model/v2.0">
+  <service-domain id="repose">
+    <service-domain-nodes>
+      <node id="node1" hostname="localhost" http-port="8088"/>
+    </service-domain-nodes>
+    <filters>
+      <!--
+      <filter name="http-logging" />
+      <filter name="header-id-mapping" />
+      -->
+      <filter name="default-router"/>
+    </filters>
+    <destinations>
+      <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80" default="true"/>
+    </destinations>
+  </service-domain>
 </power-proxy>

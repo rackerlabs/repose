@@ -1,29 +1,77 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://docs.rackspacecloud.com/power-api/system-model/v1.0"
-           xmlns:mod="http://docs.rackspacecloud.com/power-api/system-model/v1.0"
+           targetNamespace="http://docs.rackspacecloud.com/power-api/system-model/v2.0"
+           xmlns:mod="http://docs.rackspacecloud.com/power-api/system-model/v2.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           jaxb:version="2.1">
 
-    <xs:element name="power-proxy" type="mod:PowerProxy" />
+   <xs:element name="power-proxy" type="mod:PowerProxy" />
 
-    <xs:complexType name="PowerProxy">
-        <xs:annotation>
+   <xs:complexType name="PowerProxy">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>Top level element for defining a power proxy system model</html:p>
+         </xs:documentation>
+      </xs:annotation>
+
+      <xs:sequence>
+         <xs:element name="service-domain" type="mod:ServiceDomain" minOccurs="1" maxOccurs="unbounded" />
+            <!--<xs:element name="host" type="mod:Host" minOccurs="1" maxOccurs="unbounded" />-->
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="ServiceDomain">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>
+               Defines a single service domain in the system model.  A service domain is a collection of nodes 
+               that provide equivalent functionality.  If a service domain represents a repose cluster, then 
+               it will contain a filter list and a destination list.
+            </html:p>
+         </xs:documentation>
+      </xs:annotation>
+      
+      <xs:sequence>
+         <xs:element name="service-domain-nodes" type="mod:DomainNodeList" minOccurs="1" maxOccurs="1" />
+         <xs:element name="filters" type="mod:FilterList" minOccurs="0" maxOccurs="1" />
+         <xs:element name="destinations" type="mod:DestinationList" minOccurs="0" maxOccurs="1" />
+      </xs:sequence>
+
+      <xs:attribute name="id" type="xs:ID" use="required">
+         <xs:annotation>
             <xs:documentation>
-                <html:p>Top level element for defining a power proxy system model</html:p>
+               <html:p>Defines the service domain's id which may be referenced elsewhere in various configuration files</html:p>
             </xs:documentation>
-        </xs:annotation>
+         </xs:annotation>
+      </xs:attribute>
+   </xs:complexType>
 
-        <xs:sequence>
-            <xs:element name="host" type="mod:Host" minOccurs="1" maxOccurs="unbounded" />
-        </xs:sequence>
-    </xs:complexType>
+   <xs:complexType name="DomainNodeList">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>Defines a list of nodes within a domain</html:p>
+         </xs:documentation>
+      </xs:annotation>
+      
+      <xs:sequence>
+         <xs:element name="node" type="mod:DomainNode" minOccurs="1" maxOccurs="unbounded" />
+      </xs:sequence>
+   </xs:complexType>
 
-    <xs:complexType name="Host">
-        <xs:annotation>
+   <xs:complexType name="DomainNode">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>Defines a single host in the system model</html:p>
+         </xs:documentation>
+      </xs:annotation>
+
+      <xs:attribute name="id" type="xs:string" use="required">
+         <xs:annotation>
             <xs:documentation>
-                <html:p>Defines a single proxy in the system model</html:p>
+               <html:p>Defines the proxy's id which will be referenced elsewhere in different configs</html:p>
             </xs:documentation>
         </xs:annotation>
 
@@ -75,36 +123,164 @@
     <xs:complexType name="FilterList">
         <xs:annotation>
             <xs:documentation>
-                <html:p>List of filters that the proxy will then execute in order of definition</html:p>
+               <html:p>Hostname of the node this proxy model defines. This will be used for personality matching when the proxy is started</html:p>
             </xs:documentation>
-        </xs:annotation>
+         </xs:annotation>
+      </xs:attribute>
 
-        <xs:sequence>
-            <xs:element name="filter" type="mod:Filter" minOccurs="0" maxOccurs="unbounded" />
-        </xs:sequence>
-    </xs:complexType>
-
-    <xs:complexType name="Filter">
-        <xs:annotation>
+      <xs:attribute name="http-port" type="xs:int" use="optional" default="0">
+         <xs:annotation>
             <xs:documentation>
-                <html:p>Defines a filter that can be used to process and route requests</html:p>
+               <html:p>Port number of the http service of the host</html:p>
             </xs:documentation>
-        </xs:annotation>
+         </xs:annotation>
+      </xs:attribute>
 
-        <xs:attribute name="name" type="xs:string" use="required">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>The system context specific name of the filter module to be loaded</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
+      <xs:attribute name="https-port" type="xs:int" use="optional" default="0">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Port number of the https service of the host</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+   </xs:complexType>
 
-        <xs:attribute name="configuration" type="xs:anyURI" use="optional" default="">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>The system context specific name of the filter's configuration</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-    </xs:complexType>
+   <xs:complexType name="FilterList">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>List of filters that the proxy will then execute in order of definition</html:p>
+         </xs:documentation>
+      </xs:annotation>
+
+      <xs:sequence>
+         <xs:element name="filter" type="mod:Filter" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="Filter">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>Defines a filter that can be used to process and route requests</html:p>
+         </xs:documentation>
+      </xs:annotation>
+
+      <xs:attribute name="name" type="xs:string" use="required">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>The system context specific name of the filter module to be loaded</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+
+      <xs:attribute name="configuration" type="xs:anyURI" use="optional" default="">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>The system context specific name of the filter's configuration</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+   </xs:complexType>
+
+   <xs:complexType name="DestinationList">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>Defines a list of target destinations reachable from a domain</html:p>
+         </xs:documentation>
+      </xs:annotation>
+      
+      <xs:sequence>
+         <xs:element name="endpoint" type="mod:DestinationEndpoint" minOccurs="0" maxOccurs="unbounded" />
+         <xs:element name="target-domain" type="mod:DestinationDomain" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+   </xs:complexType>
+
+   <xs:complexType name="Destination">
+      <xs:attribute name="id" type="xs:string" use="required">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Defines the endpoint's id which will be referenced elsewhere in different configs</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="protocol" use="optional">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Defines the endpoint's protocol.  Current protocols permitted are http and https.</html:p>
+            </xs:documentation>
+         </xs:annotation>
+         
+         <xs:simpleType>
+            <xs:restriction base="xs:string">
+               <xs:enumeration value="http"/>
+               <xs:enumeration value="https"/>
+            </xs:restriction>
+         </xs:simpleType>
+      </xs:attribute>
+
+      <xs:attribute name="root-path" type="xs:string" use="optional" default="">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Defines the endpoint's base path element.  This will be used in building the URI/path
+                  for connecting to the service.  Any additional URI info will be appended to this.
+               </html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      
+      <xs:attribute name="default" type="xs:boolean" use="optional" default="false">
+      </xs:attribute>
+   </xs:complexType>
+
+   <xs:complexType name="DestinationEndpoint">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>Defines a single node that is a target destination reachable from a domain</html:p>
+         </xs:documentation>
+      </xs:annotation>
+      <xs:complexContent>
+         <xs:extension base="mod:Destination">
+            <xs:attribute name="hostname" type="xs:string" use="optional" default="localhost">
+               <xs:annotation>
+                  <xs:documentation>
+                     <html:p>Defines the endpoint's host name.  Optional.  If not specified, localhost is assumed.</html:p>
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+
+            <xs:attribute name="port" type="xs:int" use="optional" default="0">
+               <xs:annotation>
+                  <xs:documentation>
+                     <html:p>Defines the endpoint's port.  Optional.  If not specified, internal dispatch is assumed.</html:p>
+                  </xs:documentation>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+   </xs:complexType>
+
+   <xs:complexType name="DestinationDomain">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>Defines a single node that is a target destination reachable from a domain</html:p>
+         </xs:documentation>
+      </xs:annotation>
+      
+      <xs:complexContent>
+         <xs:extension base="mod:Destination">
+            <xs:attribute name="target-domain" type="xs:IDREF" use="required">
+               <xs:annotation>
+                  <xs:documentation>
+                     <html:p>Defines the endpoint's host name.  Optional.  If not specified, localhost is assumed.</html:p>
+                  </xs:documentation>
+                  <xs:appinfo>
+                     <jaxb:property>
+                        <jaxb:baseType name="com.rackspace.papi.model.ServiceDomain" />
+                     </jaxb:property>
+                  </xs:appinfo>
+               </xs:annotation>
+            </xs:attribute>
+         </xs:extension>
+      </xs:complexContent>
+
+   </xs:complexType>
 </xs:schema>

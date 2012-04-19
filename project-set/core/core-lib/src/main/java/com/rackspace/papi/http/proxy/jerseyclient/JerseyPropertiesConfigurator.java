@@ -28,6 +28,9 @@ public class JerseyPropertiesConfigurator {
       cc.getProperties().put(ClientConfig.PROPERTY_THREADPOOL_SIZE, DEFAULT_THREADPOOL_SIZE);
       cc.getProperties().put(ClientConfig.PROPERTY_CONNECT_TIMEOUT, connectionTimeout);
       cc.getProperties().put(ClientConfig.PROPERTY_READ_TIMEOUT, readTimeout);
+      
+      // TODO Model: we need to make this configurable so that we don't always
+      // accept all certs.
       cc.getProperties().put(HTTPSProperties.PROPERTY_HTTPS_PROPERTIES, createJerseySslHttpsProperties());     
 
       return cc;

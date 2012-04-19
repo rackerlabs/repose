@@ -1,19 +1,29 @@
 package com.rackspace.papi.filter;
 
 import com.rackspace.papi.filter.resource.ResourceMonitor;
-import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
+import com.rackspace.papi.commons.util.servlet.http.RouteDestination;
+import com.rackspace.papi.filter.routing.DestinationLocation;
+import com.rackspace.papi.filter.routing.DestinationLocationBuilder;
 
 import com.rackspace.papi.filter.logic.DispatchPathBuilder;
+import com.rackspace.papi.model.Destination;
+import com.rackspace.papi.model.DomainNode;
+import com.rackspace.papi.model.ServiceDomain;
+import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.routing.RoutingService;
 import com.sun.jersey.api.client.ClientHandlerException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -35,91 +45,131 @@ import javax.servlet.http.HttpServletResponse;
  */
 public class PowerFilterChain implements FilterChain {
 
-   private static final Logger LOG = LoggerFactory.getLogger(PowerFilterChain.class);
-   private final ResourceMonitor resourceMonitor;
-   private final List<FilterContext> filterChainCopy;
-   private final FilterChain containerFilterChain;
-   private final ClassLoader containerClassLoader;
-   private final ServletContext context;
-   private int position;
+    private static final Logger LOG = LoggerFactory.getLogger(PowerFilterChain.class);
+    private final ResourceMonitor resourceMonitor;
+    private final List<FilterContext> filterChainCopy;
+    private final FilterChain containerFilterChain;
+    private final ClassLoader containerClassLoader;
+    private final ServletContext context;
+    private final ServiceDomain domain;
+    private final DomainNode localhost;
+    private final Map<String, Destination> destinations;
+    private final RoutingService routingService;
+    private int position;
 
-   public PowerFilterChain(List<FilterContext> filterChainCopy, FilterChain containerFilterChain, ServletContext context, ResourceMonitor resourceMontior) {
-      this.filterChainCopy = new LinkedList<FilterContext>(filterChainCopy);
-      this.containerFilterChain = containerFilterChain;
-      this.context = context;
-      this.containerClassLoader = Thread.currentThread().getContextClassLoader();
-      this.resourceMonitor = resourceMontior;
-   }
+    public PowerFilterChain(ServiceDomain domain, DomainNode localhost, List<FilterContext> filterChainCopy, FilterChain containerFilterChain, ServletContext context, ResourceMonitor resourceMontior) {
+        this.filterChainCopy = new LinkedList<FilterContext>(filterChainCopy);
+        this.containerFilterChain = containerFilterChain;
+        this.context = context;
+        this.containerClassLoader = Thread.currentThread().getContextClassLoader();
+        this.resourceMonitor = resourceMontior;
+        this.domain = domain;
+        this.localhost = localhost;
+        this.routingService = ServletContextHelper.getPowerApiContext(context).routingService();
+        destinations = new HashMap<String, Destination>();
 
-   public void startFilterChain(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
-      resourceMonitor.use();
+        if (domain.getDestinations() != null) {
+            addDestinations(domain.getDestinations().getEndpoint());
+            addDestinations(domain.getDestinations().getTargetDomain());
+        }
 
-      try {
-         doFilter(servletRequest, servletResponse);
-      } finally {
-         resourceMonitor.released();
-      }
-   }
+    }
 
-   @Override
-   public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
-      final Thread currentThread = Thread.currentThread();
-      final ClassLoader previousClassLoader = currentThread.getContextClassLoader();
+    private void addDestinations(List<? extends Destination> destList) {
+        for (Destination dest : destList) {
+            destinations.put(dest.getId(), dest);
+        }
+    }
 
-      if (position < filterChainCopy.size()) {
-         final FilterContext nextFilterContext = filterChainCopy.get(position++);
-         final ClassLoader nextClassLoader = nextFilterContext.getFilterClassLoader();
+    public void startFilterChain(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
+        resourceMonitor.use();
 
-         currentThread.setContextClassLoader(nextClassLoader);
+        try {
+            doFilter(servletRequest, servletResponse);
+        } finally {
+            resourceMonitor.released();
+        }
+    }
 
-         try {
-            nextFilterContext.getFilter().doFilter(servletRequest, servletResponse, this);
-         } catch (Exception ex) {
-            LOG.error("Failure in filter: " + nextFilterContext.getFilter().getClass().getSimpleName()
-                    + "  -  Reason: " + ex.getMessage(), ex);
-         } finally {
-            currentThread.setContextClassLoader(previousClassLoader);
-         }
-      } else {
-         currentThread.setContextClassLoader(containerClassLoader);
+    @Override
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
+        final Thread currentThread = Thread.currentThread();
+        final ClassLoader previousClassLoader = currentThread.getContextClassLoader();
 
-         try {
-            containerFilterChain.doFilter(servletRequest, servletResponse);
-            route(servletRequest, servletResponse);
-         } catch (Exception ex) {
-            LOG.error("Failure in filter within container filter chain. Reason: " + ex.getMessage(), ex);
-         } finally {
-            currentThread.setContextClassLoader(previousClassLoader);
-         }
-      }
-   }
+        if (position < filterChainCopy.size()) {
+            final FilterContext nextFilterContext = filterChainCopy.get(position++);
+            final ClassLoader nextClassLoader = nextFilterContext.getFilterClassLoader();
 
-   private void route(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
-      final String routeDestination = ((HttpServletRequest) servletRequest).getHeader(PowerApiHeader.NEXT_ROUTE.toString());
+            currentThread.setContextClassLoader(nextClassLoader);
 
-      if (!StringUtilities.isBlank(routeDestination)) {
-         // According to the Java 6 javadocs the routeDestination passed into getContext:
-         // "The given path [routeDestination] must begin with /, is interpreted relative to the server's document root
-         // and is matched against the context roots of other web applications hosted on this container."
-         final ServletContext targetContext = context.getContext(routeDestination);
-
-         if (targetContext != null) {
-            final RequestDispatcher dispatcher = targetContext.getRequestDispatcher(
-                    new DispatchPathBuilder(servletRequest, routeDestination).build());
-
-            if (dispatcher != null) {
-               LOG.debug("Attempting to route to " + routeDestination);
-               LOG.debug("Request URI: " + ((HttpServletRequest)servletRequest).getRequestURI());
-               LOG.debug("Context path = " + targetContext.getContextPath());
-
-               try{
-                  dispatcher.forward(servletRequest, servletResponse);
-               }catch(ClientHandlerException e){
-                   LOG.error("Connection Refused to " + routeDestination + " " + e.getMessage(), e);
-                   ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.SERVICE_UNAVAIL.intValue());
-               }
+            try {
+                nextFilterContext.getFilter().doFilter(servletRequest, servletResponse, this);
+            } catch (Exception ex) {
+                LOG.error("Failure in filter: " + nextFilterContext.getFilter().getClass().getSimpleName()
+                        + "  -  Reason: " + ex.getMessage(), ex);
+            } finally {
+                currentThread.setContextClassLoader(previousClassLoader);
             }
-         }
-      }
-   }
+        } else {
+            currentThread.setContextClassLoader(containerClassLoader);
+
+            try {
+                containerFilterChain.doFilter(servletRequest, servletResponse);
+                route(servletRequest, servletResponse);
+            } catch (Exception ex) {
+                LOG.error("Failure in filter within container filter chain. Reason: " + ex.getMessage(), ex);
+            } finally {
+                currentThread.setContextClassLoader(previousClassLoader);
+            }
+        }
+    }
+
+    private void route(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
+        DestinationLocation location = null;
+        MutableHttpServletRequest mutableRequest = (MutableHttpServletRequest) servletRequest;
+        RouteDestination destination = mutableRequest.getDestination();
+
+        if (destination != null) {
+            Destination dest = destinations.get(destination.getDestinationId());
+            if (dest == null) {
+                LOG.warn("Invalid routing destination specified: " + destination.getDestinationId() + " for domain: " + domain.getId());
+                ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.SERVICE_UNAVAIL.intValue());
+            } else {
+                location = new DestinationLocationBuilder(
+                        routingService,
+                        localhost,
+                        dest,
+                        destination.getUri(),
+                        mutableRequest).build();
+            }
+        }
+
+        if (location != null) {
+            // According to the Java 6 javadocs the routeDestination passed into getContext:
+            // "The given path [routeDestination] must begin with /, is interpreted relative to the server's document root
+            // and is matched against the context roots of other web applications hosted on this container."
+            final ServletContext targetContext = context.getContext(location.getUri().toString());
+
+            if (targetContext != null) {
+                String uri = new DispatchPathBuilder(location.getUri().getPath(), targetContext.getContextPath()).build();
+                final RequestDispatcher dispatcher = targetContext.getRequestDispatcher(uri);
+
+                mutableRequest.setRequestUrl(new StringBuffer(location.getUrl().toExternalForm()));
+                mutableRequest.setRequestUri(location.getUri().getPath());
+                if (dispatcher != null) {
+                    LOG.debug("Attempting to route to " + location.getUri());
+                    LOG.debug("Request URL: " + ((HttpServletRequest) servletRequest).getRequestURL());
+                    LOG.debug("Request URI: " + ((HttpServletRequest) servletRequest).getRequestURI());
+                    LOG.debug("Context path = " + targetContext.getContextPath());
+
+                    try {
+                        dispatcher.forward(servletRequest, servletResponse);
+                    } catch (ClientHandlerException e) {
+                        LOG.error("Connection Refused to " + location.getUri() + " " + e.getMessage(), e);
+                        ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.SERVICE_UNAVAIL.intValue());
+                    }
+                }
+            }
+        }
+    }
 }

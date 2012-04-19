@@ -1,6 +1,6 @@
-<versioning xmlns="http://docs.rackspacecloud.com/power-api/versioning/v1.0">
+<versioning xmlns="http://docs.rackspacecloud.com/power-api/versioning/v2.0">
     <service-root href="<%= node[:fqdn]%>:8080"/>
-  <version-mapping pp-host-id="proxy-n01" id="/v1" context-path="/mocks" status="DEPRECATED">
+  <version-mapping pp-dest-id="mocks" id="/v1" status="DEPRECATED">
     <media-types>
       <media-type type="application/vnd.vendor.service-v1+xml" base="application/xml"/>
       <media-type type="application/vnd.vendor.service+xml; version=1" base="application/xml"/>
@@ -14,7 +14,7 @@
       <media-type type="application/vnd.rackspace; rnd=1; x=v1; rnd2=2; y=json" base="application/json"/>
     </media-types>
   </version-mapping>
-  <version-mapping pp-host-id="service" id="/v2" context-path="/" status="CURRENT">
+  <version-mapping pp-dest-id="service" id="/v2" status="CURRENT">
     <media-types>
       <media-type type="application/vnd.vendor.service-v2+xml" base="application/xml"/>
       <media-type type="application/vnd.vendor.service+xml; version=2" base="application/xml"/>
@@ -29,4 +29,3 @@
     </media-types>
   </version-mapping>
 </versioning>
-

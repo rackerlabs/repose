@@ -1,10 +1,12 @@
 package com.rackspace.papi.components.routing;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.model.PowerProxy;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,11 +14,11 @@ import org.slf4j.LoggerFactory;
 public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RoutingTagger> {
 
    private static final Logger LOG = LoggerFactory.getLogger(RoutingHandlerFactory.class);
-   private final int port;
+   private final List<Port> ports;
    private PowerProxy systemModel;
 
-   public RoutingHandlerFactory(int port) {
-      this.port = port;
+   public RoutingHandlerFactory(List<Port> ports) {
+      this.ports = ports;
    }
 
    private class RoutingConfigurationListener implements UpdateListener<PowerProxy> {
@@ -29,7 +31,7 @@ public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactor
 
    @Override
    protected RoutingTagger buildHandler() {
-      return new RoutingTagger(new SystemModelInterrogator(systemModel, port));
+      return new RoutingTagger(new SystemModelInterrogator(systemModel, ports));
    }
 
    @Override

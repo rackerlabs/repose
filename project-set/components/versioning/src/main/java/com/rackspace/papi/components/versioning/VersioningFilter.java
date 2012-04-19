@@ -4,6 +4,7 @@ import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList;
+import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
@@ -21,6 +22,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 /**
  *
@@ -63,9 +65,9 @@ public class VersioningFilter implements Filter {
    @Override
    public void init(FilterConfig filterConfig) throws ServletException {
       final ServletContext servletContext = filterConfig.getServletContext();
-      final int port = ServletContextHelper.getServerPort(servletContext);
+      final List<Port> ports = ServletContextHelper.getServerPorts(servletContext);
       
-      handlerFactory = new VersioningHandlerFactory(port);
+      handlerFactory = new VersioningHandlerFactory(ports);
       
       configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
 

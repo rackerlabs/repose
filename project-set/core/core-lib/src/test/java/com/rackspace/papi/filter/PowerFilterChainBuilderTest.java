@@ -6,13 +6,17 @@ import com.rackspace.papi.commons.util.classloader.ear.EarClassLoader;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.commons.util.classloader.ear.EarDescriptor;
 import com.rackspace.papi.model.Filter;
-import com.rackspace.papi.model.Host;
 import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import com.rackspace.papi.commons.util.net.NetUtilities;
+import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.model.DomainNode;
+import com.rackspace.papi.model.DomainNodeList;
+import com.rackspace.papi.model.FilterList;
+import com.rackspace.papi.model.ServiceDomain;
 
 import javax.servlet.FilterConfig;
 
@@ -27,109 +31,136 @@ import static org.junit.Assert.*;
  */
 @RunWith(Enclosed.class)
 public class PowerFilterChainBuilderTest {
-    public static class WhenUsingPowerFilterChainBuilder {
-        @Test
-        public void shouldInitialize() {
-            FilterConfig mockedFilterConfig = mock(FilterConfig.class);
-            FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig);
 
-            assertNotNull(powerFilterChainBuilder);
-        }        
-    }
+   public static class WhenUsingPowerFilterChainBuilder {
 
-    public static class WhenBuilding {
-        private FilterConfig mockedFilterConfig = mock(FilterConfig.class);
+      @Test
+      public void shouldInitialize() {
+         FilterConfig mockedFilterConfig = mock(FilterConfig.class);
+         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig);
 
-        @Test
-        public void shouldBuild() throws ClassNotFoundException {
-            ClassLoaderManagerService mockedEarClassLoaderContextManager = mock(ClassLoaderManagerService.class);
+         assertNotNull(powerFilterChainBuilder);
+      }
+   }
 
-            EarClassLoaderContext mockedEarClassLoaderContext = mock(EarClassLoaderContext.class);
-            EarDescriptor mockedEarDescriptor = mock(EarDescriptor.class);
-            Map<String, FilterType> mockedFiltersMap = mock(Map.class);
-            EarClassLoader mockedEarClassLoader = mock(EarClassLoader.class);
-            FilterType mockedFilterType = mock(FilterType.class);
-            FullyQualifiedClassType mockedClassType = mock(FullyQualifiedClassType.class);
+   public static class WhenBuilding {
 
-            when(mockedEarClassLoaderContext.getEarDescriptor()).thenReturn(mockedEarDescriptor);
-            when(mockedEarDescriptor.getRegisteredFilters()).thenReturn(mockedFiltersMap);
-            when(mockedEarClassLoaderContext.getClassLoader()).thenReturn(mockedEarClassLoader);
-            when(mockedFilterType.getFilterClass()).thenReturn(mockedClassType);
-            when(mockedClassType.getValue()).thenReturn("FilterClassName");
-            when(mockedEarClassLoader.loadClass(any(String.class))).thenReturn((Class) FakeFilterClass.class);
+      private FilterConfig mockedFilterConfig = mock(FilterConfig.class);
+      /*
+       * EarClassLoaderContext mockedEarClassLoaderContext = mock(EarClassLoaderContext.class); EarDescriptor
+       * mockedEarDescriptor = mock(EarDescriptor.class); Map<String, FilterType> mockedFiltersMap = mock(Map.class);
+       * EarClassLoader mockedEarClassLoader = mock(EarClassLoader.class); FilterType mockedFilterType =
+       * mock(FilterType.class); FullyQualifiedClassType mockedClassType = mock(FullyQualifiedClassType.class);
+       *
+       * when(mockedEarClassLoaderContext.getEarDescriptor()).thenReturn(mockedEarDescriptor);
+       * when(mockedEarDescriptor.getRegisteredFilters()).thenReturn(mockedFiltersMap);
+       * when(mockedEarClassLoaderContext.getClassLoader()).thenReturn(mockedEarClassLoader);
+       * when(mockedFilterType.getFilterClass()).thenReturn(mockedClassType);
+       * when(mockedClassType.getValue()).thenReturn("FilterClassName");
+       * when(mockedEarClassLoader.loadClass(any(String.class))).thenReturn((Class) FakeFilterClass.class);
+       */
 
-            Collection<EarClassLoaderContext> loadedApplications = new LinkedList<EarClassLoaderContext>();
-            loadedApplications.add(mockedEarClassLoaderContext);
+      private List<Port> getHttpPortList(int port) {
+         List<Port> ports = new ArrayList<Port>();
+         ports.add(new Port("http", port));
+         return ports;
+      }
 
-            when(mockedEarClassLoaderContextManager.getLoadedApplications()).thenReturn(loadedApplications);
+      @Test
+      public void shouldBuild() throws ClassNotFoundException {
+         ClassLoaderManagerService mockedEarClassLoaderContextManager = mock(ClassLoaderManagerService.class);
 
-            Filter mockedFilter = mock(Filter.class);
-            when(mockedFilter.getName()).thenReturn("filterName");
+         EarClassLoaderContext mockedEarClassLoaderContext = mock(EarClassLoaderContext.class);
+         EarDescriptor mockedEarDescriptor = mock(EarDescriptor.class);
+         Map<String, FilterType> mockedFiltersMap = mock(Map.class);
+         EarClassLoader mockedEarClassLoader = mock(EarClassLoader.class);
+         FilterType mockedFilterType = mock(FilterType.class);
+         FullyQualifiedClassType mockedClassType = mock(FullyQualifiedClassType.class);
 
-            FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig);
+         when(mockedEarClassLoaderContext.getEarDescriptor()).thenReturn(mockedEarDescriptor);
+         when(mockedEarDescriptor.getRegisteredFilters()).thenReturn(mockedFiltersMap);
+         when(mockedEarClassLoaderContext.getClassLoader()).thenReturn(mockedEarClassLoader);
+         when(mockedFilterType.getFilterClass()).thenReturn(mockedClassType);
+         when(mockedClassType.getValue()).thenReturn("FilterClassName");
+         when(mockedEarClassLoader.loadClass(any(String.class))).thenReturn((Class) FakeFilterClass.class);
 
-            PowerProxy mockedPowerProxy = mock(PowerProxy.class);
-            List<Host> hosts = createTestHosts();
-            when(mockedPowerProxy.getHost()).thenReturn(hosts);
+         Collection<EarClassLoaderContext> loadedApplications = new LinkedList<EarClassLoaderContext>();
+         loadedApplications.add(mockedEarClassLoaderContext);
 
-            List<FilterContext> powerFilterChain = powerFilterChainBuilder.buildFilterContexts(mockedEarClassLoaderContextManager, mockedPowerProxy, 8080);
+         when(mockedEarClassLoaderContextManager.getLoadedApplications()).thenReturn(loadedApplications);
 
-            assertNotNull(powerFilterChain);
-        }
+         Filter mockedFilter = mock(Filter.class);
+         when(mockedFilter.getName()).thenReturn("filterName");
 
-        @Test
-        public void shouldReturnEmptyList() throws ClassNotFoundException {
-            ClassLoaderManagerService mockedEarClassLoaderContextManager = mock(ClassLoaderManagerService.class);
+         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig);
 
-            EarClassLoaderContext mockedEarClassLoaderContext = mock(EarClassLoaderContext.class);
-            EarDescriptor mockedEarDescriptor = mock(EarDescriptor.class);
-            Map<String, FilterType> mockedFiltersMap = mock(Map.class);
-            EarClassLoader mockedEarClassLoader = mock(EarClassLoader.class);
-            FilterType mockedFilterType = mock(FilterType.class);
-            FullyQualifiedClassType mockedClassType = mock(FullyQualifiedClassType.class);
+         PowerProxy mockedPowerProxy = mock(PowerProxy.class);
+         List<ServiceDomain> hosts = createTestHosts();
+         when(mockedPowerProxy.getServiceDomain()).thenReturn(hosts);
 
-            when(mockedEarClassLoaderContext.getEarDescriptor()).thenReturn(mockedEarDescriptor);
-            when(mockedEarDescriptor.getRegisteredFilters()).thenReturn(mockedFiltersMap);
-            when(mockedEarClassLoaderContext.getClassLoader()).thenReturn(mockedEarClassLoader);
-            when(mockedFilterType.getFilterClass()).thenReturn(mockedClassType);
-            when(mockedClassType.getValue()).thenReturn("FilterClassName");
-            when(mockedFiltersMap.get(any(String.class))).thenReturn(mockedFilterType);
-            when(mockedEarClassLoader.loadClass(any(String.class))).thenReturn(null);
+         List<FilterContext> powerFilterChain = powerFilterChainBuilder.buildFilterContexts(mockedEarClassLoaderContextManager, mockedPowerProxy, getHttpPortList(8080));
 
-            Collection<EarClassLoaderContext> loadedApplications = new LinkedList<EarClassLoaderContext>();
-            loadedApplications.add(mockedEarClassLoaderContext);
+         assertNotNull(powerFilterChain);
+      }
 
-            when(mockedEarClassLoaderContextManager.getLoadedApplications()).thenReturn(loadedApplications);
+      @Test
+      public void shouldReturnEmptyList() throws ClassNotFoundException {
+         ClassLoaderManagerService mockedEarClassLoaderContextManager = mock(ClassLoaderManagerService.class);
 
-            Filter mockedFilter = mock(Filter.class);
-            when(mockedFilter.getName()).thenReturn("filterName");
+         EarClassLoaderContext mockedEarClassLoaderContext = mock(EarClassLoaderContext.class);
+         EarDescriptor mockedEarDescriptor = mock(EarDescriptor.class);
+         Map<String, FilterType> mockedFiltersMap = mock(Map.class);
+         EarClassLoader mockedEarClassLoader = mock(EarClassLoader.class);
+         FilterType mockedFilterType = mock(FilterType.class);
+         FullyQualifiedClassType mockedClassType = mock(FullyQualifiedClassType.class);
 
-            FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig);
+         when(mockedEarClassLoaderContext.getEarDescriptor()).thenReturn(mockedEarDescriptor);
+         when(mockedEarDescriptor.getRegisteredFilters()).thenReturn(mockedFiltersMap);
+         when(mockedEarClassLoaderContext.getClassLoader()).thenReturn(mockedEarClassLoader);
+         when(mockedFilterType.getFilterClass()).thenReturn(mockedClassType);
+         when(mockedClassType.getValue()).thenReturn("FilterClassName");
+         when(mockedFiltersMap.get(any(String.class))).thenReturn(mockedFilterType);
+         when(mockedEarClassLoader.loadClass(any(String.class))).thenReturn(null);
 
-            PowerProxy mockedPowerProxy = mock(PowerProxy.class);
-            List<Host> hosts = createTestHosts();
-            when(mockedPowerProxy.getHost()).thenReturn(hosts);
+         Collection<EarClassLoaderContext> loadedApplications = new LinkedList<EarClassLoaderContext>();
+         loadedApplications.add(mockedEarClassLoaderContext);
 
-            List<FilterContext> powerFilterChain = powerFilterChainBuilder.buildFilterContexts(mockedEarClassLoaderContextManager, mockedPowerProxy, 8080);
+         when(mockedEarClassLoaderContextManager.getLoadedApplications()).thenReturn(loadedApplications);
 
-            assertEquals(0, powerFilterChain.size());
-        }
+         Filter mockedFilter = mock(Filter.class);
+         when(mockedFilter.getName()).thenReturn("filterName");
 
-        private List<Host> createTestHosts() {
-            List<Host> hostList = new ArrayList<Host>();
+         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig);
 
-            Filter mockedFilter = mock(Filter.class);
-            FakeFilterListClass filterListClass = new FakeFilterListClass();
-            filterListClass.addFilter(mockedFilter);
+         PowerProxy mockedPowerProxy = mock(PowerProxy.class);
+         List<ServiceDomain> hosts = createTestHosts();
+         when(mockedPowerProxy.getServiceDomain()).thenReturn(hosts);
 
-            Host host = new Host();
-            host.setHostname(NetUtilities.getLocalHostName());
-            host.setFilters(filterListClass);
-            host.setServicePort(8080);
+         List<FilterContext> powerFilterChain = powerFilterChainBuilder.buildFilterContexts(mockedEarClassLoaderContextManager, mockedPowerProxy, getHttpPortList(8080));
 
-            hostList.add(host);
+         assertEquals(0, powerFilterChain.size());
+      }
 
-            return hostList;
-        }
-    }
+      private List<ServiceDomain> createTestHosts() {
+         ServiceDomain domain = new ServiceDomain();
+         List<DomainNode> hostList = new ArrayList<DomainNode>();
+
+         domain.setFilters(mock(FilterList.class));
+
+         DomainNode host = new DomainNode();
+         host.setHostname(NetUtilities.getLocalHostName());
+         host.setHttpPort(8080);
+         host.setHttpsPort(0);
+
+         hostList.add(host);
+         DomainNodeList nodeList = new DomainNodeList();
+         nodeList.getNode().add(host);
+         domain.setServiceDomainNodes(nodeList);
+
+         List<ServiceDomain> result = new ArrayList<ServiceDomain>();
+         result.add(domain);
+
+         return result;
+      }
+   }
 }

@@ -10,7 +10,7 @@ script "getVersionAndBuildNumbers" do
    interpreter "ruby"
    `rm -rf /var/lib/tomcat7/webapps/*`
    latestUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/papi/core/valve/maven-metadata.xml"
-   latest = `wget -qO- '#{latestUrl}'`.split(/<\/?version>/).select{|v| v=~ /1.+SNAPSHOT/}.pop
+   latest = `wget -qO- '#{latestUrl}'`.split(/<\/?version>/).select{|v| v=~ /SNAPSHOT/}.pop
 
 
    rootWarUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/papi/core/web-application/#{latest}"
@@ -54,8 +54,8 @@ template "/etc/repose/power-proxy.cfg.xml" do
  mode 0644
 end
 
-cookbook_file "/etc/repose/root-context-router.cfg.xml" do
-   source "secondnode/rootwarnode/root-context-router.cfg.xml"
+cookbook_file "/etc/repose/destination-router.cfg.xml" do
+   source "secondnode/rootwarnode/destination-router.cfg.xml"
    mode 0744
 end
 
