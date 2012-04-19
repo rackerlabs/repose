@@ -6,9 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.openrepose.components.routing.servlet.config.DestinationRouterConfiguration;
 import com.rackspace.papi.filter.SystemModelInterrogator;
-import com.rackspace.papi.model.DomainNode;
 import com.rackspace.papi.model.PowerProxy;
-import com.rackspace.papi.model.ServiceDomain;
 import java.util.List;
 import com.rackspace.papi.domain.Port;
 

@@ -87,8 +87,7 @@ public class ServiceClient {
          resource = resource.queryParam(queryParameters[index], queryParameters[index + 1]);
       }
 
-      ClientResponse response = resource.header("Accept", "application/xml").get(ClientResponse.class);
-      return response;
+      return resource.header("Accept", "application/xml").get(ClientResponse.class);
    }
 
 }
