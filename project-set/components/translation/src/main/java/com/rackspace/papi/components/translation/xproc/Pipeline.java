@@ -5,9 +5,11 @@ import javax.xml.transform.Source;
 
 public interface Pipeline {
 
-   public List<Source> getResultPort(String name);
-   public void run(List<PipelineInput> inputs) throws PipelineException;
-   public void run(PipelineInput... inputs);
-   public void reset();
-   
+   List<Source> getResultPort(String name);
+
+   void run(List<PipelineInput> inputs) throws PipelineException;
+
+   void run(PipelineInput... inputs);
+
+   void reset();
 }

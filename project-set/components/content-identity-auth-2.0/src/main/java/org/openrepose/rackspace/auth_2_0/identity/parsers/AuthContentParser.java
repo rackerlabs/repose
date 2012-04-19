@@ -5,6 +5,6 @@ import org.openrepose.rackspace.auth_2_0.identity.content.credentials.AuthCreden
 import java.io.InputStream;
 
 public interface AuthContentParser {
-   public AuthCredentials parse(InputStream stream);
-   public AuthCredentials parse(String content);
+   AuthCredentials parse(InputStream stream);
+   AuthCredentials parse(String content);
 }

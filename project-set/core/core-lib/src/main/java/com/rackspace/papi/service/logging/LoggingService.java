@@ -6,5 +6,5 @@ import java.util.Properties;
  * @author fran
  */
 public interface LoggingService {
-    public void updateLoggingConfiguration(Properties loggingConfigFile);
+    void updateLoggingConfiguration(Properties loggingConfigFile);
 }
