@@ -1,11 +1,11 @@
 package org.openrepose.rackspace.auth_2_0.identity.content.credentials.wrappers;
 
-import org.openrepose.rackspace.auth_2_0.identity.content.credentials.AuthCredentials;
-import org.openstack.docs.identity.api.v2.CredentialType;
-
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import org.openrepose.rackspace.auth_2_0.identity.content.credentials.AuthCredentials;
+import org.openstack.docs.identity.api.v2.CredentialType;
 
 
 public abstract class CredentialsWrapper<T extends CredentialType> implements AuthCredentials {
@@ -16,14 +16,14 @@ public abstract class CredentialsWrapper<T extends CredentialType> implements Au
    }
 
    private T credentials;
-   private final String[] fields;
+   private final List<String> fields;
 
    public CredentialsWrapper() {
       fields = null;
    }
 
    public CredentialsWrapper(String[] fields) {
-      this.fields = fields;
+      this.fields = Arrays.asList(fields);
    }
 
 

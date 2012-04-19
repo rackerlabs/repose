@@ -5,11 +5,9 @@ import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.service.routing.RoutingService;
 
 public class RoundRobinRoutingService implements RoutingService {
-   private final PowerProxy config;
    private final ServiceDomains domains;
 
    public RoundRobinRoutingService(PowerProxy config) {
-      this.config = config;
       this.domains = new ServiceDomains(config);
    }
    

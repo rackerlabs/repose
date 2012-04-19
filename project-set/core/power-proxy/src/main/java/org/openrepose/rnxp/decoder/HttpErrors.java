@@ -9,7 +9,7 @@ import org.openrepose.rnxp.http.HttpMessageComponent;
  * 
  * @author zinic
  */
-public class HttpErrors {
+public final class HttpErrors {
 
     // Error Constants
     private static final HttpErrorPartial METHOD_NOT_IMPLEMENTED = new HttpErrorPartial(HttpMessageComponent.REQUEST_METHOD, HttpStatusCode.NOT_IMPLEMENTED, "Method not supported");

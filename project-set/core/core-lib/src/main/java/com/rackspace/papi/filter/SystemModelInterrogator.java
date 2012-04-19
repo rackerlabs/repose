@@ -14,7 +14,6 @@ import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
 import org.slf4j.Logger;
@@ -42,7 +41,7 @@ public class SystemModelInterrogator {
       this.ports = ports;
    }
 
-   public class DomainNodeWrapper {
+   public final class DomainNodeWrapper {
 
       private final DomainNode node;
 
@@ -86,7 +85,7 @@ public class SystemModelInterrogator {
 
    }
 
-   public class ServiceDomainWrapper {
+   public final class ServiceDomainWrapper {
 
       private final ServiceDomain domain;
 

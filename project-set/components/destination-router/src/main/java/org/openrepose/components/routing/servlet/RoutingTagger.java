@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 public class RoutingTagger extends AbstractFilterLogicHandler {
 
-   private static final Logger LOG = LoggerFactory.getLogger(RoutingTagger.class);
+   //private static final Logger LOG = LoggerFactory.getLogger(RoutingTagger.class);
    private static final String DEFAULT_QUALITY = "0.5";
    private final Target target;
    private float quality;

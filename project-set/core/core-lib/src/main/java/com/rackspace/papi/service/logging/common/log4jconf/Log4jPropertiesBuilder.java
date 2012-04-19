@@ -17,7 +17,7 @@ public class Log4jPropertiesBuilder {
     private Properties properties;
     private Level logLevel;
     private ArrayList<Log4jAppender> appenders;
-    private final String ROOT_LOGGER = "log4j.rootLogger";
+    private static final String ROOT_LOGGER = "log4j.rootLogger";
     
     public Log4jPropertiesBuilder() {
         this.properties = new Properties();
