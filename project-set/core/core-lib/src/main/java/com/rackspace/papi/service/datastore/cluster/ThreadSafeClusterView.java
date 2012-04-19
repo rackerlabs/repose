@@ -27,7 +27,6 @@ public class ThreadSafeClusterView implements MutableClusterView {
          return o1Address.compareTo(o2Address);
       }
    };
-   
    private static final int DEFAULT_REST_DURATION_IN_MILISECONDS = 10000;
    private final NetworkInterfaceProvider networkInterfaceProvider;
    private final List<ClusterMember> clusterMembers;
@@ -61,7 +60,7 @@ public class ThreadSafeClusterView implements MutableClusterView {
    public synchronized void memberDamaged(InetSocketAddress address, String reason) {
       for (ClusterMember member : clusterMembers) {
          if (member.getMemberAddress().equals(address)) {
-            LOG.warn("Cluster member \"" + member.getMemberAddress().toString() 
+            LOG.warn("Cluster member \"" + member.getMemberAddress().toString()
                     + "\" has been marked as damaged. We will retry this cluster "
                     + "member later. Reason: " + reason);
 
@@ -70,6 +69,7 @@ public class ThreadSafeClusterView implements MutableClusterView {
          }
       }
    }
+
    @Override
    public synchronized void updateMembers(InetSocketAddress[] view) {
       clusterMembers.clear();
@@ -87,12 +87,12 @@ public class ThreadSafeClusterView implements MutableClusterView {
 
       for (ClusterMember member : clusterMembers) {
          final boolean memberIsOnline = member.isOnline();
-         
+
          if (memberIsOnline || member.shouldRetry()) {
             if (!memberIsOnline) {
                LOG.warn("Cluster member \"" + member.getMemberAddress().toString() + "\" was previously marked as damaged but is now eligible for retry.");
             }
-            
+
             activeClusterMembers.add(member.getMemberAddress());
          }
       }
@@ -107,29 +107,27 @@ public class ThreadSafeClusterView implements MutableClusterView {
             return true;
          }
       }
-      
+
       return false;
    }
 
    @Override
    public boolean isLocal(InetSocketAddress addr) throws SocketException {
       boolean havePort = false;
-      for (Port port: listenPorts) {
+      for (Port port : listenPorts) {
          if (addr.getPort() == port.getPort()) {
             havePort = true;
             break;
          }
       }
-      
-      if (havePort) {
-         if (networkInterfaceProvider.hasInterfaceFor(addr.getAddress())) {
-            return true;
-         }
+
+      if (havePort && networkInterfaceProvider.hasInterfaceFor(addr.getAddress())) {
+         return true;
       }
 
       return false;
    }
-   
+
    @Override
    public List<Port> getListenPorts() {
       return listenPorts;

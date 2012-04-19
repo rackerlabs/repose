@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class CredentialsWrapper<T extends Credentials> implements AuthCredentials {
-   public final static List<Class<? extends CredentialsWrapper>> wrappers = new ArrayList<Class<? extends CredentialsWrapper>>();
+   public static final List<Class<? extends CredentialsWrapper>> wrappers = new ArrayList<Class<? extends CredentialsWrapper>>();
    static {
       wrappers.add(UserCredentialsWrapper.class);
       wrappers.add(MossoCredentialsWrapper.class);

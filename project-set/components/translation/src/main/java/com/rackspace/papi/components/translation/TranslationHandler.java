@@ -25,8 +25,8 @@ import javax.xml.transform.Source;
 import org.xml.sax.InputSource;
 
 public class TranslationHandler extends AbstractFilterLogicHandler {
-    private final static String SOURCE_PORT = "source";
-    private final static String PRIMARY_RESULT = "result";
+    private static final String SOURCE_PORT = "source";
+    private static final String PRIMARY_RESULT = "result";
     private final TranslationConfig config;
     private final RequestStreamPostProcessor postProcessor;
     private Pool<Pipeline> requestPipelinePool;

@@ -16,7 +16,7 @@ import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import javax.servlet.http.HttpServletRequest;
 
 public class UriIdentityHandler extends AbstractFilterLogicHandler {
-   private final static String DEFAULT_GROUP = "User_Standard";
+   private static final String DEFAULT_GROUP = "User_Standard";
    private final UriIdentityConfig config;
    private final String quality;
    private final KeyedRegexExtractor<Object> keyedRegexExtractor;

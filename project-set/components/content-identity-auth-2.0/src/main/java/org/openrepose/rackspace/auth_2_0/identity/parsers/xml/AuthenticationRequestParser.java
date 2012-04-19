@@ -20,7 +20,7 @@ import java.io.InputStream;
 public class AuthenticationRequestParser implements AuthContentParser {
    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationRequestParser.class);
 
-   private final static String AUTH_2_0_NAMESPACE = "http://docs.openstack.org/identity/api/v2.0";
+   private static final String AUTH_2_0_NAMESPACE = "http://docs.openstack.org/identity/api/v2.0";
 
    private final Unmarshaller unmarshaller;
    private final NamespaceFilter namespaceFilter;

@@ -50,15 +50,15 @@ public class FilterDirectorImpl implements FilterDirector {
    public void addDestination(String id, String uri, float quality) {
       destinations.add(new RouteDestination(id, uri, quality));
    }
-   
+
    public void addDestination(Destination dest, String uri, float quality) {
       addDestination(dest.getId(), uri, quality);
    }
-   
+
    public List<RouteDestination> getDestinations() {
       return Collections.unmodifiableList(destinations);
    }
-   
+
    @Override
    public synchronized void applyTo(MutableHttpServletRequest request) {
       if (requestHeaderManager().hasHeaders()) {
@@ -72,8 +72,8 @@ public class FilterDirectorImpl implements FilterDirector {
       if (requestUrl != null && StringUtilities.isNotBlank(requestUrl.toString())) {
          request.setRequestUrl(requestUrl);
       }
-      
-      for (RouteDestination dest: destinations) {
+
+      for (RouteDestination dest : destinations) {
          request.addDestination(dest);
       }
    }
@@ -84,10 +84,8 @@ public class FilterDirectorImpl implements FilterDirector {
          responseHeaderManager().applyTo(response);
       }
 
-      if (HttpStatusCode.UNSUPPORTED_RESPONSE_CODE.intValue() != status) {
-         if (delegatedAction != FilterAction.NOT_SET) {
-            response.setStatus(status);
-         }
+      if (HttpStatusCode.UNSUPPORTED_RESPONSE_CODE.intValue() != status && delegatedAction != FilterAction.NOT_SET) {
+         response.setStatus(status);
       }
 
       if (directorOutputStream.size() > 0) {

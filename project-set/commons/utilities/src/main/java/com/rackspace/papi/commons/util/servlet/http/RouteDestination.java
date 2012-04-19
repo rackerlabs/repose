@@ -1,7 +1,6 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
 public class RouteDestination implements Comparable {
-
    private final String destinationId;
    private final String uri;
    private final float quality;
@@ -32,12 +31,15 @@ public class RouteDestination implements Comparable {
       return compareTo(o) == 0;
    }
 
+   private static final int BASE_HASH = 3;
+   private static final int PRIME = 79;
    @Override
    public int hashCode() {
-      int hash = 3;
-      hash = 79 * hash + (this.destinationId != null ? this.destinationId.hashCode() : 0);
-      hash = 79 * hash + (this.uri != null ? this.uri.hashCode() : 0);
-      hash = 79 * hash + Float.floatToIntBits(this.quality);
+      
+      int hash = BASE_HASH;
+      hash = PRIME * hash + (this.destinationId != null ? this.destinationId.hashCode() : 0);
+      hash = PRIME * hash + (this.uri != null ? this.uri.hashCode() : 0);
+      hash = PRIME * hash + Float.floatToIntBits(this.quality);
       return hash;
    }
 

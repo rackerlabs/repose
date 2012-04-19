@@ -10,7 +10,7 @@ import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
 public class HashRingDatastoreManager implements DatastoreManager {
 
    public static final String DATASTORE_MANAGER_NAME = "distributed/hash-ring";
-   private final String HOST_KEY = "temp-host-key";
+   private static final String HOST_KEY = "temp-host-key";
    private final HashRingDatastore datastore;
    private boolean available;
 

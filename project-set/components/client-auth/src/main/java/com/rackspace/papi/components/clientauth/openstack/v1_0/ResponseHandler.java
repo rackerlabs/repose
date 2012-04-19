@@ -13,7 +13,7 @@ public class ResponseHandler {
 
    private final ReadableHttpServletResponse response;
    private final String wwwAuthenticate;
-   private final static String DELEGATED = "Delegated";
+   private static final String DELEGATED = "Delegated";
 
    public ResponseHandler(ReadableHttpServletResponse response, String wwwAuthenticate) {
       this.response = response;

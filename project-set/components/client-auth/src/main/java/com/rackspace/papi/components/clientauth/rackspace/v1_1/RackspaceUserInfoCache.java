@@ -5,7 +5,7 @@ import com.rackspace.papi.components.clientauth.UserAuthTokenCache;
 import com.rackspace.papi.service.datastore.Datastore;
 
 public class RackspaceUserInfoCache extends UserAuthTokenCache<CachableTokenInfo> {
-   public final static String AUTH_TOKEN_CACHE_PREFIX = "rackspace.v1.1.token";
+   public static final String AUTH_TOKEN_CACHE_PREFIX = "rackspace.v1.1.token";
 
    public RackspaceUserInfoCache(Datastore store) {
       super(store, CachableTokenInfo.class);
