@@ -10,7 +10,7 @@ script "getVersionAndBuildNumbers" do
    interpreter "ruby"
    `rm -rf /var/lib/tomcat7/webapps/*`
    latestUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/papi/core/valve/maven-metadata.xml"
-   latest = `wget -qO- '#{latestUrl}'`.split(/<\/?version>/).select{|v| v=~ /SNAPSHOT/}.pop
+   latest = `wget -qO- '#{latestUrl}'`.split(/<\/?latest>/).select{|v| v=~ /SNAPSHOT/}.pop
 
 
    rootWarUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/papi/core/web-application/#{latest}"
