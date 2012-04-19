@@ -1,5 +1,6 @@
 package com.rackspace.auth.v1_1;
 
+import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspacecloud.docs.auth.api.v1.FullToken;
@@ -65,17 +66,17 @@ public class AuthenticationServiceClient {
               "type", account.getKey());
       
       final int response = validateTokenMethod.getStatusCode();
-      switch (response) {
-         case 200:
+      switch (HttpStatusCode.fromInt(response)) {
+         case OK:
             final FullToken tokenResponse = responseUnmarshaller.unmarshall(validateTokenMethod.getData(), FullToken.class);
 
             tokenInfo = new CachableTokenInfo(account.getResult(), tokenResponse);
             break;
             
-         case 404: // User's token is bad
+         case NOT_FOUND: // User's token is bad
             break;
             
-         case 401: // Admin token is bad most likely
+         case UNAUTHORIZED: // Admin token is bad most likely
             LOG.warn("Unable to validate token for tenant.  Has the admin token expired? " + validateTokenMethod.getStatusCode());
             break;
       }
@@ -103,8 +104,8 @@ public class AuthenticationServiceClient {
       final String url = "/" + prefix + "/" + userId;
       final ClientResponse response = serviceClient.getClientResponse(targetHostUri + url);
 
-      switch (response.getStatus()) {
-         case 200:
+      switch (HttpStatusCode.fromInt(response.getStatus())) {
+         case OK:
             User user = response.getEntity(User.class);
             if (user != null) {
                return user.getId();
@@ -124,8 +125,8 @@ public class AuthenticationServiceClient {
       final int response = serviceResponse.getStatusCode();
       GroupsList groups = null;
 
-      switch (response) {
-         case 200:
+      switch (HttpStatusCode.fromInt(response)) {
+         case OK:
             groups = responseUnmarshaller.unmarshall(serviceResponse.getData(), GroupsList.class);
             break;
             

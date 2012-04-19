@@ -18,8 +18,8 @@ public class Log4jAppender {
     private String layout;
     private String conversionPattern;
     private Map<String,String> appender;
-    private final static String LOG4J_APP_PREFIX = "log4j.appender.";
-    private final static String LOG4J_PREFIX = "org.apache.log4j.";
+    private static final String LOG4J_APP_PREFIX = "log4j.appender.";
+    private static final String LOG4J_PREFIX = "org.apache.log4j.";
 
     public Log4jAppender(String appenderName, String logger, String layout, String conversionPattern) {
         this.appenderName = appenderName;

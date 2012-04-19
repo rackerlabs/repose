@@ -62,10 +62,8 @@ public class ArchiveEntryProcessor {
       final File targetDir = new File(unpackRootDirectory, StringUtilities.isBlank(prefix) ? "" : prefix);
       final DirectoryHelper directoryHelper = new DirectoryHelper(targetDir);
 
-      if (!directoryHelper.exists()) {
-         if (!directoryHelper.createTargetDirectory()) {
-            LOG.error("Unable to create target directory for unpacking artifact - Target directory: " + targetDir);
-         }
+      if (!directoryHelper.exists() && !directoryHelper.createTargetDirectory()) {
+         LOG.error("Unable to create target directory for unpacking artifact - Target directory: " + targetDir);
       }
 
       final File target = new File(targetDir, archiveEntryDescriptor.getSimpleName() + "." + archiveEntryDescriptor.getExtension());

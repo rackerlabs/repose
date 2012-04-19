@@ -37,7 +37,7 @@ public enum LogFormatArgument {
       return argument;
    }
 
-   private final static class ReverseLookup {
+   private static final class ReverseLookup {
 
       public static final Map<String, LogFormatArgument> LOOKUP_MAP = new TreeMap<String, LogFormatArgument>();
 

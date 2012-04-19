@@ -36,7 +36,7 @@ public class AuthenticationHeaderManager {
 
    // Hard code QUALITY for now as the auth component will have
    // the highest QUALITY in terms of using the user it supplies for rate limiting
-   private final static String QUALITY = ";q=1.0";
+   private static final String QUALITY = ";q=1.0";
 
     public AuthenticationHeaderManager(String authToken, CachableUserInfo cachableTokenInfo, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, Groups groups, HttpServletRequest request) {
       this.authToken = authToken;

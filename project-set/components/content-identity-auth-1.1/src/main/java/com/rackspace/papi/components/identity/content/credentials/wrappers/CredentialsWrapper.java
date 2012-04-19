@@ -3,11 +3,12 @@ package com.rackspace.papi.components.identity.content.credentials.wrappers;
 import com.rackspace.papi.components.identity.content.credentials.AuthCredentials;
 import com.rackspacecloud.docs.auth.api.v1.Credentials;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 public abstract class CredentialsWrapper<T extends Credentials> implements AuthCredentials {
-   public final static List<Class<? extends CredentialsWrapper>> wrappers = new ArrayList<Class<? extends CredentialsWrapper>>();
+   public static final List<Class<? extends CredentialsWrapper>> wrappers = new ArrayList<Class<? extends CredentialsWrapper>>();
    static {
       wrappers.add(UserCredentialsWrapper.class);
       wrappers.add(MossoCredentialsWrapper.class);
@@ -16,14 +17,14 @@ public abstract class CredentialsWrapper<T extends Credentials> implements AuthC
    };
    
    private T credentials;
-   private final String[] fields;
+   private final List<String> fields;
    
    public CredentialsWrapper() {
       fields = null;
    }
    
    public CredentialsWrapper(String[] fields) {
-      this.fields = fields;
+      this.fields = Arrays.asList(fields);
    }
    
    

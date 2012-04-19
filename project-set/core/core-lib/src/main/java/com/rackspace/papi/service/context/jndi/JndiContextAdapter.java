@@ -34,7 +34,7 @@ public class JndiContextAdapter implements ContextAdapter {
         this.namingContext = namingContext;
     }
 
-    public static <T> T lookup(String name, Context context) throws ServiceUnavailableException {
+    public static <T> T lookup(String name, Context context) {
         try {
             final Object o = context.lookup(name);
             return ((ServiceContext<T>) o).getService();
@@ -44,52 +44,52 @@ public class JndiContextAdapter implements ContextAdapter {
     }
 
     @Override
-    public ConfigurationService configurationService() throws ServiceUnavailableException {
+    public ConfigurationService configurationService() {
         return lookup(ConfigurationServiceContext.SERVICE_NAME, namingContext);
     }
 
    @Override
-   public ClassLoaderManagerService classLoader() throws ServiceUnavailableException {
+   public ClassLoaderManagerService classLoader() {
       return lookup(ClassLoaderServiceContext.SERVICE_NAME, namingContext);
    }
 
     @Override
-    public DatastoreService datastoreService() throws ServiceUnavailableException {
+    public DatastoreService datastoreService() {
         return lookup(DatastoreServiceContext.SERVICE_NAME, namingContext);
     }
 
     @Override
-    public ResponseMessageService responseMessageService() throws ServiceUnavailableException {
+    public ResponseMessageService responseMessageService() {
         return lookup(ResponseMessageServiceContext.SERVICE_NAME, namingContext);
     }
 
     @Override
-    public EventService eventService() throws ServiceUnavailableException {
+    public EventService eventService() {
         return lookup(EventManagerServiceContext.SERVICE_NAME, namingContext);
     }
 
     @Override
-    public ThreadingService threadingService() throws ServiceUnavailableException {
+    public ThreadingService threadingService() {
         return lookup(ThreadingServiceContext.SERVICE_NAME, namingContext);
     }
     
     @Override
-    public RoutingService routingService() throws ServiceUnavailableException {
+    public RoutingService routingService() {
        return lookup(RoutingServiceContext.SERVICE_NAME, namingContext);
     }
 
     @Override
-    public GarbageCollectionService filterChainGarbageCollectorService() throws ServiceUnavailableException {
+    public GarbageCollectionService filterChainGarbageCollectorService() {
         return lookup(FilterChainGCServiceContext.SERVICE_NAME, namingContext);
     }
 
     @Override
-    public LoggingService loggingService() throws ServiceUnavailableException {
+    public LoggingService loggingService() {
         return lookup(LoggingServiceContext.SERVICE_NAME, namingContext);
     }
 
    @Override
-   public ContainerConfigurationService containerConfigurationService() throws ServiceUnavailableException {
+   public ContainerConfigurationService containerConfigurationService() {
         return lookup(ContainerServiceContext.SERVICE_NAME, namingContext);
    }
 }

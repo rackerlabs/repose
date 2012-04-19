@@ -1,5 +1,7 @@
 package org.openrepose.rnxp.http;
 
+import java.util.Arrays;
+
 /**
  *
  * @author zinic
@@ -40,7 +42,7 @@ public class HttpMessageComponentOrder {
     private final HttpMessageComponent[] order;
 
     private HttpMessageComponentOrder(HttpMessageComponent[] order) {
-        this.order = order;
+        this.order = Arrays.copyOf(order, order.length);
     }
 
     public boolean isBefore(HttpMessageComponent first, HttpMessageComponent second) {

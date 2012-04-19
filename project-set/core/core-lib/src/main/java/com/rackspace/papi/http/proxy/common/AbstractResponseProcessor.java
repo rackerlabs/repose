@@ -11,8 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.http.HttpException;
 
 public abstract class AbstractResponseProcessor {
-   private final static String[] EXCLUDE_HEADERS = { "connection", "transfer-encoding", "server" };
-   private final static TreeSet<String> EXCLUDE_HEADERS_SET = new TreeSet<String>(Arrays.asList(EXCLUDE_HEADERS));
+   private static final String[] EXCLUDE_HEADERS = { "connection", "transfer-encoding", "server" };
+   private static final TreeSet<String> EXCLUDE_HEADERS_SET = new TreeSet<String>(Arrays.asList(EXCLUDE_HEADERS));
    
    private final HttpServletResponse response;
    private final HttpResponseCodeProcessor responseCode;

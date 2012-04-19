@@ -15,7 +15,7 @@ public class MonitorThread extends Thread {
    private static final Logger LOG = LoggerFactory.getLogger(ProxyApp.class);
    private ServerSocket socket;
    private Server serverInstance;
-   private final static String MONITOR_NAME = "StopMonitor";
+   private static final String MONITOR_NAME = "StopMonitor";
 
    public MonitorThread(Server serverInstance, final int stopPort, final String ipAddress) {
       if (serverInstance == null) {

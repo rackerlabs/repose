@@ -4,7 +4,7 @@ import java.net.InetSocketAddress;
 
 public class ClusterMember {
 
-   private final static int REQUIRED_VALIDATION_PASSES = 4;
+   private static final int REQUIRED_VALIDATION_PASSES = 4;
    private final InetSocketAddress memberAddress;
    private final int droppedMemberRestTime, requiredValidationPasses;
    private long droppedTime, restPeriod;
