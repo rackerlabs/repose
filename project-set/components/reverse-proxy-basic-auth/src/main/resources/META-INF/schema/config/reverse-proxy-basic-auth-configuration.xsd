@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.api.rackspacecloud.com/powerapi/reverse-proxy-basic-auth/v1.0"
+           xmlns:reverse-proxy-basic-auth="http://docs.api.rackspacecloud.com/powerapi/reverse-proxy-basic-auth/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:atom="http://www.w3.org/2005/Atom"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Basic Authentication Configuration -->
+    <xs:element name="reverse-proxy-basic-authentication" type="reverse-proxy-basic-auth:ReverseProxyBasicAuthConfig"/>
+
+    <xs:complexType name="ReverseProxyBasicAuthConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:all>            
+            <xs:element name="credentials" type="reverse-proxy-basic-auth:Credentials" minOccurs="0" maxOccurs="1" />
+        </xs:all>
+
+    </xs:complexType>
+    
+    <xs:complexType name="Credentials">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Credentials to pass on to the origin service</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="username" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Username to use (Basic Auth Only)</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="password" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Password to use (Basic Auth Only)</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+</xs:schema>
