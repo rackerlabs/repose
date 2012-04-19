@@ -9,10 +9,10 @@ import org.openstack.docs.identity.api.v2.CredentialType;
 
 
 public abstract class CredentialsWrapper<T extends CredentialType> implements AuthCredentials {
-   public static final List<Class<? extends CredentialsWrapper>> wrappers = new ArrayList<Class<? extends CredentialsWrapper>>();
+   public static final List<Class<? extends CredentialsWrapper>> WRAPPERS = new ArrayList<Class<? extends CredentialsWrapper>>();
    static {
-      wrappers.add(ApiKeyCredentialsWrapper.class);
-      wrappers.add(PasswordCredentialsWrapper.class);
+      WRAPPERS.add(ApiKeyCredentialsWrapper.class);
+      WRAPPERS.add(PasswordCredentialsWrapper.class);
    }
 
    private T credentials;

@@ -6,7 +6,7 @@ import java.util.Arrays;
  *
  * @author zinic
  */
-public class HttpMessageComponentOrder {
+public final class HttpMessageComponentOrder {
 
     private static final HttpMessageComponentOrder REQUEST_COMP_ORDER = new HttpMessageComponentOrder(new HttpMessageComponent[]{
         HttpMessageComponent.MESSAGE_START,

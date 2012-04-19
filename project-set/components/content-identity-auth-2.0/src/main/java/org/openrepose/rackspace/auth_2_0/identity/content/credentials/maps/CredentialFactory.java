@@ -10,7 +10,7 @@ import org.openstack.docs.identity.api.v2.PasswordCredentialsBase;
 import javax.xml.bind.JAXBElement;
 import java.util.Map;
 
-public class CredentialFactory {
+public final class CredentialFactory {
 
    private CredentialFactory() {
    }

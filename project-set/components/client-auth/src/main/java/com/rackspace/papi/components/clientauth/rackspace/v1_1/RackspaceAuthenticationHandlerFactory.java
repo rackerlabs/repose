@@ -9,7 +9,7 @@ import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
 import com.rackspace.papi.components.clientauth.rackspace.config.RackspaceAuth;
 import com.rackspace.papi.service.datastore.Datastore;
 
-public class RackspaceAuthenticationHandlerFactory {
+public final class RackspaceAuthenticationHandlerFactory {
 
    private RackspaceAuthenticationHandlerFactory() {}
    

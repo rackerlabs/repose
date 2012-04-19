@@ -36,7 +36,7 @@ public class ServletContextWrapper implements ServletContext {
    private static final Logger LOG = LoggerFactory.getLogger(ServletContextWrapper.class);
    private final ServletContext context;
    private final String targetContext;
-   private static final Map<String, RequestDispatcher> dispatchers = new HashMap<String, RequestDispatcher>();
+   private static final Map<String, RequestDispatcher> DISPATCHERS = new HashMap<String, RequestDispatcher>();
    private final String target;
    private static int connectionTimeout = 0;
    private static int readTimeout = 0;
@@ -156,11 +156,11 @@ public class ServletContextWrapper implements ServletContext {
       RequestDispatcher dispatcher = null;
 
       if (target != null) {
-         synchronized (dispatchers) {
-            dispatcher = dispatchers.get(target);
+         synchronized (DISPATCHERS) {
+            dispatcher = DISPATCHERS.get(target);
             if (dispatcher == null) {
                dispatcher = new HttpRequestDispatcher(targetContext, getConnectionTimeout(), getReadTimeout());
-               dispatchers.put(target, dispatcher);
+               DISPATCHERS.put(target, dispatcher);
             }
          }
       }
@@ -176,8 +176,8 @@ public class ServletContextWrapper implements ServletContext {
 
          // if timeouts have changed in the config then force a rebuild of the dispatchers map
          if (timeoutsChanged()) {
-            synchronized (dispatchers) {
-               dispatchers.clear();
+            synchronized (DISPATCHERS) {
+               DISPATCHERS.clear();
             }
             
             LOG.info("Timeouts have changed.  Clearing request dispatcher map.");

@@ -10,7 +10,7 @@ import java.security.Permissions;
  *
  * @author zinic
  */
-public class FilePermissionBuilder {
+public final class FilePermissionBuilder {
 
    public static final String ANY_FILE = "<<ALL FILES>>";
    public static final String TEMP_DIR_PROPERTY = "java.io.tmpdir";

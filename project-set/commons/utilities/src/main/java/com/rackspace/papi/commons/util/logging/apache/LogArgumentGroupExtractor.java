@@ -11,17 +11,17 @@ public class LogArgumentGroupExtractor {
 
    public interface LOG_CONSTANTS {
 
-      static final String LIFECYCLE_MODIFIER_EXTRACTOR = "([<>])?";           // Group 1
-      static final String STATUS_CODE_EXTRACTOR = "([!]?([0-9]{3}[,]?)*)?";   // Group 2, 3 (ignore)
+      final String LIFECYCLE_MODIFIER_EXTRACTOR = "([<>])?";           // Group 1
+      final String STATUS_CODE_EXTRACTOR = "([!]?([0-9]{3}[,]?)*)?";   // Group 2, 3 (ignore)
       //private static final String VARIABLE_EXTRACTOR = "(\\{([\\-a-zA-Z0-9]*)\\})?";  // Group 4 (ignore), 5
-      static final String VARIABLE_EXTRACTOR = "(\\{([\\-a-zA-Z0-9]*)[ ,]?([_\\-a-zA-Z0-9 ,]*)\\})?";  // Group 4 (ignore), 5, 6 
-      static final String ENTITY_EXTRACTOR = "([%a-zA-Z])";                   // Group 6
-      static final Pattern PATTERN = Pattern.compile("%" + LIFECYCLE_MODIFIER_EXTRACTOR + STATUS_CODE_EXTRACTOR + VARIABLE_EXTRACTOR + ENTITY_EXTRACTOR);
-      static final int LIFECYCLE_GROUP_INDEX = 1;
-      static final int STATUS_CODE_INDEX = 2;
-      static final int VARIABLE_INDEX = 5;
-      static final int ARGUMENTS_INDEX = 6;
-      static final int ENTITY_INDEX = 7;
+      final String VARIABLE_EXTRACTOR = "(\\{([\\-a-zA-Z0-9]*)[ ,]?([_\\-a-zA-Z0-9 ,]*)\\})?";  // Group 4 (ignore), 5, 6 
+      final String ENTITY_EXTRACTOR = "([%a-zA-Z])";                   // Group 6
+      final Pattern PATTERN = Pattern.compile("%" + LIFECYCLE_MODIFIER_EXTRACTOR + STATUS_CODE_EXTRACTOR + VARIABLE_EXTRACTOR + ENTITY_EXTRACTOR);
+      final int LIFECYCLE_GROUP_INDEX = 1;
+      final int STATUS_CODE_INDEX = 2;
+      final int VARIABLE_INDEX = 5;
+      final int ARGUMENTS_INDEX = 6;
+      final int ENTITY_INDEX = 7;
    }
    private String lifeCycleModifier;
    private String statusCodes;

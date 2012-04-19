@@ -49,8 +49,6 @@ import javax.servlet.http.HttpServletResponse;
 public class JerseyClientProxyService implements ProxyService {
    private static final Logger LOG = LoggerFactory.getLogger(JerseyClientProxyService.class);
 
-   private static final Map<String, WebResource> resourceMap = new HashMap<String, WebResource>();
-
    private final Client client;
    private final URI proxiedHost;
    private final String proxiedHostUrl;
@@ -84,19 +82,6 @@ public class JerseyClientProxyService implements ProxyService {
          LOG.error("Invalid host url: " + host, ex);
       }
       return "";
-   }
-
-   private WebResource getResource(JerseyRequestProcessor processor, String target) {
-      synchronized (resourceMap) {
-         WebResource resource = resourceMap.get(target);
-
-         if (resource == null) {
-            resource = processor.setRequestParameters(client.resource(target));
-            resourceMap.put(target, resource);
-         }
-
-         return resource;
-      }
    }
 
    @Override

@@ -10,7 +10,7 @@ import java.util.Properties;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 
-public class ConfigurationParserFactory {
+public final class ConfigurationParserFactory {
 
     private ConfigurationParserFactory() {
     }
