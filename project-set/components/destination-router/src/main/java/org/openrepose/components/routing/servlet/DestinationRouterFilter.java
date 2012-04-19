@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
 
 public class DestinationRouterFilter implements Filter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DestinationRouterFilter.class);
+    //private static final Logger LOG = LoggerFactory.getLogger(DestinationRouterFilter.class);
     private DestinationRouterHandlerFactory handlerFactory;
 
     @Override

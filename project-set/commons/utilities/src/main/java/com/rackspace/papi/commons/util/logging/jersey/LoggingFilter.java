@@ -91,7 +91,7 @@ public class LoggingFilter extends ClientFilter {
 
     private final Logger logger;
 
-    private long _id = 0;
+    private long id = 0;
 
     /**
      * Create a logging filter logging the request and response to
@@ -132,29 +132,29 @@ public class LoggingFilter extends ClientFilter {
         }
     }
 
-    private StringBuilder prefixId(StringBuilder b, long id) {
-        b.append(Long.toString(id)).append(" ");
+    private StringBuilder prefixId(StringBuilder b, long localId) {
+        b.append(Long.toString(localId)).append(" ");
         return b;
     }
 
     @Override
     public ClientResponse handle(ClientRequest request) throws ClientHandlerException {
-        long id = ++this._id;
+        long localId = ++this.id;
 
-        logRequest(id, request);
+        logRequest(localId, request);
 
         ClientResponse response = getNext().handle(request);
 
-        logResponse(id, response);
+        logResponse(localId, response);
 
         return response;
     }
 
-    private void logRequest(long id, ClientRequest request) {
+    private void logRequest(long localId, ClientRequest request) {
         StringBuilder b = new StringBuilder();
         
-        printRequestLine(b, id, request);
-        printRequestHeaders(b, id, request.getHeaders());
+        printRequestLine(b, localId, request);
+        printRequestHeaders(b, localId, request.getHeaders());
 
         if (request.getEntity() != null) {
             request.setAdapter(new Adapter(request.getAdapter(), b));
@@ -163,19 +163,19 @@ public class LoggingFilter extends ClientFilter {
         }
     }
 
-    private void printRequestLine(StringBuilder b, long id, ClientRequest request) {
-        prefixId(b, id).append(NOTIFICATION_PREFIX).append("Client out-bound request").append("\n");
-        prefixId(b, id).append(REQUEST_PREFIX).append(request.getMethod()).append(" ").
+    private void printRequestLine(StringBuilder b, long localId, ClientRequest request) {
+        prefixId(b, localId).append(NOTIFICATION_PREFIX).append("Client out-bound request").append("\n");
+        prefixId(b, localId).append(REQUEST_PREFIX).append(request.getMethod()).append(" ").
                 append(request.getURI().toASCIIString()).append("\n");
     }
 
-    private void printRequestHeaders(StringBuilder b, long id, MultivaluedMap<String, Object> headers) {
+    private void printRequestHeaders(StringBuilder b, long localId, MultivaluedMap<String, Object> headers) {
         for (Map.Entry<String, List<Object>> e : headers.entrySet()) {
             List<Object> val = e.getValue();
             String header = e.getKey();
 
             if(val.size() == 1) {
-                prefixId(b, id).append(REQUEST_PREFIX).append(header).append(": ").append(ClientRequest.getHeaderValue(val.get(0))).append("\n");
+                prefixId(b, localId).append(REQUEST_PREFIX).append(header).append(": ").append(ClientRequest.getHeaderValue(val.get(0))).append("\n");
             } else {
                 StringBuilder sb = new StringBuilder();
                 boolean add = false;
@@ -184,16 +184,16 @@ public class LoggingFilter extends ClientFilter {
                     add = true;
                     sb.append(ClientRequest.getHeaderValue(o));
                 }
-                prefixId(b, id).append(REQUEST_PREFIX).append(header).append(": ").append(sb.toString()).append("\n");
+                prefixId(b, localId).append(REQUEST_PREFIX).append(header).append(": ").append(sb.toString()).append("\n");
             }
         }
     }
 
-    private void logResponse(long id, ClientResponse response) {
+    private void logResponse(long localId, ClientResponse response) {
         StringBuilder b = new StringBuilder();
 
-        printResponseLine(b, id, response);
-        printResponseHeaders(b, id, response.getHeaders());
+        printResponseLine(b, localId, response);
+        printResponseHeaders(b, localId, response.getHeaders());
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         InputStream in = response.getEntityInputStream();
@@ -209,23 +209,23 @@ public class LoggingFilter extends ClientFilter {
         log(b);
     }
 
-    private void printResponseLine(StringBuilder b, long id, ClientResponse response) {
-        prefixId(b, id).append(NOTIFICATION_PREFIX).
+    private void printResponseLine(StringBuilder b, long localId, ClientResponse response) {
+        prefixId(b, localId).append(NOTIFICATION_PREFIX).
                 append("Client in-bound response").append("\n");
-        prefixId(b, id).append(RESPONSE_PREFIX).
+        prefixId(b, localId).append(RESPONSE_PREFIX).
                 append(Integer.toString(response.getStatus())).
                 append("\n");
     }
     
-    private void printResponseHeaders(StringBuilder b, long id, MultivaluedMap<String, String> headers) {
+    private void printResponseHeaders(StringBuilder b, long localId, MultivaluedMap<String, String> headers) {
         for (Map.Entry<String, List<String>> e : headers.entrySet()) {
             String header = e.getKey();
             for (String value : e.getValue()) {
-                prefixId(b, id).append(RESPONSE_PREFIX).append(header).append(": ").
+                prefixId(b, localId).append(RESPONSE_PREFIX).append(header).append(": ").
                         append(value).append("\n");
             }
         }
-        prefixId(b, id).append(RESPONSE_PREFIX).append("\n");
+        prefixId(b, localId).append(RESPONSE_PREFIX).append("\n");
     }
 
     private void printEntity(StringBuilder b, byte[] entity) throws IOException {

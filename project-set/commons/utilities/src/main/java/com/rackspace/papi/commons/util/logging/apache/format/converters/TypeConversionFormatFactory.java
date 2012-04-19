@@ -24,7 +24,7 @@ public enum TypeConversionFormatFactory {
     }
 }
 
-class ConverterMap {
+final class ConverterMap {
 
     private static final Map<String, FormatConverter> conversionMap = new HashMap<String, FormatConverter>();
     
