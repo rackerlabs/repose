@@ -46,10 +46,11 @@
             <plugin>
                 <groupId>com.rackspace.cloud.api</groupId>
                 <artifactId>clouddocs-maven-plugin</artifactId>
-                <!-- this <version> relates only to the *plugin* used for document formatting -->
-                <!-- the version of the *API* that is the subject of the document is indicated within each document -->
-                <!-- 1.0.9 of the plugin, released 2012-01-06, corrects HTML search behavior so words previously not searchable, such as "key", are processed normally -->
-                <version>1.0.9</version>
+                <!-- this <version> relates only to the *plugin* used for document formatting 
+                    the version of the *software* that is the subject of the document is indicated within each document:
+                    look for <releaseinfo> near <pubdate>, both in the <info> section
+                    1.1.0 of the plugin is compatible with Maven 2 for inclusion in the Jenkins build & color-formats sample code -->
+                <version>1.1.0</version>
                 <executions>
                     <execution>
                         <id>g1</id>
@@ -60,6 +61,10 @@
                         </goals>
                         <phase>generate-sources</phase>
                         <configuration>
+                            <!-- don't fail build for validation errors yet; someday -->
+                            <failOnValidationError>no</failOnValidationError>
+                            <!-- do show better error messages -->
+                            <showXslMessages>true</showXslMessages>
                             <!-- support inclusion from external /samples/, /figures/, etc -->
                             <xincludeSupported>true</xincludeSupported>
                             <!-- set branding to OPENSTACK or RACKSPACE -->
@@ -81,6 +86,17 @@
                             <useExtensions>1</useExtensions>
                             <calloutsExtension>1</calloutsExtension>
                             <textinsertExtension>1</textinsertExtension>
+                            <!-- customize source of product logo as path from pom.xml -->
+                            <coverLogoPath>src/resources/img/repose-sponsored-by-rackspace.png</coverLogoPath>
+                            <!-- customize position of product logo as inches in from left -->
+                            <coverLogoLeft>3.9in</coverLogoLeft>
+                            <!-- customize position of product logo as inches down from top -->
+                            <coverLogoTop>4.9in</coverLogoTop>
+                            <!-- customize more-info link on cover: show project home page  
+                                 <coverUrl> value is displayed as-is but "http://" is prepended to link so don't specify it for display -->
+                            <coverUrl>www.openrepose.org</coverUrl>
+                            <!-- customize color of wide band on doc cover as RGB: 0000FF is true blue -->
+                            <coverColor>0066FF</coverColor>
                             <!-- enable pop-up tool-tips from the glossary book into the HTML versions of all the books -->
                             <glossaryCollection>${project.build.directory}/../src/resources/repose-glossary.xml</glossaryCollection>
                             <!-- use this .XML as the source for the books to be generated as .PDF & .HTML -->
