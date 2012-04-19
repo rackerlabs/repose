@@ -146,10 +146,10 @@
         <title>Configuration</title>
         <para> To add the HTTP logging component to a &PRODNAME;
             deployment, add the <code>http-logging</code> filter to
-            the &PRODNAME;  configuration file,
+            the &PRODNAME; configuration file,
                 <code>power-proxy.cfg.xml</code>. You can read about
-            configuring &PRODNAME; in the&PRODNAME; Deployment
-            Handbook.   </para>
+            configuring &PRODNAME; in the &PRODNAME; Deployment
+            Handbook. </para>
         <important>
             <para> &PRODNAME;'s HTTP logging component can only be
                 deployed on a system which supports the UTF-8
