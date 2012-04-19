@@ -37,7 +37,7 @@
                 <xs:element name="user-roles" type="auth-1.1:user-roles" minOccurs="0" maxOccurs="1"/>
             </xs:sequence>
             
-            <xs:attribute name="delegatable" type="xs:boolean" use="optional" default="false">
+            <xs:attribute name="delegable" type="xs:boolean" use="optional" default="false">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>Tells the service whether or not to support auth delegation.</html:p>

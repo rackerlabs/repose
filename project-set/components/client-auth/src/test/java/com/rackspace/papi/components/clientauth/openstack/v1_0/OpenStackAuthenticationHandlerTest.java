@@ -65,7 +65,7 @@ public class OpenStackAuthenticationHandlerTest {
          response = mock(ReadableHttpServletResponse.class);
 
          osauthConfig = new OpenstackAuth();
-         osauthConfig.setDelegatable(delegatable());
+         osauthConfig.setDelegable(delegatable());
 
          keyedRegexExtractor = new KeyedRegexExtractor();
 
