@@ -7,5 +7,11 @@
         <artifact-directory check-interval="60000">/usr/share/repose/filters</artifact-directory>
         
         <logging-configuration href="log4j.properties"/>
+
+        <ssl-configuration>
+            <keystore-filename>keystore.repose</keystore-filename>
+            <keystore-password>manage</keystore-password>
+            <key-password>password</key-password>
+        </ssl-configuration>
     </deployment-config>
 </powerapi-container>
