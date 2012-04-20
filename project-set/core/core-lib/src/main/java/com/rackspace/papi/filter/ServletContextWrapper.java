@@ -36,7 +36,7 @@ public class ServletContextWrapper implements ServletContext {
    private static final Logger LOG = LoggerFactory.getLogger(ServletContextWrapper.class);
    private final ServletContext context;
    private final String targetContext;
-   private static final Map<String, RequestDispatcher> DISPATCHERS = new HashMap<String, RequestDispatcher>();
+   private final Map<String, RequestDispatcher> DISPATCHERS = new HashMap<String, RequestDispatcher>();
    private final String target;
    private static int connectionTimeout = 0;
    private static int readTimeout = 0;
@@ -50,6 +50,18 @@ public class ServletContextWrapper implements ServletContext {
       targetContext = "";
       this.context = context;
       this.target = null;
+   }
+   
+   public String getTargetContext() {
+      return targetContext;
+   }
+   
+   public ServletContext getParentContext() {
+      return context;
+   }
+   
+   public String getTarget() {
+      return target;
    }
 
    public ServletContextWrapper(ServletContext context, String contextName) {
