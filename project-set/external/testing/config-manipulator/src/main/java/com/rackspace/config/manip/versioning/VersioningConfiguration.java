@@ -45,6 +45,6 @@ public class VersioningConfiguration {
 
       System.out.println("Created versioning.cfg.xml file: " + config.toString());
 
-      return Response.created(URI.create("/versioning/" + config.getServiceRoot())).build();
+      return Response.created(URI.create("/versioning/")).build();
    }
 }

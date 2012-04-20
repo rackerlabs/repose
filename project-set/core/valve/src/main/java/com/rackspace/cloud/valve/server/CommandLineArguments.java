@@ -3,14 +3,14 @@ package com.rackspace.cloud.valve.server;
 import org.kohsuke.args4j.*;
 
 public class CommandLineArguments {
-   private static final String defaultHttpPortInfo = "(Default is http port 8080, range is 1024 to 49150)";
+   private static final String defaultHttpPortInfo = "(Range is 1024 to 49150)";
    private static final String defaultHttpsPortInfo = "(Default is only run Repose on http if https port not specified, range is 1024 to 49150)";
    public static final String ACTION_START = "start";
    public static final String ACTION_STOP = "stop";
 
    @Option(name = "-p", aliases = {"--http-port"},
            usage = "Repose http port number " + defaultHttpPortInfo)
-   private Integer httpPort = 8080;
+   private Integer httpPort;
 
    @Option(name = "-ps", aliases = {"--https-port"},
            usage = "Repose https port number " + defaultHttpsPortInfo)
