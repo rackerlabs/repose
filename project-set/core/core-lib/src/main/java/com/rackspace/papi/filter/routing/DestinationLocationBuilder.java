@@ -31,6 +31,10 @@ public class DestinationLocationBuilder {
             throw new IllegalArgumentException("Unknown destination type: " + destination.getClass().getName());
         }
     }
+    
+    public LocationBuilder getBuilder() {
+       return builder;
+    }
 
     public DestinationLocation build() throws MalformedURLException, URISyntaxException {
         return builder.build();
