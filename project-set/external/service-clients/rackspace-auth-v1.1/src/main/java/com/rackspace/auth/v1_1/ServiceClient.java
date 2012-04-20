@@ -20,6 +20,7 @@ import javax.ws.rs.ext.RuntimeDelegate;
  */
 public class ServiceClient {
    private static final Logger LOG = LoggerFactory.getLogger(ServiceClient.class);
+   private static final int TIMEOUT = 30000;
 
    static {
       // If this works we need to figure out why and make sure it's part of our init
@@ -33,8 +34,8 @@ public class ServiceClient {
       cc.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, false);
       // TODO: Eventually make these values configurable in Repose and implement
       // a "backoff" approach with logging.
-      cc.getProperties().put(ClientConfig.PROPERTY_CONNECT_TIMEOUT, 30000);
-      cc.getProperties().put(ClientConfig.PROPERTY_READ_TIMEOUT, 30000);
+      cc.getProperties().put(ClientConfig.PROPERTY_CONNECT_TIMEOUT, TIMEOUT);
+      cc.getProperties().put(ClientConfig.PROPERTY_READ_TIMEOUT, TIMEOUT);
       client = Client.create(cc);
 
       HTTPBasicAuthFilter authFilter = new HTTPBasicAuthFilter(username, password);
@@ -46,7 +47,7 @@ public class ServiceClient {
       }
    }
 
-   public <T> ServiceClientResponse<T> get(String uri, Class<T> entityClass, String... queryParameters) throws AuthServiceException {
+   public <T> ServiceClientResponse<T> get(String uri, Class<T> entityClass, String... queryParameters) {
       WebResource resource = client.resource(uri);
 
       if (queryParameters.length % 2 != 0) {
@@ -61,7 +62,7 @@ public class ServiceClient {
       return new ServiceClientResponse(response.getStatus(), response.getEntity(entityClass));
    }
 
-   public ServiceClientResponse get(String uri, String... queryParameters) throws AuthServiceException {
+   public ServiceClientResponse get(String uri, String... queryParameters) {
       WebResource resource = client.resource(uri);
 
       if (queryParameters.length % 2 != 0) {
@@ -76,7 +77,7 @@ public class ServiceClient {
       return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
    }
 
-   public ClientResponse getClientResponse(String uri, String... queryParameters) throws AuthServiceException {
+   public ClientResponse getClientResponse(String uri, String... queryParameters) {
       WebResource resource = client.resource(uri);
 
       if (queryParameters.length % 2 != 0) {

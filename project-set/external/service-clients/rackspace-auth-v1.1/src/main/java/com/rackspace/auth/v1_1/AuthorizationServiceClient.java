@@ -1,5 +1,6 @@
 package com.rackspace.auth.v1_1;
 
+import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspacecloud.docs.auth.api.v1.Endpoint;
 import com.rackspacecloud.docs.auth.api.v1.Service;
@@ -23,13 +24,13 @@ public class AuthorizationServiceClient {
       this.responseUnmarshaller = new ResponseUnmarshaller();
    }
 
-   public ServiceCatalog getServiceCatalogForUser(String user) throws AuthServiceException {
+   public ServiceCatalog getServiceCatalogForUser(String user) {
       final ServiceClientResponse getServiceCatalogMethod = serviceClient.get(targetHostUri + "/users/" + user + "/serviceCatalog");
       final int response = getServiceCatalogMethod.getStatusCode();
       ServiceCatalog catalog = null;
 
-      switch (response) {
-         case 200:
+      switch (HttpStatusCode.fromInt(response)) {
+         case OK:
             catalog = responseUnmarshaller.unmarshall(getServiceCatalogMethod.getData(), ServiceCatalog.class);
             break;
             
@@ -41,13 +42,13 @@ public class AuthorizationServiceClient {
       return catalog;
    }
 
-   public AuthorizationResponse authorizeUser(String user, String requestedUri) throws AuthServiceException {
+   public AuthorizationResponse authorizeUser(String user, String requestedUri) {
       final ServiceClientResponse getServiceCatalogMethod = serviceClient.get(targetHostUri + "/users/" + user + "/serviceCatalog", null);
       final int response = getServiceCatalogMethod.getStatusCode();
       AuthorizationResponse authorizationResponse = null;
 
-      switch (response) {
-         case 200:
+      switch (HttpStatusCode.fromInt(response)) {
+         case OK:
             final ServiceCatalog catalog = responseUnmarshaller.unmarshall(getServiceCatalogMethod.getData(), ServiceCatalog.class);
 
             if (catalog != null) {
@@ -61,7 +62,7 @@ public class AuthorizationServiceClient {
             }
 
             if (authorizationResponse == null) {
-               authorizationResponse = new AuthorizationResponse(403, false);
+               authorizationResponse = new AuthorizationResponse(HttpStatusCode.FORBIDDEN.intValue(), false);
             }
             break;
          default:
