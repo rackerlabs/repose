@@ -4,7 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class InputStreamMerger extends InputStream {
+public final class InputStreamMerger extends InputStream {
 
    public static InputStream merge(InputStream... streams) {
       return new InputStreamMerger(streams);

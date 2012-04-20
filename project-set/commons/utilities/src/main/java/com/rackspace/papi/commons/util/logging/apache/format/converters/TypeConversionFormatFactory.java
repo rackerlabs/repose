@@ -24,15 +24,15 @@ public enum TypeConversionFormatFactory {
     }
 }
 
-class ConverterMap {
+final class ConverterMap {
 
-    private static final Map<String, FormatConverter> conversionMap = new HashMap<String, FormatConverter>();
+    private static final Map<String, FormatConverter> CONVERSION_MAP = new HashMap<String, FormatConverter>();
     
     private ConverterMap(){
     }
 
     public static void addConverter(String name, FormatConverter converter) {
-        conversionMap.put(name, converter);
+        CONVERSION_MAP.put(name, converter);
     }
 
     public static FormatConverter getConverter(String name) {
@@ -40,6 +40,6 @@ class ConverterMap {
             return null;
         }
 
-        return conversionMap.get(name);
+        return CONVERSION_MAP.get(name);
     }
 }

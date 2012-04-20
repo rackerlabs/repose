@@ -6,9 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.openrepose.components.routing.servlet.config.DestinationRouterConfiguration;
 import com.rackspace.papi.filter.SystemModelInterrogator;
-import com.rackspace.papi.model.DomainNode;
 import com.rackspace.papi.model.PowerProxy;
-import com.rackspace.papi.model.ServiceDomain;
 import java.util.List;
 import com.rackspace.papi.domain.Port;
 
@@ -16,8 +14,6 @@ public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHan
 
     private DestinationRouterConfiguration contextRouterConfiguration;
     private final List<Port> ports;
-    private ServiceDomain localDomain;
-    private DomainNode localHost;
 
     public DestinationRouterHandlerFactory(List<Port> ports) {
         this.ports = ports;
@@ -36,8 +32,6 @@ public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHan
         @Override
         public void configurationUpdated(PowerProxy configurationObject) {
             SystemModelInterrogator interrogator = new SystemModelInterrogator(configurationObject, ports);
-            localDomain = interrogator.getLocalServiceDomain();
-            localHost = interrogator.getLocalHost();
         }
     }
 

@@ -15,7 +15,7 @@ import java.util.EnumSet;
 
 public class JettyServerBuilder {
 
-   private final static Logger LOG = LoggerFactory.getLogger(JettyServerBuilder.class);
+   private static final Logger LOG = LoggerFactory.getLogger(JettyServerBuilder.class);
    private final ServletContextHandler rootContext;
    private final Server server;
 

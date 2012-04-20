@@ -3,7 +3,7 @@ package com.rackspace.papi.httpx.parser;
 /**
  * @author fran
  */
-public class RequestParserFactory {
+public final class RequestParserFactory {
 
     private RequestParserFactory() {
     }

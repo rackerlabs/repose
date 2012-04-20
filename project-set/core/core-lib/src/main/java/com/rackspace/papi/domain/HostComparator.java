@@ -3,7 +3,7 @@ package com.rackspace.papi.domain;
 import com.rackspace.papi.model.DomainNode;
 import java.util.Comparator;
 
-public class HostComparator implements Comparator<DomainNode> {
+public final class HostComparator implements Comparator<DomainNode> {
 
     private static final HostComparator INSTANCE = new HostComparator();
 

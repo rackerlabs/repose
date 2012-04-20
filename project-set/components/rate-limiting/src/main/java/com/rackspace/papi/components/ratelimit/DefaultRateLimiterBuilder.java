@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  *
  * @author zinic
  */
-public class DefaultRateLimiterBuilder implements RateLimiterBuilder {
+public final class DefaultRateLimiterBuilder implements RateLimiterBuilder {
 
    private static final DefaultRateLimiterBuilder INSTANCE = new DefaultRateLimiterBuilder();
 

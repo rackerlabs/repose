@@ -164,7 +164,7 @@
             <callout arearefs="papi-authn.xml.delegateable">
                 <para> All &PRODNAME; authentication modules support authentication
                         <firstterm>delegation</firstterm>. Delegation may be enabled or disabled by
-                    setting the <code>rackspace-auth delegatable</code> attribute to <code>true</code> or <code>false</code>. To better
+                    setting the <code>rackspace-auth delegable</code> attribute to <code>true</code> or <code>false</code>. To better
                     protect services, delegation always defaults to <code>false</code>. 
                 </para>
                 <para>

@@ -8,14 +8,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "credentials")
 public class UserCredentialsWrapper extends CredentialsWrapper<UserCredentials> {
    
-   private static final String[] fields = {"username", "key"};
+   private static final String[] FIELDS = {"username", "key"};
    
    public UserCredentialsWrapper() {
-      super(fields);
+      super(FIELDS);
    }
    
    public UserCredentialsWrapper(Map map) {
-      super(fields);
+      super(FIELDS);
       validate(map);
       
       UserCredentials credentials = new UserCredentials();

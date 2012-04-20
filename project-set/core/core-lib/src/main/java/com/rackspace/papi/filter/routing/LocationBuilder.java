@@ -6,5 +6,5 @@ import java.net.URISyntaxException;
 
 public interface LocationBuilder {
 
-    public DestinationLocation build() throws MalformedURLException, URISyntaxException;
+    DestinationLocation build() throws MalformedURLException, URISyntaxException;
 }

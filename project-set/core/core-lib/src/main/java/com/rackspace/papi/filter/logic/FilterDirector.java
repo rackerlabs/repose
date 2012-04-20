@@ -38,7 +38,7 @@ public interface FilterDirector {
 
    void setResponseStatus(HttpStatusCode delegatedStatus);
 
-   public void setResponseStatusCode(int status);
+   void setResponseStatusCode(int status);
 
    String getResponseMessageBody();
 

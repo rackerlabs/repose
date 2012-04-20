@@ -9,7 +9,7 @@ import com.rackspacecloud.docs.auth.api.v1.*;
 
 import java.util.Map;
 
-public class CredentialFactory {
+public final class CredentialFactory {
 
     private CredentialFactory() {
     }

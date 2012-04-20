@@ -14,23 +14,14 @@ import com.rackspace.papi.service.threading.ThreadingService;
 
 public interface ContextAdapter {
 
-    ClassLoaderManagerService classLoader() throws ServiceUnavailableException;
-
-    EventService eventService() throws ServiceUnavailableException;
-
-    ThreadingService threadingService() throws ServiceUnavailableException;
-
-    DatastoreService datastoreService() throws ServiceUnavailableException;
-
-    ConfigurationService configurationService() throws ServiceUnavailableException;
-
-    ContainerConfigurationService containerConfigurationService() throws ServiceUnavailableException;
-
-    GarbageCollectionService filterChainGarbageCollectorService() throws ServiceUnavailableException;
-
-    ResponseMessageService responseMessageService() throws ServiceUnavailableException;
-
-    LoggingService loggingService() throws ServiceUnavailableException;
-    
-    RoutingService routingService() throws ServiceUnavailableException;
+    ClassLoaderManagerService classLoader();
+    EventService eventService();
+    ThreadingService threadingService();
+    DatastoreService datastoreService();
+    ConfigurationService configurationService();
+    ContainerConfigurationService containerConfigurationService();
+    GarbageCollectionService filterChainGarbageCollectorService();
+    ResponseMessageService responseMessageService();
+    LoggingService loggingService();
+    RoutingService routingService();
 }

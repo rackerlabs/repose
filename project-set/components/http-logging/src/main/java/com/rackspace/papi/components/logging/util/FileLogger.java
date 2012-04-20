@@ -19,7 +19,7 @@ public class FileLogger implements SimpleLogger {
 
     private static final ByteBuffer NEWLINE = ByteBuffer.wrap("\n".getBytes());
     static final int BUFFER_LIMIT = 2048;
-    private final Charset CHAR_SET = Charset.forName("UTF-8");
+    private static final Charset CHAR_SET = Charset.forName("UTF-8");
 
     private final ByteBuffer buffer;
     private final File f;

@@ -12,7 +12,7 @@ public enum OpenStackServiceHeader implements HeaderConstant {
     /**
      *  'Confirmed' or 'Invalid'
      *   The underlying service will only see a value of 'Invalid' if PAPI
-     *   is configured to run in 'delegatable' mode
+     *   is configured to run in 'delegable' mode
      */
     IDENTITY_STATUS("X-Identity-Status"),
 

@@ -9,7 +9,7 @@ import java.net.UnknownHostException;
  */
 public final class StaticNetworkNameResolver implements NetworkNameResolver {
 
-   private final static StaticNetworkNameResolver INSTANCE = new StaticNetworkNameResolver();
+   private static final StaticNetworkNameResolver INSTANCE = new StaticNetworkNameResolver();
    
    public static StaticNetworkNameResolver getInstance() {
       return INSTANCE;

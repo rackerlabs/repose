@@ -20,7 +20,7 @@
                 <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="1" maxOccurs="unbounded" />
             </xs:sequence>
 
-            <xs:attribute name="delegatable" type="xs:boolean" use="optional" default="false">
+            <xs:attribute name="delegable" type="xs:boolean" use="optional" default="false">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>Tells the service whether or not to support auth delegation.</html:p>

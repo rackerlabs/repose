@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ServiceDomainWrapper {
-   private final ServiceDomain domain;
    private final List<DomainNode> nodes;
    private final int nodeCount;
    private int currentIndex = 0;
@@ -16,7 +15,6 @@ public class ServiceDomainWrapper {
          throw new IllegalArgumentException("Domain cannot be null");
       }
       
-      this.domain = domain;
       this.nodes = domain.getServiceDomainNodes() != null? domain.getServiceDomainNodes().getNode(): new ArrayList<DomainNode>();
       this.nodeCount = nodes.size();
    }

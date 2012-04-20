@@ -32,11 +32,13 @@ public class Port {
       return false;
    }
 
+   private static final int BASE_HASH = 3;
+   private static final int PRIME = 71;
    @Override
    public int hashCode() {
-      int hash = 3;
-      hash = 71 * hash + (this.protocol != null ? this.protocol.hashCode() : 0);
-      hash = 71 * hash + this.port;
+      int hash = BASE_HASH;
+      hash = PRIME * hash + (this.protocol != null ? this.protocol.hashCode() : 0);
+      hash = PRIME * hash + this.port;
       return hash;
    }
 }

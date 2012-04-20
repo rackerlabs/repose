@@ -32,7 +32,7 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
 
    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(OpenStackAuthenticationHandler.class);
    private final OpenStackAuthenticationService authenticationService;
-   private boolean delegatable;
+   private boolean delegable;
    private final String authServiceUri;
    private final KeyedRegexExtractor<Object> keyedRegexExtractor;
    private final UserAuthTokenCache<CachableUserInfo> cache;
@@ -40,7 +40,7 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
 
    public OpenStackAuthenticationHandler(OpenstackAuth cfg, OpenStackAuthenticationService serviceClient, KeyedRegexExtractor keyedRegexExtractor, UserAuthTokenCache cache, UriMatcher uriMatcher) {
       this.authenticationService = serviceClient;
-      this.delegatable = cfg.isDelegatable();
+      this.delegable = cfg.isDelegable();
       this.authServiceUri = cfg.getIdentityService().getUri();
       this.keyedRegexExtractor = keyedRegexExtractor;
       this.cache = cache;
@@ -102,7 +102,7 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
          groups = authenticationService.getGroups(user.getUserId());
       }
 
-      final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(authToken, user, delegatable, filterDirector, account == null ? "" : account.getResult(), groups, request);
+      final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(authToken, user, delegable, filterDirector, account == null ? "" : account.getResult(), groups, request);
       headerManager.setFilterDirectorValues();
 
       return filterDirector;

@@ -1,29 +1,29 @@
 package org.openrepose.rackspace.auth_2_0.identity.content.credentials.wrappers;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import org.openrepose.rackspace.auth_2_0.identity.content.credentials.AuthCredentials;
 import org.openstack.docs.identity.api.v2.CredentialType;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
 
 public abstract class CredentialsWrapper<T extends CredentialType> implements AuthCredentials {
-   public final static List<Class<? extends CredentialsWrapper>> wrappers = new ArrayList<Class<? extends CredentialsWrapper>>();
+   public static final List<Class<? extends CredentialsWrapper>> WRAPPERS = new ArrayList<Class<? extends CredentialsWrapper>>();
    static {
-      wrappers.add(ApiKeyCredentialsWrapper.class);
-      wrappers.add(PasswordCredentialsWrapper.class);
+      WRAPPERS.add(ApiKeyCredentialsWrapper.class);
+      WRAPPERS.add(PasswordCredentialsWrapper.class);
    }
 
    private T credentials;
-   private final String[] fields;
+   private final List<String> fields;
 
    public CredentialsWrapper() {
       fields = null;
    }
 
    public CredentialsWrapper(String[] fields) {
-      this.fields = fields;
+      this.fields = Arrays.asList(fields);
    }
 
 

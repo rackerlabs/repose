@@ -97,7 +97,7 @@ public class CalabashPipeline extends AbstractPipeline implements Pipeline {
       
    
    @Override
-   public void run(List<PipelineInput> inputs) throws PipelineException {
+   public void run(List<PipelineInput> inputs) {
       try {
          reset();
          handleInputs(inputs);
@@ -127,8 +127,7 @@ public class CalabashPipeline extends AbstractPipeline implements Pipeline {
       return ret;
    }
 
-   protected List<Source> getCalabashResultPort(String name)
-      throws PipelineException {
+   protected List<Source> getCalabashResultPort(String name) {
       try {
          ReadablePipe pipe = pipeline.readFrom(name);
          List<Source> nodes = new ArrayList<Source>();
@@ -144,8 +143,7 @@ public class CalabashPipeline extends AbstractPipeline implements Pipeline {
       }
    }
 
-   protected List<Source> getLegacyResultPort(String name)
-      throws PipelineException {
+   protected List<Source> getLegacyResultPort(String name) {
       try {
          List<Source> standard = getCalabashResultPort (name);
          List<Source> ret = new ArrayList<Source>(standard.size());

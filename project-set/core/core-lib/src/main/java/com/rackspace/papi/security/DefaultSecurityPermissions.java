@@ -7,7 +7,7 @@ import java.security.PermissionCollection;
  *
  * @author zinic
  */
-public class DefaultSecurityPermissions {
+public final class DefaultSecurityPermissions {
     
     private DefaultSecurityPermissions(){
     }

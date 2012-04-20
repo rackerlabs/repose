@@ -7,7 +7,7 @@ import com.rackspace.papi.model.DomainNode;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class HostUtilities {
+public final class HostUtilities {
 
    private HostUtilities() {
    }

@@ -10,7 +10,7 @@ import org.openstack.docs.identity.api.v2.PasswordCredentialsBase;
 import javax.xml.bind.JAXBElement;
 import java.util.Map;
 
-public class CredentialFactory {
+public final class CredentialFactory {
 
    private CredentialFactory() {
    }
@@ -34,22 +34,20 @@ public class CredentialFactory {
    public static <T> AuthCredentials getCredentials(JAXBElement<T> object) {
       AuthCredentials authCredentials = null;
 
-      if (object != null) {
-         if (object.getValue() instanceof AuthenticationRequest) {
-            AuthenticationRequest authRequest = (AuthenticationRequest) object.getValue();
+      if (object != null && object.getValue() instanceof AuthenticationRequest) {
+         AuthenticationRequest authRequest = (AuthenticationRequest) object.getValue();
 
-            if (authRequest.getCredential() != null) {
-               CredentialType credentialType = authRequest.getCredential().getValue();
-               if (credentialType instanceof ApiKeyCredentials) {
+         if (authRequest.getCredential() != null) {
+            CredentialType credentialType = authRequest.getCredential().getValue();
+            if (credentialType instanceof ApiKeyCredentials) {
 
-                  authCredentials = new ApiKeyCredentialsWrapper((ApiKeyCredentials) credentialType);
-               } else if (credentialType instanceof PasswordCredentialsBase) {
+               authCredentials = new ApiKeyCredentialsWrapper((ApiKeyCredentials) credentialType);
+            } else if (credentialType instanceof PasswordCredentialsBase) {
 
-                  authCredentials = new PasswordCredentialsWrapper((PasswordCredentialsBase) credentialType);
-               }
-            } else {
-               authCredentials = new AuthenticationRequestWrapper(authRequest);
+               authCredentials = new PasswordCredentialsWrapper((PasswordCredentialsBase) credentialType);
             }
+         } else {
+            authCredentials = new AuthenticationRequestWrapper(authRequest);
          }
       }
 

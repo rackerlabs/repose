@@ -74,7 +74,7 @@ public class RackspaceAuthenticationHandlerTest {
 
          // Setup config
          rackAuthConfig = new RackspaceAuth();
-         rackAuthConfig.setDelegatable(delegatable());
+         rackAuthConfig.setDelegable(delegable());
 
          keyedRegexExtractor = new KeyedRegexExtractor();
 
@@ -97,13 +97,13 @@ public class RackspaceAuthenticationHandlerTest {
          handler = new RackspaceAuthenticationHandler(rackAuthConfig, authServiceClient, keyedRegexExtractor, null, new UriMatcher(whiteListRegexPatterns));
       }
 
-      protected abstract boolean delegatable();
+      protected abstract boolean delegable();
    }
 
-   public static class WhenAuthenticatingDelegatableRequests extends TestParent {
+   public static class WhenAuthenticatingDelegableRequests extends TestParent {
 
       @Override
-      protected boolean delegatable() {
+      protected boolean delegable() {
          return true;
       }
 
@@ -175,9 +175,9 @@ public class RackspaceAuthenticationHandlerTest {
       }
    }
 
-   public static class WhenAuthenticatingNonDelegatableRequests extends TestParent {
+   public static class WhenAuthenticatingNonDelegableRequests extends TestParent {
       @Override
-      protected boolean delegatable() {
+      protected boolean delegable() {
          return false;
       }
 
@@ -262,7 +262,7 @@ public class RackspaceAuthenticationHandlerTest {
 
    public static class WhenHandlingResponseFromServiceInDelegatedMode extends TestParent {
       @Override
-      protected boolean delegatable() {
+      protected boolean delegable() {
          return true;
       }
 
@@ -274,8 +274,8 @@ public class RackspaceAuthenticationHandlerTest {
          final FilterDirector responseDirector = handler.handleResponse(request, response);
          final String expected = "RackAuth Realm=\"API Realm\"";
 
-         assertEquals("Auth component must return a 401 when delegatable origin service returns a 401", HttpStatusCode.UNAUTHORIZED, responseDirector.getResponseStatus());
-         assertEquals("Auth component must modify WWW-Authenticate header when delegatable origin service returns a 401", expected, responseDirector.responseHeaderManager().headersToAdd().get(CommonHttpHeader.WWW_AUTHENTICATE.toString()).iterator().next());
+         assertEquals("Auth component must return a 401 when Delegable origin service returns a 401", HttpStatusCode.UNAUTHORIZED, responseDirector.getResponseStatus());
+         assertEquals("Auth component must modify WWW-Authenticate header when Delegable origin service returns a 401", expected, responseDirector.responseHeaderManager().headersToAdd().get(CommonHttpHeader.WWW_AUTHENTICATE.toString()).iterator().next());
       }
 
       @Test
@@ -286,8 +286,8 @@ public class RackspaceAuthenticationHandlerTest {
          final FilterDirector responseDirector = handler.handleResponse(request, response);
          final String expected = "RackAuth Realm=\"API Realm\"";
 
-         assertEquals("Auth component must return a 403 when delegatable origin service returns a 403", HttpStatusCode.FORBIDDEN, responseDirector.getResponseStatus());
-         assertEquals("Auth component must modify WWW-Authenticate header when delegatable origin service returns a 403", expected, responseDirector.responseHeaderManager().headersToAdd().get(CommonHttpHeader.WWW_AUTHENTICATE.toString()).iterator().next());
+         assertEquals("Auth component must return a 403 when Delegable origin service returns a 403", HttpStatusCode.FORBIDDEN, responseDirector.getResponseStatus());
+         assertEquals("Auth component must modify WWW-Authenticate header when Delegable origin service returns a 403", expected, responseDirector.responseHeaderManager().headersToAdd().get(CommonHttpHeader.WWW_AUTHENTICATE.toString()).iterator().next());
       }
 
       @Test
@@ -297,13 +297,13 @@ public class RackspaceAuthenticationHandlerTest {
 
          final FilterDirector responseDirector = handler.handleResponse(request, response);
 
-         assertEquals("Auth component must return a 500 when delegatable origin service returns a 501", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
+         assertEquals("Auth component must return a 500 when Delegable origin service returns a 501", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
       }
    }
 
    public static class WhenHandlingResponseFromServiceNotInDelegatedMode extends TestParent {
       @Override
-      protected boolean delegatable() {
+      protected boolean delegable() {
          return false;
       }
 
@@ -314,7 +314,7 @@ public class RackspaceAuthenticationHandlerTest {
 
          final FilterDirector responseDirector = handler.handleResponse(request, response);
 
-         assertEquals("Auth component must return a 500 when un-delegatable origin service returns a 401", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
+         assertEquals("Auth component must return a 500 when un-Delegable origin service returns a 401", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
       }
 
       @Test
@@ -323,7 +323,7 @@ public class RackspaceAuthenticationHandlerTest {
 
          final FilterDirector responseDirector = handler.handleResponse(request, response);
 
-         assertEquals("Auth component must return a 500 when un-delegatable origin service returns a 403", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
+         assertEquals("Auth component must return a 500 when un-Delegable origin service returns a 403", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
       }
 
       @Test
@@ -333,14 +333,14 @@ public class RackspaceAuthenticationHandlerTest {
 
          final FilterDirector responseDirector = handler.handleResponse(request, response);
 
-         assertEquals("Auth component must return a 501 when un-delegatable origin service returns a 501", HttpStatusCode.NOT_IMPLEMENTED, responseDirector.getResponseStatus());
+         assertEquals("Auth component must return a 501 when un-Delegable origin service returns a 501", HttpStatusCode.NOT_IMPLEMENTED, responseDirector.getResponseStatus());
       }
    }
 
    public static class WhenHandlingWhiteListNotInDelegatedMode extends TestParent {
 
       @Override
-      protected boolean delegatable() {
+      protected boolean delegable() {
          return false;
       }
 
@@ -362,7 +362,7 @@ public class RackspaceAuthenticationHandlerTest {
    public static class WhenHandlingWhiteListInDelegatedMode extends TestParent {
 
       @Override
-      protected boolean delegatable() {
+      protected boolean delegable() {
          return true;
       }
 

@@ -5,7 +5,7 @@ import com.rackspace.papi.components.clientauth.UserAuthTokenCache;
 import com.rackspace.papi.service.datastore.Datastore;
 
 public class OpenStackUserInfoCache extends UserAuthTokenCache<CachableUserInfo> {
-   public final static String AUTH_TOKEN_CACHE_PREFIX = "openstack.identity.token";
+   public static final String AUTH_TOKEN_CACHE_PREFIX = "openstack.identity.token";
    
    public OpenStackUserInfoCache(Datastore store) {
       super(store, CachableUserInfo.class);

@@ -7,14 +7,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement(name = "mossoCredentials")
 public class MossoCredentialsWrapper extends CredentialsWrapper<MossoCredentials> {
 
-   private static final String[] fields = {"mossoId", "key"};
+   private static final String[] FIELDS = {"mossoId", "key"};
    
    public MossoCredentialsWrapper() {
-      super(fields);
+      super(FIELDS);
    }
    
    public MossoCredentialsWrapper(Map map) {
-      super(fields);
+      super(FIELDS);
       validate(map);
       
       MossoCredentials credentials = new MossoCredentials();

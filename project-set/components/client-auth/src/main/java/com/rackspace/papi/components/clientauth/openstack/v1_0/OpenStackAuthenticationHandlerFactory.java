@@ -10,7 +10,7 @@ import com.rackspace.papi.components.clientauth.openstack.config.OpenStackIdenti
 import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
 import com.rackspace.papi.service.datastore.Datastore;
 
-public class OpenStackAuthenticationHandlerFactory {
+public final class OpenStackAuthenticationHandlerFactory {
 
    private OpenStackAuthenticationHandlerFactory() {}
    

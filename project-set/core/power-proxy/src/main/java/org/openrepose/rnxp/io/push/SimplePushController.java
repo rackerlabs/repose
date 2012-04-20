@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
  */
 public class SimplePushController implements PushController {
 
-    private final Logger LOG = LoggerFactory.getLogger(SimplePushController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(SimplePushController.class);
     private final Channel channel;
     private boolean shouldRead;
 

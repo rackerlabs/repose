@@ -1,6 +1,7 @@
 package com.rackspace.auth.openstack.ids;
 
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
+import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 
@@ -36,21 +37,21 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
       
       final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, getAdminToken(), "belongsTo", tenant);
 
-      switch (serviceResponse.getStatusCode()) {
-         case 200:
+      switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
+         case OK:
             final AuthenticateResponse authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
             token = new CachableUserInfo(tenant, authenticateResponse);
             break;
             
-         case 404: // User's token is bad
+         case NOT_FOUND: // User's token is bad
             LOG.warn("Unable to validate token for tenant.  Invalid token. " + serviceResponse.getStatusCode());
             break;
             
-         case 401: // Admin token is bad most likely
+         case UNAUTHORIZED: // Admin token is bad most likely
             LOG.warn("Unable to validate token for tenant.  Has the admin token expired? " + serviceResponse.getStatusCode());
             break;
 
-         case 500: // Internal server error from auth
+         case INTERNAL_SERVER_ERROR: // Internal server error from auth
             LOG.warn("Internal server error from auth. " + serviceResponse.getStatusCode());
             break;
       }
@@ -63,8 +64,8 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
       final ServiceClientResponse<EndpointList> endpointListResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken + "/endpoints", getAdminToken());
       List<Endpoint> endpointList = null;
 
-      switch (endpointListResponse.getStatusCode()) {
-         case 200:
+      switch (HttpStatusCode.fromInt(endpointListResponse.getStatusCode())) {
+         case OK:
             final EndpointList unmarshalledEndpoints = openStackCoreResponseUnmarshaller.unmarshall(endpointListResponse.getData(), EndpointList.class);
 
             if (unmarshalledEndpoints != null) {
@@ -86,8 +87,8 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
       final ServiceClientResponse<Groups> serviceResponse = serviceClient.get(targetHostUri + "/users/" + userId + "/RAX-KSGRP", getAdminToken());
       Groups groups = null;
 
-      switch (serviceResponse.getStatusCode()) {
-         case 200:
+      switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
+         case OK:
             groups = openStackGroupsResponseUnmarshaller.unmarshall(serviceResponse.getData(), Groups.class);
             break;
             
@@ -106,8 +107,8 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
       if (adminToken == null) {
          final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.getAdminToken(targetHostUri + "/tokens");
 
-         switch (serviceResponse.getStatusCode()) {
-            case 200:
+         switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
+            case OK:
                final AuthenticateResponse authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
 
                Token token = authenticateResponse.getToken();

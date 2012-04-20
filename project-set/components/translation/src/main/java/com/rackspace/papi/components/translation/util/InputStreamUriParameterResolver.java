@@ -12,7 +12,7 @@ import javax.xml.transform.stream.StreamSource;
 
 public class InputStreamUriParameterResolver implements URIResolver {
 
-    private final static String PREFIX = "reference:jio:";
+    private static final String PREFIX = "reference:jio:";
     private final Map<String, InputStream> streams = new HashMap<String, InputStream>();
     private final List<URIResolver> resolvers = new ArrayList<URIResolver>();
     

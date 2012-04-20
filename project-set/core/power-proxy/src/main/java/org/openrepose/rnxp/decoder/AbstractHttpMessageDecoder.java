@@ -1,8 +1,11 @@
 package org.openrepose.rnxp.decoder;
 
 import java.io.StringWriter;
-
 import org.jboss.netty.buffer.ChannelBuffer;
+import static org.jboss.netty.buffer.ChannelBuffers.buffer;
+import static org.openrepose.rnxp.decoder.AsciiCharacterConstant.CARRIAGE_RETURN;
+import static org.openrepose.rnxp.decoder.AsciiCharacterConstant.COLON;
+import static org.openrepose.rnxp.decoder.DecoderState.*;
 import org.openrepose.rnxp.decoder.partial.ContentMessagePartial;
 import org.openrepose.rnxp.decoder.partial.EmptyHttpMessagePartial;
 import org.openrepose.rnxp.decoder.partial.HttpMessagePartial;
@@ -10,10 +13,6 @@ import org.openrepose.rnxp.decoder.partial.impl.HeaderPartial;
 import org.openrepose.rnxp.decoder.partial.impl.HttpVersionPartial;
 import org.openrepose.rnxp.decoder.processor.HeaderProcessor;
 import org.openrepose.rnxp.http.HttpMessageComponent;
-
-import static org.jboss.netty.buffer.ChannelBuffers.*;
-import static org.openrepose.rnxp.decoder.AsciiCharacterConstant.*;
-import static org.openrepose.rnxp.decoder.DecoderState.*;
 
 /**
  *
@@ -262,6 +261,7 @@ public abstract class AbstractHttpMessageDecoder implements HttpMessageDecoder {
     private void updateChunkLength(long newChunkLength) {
         if (newChunkLength < 0) {
             //TODO: Errorcase
+           throw new IllegalArgumentException("Chunk length must be > 0");
         } else if (newChunkLength == 0) {
             setContentPresence(ContentPresence.NO_CONTENT);
 
