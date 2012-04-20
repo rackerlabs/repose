@@ -10,8 +10,17 @@
     </filters>
 
     <destinations>
-      <endpoint id="mocks" protocol="http" root-path="/mocks" port="8080"/>
+      <target-domain id="mocks" protocol="http" root-path="/mocks" port="8080" default="true"/>
     </destinations>
 
   </service-domain>
+
+  <service-domain id="mocks">
+
+    <service-domain-nodes>
+      <node id="endpoint1" protocol="http" hostname="<%= node[:fqdn]%>" http-port="8080"/>
+      <node id="endpoint2" protocol="http" hostname="50.57.189.15" http-port="8080"/>
+    </service-domain-nodes>
+  </service-domain>
 </power-proxy>
+
