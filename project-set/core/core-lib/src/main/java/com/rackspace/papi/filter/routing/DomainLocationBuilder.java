@@ -1,5 +1,6 @@
 package com.rackspace.papi.filter.routing;
 
+import com.rackspace.papi.filter.PowerFilterChain;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.DestinationDomain;
 import com.rackspace.papi.model.DomainNode;
@@ -8,9 +9,12 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DomainLocationBuilder implements LocationBuilder {
-    private static final String HTTP_PROTOCOL = "http";
+    private static final Logger LOG = LoggerFactory.getLogger(DomainLocationBuilder.class);
+    private static final String HTTPS_PROTOCOL = "https";
     private final DestinationDomain domain;
     private final RoutingService routingService;
     private final String uri;
@@ -24,7 +28,11 @@ public class DomainLocationBuilder implements LocationBuilder {
     @Override
     public DestinationLocation build() throws MalformedURLException, URISyntaxException {
         DomainNode node = routingService.getRoutableNode(domain.getId());
-        int port = HTTP_PROTOCOL.equalsIgnoreCase(domain.getProtocol()) ? node.getHttpPort() : node.getHttpsPort();
+        if (node == null) {
+           LOG.warn("No routable node for domain: " + domain.getId());
+           return null;
+        }
+        int port = HTTPS_PROTOCOL.equalsIgnoreCase(domain.getProtocol()) ? node.getHttpsPort() : node.getHttpPort();
         return new DestinationLocation(
                 new URL(domain.getProtocol(), node.getHostname(), port, domain.getRootPath() + uri),
                 new URI(domain.getProtocol(), null, node.getHostname(), port, domain.getRootPath() + uri, null, null));

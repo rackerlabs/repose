@@ -19,7 +19,7 @@ public class HeaderValueImpl implements HeaderValue {
    private final String value;
    private double parsedQualityFactor;
 
-   private static double getQualityFactor(Map<String, String> parameters) throws MalformedHeaderValueException {
+   private static double getQualityFactor(Map<String, String> parameters) {
       double qualityFactor = 1;
 
       final String qualityFactorString = parameters.get(QUALITY_FACTOR_PARAM_NAME);
@@ -62,7 +62,7 @@ public class HeaderValueImpl implements HeaderValue {
     * @param value
     * @param parameters
     */
-   public HeaderValueImpl(String value, Map<String, String> parameters) throws MalformedHeaderValueException {
+   public HeaderValueImpl(String value, Map<String, String> parameters) {
       this.parsedQualityFactor = getQualityFactor(parameters);
       this.parameters = new HashMap(parameters);
       this.value = value;
@@ -102,12 +102,14 @@ public class HeaderValueImpl implements HeaderValue {
       return compareTo(other) == 0;
    }
 
+   private static final int HASH_BASE = 7;
+   private static final int HASH_PRIME = 67;
    @Override
    public int hashCode() {
-      int hash = 7;
+      int hash = HASH_BASE;
 
-      hash = 67 * hash + (this.parameters != null ? this.parameters.hashCode() : 0);
-      hash = 67 * hash + (this.value != null ? this.value.hashCode() : 0);
+      hash = HASH_PRIME * hash + (this.parameters != null ? this.parameters.hashCode() : 0);
+      hash = HASH_PRIME * hash + (this.value != null ? this.value.hashCode() : 0);
 
       return hash;
    }

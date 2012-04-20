@@ -42,16 +42,17 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-
 /**
  * @author John Hopper
  */
 public class JerseyClientProxyService implements ProxyService {
-   private static final Logger LOG = LoggerFactory.getLogger(JerseyClientProxyService.class);
 
-   private final Client client;
+   private static final Logger LOG = LoggerFactory.getLogger(JerseyClientProxyService.class);
+   private Client client;
    private final URI proxiedHost;
    private final String proxiedHostUrl;
+   private final Integer connectionTimeout;
+   private final Integer readTimeout;
 
    public JerseyClientProxyService(String targetHost, Integer connectionTimeout, Integer readTimeout) {
       URI targetUri = null;
@@ -62,18 +63,24 @@ public class JerseyClientProxyService implements ProxyService {
          LOG.error("Invalid target host url: " + targetHost, e);
       }
 
+      this.connectionTimeout = connectionTimeout;
+      this.readTimeout = readTimeout;
+      
       proxiedHost = targetUri;
       proxiedHostUrl = asUri(proxiedHost);
-
-      DefaultClientConfig cc = new JerseyPropertiesConfigurator(connectionTimeout, readTimeout).configure();              
-      
-      client = Client.create(cc);
-
-      LOG.info("Enabling info logging of jersey client requests");
-      client.addFilter(new LoggingFilter());
    }
 
-   
+   private synchronized Client getClient() {
+      if (client == null) {
+         DefaultClientConfig cc = new JerseyPropertiesConfigurator(connectionTimeout, readTimeout).configure();
+         client = Client.create(cc);
+
+         LOG.info("Enabling info logging of jersey client requests");
+         client.addFilter(new LoggingFilter());
+      }
+      
+      return client;
+   }
 
    private String asUri(URI host) {
       try {
@@ -89,7 +96,7 @@ public class JerseyClientProxyService implements ProxyService {
       final String target = proxiedHostUrl + request.getRequestURI();
 
       JerseyRequestProcessor processor = new JerseyRequestProcessor(request, proxiedHost);
-      WebResource resource = client.resource(target);
+      WebResource resource = getClient().resource(target);
       Builder builder = processor.process(resource);
       try {
          return executeProxyRequest(builder, request, response);
@@ -126,5 +133,3 @@ public class JerseyClientProxyService implements ProxyService {
       return responseCode.getCode();
    }
 }
-
-

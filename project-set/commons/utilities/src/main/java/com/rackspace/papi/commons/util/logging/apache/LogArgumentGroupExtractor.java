@@ -11,17 +11,17 @@ public class LogArgumentGroupExtractor {
 
    public interface LOG_CONSTANTS {
 
-      final String LIFECYCLE_MODIFIER_EXTRACTOR = "([<>])?";           // Group 1
-      final String STATUS_CODE_EXTRACTOR = "([!]?([0-9]{3}[,]?)*)?";   // Group 2, 3 (ignore)
+      String LIFECYCLE_MODIFIER_EXTRACTOR = "([<>])?";           // Group 1
+      String STATUS_CODE_EXTRACTOR = "([!]?([0-9]{3}[,]?)*)?";   // Group 2, 3 (ignore)
       //private static final String VARIABLE_EXTRACTOR = "(\\{([\\-a-zA-Z0-9]*)\\})?";  // Group 4 (ignore), 5
-      final String VARIABLE_EXTRACTOR = "(\\{([\\-a-zA-Z0-9]*)[ ,]?([_\\-a-zA-Z0-9 ,]*)\\})?";  // Group 4 (ignore), 5, 6 
-      final String ENTITY_EXTRACTOR = "([%a-zA-Z])";                   // Group 6
-      final Pattern PATTERN = Pattern.compile("%" + LIFECYCLE_MODIFIER_EXTRACTOR + STATUS_CODE_EXTRACTOR + VARIABLE_EXTRACTOR + ENTITY_EXTRACTOR);
-      final int LIFECYCLE_GROUP_INDEX = 1;
-      final int STATUS_CODE_INDEX = 2;
-      final int VARIABLE_INDEX = 5;
-      final int ARGUMENTS_INDEX = 6;
-      final int ENTITY_INDEX = 7;
+      String VARIABLE_EXTRACTOR = "(\\{([\\-a-zA-Z0-9]*)[ ,]?([_\\-a-zA-Z0-9 ,]*)\\})?";  // Group 4 (ignore), 5, 6 
+      String ENTITY_EXTRACTOR = "([%a-zA-Z])";                   // Group 6
+      Pattern PATTERN = Pattern.compile("%" + LIFECYCLE_MODIFIER_EXTRACTOR + STATUS_CODE_EXTRACTOR + VARIABLE_EXTRACTOR + ENTITY_EXTRACTOR);
+      int LIFECYCLE_GROUP_INDEX = 1;
+      int STATUS_CODE_INDEX = 2;
+      int VARIABLE_INDEX = 5;
+      int ARGUMENTS_INDEX = 6;
+      int ENTITY_INDEX = 7;
    }
    private String lifeCycleModifier;
    private String statusCodes;
@@ -107,14 +107,16 @@ public class LogArgumentGroupExtractor {
       return result;
    }
 
+   private static final int HASH_BASE = 3;
+   private static final int HASH_PRIME = 11;
    @Override
    public int hashCode() {
-      int hash = 3;
-      hash = 11 * hash + StringUtilities.getValue(lifeCycleModifier, "").hashCode();
-      hash = 11 * hash + StringUtilities.getValue(statusCodes, "").hashCode();
-      hash = 11 * hash + StringUtilities.getValue(variable, "").hashCode();
-      hash = 11 * hash + arguments.hashCode();
-      hash = 11 * hash + StringUtilities.getValue(entity, "").hashCode();
+      int hash = HASH_BASE;
+      hash = HASH_PRIME * hash + StringUtilities.getValue(lifeCycleModifier, "").hashCode();
+      hash = HASH_PRIME * hash + StringUtilities.getValue(statusCodes, "").hashCode();
+      hash = HASH_PRIME * hash + StringUtilities.getValue(variable, "").hashCode();
+      hash = HASH_PRIME * hash + arguments.hashCode();
+      hash = HASH_PRIME * hash + StringUtilities.getValue(entity, "").hashCode();
       return hash;
    }
 }
