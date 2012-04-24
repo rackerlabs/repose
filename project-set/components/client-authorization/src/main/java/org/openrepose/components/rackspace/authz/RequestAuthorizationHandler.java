@@ -67,6 +67,10 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
       if (isEndpointAuthorized(authorizedEndpoints)) {
          director.setFilterAction(FilterAction.PASS);
+      } else {
+         LOG.info("User token: " + userToken + ": The user's service catalog does not contain an endpoint that matches " +
+                  "the endpoint configured in openstack-authorization.cfg.xml: \"" +
+                  myEndpoint.getHref() + "\".  User not authorized to access service.");
       }
    }
 
