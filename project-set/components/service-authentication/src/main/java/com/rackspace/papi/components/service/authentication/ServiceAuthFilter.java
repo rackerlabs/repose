@@ -1,15 +1,16 @@
-package com.rackspace.papi.components.reverseproxy.basicauth;
+package com.rackspace.papi.components.service.authentication;
 
 
+import com.rackspace.papi.components.service.authentication.ServiceAuthenticationConfig;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import java.io.IOException;
 import javax.servlet.*;
 
-public class ReverseProxyBasicAuthFilter implements Filter {
+public class ServiceAuthFilter implements Filter {
 
-    private ReverseProxyBasicAuthHandlerFactory handlerFactory;
+    private ServiceAuthHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;
 
     @Override
@@ -19,14 +20,14 @@ public class ReverseProxyBasicAuthFilter implements Filter {
 
     @Override
     public void destroy() {
-        configurationManager.unsubscribeFrom("reverse-proxy-basic-auth.cfg.xml", handlerFactory);
+        configurationManager.unsubscribeFrom("service-authentication.cfg.xml", handlerFactory);
     }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         configurationManager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
-        handlerFactory = new ReverseProxyBasicAuthHandlerFactory();
+        handlerFactory = new ServiceAuthHandlerFactory();
 
-        configurationManager.subscribeTo("reverse-proxy-basic-auth.cfg.xml", handlerFactory, ReverseProxyBasicAuthConfig.class);
+        configurationManager.subscribeTo("service-authentication.cfg.xml", handlerFactory, ServiceAuthenticationConfig.class);
     }
 }

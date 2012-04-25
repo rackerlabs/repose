@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://docs.api.rackspacecloud.com/powerapi/reverse-proxy-basic-auth/v1.0"
-           xmlns:reverse-proxy-basic-auth="http://docs.api.rackspacecloud.com/powerapi/reverse-proxy-basic-auth/v1.0"
+           targetNamespace="http://docs.api.rackspacecloud.com/powerapi/service-authentication/v1.0"
+           xmlns:service-authentication="http://docs.api.rackspacecloud.com/powerapi/service-authentication/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:atom="http://www.w3.org/2005/Atom"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <!-- Basic Authentication Configuration -->
-    <xs:element name="reverse-proxy-basic-authentication" type="reverse-proxy-basic-auth:ReverseProxyBasicAuthConfig"/>
+    <xs:element name="service-authentication" type="service-authentication:ServiceAuthenticationConfig"/>
 
-    <xs:complexType name="ReverseProxyBasicAuthConfig">
+    <xs:complexType name="ServiceAuthenticationConfig">
         <xs:annotation>
             <xs:documentation>
                 <html:p></html:p>
@@ -18,7 +18,7 @@
         </xs:annotation>
 
         <xs:all>            
-            <xs:element name="credentials" type="reverse-proxy-basic-auth:Credentials" minOccurs="0" maxOccurs="1" />
+            <xs:element name="credentials" type="service-authentication:Credentials" minOccurs="0" maxOccurs="1" />
         </xs:all>
 
     </xs:complexType>

@@ -1,9 +1,10 @@
-package com.rackspace.papi.components.reverseproxy.basicauth;
+package com.rackspace.papi.components.service.authentication;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
+import com.rackspace.papi.components.service.authentication.ServiceAuthenticationConfig;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -13,12 +14,12 @@ import org.slf4j.Logger;
 import org.apache.commons.codec.binary.Base64;
 import javax.servlet.http.HttpServletRequest;
 
-public class ReverseProxyBasicAuthHandler extends AbstractFilterLogicHandler {
+public class ServiceAuthHandler extends AbstractFilterLogicHandler {
 
-    private final ReverseProxyBasicAuthConfig config;
+    private final ServiceAuthenticationConfig config;
     public static final String AUTH_HEADER = "Authorization";
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ReverseProxyBasicAuthHandler.class);
-    public ReverseProxyBasicAuthHandler(ReverseProxyBasicAuthConfig config) {
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ServiceAuthHandler.class);
+    public ServiceAuthHandler(ServiceAuthenticationConfig config) {
         this.config = config;
 
     }

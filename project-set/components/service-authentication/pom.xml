@@ -9,9 +9,9 @@
     </parent>
 
     <groupId>com.rackspace.papi.components</groupId>
-    <artifactId>reverse-proxy-basic-auth</artifactId>
+    <artifactId>service-authentication</artifactId>
 
-    <name>Power API Components - Reverse Proxy Basic Authentication</name>
+    <name>Power API Components - Service Authentication</name>
     <description>TODO</description>
 
     <packaging>jar</packaging>

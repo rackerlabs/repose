@@ -62,8 +62,8 @@
     </filter>
 
     <filter>
-        <filter-name>service-auth</filter-name>
-        <filter-class>com.rackspace.papi.components.serviceauth.ServiceAuthenticationFilter</filter-class>
+        <filter-name>service-authentication</filter-name>
+        <filter-class>com.rackspace.papi.components.service.authentication.ServiceAuthFilter</filter-class>
     </filter>
 
     <filter>

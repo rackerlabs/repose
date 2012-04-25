@@ -69,7 +69,7 @@
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>service-auth</artifactId>
+            <artifactId>service-authentication</artifactId>
         </dependency>
 
         <dependency>
@@ -166,7 +166,7 @@
 
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
-                            <artifactId>service-auth</artifactId>
+                            <artifactId>service-authentication</artifactId>
                         </jarModule>
 
                         <jarModule>

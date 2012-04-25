@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<reverse-proxy-basic-auth xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-   xmlns='http://docs.api.rackspacecloud.com/powerapi/reverse-proxy-basic-auth/v1.0'
-   xsi:schemaLocation='http://docs.api.rackspacecloud.com/powerapi/reverse-proxy-basic-auth/v1.0' >
-   
-   <credentials username="Aladdin" password="open sesame"/>
-   
-</reverse-proxy-basic-auth>

@@ -2,13 +2,15 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rackspace.papi.components.reverseproxy.basicauth;
+package com.rackspace.papi.components.service.authentication;
 
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
+import com.rackspace.papi.components.service.authentication.Credentials;
+import com.rackspace.papi.components.service.authentication.ServiceAuthenticationConfig;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import javax.servlet.http.HttpServletRequest;
@@ -26,12 +28,12 @@ import static org.mockito.Mockito.*;
  * @author malconis
  */
 @RunWith(Enclosed.class)
-public class ReverseProxyBasicAuthHandlerTest {
+public class ServiceAuthHandlerTest {
 
     public static class WhenAddingBackAuthCredentials {
 
-        ReverseProxyBasicAuthHandler handler;
-        private ReverseProxyBasicAuthConfig basicAuthConfig;
+        ServiceAuthHandler handler;
+        private ServiceAuthenticationConfig basicAuthConfig;
         private Credentials credentials;
         private final String username = "Aladdin";
         private final String password = "open sesame";
@@ -42,14 +44,14 @@ public class ReverseProxyBasicAuthHandlerTest {
         @Before
         public void setUp() {
 
-            basicAuthConfig = new ReverseProxyBasicAuthConfig();
+            basicAuthConfig = new ServiceAuthenticationConfig();
             credentials = new Credentials();
 
             credentials.setPassword(password);
             credentials.setUsername(username);
 
             basicAuthConfig.setCredentials(credentials);
-            handler = new ReverseProxyBasicAuthHandler(basicAuthConfig);
+            handler = new ServiceAuthHandler(basicAuthConfig);
 
             httpServletRequest = mock(HttpServletRequest.class);
             httpServletResponse = mock(ReadableHttpServletResponse.class);
