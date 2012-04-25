@@ -107,10 +107,6 @@
             <artifactId>client-ip-identity</artifactId>
         </dependency>
         
-        <dependency>
-            <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>reverse-proxy-basic-auth</artifactId>
-        </dependency>
     </dependencies>
 
     <build>

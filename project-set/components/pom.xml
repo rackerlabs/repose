@@ -35,7 +35,6 @@
         <module>echo</module>
         <module>client-authorization</module>
         <module>client-ip-identity</module>
-        <module>reverse-proxy-basic-auth</module>
     </modules>
     
     <dependencyManagement>
@@ -211,12 +210,6 @@
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>client-authorization</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.rackspace.papi.components</groupId>
-                <artifactId>reverse-proxy-basic-auth</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
