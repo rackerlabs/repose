@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 import com.rackspacecloud.api.docs.powerapi.header_normalization.v1.HeaderFilterList;
 import com.rackspacecloud.api.docs.powerapi.header_normalization.v1.HttpHeader;
 import com.rackspacecloud.api.docs.powerapi.header_normalization.v1.HttpHeaderList;
+import com.rackspacecloud.api.docs.powerapi.header_normalization.v1.HeaderNormalizationConfig;
+
 import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
