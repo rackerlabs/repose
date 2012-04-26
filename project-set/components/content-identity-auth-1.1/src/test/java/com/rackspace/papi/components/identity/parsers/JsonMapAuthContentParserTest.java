@@ -2,10 +2,10 @@ package com.rackspace.papi.components.identity.parsers;
 
 import com.rackspace.papi.commons.util.transform.json.JacksonJaxbTransform;
 import com.rackspace.papi.components.identity.content.credentials.AuthCredentials;
-import com.rackspace.papi.components.identity.parsers.json.JsonJaxbAuthContentParser;
 import com.rackspace.papi.components.identity.parsers.json.JsonMapAuthContentParser;
 import static org.junit.Assert.*;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -19,6 +19,20 @@ public class JsonMapAuthContentParserTest {
       @Before
       public void setUp() {
          parser = new JsonMapAuthContentParser(new JacksonJaxbTransform());
+      }
+
+      @Test
+      @Ignore
+      // TODO: This test should pass.  Update the code to make it so.
+      public void shouldStillReturnUsernameWhenNoPasswordElementInPasswordCredentials() {
+         String expected = "some user";
+         String credentials = "{ \"passwordCredentials\": { \"username\": \"" + expected + "\" } }";
+
+         AuthCredentials actual = parser.parse(credentials);
+
+         assertNotNull(actual);
+
+         assertEquals("Should extract user name", expected, actual.getId());
       }
       
       @Test

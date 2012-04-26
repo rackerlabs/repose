@@ -1,95 +1,96 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-   <modelVersion>4.0.0</modelVersion>
+    <groupId>com.rackspace.papi.tests</groupId>
+    <artifactId>TestMaster</artifactId>
+    <version>1.0</version>
+    <name>TestMaster</name>
+    <packaging>pom</packaging>
 
-   <groupId>com.rackspace.papi.tests</groupId>
-   <artifactId>TestMaster</artifactId>
-   <version>1.0</version>
-   <name>TestMaster</name>
-   <packaging>pom</packaging>
+    <organization>
+        <name>Rackspace Cloud Research</name>
+        <url>http://research.rackspace.com/</url>
+    </organization>
 
-   <organization>
-      <name>Rackspace Cloud Research</name>
-      <url>http://research.rackspace.com/</url>
-   </organization>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.license>apache20</project.license>
+    </properties>
 
-   <properties>
-      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-      <project.license>apache20</project.license>
-   </properties>
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+    </licenses>
 
-   <licenses>
-      <license>
-         <name>Apache License, Version 2.0</name>
-         <url>http://www.apache.org/licenses/LICENSE-2.0</url>
-      </license>
-   </licenses>
+    <scm>
+        <connection>scm:git:ssh://git@github.com/rackspace/power-api.git</connection>
+    </scm>
 
-   <scm>
-      <connection>scm:git:ssh://git@github.com/rackspace/power-api.git</connection>
-   </scm>
+    <repositories>
+        <repository>
+            <id>public.maven.research.rackspace.com</id>
+            <name>Rackspace Research</name>
+            <url>http://maven.research.rackspacecloud.com/content/groups/aggregate</url>
+        </repository>
+    </repositories>
 
-   <repositories>
-      <repository>
-         <id>public.maven.research.rackspace.com</id>
-         <name>Rackspace Research</name>
-         <url>http://maven.research.rackspacecloud.com/content/groups/aggregate</url>
-      </repository>
-   </repositories>
+    <distributionManagement>
+        <repository>
+            <id>releases.maven.research.rackspace.com</id>
+            <name>Rackspace Research Releases</name>
+            <url>http://maven.research.rackspacecloud.com/content/repositories/releases</url>
+        </repository>
 
-   <distributionManagement>
-      <repository>
-         <id>releases.maven.research.rackspace.com</id>
-         <name>Rackspace Research Releases</name>
-         <url>http://maven.research.rackspacecloud.com/content/repositories/releases</url>
-      </repository>
-      
-      <snapshotRepository>
-         <id>snapshots.maven.research.rackspace.com</id>
-         <name>Rackspace Research Snapshots</name>
-         <url>http://maven.research.rackspacecloud.com/content/repositories/snapshots</url>
-      </snapshotRepository>
-   </distributionManagement>
+        <snapshotRepository>
+            <id>snapshots.maven.research.rackspace.com</id>
+            <name>Rackspace Research Snapshots</name>
+            <url>http://maven.research.rackspacecloud.com/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
 
-   <dependencies>
-      <dependency>
-         <groupId>org.apache.jmeter</groupId>
-         <artifactId>jmeter</artifactId>
-         <version>2.2</version>
-      </dependency>
-   </dependencies>
-   
-   <build>
-      <plugins>
-         <plugin>
+    <dependencies>
+        <dependency>
             <groupId>org.apache.jmeter</groupId>
-            <artifactId>papi-maven-jmeter-plugin</artifactId>
-            <version>1.0.3-SNAPSHOT</version>
-            
-            <executions>
-               <execution>
-                  <id>jmeter-tests</id>
-                  <phase>verify</phase>
-            
-                  <goals>
-                     <goal>jmeter</goal>
-                  </goals>
-               </execution>
-            </executions>
-            
-            <configuration>
-               <reportDir>${project.build.directory}/jmeter-reports</reportDir>
-               <jmeterhome>/usr/share/jmeter</jmeterhome>
-               <jmeterPreserveIncludeOrder>true</jmeterPreserveIncludeOrder>
-               <excludes>
-                  <exclude>Power API - End to End Automation.jmx</exclude>
-                  <exclude>Power API - Valve Test.jmx</exclude>
-<!--                  <exclude>Power API - Rate Limiting Tests.jmx</exclude>-->
-               </excludes>
-            </configuration>
-         </plugin>
-      </plugins>
-   </build>
-    
+            <artifactId>jmeter</artifactId>
+            <version>2.2</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.jmeter</groupId>
+                <artifactId>papi-maven-jmeter-plugin</artifactId>
+                <version>1.0.3-SNAPSHOT</version>
+
+                <executions>
+                    <execution>
+                        <id>jmeter-tests</id>
+                        <phase>verify</phase>
+
+                        <goals>
+                            <goal>jmeter</goal>
+                        </goals>
+                    </execution>
+                </executions>
+
+                <configuration>
+                    <reportDir>${project.build.directory}/jmeter-reports</reportDir>
+                    <jmeterhome>/usr/share/jmeter</jmeterhome>
+                    <jmeterPreserveIncludeOrder>true</jmeterPreserveIncludeOrder>
+                    <excludes>
+                        <exclude>Power API - End to End Automation.jmx</exclude>
+                        <exclude>Power API - Valve Test.jmx</exclude>
+                        <!--                  <exclude>Power API - Rate Limiting Tests.jmx</exclude>-->
+                        <exclude>Power API - Content-Normalization Test.jmx</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
 </project>
 
