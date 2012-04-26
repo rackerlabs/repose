@@ -26,7 +26,6 @@
         <module>content-identity-auth-2.0</module>
         <module>service-authentication</module>
         <module>cli-utils</module>
-        <module>content-normalization</module>
         <module>rate-limiting</module>
         <module>versioning</module>
         <module>translation</module>
@@ -35,6 +34,8 @@
         <module>echo</module>
         <module>client-authorization</module>
         <module>client-ip-identity</module>
+        <module>header-normalization</module>
+        <module>uri-normalization</module>
     </modules>
     
     <dependencyManagement>
@@ -131,7 +132,13 @@
 
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
-                <artifactId>content-normalization</artifactId>
+                <artifactId>uri-normalization</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>header-normalization</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

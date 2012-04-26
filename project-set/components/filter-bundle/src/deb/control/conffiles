@@ -1,6 +1,7 @@
 /etc/repose/client-auth-n.cfg.xml
 /etc/repose/openstack-authorization.cfg.xml
-/etc/repose/content-normalization.cfg.xml
+/etc/repose/uri-normalization.cfg.xml
+/etc/repose/header-normalization.cfg.xml
 /etc/repose/dist-datastore.cfg.xml
 /etc/repose/http-logging.cfg.xml
 /etc/repose/rate-limiting.cfg.xml
