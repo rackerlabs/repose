@@ -34,7 +34,12 @@
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>content-normalization</artifactId>
+            <artifactId>uri-normalization</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>header-normalization</artifactId>
         </dependency>
 
         <dependency>
@@ -151,7 +156,12 @@
 
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
-                            <artifactId>content-normalization</artifactId>
+                            <artifactId>uri-normalization</artifactId>
+                        </jarModule>
+
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components</groupId>
+                            <artifactId>header-normalization</artifactId>
                         </jarModule>
 
                         <jarModule>
@@ -279,7 +289,19 @@
                                 </data>
 
                                 <data>
-                                    <src>../content-normalization/src/main/resources/META-INF/schema/examples</src>
+                                    <src>../uri-normalization/src/main/resources/META-INF/schema/examples</src>
+                                    <type>directory</type>
+                                    <includes>*.cfg.xml</includes>
+
+                                    <mapper>
+                                        <type>perm</type>
+                                        <prefix>/etc/repose</prefix>
+                                        <filemode>600</filemode>
+                                    </mapper>
+                                </data>
+
+                                <data>
+                                        <src>../header-normalization/src/main/resources/META-INF/schema/examples</src>
                                     <type>directory</type>
                                     <includes>*.cfg.xml</includes>
 
@@ -426,7 +448,10 @@
                                             <location>../client-authorization/src/main/resources/META-INF/schema/examples/openstack-authorization.cfg.xml</location>
                                         </source>
                                         <source>
-                                            <location>../content-normalization/src/main/resources/META-INF/schema/examples/content-normalization.cfg.xml</location>
+                                            <location>../uri-normalization/src/main/resources/META-INF/schema/examples/uri-normalization.cfg.xml</location>
+                                        </source>
+                                        <source>
+                                            <location>../header-normalization/src/main/resources/META-INF/schema/examples/header-normalization.cfg.xml</location>
                                         </source>
                                         <source>
                                             <location>../datastore/src/main/resources/META-INF/schema/examples/dist-datastore.cfg.xml</location>
