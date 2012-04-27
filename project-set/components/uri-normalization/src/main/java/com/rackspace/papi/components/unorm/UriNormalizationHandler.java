@@ -13,18 +13,20 @@ import javax.servlet.http.HttpServletRequest;
  * @author Dan Daley
  */
 public class UriNormalizationHandler extends AbstractFilterLogicHandler {
-      private MediaTypeNormalizer mediaTypeNormalizer;
-      
-      public UriNormalizationHandler(MediaTypeNormalizer mediaTypeNormalizer) {
-         this.mediaTypeNormalizer = mediaTypeNormalizer;
-      }
 
-      @Override
-      public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
-         final FilterDirector myDirector = new FilterDirectorImpl();
-         myDirector.setFilterAction(FilterAction.PASS);
-         mediaTypeNormalizer.normalizeContentMediaType(request, myDirector);
-         return myDirector;
-      }
-   
+   private MediaTypeNormalizer mediaTypeNormalizer;
+
+   public UriNormalizationHandler(MediaTypeNormalizer mediaTypeNormalizer) {
+      this.mediaTypeNormalizer = mediaTypeNormalizer;
+   }
+
+   @Override
+   public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
+      final FilterDirector myDirector = new FilterDirectorImpl();
+      myDirector.setFilterAction(FilterAction.PASS);
+      
+      mediaTypeNormalizer.normalizeContentMediaType(request, myDirector);
+      
+      return myDirector;
+   }
 }
