@@ -37,6 +37,7 @@ public class HeaderNormalizationHandlerFactory extends AbstractConfiguredFilterH
 
         @Override
         public void configurationUpdated(HeaderNormalizationConfig configurationObject) {
+            compiledTargetList.clear();
             final HeaderFilterList filterList = configurationObject.getHeaderFilters();
             CompiledRegexAndList compiledRegexAndList;
             if (filterList != null) {
