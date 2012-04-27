@@ -13,7 +13,11 @@ import java.util.List;
 public class QualityFactorHeaderChooser <T extends HeaderValue> implements HeaderChooser<T> {
    
    private final T defaultValue;
-      
+   
+   public QualityFactorHeaderChooser() {
+      defaultValue = null;
+   }
+   
    public QualityFactorHeaderChooser(T defaultValue) {
       this.defaultValue = defaultValue;
    }
@@ -28,7 +32,8 @@ public class QualityFactorHeaderChooser <T extends HeaderValue> implements Heade
          final T next = headerValueIterator.next();
          
          if (next != null && StringUtilities.isNotBlank(next.getValue())) {
-            prefered = prefered.compareTo(next) < 0 ? next : prefered;
+            prefered = prefered == null || prefered.getQualityFactor() < next.getQualityFactor()? next: prefered;
+            //prefered = prefered.compareTo(next) < 0 ? next : prefered;
          }
       }
       
@@ -54,7 +59,7 @@ public class QualityFactorHeaderChooser <T extends HeaderValue> implements Heade
          }
       }
 
-      if (preferredHeaders.isEmpty()) {
+      if (preferredHeaders.isEmpty() && defaultValue != null) {
          preferredHeaders.add((T) defaultValue);
       }
 

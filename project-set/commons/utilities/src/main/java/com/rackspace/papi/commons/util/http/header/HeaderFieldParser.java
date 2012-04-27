@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util.http.header;
 
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,7 +36,7 @@ public class HeaderFieldParser {
       }
    }
 
-   public HeaderFieldParser(Set<String> headers) {
+   public HeaderFieldParser(Collection<String> headers) {
       this();
 
       if (headers != null) {

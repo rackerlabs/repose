@@ -2,15 +2,14 @@ package com.rackspace.papi.components.identity.content.auth;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.commons.util.http.header.HeaderChooser;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.io.stream.LimitedReadInputStream;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.commons.util.transform.Transform;
 import com.rackspace.papi.commons.util.transform.json.JacksonJaxbTransform;
-import com.rackspace.papi.commons.util.http.header.QualityFactorHeaderChooser;
-import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
+import com.rackspace.papi.commons.util.http.media.MediaRangeProcessor;
 import com.rackspace.papi.commons.util.http.media.MediaType;
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.components.identity.content.credentials.AuthCredentials;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -29,7 +28,7 @@ public class ContentIdentityAuthHandler extends AbstractFilterLogicHandler {
 
    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(ContentIdentityAuthHandler.class);
    private static final String DEFAULT_QUALITY = "0.6";
-   private static final HeaderChooser<MediaType> CONTENT_TYPE_CHOOSER = new QualityFactorHeaderChooser<MediaType>(new MediaType(MimeType.APPLICATION_JSON, -1));
+   private static final MediaType DEFAULT_TYPE = new MediaType(MimeType.APPLICATION_JSON);
    private final Double quality;
    private final int streamLimit;
    private final ContentIdentityAuthConfig config;
@@ -49,9 +48,12 @@ public class ContentIdentityAuthHandler extends AbstractFilterLogicHandler {
       final FilterDirector filterDirector = new FilterDirectorImpl();
       HeaderManager headerManager = filterDirector.requestHeaderManager();
       filterDirector.setFilterAction(FilterAction.PASS);
+      MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
+      MediaRangeProcessor processor = new MediaRangeProcessor(mutableRequest.getPreferredHeaderValues("Content-Type", DEFAULT_TYPE));
 
       try {
-         MimeType mimeType = CONTENT_TYPE_CHOOSER.choosePreferredHeaderValue(new MediaRangeParser(request.getHeaders("Content-Type")).parse()).getMimeType();
+         MediaType mediaType = processor.process().get(0);
+         MimeType mimeType = mediaType.getMimeType();
          InputStream inputStream = new LimitedReadInputStream(streamLimit, request.getInputStream());
          AuthCredentials credentials;
 
