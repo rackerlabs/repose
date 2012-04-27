@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.rackspace.repose.installation</groupId>
+        <artifactId>integration</artifactId>
+        <version>2.0.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>filters</groupId>
+    <artifactId>filters</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
+
+    <profiles>
+        <profile>
+            <id>Build ROOT Web Application RPM</id>
+
+            <activation>
+                <property>
+                    <name>build-system-packages</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>rpm-maven-plugin</artifactId>
+                        <version>2.1-alpha-1</version>
+
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>rpm</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+
+                        <configuration>
+                            <name>repose-filters</name>
+                            <mappings>
+                                <mapping>
+                                    <directory>/usr/share/repose/filters</directory>
+                                    <username>tomcat</username>
+                                    <groupname>tomcat</groupname>
+                                    <filemode>755</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>${project.build.directory}/../../../../../components/filter-bundle/target/filter-bundle-${project.version}.ear
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/etc/repose/</directory>
+                                    <username>tomcat</username>
+                                    <groupname>tomcat</groupname>
+                                    <configuration>noreplace</configuration>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <filemode>755</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>
+                                                ../filters/src/main/resources/META-INF/configs/header-identity.cfg.xml
+                                            </location>
+                                        </source>
+                                        <source>
+                                            <location>../filters/src/main/resources/META-INF/configs/ip-identity.cfg.xml
+                                            </location>
+                                        </source>
+                                        <source>
+                                            <location>
+                                                ../filters/src/main/resources/META-INF/configs/dist-datastore.cfg.xml
+                                            </location>
+                                        </source>
+                                        <source>
+                                            <location>
+                                                ../filters/src/main/resources/META-INF/configs/http-logging.cfg.xml
+                                            </location>
+                                        </source>
+                                        <source>
+                                            <location>
+                                                ../filters/src/main/resources/META-INF/configs/rate-limiting.cfg.xml
+                                            </location>
+                                        </source>
+                                        <source>
+                                            <location>
+                                                ../filters/src/main/resources/META-INF/configs/destination-router.cfg.xml
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <!-- ask Jesse why we need this -->
+                                <!--<mapping>-->
+                                <!--<directory>/usr/share/doc/repose-filter-bundle</directory>-->
+                                <!--<username>root</username>-->
+                                <!--<groupname>root</groupname>-->
+                                <!--<filemode>644</filemode>-->
+
+                                <!--<sources>-->
+                                <!--<source>-->
+                                <!--<location>${basedir}/target/git.properties</location>-->
+                                <!--</source>-->
+                                <!--</sources>-->
+                                <!--</mapping>-->
+                            </mappings>
+
+                            <requires>
+                                <require>repose-war</require>
+                            </requires>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
