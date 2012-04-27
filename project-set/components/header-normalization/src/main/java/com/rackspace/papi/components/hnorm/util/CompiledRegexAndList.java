@@ -2,6 +2,7 @@
 package com.rackspace.papi.components.hnorm.util;
 
 import com.rackspacecloud.api.docs.powerapi.header_normalization.v1.*;
+import java.util.HashSet;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -10,19 +11,19 @@ import java.util.regex.Pattern;
 public class CompiledRegexAndList {
     
     private Pattern pattern;
-    private List<HttpHeader> headerList;
     private List<HttpMethod> methodList;
     private Boolean isBlackList;
+    private HashSet<String> filterList;
     
     public CompiledRegexAndList(String pattern, List<HttpHeader> headerList, List<HttpMethod> methodList, Boolean isBlackList){
         this.pattern = pattern==null ? Pattern.compile(".*") : Pattern.compile(pattern); //sets this as the catch-all
-        this.headerList = headerList;
         this.methodList = methodList; //this will default to all if they do not provide it in the config
         this.isBlackList = isBlackList;
         
         if(methodList.isEmpty()){
             methodList.add(HttpMethod.ALL);
         }
+        setFilterList(headerList);
     }
 
     public List<HttpMethod> getMethodList() {
@@ -33,11 +34,21 @@ public class CompiledRegexAndList {
         return isBlackList;
     }
 
-    public List<HttpHeader> getHeaderList() {
-        return headerList;
-    }
+    
 
     public Pattern getPattern() {
         return pattern;
+    }
+
+    public HashSet<String> getFilterList() {
+        return filterList;
+    }
+    
+    private void setFilterList(List<HttpHeader> headerList){
+        
+        filterList = new HashSet<String>();
+        for(HttpHeader header : headerList){
+            filterList.add(header.getId().toLowerCase());
+        }
     }
 }

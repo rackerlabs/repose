@@ -1,7 +1,5 @@
-
 package com.rackspace.papi.components.hnorm.util;
 
-import com.rackspacecloud.api.docs.powerapi.header_normalization.v1.HttpHeader;
 import javax.servlet.http.HttpServletRequest;
 
 import java.util.Enumeration;
@@ -17,23 +15,19 @@ public final class HeaderNormalizer {
 
         final Enumeration<String> headerNames = request.getHeaderNames();
         Set<String> headersToRemove = new HashSet<String>();
-        String header;
-        while (headerNames.hasMoreElements()) {
-            header = headerNames.nextElement();
-            boolean found = false;
-            
-            for (HttpHeader headerFilter : target.getHeaderList()) {
-                if (headerFilter.getId().equalsIgnoreCase(header)) {
-                    found = true;
-                    break;
-                }
-            }
-
-            if (found && target.isBlackList() || !found && !target.isBlackList()) {
-                headersToRemove.add(header);
-            }
-        }
+        Set<String> filterList = target.getFilterList();
+        String header;        
         
+        while(headerNames.hasMoreElements()){
+            header = headerNames.nextElement();
+            headersToRemove.add(header.toLowerCase());
+        }
+
+        if(!target.isBlackList()){
+            headersToRemove.removeAll(filterList);
+        }else{
+            headersToRemove.retainAll(filterList);
+        }
         return headersToRemove;
     }
 }
