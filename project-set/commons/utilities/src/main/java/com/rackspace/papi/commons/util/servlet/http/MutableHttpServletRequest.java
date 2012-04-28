@@ -153,26 +153,26 @@ public final class MutableHttpServletRequest extends HttpServletRequestWrapper {
       return Collections.enumeration(headerValues != null ? headerValues : Collections.EMPTY_SET);
    }
    
-   public <T extends HeaderValue> T getPreferredHeader(String name) {
+   public HeaderValue getPreferredHeader(String name) {
       return getPreferredHeader(name, null);
    }
    
-   public <T extends HeaderValue> T getPreferredHeader(String name, T defaultValue) {
-      List<T> values = getPreferredHeaderValues(name, defaultValue);
+   public HeaderValue getPreferredHeader(String name, HeaderValue defaultValue) {
+      List<HeaderValue> values = getPreferredHeaderValues(name, defaultValue);
       
       return !values.isEmpty()? values.get(0): null;
    }
 
-   public <T extends HeaderValue> List<T> getPreferredHeaderValues(String name) {
+   public List<HeaderValue> getPreferredHeaderValues(String name) {
       return getPreferredHeaderValues(name, null);
    }
 
-   public <T extends HeaderValue> List<T> getPreferredHeaderValues(String name, T defaultValue) {
+   public List<HeaderValue> getPreferredHeaderValues(String name, HeaderValue defaultValue) {
       HeaderFieldParser parser = new HeaderFieldParser(headers.get(name.toLowerCase()));
       List<HeaderValue> headerValues = parser.parse();
       
       QualityFactorHeaderChooser chooser = new QualityFactorHeaderChooser<HeaderValue>();
-      List<T> values = chooser.choosePreferredHeaderValues(headerValues);
+      List<HeaderValue> values = chooser.choosePreferredHeaderValues(headerValues);
       
       if (values.isEmpty() && defaultValue != null) {
          values.add(defaultValue);
