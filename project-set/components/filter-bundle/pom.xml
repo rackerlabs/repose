@@ -54,6 +54,11 @@
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>content-normalization</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
             <artifactId>uri-identity</artifactId>
         </dependency>
         
