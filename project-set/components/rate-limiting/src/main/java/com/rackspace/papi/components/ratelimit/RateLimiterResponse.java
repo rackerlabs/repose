@@ -33,7 +33,7 @@ public class RateLimiterResponse extends RateLimitingOperation {
 
     public void writeActiveLimits(RateLimitingRequestInfo requestInfo, FilterDirector filterDirector) {
         final RateLimitList liveRateLimits = new RateLimitListBuilder(
-                getCachedRateLimitsByUser(requestInfo.getUserName()),
+                getCachedRateLimitsByUser(requestInfo.getUserName().getValue()),
                 getRateLimitGroupForRole(requestInfo.getUserGroups())).toRateLimitList();
 
         try {
@@ -51,7 +51,7 @@ public class RateLimiterResponse extends RateLimitingOperation {
 
     public void writeCombinedLimits(RateLimitingRequestInfo requestInfo, ReadableHttpServletResponse response, FilterDirector filterDirector) {
         final RateLimitList liveRateLimits = new RateLimitListBuilder(
-                getCachedRateLimitsByUser(requestInfo.getUserName()),
+                getCachedRateLimitsByUser(requestInfo.getUserName().getValue()),
                 getRateLimitGroupForRole(requestInfo.getUserGroups())).toRateLimitList();
 
         try {

@@ -43,6 +43,10 @@ public class HeaderValueImpl implements HeaderValue {
 
       return parameters;
    }
+   
+   public HeaderValueImpl(String value) {
+      this(value, 1.0);
+   }
 
    /**
     * Constructor that sets the header value's quality factor directly

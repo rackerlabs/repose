@@ -31,6 +31,11 @@ public class RateLimitingRequestInfoTest {
       @Before
       public void standUp() {
          mockedRequest = mock(HttpServletRequest.class);
+         final List<String> headerNames = new LinkedList<String>();
+         headerNames.add(PowerApiHeader.USER.toString());
+         headerNames.add(PowerApiHeader.GROUPS.toString());
+
+         when(mockedRequest.getHeaderNames()).thenReturn(Collections.enumeration(headerNames));
 
          when(mockedRequest.getMethod()).thenReturn("GET");
 
@@ -62,7 +67,7 @@ public class RateLimitingRequestInfoTest {
       public void shouldSelectMostQualifiedUserHeader() {
          final RateLimitingRequestInfo info = new RateLimitingRequestInfo(mockedRequest,MEDIA_TYPE);
 
-         assertEquals("Request info must understand user header quality", MOST_QUALIFIED_USER, info.getUserName());
+         assertEquals("Request info must understand user header quality", MOST_QUALIFIED_USER, info.getUserName().getValue());
       }
    }
 
@@ -73,7 +78,11 @@ public class RateLimitingRequestInfoTest {
       @Before
       public void standUp() {
          mockedRequest = mock(HttpServletRequest.class);
+         final List<String> headerNames = new LinkedList<String>();
+         headerNames.add(PowerApiHeader.USER.toString());
+         headerNames.add(PowerApiHeader.GROUPS.toString());
 
+         when(mockedRequest.getHeaderNames()).thenReturn(Collections.enumeration(headerNames));
          when(mockedRequest.getMethod()).thenReturn("GET");
          when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenReturn(Collections.enumeration(Collections.EMPTY_LIST));
          when(mockedRequest.getHeaders(PowerApiHeader.USER.toString())).thenReturn(Collections.enumeration(Collections.EMPTY_LIST));
@@ -88,7 +97,7 @@ public class RateLimitingRequestInfoTest {
          
          final RateLimitingRequestInfo info = new RateLimitingRequestInfo(mockedRequest,MEDIA_TYPE);
 
-         assertEquals("Rate limiting request info must return correct user without quality factors", MOST_QUALIFIED_USER, info.getUserName());
+         assertEquals("Rate limiting request info must return correct user without quality factors", MOST_QUALIFIED_USER, info.getUserName().getValue());
       }
 
       @Test

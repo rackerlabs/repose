@@ -1,9 +1,10 @@
 package com.rackspace.papi.components.versioning.util.http;
 
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
-import com.rackspace.papi.commons.util.http.header.QualityFactorUtility;
+import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.servlet.RequestMediaRangeInterrogator;
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
@@ -11,7 +12,9 @@ import javax.servlet.http.HttpServletRequest;
 public class HttpRequestInfoImpl implements HttpRequestInfo {
 
    private static List<MediaType> getMediaRanges(HttpServletRequest request) {
-      return RequestMediaRangeInterrogator.interrogate(request.getRequestURI(), request.getHeader(CommonHttpHeader.ACCEPT.toString()));
+      MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
+      List<HeaderValue> preferredAcceptHeader = mutableRequest.getPreferredHeaderValues(CommonHttpHeader.ACCEPT.toString());
+      return RequestMediaRangeInterrogator.interrogate(request.getRequestURI(), preferredAcceptHeader);
    }
    private final List<MediaType> acceptMediaRange;
    private final MediaType preferedMediaRange;
@@ -25,7 +28,7 @@ public class HttpRequestInfoImpl implements HttpRequestInfo {
    }
 
    public HttpRequestInfoImpl(List<MediaType> acceptMediaRange, String uri, String url, String host, String scheme) {
-      this.preferedMediaRange = QualityFactorUtility.choosePreferredHeaderValue(acceptMediaRange);
+      this.preferedMediaRange = acceptMediaRange.get(0);
       this.acceptMediaRange = acceptMediaRange;
       this.uri = uri;
       this.url = url;

@@ -1,12 +1,13 @@
 package com.rackspace.papi.commons.util.http.media;
 
+import com.rackspace.papi.commons.util.http.header.CustomHeaderParser;
 import com.rackspace.papi.commons.util.http.header.HeaderFieldParser;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 
-public class MediaRangeParser {
+public class MediaRangeParser implements CustomHeaderParser<MediaType> {
 
    private final List<HeaderValue> headerValues;
 
@@ -26,13 +27,13 @@ public class MediaRangeParser {
       final List<MediaType> mediaRanges = new LinkedList<MediaType>();
       
       for(HeaderValue headerValue : headerValues) {
-         mediaRanges.add(parseMediaTypeHeaderValue(headerValue));
+         mediaRanges.add(process(headerValue));
       }
       
       return mediaRanges;
    }
 
-   public MediaType parseMediaTypeHeaderValue(HeaderValue headerValue) {
+   public MediaType process(HeaderValue headerValue) {
       MimeType mediaType = MimeType.getMatchingMimeType(headerValue.getValue());
 
       if (MimeType.UNKNOWN.equals(mediaType)) {

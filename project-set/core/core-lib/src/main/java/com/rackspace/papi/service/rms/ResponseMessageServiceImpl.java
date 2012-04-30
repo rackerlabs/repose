@@ -2,13 +2,12 @@ package com.rackspace.papi.service.rms;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
-import com.rackspace.papi.commons.util.http.header.HeaderChooser;
-import com.rackspace.papi.commons.util.http.header.QualityFactorHeaderChooser;
+import com.rackspace.papi.commons.util.http.media.MediaRangeProcessor;
 import com.rackspace.papi.commons.util.http.media.MediaType;
-import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 
 import com.rackspace.papi.commons.util.logging.apache.HttpLogFormatter;
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.commons.util.thread.KeyedStackLock;
 
@@ -27,7 +26,7 @@ import java.util.List;
 public class ResponseMessageServiceImpl implements ResponseMessageService {
 
    private static final Logger LOG = LoggerFactory.getLogger(ResponseMessageServiceImpl.class);
-   private static final HeaderChooser<MediaType> ACCEPT_TYPE_CHOOSER = new QualityFactorHeaderChooser<MediaType>(new MediaType(MimeType.WILDCARD, -1));
+   private static final MediaType DEFAULT_TYPE = new MediaType(MimeType.WILDCARD);
 
    private final KeyedStackLock configurationLock = new KeyedStackLock();
    private final Object updateKey = new Object();
@@ -45,9 +44,11 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
    public void handle(HttpServletRequest request, HttpServletResponse response) throws IOException {
       
       final StatusCodeMatcher matchedCode = getMatchingStatusCode(String.valueOf(response.getStatus()));
+      final MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
+      MediaRangeProcessor processor = new MediaRangeProcessor(mutableRequest.getPreferredHeaderValues("Accept", DEFAULT_TYPE));
 
       if (matchedCode != null) {
-         final MediaType preferredMediaType = ACCEPT_TYPE_CHOOSER.choosePreferredHeaderValue(new MediaRangeParser(request.getHeaders("Accept")).parse());
+         final MediaType preferredMediaType = processor.process().get(0);
          final HttpLogFormatter formatter = getHttpLogFormatter(matchedCode, preferredMediaType);
 
          if (formatter != null) {
