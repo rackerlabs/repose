@@ -65,7 +65,12 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
                 
-                        <configuration>                    
+                        <configuration>
+                            <!-- _tmppath is not set correctly on al OSs so it is forced here -->
+                            <defineStatements>
+                                <defineStatement>_tmppath /tmp</defineStatement>
+                            </defineStatements>
+                            
                             <mappings>
                                 <mapping>
                                     <directory>/var/lib/tomcat7/webapps</directory>
