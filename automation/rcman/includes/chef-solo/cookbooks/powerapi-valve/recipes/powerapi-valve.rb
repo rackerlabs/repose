@@ -106,7 +106,7 @@ for nodeNumber in 1..6
       end
 
       cookbook_file "/etc/repose/node1/header-normalization.cfg.xml" do
-         source "/auth1.1/client-auth-n.cfg.xml"
+         source "/auth1.1/header-normalization.cfg.xml"
          mode 0644
       end
 
@@ -133,7 +133,7 @@ for nodeNumber in 1..6
       end
 
       cookbook_file "/etc/repose/node2/header-normalization.cfg.xml" do
-         source "/auth1.1/client-auth-n.cfg.xml"
+         source "/auth1.1/header-normalization.cfg.xml"
          mode 0644
       end
 
