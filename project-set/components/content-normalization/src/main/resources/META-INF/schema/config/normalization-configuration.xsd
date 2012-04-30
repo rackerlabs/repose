@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.api.rackspacecloud.com/powerapi/content-normalization/v1.0"
+           xmlns:cnorm="http://docs.api.rackspacecloud.com/powerapi/content-normalization/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:atom="http://www.w3.org/2005/Atom"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Content Normalization Configuration -->
+    <xs:element name="content-normalization" type="cnorm:ContentNormalizationConfig" />
+
+    <xs:complexType name="ContentNormalizationConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:all>
+            <xs:element name="header-filters" type="cnorm:HeaderFilterList" minOccurs="0" maxOccurs="1" />
+            <xs:element name="media-types" type="cnorm:MediaTypeList" minOccurs="0" maxOccurs="1" />
+        </xs:all>
+    </xs:complexType>
+
+    <!-- Types - keep it simple, John-->
+    <xs:complexType name="MediaTypeList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:sequence>
+            <xs:element name="media-type" type="cnorm:MediaType" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="MediaType">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+        
+        <!-- TODO:Review Not sure if this will ever be something to look at
+        <xs:sequence>
+            <xs:element name="alternate" type="cnorm:MediaTypeAlternate" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        -->
+        
+        <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>            
+        </xs:attribute>
+
+        <xs:attribute name="variant-extension" type="xs:string" use="optional" default="">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>            
+        </xs:attribute>
+        
+        <xs:attribute name="preferred" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>            
+        </xs:attribute>
+    </xs:complexType>
+    
+    <xs:complexType name="MediaTypeAlternate">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:attribute name="name" type="xs:string" use="optional" default="">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>            
+        </xs:attribute>
+
+        <xs:attribute name="variant-extension" type="xs:string" use="optional" default="">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>            
+        </xs:attribute>
+    </xs:complexType>
+    
+    
+    <xs:complexType name="HeaderFilterList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:choice >
+            <xs:element name="whitelist" type="cnorm:HttpHeaderList" />
+            <xs:element name="blacklist" type="cnorm:HttpHeaderList" />
+        </xs:choice>
+    </xs:complexType>
+    
+    <xs:complexType name="HttpHeaderList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:sequence>
+            <xs:element name="header" type="cnorm:HttpHeader" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>            
+        </xs:attribute>
+    </xs:complexType>
+    
+    <xs:complexType name="HttpHeader">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>            
+        </xs:attribute>
+    </xs:complexType>
+</xs:schema>
