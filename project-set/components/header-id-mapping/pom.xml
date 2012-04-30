@@ -11,7 +11,7 @@
     <groupId>com.rackspace.papi.components</groupId>
     <artifactId>header-id-mapping</artifactId>
 
-    <name>Power API Components - Client Header Identity Mapping</name>
+    <name>Repose Components - Client Header Identity Mapping</name>
     <description>TODO</description>
 
     <packaging>jar</packaging>

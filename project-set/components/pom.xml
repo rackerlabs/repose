@@ -11,7 +11,7 @@
     <groupId>com.rackspace.papi.components</groupId>
     <artifactId>components-support</artifactId>
 
-    <name>Power API Components - Components Support</name>
+    <name>Repose Components - Components Support</name>
     <packaging>pom</packaging>
 
     <modules>

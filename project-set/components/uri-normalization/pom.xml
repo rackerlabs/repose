@@ -11,7 +11,7 @@
     <groupId>com.rackspace.papi.components</groupId>
     <artifactId>uri-normalization</artifactId>
 
-    <name>Power API Components - URI Normalization</name>
+    <name>Repose Components - URI Normalization</name>
     <description>TODO</description>
 
     <packaging>jar</packaging>

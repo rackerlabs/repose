@@ -11,7 +11,7 @@
     <groupId>com.rackspace.papi.components</groupId>
     <artifactId>versioning</artifactId>
 
-    <name>Power API Components - Versioning</name>
+    <name>Repose Components - Versioning</name>
     <description>TODO</description>
 
     <packaging>jar</packaging>
