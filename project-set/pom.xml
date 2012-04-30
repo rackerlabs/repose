@@ -25,7 +25,7 @@
         <module>commons</module>
         <module>core</module>
         <module>components</module>
-        <module>installation</module>
+        <!--<module>installation</module>-->
     </modules>
 
     <profiles>
