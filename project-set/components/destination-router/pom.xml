@@ -11,7 +11,7 @@
    <groupId>com.rackspace.papi.components</groupId>
    <artifactId>destination-router</artifactId>
 
-   <name>Power API Components - Destination Router</name>
+   <name>Repose Components - Destination Router</name>
    <description>TODO</description>
 
    <packaging>jar</packaging>

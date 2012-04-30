@@ -12,7 +12,7 @@
    <artifactId>core-support</artifactId>
    <version>2.0.0-SNAPSHOT</version>
 
-   <name>Power API Core - Core Support</name>
+   <name>Repose Core - Core Support</name>
     
    <packaging>pom</packaging>
 

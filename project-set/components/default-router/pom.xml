@@ -11,7 +11,7 @@
     <groupId>com.rackspace.papi.components</groupId>
     <artifactId>default-router</artifactId>
 
-    <name>Power API Components - Default Request Routing Component</name>
+    <name>Repose Components - Default Request Routing Component</name>
     <description>TODO</description>
 
     <packaging>jar</packaging>
