@@ -50,7 +50,9 @@ public class HeaderFieldParser {
       final String[] splitHeaderValues = rawHeaderString.split(",");
 
       for (String splitHeaderValue : splitHeaderValues) {
-         headerValueStrings.add(splitHeaderValue.trim());
+          if(!splitHeaderValue.isEmpty()){
+            headerValueStrings.add(splitHeaderValue.trim());
+          }
       }
    }
 
