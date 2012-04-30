@@ -31,8 +31,14 @@
         <profile>
             <id>RPM Build Support</id>
 
+            <!--<activation>-->
+                <!--<activeByDefault>true</activeByDefault>-->
+            <!--</activation>-->
+
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>build-system-packages</name>
+                </property>
             </activation>
 
             <build>
@@ -42,6 +48,7 @@
                             <groupId>org.codehaus.mojo</groupId>
                             <artifactId>rpm-maven-plugin</artifactId>
                             <version>2.1-alpha-1</version>
+                            <extensions>true</extensions>
 
                             <executions>
                                 <execution>
@@ -51,7 +58,6 @@
 
                                     <goals>
                                         <goal>rpm</goal>
-                                        <goal>attached-rpm</goal>
                                     </goals>
                                 </execution>
                             </executions>

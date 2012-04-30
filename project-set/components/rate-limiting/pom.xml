@@ -11,7 +11,7 @@
     <groupId>com.rackspace.papi.components</groupId>
     <artifactId>rate-limiting</artifactId>
 
-    <name>Power API Components - Rate Limiting</name>
+    <name>Repose Components - Rate Limiting</name>
     <description>TODO</description>
 
     <packaging>jar</packaging>

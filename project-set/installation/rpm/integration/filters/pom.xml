@@ -20,6 +20,8 @@
         Module for the Filter Bundle RPM.
     </description>
 
+    <packaging>rpm</packaging>
+
     <profiles>
         <profile>
             <id>Build ROOT Web Application RPM</id>
@@ -34,15 +36,6 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
-                        <version>2.1-alpha-1</version>
-
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>rpm</goal>
-                                </goals>
-                            </execution>
-                        </executions>
 
                         <configuration>
                             <name>repose-filters</name>

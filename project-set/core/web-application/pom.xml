@@ -12,7 +12,7 @@
     <groupId>com.rackspace.papi.core</groupId>
     <artifactId>web-application</artifactId>
 
-    <name>Power API Core - Root Web Application</name>
+    <name>Repose Core - Root Web Application</name>
     
     <description>
         This is the ROOT.war application project for Power API. This is a simple
@@ -65,7 +65,12 @@
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
                 
-                        <configuration>                    
+                        <configuration>
+                            <!-- _tmppath is not set correctly on al OSs so it is forced here -->
+                            <defineStatements>
+                                <defineStatement>_tmppath /tmp</defineStatement>
+                            </defineStatements>
+                            
                             <mappings>
                                 <mapping>
                                     <directory>/var/lib/tomcat7/webapps</directory>
