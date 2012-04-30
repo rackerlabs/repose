@@ -6,7 +6,7 @@
     <artifactId>papi</artifactId>
     <version>2.0.0-SNAPSHOT</version>
 
-    <name>Power API</name>
+    <name>Repose</name>
 
     <description>
         Master POM file to provide deployment and other useful information to

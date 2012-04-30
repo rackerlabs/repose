@@ -11,7 +11,7 @@
    <groupId>com.rackspace.papi.components</groupId>
    <artifactId>content-identity-auth-1.1</artifactId>
 
-   <name>Power API Components - Client Identity By Content - Auth 1.1</name>
+   <name>Repose Components - Client Identity By Content - Auth 1.1</name>
    <description>TODO</description>
 
    <packaging>jar</packaging>

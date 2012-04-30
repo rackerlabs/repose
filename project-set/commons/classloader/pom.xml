@@ -11,7 +11,7 @@
     <groupId>com.rackspace.papi.commons</groupId>
     <artifactId>classloader</artifactId>
 
-    <name>Power API Commons - Class Loader</name>
+    <name>Repose Commons - Class Loader</name>
 
     <packaging>jar</packaging>
 

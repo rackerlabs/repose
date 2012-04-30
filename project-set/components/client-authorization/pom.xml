@@ -12,7 +12,7 @@
     <groupId>com.rackspace.papi.components</groupId>
     <artifactId>client-authorization</artifactId>
 
-    <name>Power API Components - Client Authorization</name>
+    <name>Repose Components - Client Authorization</name>
     <description>TODO</description>
 
     <packaging>jar</packaging>

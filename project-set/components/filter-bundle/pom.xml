@@ -11,7 +11,7 @@
     <groupId>com.rackspace.papi.components</groupId>
     <artifactId>filter-bundle</artifactId>
     
-    <name>Power API Components - EAR Bundle</name>
+    <name>Repose Components - EAR Bundle</name>
     <description>TODO</description>
 
     <packaging>ear</packaging>

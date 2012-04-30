@@ -13,7 +13,7 @@
    <artifactId>test-service-mock</artifactId>
    <packaging>war</packaging>
 
-   <name>Power API Test - Testing Service and Mocks</name>
+   <name>Repose Test - Testing Service and Mocks</name>
 
    <properties>
       <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>

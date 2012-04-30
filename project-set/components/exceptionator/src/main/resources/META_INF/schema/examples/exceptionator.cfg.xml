@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<exceptionator xmlns="http://docs.rackspacecloud.com/power-api/exceptionator/v1.0"
-        exceptionFQName="java.lang.RuntimeException"
-        exceptionMessage="test this!"/>
