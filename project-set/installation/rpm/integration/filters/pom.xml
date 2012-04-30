@@ -5,14 +5,20 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.rackspace.repose.installation</groupId>
+        <groupId>com.rackspace.repose.installation.rpm.integration</groupId>
         <artifactId>integration</artifactId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>filters</groupId>
+    <groupId>com.rackspace.repose.installation.rpm.integration.filters</groupId>
     <artifactId>filters</artifactId>
     <version>2.0.0-SNAPSHOT</version>
+
+    <name>Repose - Cloud Integration Filter Bundle RPM</name>
+
+    <description>
+        Module for the Filter Bundle RPM.
+    </description>
 
     <profiles>
         <profile>
