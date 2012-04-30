@@ -20,7 +20,7 @@
         Module for the WAR RPM.
     </description>
 
-    <packaging>rpm</packaging>
+    <!--<packaging>rpm</packaging>-->
 
     <profiles>
         <profile>

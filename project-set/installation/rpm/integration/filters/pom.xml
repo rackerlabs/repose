@@ -20,7 +20,7 @@
         Module for the Filter Bundle RPM.
     </description>
 
-    <packaging>rpm</packaging>
+    <!--<packaging>rpm</packaging>-->
 
     <profiles>
         <profile>
