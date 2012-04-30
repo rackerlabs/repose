@@ -1,6 +1,3 @@
-/*
- *
- */
 package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;

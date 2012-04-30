@@ -28,7 +28,7 @@ public abstract class RateLimitingOperation {
          }
 
          for (HeaderValue role : roles) {
-            if (configuredRateLimits.getGroups().contains(role)) {
+            if (configuredRateLimits.getGroups().contains(role.getValue())) {
                return configuredRateLimits;
             }
          }
