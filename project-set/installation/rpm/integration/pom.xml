@@ -31,8 +31,14 @@
         <profile>
             <id>RPM Build Support</id>
 
+            <!--<activation>-->
+                <!--<activeByDefault>true</activeByDefault>-->
+            <!--</activation>-->
+
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>build-system-packages</name>
+                </property>
             </activation>
 
             <build>
