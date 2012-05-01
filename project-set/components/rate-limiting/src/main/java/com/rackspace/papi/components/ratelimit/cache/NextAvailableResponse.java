@@ -3,24 +3,30 @@ package com.rackspace.papi.components.ratelimit.cache;
 import java.util.Date;
 
 /**
- *
  * @author jhopper
  */
 public class NextAvailableResponse {
 
-    private final boolean hasRequests;
-    private final Date resetTime;
+   private final boolean hasRequests;
+   private final Date resetTime;
+   private final int currentLimitAmount;
 
-    public NextAvailableResponse(boolean hasRequests, Date resetTime) {
-        this.hasRequests = hasRequests;
-        this.resetTime = resetTime;
-    }
 
-    public Date getResetTime() {
-        return resetTime;
-    }
+   public NextAvailableResponse(boolean hasRequests, Date resetTime, int currentLimitAmount) {
+      this.hasRequests = hasRequests;
+      this.resetTime = resetTime;
+      this.currentLimitAmount = currentLimitAmount;
+   }
 
-    public boolean hasRequestsRemaining() {
-        return hasRequests;
-    }
+   public Date getResetTime() {
+      return resetTime;
+   }
+
+   public boolean hasRequestsRemaining() {
+      return hasRequests;
+   }
+
+   public int getCurrentLimitAmount() {
+      return currentLimitAmount;
+   }
 }

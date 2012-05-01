@@ -16,43 +16,44 @@ import java.util.Map;
 
 public class ManagedRateLimitCache implements RateLimitCache {
 
-    private final Datastore datastore;
+   private final Datastore datastore;
 
-    public ManagedRateLimitCache(Datastore datastore) {
-        this.datastore = datastore;
-    }
+   public ManagedRateLimitCache(Datastore datastore) {
+      this.datastore = datastore;
+   }
 
-    @Override
-    public Map<String, CachedRateLimit> getUserRateLimits(String account) {
-        final HashMap<String, CachedRateLimit> accountRateLimitMap = getUserRateLimitMap(account);
+   @Override
+   public Map<String, CachedRateLimit> getUserRateLimits(String account) {
+      final HashMap<String, CachedRateLimit> accountRateLimitMap = getUserRateLimitMap(account);
 
-        return Collections.unmodifiableMap(accountRateLimitMap);
-    }
-    
-    private HashMap<String, CachedRateLimit> getUserRateLimitMap(String user) {
-        final StoredElement element = datastore.get(user);
-        
-        return element.elementIsNull() ? new HashMap<String, CachedRateLimit>() : element.elementAs(HashMap.class);
-    }
+      return Collections.unmodifiableMap(accountRateLimitMap);
+   }
 
-    @Override
-    public NextAvailableResponse updateLimit(HttpMethod method, String user, String limitKey, ConfiguredRatelimit rateCfg) throws IOException {
-        final HashMap<String, CachedRateLimit> userRateLimitMap = getUserRateLimitMap(user);
+   private HashMap<String, CachedRateLimit> getUserRateLimitMap(String user) {
+      final StoredElement element = datastore.get(user);
 
-        CachedRateLimit currentLimit = userRateLimitMap != null ? userRateLimitMap.get(limitKey) : null;
+      return element.elementIsNull() ? new HashMap<String, CachedRateLimit>() : element.elementAs(HashMap.class);
+   }
 
-        if (currentLimit == null) {
-            currentLimit = new CachedRateLimit(rateCfg.getUriRegex());
-            userRateLimitMap.put(limitKey, currentLimit);
-        }
-        
-        final boolean hasRequests = currentLimit.amount(method) < rateCfg.getValue();
+   @Override
+   public NextAvailableResponse updateLimit(HttpMethod method, String user, String limitKey, ConfiguredRatelimit rateCfg) throws IOException {
+      final HashMap<String, CachedRateLimit> userRateLimitMap = getUserRateLimitMap(user);
 
-        if (hasRequests) {
-            currentLimit.logHit(method, rateCfg.getUnit());
-            datastore.put(user, ObjectSerializer.instance().writeObject(userRateLimitMap), 1, TimeUnitConverter.fromSchemaTypeToConcurrent(rateCfg.getUnit()));
-        }
+      CachedRateLimit currentLimit = userRateLimitMap != null ? userRateLimitMap.get(limitKey) : null;
 
-        return new NextAvailableResponse(hasRequests, new Date(currentLimit.getEarliestExpirationTime(method)));
-    }
+      if (currentLimit == null) {
+         currentLimit = new CachedRateLimit(rateCfg.getUriRegex());
+         userRateLimitMap.put(limitKey, currentLimit);
+      }
+
+      final int currentLimitAmount = currentLimit.amount(method);
+      final boolean hasRequests = currentLimitAmount < rateCfg.getValue();
+
+      if (hasRequests) {
+         currentLimit.logHit(method, rateCfg.getUnit());
+         datastore.put(user, ObjectSerializer.instance().writeObject(userRateLimitMap), 1, TimeUnitConverter.fromSchemaTypeToConcurrent(rateCfg.getUnit()));
+      }
+
+      return new NextAvailableResponse(hasRequests, new Date(currentLimit.getEarliestExpirationTime(method)), currentLimitAmount);
+   }
 }
