@@ -57,6 +57,7 @@ public class MultiInstanceWhiteListTest {
       public void shouldFilterParametersInWhiteList() {
          assertTrue("Should accept 'a'", whiteList.shouldAccept("a"));
          assertTrue("Should accept 'A'", whiteList.shouldAccept("A"));
+         
          assertFalse("Should not accept third 'a'", whiteList.shouldAccept("a"));
          assertFalse("Should not accept 'test'", whiteList.shouldAccept("test"));
          assertFalse("Should not accept 'format'", whiteList.shouldAccept("format"));
