@@ -2,9 +2,7 @@ package com.rackspace.papi.commons.util.servlet.http;
 
 import com.rackspace.papi.commons.util.http.header.HeaderFieldParser;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
-import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
 import com.rackspace.papi.commons.util.http.header.QualityFactorHeaderChooser;
-import com.rackspace.papi.commons.util.http.header.CustomHeaderParser;
 import com.rackspace.papi.commons.util.io.BufferedServletInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -22,7 +20,7 @@ import javax.servlet.http.HttpServletRequestWrapper;
  *
  * @author jhopper
  */
-public final class MutableHttpServletRequest extends HttpServletRequestWrapper {
+public class MutableHttpServletRequest extends HttpServletRequestWrapper {
 
    public static MutableHttpServletRequest wrap(HttpServletRequest request) {
       return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request);

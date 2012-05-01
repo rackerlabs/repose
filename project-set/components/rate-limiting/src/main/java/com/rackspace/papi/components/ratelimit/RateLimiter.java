@@ -7,13 +7,13 @@ import com.rackspace.papi.components.ratelimit.config.ConfiguredLimitGroup;
 import com.rackspace.papi.components.ratelimit.config.ConfiguredRatelimit;
 import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
 import com.rackspace.papi.components.ratelimit.util.RateLimitKeyGenerator;
+import com.rackspace.papi.components.ratelimit.util.UserIdentificationSanitizer;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import java.io.IOException;
 import org.slf4j.Logger;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -97,7 +97,7 @@ public class RateLimiter extends RateLimitingOperation {
          }
       } else {
          // We default to the whole URI in the case where no regex group info was provided
-         LOG.warn("Using regex caputure groups is recommended to help Power API build replicable, meaningful cache IDs for rate limits. Please update your config.");
+         LOG.warn("Using regex caputure groups is recommended to help Repose build replicable, meaningful cache IDs for rate limits. Please update your config.");
          cacheIdBuffer.append(requestInfo.getRequest().getRequestURI());
       }
 
@@ -107,6 +107,11 @@ public class RateLimiter extends RateLimitingOperation {
 
          if (!nextAvailable.hasRequestsRemaining()) {
             prepareNextAvailableResponse(nextAvailable, filterDirector);
+            
+            final UserIdentificationSanitizer sanitizer = new UserIdentificationSanitizer(requestInfo);
+            LOG.info("Rate limiting user " + sanitizer.getUserIdentification() + " at limit amount " + nextAvailable.getCurrentLimitAmount() + ".");
+            LOG.info("User rate limited for request " + requestInfo.getRequestMethod().value() + " " + requestInfo.getRequest().getRequestURL() + ".");
+            LOG.info("Configured rate limit is: " + rateLimit.toString());
          }
       } catch (IOException ioe) {
          LOG.error("IOException caught during cache commit for rate limit user: " + requestInfo.getUserName()

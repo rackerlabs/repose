@@ -24,7 +24,6 @@ import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static com.rackspace.papi.components.ratelimit.FilterDirectorTestHelper.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @RunWith(Enclosed.class)
@@ -39,9 +38,9 @@ public class RateLimiterTest extends RateLimitingTestSupport {
       @Before
       public void standUp() throws Exception {
          cacheMock = mock(RateLimitCache.class);
-         when(cacheMock.updateLimit(eq(HttpMethod.GET), anyString(), anyString(), any(ConfiguredRatelimit.class))).thenReturn(new NextAvailableResponse(true, Calendar.getInstance().getTime()));
-         when(cacheMock.updateLimit(eq(HttpMethod.PUT), anyString(), anyString(), any(ConfiguredRatelimit.class))).thenReturn(new NextAvailableResponse(false, Calendar.getInstance().getTime()));
-         when(cacheMock.updateLimit(eq(HttpMethod.POST), anyString(), anyString(), any(ConfiguredRatelimit.class))).thenReturn(new NextAvailableResponse(false, Calendar.getInstance().getTime()));
+         when(cacheMock.updateLimit(eq(HttpMethod.GET), anyString(), anyString(), any(ConfiguredRatelimit.class))).thenReturn(new NextAvailableResponse(true, Calendar.getInstance().getTime(), 1));
+         when(cacheMock.updateLimit(eq(HttpMethod.PUT), anyString(), anyString(), any(ConfiguredRatelimit.class))).thenReturn(new NextAvailableResponse(false, Calendar.getInstance().getTime(), 1));
+         when(cacheMock.updateLimit(eq(HttpMethod.POST), anyString(), anyString(), any(ConfiguredRatelimit.class))).thenReturn(new NextAvailableResponse(false, Calendar.getInstance().getTime(), 1));
 
          cfg = defaultRateLimitingConfiguration();
          rateLimiter = new RateLimiter(cacheMock, newRegexCache(cfg.getLimitGroup()), cfg);
