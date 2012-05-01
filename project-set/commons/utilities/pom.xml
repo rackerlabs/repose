@@ -11,7 +11,7 @@
    <groupId>com.rackspace.papi.commons</groupId>
    <artifactId>utilities</artifactId>
 
-   <name>Power API Commons - Utilities</name>
+   <name>Repose Commons - Utilities</name>
     
    <packaging>jar</packaging>
 

@@ -57,6 +57,11 @@ cookbook_file "/etc/repose/rate-limiting.cfg.xml" do
    mode 0744
 end
 
+cookbook_file "/etc/repose/service-authentication.cfg.xml" do
+   source "rootwarnode/service-authentication.cfg.xml"
+   mode 0744
+end
+
 script "giveTomcatAccess" do
     interpreter "bash"
     code <<-EOH

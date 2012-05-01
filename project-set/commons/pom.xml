@@ -12,7 +12,7 @@
    <artifactId>commons-support</artifactId>
    <version>2.0.0-SNAPSHOT</version>
         
-   <name>Power API Commons - Commons Support</name>
+   <name>Repose Commons - Commons Support</name>
 
    <packaging>pom</packaging>
 

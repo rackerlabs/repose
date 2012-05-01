@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+      <groupId>com.rackspace.repose.installation.rpm</groupId>
+      <artifactId>rpm</artifactId>
+      <version>2.0.0-SNAPSHOT</version>
+   </parent>
+
+    <groupId>com.rackspace.repose.installation.rpm.integration</groupId>
+    <artifactId>integration</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
+
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>filters</module>
+        <module>war</module>
+    </modules>
+
+    <name>Repose - Cloud Integration Installation Files</name>
+
+    <description>
+        Parent module for the Repose RPM installation files for the Cloud Integration installations of Auth and ATOM Hopper.
+    </description>
+
+    <profiles>
+        <profile>
+            <id>RPM Build Support</id>
+
+            <!--<activation>-->
+                <!--<activeByDefault>true</activeByDefault>-->
+            <!--</activation>-->
+
+            <activation>
+                <property>
+                    <name>build-system-packages</name>
+                </property>
+            </activation>
+
+            <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.codehaus.mojo</groupId>
+                            <artifactId>rpm-maven-plugin</artifactId>
+                            <version>2.1-alpha-1</version>
+                            <extensions>true</extensions>
+
+                            <executions>
+                                <execution>
+                                    <id>Build RPM</id>
+
+                                    <phase>package</phase>
+
+                                    <goals>
+                                        <goal>rpm</goal>
+                                        <goal>attached-rpm</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+
+                            <configuration>
+                                <group>Rackspace Repose</group>
+                                <packager>Rackspace - Cloud Integration Team</packager>
+
+                                <description>
+                                    Power API is a stack of reusable, software components that can be leveraged by
+                                    service developers to perform common API processing tasks.
+                                </description>
+
+                                <copyright>Apache License, Version 2.0</copyright>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+    </profiles>
+    
+</project>

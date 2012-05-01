@@ -18,7 +18,7 @@ public abstract class RateLimitingOperation {
       this.cfg = cfg;
    }
 
-   protected ConfiguredLimitGroup getRateLimitGroupForRole(List<HeaderValue> roles) {
+   protected ConfiguredLimitGroup getRateLimitGroupForRole(List<? extends HeaderValue> roles) {
       ConfiguredLimitGroup defaultLimitGroup = null;
 
       // Check each configured rate limit group

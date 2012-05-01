@@ -11,7 +11,7 @@
     <groupId>com.rackspace.papi.components</groupId>
     <artifactId>service-authentication</artifactId>
 
-    <name>Power API Components - Service Authentication</name>
+    <name>Repose Components - Service Authentication</name>
     <description>TODO</description>
 
     <packaging>jar</packaging>

@@ -1,15 +1,11 @@
-/*
- *
- */
 package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.commons.util.http.header.HeaderChooser;
-import com.rackspace.papi.commons.util.http.header.QualityFactorHeaderChooser;
-import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
+import com.rackspace.papi.commons.util.http.media.MediaRangeProcessor;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MimeType;
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.ratelimit.cache.RateLimitCache;
 import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
@@ -17,26 +13,21 @@ import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import java.util.Enumeration;
 import java.util.Map;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 
-/**
- *
- * @author Dan Daley
- */
 public class RateLimitingHandler extends AbstractFilterLogicHandler {
 
    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingHandler.class);
-   private static final HeaderChooser<MediaType> ACCEPT_TYPE_CHOOSER = new QualityFactorHeaderChooser<MediaType>(new MediaType(MimeType.APPLICATION_JSON, -1));
+   private static final MediaType DEFAULT_TYPE = new MediaType(MimeType.APPLICATION_JSON);
    private final Map<String, Map<String, Pattern>> regexCache;
    private final RateLimitCache rateLimitCache;
    private final Pattern describeLimitsUriRegex;
    private final RateLimitingConfiguration rateLimitingConfig;
    private final RateLimiterBuilder rateLimiterBuilder;
-   private Enumeration<String> originalAcceptHeaders;
+   private MediaType originalPreferredAccept;
 
    public RateLimitingHandler(Map<String, Map<String, Pattern>> regexCache, RateLimitCache rateLimitCache, Pattern describeLimitsUriRegex, RateLimitingConfiguration rateLimitingConfig, RateLimiterBuilder rateLimiterBuilder) {
       this.regexCache = regexCache;
@@ -49,9 +40,11 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
    @Override
    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
       final FilterDirector director = new FilterDirectorImpl();
+      MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
+      MediaRangeProcessor processor = new MediaRangeProcessor(mutableRequest.getPreferredHeaderValues("Accept", DEFAULT_TYPE));
 
-      originalAcceptHeaders = request.getHeaders("Accept");
-      final MediaType preferredMediaType = ACCEPT_TYPE_CHOOSER.choosePreferredHeaderValue(new MediaRangeParser(request.getHeaders("Accept")).parse());
+      originalPreferredAccept = processor.process().get(0);
+      MediaType preferredMediaType = originalPreferredAccept;
 
       // Does the request contain expected headers?
       if (requestHasExpectedHeaders(request)) {
@@ -111,10 +104,9 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
    public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
       final FilterDirector director = new FilterDirectorImpl();
 
-      final MediaType preferredMediaType = ACCEPT_TYPE_CHOOSER.choosePreferredHeaderValue(new MediaRangeParser(originalAcceptHeaders).parse());
-      director.responseHeaderManager().putHeader("Content-Type", preferredMediaType.getMimeType().getMimeType());
+      director.responseHeaderManager().putHeader("Content-Type", originalPreferredAccept.getMimeType().getMimeType());
 
-      new RateLimiterResponse(rateLimitCache, rateLimitingConfig).writeCombinedLimits(new RateLimitingRequestInfo(request, preferredMediaType), response, director);
+      new RateLimiterResponse(rateLimitCache, rateLimitingConfig).writeCombinedLimits(new RateLimitingRequestInfo(request, originalPreferredAccept), response, director);
 
       return director;
    }

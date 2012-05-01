@@ -11,7 +11,7 @@
    <groupId>com.rackspace.papi.components</groupId>
    <artifactId>distributed-datastore</artifactId>
 
-   <name>Power API Components - Distributed Datastore</name>
+   <name>Repose Components - Distributed Datastore</name>
    <description>TODO</description>
 
    <packaging>jar</packaging>

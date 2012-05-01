@@ -12,7 +12,7 @@
     <groupId>com.rackspace.papi.core</groupId>
     <artifactId>test-application</artifactId>
 
-    <name>Power API Core - Test Application</name>
+    <name>Repose Core - Test Application</name>
 
     <description>
         This is a test application project for Power API. It contains a Jetty

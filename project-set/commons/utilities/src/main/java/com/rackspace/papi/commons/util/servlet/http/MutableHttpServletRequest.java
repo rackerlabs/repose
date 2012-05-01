@@ -1,5 +1,10 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
+import com.rackspace.papi.commons.util.http.header.HeaderFieldParser;
+import com.rackspace.papi.commons.util.http.header.HeaderValue;
+import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
+import com.rackspace.papi.commons.util.http.header.QualityFactorHeaderChooser;
+import com.rackspace.papi.commons.util.http.header.CustomHeaderParser;
 import com.rackspace.papi.commons.util.io.BufferedServletInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -73,7 +78,7 @@ public final class MutableHttpServletRequest extends HttpServletRequestWrapper {
    private void copyHeaders(HttpServletRequest request) {
       final Enumeration<String> headerNames = request.getHeaderNames();
 
-      while (headerNames.hasMoreElements()) {
+      while (headerNames != null && headerNames.hasMoreElements()) {
          final String headerName = headerNames.nextElement().toLowerCase();  //Normalize to lowercase
 
          final Enumeration<String> headerValues = request.getHeaders(headerName);
@@ -146,6 +151,35 @@ public final class MutableHttpServletRequest extends HttpServletRequestWrapper {
       final List<String> headerValues = headers.get(name.toLowerCase());
 
       return Collections.enumeration(headerValues != null ? headerValues : Collections.EMPTY_SET);
+   }
+   
+   public HeaderValue getPreferredHeader(String name) {
+      return getPreferredHeader(name, null);
+   }
+   
+   public HeaderValue getPreferredHeader(String name, HeaderValue defaultValue) {
+      List<HeaderValue> values = getPreferredHeaderValues(name, defaultValue);
+      
+      return !values.isEmpty()? values.get(0): null;
+   }
+
+   public List<HeaderValue> getPreferredHeaderValues(String name) {
+      return getPreferredHeaderValues(name, null);
+   }
+
+   public List<HeaderValue> getPreferredHeaderValues(String name, HeaderValue defaultValue) {
+      HeaderFieldParser parser = new HeaderFieldParser(headers.get(name.toLowerCase()));
+      List<HeaderValue> headerValues = parser.parse();
+      
+      QualityFactorHeaderChooser chooser = new QualityFactorHeaderChooser<HeaderValue>();
+      List<HeaderValue> values = chooser.choosePreferredHeaderValues(headerValues);
+      
+      if (values.isEmpty() && defaultValue != null) {
+         values.add(defaultValue);
+      }
+      
+      return values;
+      
    }
 
    static String fromMap(Map<String, List<String>> headers, String headerName) {

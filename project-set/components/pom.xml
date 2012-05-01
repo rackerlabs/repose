@@ -11,7 +11,7 @@
     <groupId>com.rackspace.papi.components</groupId>
     <artifactId>components-support</artifactId>
 
-    <name>Power API Components - Components Support</name>
+    <name>Repose Components - Components Support</name>
     <packaging>pom</packaging>
 
     <modules>
@@ -24,6 +24,7 @@
         <module>uri-identity</module>
         <module>content-identity-auth-1.1</module>
         <module>content-identity-auth-2.0</module>
+        <module>content-normalization</module>
         <module>service-authentication</module>
         <module>cli-utils</module>
         <module>rate-limiting</module>
@@ -157,6 +158,12 @@
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>header-id-mapping</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>content-normalization</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

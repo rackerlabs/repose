@@ -12,7 +12,7 @@
     <groupId>com.rackspace.papi.components</groupId>
     <artifactId>header-normalization</artifactId>
 
-    <name>Power API Components - Header Normalization</name>
+    <name>Repose Components - Header Normalization</name>
     <description>TODO</description>
 
     <packaging>jar</packaging>

@@ -10,7 +10,7 @@
     <groupId>com.rackspace.papi.components</groupId>
     <artifactId>translation</artifactId>
 
-    <name>Power API Components - Translation</name>
+    <name>Repose Components - Translation</name>
     <description>TODO</description>
 
     <packaging>jar</packaging>
