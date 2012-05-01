@@ -4,6 +4,7 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.*;
 
 import com.rackspace.papi.mocks.providers.MockServiceProvider;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * @author malconis
@@ -127,5 +128,13 @@ public class MockServiceResource {
 
       return provider.getLBaaSLimitsJson();
    }
+   
+   @GET
+   @Path("/whatismyip")
+   public Response getRequestingIp(@Context HttpServletRequest req){
+       
+       return provider.getRequestingIp(req);
+   }
+   
 
 }
