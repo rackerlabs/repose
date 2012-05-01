@@ -374,7 +374,7 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                   <stringProp name="HTTPSampler.response_timeout"></stringProp>
                   <stringProp name="HTTPSampler.protocol"></stringProp>
                   <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-                  <stringProp name="HTTPSampler.path">http://automation.whatismyip.com/n09230945.asp</stringProp>
+                  <stringProp name="HTTPSampler.path">http://50.57.189.15:8080/whatismyip</stringProp>
                   <stringProp name="HTTPSampler.method">GET</stringProp>
                   <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
                   <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
