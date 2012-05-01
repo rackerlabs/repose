@@ -284,6 +284,11 @@
                         <version>2.1-alpha-1</version>
 
                         <configuration>
+                            <!-- _tmppath is not set correctly on al OSs so it is forced here -->
+                            <defineStatements>
+                                <defineStatement>_tmppath /tmp</defineStatement>
+                            </defineStatements>
+                            
                             <mappings>
                                 <mapping>
                                     <directory>/etc/repose/</directory>

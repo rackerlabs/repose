@@ -13,6 +13,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.servlet.http.HttpServletRequest;
 
 public class MockServiceProvider {
 
@@ -157,5 +158,10 @@ public class MockServiceProvider {
         limits.append("</limits>");
 
         return Response.ok(limits.toString()).build();
+    }
+    
+    public Response getRequestingIp(HttpServletRequest req){
+        
+        return Response.ok(req.getRemoteAddr()).build();
     }
 }

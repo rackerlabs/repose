@@ -19,7 +19,10 @@ import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.ratelimit.cache.RateLimitCache;
 import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
+import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.Map;
+import java.util.Vector;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -28,6 +31,13 @@ import org.mockito.stubbing.Answer;
 
 @RunWith(Enclosed.class)
 public class RateLimitingHandlerTest extends RateLimitingTestSupport {
+   private static Enumeration<String> createStringEnumeration(String... names) {
+      Vector<String> namesCollection = new Vector<String>(names.length);
+
+      namesCollection.addAll(Arrays.asList(names));
+
+      return namesCollection.elements();
+   }
 
    public static class WhenMakingInvalidRequests extends TestParent {
 
@@ -64,10 +74,12 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
 
       @Test
       public void shouldPassValidRequests() {
+         when(mockedRequest.getHeaderNames()).thenReturn(createStringEnumeration("Accept"));
          when(mockedRequest.getMethod()).thenReturn("GET");
          when(mockedRequest.getRequestURI()).thenReturn("/v1.0/12345/resource");
          when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/12345/resource"));
          when(mockedRequest.getHeader("Accept")).thenReturn(MimeType.APPLICATION_JSON.toString());
+         when(mockedRequest.getHeaders("accept")).thenReturn(createStringEnumeration(MimeType.APPLICATION_JSON.toString()));
          final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
 
          assertEquals("Filter must pass valid, non-limited requests", FilterAction.PASS, director.getFilterAction());
@@ -104,6 +116,8 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
          when(mockedRequest.getMethod()).thenReturn("GET");
          when(mockedRequest.getRequestURI()).thenReturn("/v1.0/limits");
          when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/limits"));
+         when(mockedRequest.getHeaderNames()).thenReturn(Collections.enumeration(Collections.singleton("Accept")));
+         when(mockedRequest.getHeaders("accept")).thenReturn(Collections.enumeration(Collections.singleton("leqz")));
          when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton("leqz")));
 
          final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);

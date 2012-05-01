@@ -12,7 +12,7 @@
     <groupId>com.rackspace.cloud.services.clients</groupId>
     <artifactId>openstack-ids</artifactId>
 
-    <name>Power API Service Clients - OpenStack Identity Service</name>
+    <name>Repose Service Clients - OpenStack Identity Service</name>
 
     <packaging>jar</packaging>
 

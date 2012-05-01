@@ -1,11 +1,10 @@
 package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.commons.util.http.header.HeaderFieldParser;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
-import com.rackspace.papi.commons.util.http.header.QualityFactorHeaderChooser;
 import com.rackspace.papi.commons.util.http.media.MediaType;
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.components.limits.schema.HttpMethod;
 
 import java.util.List;
@@ -16,31 +15,29 @@ public class RateLimitingRequestInfo {
    private static final HeaderValue DEFAULT_EMPTTY = new HeaderValueImpl("", -1.0);
    
    private final HttpMethod requestMethod;
-   private final List<HeaderValue> userGroup;
+   private final List<? extends HeaderValue> userGroup;
    private final HeaderValue userName;
    private final HttpServletRequest request;
    private final MediaType acceptType;
 
    public RateLimitingRequestInfo(HttpServletRequest request, MediaType acceptType) {
+      MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
       this.request = request;
 
       this.acceptType = acceptType;
-
-      final List<HeaderValue> values = new HeaderFieldParser(request.getHeaders(PowerApiHeader.USER.toString())).parse();
-      userName = new QualityFactorHeaderChooser(DEFAULT_EMPTTY).choosePreferredHeaderValue(values);
       
-      final List<HeaderValue> groups = new HeaderFieldParser(request.getHeaders(PowerApiHeader.GROUPS.toString())).parse();
-      userGroup = new QualityFactorHeaderChooser(DEFAULT_EMPTTY).choosePreferredHeaderValues(groups);
-              
+      userName = mutableRequest.getPreferredHeader(PowerApiHeader.USER.toString(), new HeaderValueImpl(""));
+      userGroup = mutableRequest.getPreferredHeaderValues(PowerApiHeader.GROUPS.toString(), new HeaderValueImpl(""));
+
       requestMethod = HttpMethod.fromValue(request.getMethod().toUpperCase());
    }
 
-   public List<HeaderValue> getUserGroups() {
+   public List<? extends HeaderValue> getUserGroups() {
       return userGroup;
    }
 
-   public String getUserName() {
-      return userName.getValue();
+   public HeaderValue getUserName() {
+      return userName;
    }
 
    public HttpMethod getRequestMethod() {

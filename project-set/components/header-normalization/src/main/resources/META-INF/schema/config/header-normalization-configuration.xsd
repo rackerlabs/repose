@@ -116,9 +116,8 @@
                     The HttpMethod simple type defines a string
                     enumeration of HTTP method verbs as outlined in
                     <a
-                            href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616
+                            href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616 section 9.
                     </a>
-                    section 9.
                 </html:p>
             </xs:documentation>
         </xs:annotation>

@@ -103,7 +103,7 @@ public class RateLimiter extends RateLimitingOperation {
 
       // Get the next, shortest available time that a user has to wait for
       try {
-         final NextAvailableResponse nextAvailable = cache.updateLimit(requestInfo.getRequestMethod(), requestInfo.getUserName(), cacheIdBuffer.toString(), rateLimit);
+         final NextAvailableResponse nextAvailable = cache.updateLimit(requestInfo.getRequestMethod(), requestInfo.getUserName().getValue(), cacheIdBuffer.toString(), rateLimit);
 
          if (!nextAvailable.hasRequestsRemaining()) {
             prepareNextAvailableResponse(nextAvailable, filterDirector);

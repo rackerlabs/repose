@@ -105,6 +105,11 @@ for nodeNumber in 1..6
          mode 0644
       end
 
+      cookbook_file "/etc/repose/node1/header-normalization.cfg.xml" do
+         source "/header-normalization.cfg.xml"
+         mode 0644
+      end
+
    when 2
       #Client Auth for OpenStack Identity
       template "/etc/repose/node#{nodeNumber}/versioning.cfg.xml" do
@@ -124,6 +129,11 @@ for nodeNumber in 1..6
 
       cookbook_file "/etc/repose/node2/openstack-authorization.cfg.xml" do
          source "openstack-authorization.cfg.xml"
+         mode 0644
+      end
+
+      cookbook_file "/etc/repose/node2/header-normalization.cfg.xml" do
+         source "/header-normalization.cfg.xml"
          mode 0644
       end
 

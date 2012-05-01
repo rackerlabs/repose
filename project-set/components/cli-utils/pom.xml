@@ -11,7 +11,7 @@
    <groupId>com.rackspace.papi.components</groupId>
    <artifactId>cli-utils</artifactId>
 
-   <name>Power API Components - Command Line Utilities</name>
+   <name>Repose Components - Command Line Utilities</name>
    <description />
 
    <packaging>jar</packaging>
