@@ -29,13 +29,15 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
    private final List<RouteDestination> destinations;
    private BufferedServletInputStream inputStream;
    private StringBuffer requestUrl;
-   private String requestUri;
+   private String requestUri, requestUriQuery;
    
    private MutableHttpServletRequest(HttpServletRequest request) {
       super(request);
 
       requestUrl = request.getRequestURL();
       requestUri = request.getRequestURI();
+      
+      requestUriQuery = requestUri;
 
       headers = new HashMap<String, List<String>>();
       destinations = new ArrayList<RouteDestination>();
@@ -61,6 +63,15 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
       
       Collections.sort(destinations);
       return destinations.get(destinations.size() - 1);
+   }
+
+   @Override
+   public String getQueryString() {
+      return requestUriQuery;
+   }
+
+   public void setQueryString(String requestUriQuery) {
+      this.requestUriQuery = requestUriQuery;
    }
    
    @Override
