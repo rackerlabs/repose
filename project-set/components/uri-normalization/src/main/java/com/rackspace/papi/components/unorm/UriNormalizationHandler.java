@@ -32,12 +32,18 @@ public class UriNormalizationHandler extends AbstractFilterLogicHandler {
 
       mediaTypeNormalizer.normalizeContentMediaType(request, myDirector);
       
-      final SelectorResult<Normalizer<String>> selectedQueryStringNormalizer = queryStringNormalizers.select(request.getRequestURI());
-      
-      if (selectedQueryStringNormalizer.hasKey()) {
-         // TODO: Set query parameters - this requires some work in the filter director
-      }
+      // TODO: Refactor this into a object like the above method call.
+      normalizeUriQuery(request, myDirector);
 
       return myDirector;
+   }
+
+   private void normalizeUriQuery(HttpServletRequest request, FilterDirector myDirector) {
+      final SelectorResult<Normalizer<String>> selectedQueryStringNormalizer = queryStringNormalizers.select(request.getRequestURI());
+
+      if (selectedQueryStringNormalizer.hasKey()) {
+         final Normalizer<String> queryStringNormalizer = selectedQueryStringNormalizer.getKey();
+         myDirector.setRequestUriQuery(queryStringNormalizer.normalize(request.getQueryString()));
+      }
    }
 }

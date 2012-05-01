@@ -51,15 +51,21 @@ public class FilterDirectorImpl implements FilterDirector {
       requestUriQuery = query;
    }
 
+   public String getRequestUriQuery() {
+      return requestUriQuery;
+   }
+
    @Override
    public void addDestination(String id, String uri, float quality) {
       destinations.add(new RouteDestination(id, uri, quality));
    }
 
+   @Override
    public void addDestination(Destination dest, String uri, float quality) {
       addDestination(dest.getId(), uri, quality);
    }
 
+   @Override
    public List<RouteDestination> getDestinations() {
       return Collections.unmodifiableList(destinations);
    }
@@ -73,7 +79,7 @@ public class FilterDirectorImpl implements FilterDirector {
       if (requestUriQuery != null && StringUtilities.isNotBlank(requestUriQuery)) {
          request.setQueryString(requestUriQuery);
       }
-      
+
       if (requestUri != null && StringUtilities.isNotBlank(requestUri)) {
          request.setRequestUri(requestUri);
       }
