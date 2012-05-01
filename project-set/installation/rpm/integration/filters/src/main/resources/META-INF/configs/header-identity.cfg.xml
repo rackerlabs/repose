@@ -5,7 +5,8 @@
    xsi:schemaLocation='http://docs.api.rackspacecloud.com/powerapi/header-identity/v1.0 ../config/header-identity-configuration.xsd'>
 
    <source-headers>
-      <header id="X-Forwarded-For" quality="0.2"/>
+      <header id="X-Auth-Token" quality=".95" />
+      <header id="X-Forwarded-For" quality="0.5"/>
    </source-headers>
 
 </header-identity>
