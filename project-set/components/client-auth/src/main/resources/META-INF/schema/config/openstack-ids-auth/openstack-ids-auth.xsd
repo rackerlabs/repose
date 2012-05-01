@@ -27,6 +27,14 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
+            
+            <xs:attribute name="include-query-params" type="xs:boolean" use="optional" default="false">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Option to include the query strings to find extract the client id</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
         </xs:complexType>
     </xs:element>
 
