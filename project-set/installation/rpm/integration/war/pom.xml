@@ -20,7 +20,7 @@
         Module for the WAR RPM.
     </description>
 
-    <packaging>rpm</packaging>
+    <packaging>pom</packaging>
 
     <profiles>
         <profile>
@@ -80,21 +80,27 @@
                                                 ../war/src/main/resources/META-INF/configs/power-proxy.cfg.xml
                                             </location>
                                         </source>
+                                        <source>
+                                            <location>
+                                                ../war/src/main/resources/META-INF/configs/log4j.properties
+                                            </location>
+                                        </source>
                                     </sources>
                                 </mapping>
                             </mappings>
 
                             <postinstallScriptlet>
                                 <script>
-                                    mkdir "/var/repose/logs/" -p -m 765;
+                                    mkdir "/var/log/repose/" -p -m 765;
+                                    mkdir "/var/repose/" -p -m 765;
                                     mkdir "/usr/share/repose/filters" -p -m 755;
-                                    chown tomcat:tomcat /var/repose /usr/share/repose -R;
+                                    chown tomcat:tomcat /var/log/repose /var/repose /usr/share/repose -R;
                                 </script>
                             </postinstallScriptlet>
 
                             <postremoveScriptlet>
                                 <script>
-                                    rm -rf /var/repose /usr/share/repose/;
+                                    rm -rf /var/log/repose /var/repose /usr/share/repose/;
                                 </script>
                             </postremoveScriptlet>
 
