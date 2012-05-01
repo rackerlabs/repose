@@ -1,5 +1,8 @@
 package com.rackspace.papi.components.unorm;
 
+import com.rackspace.papi.commons.util.http.normal.Normalizer;
+import com.rackspace.papi.commons.util.regex.RegexSelector;
+import com.rackspace.papi.commons.util.regex.SelectorResult;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.unorm.normalizer.MediaTypeNormalizer;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
@@ -13,18 +16,28 @@ import javax.servlet.http.HttpServletRequest;
  * @author Dan Daley
  */
 public class UriNormalizationHandler extends AbstractFilterLogicHandler {
-      private MediaTypeNormalizer mediaTypeNormalizer;
+
+   private final RegexSelector<Normalizer<String>> queryStringNormalizers;
+   private final MediaTypeNormalizer mediaTypeNormalizer;
+
+   public UriNormalizationHandler(RegexSelector<Normalizer<String>> queryStringNormalizers, MediaTypeNormalizer mediaTypeNormalizer) {
+      this.queryStringNormalizers = queryStringNormalizers;
+      this.mediaTypeNormalizer = mediaTypeNormalizer;
+   }
+
+   @Override
+   public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
+      final FilterDirector myDirector = new FilterDirectorImpl();
+      myDirector.setFilterAction(FilterAction.PASS);
+
+      mediaTypeNormalizer.normalizeContentMediaType(request, myDirector);
       
-      public UriNormalizationHandler(MediaTypeNormalizer mediaTypeNormalizer) {
-         this.mediaTypeNormalizer = mediaTypeNormalizer;
+      final SelectorResult<Normalizer<String>> selectedQueryStringNormalizer = queryStringNormalizers.select(request.getRequestURI());
+      
+      if (selectedQueryStringNormalizer.hasKey()) {
+         // TODO: Set query parameters - this requires some work in the filter director
       }
 
-      @Override
-      public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
-         final FilterDirector myDirector = new FilterDirectorImpl();
-         myDirector.setFilterAction(FilterAction.PASS);
-         mediaTypeNormalizer.normalizeContentMediaType(request, myDirector);
-         return myDirector;
-      }
-   
+      return myDirector;
+   }
 }
