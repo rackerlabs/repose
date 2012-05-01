@@ -5,7 +5,7 @@
         Defines an endpoint with a matching regex to bind GET requests for
         returning live rate limiting information.
     -->
-    <request-endpoint uri-regex="\/servers\/limits\/" limits-format="OPENSTACK" />
+    <request-endpoint uri-regex="/v[0-9]\.[0-9]/limits" />
 
     <!--
         Defining a limit group.
