@@ -80,6 +80,11 @@
                                                 ../war/src/main/resources/META-INF/configs/power-proxy.cfg.xml
                                             </location>
                                         </source>
+                                        <source>
+                                            <location>
+                                                ../war/src/main/resources/META-INF/configs/log4j.properties
+                                            </location>
+                                        </source>
                                     </sources>
                                 </mapping>
                             </mappings>
