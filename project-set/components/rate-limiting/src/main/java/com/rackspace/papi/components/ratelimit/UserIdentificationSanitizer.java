@@ -1,8 +1,7 @@
-package com.rackspace.papi.components.ratelimit.util;
+package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
-import com.rackspace.papi.components.ratelimit.RateLimitingRequestInfo;
 
 /**
  * If the username is an auth token return some other "log friendly"
@@ -22,9 +21,9 @@ public class UserIdentificationSanitizer {
       final String xAuthToken = requestInfo.getRequest().getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
 
       if (StringUtilities.nullSafeEqualsIgnoreCase(xAuthToken, userIdentification)) {
-         final String XForwardedFor = requestInfo.getRequest().getHeader(CommonHttpHeader.X_FORWARDED_FOR.toString());
+         final String xForwardedFor = requestInfo.getRequest().getHeader(CommonHttpHeader.X_FORWARDED_FOR.toString());
 
-         userIdentification = XForwardedFor != null ? XForwardedFor : requestInfo.getRequest().getRemoteHost();
+         userIdentification = xForwardedFor != null ? xForwardedFor : requestInfo.getRequest().getRemoteHost();
       }
 
       return userIdentification;
