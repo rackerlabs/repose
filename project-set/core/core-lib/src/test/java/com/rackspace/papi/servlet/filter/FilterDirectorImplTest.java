@@ -39,16 +39,17 @@ public class FilterDirectorImplTest {
          assertNotNull("By default, should have print writer", impl.getResponseWriter());
       }
    }
-   
+
    public static class WhenProcessingResponses {
+
       private FilterDirectorImpl impl;
       private MutableHttpServletResponse response;
       private HttpServletResponse httpResponse;
-      
+
       @Before
       public void setup() {
          impl = new FilterDirectorImpl();
-         
+
          httpResponse = mock(HttpServletResponse.class);
          response = MutableHttpServletResponse.wrap(httpResponse);
       }
@@ -92,23 +93,23 @@ public class FilterDirectorImplTest {
       @Before
       public void setup() {
          impl = new FilterDirectorImpl();
-         
+
          httpRequest = mock(HttpServletRequest.class);
          when(httpRequest.getHeaderNames()).thenReturn(new Vector<String>().elements());
-         
+
          request = MutableHttpServletRequest.wrap(httpRequest);
       }
-      
+
       @Test
       public void shouldAddDestinations() {
          final float quality = new Float(1.5);
          final String uri = "uri";
          final String destId = "destId";
-         
+
          impl.addDestination(destId, uri, quality);
          impl.applyTo(request);
          RouteDestination destination = request.getDestination();
-         
+
          assertNotNull(destination);
          assertNotNull(impl.getDestinations());
          assertTrue(impl.getDestinations().size() > 0);
@@ -122,14 +123,14 @@ public class FilterDirectorImplTest {
          final float quality = new Float(1.5);
          final String uri = "uri";
          final String destId = "destId";
-         
+
          DestinationDomain dest = new DestinationDomain();
          dest.setId(destId);
-         
+
          impl.addDestination(dest, uri, quality);
          impl.applyTo(request);
          RouteDestination destination = request.getDestination();
-         
+
          assertNotNull(destination);
          assertNotNull(impl.getDestinations());
          assertTrue(impl.getDestinations().size() > 0);
@@ -157,11 +158,19 @@ public class FilterDirectorImplTest {
       }
 
       @Test
+      public void shouldSetRequestUriQuery() {
+         final String queryString = "a=1&b=2&c=3";
+         impl.setRequestUriQuery(queryString);
+         impl.applyTo(request);
+         
+         assertEquals("When a URI query string is set, it must be rewritten it in the request object during applicaiton.", queryString, request.getQueryString());
+      }
+
+      @Test
       public void shouldAddRequestHeader() {
          impl.requestHeaderManager().appendHeader("key", "value");
          impl.applyTo(request);
          assertEquals("value", request.getHeader("key"));
       }
-
    }
 }
