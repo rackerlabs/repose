@@ -26,12 +26,12 @@ public class FilterDirectorImpl implements FilterDirector {
    private static final Logger LOG = LoggerFactory.getLogger(FilterDirectorImpl.class);
    private final ByteArrayOutputStream directorOutputStream;
    private final PrintWriter responsePrintWriter;
-   private HeaderManagerImpl requestHeaderManager, responseHeaderManager;
    private final List<RouteDestination> destinations;
+   private HeaderManagerImpl requestHeaderManager, responseHeaderManager;
    private int status;
    private FilterAction delegatedAction;
    private StringBuffer requestUrl;
-   private String requestUri;
+   private String requestUri, requestUriQuery;
 
    public FilterDirectorImpl() {
       this(HttpStatusCode.INTERNAL_SERVER_ERROR, FilterAction.NOT_SET);
@@ -44,6 +44,11 @@ public class FilterDirectorImpl implements FilterDirector {
       directorOutputStream = new ByteArrayOutputStream();
       responsePrintWriter = new PrintWriter(directorOutputStream);
       destinations = new ArrayList<RouteDestination>();
+   }
+
+   @Override
+   public void setRequestUriQuery(String query) {
+      requestUriQuery = query;
    }
 
    @Override
@@ -65,6 +70,10 @@ public class FilterDirectorImpl implements FilterDirector {
          requestHeaderManager().applyTo(request);
       }
 
+      if (requestUriQuery != null && StringUtilities.isNotBlank(requestUriQuery)) {
+         request.setQueryString(requestUriQuery);
+      }
+      
       if (requestUri != null && StringUtilities.isNotBlank(requestUri)) {
          request.setRequestUri(requestUri);
       }
