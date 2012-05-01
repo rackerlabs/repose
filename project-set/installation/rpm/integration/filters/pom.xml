@@ -86,28 +86,10 @@
                                             <location>
                                                 ../filters/src/main/resources/META-INF/configs/rate-limiting.cfg.xml
                                             </location>
-                                        </source>
-                                        <source>
-                                            <location>
-                                                ../filters/src/main/resources/META-INF/configs/destination-router.cfg.xml
-                                            </location>
-                                        </source>
+                                        </source>                                        
                                     </sources>
                                 </mapping>
-
-                                <!-- ask Jesse why we need this -->
-                                <!--<mapping>-->
-                                <!--<directory>/usr/share/doc/repose-filter-bundle</directory>-->
-                                <!--<username>root</username>-->
-                                <!--<groupname>root</groupname>-->
-                                <!--<filemode>644</filemode>-->
-
-                                <!--<sources>-->
-                                <!--<source>-->
-                                <!--<location>${basedir}/target/git.properties</location>-->
-                                <!--</source>-->
-                                <!--</sources>-->
-                                <!--</mapping>-->
+                                
                             </mappings>
 
                             <requires>
