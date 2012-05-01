@@ -11,11 +11,20 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- *
- * @author jhopper
+ * TODO: Starting to feel like a candidate for a bit of ISP love - read below for more info.
+ * 
+ * Feels like there's three separate domains being represented: filter direction 
+ * (routing, action, application), response modification (response headers, 
+ * response writer, response status code, body), and lastly request modification 
+ * (request url and uri, query parameters, request header). I didn't think these domains were too 
+ * different early on but now that we need to communicate more directives, the 
+ * domains have begun to diverge.
+ * 
  */
 public interface FilterDirector {
 
+   void setRequestUriQuery(String query);
+   
    void setRequestUri(String newUri);
 
    void setRequestUrl(StringBuffer newUrl);
