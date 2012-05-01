@@ -7,7 +7,6 @@ import com.rackspace.papi.components.ratelimit.config.ConfiguredLimitGroup;
 import com.rackspace.papi.components.ratelimit.config.ConfiguredRatelimit;
 import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
 import com.rackspace.papi.components.ratelimit.util.RateLimitKeyGenerator;
-import com.rackspace.papi.components.ratelimit.util.UserIdentificationSanitizer;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import java.io.IOException;
