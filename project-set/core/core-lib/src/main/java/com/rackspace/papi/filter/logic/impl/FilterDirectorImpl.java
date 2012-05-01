@@ -26,12 +26,12 @@ public class FilterDirectorImpl implements FilterDirector {
    private static final Logger LOG = LoggerFactory.getLogger(FilterDirectorImpl.class);
    private final ByteArrayOutputStream directorOutputStream;
    private final PrintWriter responsePrintWriter;
-   private HeaderManagerImpl requestHeaderManager, responseHeaderManager;
    private final List<RouteDestination> destinations;
+   private HeaderManagerImpl requestHeaderManager, responseHeaderManager;
    private int status;
    private FilterAction delegatedAction;
    private StringBuffer requestUrl;
-   private String requestUri;
+   private String requestUri, requestUriQuery;
 
    public FilterDirectorImpl() {
       this(HttpStatusCode.INTERNAL_SERVER_ERROR, FilterAction.NOT_SET);
@@ -47,14 +47,25 @@ public class FilterDirectorImpl implements FilterDirector {
    }
 
    @Override
+   public void setRequestUriQuery(String query) {
+      requestUriQuery = query;
+   }
+
+   public String getRequestUriQuery() {
+      return requestUriQuery;
+   }
+
+   @Override
    public void addDestination(String id, String uri, float quality) {
       destinations.add(new RouteDestination(id, uri, quality));
    }
 
+   @Override
    public void addDestination(Destination dest, String uri, float quality) {
       addDestination(dest.getId(), uri, quality);
    }
 
+   @Override
    public List<RouteDestination> getDestinations() {
       return Collections.unmodifiableList(destinations);
    }
@@ -63,6 +74,10 @@ public class FilterDirectorImpl implements FilterDirector {
    public synchronized void applyTo(MutableHttpServletRequest request) {
       if (requestHeaderManager().hasHeaders()) {
          requestHeaderManager().applyTo(request);
+      }
+
+      if (requestUriQuery != null && StringUtilities.isNotBlank(requestUriQuery)) {
+         request.setQueryString(requestUriQuery);
       }
 
       if (requestUri != null && StringUtilities.isNotBlank(requestUri)) {
