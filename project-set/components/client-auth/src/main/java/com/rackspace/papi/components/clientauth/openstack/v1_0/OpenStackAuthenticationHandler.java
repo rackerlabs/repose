@@ -37,6 +37,7 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
    private final KeyedRegexExtractor<Object> keyedRegexExtractor;
    private final UserAuthTokenCache<CachableUserInfo> cache;
    private final UriMatcher uriMatcher;
+   private boolean  includeQueryParams;
 
    public OpenStackAuthenticationHandler(OpenstackAuth cfg, OpenStackAuthenticationService serviceClient, KeyedRegexExtractor keyedRegexExtractor, UserAuthTokenCache cache, UriMatcher uriMatcher) {
       this.authenticationService = serviceClient;
@@ -45,6 +46,7 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
       this.keyedRegexExtractor = keyedRegexExtractor;
       this.cache = cache;
       this.uriMatcher = uriMatcher;
+      this.includeQueryParams = cfg.isIncludeQueryParams();
    }
 
    @Override
@@ -77,7 +79,12 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
       filterDirector.setFilterAction(FilterAction.RETURN);
 
       final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
-      final ExtractorResult<Object> account = keyedRegexExtractor.extract(request.getRequestURI());
+      StringBuilder accountString = new StringBuilder(request.getRequestURI());
+      if(includeQueryParams && request.getQueryString()!=null){
+          accountString.append("?").append(request.getQueryString());
+          
+      }
+      final ExtractorResult<Object> account = keyedRegexExtractor.extract(accountString.toString());
       CachableUserInfo user = null;
 
       if ((!StringUtilities.isBlank(authToken) && account != null)) {
