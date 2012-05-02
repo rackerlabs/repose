@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.identity.ip;
 
+import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.net.IpAddressRange;
 import com.rackspace.papi.components.identity.ip.config.IpIdentityConfig;
@@ -9,8 +10,6 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -97,7 +96,7 @@ public class IpIdentityHandlerTest {
       config.setWhiteList(whiteList);
       handler = new IpIdentityHandler(config, buildRanges(whiteList));
       
-      when(request.getHeader("X-Forwarded-For")).thenReturn(IP);
+      when(request.getHeader(CommonHttpHeader.X_FORWARDED_FOR.toString())).thenReturn(IP);
 
       FilterDirector director = handler.handleRequest(request, response);
 
@@ -117,7 +116,7 @@ public class IpIdentityHandlerTest {
       config.setWhiteList(whiteList);
       handler = new IpIdentityHandler(config, buildRanges(whiteList));
       
-      when(request.getHeader("X-Forwarded-For")).thenReturn(IP);
+      when(request.getHeader(CommonHttpHeader.X_FORWARDED_FOR.toString())).thenReturn(IP);
 
       FilterDirector director = handler.handleRequest(request, response);
 

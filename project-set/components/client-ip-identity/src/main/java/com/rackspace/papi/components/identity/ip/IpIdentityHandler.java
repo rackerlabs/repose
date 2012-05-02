@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.identity.ip;
 
 import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.net.IpAddressRange;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
@@ -14,8 +15,6 @@ import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.LoggerFactory;
@@ -24,7 +23,6 @@ public class IpIdentityHandler extends AbstractFilterLogicHandler {
 
    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(IpIdentityHandler.class);
    public static final String DEFAULT_QUALITY = "0.1";
-   public static final String X_FORWARDED_FOR_HEADER = "X-Forwarded-For";
    private final IpIdentityConfig config;
    private final String quality;
    private WhiteList whiteList = new WhiteList();
@@ -36,18 +34,25 @@ public class IpIdentityHandler extends AbstractFilterLogicHandler {
       this.quality = determineQuality();
       this.whitelistIps = whitelistIps;
    }
+   
+   
+   private String determineClientIp(HttpServletRequest request) {
+      String address = request.getHeader(CommonHttpHeader.X_FORWARDED_FOR.toString());
+      if (StringUtilities.isBlank(address)) {
+         address = request.getRemoteAddr();
+      } else {
+         address = address.split(",")[0].trim();
+      }
+
+      return address;
+   }
 
    @Override
    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
 
       final FilterDirector filterDirector = new FilterDirectorImpl();
       HeaderManager headerManager = filterDirector.requestHeaderManager();
-      String address = request.getHeader(X_FORWARDED_FOR_HEADER);
-      if (StringUtilities.isBlank(address)) {
-         address = request.getRemoteAddr();
-      } else {
-         address = address.split(",")[0].trim();
-      }
+      String address = determineClientIp(request);
 
       if (StringUtilities.isNotBlank(address)) {
          filterDirector.setFilterAction(FilterAction.PASS);
