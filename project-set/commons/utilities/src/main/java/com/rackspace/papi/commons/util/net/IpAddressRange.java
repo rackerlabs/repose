@@ -2,16 +2,29 @@ package com.rackspace.papi.commons.util.net;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class IpAddressRange {
 
+   private static final Logger LOG = LoggerFactory.getLogger(IpAddressRange.class);
    private static final int BYTE_SIZE = 8;
    private final byte[] network;
    private final int mask;
 
    public IpAddressRange(String cidr) throws UnknownHostException {
       String[] parts = cidr.split("/");
-      network = InetAddress.getByName(parts[0]).getAddress();
+      InetAddress[] addresses = InetAddress.getAllByName(parts[0]);
+      if (addresses.length == 0) {
+         throw new IllegalArgumentException("Unable to determine addresses for cidr: " + cidr);
+      }
+      
+      if (addresses.length > 1) {
+         LOG.warn("Multiple addresses found for cidr " + cidr + " Using first available.");
+      }
+      
+      InetAddress address = addresses[0];
+      network = address.getAddress();
       if (parts.length > 1) {
          mask = Integer.valueOf(parts[1]);
       } else {

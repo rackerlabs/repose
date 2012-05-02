@@ -8,6 +8,7 @@
 
     <white-list quality="1.0">
         <ip-address>127.0.0.1</ip-address>
+        <ip-address>192.168.0.0/16</ip-address>
     </white-list>
    
 </ip-identity>
