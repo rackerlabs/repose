@@ -2,6 +2,7 @@ package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.components.ratelimit.config.ConfiguredLimitGroup;
+import com.rackspace.papi.components.ratelimit.config.LimitsFormat;
 import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
 import java.util.List;
 import org.slf4j.Logger;
@@ -12,10 +13,14 @@ public abstract class RateLimitingOperation {
    private static final Logger LOG = LoggerFactory.getLogger(RateLimitingOperation.class);
    protected static final ConfiguredLimitGroup DEFAULT_EMPTY_LIMIT_GROUP = new ConfiguredLimitGroup();
    
-   protected final RateLimitingConfiguration cfg;
+   private final RateLimitingConfiguration cfg;
 
    public RateLimitingOperation(RateLimitingConfiguration cfg) {
       this.cfg = cfg;
+   }
+
+   public LimitsFormat getLimitsFormat() {
+      return this.cfg.getRequestEndpoint().getLimitsFormat();
    }
 
    protected ConfiguredLimitGroup getRateLimitGroupForRole(List<? extends HeaderValue> roles) {
