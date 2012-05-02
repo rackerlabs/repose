@@ -5,19 +5,19 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.rackspace.repose.installation.rpm.integration</groupId>
-        <artifactId>integration</artifactId>
+        <groupId>com.rackspace.repose.installation.rpm.auth</groupId>
+        <artifactId>auth</artifactId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.repose.installation.rpm.integration.war</groupId>
-    <artifactId>war</artifactId>
+    <groupId>com.rackspace.repose.installation.rpm.integration.filters</groupId>
+    <artifactId>filters</artifactId>
     <version>2.0.0-SNAPSHOT</version>
 
-    <name>Repose - Cloud Integration WAR RPM</name>
+    <name>Repose - Cloud Integration Filter Bundle RPM</name>
 
     <description>
-        Module for the WAR RPM.
+        Module for the Filter Bundle RPM.
     </description>
 
     <packaging>pom</packaging>
@@ -31,7 +31,6 @@
                     <name>build-system-packages</name>
                 </property>
             </activation>
-
             <build>
                 <plugins>
                     <plugin>
@@ -39,25 +38,17 @@
                         <artifactId>rpm-maven-plugin</artifactId>
 
                         <configuration>
-
-                            <name>repose-war</name>
-
-                            <!-- _tmppath is not set correctly on al OSs so it is forced here -->
-                            <defineStatements>
-                                <defineStatement>_tmppath /tmp</defineStatement>
-                            </defineStatements>
-
+                            <name>repose-filters</name>
                             <mappings>
                                 <mapping>
-                                    <directory>/var/lib/tomcat7/webapps</directory>
+                                    <directory>/usr/share/repose/filters</directory>
                                     <username>tomcat</username>
                                     <groupname>tomcat</groupname>
                                     <filemode>755</filemode>
 
                                     <sources>
                                         <source>
-                                            <location>
-                                                ${project.build.directory}/../../../../../core/web-application/target/ROOT.war
+                                            <location>${project.build.directory}/../../../../../components/filter-bundle/target/filter-bundle-${project.version}.ear
                                             </location>
                                         </source>
                                     </sources>
@@ -67,46 +58,42 @@
                                     <directory>/etc/repose/</directory>
                                     <username>tomcat</username>
                                     <groupname>tomcat</groupname>
+                                    <configuration>noreplace</configuration>
+                                    <directoryIncluded>false</directoryIncluded>
                                     <filemode>755</filemode>
 
                                     <sources>
                                         <source>
                                             <location>
-                                                ../war/src/main/resources/META-INF/configs/container.cfg.xml
+                                                ../filters/src/main/resources/META-INF/configs/header-identity.cfg.xml
+                                            </location>
+                                        </source>
+                                        <source>
+                                            <location>../filters/src/main/resources/META-INF/configs/ip-identity.cfg.xml
                                             </location>
                                         </source>
                                         <source>
                                             <location>
-                                                ../war/src/main/resources/META-INF/configs/power-proxy.cfg.xml
+                                                ../filters/src/main/resources/META-INF/configs/dist-datastore.cfg.xml
                                             </location>
                                         </source>
                                         <source>
                                             <location>
-                                                ../war/src/main/resources/META-INF/configs/log4j.properties
+                                                ../filters/src/main/resources/META-INF/configs/http-logging.cfg.xml
                                             </location>
                                         </source>
+                                        <source>
+                                            <location>
+                                                ../filters/src/main/resources/META-INF/configs/rate-limiting.cfg.xml
+                                            </location>
+                                        </source>                                        
                                     </sources>
                                 </mapping>
+                                
                             </mappings>
 
-                            <postinstallScriptlet>
-                                <script>
-                                    mkdir "/var/log/repose/" -p -m 765;
-                                    mkdir "/var/repose/" -p -m 765;
-                                    mkdir "/usr/share/repose/filters" -p -m 755;
-                                    chown tomcat:tomcat /var/log/repose /var/repose /usr/share/repose -R;
-                                </script>
-                            </postinstallScriptlet>
-
-                            <postremoveScriptlet>
-                                <script>
-                                    rm -rf /var/log/repose /var/repose /usr/share/repose/;
-                                </script>
-                            </postremoveScriptlet>
-
                             <requires>
-                                <require>java-1.6.0-openjdk</require>
-                                <require>tomcat7</require>
+                                <require>repose-war</require>
                             </requires>
                         </configuration>
                     </plugin>

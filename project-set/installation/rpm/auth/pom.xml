@@ -10,8 +10,8 @@
       <version>2.0.0-SNAPSHOT</version>
    </parent>
 
-    <groupId>com.rackspace.repose.installation.rpm.integration</groupId>
-    <artifactId>integration</artifactId>
+    <groupId>com.rackspace.repose.installation.rpm.auth</groupId>
+    <artifactId>auth</artifactId>
     <version>2.0.0-SNAPSHOT</version>
 
     <packaging>pom</packaging>
@@ -21,10 +21,10 @@
         <module>war</module>
     </modules>
 
-    <name>Repose - Cloud Integration Installation Files</name>
+    <name>Repose - Cloud Integration Installation Files for Auth</name>
 
     <description>
-        Parent module for the Repose RPM installation files for the Cloud Integration installations of Auth and ATOM Hopper.
+        Parent module for the Repose RPM installation files for the Cloud Integration installations of Auth.
     </description>
 
     <profiles>

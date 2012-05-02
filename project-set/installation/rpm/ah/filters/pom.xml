@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.rackspace.repose.installation.rpm.integration</groupId>
-        <artifactId>integration</artifactId>
+        <groupId>com.rackspace.repose.installation.rpm.ah</groupId>
+        <artifactId>ah</artifactId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
 
@@ -24,7 +24,7 @@
 
     <profiles>
         <profile>
-            <id>Build ROOT Web Application RPM</id>
+            <id>Build Filter Bundle RPM</id>
 
             <activation>
                 <property>
@@ -38,7 +38,7 @@
                         <artifactId>rpm-maven-plugin</artifactId>
 
                         <configuration>
-                            <name>repose-filters</name>
+                            <name>ah-repose-filters</name>
                             <mappings>
                                 <mapping>
                                     <directory>/usr/share/repose/filters</directory>
@@ -65,15 +65,6 @@
                                     <sources>
                                         <source>
                                             <location>
-                                                ../filters/src/main/resources/META-INF/configs/header-identity.cfg.xml
-                                            </location>
-                                        </source>
-                                        <source>
-                                            <location>../filters/src/main/resources/META-INF/configs/ip-identity.cfg.xml
-                                            </location>
-                                        </source>
-                                        <source>
-                                            <location>
                                                 ../filters/src/main/resources/META-INF/configs/dist-datastore.cfg.xml
                                             </location>
                                         </source>
@@ -85,6 +76,21 @@
                                         <source>
                                             <location>
                                                 ../filters/src/main/resources/META-INF/configs/rate-limiting.cfg.xml
+                                            </location>
+                                        </source>                                        
+                                        <source>
+                                            <location>
+                                                ../filters/src/main/resources/META-INF/configs/client-auth-n.cfg.xml
+                                            </location>
+                                        </source>                                        
+                                        <source>
+                                            <location>
+                                                ../filters/src/main/resources/META-INF/configs/openstack-authorization.cfg.xml
+                                            </location>
+                                        </source>                                        
+                                        <source>
+                                            <location>
+                                                ../filters/src/main/resources/META-INF/configs/service-authentication.cfg.xml
                                             </location>
                                         </source>                                        
                                     </sources>

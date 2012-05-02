@@ -22,7 +22,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>integration</module>
+        <module>auth</module>
+        <module>ah</module>
     </modules>
 
 </project>
