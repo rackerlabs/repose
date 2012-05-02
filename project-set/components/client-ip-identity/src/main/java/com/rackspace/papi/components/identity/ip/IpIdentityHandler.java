@@ -43,10 +43,10 @@ public class IpIdentityHandler extends AbstractFilterLogicHandler {
       final FilterDirector filterDirector = new FilterDirectorImpl();
       HeaderManager headerManager = filterDirector.requestHeaderManager();
       String address = request.getHeader(X_FORWARDED_FOR_HEADER);
-      if (address == null) {
+      if (StringUtilities.isBlank(address)) {
          address = request.getRemoteAddr();
       } else {
-         address = address.split(",")[0];
+         address = address.split(",")[0].trim();
       }
 
       if (StringUtilities.isNotBlank(address)) {
