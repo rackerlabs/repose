@@ -7,7 +7,6 @@ import com.rackspace.papi.components.limits.schema.Limits;
 import com.rackspace.papi.components.limits.schema.RateLimitList;
 import com.rackspace.papi.components.ratelimit.cache.CachedRateLimit;
 import com.rackspace.papi.components.ratelimit.cache.RateLimitCache;
-import com.rackspace.papi.components.ratelimit.config.LimitsFormat;
 import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
 import com.rackspace.papi.components.ratelimit.util.LimitsEntityStreamTransformer;
 import com.rackspace.papi.components.ratelimit.util.combine.LimitsTransformPair;
