@@ -16,13 +16,15 @@ import javax.servlet.http.HttpServletResponse;
  * Feels like there's three separate domains being represented: filter direction 
  * (routing, action, application), response modification (response headers, 
  * response writer, response status code, body), and lastly request modification 
- * (request url and uri, request header). I didn't think these domains were too 
+ * (request url and uri, query parameters, request header). I didn't think these domains were too 
  * different early on but now that we need to communicate more directives, the 
  * domains have begun to diverge.
  * 
  */
 public interface FilterDirector {
 
+   void setRequestUriQuery(String query);
+   
    void setRequestUri(String newUri);
 
    void setRequestUrl(StringBuffer newUrl);

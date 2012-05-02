@@ -1,9 +1,8 @@
-package com.rackspace.papi.components.ratelimit.util;
+package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import com.rackspace.papi.components.ratelimit.RateLimitingRequestInfo;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;

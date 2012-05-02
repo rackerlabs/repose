@@ -11,8 +11,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 public class RateLimitingRequestInfo {
-
-   private static final HeaderValue DEFAULT_EMPTTY = new HeaderValueImpl("", -1.0);
    
    private final HttpMethod requestMethod;
    private final List<? extends HeaderValue> userGroup;
