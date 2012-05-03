@@ -29,7 +29,7 @@ public class StringWrapper implements JCharSequence {
 
     @Override
     public String toString() {
-        return string.toString();
+        return string;
     }
 
     @Override

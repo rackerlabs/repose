@@ -4,6 +4,7 @@ package com.rackspace.papi.components.hnorm.util;
 import com.rackspacecloud.api.docs.powerapi.header_normalization.v1.*;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 
@@ -13,7 +14,7 @@ public class CompiledRegexAndList {
     private Pattern pattern;
     private List<HttpMethod> methodList;
     private Boolean isBlackList;
-    private HashSet<String> filterList;
+    private Set<String> filterList;
     
     public CompiledRegexAndList(String pattern, List<HttpHeader> headerList, List<HttpMethod> methodList, Boolean isBlackList){
         this.pattern = pattern==null ? Pattern.compile(".*") : Pattern.compile(pattern); //sets this as the catch-all
@@ -40,7 +41,7 @@ public class CompiledRegexAndList {
         return pattern;
     }
 
-    public HashSet<String> getFilterList() {
+    public Set<String> getFilterList() {
         return filterList;
     }
     
