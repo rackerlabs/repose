@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.logging;
 
-import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
@@ -16,7 +15,6 @@ import org.slf4j.LoggerFactory;
  * @author Dan Daley
  */
 public class HttpLoggingHandler extends AbstractFilterLogicHandler {
-    private static final Logger LOG = LoggerFactory.getLogger(HttpLoggingHandler.class);
     private final List<HttpLoggerWrapper> loggers;
 
     public HttpLoggingHandler(List<HttpLoggerWrapper> loggers) {

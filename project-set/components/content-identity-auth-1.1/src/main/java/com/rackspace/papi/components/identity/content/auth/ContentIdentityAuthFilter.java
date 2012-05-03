@@ -1,16 +1,19 @@
 package com.rackspace.papi.components.identity.content.auth;
 
-import org.openrepose.rackspace.auth.content_identity.config.ContentIdentityAuthConfig;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import java.io.IOException;
-import javax.servlet.*;
-import org.slf4j.Logger;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import org.openrepose.rackspace.auth.content_identity.config.ContentIdentityAuthConfig;
 
 public class ContentIdentityAuthFilter implements Filter {
 
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ContentIdentityAuthFilter.class);
     private ContentIdentityAuthHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;
 

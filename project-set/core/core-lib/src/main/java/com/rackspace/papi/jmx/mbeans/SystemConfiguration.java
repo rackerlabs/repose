@@ -45,7 +45,7 @@ public class SystemConfiguration implements SystemConfigurationMBean {
 
    @Override
    public PowerProxy updatePowerProxy(PowerProxy powerProxy) {
-      System.out.print("In MBean " + powerProxy.toString());
+      System.out.print("In MBean " + localHost.getHostname() + " - " + powerProxy.toString());
       return powerProxy;
    }
 }

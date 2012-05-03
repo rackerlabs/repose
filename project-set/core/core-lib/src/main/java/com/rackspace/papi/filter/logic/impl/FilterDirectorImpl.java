@@ -18,12 +18,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class FilterDirectorImpl implements FilterDirector {
 
-   private static final Logger LOG = LoggerFactory.getLogger(FilterDirectorImpl.class);
    private final ByteArrayOutputStream directorOutputStream;
    private final PrintWriter responsePrintWriter;
    private final List<RouteDestination> destinations;

@@ -59,7 +59,6 @@ public class CalabashPipeline extends AbstractPipeline implements Pipeline {
    @Override
    protected <T> void addParameter(PipelineInput<T> input) {
       RuntimeValue runtimeParam = getRuntimeValue(input);
-      T source = input.getSource();
       
       if (pipeline.getInputs().contains("parameters")) {
          pipeline.setParameter("parameters", new QName("", input.getName()), runtimeParam);

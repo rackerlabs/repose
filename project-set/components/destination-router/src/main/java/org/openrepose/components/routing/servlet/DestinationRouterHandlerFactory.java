@@ -1,14 +1,12 @@
 package org.openrepose.components.routing.servlet;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import org.openrepose.components.routing.servlet.config.DestinationRouterConfiguration;
-import com.rackspace.papi.filter.SystemModelInterrogator;
-import com.rackspace.papi.model.PowerProxy;
-import java.util.List;
-import com.rackspace.papi.domain.Port;
 
 public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RoutingTagger> {
 
@@ -27,14 +25,6 @@ public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHan
         }
     }
 
-    private class SystemModelConfigurationListener implements UpdateListener<PowerProxy> {
-
-        @Override
-        public void configurationUpdated(PowerProxy configurationObject) {
-            SystemModelInterrogator interrogator = new SystemModelInterrogator(configurationObject, ports);
-        }
-    }
-
     @Override
     protected RoutingTagger buildHandler() {
         return new RoutingTagger(contextRouterConfiguration.getTarget());
@@ -44,7 +34,6 @@ public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHan
     protected Map<Class, UpdateListener<?>> getListeners() {
         final Map<Class, UpdateListener<?>> updateListeners = new HashMap<Class, UpdateListener<?>>();
         updateListeners.put(DestinationRouterConfiguration.class, new RoutingConfigurationListener());
-        updateListeners.put(PowerProxy.class, new SystemModelConfigurationListener());
         return updateListeners;
     }
 }

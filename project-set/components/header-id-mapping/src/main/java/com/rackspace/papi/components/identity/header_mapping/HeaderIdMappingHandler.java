@@ -17,11 +17,9 @@ import com.rackspace.papi.components.identity.header_mapping.config.HttpHeader;
 
 public class HeaderIdMappingHandler extends AbstractFilterLogicHandler {
 
-   private final HeaderIdMappingConfig config;
    private final List<HttpHeader> sourceHeaders;
 
    public HeaderIdMappingHandler(HeaderIdMappingConfig config) {
-      this.config = config;
       this.sourceHeaders = config.getSourceHeaders().getHeader();
    }
    

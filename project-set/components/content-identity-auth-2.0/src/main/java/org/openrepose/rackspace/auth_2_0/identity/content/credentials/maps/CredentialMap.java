@@ -21,7 +21,7 @@ public class CredentialMap extends HashMap<String, Object> {
    }
 
    public AuthCredentials getCredentials() {
-      String type = getCredentialsType();
+      //String type = getCredentialsType();
 
       return null;
       // TODO
