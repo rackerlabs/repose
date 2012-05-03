@@ -4,7 +4,6 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.model.PowerProxy;
-import org.slf4j.Logger;
 import com.rackspace.papi.domain.Port;
 
 import javax.servlet.Filter;
@@ -17,7 +16,6 @@ import java.io.IOException;
 import java.util.List;
 import javax.servlet.ServletContext;
 import org.openrepose.components.routing.servlet.config.DestinationRouterConfiguration;
-import org.slf4j.LoggerFactory;
 
 public class DestinationRouterFilter implements Filter {
 
@@ -38,9 +36,8 @@ public class DestinationRouterFilter implements Filter {
         
         final ServletContext servletContext = filterConfig.getServletContext();
         final ConfigurationService manager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
-        final List<Port> ports = ServletContextHelper.getServerPorts(servletContext);
         
-        handlerFactory = new DestinationRouterHandlerFactory(ports);
+        handlerFactory = new DestinationRouterHandlerFactory();
         
         manager.subscribeTo("power-proxy.cfg.xml", handlerFactory, PowerProxy.class);
         manager.subscribeTo("destination-router.cfg.xml", handlerFactory, DestinationRouterConfiguration.class);

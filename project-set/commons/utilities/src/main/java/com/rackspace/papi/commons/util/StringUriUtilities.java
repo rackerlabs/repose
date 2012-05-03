@@ -24,6 +24,30 @@ public final class StringUriUtilities {
 
         return index;
     }
+    
+    public static String concatUris(String... uris) {
+       StringBuilder builder = new StringBuilder();
+
+       for (String uri: uris) {
+          if (StringUtilities.isNotBlank(uri)) {
+             if (!uri.startsWith("/")) {
+                builder.append("/");
+             }
+             
+             if (uri.endsWith("/")) {
+                builder.append(uri.substring(0, uri.length() - 1));
+             } else {
+                builder.append(uri);
+             }
+          }
+       }
+       
+       if (builder.length() == 0) {
+          builder.append("/");
+       }
+       
+       return builder.toString();
+    }
 
     /**
      * Formats a URI by adding a forward slash and removing the last forward
