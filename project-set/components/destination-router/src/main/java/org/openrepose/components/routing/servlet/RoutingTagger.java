@@ -1,14 +1,12 @@
 package org.openrepose.components.routing.servlet;
 
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import javax.servlet.http.HttpServletRequest;
 import org.openrepose.components.routing.servlet.config.Target;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RoutingTagger extends AbstractFilterLogicHandler {
 

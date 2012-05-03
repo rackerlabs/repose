@@ -1,11 +1,5 @@
 package org.openrepose.rnxp.http.context;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import javax.servlet.ServletException;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import org.openrepose.rnxp.PowerProxy;
 import org.openrepose.rnxp.RequestResponsePair;
 import org.openrepose.rnxp.http.io.control.HttpConnectionController;
@@ -15,8 +9,6 @@ import org.openrepose.rnxp.servlet.context.ExternalRoutableRequestDispatcher;
 import org.openrepose.rnxp.servlet.context.NXPServletContext;
 import org.openrepose.rnxp.servlet.http.SwitchableHttpServletResponse;
 import org.openrepose.rnxp.servlet.http.detached.ClientHttpServletResponse;
-import org.openrepose.rnxp.servlet.http.serializer.RequestHeadSerializer;
-import org.openrepose.rnxp.servlet.http.serializer.ResponseHeadSerializer;
 import org.openrepose.rnxp.servlet.http.live.LiveHttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -16,31 +16,24 @@
  */
 package com.rackspace.papi.http.proxy.jerseyclient;
 
-import java.net.MalformedURLException;
-
-import com.rackspace.papi.http.proxy.common.ProxyService;
-
-import org.apache.http.HttpException;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
-import com.rackspace.papi.http.proxy.httpclient.HttpResponseCodeProcessor;
 import com.rackspace.papi.commons.util.logging.jersey.LoggingFilter;
+import com.rackspace.papi.http.proxy.common.ProxyService;
+import com.rackspace.papi.http.proxy.httpclient.HttpResponseCodeProcessor;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
-
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.http.HttpException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author John Hopper

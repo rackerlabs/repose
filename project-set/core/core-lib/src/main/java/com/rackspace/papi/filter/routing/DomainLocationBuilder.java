@@ -1,6 +1,5 @@
 package com.rackspace.papi.filter.routing;
 
-import com.rackspace.papi.filter.PowerFilterChain;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.DestinationDomain;
 import com.rackspace.papi.model.DomainNode;

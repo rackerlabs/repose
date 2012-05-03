@@ -2,9 +2,6 @@ package org.openrepose.rnxp.servlet.http.detached;
 
 import org.openrepose.rnxp.servlet.http.serializer.ResponseHeadSerializer;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import com.rackspace.papi.commons.util.io.RawInputStreamReader;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;

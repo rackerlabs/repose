@@ -1,10 +1,9 @@
 package com.rackspace.papi.components.hnorm.util;
 
-import javax.servlet.http.HttpServletRequest;
-
 import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Set;
+import javax.servlet.http.HttpServletRequest;
 
 
 public final class HeaderNormalizer {
