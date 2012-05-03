@@ -46,47 +46,49 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
       // Default to an empty filter chain so that artifact deployment doesn't gum up the works with a null pointer
       powerFilterChainBuilder = new PowerFilterChainBuilder(null, null, Collections.EMPTY_LIST);
+      systemModelConfigurationListener = new SystemModelConfigListener();
+      applicationDeploymentListener = new ApplicationDeploymentEventListener();
+   }
 
-      systemModelConfigurationListener = new UpdateListener<PowerProxy>() {
+   private class ApplicationDeploymentEventListener implements EventListener<ApplicationDeploymentEvent, String> {
 
-         private final Object internalLock = new Object();
+      @Override
+      public void onEvent(Event<ApplicationDeploymentEvent, String> e) {
+         LOG.info("Application collection has been modified. Application that changed: " + e.payload());
 
-         // TODO:Review - There's got to be a better way of initializing PowerFilter. Maybe the app management service could be queryable.
-         @Override
-         public void configurationUpdated(PowerProxy configurationObject) {
-            currentSystemModel = configurationObject;
+         if (currentSystemModel != null) {
+            SystemModelInterrogator interrogator = new SystemModelInterrogator(currentSystemModel, ports);
+            final List<FilterContext> newFilterChain = new FilterContextInitializer(filterConfig).buildFilterContexts(papiContext.classLoader(), currentSystemModel, ports);
 
-            // This event must be fired only after we have finished configuring the system.
-            // This prevents a race condition illustrated below where the application
-            // deployment event is caught but does nothing due to a null configuration
-            synchronized (internalLock) {
-               if (firstInitialization) {
-                  firstInitialization = false;
-
-                  papiContext.eventService().newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
-               } else {
-                  SystemModelInterrogator interrogator = new SystemModelInterrogator(currentSystemModel, ports);
-                  final List<FilterContext> newFilterChain = new FilterContextInitializer(filterConfig).buildFilterContexts(papiContext.classLoader(), currentSystemModel, ports);
-                  updateFilterChainBuilder(interrogator.getLocalServiceDomain(), interrogator.getLocalHost(), newFilterChain);
-               }
-            }
+            updateFilterChainBuilder(interrogator.getLocalServiceDomain(), interrogator.getLocalHost(), newFilterChain);
          }
-      };
+      }
+   };
 
-      applicationDeploymentListener = new EventListener<ApplicationDeploymentEvent, String>() {
+   private class SystemModelConfigListener implements UpdateListener<PowerProxy> {
 
-         @Override
-         public void onEvent(Event<ApplicationDeploymentEvent, String> e) {
-            LOG.info("Application collection has been modified. Application that changed: " + e.payload());
+      private final Object internalLock = new Object();
 
-            if (currentSystemModel != null) {
+      // TODO:Review - There's got to be a better way of initializing PowerFilter. Maybe the app management service could be queryable.
+      @Override
+      public void configurationUpdated(PowerProxy configurationObject) {
+         currentSystemModel = configurationObject;
+
+         // This event must be fired only after we have finished configuring the system.
+         // This prevents a race condition illustrated below where the application
+         // deployment event is caught but does nothing due to a null configuration
+         synchronized (internalLock) {
+            if (firstInitialization) {
+               firstInitialization = false;
+
+               papiContext.eventService().newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
+            } else {
                SystemModelInterrogator interrogator = new SystemModelInterrogator(currentSystemModel, ports);
                final List<FilterContext> newFilterChain = new FilterContextInitializer(filterConfig).buildFilterContexts(papiContext.classLoader(), currentSystemModel, ports);
-
                updateFilterChainBuilder(interrogator.getLocalServiceDomain(), interrogator.getLocalHost(), newFilterChain);
             }
          }
-      };
+      }
    }
 
    // This is written like this in case requests are already processing against the
