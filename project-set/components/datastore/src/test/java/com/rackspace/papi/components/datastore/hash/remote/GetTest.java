@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.datastore.hash.remote;
 
 import com.rackspace.papi.components.datastore.common.CacheRequest;
-import com.rackspace.papi.components.datastore.hash.RemoteBehavior;
+import com.rackspace.papi.components.datastore.common.RemoteBehavior;
 import com.rackspace.papi.components.datastore.hash.remote.command.Delete;
 import com.rackspace.papi.components.datastore.hash.remote.command.Get;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;

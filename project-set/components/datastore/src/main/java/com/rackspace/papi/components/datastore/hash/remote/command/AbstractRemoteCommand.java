@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.datastore.hash.remote.command;
 
 import com.rackspace.papi.components.datastore.common.DatastoreHeader;
-import com.rackspace.papi.components.datastore.hash.RemoteBehavior;
+import com.rackspace.papi.components.datastore.common.RemoteBehavior;
 import com.rackspace.papi.components.datastore.hash.remote.RemoteCommand;
 import java.net.InetSocketAddress;
 import org.apache.http.client.methods.HttpRequestBase;

@@ -3,7 +3,7 @@ package com.rackspace.papi.components.datastore.hash.remote.command;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.components.datastore.common.CacheRequest;
-import com.rackspace.papi.components.datastore.hash.RemoteBehavior;
+import com.rackspace.papi.components.datastore.common.RemoteBehavior;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.impl.StoredElementImpl;
 import java.io.IOException;

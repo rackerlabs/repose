@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.datastore.hash;
+package com.rackspace.papi.components.datastore.common;
 
 /**
  *
