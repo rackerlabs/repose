@@ -84,15 +84,6 @@ public class AuthenticationServiceClient {
       return tokenInfo;
    }
 
-   private String getLastPart(String value, String sep) {
-      if (value == null) {
-         return "";
-      }
-
-      String[] parts = value.split(sep);
-      return parts[parts.length - 1];
-   }
-
    public String getUserNameForUserId(String userId, String type) {
       final AccountTypes accountType = AccountTypes.getAccountType(type);
 
