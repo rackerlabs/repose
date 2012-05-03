@@ -1,10 +1,8 @@
 package org.openrepose.components.routing.servlet;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import org.openrepose.components.routing.servlet.config.DestinationRouterConfiguration;
 

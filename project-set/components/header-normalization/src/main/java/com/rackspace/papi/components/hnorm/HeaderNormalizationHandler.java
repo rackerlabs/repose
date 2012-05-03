@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 public class HeaderNormalizationHandler extends AbstractFilterLogicHandler {
 
     private List<CompiledRegexAndList> compiledTargets;
-    
+
     HeaderNormalizationHandler(List<CompiledRegexAndList> compiledTargets) {
         this.compiledTargets = compiledTargets;
     }
@@ -29,17 +29,13 @@ public class HeaderNormalizationHandler extends AbstractFilterLogicHandler {
         HttpMethod method = HttpMethod.valueOf(request.getMethod());
 
         for (CompiledRegexAndList target : compiledTargets) {
-            if (target.getPattern().matcher(uri).matches()) {
-                if (target.getMethodList().contains(method) || target.getMethodList().contains(HttpMethod.ALL)) {
-                    myDirector.requestHeaderManager().headersToRemove().addAll(HeaderNormalizer.getHeadersToRemove(request, target));
-                    break;
-                }
+            if (target.getPattern().matcher(uri).matches() && (target.getMethodList().contains(method) || target.getMethodList().contains(HttpMethod.ALL))) {
+                myDirector.requestHeaderManager().headersToRemove().addAll(HeaderNormalizer.getHeadersToRemove(request, target));
+                break;
 
             }
         }
 
         return myDirector;
     }
-
-    
 }

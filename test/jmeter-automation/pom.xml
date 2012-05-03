@@ -82,10 +82,8 @@
                     <jmeterhome>/usr/share/jmeter</jmeterhome>
                     <jmeterPreserveIncludeOrder>true</jmeterPreserveIncludeOrder>
                     <excludes>
-                        <exclude>Power API - End to End Automation.jmx</exclude>
-                        <exclude>Power API - Valve Test.jmx</exclude>
-                        <!--                  <exclude>Power API - Rate Limiting Tests.jmx</exclude>-->
                         <exclude>Power API - Content-Normalization Test.jmx</exclude>
+                        <exclude>Power API - URI Normalization Tests.jmx</exclude>
                     </excludes>
                 </configuration>
             </plugin>
