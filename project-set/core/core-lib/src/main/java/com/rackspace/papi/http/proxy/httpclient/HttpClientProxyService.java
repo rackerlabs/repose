@@ -17,13 +17,18 @@
 package com.rackspace.papi.http.proxy.httpclient;
 
 import com.rackspace.papi.http.proxy.common.ProxyService;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
-import org.apache.commons.httpclient.*;
 import java.io.IOException;
-import java.util.logging.Level;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.apache.commons.httpclient.HostConfiguration;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpConnectionManager;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
+import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *

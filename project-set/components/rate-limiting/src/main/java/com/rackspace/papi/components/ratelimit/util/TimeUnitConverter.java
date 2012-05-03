@@ -7,6 +7,10 @@ import java.util.concurrent.TimeUnit;
  * @author jhopper
  */
 public final class TimeUnitConverter {
+   private static final int DAY_UNIT = 24;
+   private static final int HOUR_UNIT = 60;
+   private static final int MINUTE_UNIT = 60;
+   private static final int SECOND_UNIT = 1000;
 
     private TimeUnitConverter() {
     }
@@ -17,13 +21,13 @@ public final class TimeUnitConverter {
 
         switch (timeUnit) {
             case DAY:
-                time *= 24;
+                time *= DAY_UNIT;
             case HOUR:
-                time *= 60;
+                time *= HOUR_UNIT;
             case MINUTE:
-                time *= 60;
+                time *= MINUTE_UNIT;
             case SECOND:
-                time *= 1000;
+                time *= SECOND_UNIT;
         }
 
         return time;

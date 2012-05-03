@@ -1,7 +1,6 @@
 package com.rackspace.papi.components.versioning;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList;
 import com.rackspace.papi.components.versioning.domain.ConfigurationData;
@@ -17,18 +16,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
 
 public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFactory<VersioningHandler> {
 
-   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(VersioningHandlerFactory.class);
    private final Map<String, ServiceVersionMapping> configuredMappings = new HashMap<String, ServiceVersionMapping>();
    private final Map<String, Destination> configuredHosts = new HashMap<String, Destination>();
    private final ContentTransformer transformer;
    private final List<Port> ports;
    private ServiceDomain localDomain;
    private DomainNode localHost;
-   private ServiceVersionMappingList config;
 
    public VersioningHandlerFactory(List<Port> ports) {
       this.ports = ports;
@@ -74,7 +70,6 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
             configuredMappings.put(mapping.getId(), mapping);
          }
 
-         config = mappings;
       }
    }
 

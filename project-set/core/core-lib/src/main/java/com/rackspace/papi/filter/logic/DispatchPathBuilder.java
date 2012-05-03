@@ -1,9 +1,6 @@
 package com.rackspace.papi.filter.logic;
 
 
-import com.rackspace.papi.commons.util.StringUriUtilities;
-
-
 public class DispatchPathBuilder {
   private final String requestPath;
   private final String context;

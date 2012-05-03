@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.identity.content.credentials.wrappers;
 
-import com.rackspacecloud.docs.auth.api.v1.MossoCredentials;
 import com.rackspacecloud.docs.auth.api.v1.NastCredentials;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;

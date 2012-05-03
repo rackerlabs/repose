@@ -4,7 +4,6 @@ import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import com.rackspace.papi.mocks.auth.provider.UserDataPropertiesProviderImpl;
 import java.util.Calendar;
-import java.util.List;
 import javax.xml.datatype.DatatypeConfigurationException;
 import org.openstack.docs.identity.api.v2.*;
 

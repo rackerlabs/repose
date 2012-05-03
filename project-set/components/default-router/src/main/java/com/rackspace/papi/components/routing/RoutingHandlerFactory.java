@@ -8,12 +8,9 @@ import com.rackspace.papi.model.PowerProxy;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RoutingTagger> {
 
-   private static final Logger LOG = LoggerFactory.getLogger(RoutingHandlerFactory.class);
    private final List<Port> ports;
    private PowerProxy systemModel;
 

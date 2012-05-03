@@ -4,7 +4,7 @@ import java.util.Collection;
 
 public interface DatastoreService {
 
-   final String DEFAULT_LOCAL = "local/default";
+   String DEFAULT_LOCAL = "local/default";
 
    /**
     * Always returns the default, local (read L1) cache that has been registered

@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.identity.content.credentials.wrappers;
 
-import com.rackspacecloud.docs.auth.api.v1.PasswordCredentials;
 import com.rackspacecloud.docs.auth.api.v1.UserCredentials;
 import java.util.Map;
 import javax.xml.bind.annotation.XmlRootElement;

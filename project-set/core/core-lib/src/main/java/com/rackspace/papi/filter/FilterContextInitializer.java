@@ -2,18 +2,16 @@ package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.domain.Port;
-import com.rackspace.papi.jmx.agents.SystemJmxAgent;
 import com.rackspace.papi.model.DomainNode;
 import com.rackspace.papi.model.Filter;
 import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.model.ServiceDomain;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.FilterConfig;
 import java.util.LinkedList;
 import java.util.List;
+import javax.servlet.FilterConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author fran

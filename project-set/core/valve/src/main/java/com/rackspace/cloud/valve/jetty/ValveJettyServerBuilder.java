@@ -22,12 +22,8 @@ import javax.servlet.DispatcherType;
 import java.util.EnumSet;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ValveJettyServerBuilder {
-
-   private static final Logger LOG = LoggerFactory.getLogger(ValveJettyServerBuilder.class);
 
    private final List<Port> ports = new ArrayList<Port>();
    private String configurationPathAndFile = "";

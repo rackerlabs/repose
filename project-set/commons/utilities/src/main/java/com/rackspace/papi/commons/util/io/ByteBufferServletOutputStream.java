@@ -21,6 +21,10 @@ public class ByteBufferServletOutputStream extends ServletOutputStream {
             throw new IOException("InputStream has been closed. Futher operations are prohibited");
         }*/
     }
+    
+    public boolean isClosed() {
+       return closed;
+    }
 
     @Override
     public void close() throws IOException {

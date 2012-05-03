@@ -1,6 +1,5 @@
 package com.rackspace.papi.filter.logic.impl;
 
-import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.filter.logic.HeaderApplicationLogic;
 import com.rackspace.papi.filter.logic.HeaderManager;

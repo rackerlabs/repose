@@ -3,14 +3,11 @@ package com.rackspace.papi.components.ratelimit.util;
 import com.rackspace.papi.commons.util.logging.ExceptionLogger;
 import com.rackspace.papi.commons.util.xslt.TemplatesFactory;
 import com.rackspace.papi.servlet.PowerApiContextException;
-import org.slf4j.Logger;
-
+import java.io.InputStream;
 import javax.xml.bind.JAXBContext;
 import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.stream.StreamSource;
-import java.io.InputStream;
+import org.slf4j.Logger;
 
 /**
  *

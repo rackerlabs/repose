@@ -1,10 +1,8 @@
 package org.openrepose.rackspace.auth_2_0.identity.content.credentials.maps;
 
-import org.openrepose.rackspace.auth_2_0.identity.content.credentials.AuthCredentials;
-import org.openstack.docs.identity.api.v2.CredentialType;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.openrepose.rackspace.auth_2_0.identity.content.credentials.AuthCredentials;
 
 public class CredentialMap extends HashMap<String, Object> {
 
@@ -21,7 +19,7 @@ public class CredentialMap extends HashMap<String, Object> {
    }
 
    public AuthCredentials getCredentials() {
-      String type = getCredentialsType();
+      //String type = getCredentialsType();
 
       return null;
       // TODO
