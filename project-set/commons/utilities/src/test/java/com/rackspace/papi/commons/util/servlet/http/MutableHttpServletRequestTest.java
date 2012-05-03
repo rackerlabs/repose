@@ -60,7 +60,6 @@ public class MutableHttpServletRequestTest {
       }
 
       @Test
-      @Ignore
       public void shouldMapExpectedNumberOfHeaders() {
          Integer expected, actual = 0;
          expected = 2;
@@ -76,7 +75,6 @@ public class MutableHttpServletRequestTest {
       }
 
       @Test
-      @Ignore
       public void shouldMapHeaderNamesAsLowerCase() {
          Integer expected, actual = 0;
          expected = 1;
@@ -92,7 +90,6 @@ public class MutableHttpServletRequestTest {
       }
 
       @Test
-      @Ignore
       public void shouldMapHeaderNamesAndValues() {
          assertEquals("val1.1", wrappedRequest.getHeader("header1"));
       }
