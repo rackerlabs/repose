@@ -2,7 +2,7 @@ package com.rackspace.papi.commons.util.io.buffer;
 
 import java.io.IOException;
 
-public class CyclicByteBuffer implements ByteBuffer {
+public class CyclicByteBuffer implements ByteBuffer, Cloneable {
 
    private static final ByteArrayProvider DEFAULT_BYTE_ARRAY_PROVIDER = HeapspaceByteArrayProvider.getInstance();
    private static final int DEFAULT_BUFFER_SIZE = 2048; //in bytes
