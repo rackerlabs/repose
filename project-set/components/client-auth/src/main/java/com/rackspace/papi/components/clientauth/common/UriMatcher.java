@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.clientauth;
+package com.rackspace.papi.components.clientauth.common;
 
 import java.util.List;
 import java.util.regex.Pattern;
