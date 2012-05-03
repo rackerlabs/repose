@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.clientauth.rackspace.v1_1;
 
 import com.rackspace.auth.v1_1.CachableTokenInfo;
-import com.rackspace.papi.components.clientauth.UserAuthTokenCache;
+import com.rackspace.papi.components.clientauth.common.UserAuthTokenCache;
 import com.rackspace.papi.service.datastore.Datastore;
 
 public class RackspaceUserInfoCache extends UserAuthTokenCache<CachableTokenInfo> {

@@ -6,7 +6,7 @@ import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.datastore.common.CacheRequest;
 import com.rackspace.papi.components.datastore.common.DatastoreHeader;
 import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
-import com.rackspace.papi.components.datastore.hash.RemoteBehavior;
+import com.rackspace.papi.components.datastore.common.RemoteBehavior;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;

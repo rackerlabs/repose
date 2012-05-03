@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.clientauth.openstack.v1_0;
 
 import com.rackspace.auth.openstack.ids.CachableUserInfo;
-import com.rackspace.papi.components.clientauth.UserAuthTokenCache;
+import com.rackspace.papi.components.clientauth.common.UserAuthTokenCache;
 import com.rackspace.papi.service.datastore.Datastore;
 
 public class OpenStackUserInfoCache extends UserAuthTokenCache<CachableUserInfo> {

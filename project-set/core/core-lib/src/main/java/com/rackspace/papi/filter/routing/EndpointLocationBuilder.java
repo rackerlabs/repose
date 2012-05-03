@@ -1,15 +1,10 @@
 package com.rackspace.papi.filter.routing;
 
-import com.rackspace.papi.commons.util.StringUriUtilities;
-import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.model.Destination;
-import com.rackspace.papi.model.DestinationEndpoint;
 import com.rackspace.papi.model.DomainNode;
 import java.net.MalformedURLException;
-import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
@@ -33,112 +28,8 @@ public class EndpointLocationBuilder implements LocationBuilder {
    @Override
    public DestinationLocation build() throws MalformedURLException, URISyntaxException {
       return new DestinationLocation(
-              new EndpointUrlBuilder().build(),
-              new EndpointUriBuilder().build());
-   }
-
-   private class EndpointUriBuilder {
-
-      private final DestinationEndpoint endpoint;
-
-      private String determineScheme() {
-         String scheme = destination.getProtocol();
-         if (StringUtilities.isBlank(scheme) || endpoint.getPort() <= 0) {
-            // no scheme or port specified means this is an internal dispatch
-            return null;
-         }
-         return scheme;
-      }
-
-      private String determineHostname(String scheme) {
-         if (StringUtilities.isBlank(scheme)) {
-            return null;
-         }
-
-         Port port = new Port(scheme, endpoint.getPort());
-
-         if (endpoint.getHostname() == null || "localhost".equalsIgnoreCase(endpoint.getHostname())) {
-            if (localPorts.contains(port)) {
-               // internal dispatch
-               return null;
-            }
-
-            // dispatching to this host, but not our port
-            return localhost.getHostname();
-         }
-
-         return endpoint.getHostname();
-      }
-
-      EndpointUriBuilder() {
-         endpoint = (DestinationEndpoint) destination;
-
-      }
-
-      public URI build() throws URISyntaxException {
-         String scheme = determineScheme();
-         String hostname = determineHostname(scheme);
-         String rootPath = endpoint.getRootPath();
-
-         String path = StringUriUtilities.concatUris(rootPath, uri);
-         int port = scheme == null || hostname == null ? -1 : endpoint.getPort();
-
-         return new URI(hostname != null ? scheme : null, null, hostname, port, path, null, null);
-      }
-   }
-
-   private class EndpointUrlBuilder {
-
-      private final DestinationEndpoint endpoint;
-
-      private int localPortForProtocol(String protocol) {
-         for (Port port : localPorts) {
-            if (port.getProtocol().equalsIgnoreCase(protocol)) {
-               return port.getPort();
-            }
-         }
-
-         return 0;
-      }
-
-      private Port determineUrlPort() throws MalformedURLException {
-         if (!StringUtilities.isBlank(endpoint.getProtocol())) {
-            int port = endpoint.getPort() <= 0 ? localPortForProtocol(endpoint.getProtocol()) : endpoint.getPort();
-            return new Port(endpoint.getProtocol(), port);
-         }
-
-         Port port = new Port(request.getScheme(), request.getLocalPort());
-         if (localPorts.contains(port)) {
-            return port;
-         }
-
-         throw new MalformedURLException("Cannot determine destination port.");
-      }
-
-      private String determineHostname() {
-         String hostname = endpoint.getHostname();
-
-         if (StringUtilities.isBlank(hostname)) {
-            // endpoint is local
-            hostname = localhost.getHostname();
-         }
-
-         return hostname;
-      }
-
-      EndpointUrlBuilder() {
-         endpoint = (DestinationEndpoint) destination;
-
-      }
-
-      public URL build() throws MalformedURLException {
-         Port port = determineUrlPort();
-         String hostname = determineHostname();
-         String rootPath = endpoint.getRootPath();
-         String path = StringUriUtilities.concatUris(rootPath, uri);
-
-         return new URL(port.getProtocol(), hostname, port.getPort(), path);
-      }
+              new EndpointUrlBuilder(localhost, localPorts, destination, uri, request).build(),
+              new EndpointUriBuilder(localhost, localPorts, destination, uri).build());
    }
 
    private void determineLocalPortsList() {

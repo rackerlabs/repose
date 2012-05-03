@@ -3,7 +3,6 @@ package com.rackspace.papi.components.datastore.common;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
 import com.rackspace.papi.commons.util.io.stream.ServletInputStreamWrapper;
-import com.rackspace.papi.components.datastore.hash.RemoteBehavior;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.InetAddress;

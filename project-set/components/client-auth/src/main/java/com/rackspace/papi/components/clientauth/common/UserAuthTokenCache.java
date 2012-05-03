@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.clientauth;
+package com.rackspace.papi.components.clientauth.common;
 
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.service.datastore.Datastore;

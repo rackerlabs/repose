@@ -3,7 +3,7 @@ package com.rackspace.papi.components.datastore.hash.remote.command;
 import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.components.datastore.common.CacheRequest;
-import com.rackspace.papi.components.datastore.hash.RemoteBehavior;
+import com.rackspace.papi.components.datastore.common.RemoteBehavior;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import java.io.IOException;
 import java.net.InetSocketAddress;

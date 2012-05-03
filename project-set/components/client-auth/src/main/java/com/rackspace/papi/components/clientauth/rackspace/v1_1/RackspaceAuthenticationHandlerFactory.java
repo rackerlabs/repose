@@ -4,7 +4,7 @@ import com.rackspace.auth.v1_1.AuthenticationServiceClient;
 import com.rackspace.auth.v1_1.AuthenticationServiceClientFactory;
 import com.rackspace.papi.auth.AuthModule;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
-import com.rackspace.papi.components.clientauth.UriMatcher;
+import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
 import com.rackspace.papi.components.clientauth.rackspace.config.RackspaceAuth;
 import com.rackspace.papi.service.datastore.Datastore;
