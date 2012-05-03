@@ -56,7 +56,7 @@ public class StringUriUtilitiesTest {
 
       @Test
       public void shouldRemovingExtraLeadingSlashes() {
-         assertEquals("Should remove multiple leading slasshes from a URI", "/a/resource", StringUriUtilities.formatUri("//////////a/resource/"));
+         assertEquals("Should remove multiple leading slasshes from a URI", "/a/resource", StringUriUtilities.formatUri("//////////a/resource///"));
       }
 
       @Test
@@ -67,6 +67,11 @@ public class StringUriUtilitiesTest {
       @Test
       public void shouldReturnRootContextURI2() {
          assertEquals("Should not return an empty string when passed a root context URI", "/", StringUriUtilities.formatUri("/////////"));
+      }
+      
+      @Test
+      public void shouldReturnRootContextURI3(){
+          assertEquals("Should not return an empty string when passed a root context URI", "/", StringUriUtilities.formatUri(""));
       }
    }
 

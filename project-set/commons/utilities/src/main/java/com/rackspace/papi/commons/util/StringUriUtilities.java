@@ -24,29 +24,29 @@ public final class StringUriUtilities {
 
         return index;
     }
-    
-    public static String concatUris(String... uris) {
-       StringBuilder builder = new StringBuilder();
 
-       for (String uri: uris) {
-          if (StringUtilities.isNotBlank(uri)) {
-             if (!uri.startsWith("/")) {
-                builder.append("/");
-             }
-             
-             if (uri.endsWith("/")) {
-                builder.append(uri.substring(0, uri.length() - 1));
-             } else {
-                builder.append(uri);
-             }
-          }
-       }
-       
-       if (builder.length() == 0) {
-          builder.append("/");
-       }
-       
-       return builder.toString();
+    public static String concatUris(String... uris) {
+        StringBuilder builder = new StringBuilder();
+
+        for (String uri : uris) {
+            if (StringUtilities.isNotBlank(uri)) {
+                if (!uri.startsWith("/")) {
+                    builder.append("/");
+                }
+
+                if (uri.endsWith("/")) {
+                    builder.append(uri.substring(0, uri.length() - 1));
+                } else {
+                    builder.append(uri);
+                }
+            }
+        }
+
+        if (builder.length() == 0) {
+            builder.append("/");
+        }
+
+        return builder.toString();
     }
 
     /**
@@ -63,8 +63,8 @@ public final class StringUriUtilities {
      * @return 
      */
     public static String formatUri(String uri) {
-        if (StringUtilities.isBlank(uri)) {
-            return "";
+        if (StringUtilities.isBlank(uri) || StringUtilities.nullSafeEqualsIgnoreCase("/", uri)) {
+            return "/";
         }
 
         final StringBuilder externalName = new StringBuilder(uri);
@@ -73,18 +73,20 @@ public final class StringUriUtilities {
             externalName.insert(0, "/");
         }
 
+        int doubleSlash = externalName.indexOf("//");
 
-        if (externalName.length() > 1) { //so we don't overwrite a root context uri
-            if (externalName.charAt(externalName.length() - 1) == '/') {
-                externalName.deleteCharAt(externalName.length() - 1);
-            }
-            int doubleSlash = externalName.indexOf("//");
-            while(doubleSlash > -1) { //removes leading '/'
-                externalName.replace(doubleSlash, doubleSlash+2, "/");
-                doubleSlash = externalName.indexOf("//");
-            }
+        while (doubleSlash > -1) { //removes leading '/'
+            externalName.replace(doubleSlash, doubleSlash + 2, "/");
+            doubleSlash = externalName.indexOf("//");
         }
-        
+
+
+        if (externalName.charAt(externalName.length() - 1) == '/' && externalName.length() != 1) {
+            externalName.deleteCharAt(externalName.length() - 1);
+        }
+
+
+
         return externalName.toString();
     }
 
