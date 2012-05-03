@@ -58,11 +58,9 @@ public class ProxyApp {
       }
 
       Integer httpsPort = commandLineArgs.getHttpsPort();
-      if (httpsPort != null) {
-         if (!portIsInRange(httpsPort)) {
+      if (httpsPort != null && !portIsInRange(httpPort)) {
             LOG.info("Invalid Repose https port, use a value between 1024 and 49150");
             valid = false;
-         }
       }
 
       if ((!(portIsInRange(commandLineArgs.getStopPort())))) {
