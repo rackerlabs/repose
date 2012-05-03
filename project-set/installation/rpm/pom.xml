@@ -24,6 +24,7 @@
     <modules>
         <module>auth</module>
         <module>ah</module>
+        <module>shared</module>
     </modules>
 
 </project>

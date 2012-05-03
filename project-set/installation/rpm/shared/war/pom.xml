@@ -5,8 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.rackspace.repose.installation.rpm.auth</groupId>
-        <artifactId>auth</artifactId>
+        <groupId>com.rackspace.repose.installation.rpm.shared</groupId>
+        <artifactId>shared</artifactId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
 

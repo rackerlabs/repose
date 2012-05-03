@@ -10,20 +10,20 @@
       <version>2.0.0-SNAPSHOT</version>
    </parent>
 
-    <groupId>com.rackspace.repose.installation.rpm.auth</groupId>
-    <artifactId>auth</artifactId>
+    <groupId>com.rackspace.repose.installation.rpm.shared</groupId>
+    <artifactId>shared</artifactId>
     <version>2.0.0-SNAPSHOT</version>
 
     <packaging>pom</packaging>
 
     <modules>
-        <module>filters</module>
+        <module>war</module>
     </modules>
 
-    <name>Repose - Cloud Integration Installation Files for Auth</name>
+    <name>Repose - Cloud Integration Installation Files</name>
 
     <description>
-        Parent module for the Repose RPM installation files for the Cloud Integration installations of Auth.
+        Parent module for the Repose RPM installation files for the Cloud Integration installations.
     </description>
 
     <profiles>

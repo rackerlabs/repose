@@ -10,7 +10,7 @@
         <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.repose.installation.rpm.integration.filters</groupId>
+    <groupId>com.rackspace.repose.installation.rpm.integration.ah.filters</groupId>
     <artifactId>filters</artifactId>
     <version>2.0.0-SNAPSHOT</version>
 
