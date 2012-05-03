@@ -1,5 +1,6 @@
 package com.rackspace.papi.filter.routing;
 
+import com.rackspace.papi.commons.util.StringUriUtilities;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.model.Destination;
@@ -78,26 +79,11 @@ public class EndpointLocationBuilder implements LocationBuilder {
          String scheme = determineScheme();
          String hostname = determineHostname(scheme);
          String rootPath = endpoint.getRootPath();
-         StringBuilder path = new StringBuilder(rootPath);
 
-         if (!StringUtilities.isBlank(rootPath) && !StringUtilities.isBlank(uri)) {
-            if (!rootPath.endsWith("/") && !uri.startsWith("/")) {
-               path.append("/");
-               path.append(uri);
-            } else if (rootPath.endsWith("/") && uri.startsWith("/")) {
-               path.append(uri.substring(1));
-            } else {
-               path.append(uri);
-            }
-         } else if (!StringUtilities.isBlank(uri)) {
-            if (!uri.startsWith("/")) {
-               path.append("/");
-            }
-            path.append(uri);
-         }
+         String path = StringUriUtilities.concatUris(rootPath, uri);
          int port = scheme == null || hostname == null ? -1 : endpoint.getPort();
 
-         return new URI(hostname != null ? scheme : null, null, hostname, port, path.toString(), null, null);
+         return new URI(hostname != null ? scheme : null, null, hostname, port, path, null, null);
       }
    }
 
@@ -149,25 +135,9 @@ public class EndpointLocationBuilder implements LocationBuilder {
          Port port = determineUrlPort();
          String hostname = determineHostname();
          String rootPath = endpoint.getRootPath();
-         StringBuilder path = new StringBuilder(rootPath);
+         String path = StringUriUtilities.concatUris(rootPath, uri);
 
-         if (!StringUtilities.isBlank(rootPath) && !StringUtilities.isBlank(uri)) {
-            if (!rootPath.endsWith("/") && !uri.startsWith("/")) {
-               path.append("/");
-               path.append(uri);
-            } else if (rootPath.endsWith("/") && uri.startsWith("/")) {
-               path.append(uri.substring(1));
-            } else {
-               path.append(uri);
-            }
-         } else if (!StringUtilities.isBlank(uri)) {
-            if (!uri.startsWith("/")) {
-               path.append("/");
-            }
-            path.append(uri);
-         }
-
-         return new URL(port.getProtocol(), hostname, port.getPort(), path.toString());
+         return new URL(port.getProtocol(), hostname, port.getPort(), path);
       }
    }
 

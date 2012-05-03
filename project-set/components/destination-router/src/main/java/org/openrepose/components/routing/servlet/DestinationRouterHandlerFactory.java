@@ -11,10 +11,8 @@ import org.openrepose.components.routing.servlet.config.DestinationRouterConfigu
 public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RoutingTagger> {
 
     private DestinationRouterConfiguration contextRouterConfiguration;
-    private final List<Port> ports;
 
-    public DestinationRouterHandlerFactory(List<Port> ports) {
-        this.ports = ports;
+    public DestinationRouterHandlerFactory() {
     }
 
     private class RoutingConfigurationListener implements UpdateListener<DestinationRouterConfiguration> {
