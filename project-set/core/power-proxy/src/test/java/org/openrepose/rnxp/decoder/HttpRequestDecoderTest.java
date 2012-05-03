@@ -31,7 +31,6 @@ import static org.jboss.netty.buffer.ChannelBuffers.*;
 @RunWith(Enclosed.class)
 public class HttpRequestDecoderTest {
 
-    @Ignore
     public static class HttpDecoderTestPart {
 
         protected HttpRequestDecoder decoder;
@@ -58,6 +57,9 @@ public class HttpRequestDecoderTest {
         public void stepDecoderTo(DecoderState state) {
             decoder.setDecoderState(state);
         }
+        
+        @Test
+        public void empty() {}
     }
 
     public static class WhenDecodingRequestMethods extends HttpDecoderTestPart {
