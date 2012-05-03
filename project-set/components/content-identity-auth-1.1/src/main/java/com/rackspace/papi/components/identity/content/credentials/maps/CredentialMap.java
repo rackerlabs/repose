@@ -6,9 +6,19 @@ import java.util.Map;
 
 public class CredentialMap extends HashMap<String, Object> {
    
+   public static class CredentialException extends RuntimeException {
+      public CredentialException(String message) {
+         super(message);
+      }
+      
+      public CredentialException(Throwable cause) {
+         super(cause);
+      }
+   }
+
    private String getCredentialsType() {
       if (keySet().isEmpty() || keySet().size() > 1) {
-         throw new RuntimeException("Invalid auth map");
+         throw new CredentialException("Invalid auth map");
       }
 
       return (String) keySet().iterator().next();

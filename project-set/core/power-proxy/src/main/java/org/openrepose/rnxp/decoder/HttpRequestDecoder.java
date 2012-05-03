@@ -15,148 +15,150 @@ import static org.openrepose.rnxp.decoder.AsciiCharacterConstant.*;
 
 public class HttpRequestDecoder extends AbstractHttpMessageDecoder {
 
-    private final HeaderProcessor fHeadHeaderProcessor;
-    private HeaderProcessor currentHeaderProcessor;
+   private final HeaderProcessor fHeadHeaderProcessor;
+   private HeaderProcessor currentHeaderProcessor;
 
-    public HttpRequestDecoder() {
-        fHeadHeaderProcessor = new HeaderProcessor() {
+   public class RequestHeaderProcessor implements HeaderProcessor {
 
-            @Override
-            public HttpErrorPartial processHeader(String key, String value) {
-                HttpErrorPartial messagePartial = null;
+      @Override
+      public HttpErrorPartial processHeader(String key, String value) {
+         HttpErrorPartial messagePartial = null;
 
-                if (key.equals("content-length") && getContentPresence() != ContentPresence.CHUNKED) {
-                    try {
-                        setContentLength(Long.parseLong(value));
-                        setContentPresence(ContentPresence.STATIC_LENGTH);
-                    } catch (NumberFormatException nfe) {
-                        messagePartial = HttpErrors.malformedContentLength();
-                    }
-                } else if (key.equals("transfer-encoding") && value.equalsIgnoreCase("chunked")) {
-                    setContentLength(-1);
-                    setContentPresence(ContentPresence.CHUNKED);
-                }
-
-                return messagePartial;
+         if (key.equals("content-length") && getContentPresence() != ContentPresence.CHUNKED) {
+            try {
+               setContentLength(Long.parseLong(value));
+               setContentPresence(ContentPresence.STATIC_LENGTH);
+            } catch (NumberFormatException nfe) {
+               messagePartial = HttpErrors.malformedContentLength();
             }
+         } else if (key.equals("transfer-encoding") && value.equalsIgnoreCase("chunked")) {
+            setContentLength(-1);
+            setContentPresence(ContentPresence.CHUNKED);
+         }
 
-            @Override
-            public void finishedReadingHeaders() {
-                currentHeaderProcessor = null;
-            }
-        };
+         return messagePartial;
+      }
 
-        currentHeaderProcessor = fHeadHeaderProcessor;
-    }
+      @Override
+      public void finishedReadingHeaders() {
+         currentHeaderProcessor = null;
+      }
+   }
 
-    @Override
-    protected DecoderState initialState() {
-        return READ_SC_PARSE_METHOD;
-    }
+   public HttpRequestDecoder() {
+      fHeadHeaderProcessor = new RequestHeaderProcessor();
 
-    @Override
-    protected HttpMessagePartial httpDecode(ChannelBuffer readBuffer) {
-        try {
-            switch (getDecoderState()) {
-                case READ_SC_PARSE_METHOD:
-                    return readSingleCharacterParsableMethod(readBuffer);
+      currentHeaderProcessor = fHeadHeaderProcessor;
+   }
 
-                case READ_MC_PARSE_METHOD:
-                    return readMultiCharacterParsableMethod(readBuffer);
+   @Override
+   protected DecoderState initialState() {
+      return READ_SC_PARSE_METHOD;
+   }
 
-                case READ_URI:
-                    return readRequestURI(readBuffer);
+   @Override
+   protected HttpMessagePartial httpDecode(ChannelBuffer readBuffer) {
+      try {
+         switch (getDecoderState()) {
+            case READ_SC_PARSE_METHOD:
+               return readSingleCharacterParsableMethod(readBuffer);
 
-                case READ_VERSION:
-                    return readRequestVersion(readBuffer);
+            case READ_MC_PARSE_METHOD:
+               return readMultiCharacterParsableMethod(readBuffer);
 
-                case READ_HEADER_KEY:
-                    return readHeaderKey(readBuffer, currentHeaderProcessor);
+            case READ_URI:
+               return readRequestURI(readBuffer);
 
-                case READ_HEADER_VALUE:
-                    return readHeaderValue(readBuffer, currentHeaderProcessor);
+            case READ_VERSION:
+               return readRequestVersion(readBuffer);
 
-                case READ_CONTENT:
-                    return readContent(readBuffer);
+            case READ_HEADER_KEY:
+               return readHeaderKey(readBuffer, currentHeaderProcessor);
 
-                case READ_CHUNK_LENGTH:
-                    return readContentChunkLength(readBuffer);
+            case READ_HEADER_VALUE:
+               return readHeaderValue(readBuffer, currentHeaderProcessor);
 
-                case READ_CONTENT_CHUNKED:
-                    return readContentChunked(readBuffer);
-                case STOP:
-            }
-        } catch (IndexOutOfBoundsException boundsException) {
-            // TODO:Review - Log this?
+            case READ_CONTENT:
+               return readContent(readBuffer);
 
-            return HttpErrors.bufferOverflow(getDecoderState());
-        }
+            case READ_CHUNK_LENGTH:
+               return readContentChunkLength(readBuffer);
 
-        return null;
-    }
+            case READ_CONTENT_CHUNKED:
+               return readContentChunked(readBuffer);
+            case STOP:
+         }
+      } catch (IndexOutOfBoundsException boundsException) {
+         // TODO:Review - Log this?
 
-    private HttpMessagePartial readSingleCharacterParsableMethod(ChannelBuffer buffer) {
-        final char nextCharacter = (char) buffer.readByte();
+         return HttpErrors.bufferOverflow(getDecoderState());
+      }
 
-        for (HttpMethod method : HttpMethod.SC_PARSE_METHODS) {
-            if (nextCharacter == method.getMatcherFragment()[0]) {
-                final RequestMethodPartial methodPartial = new RequestMethodPartial(HttpMessageComponent.REQUEST_METHOD, method);
+      return null;
+   }
 
-                // Skip the remaining method length plus the following whitespace
-                skipFollowingBytes(method.getSkipLength() + 1);
-                setDecoderState(READ_URI);
+   private HttpMessagePartial readSingleCharacterParsableMethod(ChannelBuffer buffer) {
+      final char nextCharacter = (char) buffer.readByte();
 
-                return methodPartial;
-            }
-        }
+      for (HttpMethod method : HttpMethod.SC_PARSE_METHODS) {
+         if (nextCharacter == method.getMatcherFragment()[0]) {
+            final RequestMethodPartial methodPartial = new RequestMethodPartial(HttpMessageComponent.REQUEST_METHOD, method);
 
-        setDecoderState(READ_MC_PARSE_METHOD);
+            // Skip the remaining method length plus the following whitespace
+            skipFollowingBytes(method.getSkipLength() + 1);
+            setDecoderState(READ_URI);
 
-        return null;
-    }
+            return methodPartial;
+         }
+      }
 
-    private HttpMessagePartial readMultiCharacterParsableMethod(ChannelBuffer buffer) {
-        final char nextCharacter = (char) buffer.readByte();
-        HttpMessagePartial messagePartial = HttpErrors.methodNotImplemented();
+      setDecoderState(READ_MC_PARSE_METHOD);
 
-        for (HttpMethod method : HttpMethod.MC_PARSE_METHODS) {
-            if (nextCharacter == method.getMatcherFragment()[1]) {
-                messagePartial = new RequestMethodPartial(HttpMessageComponent.REQUEST_METHOD, method);
+      return null;
+   }
 
-                // Skip the remaining method length plus the following whitespace
-                skipFollowingBytes(method.getSkipLength() + 1);
-                setDecoderState(READ_URI);
+   private HttpMessagePartial readMultiCharacterParsableMethod(ChannelBuffer buffer) {
+      final char nextCharacter = (char) buffer.readByte();
+      HttpMessagePartial messagePartial = HttpErrors.methodNotImplemented();
 
-                break;
-            }
-        }
+      for (HttpMethod method : HttpMethod.MC_PARSE_METHODS) {
+         if (nextCharacter == method.getMatcherFragment()[1]) {
+            messagePartial = new RequestMethodPartial(HttpMessageComponent.REQUEST_METHOD, method);
 
-        return messagePartial;
-    }
+            // Skip the remaining method length plus the following whitespace
+            skipFollowingBytes(method.getSkipLength() + 1);
+            setDecoderState(READ_URI);
 
-    private HttpMessagePartial readRequestURI(ChannelBuffer socketBuffer) {
-        final ControlCharacter readChar = readUntilCaseSensitive(socketBuffer, SPACE);
+            break;
+         }
+      }
 
-        if (readChar != null) {
-            // TODO: Validate
-            final RequestUriPartial uriPartial = new RequestUriPartial(HttpMessageComponent.REQUEST_URI, flushCharacterBuffer());
-            setDecoderState(READ_VERSION);
+      return messagePartial;
+   }
 
-            return uriPartial;
-        }
+   private HttpMessagePartial readRequestURI(ChannelBuffer socketBuffer) {
+      final ControlCharacter readChar = readUntilCaseSensitive(socketBuffer, SPACE);
 
-        return null;
-    }
+      if (readChar != null) {
+         // TODO: Validate
+         final RequestUriPartial uriPartial = new RequestUriPartial(HttpMessageComponent.REQUEST_URI, flushCharacterBuffer());
+         setDecoderState(READ_VERSION);
 
-    private HttpMessagePartial readRequestVersion(ChannelBuffer socketBuffer) {
-        HttpMessagePartial messagePartial = readHttpVersion(socketBuffer, CARRIAGE_RETURN);
+         return uriPartial;
+      }
 
-        if (messagePartial != null) {
-            // Set ourselves up to process head headers
-            currentHeaderProcessor = fHeadHeaderProcessor;
-            setDecoderState(READ_HEADER_KEY);
-        }
+      return null;
+   }
 
-        return messagePartial;
-    }
+   private HttpMessagePartial readRequestVersion(ChannelBuffer socketBuffer) {
+      HttpMessagePartial messagePartial = readHttpVersion(socketBuffer, CARRIAGE_RETURN);
+
+      if (messagePartial != null) {
+         // Set ourselves up to process head headers
+         currentHeaderProcessor = fHeadHeaderProcessor;
+         setDecoderState(READ_HEADER_KEY);
+      }
+
+      return messagePartial;
+   }
 }

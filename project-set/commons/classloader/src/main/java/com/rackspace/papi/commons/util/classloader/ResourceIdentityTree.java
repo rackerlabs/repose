@@ -3,7 +3,7 @@ package com.rackspace.papi.commons.util.classloader;
 import java.util.Map;
 import java.util.TreeMap;
 
-public class ResourceIdentityTree implements ResourceRegistry {
+public class ResourceIdentityTree implements ResourceRegistry, Cloneable {
 
    private final Map<String, ResourceDescriptor> classPathIdentityTree;
 

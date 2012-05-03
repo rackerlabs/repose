@@ -16,10 +16,20 @@ public class MonitorThread extends Thread {
    private ServerSocket socket;
    private Server serverInstance;
    private static final String MONITOR_NAME = "StopMonitor";
+   
+   public static class MonitorException extends RuntimeException {
+      public MonitorException(String message) {
+         super(message);
+      }
+      
+      public MonitorException(Throwable cause) {
+         super(cause);
+      }
+   }
 
    public MonitorThread(Server serverInstance, final int stopPort, final String ipAddress) {
       if (serverInstance == null) {
-         throw new RuntimeException("The Jetty server instance is null.  The Repose stop Monitor can not be initialized.");
+         throw new MonitorException("The Jetty server instance is null.  The Repose stop Monitor can not be initialized.");
       }
 
       this.serverInstance = serverInstance;
@@ -30,7 +40,7 @@ public class MonitorThread extends Thread {
       try {
          socket = new ServerSocket(stopPort, 1, InetAddress.getByName(ipAddress));
       } catch (Exception e) {
-         throw new RuntimeException(e);
+         throw new MonitorException(e);
       }
    }
 

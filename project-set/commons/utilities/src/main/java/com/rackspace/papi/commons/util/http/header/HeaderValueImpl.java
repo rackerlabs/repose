@@ -163,7 +163,8 @@ public class HeaderValueImpl implements HeaderValue {
             final Entry<String, String> nextParameter = parameterIterator.next();
             builder.append(nextParameter.getKey()).append("=").append(nextParameter.getValue());
 
-            if (hasNext = parameterIterator.hasNext()) {
+            hasNext = parameterIterator.hasNext();
+            if (hasNext) {
                builder.append(";");
             }
          }
