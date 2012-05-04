@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.context;
+package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.config.parser.properties.PropertiesFileConfigurationParser;
@@ -7,9 +7,9 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.LoggingConfiguration;
 
-import com.rackspace.papi.service.ServiceContext;
+import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.logging.LoggingService;
 import com.rackspace.papi.service.logging.LoggingServiceImpl;
 import com.rackspace.papi.service.logging.common.LogFrameworks;
@@ -97,7 +97,7 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
    public void contextInitialized(ServletContextEvent servletContextEvent) {
       
       ServletContext servletContext = servletContextEvent.getServletContext();
-      configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();      
+      configurationManager = ServletContextHelper.getInstance().getPowerApiContext(servletContext).configurationService();      
 
       configurationManager.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);
    }

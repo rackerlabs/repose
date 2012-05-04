@@ -3,7 +3,7 @@ package com.rackspace.papi.components.identity.header;
 import com.rackspace.papi.components.identity.header.config.HeaderIdentityConfig;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import java.io.IOException;
 import javax.servlet.*;
 
@@ -24,7 +24,7 @@ public class HeaderIdentityFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        configurationManager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
+        configurationManager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
         handlerFactory = new HeaderIdentityHandlerFactory();
 
         configurationManager.subscribeTo("header-identity.cfg.xml", handlerFactory, HeaderIdentityConfig.class);

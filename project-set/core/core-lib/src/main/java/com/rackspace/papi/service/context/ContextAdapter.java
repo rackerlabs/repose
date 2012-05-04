@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.context.jndi;
+package com.rackspace.papi.service.context;
 
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.datastore.DatastoreService;

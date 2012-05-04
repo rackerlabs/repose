@@ -1,10 +1,10 @@
-package com.rackspace.papi.service.context;
+package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.model.PowerProxy;
-import com.rackspace.papi.service.ServiceContext;
+import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.service.routing.robin.RoundRobinRoutingService;
 import javax.servlet.ServletContext;
@@ -44,7 +44,7 @@ public class RoutingServiceContext implements ServiceContext<RoutingService> {
    @Override
    public void contextInitialized(ServletContextEvent servletContextEvent) {
       servletContext = servletContextEvent.getServletContext();
-      configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
+      configurationManager = ServletContextHelper.getInstance().getPowerApiContext(servletContext).configurationService();
 
       configurationManager.subscribeTo("power-proxy.cfg.xml", configListener, PowerProxy.class);
    }

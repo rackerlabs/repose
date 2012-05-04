@@ -1,6 +1,6 @@
 package com.rackspace.papi.filter;
 
-import com.rackspace.papi.service.ServiceContext;
+import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.config.PowerApiConfigurationManager;
 import com.rackspace.papi.service.event.PowerProxyEventManager;
 import com.rackspace.papi.service.rms.ResponseMessageService;

@@ -1,14 +1,14 @@
-package com.rackspace.papi.service.context;
+package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.DeploymentConfiguration;
 import com.rackspace.papi.domain.Port;
-import com.rackspace.papi.service.ServiceContext;
+import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.container.ContainerConfigurationService;
 import com.rackspace.papi.service.context.container.ContainerConfigurationServiceImpl;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.servlet.InitParameter;
 
 import java.util.ArrayList;
@@ -82,7 +82,7 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
       @Override
       public void configurationUpdated(ContainerConfiguration configurationObject) {
          DeploymentConfiguration deployConfig = configurationObject.getDeploymentConfig();
-         List<Port> currentPorts = ServletContextHelper.getServerPorts(servletContext);
+         List<Port> currentPorts = ServletContextHelper.getInstance().getServerPorts(servletContext);
          List<Port> ports = determinePorts(deployConfig);
 
          if (currentPorts.isEmpty()) {
@@ -112,7 +112,7 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
    public void contextInitialized(ServletContextEvent servletContextEvent) {
 
       servletContext = servletContextEvent.getServletContext();
-      configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
+      configurationManager = ServletContextHelper.getInstance().getPowerApiContext(servletContext).configurationService();
 
       configurationManager.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);
    }

@@ -1,7 +1,7 @@
-package com.rackspace.papi.service.context;
+package com.rackspace.papi.service.context.impl;
 
-import com.rackspace.papi.service.ServiceContext;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ServiceContext;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.impl.PowerApiDatastoreService;
 import com.rackspace.papi.service.datastore.impl.ehcache.EHCacheDatastoreManager;
@@ -34,7 +34,7 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
 
    @Override
    public void contextDestroyed(ServletContextEvent sce) {
-      final Context namingContext = ServletContextHelper.namingContext(sce.getServletContext());
+      final Context namingContext = ServletContextHelper.getInstance().namingContext(sce.getServletContext());
 
       try {
          namingContext.destroySubcontext(SERVICE_NAME);

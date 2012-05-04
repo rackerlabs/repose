@@ -1,10 +1,9 @@
 package org.openrepose.components.routing.servlet;
 
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.model.PowerProxy;
-import com.rackspace.papi.domain.Port;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -13,7 +12,6 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import java.io.IOException;
-import java.util.List;
 import javax.servlet.ServletContext;
 import org.openrepose.components.routing.servlet.config.DestinationRouterConfiguration;
 
@@ -35,7 +33,7 @@ public class DestinationRouterFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         
         final ServletContext servletContext = filterConfig.getServletContext();
-        final ConfigurationService manager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
+        final ConfigurationService manager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
         
         handlerFactory = new DestinationRouterHandlerFactory();
         

@@ -2,9 +2,9 @@ package com.rackspace.papi.components.clientauth;
 
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
-import com.rackspace.papi.service.context.jndi.ContextAdapter;
+import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreService;
 
@@ -41,7 +41,7 @@ public class ClientAuthenticationFilter implements Filter {
 
    @Override
    public void init(FilterConfig filterConfig) throws ServletException {
-      final ContextAdapter ctx = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext());
+      final ContextAdapter ctx = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext());
       
       handlerFactory = new ClientAuthenticationHandlerFactory(getDatastore(ctx.datastoreService()));
       configurationManager = ctx.configurationService();

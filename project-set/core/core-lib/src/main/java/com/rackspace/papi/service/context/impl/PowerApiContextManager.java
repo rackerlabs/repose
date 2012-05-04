@@ -1,23 +1,22 @@
-package com.rackspace.papi.service.context;
+package com.rackspace.papi.service.context.impl;
 
+import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.banner.PapiBanner;
-import com.rackspace.papi.service.ServiceContext;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ServletContextHelper;
+import com.rackspace.papi.service.context.jndi.JndiContextAdapterProvider;
+import com.rackspace.papi.service.deploy.ArtifactManagerServiceContext;
 import com.rackspace.papi.service.naming.InitialServiceContextFactory;
 import com.rackspace.papi.service.threading.ThreadingServiceContext;
 import com.rackspace.papi.servlet.PowerApiContextException;
-
 import java.util.Iterator;
 import java.util.LinkedList;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PowerApiContextManager implements ServletContextListener {
 
@@ -79,7 +78,7 @@ public class PowerApiContextManager implements ServletContextListener {
       // Most bootstrap steps require or will try to load some kind of
       // configuration so we need to set our naming context in the servlet context
       // first before anything else
-      ServletContextHelper.setPowerApiContext(servletContext, initialContext);
+      ServletContextHelper.configureInstance(new JndiContextAdapterProvider(), servletContext, initialContext);
 
       // Services Bootstrap
 

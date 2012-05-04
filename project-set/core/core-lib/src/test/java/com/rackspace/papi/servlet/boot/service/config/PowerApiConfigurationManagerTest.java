@@ -1,12 +1,12 @@
 package com.rackspace.papi.servlet.boot.service.config;
 
-import com.rackspace.papi.service.context.ConfigurationServiceContext;
+import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
 import com.rackspace.papi.service.event.common.EventService;
 import org.junit.Ignore;
 import com.rackspace.papi.servlet.PowerApiContextException;
 import com.rackspace.papi.servlet.InitParameter;
-import com.rackspace.papi.service.context.jndi.ContextAdapter;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ContextAdapter;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.threading.ThreadingService;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;

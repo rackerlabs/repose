@@ -7,9 +7,8 @@ import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.servlet.InitParameter;
 import org.slf4j.Logger;
 
 import javax.servlet.Filter;
@@ -65,11 +64,11 @@ public class VersioningFilter implements Filter {
    @Override
    public void init(FilterConfig filterConfig) throws ServletException {
       final ServletContext servletContext = filterConfig.getServletContext();
-      final List<Port> ports = ServletContextHelper.getServerPorts(servletContext);
+      final List<Port> ports = ServletContextHelper.getInstance().getServerPorts(servletContext);
       
       handlerFactory = new VersioningHandlerFactory(ports);
       
-      configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
+      configurationManager = ServletContextHelper.getInstance().getPowerApiContext(servletContext).configurationService();
 
       configurationManager.subscribeTo("power-proxy.cfg.xml", handlerFactory, PowerProxy.class);
       configurationManager.subscribeTo("versioning.cfg.xml", handlerFactory, ServiceVersionMappingList.class);

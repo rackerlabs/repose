@@ -3,7 +3,6 @@ package com.rackspace.papi.service.deploy;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.classloader.ear.EarArchiveEntryListener;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
-import com.rackspace.papi.service.context.ArtifactManagerServiceContext;
 import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.listener.EventListener;
 import com.rackspace.papi.service.event.common.EventService;

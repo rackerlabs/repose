@@ -1,12 +1,13 @@
 package com.rackspace.papi.components.datastore;
 
-import com.rackspace.papi.service.ServiceContext;
+import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.ConfigurationServiceContext;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.service.context.DatastoreServiceContext;
+import com.rackspace.papi.service.context.impl.DatastoreServiceContext;
+import com.rackspace.papi.service.context.jndi.JndiContextAdapterProvider;
 import javax.naming.Context;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
@@ -43,6 +44,8 @@ public class DatastoreDatastoreFilterTest {
          final ServiceContext<DatastoreService> datastoreServiceContext = mock(ServiceContext.class);
          final DatastoreManager localManager = mock(DatastoreManager.class);
 
+         ServletContextHelper.configureInstance(new JndiContextAdapterProvider(), servletContext, context);
+         
          when(mockFilterConfig.getServletContext()).thenReturn(servletContext);
          when(servletContext.getAttribute(ServletContextHelper.SERVLET_CONTEXT_ATTRIBUTE_NAME)).thenReturn(context);
 

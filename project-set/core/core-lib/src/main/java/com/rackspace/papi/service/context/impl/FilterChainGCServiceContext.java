@@ -1,11 +1,11 @@
-package com.rackspace.papi.service.context;
+package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
 import com.rackspace.papi.commons.util.thread.Poller;
 import com.rackspace.papi.commons.util.thread.RecurringTask;
 import com.rackspace.papi.service.filterchain.SweepingGarbageCollector;
-import com.rackspace.papi.service.ServiceContext;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ServiceContext;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.filterchain.GarbageCollectionService;
 import com.rackspace.papi.service.threading.ThreadingService;
 import javax.servlet.ServletContextEvent;
@@ -32,7 +32,7 @@ public class FilterChainGCServiceContext implements ServiceContext<GarbageCollec
 
    @Override
    public void contextInitialized(ServletContextEvent sce) {
-      final ThreadingService threadingService = ServletContextHelper.getPowerApiContext(sce.getServletContext()).threadingService();
+      final ThreadingService threadingService = ServletContextHelper.getInstance().getPowerApiContext(sce.getServletContext()).threadingService();
       final Poller poller = new Poller(new RecurringTask() {
 
          @Override

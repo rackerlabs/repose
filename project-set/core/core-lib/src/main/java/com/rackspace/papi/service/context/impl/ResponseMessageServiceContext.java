@@ -1,11 +1,11 @@
-package com.rackspace.papi.service.context;
+package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.service.ServiceContext;
+import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.rms.ResponseMessageService;
 import com.rackspace.papi.service.rms.ResponseMessageServiceImpl;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.rms.config.ResponseMessagingConfiguration;
 
 import javax.servlet.ServletContext;
@@ -22,7 +22,7 @@ public class ResponseMessageServiceContext implements ServiceContext<ResponseMes
    @Override
    public void contextInitialized(ServletContextEvent sce) {
       final ServletContext ctx = sce.getServletContext();
-      final ConfigurationService configurationService = ServletContextHelper.getPowerApiContext(ctx).configurationService();
+      final ConfigurationService configurationService = ServletContextHelper.getInstance().getPowerApiContext(ctx).configurationService();
 
       messageService = new ResponseMessageServiceImpl();
 

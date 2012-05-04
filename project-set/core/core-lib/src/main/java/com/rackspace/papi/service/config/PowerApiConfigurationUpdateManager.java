@@ -6,8 +6,8 @@ import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
 import com.rackspace.papi.commons.util.thread.Poller;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.event.common.EventService;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.service.threading.ThreadingService;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,7 +29,7 @@ public class PowerApiConfigurationUpdateManager implements ConfigurationUpdateMa
    }
 
    public void initialize(ServletContext ctx) {
-      final ThreadingService threadingService = ServletContextHelper.getPowerApiContext(ctx).threadingService();
+      final ThreadingService threadingService = ServletContextHelper.getInstance().getPowerApiContext(ctx).threadingService();
       
       // Initialize the resource watcher
       resourceWatcher = new ConfigurationResourceWatcher(eventManager);

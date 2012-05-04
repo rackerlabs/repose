@@ -1,4 +1,4 @@
-package com.rackspace.papi.service;
+package com.rackspace.papi.service.context;
 
 import javax.servlet.ServletContextListener;
 

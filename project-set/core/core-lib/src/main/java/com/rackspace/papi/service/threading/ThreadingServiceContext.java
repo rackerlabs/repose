@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.threading;
 
-import com.rackspace.papi.service.ServiceContext;
+import com.rackspace.papi.service.context.ServiceContext;
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Set;
