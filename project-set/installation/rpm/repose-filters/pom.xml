@@ -5,16 +5,16 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.rackspace.repose.installation.rpm.auth</groupId>
-        <artifactId>auth</artifactId>
+        <groupId>com.rackspace.repose.installation.rpm</groupId>
+        <artifactId>rpm</artifactId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.repose.installation.rpm.auth.filters</groupId>
-    <artifactId>filters</artifactId>
+    <groupId>com.rackspace.repose.installation.rpm.filters</groupId>
+    <artifactId>repose-filters</artifactId>
     <version>2.0.0-SNAPSHOT</version>
 
-    <name>Repose - Cloud Integration Filter Bundle RPM For Auth</name>
+    <name>Repose - Filters RPM</name>
 
     <description>
         Module for the Filter Bundle RPM.
@@ -38,6 +38,8 @@
                         <artifactId>rpm-maven-plugin</artifactId>
 
                         <configuration>
+                            <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer
+                                 to this RPM.-->
                             <name>repose-filters</name>
                             <mappings>
                                 <mapping>
@@ -48,7 +50,7 @@
 
                                     <sources>
                                         <source>
-                                            <location>${project.build.directory}/../../../../../components/filter-bundle/target/filter-bundle-${project.version}.ear
+                                            <location>${project.build.directory}/../../../../components/filter-bundle/target/filter-bundle-${project.version}.ear
                                             </location>
                                         </source>
                                     </sources>
@@ -65,28 +67,43 @@
                                     <sources>
                                         <source>
                                             <location>
-                                                ../filters/src/main/resources/META-INF/configs/header-identity.cfg.xml
+                                                ../repose-filters/src/main/resources/META-INF/configs/header-identity.cfg.xml
                                             </location>
                                         </source>
                                         <source>
-                                            <location>../filters/src/main/resources/META-INF/configs/ip-identity.cfg.xml
-                                            </location>
-                                        </source>
-                                        <source>
-                                            <location>
-                                                ../filters/src/main/resources/META-INF/configs/dist-datastore.cfg.xml
+                                            <location>../repose-filters/src/main/resources/META-INF/configs/ip-identity.cfg.xml
                                             </location>
                                         </source>
                                         <source>
                                             <location>
-                                                ../filters/src/main/resources/META-INF/configs/http-logging.cfg.xml
+                                                ../repose-filters/src/main/resources/META-INF/configs/dist-datastore.cfg.xml
                                             </location>
                                         </source>
                                         <source>
                                             <location>
-                                                ../filters/src/main/resources/META-INF/configs/rate-limiting.cfg.xml
+                                                ../repose-filters/src/main/resources/META-INF/configs/http-logging.cfg.xml
                                             </location>
-                                        </source>                                        
+                                        </source>
+                                        <source>
+                                            <location>
+                                                ../repose-filters/src/main/resources/META-INF/configs/rate-limiting.cfg.xml
+                                            </location>
+                                        </source>
+                                        <source>
+                                            <location>
+                                                ../repose-filters/src/main/resources/META-INF/configs/service-authentication.cfg.xml
+                                            </location>
+                                        </source>
+                                        <source>
+                                            <location>
+                                                ../repose-filters/src/main/resources/META-INF/configs/openstack-authorization.cfg.xml
+                                            </location>
+                                        </source>
+                                        <source>
+                                            <location>
+                                                ../repose-filters/src/main/resources/META-INF/configs/client-auth-n.cfg.xml
+                                            </location>
+                                        </source>
                                     </sources>
                                 </mapping>
                                 
