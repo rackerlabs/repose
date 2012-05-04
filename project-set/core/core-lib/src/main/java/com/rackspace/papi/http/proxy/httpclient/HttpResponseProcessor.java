@@ -1,5 +1,6 @@
 package com.rackspace.papi.http.proxy.httpclient;
 
+import com.rackspace.papi.http.proxy.common.HttpResponseCodeProcessor;
 import com.rackspace.papi.http.proxy.common.AbstractResponseProcessor;
 import java.io.BufferedInputStream;
 import java.io.IOException;

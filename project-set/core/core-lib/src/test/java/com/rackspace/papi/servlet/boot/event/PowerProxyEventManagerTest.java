@@ -1,7 +1,7 @@
 package com.rackspace.papi.servlet.boot.event;
 
 import com.rackspace.papi.service.event.common.Event;
-import com.rackspace.papi.service.event.EventDispatcher;
+import com.rackspace.papi.service.event.common.EventDispatcher;
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.event.PowerProxyEventManager;
 import com.rackspace.papi.service.event.listener.EventListener;

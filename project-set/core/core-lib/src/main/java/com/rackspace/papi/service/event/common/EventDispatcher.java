@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.event;
+package com.rackspace.papi.service.event.common;
 
 import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.listener.EventListenerDescriptor;
