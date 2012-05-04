@@ -40,7 +40,7 @@
 
                         <configuration>
 
-                            <name>repose-war</name>
+                            <name>cli-utils</name>
 
                             <!-- _tmppath is not set correctly on al OSs so it is forced here -->
                             <defineStatements>
@@ -57,7 +57,7 @@
                                     <sources>
                                         <source>
                                             <location>
-                                                ${project.build.directory}/../../../../../components/cli-utils/target/repose-cli.jar
+                                                ${basedir}/../../../components/cli-utils/target/repose-cli.jar
                                             </location>
                                         </source>
                                     </sources>
@@ -72,7 +72,7 @@
                                     <sources>
                                         <source>
                                             <location>
-                                                ${project.build.directory}/../../../../../components/cli-utils/src/bash/dd-remove.sh
+                                                ${basedir}/../../../components/cli-utils/src/bash/dd-remove.sh
                                             </location>
                                         </source>
                                     </sources>

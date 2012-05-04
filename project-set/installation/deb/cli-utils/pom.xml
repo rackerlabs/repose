@@ -55,7 +55,7 @@
 
                                             <!-- The jar file -->
                                         <data>
-                                            <src>${project.build.directory}/../../../../components/cli-utils/target/repose-cli.jar</src>
+                                            <src>${basedir}/../../../components/cli-utils/target/repose-cli.jar</src>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
@@ -66,7 +66,7 @@
 
                                             <!-- The start script -->
                                         <data>
-                                            <src>${project.build.directory}/../../../../components/cli-utils/src/bash/dd-remove.sh</src>
+                                            <src>${basedir}/../../../components/cli-utils/src/bash/dd-remove.sh</src>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
