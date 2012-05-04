@@ -142,7 +142,7 @@ for nodeNumber in 1..6
          mode 0644
       end
 
-      cookbook_file "/etc/repose/node1/uri-normalization.cfg.xml" do
+      cookbook_file "/etc/repose/node2/uri-normalization.cfg.xml" do
          source "/uri-normalization.cfg.xml"
          mode 0644
       end
