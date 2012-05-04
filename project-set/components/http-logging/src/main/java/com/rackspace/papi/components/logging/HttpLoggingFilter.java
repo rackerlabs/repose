@@ -3,7 +3,7 @@ package com.rackspace.papi.components.logging;
 import com.rackspace.papi.components.logging.config.HttpLoggingConfig;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ServletContextHelper;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -35,7 +35,7 @@ public class HttpLoggingFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         handlerFactory = new HttpLoggingHandlerFactory();
-        manager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
+        manager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
 
         manager.subscribeTo("http-logging.cfg.xml", handlerFactory, HttpLoggingConfig.class);
     }

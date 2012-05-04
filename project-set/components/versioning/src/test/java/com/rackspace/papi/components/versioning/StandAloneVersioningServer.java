@@ -2,7 +2,7 @@ package com.rackspace.papi.components.versioning;
 
 import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.filter.PowerFilter;
-import com.rackspace.papi.service.context.PowerApiContextManager;
+import com.rackspace.papi.service.context.impl.PowerApiContextManager;
 import com.rackspace.papi.jetty.JettyServerBuilder;
 import com.rackspace.papi.jetty.JettyTestingContext;
 import com.rackspace.papi.test.DummyServlet;

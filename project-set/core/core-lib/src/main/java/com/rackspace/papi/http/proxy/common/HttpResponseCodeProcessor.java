@@ -1,4 +1,4 @@
-package com.rackspace.papi.http.proxy.httpclient;
+package com.rackspace.papi.http.proxy.common;
 
 import javax.servlet.http.HttpServletResponse;
 

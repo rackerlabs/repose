@@ -1,10 +1,12 @@
 package com.rackspace.papi.service.event;
 
+import com.rackspace.papi.service.event.common.impl.EventDispatcherImpl;
 import com.rackspace.papi.service.event.common.Event;
+import com.rackspace.papi.service.event.common.EventDispatcher;
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.event.impl.SimpleEvent;
-import com.rackspace.papi.service.event.listener.EventListener;
-import com.rackspace.papi.service.event.listener.EventListenerDescriptor;
+import com.rackspace.papi.service.event.common.EventListener;
+import com.rackspace.papi.service.event.common.impl.EventListenerDescriptor;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -39,7 +41,7 @@ public class PowerProxyEventManager implements EventService {
     public synchronized EventDispatcher nextDispatcher() throws InterruptedException {
         final Event e = nextEvent();
 
-        return new EventDispatcher(e, Collections.unmodifiableSet(getOrCreateListenerSet(e.type().getClass())));
+        return new EventDispatcherImpl(e, Collections.unmodifiableSet(getOrCreateListenerSet(e.type().getClass())));
     }
 
     private Event nextEvent() throws InterruptedException {

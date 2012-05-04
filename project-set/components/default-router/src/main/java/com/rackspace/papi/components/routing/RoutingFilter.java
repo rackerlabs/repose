@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.routing;
 
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.model.PowerProxy;
 
@@ -28,8 +28,8 @@ public class RoutingFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        final ConfigurationService manager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
-        handlerFactory = new RoutingHandlerFactory(ServletContextHelper.getServerPorts(filterConfig.getServletContext()));
+        final ConfigurationService manager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
+        handlerFactory = new RoutingHandlerFactory(ServletContextHelper.getInstance().getServerPorts(filterConfig.getServletContext()));
 
         manager.subscribeTo("power-proxy.cfg.xml", handlerFactory, PowerProxy.class);
     }

@@ -2,7 +2,7 @@ package com.rackspace.papi.components.unorm;
 
 import com.rackspace.papi.components.uri.normalization.config.UriNormalizationConfig;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 
 import javax.servlet.Filter;
@@ -30,7 +30,7 @@ public class UriNormalizationFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        configurationManager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
+        configurationManager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
         handlerFactory = new UriNormalizationHandlerFactory();
 
         configurationManager.subscribeTo("uri-normalization.cfg.xml", handlerFactory, UriNormalizationConfig.class);

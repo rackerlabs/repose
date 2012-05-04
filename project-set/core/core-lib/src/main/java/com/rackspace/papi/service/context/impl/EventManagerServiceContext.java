@@ -1,8 +1,8 @@
-package com.rackspace.papi.service.context;
+package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
-import com.rackspace.papi.service.ServiceContext;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ServiceContext;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.event.PowerProxyEventKernel;
 import com.rackspace.papi.service.event.PowerProxyEventManager;
@@ -32,7 +32,7 @@ public class EventManagerServiceContext implements ServiceContext<EventService> 
     
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        final ThreadingService threadManager = ServletContextHelper.getPowerApiContext(sce.getServletContext()).threadingService();
+        final ThreadingService threadManager = ServletContextHelper.getInstance().getPowerApiContext(sce.getServletContext()).threadingService();
 
         final PowerProxyEventKernel eventKernel = new PowerProxyEventKernel(eventManager);
         eventKernelThread = new DestroyableThreadWrapper(threadManager.newThread(eventKernel, "Event Kernel Thread"), eventKernel);

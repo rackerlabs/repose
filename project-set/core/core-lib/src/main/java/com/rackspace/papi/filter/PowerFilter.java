@@ -10,16 +10,12 @@ import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.model.DomainNode;
 import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.model.ServiceDomain;
-import com.rackspace.papi.service.context.jndi.ContextAdapter;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ContextAdapter;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.deploy.ApplicationDeploymentEvent;
+import com.rackspace.papi.service.event.PowerFilterEvent;
 import com.rackspace.papi.service.event.common.Event;
-import com.rackspace.papi.service.event.listener.EventListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.rackspace.papi.service.event.common.EventListener;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -28,6 +24,10 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PowerFilter extends ApplicationContextAwareFilter {
 
@@ -112,8 +112,8 @@ public class PowerFilter extends ApplicationContextAwareFilter {
       super.init(filterConfig);
       this.filterConfig = filterConfig;
 
-      ports = ServletContextHelper.getServerPorts(filterConfig.getServletContext());
-      papiContext = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext());
+      ports = ServletContextHelper.getInstance().getServerPorts(filterConfig.getServletContext());
+      papiContext = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext());
 
       papiContext.eventService().listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
       papiContext.configurationService().subscribeTo("power-proxy.cfg.xml", systemModelConfigurationListener, PowerProxy.class);

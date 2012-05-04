@@ -1,13 +1,13 @@
-package com.rackspace.papi.service.context;
+package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.commons.config.resource.impl.DirectoryResourceResolver;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.config.PowerApiConfigurationManager;
-import com.rackspace.papi.service.config.PowerApiConfigurationUpdateManager;
+import com.rackspace.papi.service.config.impl.PowerApiConfigurationManager;
+import com.rackspace.papi.service.config.impl.PowerApiConfigurationUpdateManager;
+import com.rackspace.papi.service.context.ServiceContext;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.servlet.InitParameter;
-import com.rackspace.papi.service.ServiceContext;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.servlet.PowerApiContextException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -49,7 +49,7 @@ public class ConfigurationServiceContext implements ServiceContext<Configuration
 
         configurationManager.setResourceResolver(new DirectoryResourceResolver(configurationRoot));
 
-        final PowerApiConfigurationUpdateManager papiUpdateManager = new PowerApiConfigurationUpdateManager(ServletContextHelper.getPowerApiContext(ctx).eventService());
+        final PowerApiConfigurationUpdateManager papiUpdateManager = new PowerApiConfigurationUpdateManager(ServletContextHelper.getInstance().getPowerApiContext(ctx).eventService());
         papiUpdateManager.initialize(ctx);
 
         configurationManager.setUpdateManager(papiUpdateManager);

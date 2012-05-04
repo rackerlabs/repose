@@ -1,4 +1,4 @@
-package com.rackspace.papi.filter;
+package com.rackspace.papi.service.event;
 
 public enum PowerFilterEvent {
     POWER_FILTER_CONFIGURED

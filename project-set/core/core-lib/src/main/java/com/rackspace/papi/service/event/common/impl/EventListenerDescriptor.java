@@ -1,5 +1,6 @@
-package com.rackspace.papi.service.event.listener;
+package com.rackspace.papi.service.event.common.impl;
 
+import com.rackspace.papi.service.event.common.EventListener;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;

@@ -1,9 +1,9 @@
 package com.rackspace.papi.service.context.jndi;
 
-import com.rackspace.papi.service.ServiceContext;
+import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.ServiceUnavailableException;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
-import com.rackspace.papi.service.context.ClassLoaderServiceContext;
+import com.rackspace.papi.service.context.impl.ClassLoaderServiceContext;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -55,7 +55,7 @@ public class JndiContextAdapterTest {
 
       @Test(expected=ServiceUnavailableException.class)
       public void shouldCommunicateServiceFailureOnNamingExceptions() throws Exception {
-         JndiContextAdapter.lookup(EXCEPTION_CASE, namingContext);
+         new JndiContextAdapter(namingContext).lookup(EXCEPTION_CASE);
       }
    }
 }

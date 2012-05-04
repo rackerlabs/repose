@@ -1,28 +1,28 @@
 package com.rackspace.papi.service.context.jndi;
 
-import com.rackspace.papi.service.ServiceContext;
+import com.rackspace.papi.service.context.impl.RoutingServiceContext;
+import com.rackspace.papi.service.context.impl.ResponseMessageServiceContext;
+import com.rackspace.papi.service.context.impl.EventManagerServiceContext;
+import com.rackspace.papi.service.context.impl.LoggingServiceContext;
+import com.rackspace.papi.service.context.impl.FilterChainGCServiceContext;
+import com.rackspace.papi.service.context.impl.DatastoreServiceContext;
+import com.rackspace.papi.service.context.impl.ClassLoaderServiceContext;
+import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
+import com.rackspace.papi.service.context.impl.ContainerServiceContext;
+import com.rackspace.papi.service.context.ServiceContext;
+import com.rackspace.papi.service.ServiceUnavailableException;
+import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.ClassLoaderServiceContext;
-import com.rackspace.papi.service.context.LoggingServiceContext;
+import com.rackspace.papi.service.context.*;
+import com.rackspace.papi.service.context.container.ContainerConfigurationService;
 import com.rackspace.papi.service.datastore.DatastoreService;
+import com.rackspace.papi.service.event.common.EventService;
+import com.rackspace.papi.service.filterchain.GarbageCollectionService;
 import com.rackspace.papi.service.logging.LoggingService;
 import com.rackspace.papi.service.rms.ResponseMessageService;
-import com.rackspace.papi.service.ServiceUnavailableException;
-import com.rackspace.papi.service.event.common.EventService;
-import com.rackspace.papi.service.context.EventManagerServiceContext;
-import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
-import com.rackspace.papi.service.context.ConfigurationServiceContext;
-import com.rackspace.papi.service.context.ContainerServiceContext;
-import com.rackspace.papi.service.context.ResponseMessageServiceContext;
-import com.rackspace.papi.service.context.DatastoreServiceContext;
-import com.rackspace.papi.service.context.FilterChainGCServiceContext;
-import com.rackspace.papi.service.context.RoutingServiceContext;
-import com.rackspace.papi.service.context.container.ContainerConfigurationService;
-import com.rackspace.papi.service.filterchain.GarbageCollectionService;
 import com.rackspace.papi.service.routing.RoutingService;
-import com.rackspace.papi.service.threading.ThreadingServiceContext;
 import com.rackspace.papi.service.threading.ThreadingService;
-
+import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
@@ -34,9 +34,9 @@ public class JndiContextAdapter implements ContextAdapter {
         this.namingContext = namingContext;
     }
 
-    public static <T> T lookup(String name, Context context) {
+    public <T> T lookup(String name) {
         try {
-            final Object o = context.lookup(name);
+            final Object o = namingContext.lookup(name);
             return ((ServiceContext<T>) o).getService();
         } catch (NamingException ne) {
             throw new ServiceUnavailableException(name + " service is unavailable. Reason: " + ne.getExplanation(), ne.getCause());
@@ -45,51 +45,51 @@ public class JndiContextAdapter implements ContextAdapter {
 
     @Override
     public ConfigurationService configurationService() {
-        return lookup(ConfigurationServiceContext.SERVICE_NAME, namingContext);
+        return lookup(ConfigurationServiceContext.SERVICE_NAME);
     }
 
    @Override
    public ClassLoaderManagerService classLoader() {
-      return lookup(ClassLoaderServiceContext.SERVICE_NAME, namingContext);
+      return lookup(ClassLoaderServiceContext.SERVICE_NAME);
    }
 
     @Override
     public DatastoreService datastoreService() {
-        return lookup(DatastoreServiceContext.SERVICE_NAME, namingContext);
+        return lookup(DatastoreServiceContext.SERVICE_NAME);
     }
 
     @Override
     public ResponseMessageService responseMessageService() {
-        return lookup(ResponseMessageServiceContext.SERVICE_NAME, namingContext);
+        return lookup(ResponseMessageServiceContext.SERVICE_NAME);
     }
 
     @Override
     public EventService eventService() {
-        return lookup(EventManagerServiceContext.SERVICE_NAME, namingContext);
+        return lookup(EventManagerServiceContext.SERVICE_NAME);
     }
 
     @Override
     public ThreadingService threadingService() {
-        return lookup(ThreadingServiceContext.SERVICE_NAME, namingContext);
+        return lookup(ThreadingServiceContext.SERVICE_NAME);
     }
     
     @Override
     public RoutingService routingService() {
-       return lookup(RoutingServiceContext.SERVICE_NAME, namingContext);
+       return lookup(RoutingServiceContext.SERVICE_NAME);
     }
 
     @Override
     public GarbageCollectionService filterChainGarbageCollectorService() {
-        return lookup(FilterChainGCServiceContext.SERVICE_NAME, namingContext);
+        return lookup(FilterChainGCServiceContext.SERVICE_NAME);
     }
 
     @Override
     public LoggingService loggingService() {
-        return lookup(LoggingServiceContext.SERVICE_NAME, namingContext);
+        return lookup(LoggingServiceContext.SERVICE_NAME);
     }
 
    @Override
    public ContainerConfigurationService containerConfigurationService() {
-        return lookup(ContainerServiceContext.SERVICE_NAME, namingContext);
+        return lookup(ContainerServiceContext.SERVICE_NAME);
    }
 }

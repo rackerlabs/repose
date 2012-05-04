@@ -2,8 +2,8 @@ package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
-import com.rackspace.papi.service.context.jndi.ContextAdapter;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ContextAdapter;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
@@ -51,7 +51,7 @@ public class RateLimitingFilter implements Filter {
 
    @Override
    public void init(FilterConfig filterConfig) throws ServletException {
-      final ContextAdapter ctx = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext());
+      final ContextAdapter ctx = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext());
 
       handlerFactory = new RateLimitingHandlerFactory(getDatastore(ctx.datastoreService()));
 

@@ -1,7 +1,7 @@
 package org.openrepose.components.rackspace.authz;
 
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
@@ -30,10 +30,10 @@ public class RackspaceAuthorizationFilter implements Filter {
 
    @Override
    public void init(FilterConfig filterConfig) throws ServletException {
-      final DatastoreService datastoreService = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).datastoreService();
+      final DatastoreService datastoreService = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).datastoreService();
       final DatastoreManager defaultLocal = datastoreService.defaultDatastore();
 
-      final ConfigurationService configurationService = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
+      final ConfigurationService configurationService = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
       handlerFactory = new RequestAuthorizationHandlerFactory(defaultLocal.getDatastore());
 
       configurationService.subscribeTo("openstack-authorization.cfg.xml", handlerFactory, RackspaceAuthorization.class);

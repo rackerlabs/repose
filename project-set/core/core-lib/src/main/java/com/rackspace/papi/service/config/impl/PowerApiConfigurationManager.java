@@ -1,14 +1,14 @@
-package com.rackspace.papi.service.config;
+package com.rackspace.papi.service.config.impl;
 
 import com.rackspace.papi.commons.config.ConfigurationResourceException;
 import com.rackspace.papi.commons.config.manager.ConfigurationUpdateManager;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
 import com.rackspace.papi.commons.config.parser.ConfigurationParserFactory;
+import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.config.resource.ConfigurationResourceResolver;
+import com.rackspace.papi.service.config.ConfigurationService;
 import java.io.FileNotFoundException;
-
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;

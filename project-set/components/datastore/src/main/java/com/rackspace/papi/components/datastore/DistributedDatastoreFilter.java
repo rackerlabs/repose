@@ -3,9 +3,9 @@ package com.rackspace.papi.components.datastore;
 import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
 import com.rackspace.papi.components.datastore.hash.HashRingDatastoreManager;
 import com.rackspace.papi.model.PowerProxy;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
-import com.rackspace.papi.service.context.jndi.ContextAdapter;
+import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
@@ -44,10 +44,10 @@ public class DistributedDatastoreFilter implements Filter {
    
    @Override
    public void init(FilterConfig filterConfig) throws ServletException {
-      final ContextAdapter contextAdapter = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext());
+      final ContextAdapter contextAdapter = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext());
       datastoreService = contextAdapter.datastoreService();
       
-      final MutableClusterView clusterView = new ThreadSafeClusterView(ServletContextHelper.getServerPorts(filterConfig.getServletContext()));
+      final MutableClusterView clusterView = new ThreadSafeClusterView(ServletContextHelper.getInstance().getServerPorts(filterConfig.getServletContext()));
       final HashRingDatastore hashRingDatastore;
       
       DatastoreManager localDatastoreManager = datastoreService.defaultDatastore();

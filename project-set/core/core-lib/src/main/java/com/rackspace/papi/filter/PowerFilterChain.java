@@ -11,7 +11,7 @@ import com.rackspace.papi.filter.logic.DispatchPathBuilder;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.DomainNode;
 import com.rackspace.papi.model.ServiceDomain;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.sun.jersey.api.client.ClientHandlerException;
 import javax.servlet.FilterChain;
@@ -65,7 +65,7 @@ public class PowerFilterChain implements FilterChain {
         this.resourceMonitor = resourceMontior;
         this.domain = domain;
         this.localhost = localhost;
-        this.routingService = ServletContextHelper.getPowerApiContext(context).routingService();
+        this.routingService = ServletContextHelper.getInstance().getPowerApiContext(context).routingService();
         destinations = new HashMap<String, Destination>();
 
         if (domain.getDestinations() != null) {

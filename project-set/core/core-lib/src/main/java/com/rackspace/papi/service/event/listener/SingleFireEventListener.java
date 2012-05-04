@@ -1,6 +1,7 @@
 package com.rackspace.papi.service.event.listener;
 
 import com.rackspace.papi.service.event.common.Event;
+import com.rackspace.papi.service.event.common.EventListener;
 
 public abstract class SingleFireEventListener <T extends Enum, P> implements EventListener<T, P> {
 

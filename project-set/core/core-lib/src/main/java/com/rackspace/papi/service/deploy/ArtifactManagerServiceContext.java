@@ -1,17 +1,14 @@
-package com.rackspace.papi.service.context;
+package com.rackspace.papi.service.deploy;
 
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
 import com.rackspace.papi.container.config.ContainerConfiguration;
-import com.rackspace.papi.filter.PowerFilterEvent;
-import com.rackspace.papi.service.ServiceContext;
-import com.rackspace.papi.service.context.jndi.ContextAdapter;
-import com.rackspace.papi.service.deploy.ApplicationArtifactEvent;
-import com.rackspace.papi.service.deploy.ArtifactManager;
-import com.rackspace.papi.service.deploy.ContainerConfigurationListener;
+import com.rackspace.papi.service.context.ContextAdapter;
+import com.rackspace.papi.service.context.ServiceContext;
+import com.rackspace.papi.service.context.ServletContextHelper;
+import com.rackspace.papi.service.event.PowerFilterEvent;
 import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.event.listener.SingleFireEventListener;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 
@@ -34,7 +31,7 @@ public class ArtifactManagerServiceContext implements ServiceContext<ArtifactMan
    @Override
    public void contextInitialized(ServletContextEvent sce) {
       final ServletContext ctx = sce.getServletContext();
-      final ContextAdapter contextAdapter = ServletContextHelper.getPowerApiContext(ctx);
+      final ContextAdapter contextAdapter = ServletContextHelper.getInstance().getPowerApiContext(ctx);
 
       final EventService eventManagerReference = contextAdapter.eventService();
 
@@ -59,7 +56,7 @@ public class ArtifactManagerServiceContext implements ServiceContext<ArtifactMan
    @Override
    public void contextDestroyed(ServletContextEvent sce) {
       try {
-         final EventService eventManagerReference = ServletContextHelper.getPowerApiContext(sce.getServletContext()).eventService();
+         final EventService eventManagerReference = ServletContextHelper.getInstance().getPowerApiContext(sce.getServletContext()).eventService();
          eventManagerReference.squelch(artifactManager, ApplicationArtifactEvent.class);
       } finally {
          watcherThread.destroy();

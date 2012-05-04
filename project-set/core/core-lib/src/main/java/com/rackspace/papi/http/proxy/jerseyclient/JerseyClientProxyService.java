@@ -18,7 +18,7 @@ package com.rackspace.papi.http.proxy.jerseyclient;
 
 import com.rackspace.papi.commons.util.logging.jersey.LoggingFilter;
 import com.rackspace.papi.http.proxy.common.ProxyService;
-import com.rackspace.papi.http.proxy.httpclient.HttpResponseCodeProcessor;
+import com.rackspace.papi.http.proxy.common.HttpResponseCodeProcessor;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;

@@ -3,7 +3,6 @@ package com.rackspace.papi.http.proxy.common;
 import com.rackspace.papi.commons.util.StringUtilities;
 import static com.rackspace.papi.http.Headers.CONTENT_LENGTH;
 import static com.rackspace.papi.http.Headers.LOCATION;
-import com.rackspace.papi.http.proxy.httpclient.HttpResponseCodeProcessor;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.TreeSet;

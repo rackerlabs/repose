@@ -12,7 +12,7 @@
     
     <listener>
         <display-name>Repose Context Loader</display-name>
-        <listener-class>com.rackspace.papi.service.context.PowerApiContextManager</listener-class>
+        <listener-class>com.rackspace.papi.service.context.impl.PowerApiContextManager</listener-class>
     </listener>
 
     <!-- Servlets -->

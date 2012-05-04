@@ -4,7 +4,7 @@ import com.rackspace.papi.container.config.SslConfiguration;
 import com.rackspace.papi.filter.ValvePowerFilter;
 import com.rackspace.cloud.valve.jetty.servlet.ProxyServlet;
 import com.rackspace.papi.domain.Port;
-import com.rackspace.papi.service.context.PowerApiContextManager;
+import com.rackspace.papi.service.context.impl.PowerApiContextManager;
 import com.rackspace.papi.servlet.InitParameter;
 
 import java.util.ArrayList;

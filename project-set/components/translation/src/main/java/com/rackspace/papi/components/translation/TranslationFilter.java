@@ -6,8 +6,7 @@ import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.components.translation.config.TranslationConfig;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
-import com.rackspace.papi.servlet.InitParameter;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import org.slf4j.Logger;
 
 import javax.servlet.*;
@@ -56,7 +55,7 @@ public class TranslationFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         ServletContext servletContext = filterConfig.getServletContext();
         handlerFactory = new TranslationHandlerFactory();
-        configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
+        configurationManager = ServletContextHelper.getInstance().getPowerApiContext(servletContext).configurationService();
 
         configurationManager.subscribeTo("translation.cfg.xml", handlerFactory, TranslationConfig.class);
     }

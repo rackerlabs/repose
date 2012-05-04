@@ -1,7 +1,7 @@
 package org.openrepose.components.routing.servlet;
 
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.model.PowerProxy;
 
@@ -33,7 +33,7 @@ public class DestinationRouterFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         
         final ServletContext servletContext = filterConfig.getServletContext();
-        final ConfigurationService manager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
+        final ConfigurationService manager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
         
         handlerFactory = new DestinationRouterHandlerFactory();
         

@@ -1,7 +1,7 @@
 package org.openrepose.rnxp;
 
 import com.rackspace.papi.filter.PowerFilter;
-import com.rackspace.papi.service.context.PowerApiContextManager;
+import com.rackspace.papi.service.context.impl.PowerApiContextManager;
 import com.rackspace.papi.servlet.InitParameter;
 import java.io.IOException;
 import java.util.HashMap;

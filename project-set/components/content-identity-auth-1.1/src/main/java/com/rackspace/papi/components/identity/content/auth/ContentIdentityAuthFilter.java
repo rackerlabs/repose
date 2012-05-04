@@ -2,7 +2,7 @@ package com.rackspace.papi.components.identity.content.auth;
 
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -29,7 +29,7 @@ public class ContentIdentityAuthFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        configurationManager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
+        configurationManager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
         handlerFactory = new ContentIdentityAuthHandlerFactory();
 
         configurationManager.subscribeTo("content-identity-auth.cfg.xml", handlerFactory, ContentIdentityAuthConfig.class);
