@@ -19,9 +19,7 @@
    <modules>
       <module>core-lib</module>
       <module>web-application</module>
-      <module>test-application</module>
       <module>valve</module>
-      <module>power-proxy</module>
    </modules>
     
    <dependencyManagement>

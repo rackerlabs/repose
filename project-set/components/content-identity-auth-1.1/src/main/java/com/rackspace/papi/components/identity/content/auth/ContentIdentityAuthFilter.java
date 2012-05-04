@@ -24,7 +24,7 @@ public class ContentIdentityAuthFilter implements Filter {
 
     @Override
     public void destroy() {
-        configurationManager.unsubscribeFrom("content-identity-auth.cfg.xml", handlerFactory);
+        configurationManager.unsubscribeFrom("content-identity-auth-1-1.cfg.xml", handlerFactory);
     }
 
     @Override
@@ -32,6 +32,6 @@ public class ContentIdentityAuthFilter implements Filter {
         configurationManager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
         handlerFactory = new ContentIdentityAuthHandlerFactory();
 
-        configurationManager.subscribeTo("content-identity-auth.cfg.xml", handlerFactory, ContentIdentityAuthConfig.class);
+        configurationManager.subscribeTo("content-identity-auth-1-1.cfg.xml", handlerFactory, ContentIdentityAuthConfig.class);
     }
 }
