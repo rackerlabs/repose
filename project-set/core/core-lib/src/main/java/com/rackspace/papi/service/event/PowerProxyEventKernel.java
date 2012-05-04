@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.event;
 
-import com.rackspace.papi.service.event.common.impl.EventDispatcher;
 import com.rackspace.papi.commons.util.Destroyable;
+import com.rackspace.papi.service.event.common.EventDispatcher;
 import com.rackspace.papi.service.event.common.EventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
