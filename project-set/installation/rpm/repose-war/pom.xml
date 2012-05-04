@@ -11,10 +11,10 @@
     </parent>
 
     <groupId>com.rackspace.repose.installation.rpm.war</groupId>
-    <artifactId>war</artifactId>
+    <artifactId>repose-war</artifactId>
     <version>2.0.0-SNAPSHOT</version>
 
-    <name>Repose - ROOT.WAR RPM</name>
+    <name>Repose - Installation ROOT.WAR RPM</name>
 
     <description>
         Module for the ROOT.WAR RPM.
@@ -69,6 +69,7 @@
                                     <username>tomcat</username>
                                     <groupname>tomcat</groupname>
                                     <filemode>755</filemode>
+                                    <configuration>noreplace</configuration>
 
                                     <sources>
                                         <source>
