@@ -24,7 +24,7 @@
     <modules>
         <module>auth</module>
         <module>ah</module>
-        <module>shared</module>
+        <module>cli-utils</module>
     </modules>
 
 </project>

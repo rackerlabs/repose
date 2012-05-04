@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.rackspace.repose.installation.rpm</groupId>
+        <artifactId>shared</artifactId>
+        <version>2.0.0-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.rackspace.repose.installation.rpm.cli-utils</groupId>
+    <artifactId>cli-utils</artifactId>
+    <version>2.0.0-SNAPSHOT</version>
+
+    <name>Repose - Cloud Integration CLI-Utils</name>
+
+    <description>
+        Module for the CLI-Utils RPM.
+    </description>
+
+    <packaging>pom</packaging>
+
+    <profiles>
+        <profile>
+            <id>Build ROOT Web Application RPM</id>
+
+            <activation>
+                <property>
+                    <name>build-system-packages</name>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>rpm-maven-plugin</artifactId>
+
+                        <configuration>
+
+                            <name>repose-war</name>
+
+                            <!-- _tmppath is not set correctly on al OSs so it is forced here -->
+                            <defineStatements>
+                                <defineStatement>_tmppath /tmp</defineStatement>
+                            </defineStatements>
+
+                            <mappings>
+                                <mapping>
+                                    <directory>/usr/share/lib/repose</directory>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <filemode>755</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>
+                                                ${project.build.directory}/../../../../../components/cli-utils/target/repose-cli.jar
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/etc/repose/</directory>
+                                    <username>tomcat</username>
+                                    <groupname>tomcat</groupname>
+                                    <filemode>755</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>
+                                                ${project.build.directory}/../../../../../components/cli-utils/src/bash/dd-remove.sh
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+                            </mappings>
+
+                            <requires>
+                                <require>java-1.6.0-openjdk</require>
+                            </requires>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
