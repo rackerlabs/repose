@@ -1,22 +1,22 @@
 package com.rackspace.papi.components.unorm;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.util.http.normal.Normalizer;
 import com.rackspace.papi.commons.util.http.normal.QueryStringNormalizer;
-import com.rackspace.papi.commons.util.regex.RegexSelector;
 import com.rackspace.papi.components.unorm.normalizer.MediaTypeNormalizer;
 import com.rackspace.papi.components.unorm.normalizer.MultiInstanceWhiteListFactory;
+import com.rackspace.papi.components.uri.normalization.config.HttpMethod;
 
 import com.rackspace.papi.components.uri.normalization.config.Target;
 import com.rackspace.papi.components.uri.normalization.config.UriFilterList;
 import com.rackspace.papi.components.uri.normalization.config.UriNormalizationConfig;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
 public class UriNormalizationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<UriNormalizationHandler> {
 
-   private RegexSelector<Normalizer<String>> queryStringNormalizers;
+   private Collection<QueryParameterNormalizer> queryStringNormalizers;
    private MediaTypeNormalizer mediaTypeNormalizer;
 
    private class UriNormalizationConfigurationListener implements UpdateListener<UriNormalizationConfig> {
@@ -24,16 +24,27 @@ public class UriNormalizationHandlerFactory extends AbstractConfiguredFilterHand
       @Override
       public void configurationUpdated(UriNormalizationConfig configurationObject) {
          final UriFilterList uriFilterList = configurationObject.getUriFilters();
-         final RegexSelector<Normalizer<String>> newNormalizers = new RegexSelector<Normalizer<String>>();
+         final Map<String, QueryParameterNormalizer> newNormalizers = new HashMap<String, QueryParameterNormalizer>();
 
          if (uriFilterList != null) {
             for (Target target : uriFilterList.getTarget()) {
                final MultiInstanceWhiteListFactory whiteListFactory = new MultiInstanceWhiteListFactory(target.getWhitelist());
-               newNormalizers.addPattern(target.getUriRegex(), new QueryStringNormalizer(whiteListFactory));
+               final QueryStringNormalizer normalizerInstance = new QueryStringNormalizer(whiteListFactory);
+               
+               for (HttpMethod method : target.getHttpMethods()) {
+                  QueryParameterNormalizer methodScopedNormalizer = newNormalizers.get(method.name());
+                  
+                  if (methodScopedNormalizer == null) {
+                     methodScopedNormalizer = new QueryParameterNormalizer(method);
+                     newNormalizers.put(method.name(), methodScopedNormalizer);
+                  }
+                  
+                  methodScopedNormalizer.getUriSelector().addPattern(target.getUriRegex(), normalizerInstance);
+               }
             }
          }
 
-         queryStringNormalizers = newNormalizers;
+         queryStringNormalizers = newNormalizers.values();
          mediaTypeNormalizer = new MediaTypeNormalizer(configurationObject.getMediaVariants().getMediaType());
       }
    }
