@@ -5,32 +5,33 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.rackspace.repose.installation.rpm.ah</groupId>
-        <artifactId>ah</artifactId>
+        <groupId>com.rackspace.repose.installation.rpm</groupId>
+        <artifactId>rpm</artifactId>
         <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.repose.installation.rpm.ah.filters</groupId>
-    <artifactId>filters</artifactId>
+    <groupId>com.rackspace.repose.installation.rpm.war</groupId>
+    <artifactId>war</artifactId>
     <version>2.0.0-SNAPSHOT</version>
 
-    <name>Repose - Cloud Integration Filter Bundle RPM for ATOM Hopper</name>
+    <name>Repose - ROOT.WAR RPM</name>
 
     <description>
-        Module for the Filter Bundle RPM.
+        Module for the ROOT.WAR RPM.
     </description>
 
     <packaging>pom</packaging>
 
     <profiles>
         <profile>
-            <id>Build Filter Bundle RPM</id>
+            <id>Build ROOT Web Application RPM</id>
 
             <activation>
                 <property>
                     <name>build-system-packages</name>
                 </property>
             </activation>
+
             <build>
                 <plugins>
                     <plugin>
@@ -38,17 +39,26 @@
                         <artifactId>rpm-maven-plugin</artifactId>
 
                         <configuration>
-                            <name>ah-repose-filters</name>
+                            <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer
+                                 to this RPM.-->
+                            <name>repose-war</name>
+
+                            <!-- _tmppath is not set correctly on al OSs so it is forced here -->
+                            <defineStatements>
+                                <defineStatement>_tmppath /tmp</defineStatement>
+                            </defineStatements>
+
                             <mappings>
                                 <mapping>
-                                    <directory>/usr/share/repose/filters</directory>
+                                    <directory>/var/lib/tomcat7/webapps</directory>
                                     <username>tomcat</username>
                                     <groupname>tomcat</groupname>
                                     <filemode>755</filemode>
 
                                     <sources>
                                         <source>
-                                            <location>${project.build.directory}/../../../../../components/filter-bundle/target/filter-bundle-${project.version}.ear
+                                            <location>
+                                                ${project.build.directory}/../../../../core/web-application/target/ROOT.war
                                             </location>
                                         </source>
                                     </sources>
@@ -58,48 +68,46 @@
                                     <directory>/etc/repose/</directory>
                                     <username>tomcat</username>
                                     <groupname>tomcat</groupname>
-                                    <configuration>noreplace</configuration>
-                                    <directoryIncluded>false</directoryIncluded>
                                     <filemode>755</filemode>
 
                                     <sources>
                                         <source>
                                             <location>
-                                                ../filters/src/main/resources/META-INF/configs/dist-datastore.cfg.xml
+                                                ../repose-war/src/main/resources/META-INF/configs/container.cfg.xml
                                             </location>
                                         </source>
                                         <source>
                                             <location>
-                                                ../filters/src/main/resources/META-INF/configs/http-logging.cfg.xml
+                                                ../repose-war/src/main/resources/META-INF/configs/power-proxy.cfg.xml
                                             </location>
                                         </source>
                                         <source>
                                             <location>
-                                                ../filters/src/main/resources/META-INF/configs/rate-limiting.cfg.xml
+                                                ../repose-war/src/main/resources/META-INF/configs/log4j.properties
                                             </location>
-                                        </source>                                        
-                                        <source>
-                                            <location>
-                                                ../filters/src/main/resources/META-INF/configs/client-auth-n.cfg.xml
-                                            </location>
-                                        </source>                                        
-                                        <source>
-                                            <location>
-                                                ../filters/src/main/resources/META-INF/configs/openstack-authorization.cfg.xml
-                                            </location>
-                                        </source>                                        
-                                        <source>
-                                            <location>
-                                                ../filters/src/main/resources/META-INF/configs/service-authentication.cfg.xml
-                                            </location>
-                                        </source>                                        
+                                        </source>
                                     </sources>
                                 </mapping>
-                                
                             </mappings>
 
+                            <postinstallScriptlet>
+                                <script>
+                                    mkdir "/var/log/repose/" -p -m 765;
+                                    mkdir "/var/repose/" -p -m 765;
+                                    mkdir "/usr/share/repose/filters" -p -m 755;
+                                    chown tomcat:tomcat /var/log/repose /var/repose /usr/share/repose -R;
+                                </script>
+                            </postinstallScriptlet>
+
+                            <postremoveScriptlet>
+                                <script>
+                                    rm -rf /var/log/repose /var/repose /usr/share/repose/;
+                                </script>
+                            </postremoveScriptlet>
+
                             <requires>
-                                <require>repose-war</require>
+                                <require>java-1.6.0-openjdk</require>
+                                <require>tomcat7</require>
                             </requires>
                         </configuration>
                     </plugin>
