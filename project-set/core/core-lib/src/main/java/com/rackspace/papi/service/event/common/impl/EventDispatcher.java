@@ -1,7 +1,6 @@
-package com.rackspace.papi.service.event.common;
+package com.rackspace.papi.service.event.common.impl;
 
 import com.rackspace.papi.service.event.common.Event;
-import com.rackspace.papi.service.event.listener.EventListenerDescriptor;
 import java.util.Set;
 
 public class EventDispatcher {

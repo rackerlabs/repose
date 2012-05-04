@@ -4,7 +4,7 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.classloader.ear.EarArchiveEntryListener;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.service.event.common.Event;
-import com.rackspace.papi.service.event.listener.EventListener;
+import com.rackspace.papi.service.event.common.EventListener;
 import com.rackspace.papi.service.event.common.EventService;
 import java.io.File;
 import java.io.IOException;

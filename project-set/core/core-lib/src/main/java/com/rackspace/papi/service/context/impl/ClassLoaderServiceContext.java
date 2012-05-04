@@ -8,7 +8,7 @@ import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.deploy.ApplicationDeploymentEvent;
 import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.common.EventService;
-import com.rackspace.papi.service.event.listener.EventListener;
+import com.rackspace.papi.service.event.common.EventListener;
 import javax.servlet.ServletContextEvent;
 
 public class ClassLoaderServiceContext implements ServiceContext<ClassLoaderManagerService> {

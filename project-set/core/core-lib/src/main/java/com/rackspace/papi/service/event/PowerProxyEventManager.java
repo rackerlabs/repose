@@ -1,11 +1,11 @@
 package com.rackspace.papi.service.event;
 
-import com.rackspace.papi.service.event.common.EventDispatcher;
+import com.rackspace.papi.service.event.common.impl.EventDispatcher;
 import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.event.impl.SimpleEvent;
-import com.rackspace.papi.service.event.listener.EventListener;
-import com.rackspace.papi.service.event.listener.EventListenerDescriptor;
+import com.rackspace.papi.service.event.common.EventListener;
+import com.rackspace.papi.service.event.common.impl.EventListenerDescriptor;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
