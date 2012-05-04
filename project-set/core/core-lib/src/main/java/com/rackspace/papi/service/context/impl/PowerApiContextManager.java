@@ -6,7 +6,7 @@ import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.jndi.JndiContextAdapterProvider;
 import com.rackspace.papi.service.deploy.ArtifactManagerServiceContext;
 import com.rackspace.papi.service.naming.InitialServiceContextFactory;
-import com.rackspace.papi.service.threading.ThreadingServiceContext;
+import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
 import com.rackspace.papi.servlet.PowerApiContextException;
 import java.util.Iterator;
 import java.util.LinkedList;

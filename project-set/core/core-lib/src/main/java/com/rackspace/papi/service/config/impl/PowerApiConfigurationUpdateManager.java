@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.config;
+package com.rackspace.papi.service.config.impl;
 
 import com.rackspace.papi.commons.config.manager.ConfigurationUpdateManager;
 import com.rackspace.papi.commons.config.manager.UpdateListener;

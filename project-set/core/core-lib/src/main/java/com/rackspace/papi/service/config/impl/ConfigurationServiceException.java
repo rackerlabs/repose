@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.config;
+package com.rackspace.papi.service.config.impl;
 
 public class ConfigurationServiceException extends RuntimeException {
 

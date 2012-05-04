@@ -1,6 +1,6 @@
 package com.rackspace.papi.servlet.boot.service.config;
 
-import com.rackspace.papi.service.config.PowerApiConfigurationUpdateManager;
+import com.rackspace.papi.service.config.impl.PowerApiConfigurationUpdateManager;
 import com.rackspace.papi.service.event.common.EventService;
 import org.junit.Ignore;
 import com.rackspace.papi.commons.config.manager.UpdateListener;

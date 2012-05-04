@@ -22,7 +22,7 @@ import com.rackspace.papi.service.logging.LoggingService;
 import com.rackspace.papi.service.rms.ResponseMessageService;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.service.threading.ThreadingService;
-import com.rackspace.papi.service.threading.ThreadingServiceContext;
+import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
 import javax.naming.Context;
 import javax.naming.NamingException;
 
