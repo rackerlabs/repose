@@ -128,7 +128,7 @@
                         <data>
                            <src>${basedir}/src/bash/</src>
                            <type>directory</type>
-                           <includes>*.sh</includes>
+                           <includes>*</includes>
                            
                            <mapper>
                               <type>perm</type>

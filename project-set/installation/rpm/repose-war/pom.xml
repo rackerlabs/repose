@@ -58,7 +58,7 @@
                                     <sources>
                                         <source>
                                             <location>
-                                                ${project.build.directory}/../../../../core/web-application/target/ROOT.war
+                                                ${basedir}/../../../core/web-application/target/ROOT.war
                                             </location>
                                         </source>
                                     </sources>

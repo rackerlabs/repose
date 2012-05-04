@@ -50,7 +50,7 @@
 
                                     <sources>
                                         <source>
-                                            <location>${project.build.directory}/../../../../components/filter-bundle/target/filter-bundle-${project.version}.ear
+                                            <location>${basedir}/../../../components/filter-bundle/target/filter-bundle-${project.version}.ear
                                             </location>
                                         </source>
                                     </sources>
