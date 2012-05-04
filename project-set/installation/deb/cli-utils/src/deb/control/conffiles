@@ -1,0 +1,4 @@
+/etc/repose/container.cfg.xml
+/etc/repose/power-proxy.cfg.xml
+/etc/repose/response-messaging.cfg.xml
+/etc/repose/log4j.properties
