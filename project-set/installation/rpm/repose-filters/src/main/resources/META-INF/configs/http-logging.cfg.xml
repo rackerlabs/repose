@@ -17,5 +17,5 @@
                 <file location="/var/log/repose/credentials.log"/>
             </targets>
         </http-log>
-</http-logging>
 
+</http-logging>
