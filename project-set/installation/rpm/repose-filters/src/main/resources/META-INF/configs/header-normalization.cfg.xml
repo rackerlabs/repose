@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!-- http://wiki.openrepose.org/pages/viewpage.action?pageId=328681 -->
 <header-normalization xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
                       xmlns='http://docs.api.rackspacecloud.com/powerapi/header-normalization/v1.0'
                       xsi:schemaLocation='http://docs.api.rackspacecloud.com/powerapi/header-normalization/v1.0 ../config/header-normalization-configuration.xsd'>

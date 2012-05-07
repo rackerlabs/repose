@@ -69,16 +69,16 @@ public class ValveJettyServerBuilder {
    }
 
    private Connector createHttpsConnector(Port port) {
-      SslSelectChannelConnector ssl_connector = new SslSelectChannelConnector();
+      SslSelectChannelConnector sslConnector = new SslSelectChannelConnector();
 
-      ssl_connector.setPort(port.getPort());
-      SslContextFactory cf = ssl_connector.getSslContextFactory();
+      sslConnector.setPort(port.getPort());
+      SslContextFactory cf = sslConnector.getSslContextFactory();
 
       cf.setKeyStore(configurationPathAndFile + "/" + sslConfiguration.getKeystoreFilename());
       cf.setKeyStorePassword(sslConfiguration.getKeystorePassword());
       cf.setKeyManagerPassword(sslConfiguration.getKeyPassword());
 
-      return ssl_connector;
+      return sslConnector;
    }
 
    private ServletContextHandler buildRootContext(Server serverReference) {

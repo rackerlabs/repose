@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!-- http://wiki.openrepose.org/display/REPOSE/Client+Authentication+Filter -->
 <client-auth xmlns="http://docs.rackspacecloud.com/power-api/client-auth/v1.0">
     <openstack-auth delegable="false" include-query-params="true" xmlns="http://docs.openrepose.org/power-api/client-auth/os-ids-auth/v1.0">
         <identity-service username="auth" password="admin_password" uri="AUTH_ENDPOINT" />

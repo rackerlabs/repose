@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!-- http://wiki.openrepose.org/display/REPOSE/Rackspace+Auth+1.1+Content -->
 <content-identity-auth  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
    xmlns='http://openrepose.org/rackspace/auth-1.1/content-identity/v1.0'
    xsi:schemaLocation='http://openrepose.org/rackspace/auth-1.1/content-identity/v1.0 ../config/content-identity-auth-1.1-configuration.xsd'>
