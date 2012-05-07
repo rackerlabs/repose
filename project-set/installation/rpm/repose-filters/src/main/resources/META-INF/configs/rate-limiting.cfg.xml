@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!-- http://wiki.openrepose.org/display/REPOSE/Rate+Limiting+Filter -->
 <rate-limiting delegation="true" xmlns="http://docs.rackspacecloud.com/power-api/rate-limiting/v1.0">
     <!--
         Defines an endpoint with a matching regex to bind GET requests for

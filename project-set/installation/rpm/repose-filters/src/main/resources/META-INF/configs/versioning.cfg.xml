@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!-- http://wiki.openrepose.org/display/REPOSE/Versioning+Filter -->
 <versioning xmlns="http://docs.rackspacecloud.com/power-api/versioning/v2.0">
     <service-root href="http://localhost:8080/" />
 

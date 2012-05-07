@@ -13,6 +13,8 @@ public class ProxyApp {
 
    private static final Logger LOG = LoggerFactory.getLogger(ProxyApp.class);
    private static final String DEFAULT_CFG_DIR = "/etc/repose";
+   private static final int UPPER_PORT = 49150;
+   private static final int LOWER_PORT = 1024;
 
    public static void main(String[] args) throws Exception {
 
@@ -44,23 +46,20 @@ public class ProxyApp {
       }
    }
 
-   
 
    private static boolean validPorts(CommandLineArguments commandLineArgs) {
       boolean valid = true;
 
       Integer httpPort = commandLineArgs.getHttpPort();
-      if (httpPort != null) {
-         if ((!(portIsInRange(commandLineArgs.getHttpPort())))) {
-            LOG.info("Invalid Repose http port, use a value between 1024 and 49150");
-            valid = false;
-         }
+      if ((httpPort != null) && (!(portIsInRange(httpPort)))) {
+         LOG.info("Invalid Repose http port, use a value between 1024 and 49150");
+         valid = false;
       }
 
       Integer httpsPort = commandLineArgs.getHttpsPort();
-      if (httpsPort != null && !portIsInRange(httpPort)) {
-            LOG.info("Invalid Repose https port, use a value between 1024 and 49150");
-            valid = false;
+      if (httpsPort != null && !portIsInRange(httpsPort)) {
+         LOG.info("Invalid Repose https port, use a value between 1024 and 49150");
+         valid = false;
       }
 
       if ((!(portIsInRange(commandLineArgs.getStopPort())))) {
@@ -84,6 +83,6 @@ public class ProxyApp {
    }
 
    private static boolean portIsInRange(int portNum) {
-      return ((portNum < 49150) && (portNum > 1024));
+      return ((portNum < UPPER_PORT) && (portNum > LOWER_PORT));
    }
 }
