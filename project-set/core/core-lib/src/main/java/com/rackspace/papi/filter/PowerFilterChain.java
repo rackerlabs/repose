@@ -68,11 +68,10 @@ public class PowerFilterChain implements FilterChain {
         this.routingService = ServletContextHelper.getInstance().getPowerApiContext(context).routingService();
         destinations = new HashMap<String, Destination>();
 
-        if (domain.getDestinations() != null) {
+        if (domain != null && domain.getDestinations() != null) {
             addDestinations(domain.getDestinations().getEndpoint());
             addDestinations(domain.getDestinations().getTarget());
         }
-
     }
 
     private void addDestinations(List<? extends Destination> destList) {
