@@ -9,8 +9,8 @@ import com.rackspace.papi.filter.routing.DestinationLocationBuilder;
 
 import com.rackspace.papi.filter.logic.DispatchPathBuilder;
 import com.rackspace.papi.model.Destination;
-import com.rackspace.papi.model.DomainNode;
-import com.rackspace.papi.model.ServiceDomain;
+import com.rackspace.papi.model.Node;
+import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.sun.jersey.api.client.ClientHandlerException;
@@ -51,13 +51,13 @@ public class PowerFilterChain implements FilterChain {
     private final FilterChain containerFilterChain;
     private final ClassLoader containerClassLoader;
     private final ServletContext context;
-    private final ServiceDomain domain;
-    private final DomainNode localhost;
+    private final ReposeCluster domain;
+    private final Node localhost;
     private final Map<String, Destination> destinations;
     private final RoutingService routingService;
     private int position;
 
-    public PowerFilterChain(ServiceDomain domain, DomainNode localhost, List<FilterContext> filterChainCopy, FilterChain containerFilterChain, ServletContext context, ResourceMonitor resourceMontior) {
+    public PowerFilterChain(ReposeCluster domain, Node localhost, List<FilterContext> filterChainCopy, FilterChain containerFilterChain, ServletContext context, ResourceMonitor resourceMontior) {
         this.filterChainCopy = new LinkedList<FilterContext>(filterChainCopy);
         this.containerFilterChain = containerFilterChain;
         this.context = context;
@@ -70,7 +70,7 @@ public class PowerFilterChain implements FilterChain {
 
         if (domain.getDestinations() != null) {
             addDestinations(domain.getDestinations().getEndpoint());
-            addDestinations(domain.getDestinations().getTargetDomain());
+            addDestinations(domain.getDestinations().getTarget());
         }
 
     }

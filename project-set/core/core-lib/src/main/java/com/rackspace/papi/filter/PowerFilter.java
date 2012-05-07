@@ -7,9 +7,9 @@ import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.domain.Port;
-import com.rackspace.papi.model.DomainNode;
-import com.rackspace.papi.model.PowerProxy;
-import com.rackspace.papi.model.ServiceDomain;
+import com.rackspace.papi.model.Node;
+import com.rackspace.papi.model.SystemModel;
+import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.deploy.ApplicationDeploymentEvent;
@@ -33,12 +33,12 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
    private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
    private final EventListener<ApplicationDeploymentEvent, String> applicationDeploymentListener;
-   private final UpdateListener<PowerProxy> systemModelConfigurationListener;
+   private final UpdateListener<SystemModel> systemModelConfigurationListener;
    private List<Port> ports;
    private boolean firstInitialization;
    private PowerFilterChainBuilder powerFilterChainBuilder;
    private ContextAdapter papiContext;
-   private PowerProxy currentSystemModel;
+   private SystemModel currentSystemModel;
    private FilterConfig filterConfig;
 
    public PowerFilter() {
@@ -65,13 +65,13 @@ public class PowerFilter extends ApplicationContextAwareFilter {
       }
    };
 
-   private class SystemModelConfigListener implements UpdateListener<PowerProxy> {
+   private class SystemModelConfigListener implements UpdateListener<SystemModel> {
 
       private final Object internalLock = new Object();
 
       // TODO:Review - There's got to be a better way of initializing PowerFilter. Maybe the app management service could be queryable.
       @Override
-      public void configurationUpdated(PowerProxy configurationObject) {
+      public void configurationUpdated(SystemModel configurationObject) {
          currentSystemModel = configurationObject;
 
          // This event must be fired only after we have finished configuring the system.
@@ -95,7 +95,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
    // existing filterChain.  If that is the case we create a new one for the deployment
    // update but the old list stays in memory as the garbage collector won't clean
    // it up until all RequestFilterChainState objects are no longer referencing it.
-   private synchronized void updateFilterChainBuilder(ServiceDomain domain, DomainNode localhost, List<FilterContext> newFilterChain) {
+   private synchronized void updateFilterChainBuilder(ReposeCluster domain, Node localhost, List<FilterContext> newFilterChain) {
       if (powerFilterChainBuilder != null) {
          papiContext.filterChainGarbageCollectorService().reclaimDestroyable(powerFilterChainBuilder, powerFilterChainBuilder.getResourceConsumerMonitor());
       }
@@ -103,7 +103,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
       powerFilterChainBuilder = new PowerFilterChainBuilder(domain, localhost, newFilterChain);
    }
 
-   protected PowerProxy getCurrentSystemModel() {
+   protected SystemModel getCurrentSystemModel() {
       return currentSystemModel;
    }
 
@@ -116,7 +116,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
       papiContext = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext());
 
       papiContext.eventService().listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
-      papiContext.configurationService().subscribeTo("power-proxy.cfg.xml", systemModelConfigurationListener, PowerProxy.class);
+      papiContext.configurationService().subscribeTo("system-model.cfg.xml", systemModelConfigurationListener, SystemModel.class);
    }
 
    @Override

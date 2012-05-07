@@ -95,8 +95,8 @@ for nodeNumber in 1..6
          mode 0644
       end
 
-      template "/etc/repose/node#{nodeNumber}/power-proxy.cfg.xml" do
-         source "power-proxy.cfg.xml.erb"
+      template "/etc/repose/node#{nodeNumber}/system-model.cfg.xml" do
+         source "system-model.cfg.xml.erb"
          mode 0644
       end
 
@@ -122,8 +122,8 @@ for nodeNumber in 1..6
          mode 0644
       end
 
-      template "/etc/repose/node#{nodeNumber}/power-proxy.cfg.xml" do
-         source "power-proxy.cfg.xml.erb"
+      template "/etc/repose/node#{nodeNumber}/system-model.cfg.xml" do
+         source "system-model.cfg.xml.erb"
          mode 0644
       end
 
@@ -156,15 +156,15 @@ for nodeNumber in 1..6
          end
       end
 
-      template "/etc/repose/node3/power-proxy.cfg.xml" do
-         source "client-ip/power-proxy.cfg.xml.erb"
+      template "/etc/repose/node3/system-model.cfg.xml" do
+         source "client-ip/system-model.cfg.xml.erb"
          mode 0644
       end
 
    when 4..6
       #Distirubted Datastore
-      template "/etc/repose/node#{nodeNumber}/power-proxy.cfg.xml" do
-         source "dist-datastore/power-proxy.cfg.xml.erb"
+      template "/etc/repose/node#{nodeNumber}/system-model.cfg.xml" do
+         source "dist-datastore/system-model.cfg.xml.erb"
          mode 0644
       end
    end

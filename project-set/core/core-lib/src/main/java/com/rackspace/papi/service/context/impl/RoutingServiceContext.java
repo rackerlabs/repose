@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.model.PowerProxy;
+import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
@@ -13,7 +13,7 @@ import javax.servlet.ServletContextEvent;
 public class RoutingServiceContext implements ServiceContext<RoutingService> {
    public static final String SERVICE_NAME = "powerapi:/services/routing";
    private RoutingService service;
-   private PowerProxy config;
+   private SystemModel config;
    private ServletContext servletContext;
    private ConfigurationService configurationManager;
    private final PowerApiConfigListener configListener;
@@ -32,9 +32,9 @@ public class RoutingServiceContext implements ServiceContext<RoutingService> {
       return service;
    }
    
-   private class PowerApiConfigListener implements UpdateListener<PowerProxy> {
+   private class PowerApiConfigListener implements UpdateListener<SystemModel> {
       @Override
-      public void configurationUpdated(PowerProxy configurationObject) {
+      public void configurationUpdated(SystemModel configurationObject) {
          config = configurationObject;
          service = new RoundRobinRoutingService(config);
       }
@@ -46,13 +46,13 @@ public class RoutingServiceContext implements ServiceContext<RoutingService> {
       servletContext = servletContextEvent.getServletContext();
       configurationManager = ServletContextHelper.getInstance().getPowerApiContext(servletContext).configurationService();
 
-      configurationManager.subscribeTo("power-proxy.cfg.xml", configListener, PowerProxy.class);
+      configurationManager.subscribeTo("system-model.cfg.xml", configListener, SystemModel.class);
    }
 
    @Override
    public void contextDestroyed(ServletContextEvent sce) {
       if (configurationManager != null) {
-         configurationManager.unsubscribeFrom("power-proxy.cfg.xml", configListener);
+         configurationManager.unsubscribeFrom("system-model.cfg.xml", configListener);
       }
    }
    

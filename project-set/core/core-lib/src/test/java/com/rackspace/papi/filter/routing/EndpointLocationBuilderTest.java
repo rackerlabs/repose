@@ -1,7 +1,7 @@
 package com.rackspace.papi.filter.routing;
 
 import com.rackspace.papi.model.DestinationEndpoint;
-import com.rackspace.papi.model.DomainNode;
+import com.rackspace.papi.model.Node;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,7 +16,7 @@ public class EndpointLocationBuilderTest {
    public static class WhenBuildLocalEndpointLocations {
 
       private EndpointLocationBuilder instance;
-      private DomainNode localhost;
+      private Node localhost;
       private HttpServletRequest request;
       private DestinationEndpoint localFullySpecifiedDestination;
       private DestinationEndpoint localMinimallySpecifiedDestination;
@@ -29,7 +29,7 @@ public class EndpointLocationBuilderTest {
          when(request.getScheme()).thenReturn("http");
          when(request.getLocalPort()).thenReturn(8080);
 
-         localhost = new DomainNode();
+         localhost = new Node();
          
          localhost.setHttpPort(8080);
          localhost.setHttpsPort(0);
@@ -161,7 +161,7 @@ public class EndpointLocationBuilderTest {
    public static class WhenBuildRemoteEndpointLocations {
 
       private EndpointLocationBuilder instance;
-      private DomainNode localhost;
+      private Node localhost;
       private HttpServletRequest request;
       private DestinationEndpoint remoteFullySpecifiedDestination;
       private DestinationEndpoint localHostDifferentPortSpecifiedDestination;
@@ -173,7 +173,7 @@ public class EndpointLocationBuilderTest {
          when(request.getScheme()).thenReturn("http");
          when(request.getLocalPort()).thenReturn(8080);
 
-         localhost = new DomainNode();
+         localhost = new Node();
          
          localhost.setHttpPort(8080);
          localhost.setHttpsPort(8443);

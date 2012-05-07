@@ -9,9 +9,9 @@ import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.model.Destination;
-import com.rackspace.papi.model.DomainNode;
-import com.rackspace.papi.model.PowerProxy;
-import com.rackspace.papi.model.ServiceDomain;
+import com.rackspace.papi.model.Node;
+import com.rackspace.papi.model.ReposeCluster;
+import com.rackspace.papi.model.SystemModel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,8 +23,8 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
    private final Map<String, Destination> configuredHosts = new HashMap<String, Destination>();
    private final ContentTransformer transformer;
    private final List<Port> ports;
-   private ServiceDomain localDomain;
-   private DomainNode localHost;
+   private ReposeCluster localDomain;
+   private Node localHost;
 
    public VersioningHandlerFactory(List<Port> ports) {
       this.ports = ports;
@@ -38,22 +38,22 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
          {
             put(ServiceVersionMappingList.class, new VersioningConfigurationListener());
-            put(PowerProxy.class, new SystemModelConfigurationListener());
+            put(SystemModel.class, new SystemModelConfigurationListener());
          }
       };
    }
 
-   private class SystemModelConfigurationListener implements UpdateListener<PowerProxy> {
+   private class SystemModelConfigurationListener implements UpdateListener<SystemModel> {
 
       @Override
-      public void configurationUpdated(PowerProxy configurationObject) {
+      public void configurationUpdated(SystemModel configurationObject) {
          SystemModelInterrogator interrogator = new SystemModelInterrogator(configurationObject, ports);
          localDomain = interrogator.getLocalServiceDomain();
          localHost = interrogator.getLocalHost();
          List<Destination> destinations = new ArrayList<Destination>();
 
          destinations.addAll(localDomain.getDestinations().getEndpoint());
-         destinations.addAll(localDomain.getDestinations().getTargetDomain());
+         destinations.addAll(localDomain.getDestinations().getTarget());
          for (Destination powerApiHost : destinations) {
             configuredHosts.put(powerApiHost.getId(), powerApiHost);
          }

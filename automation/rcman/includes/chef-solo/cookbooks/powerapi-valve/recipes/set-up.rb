@@ -71,7 +71,7 @@ for i in 1..node["powerapi-valve"]["numNodes"].to_i
 end
 
 for i in 1..node["powerapi-valve"]["numNodes"].to_i
-  ["power-proxy.cfg.xml"].each do |config|
+  ["system-model.cfg.xml"].each do |config|
     template "/etc/powerapi/node#{i}/#{config}" do
       source "roles/#{config}.erb"
       mode 0644

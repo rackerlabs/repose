@@ -1,0 +1,26 @@
+<system-model xmlns="http://docs.rackspacecloud.com/power-api/system-model/v2.0">
+  <repose-cluster id="repose">
+
+    <nodes>
+      <node id="proxy-n01" hostname="<%= node[:fqdn]%>" http-port="8080"/>
+    </nodes>
+
+    <filters>
+        <filter name="destination-router" />
+    </filters>
+
+    <destinations>
+      <target id="mocks" cluster="mocks" protocol="http" root-path="/mocks" port="8080" default="true"/>
+    </destinations>
+
+  </repose-cluster>
+
+  <service-cluster id="mocks">
+
+    <nodes>
+      <node id="endpoint1" protocol="http" hostname="<%= node[:fqdn]%>" http-port="8080"/>
+      <node id="endpoint2" protocol="http" hostname="50.57.189.15" http-port="8080"/>
+    </nodes>
+  </service-cluster>
+</system-model>
+

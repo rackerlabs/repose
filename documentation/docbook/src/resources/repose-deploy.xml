@@ -452,7 +452,7 @@ Filters are applied in the order they are specified.
                 </listitem>
             </itemizedlist>
             <para>
-                The following example demonstrates <code>power-proxy.cfg.xml</code>
+                The following example demonstrates <code>system-model.cfg.xml</code>
                 configured for a &PRODNAME; proxy server deployment.
             </para>
             <example>
@@ -482,7 +482,7 @@ Filters are applied in the order they are specified.
                 </listitem>
             </itemizedlist>
             <para> The following example demonstrates
-                    <code>power-proxy.cfg.xml</code> configured for a
+                    <code>system-model.cfg.xml</code> configured for a
                 &PRODNAME; Root.WAR  deployment. </para>
             <example>
                 <title>Power Proxy Configuration for Root.WAR Deployment</title>

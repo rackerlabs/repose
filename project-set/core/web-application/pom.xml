@@ -96,7 +96,7 @@
                                             <location>../core-lib/src/main/resources/META-INF/schema/examples/container.cfg.xml</location>
                                         </source>
                                         <source>
-                                            <location>../core-lib/src/main/resources/META-INF/schema/examples/power-proxy.cfg.xml</location>
+                                            <location>../core-lib/src/main/resources/META-INF/schema/examples/system-model.cfg.xml</location>
                                         </source>
                                     </sources>
                                 </mapping>

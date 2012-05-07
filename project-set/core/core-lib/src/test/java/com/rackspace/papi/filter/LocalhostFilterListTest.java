@@ -1,22 +1,20 @@
 package com.rackspace.papi.filter;
 
+import com.rackspace.papi.commons.util.net.NetUtilities;
+import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.model.FilterList;
-import com.rackspace.papi.model.PowerProxy;
+import com.rackspace.papi.model.Node;
+import com.rackspace.papi.model.NodeList;
+import com.rackspace.papi.model.ReposeCluster;
+import com.rackspace.papi.model.SystemModel;
+import java.util.ArrayList;
+import java.util.List;
+import static org.junit.Assert.assertNotNull;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import com.rackspace.papi.commons.util.net.NetUtilities;
-import com.rackspace.papi.domain.Port;
-import com.rackspace.papi.model.DomainNode;
-import com.rackspace.papi.model.DomainNodeList;
-import com.rackspace.papi.model.ServiceDomain;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.*;
-
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author fran
@@ -34,7 +32,7 @@ public class LocalhostFilterListTest {
 
       @Test
       public void shouldInstantiate() {
-         PowerProxy powerProxy = new PowerProxy();
+         SystemModel powerProxy = new SystemModel();
          // TODO Model: HTTPS
          SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(powerProxy, getHttpPortList(8080));
 
@@ -43,13 +41,13 @@ public class LocalhostFilterListTest {
 
       @Test
       public void shouldGetLocalhostFilters() {
-         PowerProxy mockedPowerProxy = mock(PowerProxy.class);
-         List<ServiceDomain> domains = createTestHosts();
-         when(mockedPowerProxy.getServiceDomain()).thenReturn(domains);
+         SystemModel mockedPowerProxy = mock(SystemModel.class);
+         List<ReposeCluster> domains = createTestHosts();
+         when(mockedPowerProxy.getReposeCluster()).thenReturn(domains);
 
          // TODO Model: HTTPS
          SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(mockedPowerProxy, getHttpPortList(8080));
-         ServiceDomain localServiceDomain = localhostFilterList.getLocalServiceDomain();
+         ReposeCluster localServiceDomain = localhostFilterList.getLocalServiceDomain();
          
          assertNotNull(localServiceDomain);
          
@@ -58,24 +56,24 @@ public class LocalhostFilterListTest {
          assertNotNull(filters);
       }
 
-      private List<ServiceDomain> createTestHosts() {
-         ServiceDomain domain = new ServiceDomain();
-         List<DomainNode> hostList = new ArrayList<DomainNode>();
+      private List<ReposeCluster> createTestHosts() {
+         ReposeCluster domain = new ReposeCluster();
+         List<Node> hostList = new ArrayList<Node>();
 
          domain.setFilters(mock(FilterList.class));
 
-         DomainNode host = new DomainNode();
+         Node host = new Node();
          host.setHostname(NetUtilities.getLocalHostName());
          host.setHttpPort(8080);
          host.setHttpsPort(0);
 
          hostList.add(host);
 
-         DomainNodeList nodeList = new DomainNodeList();
+         NodeList nodeList = new NodeList();
          nodeList.getNode().add(host);
-         domain.setServiceDomainNodes(nodeList);
+         domain.setNodes(nodeList);
 
-         List<ServiceDomain> result = new ArrayList<ServiceDomain>();
+         List<ReposeCluster> result = new ArrayList<ReposeCluster>();
          result.add(domain);
 
          return result;

@@ -1,8 +1,8 @@
 package com.rackspace.papi.filter.routing;
 
-import com.rackspace.papi.model.DestinationDomain;
+import com.rackspace.papi.model.DestinationCluster;
 import com.rackspace.papi.model.DestinationEndpoint;
-import com.rackspace.papi.model.DomainNode;
+import com.rackspace.papi.model.Node;
 import com.rackspace.papi.service.routing.RoutingService;
 import javax.servlet.http.HttpServletRequest;
 import org.junit.After;
@@ -20,9 +20,9 @@ public class DestinationLocationBuilderTest {
 
    public static class WhenConstructingBuilder {
       private RoutingService routingService;
-      private DomainNode localhost;
+      private Node localhost;
       private DestinationEndpoint endpointDestination;
-      private DestinationDomain domainDestination;
+      private DestinationCluster domainDestination;
       private HttpServletRequest request;
 
       @Before
@@ -33,7 +33,7 @@ public class DestinationLocationBuilderTest {
          
          routingService = mock(RoutingService.class);
 
-         localhost = new DomainNode();
+         localhost = new Node();
          
          localhost.setHttpPort(8080);
          localhost.setHttpsPort(0);
@@ -41,7 +41,7 @@ public class DestinationLocationBuilderTest {
          localhost.setId("local");
          
          endpointDestination = new DestinationEndpoint();
-         domainDestination = new DestinationDomain();
+         domainDestination = new DestinationCluster();
       }
       
       @Test

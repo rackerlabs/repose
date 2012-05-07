@@ -357,7 +357,7 @@
                     </mediaobject>
                 </figure>
                 <example>
-                    <title>Configuring power-proxy.cfg.xml for proxy server deployment</title>
+                    <title>Configuring system-model.cfg.xml for proxy server deployment</title>
                     <programlisting language="xml">
 <xi:include href="samples/papi-deploy-proxyServer.xml" parse="text"/>
                     </programlisting>
@@ -382,7 +382,7 @@
                         </mediaobject>
                     </figure>
                     <example>
-                        <title>Configuring power-proxy.cfg.xml for
+                        <title>Configuring system-model.cfg.xml for
                         Root.WAR deployment</title>
                         <programlisting language="xml">
 <xi:include href="samples/papi-deploy-root.xml" parse="text"/>

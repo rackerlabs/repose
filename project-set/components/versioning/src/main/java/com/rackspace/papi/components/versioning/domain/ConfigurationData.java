@@ -14,8 +14,8 @@ import com.rackspace.papi.components.versioning.util.http.HttpRequestInfo;
 import com.rackspace.papi.components.versioning.util.http.UniformResourceInfo;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.model.Destination;
-import com.rackspace.papi.model.DomainNode;
-import com.rackspace.papi.model.ServiceDomain;
+import com.rackspace.papi.model.Node;
+import com.rackspace.papi.model.ReposeCluster;
 import java.util.Collection;
 import java.util.Map;
 import org.ietf.atom.schema.Link;
@@ -25,10 +25,10 @@ public class ConfigurationData {
 
    private final Map<String, ServiceVersionMapping> serviceMappings;
    private final Map<String, Destination> configuredHosts;
-   private final ServiceDomain localDomain;
-   private final DomainNode localHost;
+   private final ReposeCluster localDomain;
+   private final Node localHost;
 
-   public ConfigurationData(ServiceDomain localDomain, DomainNode localHost, Map<String, Destination> configuredHosts, Map<String, ServiceVersionMapping> serviceMappings) {
+   public ConfigurationData(ReposeCluster localDomain, Node localHost, Map<String, Destination> configuredHosts, Map<String, ServiceVersionMapping> serviceMappings) {
       this.configuredHosts = configuredHosts;
       this.serviceMappings = serviceMappings;
       this.localDomain = localDomain;
@@ -129,11 +129,11 @@ public class ConfigurationData {
       return StringUriUtilities.formatUri(uniformResourceInfo.getUri()).equals("/");
    }
 
-   public ServiceDomain getLocalDomain() {
+   public ReposeCluster getLocalDomain() {
       return localDomain;
    }
 
-   public DomainNode getLocalHost() {
+   public Node getLocalHost() {
       return localHost;
    }
 }

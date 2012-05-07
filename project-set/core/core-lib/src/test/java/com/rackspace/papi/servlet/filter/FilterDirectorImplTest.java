@@ -6,7 +6,7 @@ import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.commons.util.servlet.http.RouteDestination;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import com.rackspace.papi.model.DestinationDomain;
+import com.rackspace.papi.model.DestinationCluster;
 import java.io.IOException;
 import java.util.Vector;
 import javax.servlet.http.HttpServletRequest;
@@ -124,7 +124,7 @@ public class FilterDirectorImplTest {
          final String uri = "uri";
          final String destId = "destId";
 
-         DestinationDomain dest = new DestinationDomain();
+         DestinationCluster dest = new DestinationCluster();
          dest.setId(destId);
 
          impl.addDestination(dest, uri, quality);

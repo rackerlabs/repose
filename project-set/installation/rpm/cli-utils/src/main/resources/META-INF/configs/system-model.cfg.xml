@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<power-proxy xmlns="http://docs.rackspacecloud.com/power-api/system-model/v2.0">
-  <service-domain id="repose">
-    <service-domain-nodes>
+<system-model xmlns="http://docs.rackspacecloud.com/power-api/system-model/v2.0">
+  <repose-cluster id="repose">
+    <nodes>
       <node id="repose_node1" hostname="localhost" http-port="8080" https-port="8443"/>
       <!--
         <node id="repose_node2" hostname="other_repose_host" http-port="8080" https-port="8443"/>
       -->
-    </service-domain-nodes>
+    </nodes>
     <filters>
       <!--
       <filter name="http-logging" />
@@ -21,5 +21,5 @@
     <destinations>
       <endpoint id="auth_staging" protocol="https" hostname="staging.identity.api.rackspacecloud.com" root-path="/" port="443" default="true"/>
     </destinations>
-  </service-domain>
-</power-proxy>
+  </repose-cluster>
+</system-model>

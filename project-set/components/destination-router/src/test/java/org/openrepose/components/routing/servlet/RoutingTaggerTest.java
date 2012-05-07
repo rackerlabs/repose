@@ -4,10 +4,10 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.model.DestinationEndpoint;
 import com.rackspace.papi.model.DestinationList;
-import com.rackspace.papi.model.DomainNode;
-import com.rackspace.papi.model.DomainNodeList;
-import com.rackspace.papi.model.PowerProxy;
-import com.rackspace.papi.model.ServiceDomain;
+import com.rackspace.papi.model.Node;
+import com.rackspace.papi.model.NodeList;
+import com.rackspace.papi.model.SystemModel;
+import com.rackspace.papi.model.ReposeCluster;
 import javax.servlet.http.HttpServletRequest;
 
 import javax.servlet.http.HttpServletResponse;
@@ -29,12 +29,12 @@ public class RoutingTaggerTest {
 
     public static class WhenRoutingToServletContexts {
 
-        private PowerProxy powerProxy;
-        private DomainNodeList domainNodeList;
-        private DomainNode domainNode;
+        private SystemModel powerProxy;
+        private NodeList domainNodeList;
+        private Node domainNode;
         private DestinationList destinationList;
         private DestinationEndpoint destinationEndpoint;
-        private ServiceDomain serviceDomain;
+        private ReposeCluster serviceDomain;
         private Target target;
         private HttpServletRequest httpServletRequest;
         private HttpServletResponse httpServletResponse;
@@ -44,11 +44,11 @@ public class RoutingTaggerTest {
         @Before
         public void setUp() {
 
-            powerProxy = new PowerProxy();
-            serviceDomain = new ServiceDomain();
+            powerProxy = new SystemModel();
+            serviceDomain = new ReposeCluster();
             target = new Target();
-            domainNode = new DomainNode();
-            domainNodeList = new DomainNodeList();
+            domainNode = new Node();
+            domainNodeList = new NodeList();
             destinationEndpoint = new DestinationEndpoint();
             destinationList = new DestinationList();
 
@@ -62,7 +62,7 @@ public class RoutingTaggerTest {
             destinationList.getEndpoint().add(destinationEndpoint);
 
             serviceDomain.setId("repose");
-            serviceDomain.setServiceDomainNodes(domainNodeList);
+            serviceDomain.setNodes(domainNodeList);
             serviceDomain.setDestinations(destinationList);
 
 

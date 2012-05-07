@@ -133,7 +133,7 @@ Setting the Configuration Root Directory
 Each Repose component specifies a unique configuration name. The component to configuration 
 name mappings are listed below.
     _Component_      _Configuration Name_
-    System           power-proxy.cfg.xml
+    System           system-model.cfg.xml
     Rate Limiting    rate-limiting.cfg.xml
     Versioning       versioning.cfg.xml    
     Translation      translation.cfg.xml

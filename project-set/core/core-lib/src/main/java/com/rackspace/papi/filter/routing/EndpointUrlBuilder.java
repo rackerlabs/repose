@@ -5,7 +5,7 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.DestinationEndpoint;
-import com.rackspace.papi.model.DomainNode;
+import com.rackspace.papi.model.Node;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
@@ -14,12 +14,12 @@ import javax.servlet.http.HttpServletRequest;
 public class EndpointUrlBuilder {
 
    private final DestinationEndpoint endpoint;
-   private final DomainNode localhost;
+   private final Node localhost;
    private final String uri;
    private final List<Port> localPorts;
    private final HttpServletRequest request;
 
-   EndpointUrlBuilder(DomainNode localhost, List<Port> localPorts, Destination destination, String uri, HttpServletRequest request) {
+   EndpointUrlBuilder(Node localhost, List<Port> localPorts, Destination destination, String uri, HttpServletRequest request) {
       this.localhost = localhost;
       this.uri = uri;
       this.localPorts = localPorts;

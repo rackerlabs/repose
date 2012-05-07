@@ -1,14 +1,14 @@
 package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.util.net.StaticNetworkNameResolver;
-import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
 import com.rackspace.papi.commons.util.net.NetworkNameResolver;
 import com.rackspace.papi.commons.util.net.StaticNetworkInterfaceProvider;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.model.Destination;
-import com.rackspace.papi.model.DomainNode;
-import com.rackspace.papi.model.ServiceDomain;
+import com.rackspace.papi.model.Node;
+import com.rackspace.papi.model.ReposeCluster;
+import com.rackspace.papi.model.SystemModel;
 
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -27,14 +27,14 @@ public class SystemModelInterrogator {
    private static final Logger LOG = LoggerFactory.getLogger(SystemModelInterrogator.class);
    private final NetworkInterfaceProvider networkInterfaceProvider;
    private final NetworkNameResolver nameResolver;
-   private final PowerProxy systemModel;
+   private final SystemModel systemModel;
    private final List<Port> ports;
 
-   public SystemModelInterrogator(PowerProxy powerProxy, List<Port> ports) {
+   public SystemModelInterrogator(SystemModel powerProxy, List<Port> ports) {
       this(StaticNetworkNameResolver.getInstance(), StaticNetworkInterfaceProvider.getInstance(), powerProxy, ports);
    }
 
-   public SystemModelInterrogator(NetworkNameResolver nameResolver, NetworkInterfaceProvider nip, PowerProxy systemModel, List<Port> ports) {
+   public SystemModelInterrogator(NetworkNameResolver nameResolver, NetworkInterfaceProvider nip, SystemModel systemModel, List<Port> ports) {
       this.nameResolver = nameResolver;
       this.networkInterfaceProvider = nip;
       this.systemModel = systemModel;
@@ -43,9 +43,9 @@ public class SystemModelInterrogator {
 
    public final class DomainNodeWrapper {
 
-      private final DomainNode node;
+      private final Node node;
 
-      private DomainNodeWrapper(DomainNode node) {
+      private DomainNodeWrapper(Node node) {
          if (node == null) {
             throw new IllegalArgumentException("Node cannot be null");
          }
@@ -87,9 +87,9 @@ public class SystemModelInterrogator {
 
    public final class ServiceDomainWrapper {
 
-      private final ServiceDomain domain;
+      private final ReposeCluster domain;
 
-      private ServiceDomainWrapper(ServiceDomain domain) {
+      private ServiceDomainWrapper(ReposeCluster domain) {
          if (domain == null) {
             throw new IllegalArgumentException("Domain cannot be null");
          }
@@ -100,15 +100,15 @@ public class SystemModelInterrogator {
          return getLocalNodeForPorts(ports) != null;
       }
       
-      public DomainNode getLocalNodeForPorts(List<Port> ports) {
+      public Node getLocalNodeForPorts(List<Port> ports) {
 
-         DomainNode localhost = null;
+         Node localhost = null;
          
          if (ports.isEmpty()) {
             return localhost;
          }
 
-         for (DomainNode host : domain.getServiceDomainNodes().getNode()) {
+         for (Node host : domain.getNodes().getNode()) {
             DomainNodeWrapper wrapper = new DomainNodeWrapper(host);
             List<Port> hostPorts = wrapper.getPortsList();
             
@@ -128,7 +128,7 @@ public class SystemModelInterrogator {
          List<Destination> destinations = new ArrayList<Destination>();
 
          destinations.addAll(domain.getDestinations().getEndpoint());
-         destinations.addAll(domain.getDestinations().getTargetDomain());
+         destinations.addAll(domain.getDestinations().getTarget());
 
          for (Destination destination : destinations) {
             if (destination.isDefault()) {
@@ -141,10 +141,10 @@ public class SystemModelInterrogator {
       }
    }
 
-   public ServiceDomain getLocalServiceDomain() {
-      ServiceDomain domain = null;
+   public ReposeCluster getLocalServiceDomain() {
+      ReposeCluster domain = null;
 
-      for (ServiceDomain possibleDomain : systemModel.getServiceDomain()) {
+      for (ReposeCluster possibleDomain : systemModel.getReposeCluster()) {
          if (new ServiceDomainWrapper(possibleDomain).containsLocalNodeForPorts(ports)) {
             domain = possibleDomain;
             break;
@@ -154,11 +154,11 @@ public class SystemModelInterrogator {
       return domain;
    }
 
-   public DomainNode getLocalHost() {
-      DomainNode localHost = null;
+   public Node getLocalHost() {
+      Node localHost = null;
 
-      for (ServiceDomain domain : systemModel.getServiceDomain()) {
-         DomainNode node = new ServiceDomainWrapper(domain).getLocalNodeForPorts(ports);
+      for (ReposeCluster domain : systemModel.getReposeCluster()) {
+         Node node = new ServiceDomainWrapper(domain).getLocalNodeForPorts(ports);
 
          if (node != null) {
             localHost = node;

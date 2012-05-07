@@ -1,8 +1,8 @@
 package com.rackspace.papi.jmx.agents;
 
 import com.rackspace.papi.jmx.mbeans.SystemConfiguration;
-import com.rackspace.papi.model.DomainNode;
-import com.rackspace.papi.model.ServiceDomain;
+import com.rackspace.papi.model.Node;
+import com.rackspace.papi.model.ReposeCluster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,11 +24,11 @@ public class SystemJmxAgent {
 
    private static final Logger LOG = LoggerFactory.getLogger(SystemJmxAgent.class);
    private static final String OBJECT_NAME = "com.rackspace.papi.jmx.mxbeans:type=SystemConfiguration";
-   private final DomainNode localHost;
+   private final Node localHost;
    private ObjectName name;
-   private final ServiceDomain domain;
+   private final ReposeCluster domain;
 
-   public SystemJmxAgent(ServiceDomain domain, DomainNode localHost) {
+   public SystemJmxAgent(ReposeCluster domain, Node localHost) {
       this.localHost = localHost;
       this.domain = domain;
 

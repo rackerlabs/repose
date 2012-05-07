@@ -2,7 +2,7 @@ package com.rackspace.papi.components.datastore;
 
 import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
 import com.rackspace.papi.components.datastore.hash.HashRingDatastoreManager;
-import com.rackspace.papi.model.PowerProxy;
+import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.context.ContextAdapter;
@@ -69,7 +69,7 @@ public class DistributedDatastoreFilter implements Filter {
       
       handlerFactory = new DatastoreFilterLogicHandlerFactory(clusterView, hashRingDatastore);
       
-      contextAdapter.configurationService().subscribeTo("power-proxy.cfg.xml", handlerFactory, PowerProxy.class);
+      contextAdapter.configurationService().subscribeTo("system-model.cfg.xml", handlerFactory, SystemModel.class);
       contextAdapter.configurationService().subscribeTo("dist-datastore.cfg.xml", handlerFactory, DistributedDatastoreConfiguration.class);
    }
    

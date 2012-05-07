@@ -147,7 +147,7 @@
         <para> To add the HTTP logging component to a &PRODNAME;
             deployment, add the <code>http-logging</code> filter to
             the &PRODNAME;  configuration file,
-                <code>power-proxy.cfg.xml</code>. You can read about
+                <code>system-model.cfg.xml</code>. You can read about
             configuring &PRODNAME; in the&PRODNAME; Deployment
             Handbook.   </para>
         <important>

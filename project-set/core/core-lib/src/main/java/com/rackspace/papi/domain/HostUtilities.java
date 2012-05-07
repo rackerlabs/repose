@@ -1,9 +1,9 @@
 package com.rackspace.papi.domain;
 
 import com.rackspace.papi.model.Destination;
-import com.rackspace.papi.model.DestinationDomain;
+import com.rackspace.papi.model.DestinationCluster;
 import com.rackspace.papi.model.DestinationEndpoint;
-import com.rackspace.papi.model.DomainNode;
+import com.rackspace.papi.model.Node;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -16,7 +16,7 @@ public final class HostUtilities {
       return asUrl(target, "");
    }
    
-   private static int getPortForProtocol(DomainNode node, String protocol) {
+   private static int getPortForProtocol(Node node, String protocol) {
       if ("http".equalsIgnoreCase(protocol)) {
          return node.getHttpPort();
       } else if ("https".equalsIgnoreCase(protocol)) {
@@ -31,13 +31,13 @@ public final class HostUtilities {
          DestinationEndpoint endpoint = (DestinationEndpoint)target;
          return new URL(endpoint.getProtocol(), endpoint.getHostname(), endpoint.getPort(), uri).toExternalForm();
 
-      } else if (target instanceof DestinationDomain) {
+      } else if (target instanceof DestinationCluster) {
          // TODO Model: route to a host within the domain
-         DestinationDomain domain = (DestinationDomain) target;
+         DestinationCluster domain = (DestinationCluster) target;
          
          // For now, just grab the first node and route to that
-         if (!domain.getTargetDomain().getServiceDomainNodes().getNode().isEmpty()) {
-            DomainNode node = domain.getTargetDomain().getServiceDomainNodes().getNode().get(0);
+         if (!domain.getCluster().getNodes().getNode().isEmpty()) {
+            Node node = domain.getCluster().getNodes().getNode().get(0);
             int port = getPortForProtocol(node, target.getProtocol());
 
             if (port > 0) {

@@ -5,7 +5,7 @@ import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList;
 import com.rackspace.papi.domain.Port;
-import com.rackspace.papi.model.PowerProxy;
+import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -35,7 +35,7 @@ public class VersioningFilter implements Filter {
 
    @Override
    public void destroy() {
-      configurationManager.unsubscribeFrom("power-proxy.cfg.xml", handlerFactory);
+      configurationManager.unsubscribeFrom("system-model.cfg.xml", handlerFactory);
       configurationManager.unsubscribeFrom("versioning.cfg.xml", handlerFactory);
    }
 
@@ -70,7 +70,7 @@ public class VersioningFilter implements Filter {
       
       configurationManager = ServletContextHelper.getInstance().getPowerApiContext(servletContext).configurationService();
 
-      configurationManager.subscribeTo("power-proxy.cfg.xml", handlerFactory, PowerProxy.class);
+      configurationManager.subscribeTo("system-model.cfg.xml", handlerFactory, SystemModel.class);
       configurationManager.subscribeTo("versioning.cfg.xml", handlerFactory, ServiceVersionMappingList.class);
    }
 }

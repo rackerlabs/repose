@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<power-proxy xmlns="http://docs.rackspacecloud.com/power-api/system-model/v2.0">
-  <service-domain id="repose">
+<system-model xmlns="http://docs.rackspacecloud.com/power-api/system-model/v2.0">
+  <repose-cluster id="repose">
 
-    <service-domain-nodes>
+    <nodes>
       <node id="proxy-n01" hostname="<%= node[:fqdn]%>" http-port="8080"/>
-    </service-domain-nodes>
+    </nodes>
 
     <filters>
         <filter name="versioning" />
@@ -20,5 +20,5 @@
       <endpoint id="mocks" protocol="http" root-path="/mocks" port="8080"/>
     </destinations>
 
-  </service-domain>
-</power-proxy>
+  </repose-cluster>
+</system-model>

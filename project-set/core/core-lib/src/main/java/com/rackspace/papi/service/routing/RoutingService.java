@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.routing;
 
-import com.rackspace.papi.model.DomainNode;
+import com.rackspace.papi.model.Node;
 
 public interface RoutingService {
-   DomainNode getRoutableNode(String domainId);
+   Node getRoutableNode(String domainId);
 }

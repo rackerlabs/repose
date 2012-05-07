@@ -6,27 +6,27 @@ package com.rackspace.papi.components.versioning;
 
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import java.util.HashMap;
 import com.rackspace.papi.components.versioning.config.MediaTypeList;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList;
-import java.util.Map;
 import com.rackspace.papi.components.versioning.domain.ConfigurationData;
-import com.rackspace.papi.model.FilterList;
 import com.rackspace.papi.components.versioning.util.ContentTransformer;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.DestinationEndpoint;
-import com.rackspace.papi.model.DomainNode;
-import com.rackspace.papi.model.ServiceDomain;
+import com.rackspace.papi.model.FilterList;
+import com.rackspace.papi.model.Node;
+import com.rackspace.papi.model.ReposeCluster;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -45,17 +45,17 @@ public class VersioningHandlerTest {
    Map<String, ServiceVersionMapping> configuredMappings;
    ServiceVersionMappingList mappings;
    ServiceVersionMapping version1, version2, version3, version4;
-   ServiceDomain domain;
-   DomainNode localHost;
+   ReposeCluster domain;
+   Node localHost;
    DestinationEndpoint localEndpoint;
    HttpServletRequest request;
 
    @Before
    public void setUp() {
-      domain = new ServiceDomain();
+      domain = new ReposeCluster();
       domain.setFilters(mock(FilterList.class));
 
-      localHost = new DomainNode();
+      localHost = new Node();
       localHost.setHostname("localhost");
       localHost.setHttpPort(8080);
       localHost.setId("localhost");

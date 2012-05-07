@@ -79,7 +79,7 @@
                                         </source>
                                         <source>
                                             <location>
-                                                ../repose-war/src/main/resources/META-INF/configs/power-proxy.cfg.xml
+                                                ../repose-war/src/main/resources/META-INF/configs/system-model.cfg.xml
                                             </location>
                                         </source>
                                         <source>

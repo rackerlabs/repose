@@ -3,7 +3,7 @@ package org.openrepose.components.routing.servlet;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
-import com.rackspace.papi.model.PowerProxy;
+import com.rackspace.papi.model.SystemModel;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -37,7 +37,7 @@ public class DestinationRouterFilter implements Filter {
         
         handlerFactory = new DestinationRouterHandlerFactory();
         
-        manager.subscribeTo("power-proxy.cfg.xml", handlerFactory, PowerProxy.class);
+        manager.subscribeTo("system-model.cfg.xml", handlerFactory, SystemModel.class);
         manager.subscribeTo("destination-router.cfg.xml", handlerFactory, DestinationRouterConfiguration.class);
     }
 }

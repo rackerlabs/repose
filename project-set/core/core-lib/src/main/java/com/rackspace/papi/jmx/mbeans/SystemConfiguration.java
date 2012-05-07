@@ -1,9 +1,9 @@
 package com.rackspace.papi.jmx.mbeans;
 
-import com.rackspace.papi.model.DomainNode;
+import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.Filter;
-import com.rackspace.papi.model.PowerProxy;
-import com.rackspace.papi.model.ServiceDomain;
+import com.rackspace.papi.model.SystemModel;
+import com.rackspace.papi.model.ReposeCluster;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,10 +24,10 @@ import java.util.List;
  */
 public class SystemConfiguration implements SystemConfigurationMBean {
 
-   private final DomainNode localHost;
-   private final ServiceDomain domain;
+   private final Node localHost;
+   private final ReposeCluster domain;
 
-   public SystemConfiguration(ServiceDomain domain, DomainNode localHost) {
+   public SystemConfiguration(ReposeCluster domain, Node localHost) {
       this.domain = domain;
       this.localHost = localHost;
    }
@@ -44,7 +44,7 @@ public class SystemConfiguration implements SystemConfigurationMBean {
    }
 
    @Override
-   public PowerProxy updatePowerProxy(PowerProxy powerProxy) {
+   public SystemModel updatePowerProxy(SystemModel powerProxy) {
       System.out.print("In MBean " + localHost.getHostname() + " - " + powerProxy.toString());
       return powerProxy;
    }

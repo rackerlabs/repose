@@ -6,8 +6,8 @@ package com.rackspace.papi.filter;
 
 import com.rackspace.papi.filter.resource.ResourceConsumerCounter;
 import com.rackspace.papi.commons.util.Destroyable;
-import com.rackspace.papi.model.DomainNode;
-import com.rackspace.papi.model.ServiceDomain;
+import com.rackspace.papi.model.Node;
+import com.rackspace.papi.model.ReposeCluster;
 import java.util.List;
 import javax.servlet.*;
 
@@ -19,11 +19,11 @@ public class PowerFilterChainBuilder implements Destroyable {
 
    private final ResourceConsumerCounter resourceConsumerMonitor;
    private final List<FilterContext> currentFilterChain;
-   private final ServiceDomain domain;
-   private final DomainNode localhost;
+   private final ReposeCluster domain;
+   private final Node localhost;
    
 
-   public PowerFilterChainBuilder(ServiceDomain domain, DomainNode localhost, List<FilterContext> currentFilterChain) {
+   public PowerFilterChainBuilder(ReposeCluster domain, Node localhost, List<FilterContext> currentFilterChain) {
       this.currentFilterChain = currentFilterChain;
       resourceConsumerMonitor = new ResourceConsumerCounter();
       this.domain = domain;
@@ -38,11 +38,11 @@ public class PowerFilterChainBuilder implements Destroyable {
       return new PowerFilterChain(domain, localhost, currentFilterChain, containerFilterChain, servletContext, resourceConsumerMonitor);
    }
    
-   public ServiceDomain getServiceDomain() {
+   public ReposeCluster getReposeCluster() {
       return domain;
    }
    
-   public DomainNode getLocalhost() {
+   public Node getLocalhost() {
       return localhost;
    }
 

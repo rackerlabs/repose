@@ -5,33 +5,29 @@
 package com.rackspace.papi.components.routing;
 
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.domain.HostUtilities;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import java.net.MalformedURLException;
 import javax.servlet.http.HttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.model.PowerProxy;
-import com.rackspace.papi.commons.util.net.NetUtilities;
+import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
 import com.rackspace.papi.commons.util.net.NetworkNameResolver;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.filter.SystemModelInterrogator;
-import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.DestinationEndpoint;
 import com.rackspace.papi.model.DestinationList;
-import com.rackspace.papi.model.DomainNode;
-import com.rackspace.papi.model.DomainNodeList;
+import com.rackspace.papi.model.Node;
+import com.rackspace.papi.model.NodeList;
 
 
 import com.rackspace.papi.model.FilterList;
-import com.rackspace.papi.model.ServiceDomain;
+import com.rackspace.papi.model.ReposeCluster;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
-import org.junit.Ignore;
 import static org.mockito.Mockito.*;
 
 /**
@@ -44,7 +40,7 @@ public class RoutingTaggerTest {
    HttpServletRequest request;
    ReadableHttpServletResponse response;
    RoutingTagger routingTagger;
-   PowerProxy systemModel;
+   SystemModel systemModel;
    String myHostName, requestUri, nextHostName;
    DestinationEndpoint defaultDest;
 
@@ -60,7 +56,7 @@ public class RoutingTaggerTest {
 
       request = mock(HttpServletRequest.class);
       response = mock(ReadableHttpServletResponse.class);
-      systemModel = new PowerProxy();
+      systemModel = new SystemModel();
 
       when(request.getRequestURI()).thenReturn(requestUri);
 
@@ -72,18 +68,18 @@ public class RoutingTaggerTest {
 
       interrogator = new SystemModelInterrogator(resolver, interfaceProvider, systemModel, getHttpPortList(8080));
 
-      ServiceDomain domain = new ServiceDomain();
+      ReposeCluster domain = new ReposeCluster();
       domain.setFilters(mock(FilterList.class));
 
-      DomainNode node = new DomainNode();
+      Node node = new Node();
       node.setHostname("localhost");
       node.setHttpPort(8080);
       node.setHttpsPort(0);
 
-      DomainNodeList nodeList = new DomainNodeList();
+      NodeList nodeList = new NodeList();
       nodeList.getNode().add(node);
       
-      domain.setServiceDomainNodes(nodeList);
+      domain.setNodes(nodeList);
 
       defaultDest = new DestinationEndpoint();
       defaultDest.setId("default");
@@ -96,7 +92,7 @@ public class RoutingTaggerTest {
       destList.getEndpoint().add(defaultDest);
       domain.setDestinations(destList);
 
-      systemModel.getServiceDomain().add(domain);
+      systemModel.getReposeCluster().add(domain);
    }
 
    /**

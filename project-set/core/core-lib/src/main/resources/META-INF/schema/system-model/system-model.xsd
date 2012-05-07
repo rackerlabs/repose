@@ -8,9 +8,9 @@
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
            jaxb:version="2.1">
 
-    <xs:element name="power-proxy" type="mod:PowerProxy" />
+    <xs:element name="system-model" type="mod:SystemModel" />
 
-    <xs:complexType name="PowerProxy">
+    <xs:complexType name="SystemModel">
         <xs:annotation>
             <xs:documentation>
                 <html:p>Top level element for defining a power proxy system model</html:p>
@@ -18,50 +18,71 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="service-domain" type="mod:ServiceDomain" minOccurs="1" maxOccurs="unbounded" />
-            <!--<xs:element name="host" type="mod:Host" minOccurs="1" maxOccurs="unbounded" />-->
+            <xs:element name="repose-cluster" type="mod:ReposeCluster" minOccurs="1" maxOccurs="unbounded" />
+            <xs:element name="service-cluster" type="mod:Cluster" minOccurs="1" maxOccurs="unbounded" />
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="ServiceDomain">
+    <xs:complexType name="Cluster">
         <xs:annotation>
             <xs:documentation>
                 <html:p>
-               Defines a single service domain in the system model. A service domain is a collection of nodes
-               that provide equivalent functionality. If a service domain represents a repose cluster, then
+               Defines a single service cluster in the system model. A service cluster is a collection of nodes
+               that provide equivalent functionality. If a service cluster represents a repose cluster, then
                it will contain a filter list and a destination list.
                 </html:p>
             </xs:documentation>
         </xs:annotation>
-      
+     
         <xs:sequence>
-            <xs:element name="service-domain-nodes" type="mod:DomainNodeList" minOccurs="1" maxOccurs="1" />
-            <xs:element name="filters" type="mod:FilterList" minOccurs="0" maxOccurs="1" />
-            <xs:element name="destinations" type="mod:DestinationList" minOccurs="0" maxOccurs="1" />
+            <xs:element name="nodes" type="mod:NodeList" minOccurs="1" maxOccurs="1" />
         </xs:sequence>
 
         <xs:attribute name="id" type="xs:ID" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Defines the service domain's id which may be referenced elsewhere in various configuration files</html:p>
+                    <html:p>Defines the service cluster's id which may be referenced elsewhere in various configuration files</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
 
-    <xs:complexType name="DomainNodeList">
+    <xs:complexType name="ReposeCluster">
         <xs:annotation>
             <xs:documentation>
-                <html:p>Defines a list of nodes within a domain</html:p>
+                <html:p>
+               Defines a single service cluster in the system model. A service cluster is a collection of nodes
+               that provide equivalent functionality. If a service cluster represents a repose cluster, then
+               it will contain a filter list and a destination list.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+     
+        <xs:complexContent>
+            <xs:extension base="mod:Cluster">
+               <xs:sequence>
+                     <xs:element name="filters" type="mod:FilterList" minOccurs="0" maxOccurs="1" />
+                     <xs:element name="destinations" type="mod:DestinationList" minOccurs="0" maxOccurs="1" />
+               </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+
+    </xs:complexType>
+
+
+    <xs:complexType name="NodeList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Defines a list of nodes within a cluster</html:p>
             </xs:documentation>
         </xs:annotation>
       
         <xs:sequence>
-            <xs:element name="node" type="mod:DomainNode" minOccurs="1" maxOccurs="unbounded" />
+            <xs:element name="node" type="mod:Node" minOccurs="1" maxOccurs="unbounded" />
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="DomainNode">
+    <xs:complexType name="Node">
         <xs:annotation>
             <xs:documentation>
                 <html:p>Defines a single host in the system model</html:p>
@@ -140,13 +161,13 @@
     <xs:complexType name="DestinationList">
         <xs:annotation>
             <xs:documentation>
-                <html:p>Defines a list of target destinations reachable from a domain</html:p>
+                <html:p>Defines a list of target destinations reachable from a cluster</html:p>
             </xs:documentation>
         </xs:annotation>
       
         <xs:sequence>
             <xs:element name="endpoint" type="mod:DestinationEndpoint" minOccurs="0" maxOccurs="unbounded" />
-            <xs:element name="target-domain" type="mod:DestinationDomain" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="target" type="mod:DestinationCluster" minOccurs="0" maxOccurs="unbounded" />
         </xs:sequence>
     </xs:complexType>
 
@@ -190,7 +211,7 @@
     <xs:complexType name="DestinationEndpoint">
         <xs:annotation>
             <xs:documentation>
-                <html:p>Defines a single node that is a target destination reachable from a domain</html:p>
+                <html:p>Defines a single node that is a target destination reachable from a cluster</html:p>
             </xs:documentation>
         </xs:annotation>
         <xs:complexContent>
@@ -214,23 +235,23 @@
         </xs:complexContent>
     </xs:complexType>
 
-    <xs:complexType name="DestinationDomain">
+    <xs:complexType name="DestinationCluster">
         <xs:annotation>
             <xs:documentation>
-                <html:p>Defines a single node that is a target destination reachable from a domain</html:p>
+                <html:p>Defines a single node that is a target destination reachable from a cluster</html:p>
             </xs:documentation>
         </xs:annotation>
       
         <xs:complexContent>
             <xs:extension base="mod:Destination">
-                <xs:attribute name="target-domain" type="xs:IDREF" use="required">
+                <xs:attribute name="cluster" type="xs:IDREF" use="required">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>Defines the endpoint's host name. Optional. If not specified, localhost is assumed.</html:p>
                         </xs:documentation>
                         <xs:appinfo>
                             <jaxb:property>
-                                <jaxb:baseType name="com.rackspace.papi.model.ServiceDomain" />
+                                <jaxb:baseType name="com.rackspace.papi.model.Cluster" />
                             </jaxb:property>
                         </xs:appinfo>
                     </xs:annotation>

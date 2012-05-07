@@ -1,19 +1,19 @@
 package com.rackspace.papi.service.routing.robin;
 
-import com.rackspace.papi.model.DomainNode;
-import com.rackspace.papi.model.PowerProxy;
+import com.rackspace.papi.model.Node;
+import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.routing.RoutingService;
 
 public class RoundRobinRoutingService implements RoutingService {
-   private final ServiceDomains domains;
+   private final Clusters domains;
 
-   public RoundRobinRoutingService(PowerProxy config) {
-      this.domains = new ServiceDomains(config);
+   public RoundRobinRoutingService(SystemModel config) {
+      this.domains = new Clusters(config);
    }
    
    @Override
-   public DomainNode getRoutableNode(String domainId) {
-      ServiceDomainWrapper domain = domains.getDomain(domainId);
+   public Node getRoutableNode(String domainId) {
+      ClusterWrapper domain = domains.getDomain(domainId);
       if (domain != null) {
          return domain.getNextNode();
       }

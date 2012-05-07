@@ -49,8 +49,8 @@ package "filterBundle" do
 end
 
 
-template "/etc/repose/power-proxy.cfg.xml" do
- source "secondnode/rootwarnode/power-proxy.cfg.xml.erb"
+template "/etc/repose/system-model.cfg.xml" do
+ source "secondnode/rootwarnode/system-model.cfg.xml.erb"
  mode 0644
 end
 

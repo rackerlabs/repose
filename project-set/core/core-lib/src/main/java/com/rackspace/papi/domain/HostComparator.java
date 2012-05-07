@@ -1,13 +1,13 @@
 package com.rackspace.papi.domain;
 
-import com.rackspace.papi.model.DomainNode;
+import com.rackspace.papi.model.Node;
 import java.util.Comparator;
 
-public final class HostComparator implements Comparator<DomainNode> {
+public final class HostComparator implements Comparator<Node> {
 
     private static final HostComparator INSTANCE = new HostComparator();
 
-    public static Comparator<DomainNode> getInstance() {
+    public static Comparator<Node> getInstance() {
         return INSTANCE;
     }
 
@@ -15,7 +15,7 @@ public final class HostComparator implements Comparator<DomainNode> {
     }
 
     @Override
-    public int compare(DomainNode hostOne, DomainNode hostTwo) {
+    public int compare(Node hostOne, Node hostTwo) {
         int result = hostOne.getHostname().compareTo(hostTwo.getHostname());
 
         if (result == 0) {

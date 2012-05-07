@@ -2,10 +2,10 @@ package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.domain.Port;
-import com.rackspace.papi.model.DomainNode;
+import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.Filter;
-import com.rackspace.papi.model.PowerProxy;
-import com.rackspace.papi.model.ServiceDomain;
+import com.rackspace.papi.model.ReposeCluster;
+import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import java.util.LinkedList;
 import java.util.List;
@@ -25,11 +25,11 @@ public class FilterContextInitializer {
       filterContextManager = new FilterContextManagerImpl(filterConfig);
    }
 
-   public List<FilterContext> buildFilterContexts(ClassLoaderManagerService classLoaderContextManager, PowerProxy powerProxy, List<Port> ports) {
+   public List<FilterContext> buildFilterContexts(ClassLoaderManagerService classLoaderContextManager, SystemModel powerProxy, List<Port> ports) {
       final List<FilterContext> filterContexts = new LinkedList<FilterContext>();
       SystemModelInterrogator interrogator = new SystemModelInterrogator(powerProxy, ports);
-      ServiceDomain domain = interrogator.getLocalServiceDomain();
-      final DomainNode localHost = interrogator.getLocalHost();
+      ReposeCluster domain = interrogator.getLocalServiceDomain();
+      final Node localHost = interrogator.getLocalHost();
 
       if (localHost != null) {
          // TODO: This may need to move once we determine what parts of repose should be instrumented via JMX.
@@ -52,7 +52,7 @@ public class FilterContextInitializer {
             }
          }
       } else {
-         LOG.error("Unable to identify the local host in the system model - please check your power-proxy.cfg.xml");
+         LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
       }
 
       return filterContexts;

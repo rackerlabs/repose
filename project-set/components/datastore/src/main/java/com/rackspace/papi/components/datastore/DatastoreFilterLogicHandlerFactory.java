@@ -4,10 +4,10 @@ import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
 import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import com.rackspace.papi.model.DomainNode;
 import com.rackspace.papi.model.Filter;
-import com.rackspace.papi.model.PowerProxy;
-import com.rackspace.papi.model.ServiceDomain;
+import com.rackspace.papi.model.Node;
+import com.rackspace.papi.model.SystemModel;
+import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
 import org.slf4j.Logger;
@@ -45,19 +45,19 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
    @Override
    protected Map<Class, UpdateListener<?>> getListeners() {
       final Map<Class, UpdateListener<?>> listeners = new HashMap<Class, UpdateListener<?>>();
-      listeners.put(PowerProxy.class, new SystemModelUpdateListener());
+      listeners.put(SystemModel.class, new SystemModelUpdateListener());
       listeners.put(DistributedDatastoreConfiguration.class, new DistributedDatastoreConfigurationListener());
 
       return listeners;
    }
 
-   protected void updateClusterMembers(PowerProxy configuration) {
+   protected void updateClusterMembers(SystemModel configuration) {
       try {
          final List<InetSocketAddress> cacheSiblings = new LinkedList<InetSocketAddress>();
          
-         ServiceDomain domain = new SystemModelInterrogator(configuration, clusterView.getListenPorts()).getLocalServiceDomain();
+         ReposeCluster domain = new SystemModelInterrogator(configuration, clusterView.getListenPorts()).getLocalServiceDomain();
 
-         for (DomainNode node : domain.getServiceDomainNodes().getNode()) {
+         for (Node node : domain.getNodes().getNode()) {
             if (domain.getFilters() != null) {
                for (Filter f : domain.getFilters().getFilter()) {
                   if (f.getName().equals("dist-datastore")) {
@@ -107,10 +107,10 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
       }
    }
 
-   private class SystemModelUpdateListener implements UpdateListener<PowerProxy> {
+   private class SystemModelUpdateListener implements UpdateListener<SystemModel> {
 
       @Override
-      public void configurationUpdated(PowerProxy configurationObject) {
+      public void configurationUpdated(SystemModel configurationObject) {
          if (configurationObject == null) {
             LOG.error("Power Proxy configuration was null - please check your configurations and error logs");
             return;

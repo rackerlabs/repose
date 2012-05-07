@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<power-proxy xmlns="http://docs.rackspacecloud.com/power-api/system-model/v2.0">
+<system-model xmlns="http://docs.rackspacecloud.com/power-api/system-model/v2.0">
    
    <!-- REPOSE auth and versioning domain.  This will auth and determine which version of the request we are servicing -->
-   <service-domain id="nova-auth">
-      <service-domain-nodes>
+   <repose-cluster id="nova-auth">
+      <nodes>
          <node id="repose-nova-av-n01" hostname="repose-nova-av-n01.ord.internal.rackspace.corp" http-port="8080" />
          <node id="repose-nova-av-n02" hostname="repose-nova-av-n02.ord.internal.rackspace.corp" http-port="8080" />
-      </service-domain-nodes>      
+      </nodes>      
       
       <filters>
          <filter name="client-authentication" />
@@ -17,17 +17,17 @@
       
       <!-- versioning will choose a destination based on uri rules.  Must be one of these two -->
       <destinations>
-         <target-domain id="trans" target-domain="nova-cs-legacy-translation" protocol="http"/>
-         <target-domain id="limiting" target-domain="nova-rate-limiting" protocol="http"/>
+         <target id="trans" cluster="nova-cs-legacy-translation" protocol="http"/>
+         <target id="limiting" cluster="nova-rate-limiting" protocol="http"/>
       </destinations>
-   </service-domain>
+   </repose-cluster>
    
    <!-- REPOSE translation domain will translante 1.0 requests/responses to/from 2.0 -->
-   <service-domain id="nova-cs-legacy-translation">
-      <service-domain-nodes>
+   <repose-cluster id="nova-cs-legacy-translation">
+      <nodes>
          <node id="repose-csl-trans-n01" hostname="repose-csl-trans-n01.ord.internal.rackspace.corp" http-port="8080" />
          <node id="repose-csl-trans-n02" hostname="repose-csl-trans-n02.ord.internal.rackspace.corp" http-port="8080" />
-      </service-domain-nodes>      
+      </nodes>      
 
       <filters>
          <filter name="http-Logging" />
@@ -37,16 +37,16 @@
    
       <!-- only destination available is rate limiting -->
       <destinations>
-         <target-domain id="limiting" target-domain="nova-rate-limiting" protocol="http" default="true" />
+         <target id="limiting" cluster="nova-rate-limiting" protocol="http" default="true" />
       </destinations>
-   </service-domain>
+   </repose-cluster>
    
    <!-- REPOSE rate limiting domain -->
-   <service-domain name="nova-rate-limiting">
-      <service-domain-nodes>
+   <repose-cluster name="nova-rate-limiting">
+      <nodes>
          <node id="repose-nova-rl-n01" hostname="repose-nova-rl-n01.ord.internal.rackspace.corp" http-port="8080" />
          <node id="repose-nova-rl-n02" hostname="repose-nova-rl-n02.ord.internal.rackspace.corp" http-port="8080" />
-      </service-domain-nodes>      
+      </nodes>      
       
       <filter-chain name="nova-rate-limiting">
          <filter name="dist-datastore" />
@@ -56,16 +56,16 @@
    
       <!-- only destination available is NOVA API -->
       <destinations>
-         <target-domain id="nova" target-domain="nova-api" protocol="http" default="true"/>
+         <target id="nova" cluster="nova-api" protocol="http" default="true"/>
       </destinations>
-   </service-domain>
+   </repose-cluster>
 
    <!-- NOVA service api domain -->
-   <service-domain id="nova-api">
-      <service-domain-nodes>
+   <service-cluster id="nova-api">
+      <nodes>
          <node id="nova-n01" hostname="nova-n01.ord.internal.rackspace.corp" http-port="8080" />
          <node id="nova-n02" hostname="nova-n02.ord.internal.rackspace.corp" http-port="8080" />
-      </service-domain-nodes>
-   </service-domain>
+      </nodes>
+   </service-cluster>
   
-</power-proxy>
+</system-model>

@@ -4,7 +4,7 @@ import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import com.rackspace.papi.model.PowerProxy;
+import com.rackspace.papi.model.SystemModel;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,16 +12,16 @@ import java.util.Map;
 public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RoutingTagger> {
 
    private final List<Port> ports;
-   private PowerProxy systemModel;
+   private SystemModel systemModel;
 
    public RoutingHandlerFactory(List<Port> ports) {
       this.ports = ports;
    }
 
-   private class RoutingConfigurationListener implements UpdateListener<PowerProxy> {
+   private class RoutingConfigurationListener implements UpdateListener<SystemModel> {
 
       @Override
-      public void configurationUpdated(PowerProxy configurationObject) {
+      public void configurationUpdated(SystemModel configurationObject) {
          systemModel = configurationObject;
       }
    }
@@ -36,7 +36,7 @@ public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactor
       return new HashMap<Class, UpdateListener<?>>() {
 
          {
-            put(PowerProxy.class, new RoutingConfigurationListener());
+            put(SystemModel.class, new RoutingConfigurationListener());
          }
       };
    }

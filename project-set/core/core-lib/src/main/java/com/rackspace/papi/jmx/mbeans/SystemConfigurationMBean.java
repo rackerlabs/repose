@@ -1,6 +1,6 @@
 package com.rackspace.papi.jmx.mbeans;
 
-import com.rackspace.papi.model.PowerProxy;
+import com.rackspace.papi.model.SystemModel;
 
 import java.util.List;
 
@@ -13,5 +13,5 @@ public interface SystemConfigurationMBean {
 
    List<String> getLoadedFilters();
 
-   PowerProxy updatePowerProxy(PowerProxy powerProxy);
+   SystemModel updatePowerProxy(SystemModel powerProxy);
 }

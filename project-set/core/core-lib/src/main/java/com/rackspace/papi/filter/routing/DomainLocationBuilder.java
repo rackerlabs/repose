@@ -1,8 +1,8 @@
 package com.rackspace.papi.filter.routing;
 
 import com.rackspace.papi.model.Destination;
-import com.rackspace.papi.model.DestinationDomain;
-import com.rackspace.papi.model.DomainNode;
+import com.rackspace.papi.model.DestinationCluster;
+import com.rackspace.papi.model.Node;
 import com.rackspace.papi.service.routing.RoutingService;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -14,19 +14,19 @@ import org.slf4j.LoggerFactory;
 public class DomainLocationBuilder implements LocationBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(DomainLocationBuilder.class);
     private static final String HTTPS_PROTOCOL = "https";
-    private final DestinationDomain domain;
+    private final DestinationCluster domain;
     private final RoutingService routingService;
     private final String uri;
 
     public DomainLocationBuilder(RoutingService routingService, Destination destination, String uri) {
         this.routingService = routingService;
         this.uri = uri;
-        this.domain = (DestinationDomain) destination;
+        this.domain = (DestinationCluster) destination;
     }
 
     @Override
     public DestinationLocation build() throws MalformedURLException, URISyntaxException {
-        DomainNode node = routingService.getRoutableNode(domain.getId());
+        Node node = routingService.getRoutableNode(domain.getId());
         if (node == null) {
            LOG.warn("No routable node for domain: " + domain.getId());
            return null;

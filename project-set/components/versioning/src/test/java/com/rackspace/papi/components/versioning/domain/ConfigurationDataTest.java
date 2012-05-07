@@ -18,8 +18,8 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.DestinationEndpoint;
-import com.rackspace.papi.model.DomainNode;
-import com.rackspace.papi.model.ServiceDomain;
+import com.rackspace.papi.model.Node;
+import com.rackspace.papi.model.ReposeCluster;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
@@ -37,16 +37,16 @@ public class ConfigurationDataTest {
    Map<String, ServiceVersionMapping> configuredMappings;
    ServiceVersionMappingList mappings;
    ServiceVersionMapping version1, version2;
-   DomainNode localHost;
+   Node localHost;
    DestinationEndpoint localEndpoint;
-   ServiceDomain domain;
+   ReposeCluster domain;
 
    @Before
    public void setUp() {
-      domain = new ServiceDomain();
+      domain = new ReposeCluster();
       domain.setFilters(mock(FilterList.class));
 
-      localHost = new DomainNode();
+      localHost = new Node();
       localHost.setHostname("localhost");
       localHost.setHttpPort(8080);
       localHost.setHttpsPort(0);

@@ -6,17 +6,17 @@ import com.rackspace.papi.commons.util.classloader.ear.EarClassLoader;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.commons.util.classloader.ear.EarDescriptor;
 import com.rackspace.papi.model.Filter;
-import com.rackspace.papi.model.PowerProxy;
+import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import com.rackspace.papi.commons.util.net.NetUtilities;
 import com.rackspace.papi.domain.Port;
-import com.rackspace.papi.model.DomainNode;
-import com.rackspace.papi.model.DomainNodeList;
+import com.rackspace.papi.model.Node;
+import com.rackspace.papi.model.NodeList;
 import com.rackspace.papi.model.FilterList;
-import com.rackspace.papi.model.ServiceDomain;
+import com.rackspace.papi.model.ReposeCluster;
 
 import javax.servlet.FilterConfig;
 
@@ -94,9 +94,9 @@ public class PowerFilterChainBuilderTest {
 
          FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig);
 
-         PowerProxy mockedPowerProxy = mock(PowerProxy.class);
-         List<ServiceDomain> hosts = createTestHosts();
-         when(mockedPowerProxy.getServiceDomain()).thenReturn(hosts);
+         SystemModel mockedPowerProxy = mock(SystemModel.class);
+         List<ReposeCluster> hosts = createTestHosts();
+         when(mockedPowerProxy.getReposeCluster()).thenReturn(hosts);
 
          List<FilterContext> powerFilterChain = powerFilterChainBuilder.buildFilterContexts(mockedEarClassLoaderContextManager, mockedPowerProxy, getHttpPortList(8080));
 
@@ -132,32 +132,32 @@ public class PowerFilterChainBuilderTest {
 
          FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig);
 
-         PowerProxy mockedPowerProxy = mock(PowerProxy.class);
-         List<ServiceDomain> hosts = createTestHosts();
-         when(mockedPowerProxy.getServiceDomain()).thenReturn(hosts);
+         SystemModel mockedPowerProxy = mock(SystemModel.class);
+         List<ReposeCluster> hosts = createTestHosts();
+         when(mockedPowerProxy.getReposeCluster()).thenReturn(hosts);
 
          List<FilterContext> powerFilterChain = powerFilterChainBuilder.buildFilterContexts(mockedEarClassLoaderContextManager, mockedPowerProxy, getHttpPortList(8080));
 
          assertEquals(0, powerFilterChain.size());
       }
 
-      private List<ServiceDomain> createTestHosts() {
-         ServiceDomain domain = new ServiceDomain();
-         List<DomainNode> hostList = new ArrayList<DomainNode>();
+      private List<ReposeCluster> createTestHosts() {
+         ReposeCluster domain = new ReposeCluster();
+         List<Node> hostList = new ArrayList<Node>();
 
          domain.setFilters(mock(FilterList.class));
 
-         DomainNode host = new DomainNode();
+         Node host = new Node();
          host.setHostname(NetUtilities.getLocalHostName());
          host.setHttpPort(8080);
          host.setHttpsPort(0);
 
          hostList.add(host);
-         DomainNodeList nodeList = new DomainNodeList();
+         NodeList nodeList = new NodeList();
          nodeList.getNode().add(host);
-         domain.setServiceDomainNodes(nodeList);
+         domain.setNodes(nodeList);
 
-         List<ServiceDomain> result = new ArrayList<ServiceDomain>();
+         List<ReposeCluster> result = new ArrayList<ReposeCluster>();
          result.add(domain);
 
          return result;

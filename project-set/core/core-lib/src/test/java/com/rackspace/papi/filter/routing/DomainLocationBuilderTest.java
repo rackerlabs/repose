@@ -1,10 +1,10 @@
 package com.rackspace.papi.filter.routing;
 
-import com.rackspace.papi.model.DestinationDomain;
+import com.rackspace.papi.model.DestinationCluster;
 import com.rackspace.papi.model.DestinationList;
-import com.rackspace.papi.model.DomainNode;
-import com.rackspace.papi.model.DomainNodeList;
-import com.rackspace.papi.model.ServiceDomain;
+import com.rackspace.papi.model.Node;
+import com.rackspace.papi.model.NodeList;
+import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.service.routing.RoutingService;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,36 +19,36 @@ public class DomainLocationBuilderTest {
    public static class WhenRoutingToADomain {
       private DomainLocationBuilder instance;
       private RoutingService routingService;
-      private DomainNode domainNode;
-      private DestinationDomain dest;
+      private Node domainNode;
+      private DestinationCluster dest;
 
       @Before
       public void setUp() {
-         ServiceDomain domain = new ServiceDomain();
+         ReposeCluster domain = new ReposeCluster();
          domain.setId("domainId");
 
-         domainNode = new DomainNode();
+         domainNode = new Node();
          domainNode.setHostname("destNode");
          domainNode.setHttpPort(8080);
          domainNode.setHttpsPort(8443);
          domainNode.setId("destNodeId");
          
-         DomainNodeList list = new DomainNodeList();
+         NodeList list = new NodeList();
          list.getNode().add(domainNode);
-         domain.setServiceDomainNodes(list);
+         domain.setNodes(list);
          
          routingService = mock(RoutingService.class);
          when(routingService.getRoutableNode(anyString())).thenReturn(domainNode);
          
-         dest = new DestinationDomain();
+         dest = new DestinationCluster();
          dest.setDefault(true);
          dest.setId("destId");
          dest.setProtocol("http");
          dest.setRootPath("/root");
-         dest.setTargetDomain(domain);
+         dest.setCluster(domain);
          
          DestinationList destList = new DestinationList();
-         destList.getTargetDomain().add(dest);
+         destList.getTarget().add(dest);
          
          domain.setDestinations(destList);
          

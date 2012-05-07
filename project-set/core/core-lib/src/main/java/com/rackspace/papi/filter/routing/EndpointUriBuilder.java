@@ -5,7 +5,7 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.DestinationEndpoint;
-import com.rackspace.papi.model.DomainNode;
+import com.rackspace.papi.model.Node;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -13,11 +13,11 @@ import java.util.List;
 public class EndpointUriBuilder {
 
    private final DestinationEndpoint endpoint;
-   private final DomainNode localhost;
+   private final Node localhost;
    private final String uri;
    private final List<Port> localPorts;
 
-   EndpointUriBuilder(DomainNode localhost, List<Port> localPorts, Destination destination, String uri) {
+   EndpointUriBuilder(Node localhost, List<Port> localPorts, Destination destination, String uri) {
       this.localhost = localhost;
       this.uri = uri;
       this.localPorts = localPorts;
