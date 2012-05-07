@@ -37,7 +37,7 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
       requestUrl = request.getRequestURL();
       requestUri = request.getRequestURI();
       
-      requestUriQuery = requestUri;
+      requestUriQuery = request.getQueryString();
 
       headers = new HashMap<String, List<String>>();
       destinations = new ArrayList<RouteDestination>();
