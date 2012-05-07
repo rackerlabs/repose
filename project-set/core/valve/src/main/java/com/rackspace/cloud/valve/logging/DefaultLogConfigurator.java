@@ -15,6 +15,9 @@ public class DefaultLogConfigurator {
    private static Log4jAppender fileAppender = new Log4jAppender("defaultFile", "RollingFileAppender", DEFAULT_LAYOUT, DEFAULT_LOG_FRMT);
    private static Log4jPropertiesBuilder log4jPropertiesBuilder = new Log4jPropertiesBuilder();
 
+   private DefaultLogConfigurator() {      
+   }
+
    public static void configure() {
 
         fileAppender.addProp("MaxFileSize", "2MB");

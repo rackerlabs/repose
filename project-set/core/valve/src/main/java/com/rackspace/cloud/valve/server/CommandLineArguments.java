@@ -3,21 +3,21 @@ package com.rackspace.cloud.valve.server;
 import org.kohsuke.args4j.*;
 
 public class CommandLineArguments {
-   private static final String defaultHttpPortInfo = "(Range is 1024 to 49150)";
-   private static final String defaultHttpsPortInfo = "(Default is only run Repose on http if https port not specified, range is 1024 to 49150)";
+   private static final String DEFAULT_HTTP_PORT_INFO = "(Range is 1024 to 49150)";
+   private static final String DEFAULT_HTTPS_PORT_INFO = "(Default is only run Repose on http if https port not specified, range is 1024 to 49150)";
    public static final String ACTION_START = "start";
    public static final String ACTION_STOP = "stop";
 
    @Option(name = "-p", aliases = {"--http-port"},
-           usage = "Repose http port number " + defaultHttpPortInfo)
+           usage = "Repose http port number " + DEFAULT_HTTP_PORT_INFO)
    private Integer httpPort;
 
    @Option(name = "-ps", aliases = {"--https-port"},
-           usage = "Repose https port number " + defaultHttpsPortInfo)
+           usage = "Repose https port number " + DEFAULT_HTTPS_PORT_INFO)
    private Integer httpsPort;
 
    @Option(name = "-s", aliases = {"--shutdown-port"},
-           usage = "The port used to communicate a shutdown to Repose " + defaultHttpPortInfo)
+           usage = "The port used to communicate a shutdown to Repose " + DEFAULT_HTTP_PORT_INFO)
    private Integer stopPort = 8818;
 
    @Option(name = "-c", aliases = {"--config-file"},

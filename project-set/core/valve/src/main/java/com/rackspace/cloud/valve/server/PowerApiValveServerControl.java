@@ -68,7 +68,7 @@ public class PowerApiValveServerControl {
       return sslConfiguration;
    }
 
-   private SslConfiguration readSslConfiguration(String cfgRoot) throws MalformedURLException, ConfigurationResourceException {
+   private SslConfiguration readSslConfiguration(String cfgRoot) throws MalformedURLException {
       final URL configurationLocation = new URL("file://" + cfgRoot + "/container.cfg.xml");
       final JaxbConfigurationParser<ContainerConfiguration> containerConfigParser = ConfigurationParserFactory.getXmlConfigurationParser(ContainerConfiguration.class);
       final ContainerConfiguration cfg = containerConfigParser.read(new BufferedURLConfigurationResource(configurationLocation));
