@@ -87,6 +87,11 @@
                                                 ../repose-war/src/main/resources/META-INF/configs/log4j.properties
                                             </location>
                                         </source>
+                                        <source>
+                                            <location>
+                                                ../repose-war/src/main/resources/META-INF/configs/response-messaging.cfg.xml
+                                            </location>
+                                        </source>
                                     </sources>
                                 </mapping>
                             </mappings>
