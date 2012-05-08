@@ -1,6 +1,6 @@
 <content-normalization  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-   xmlns='http://docs.api.rackspacecloud.com/powerapi/content-normalization/v1.0'
-   xsi:schemaLocation='http://docs.api.rackspacecloud.com/powerapi/content-normalization/v1.0 ../config/normalization-configuration.xsd'>
+   xmlns='http://docs.api.rackspacecloud.com/repose/content-normalization/v1.0'
+   xsi:schemaLocation='http://docs.api.rackspacecloud.com/repose/content-normalization/v1.0 ../config/normalization-configuration.xsd'>
 
     <header-filters>
         <blacklist id="rate-limit-headers">

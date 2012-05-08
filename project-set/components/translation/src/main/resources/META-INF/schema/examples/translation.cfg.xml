@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<translation xmlns="http://docs.rackspacecloud.com/power-api/translation/v1.0">
+<translation xmlns="http://docs.rackspacecloud.com/repose/translation/v1.0">
     <!--
         The translation process for the request.  The href references a file with an XPROC
         (http://www.w3.org/TR/xproc/) pipeline containing the translations needed for the request.
     -->
-    <request-translation-process href="/etc/powerapi/translation/request-pipeline.xpl" >
+    <request-translation-process href="/etc/repose/translation/request-pipeline.xpl" >
 
         <!--
             The fidelity describes the level of parsing required to translate the request.  For example, if the
@@ -19,7 +19,7 @@
         The translation process for the response.  The href references a file with an XPROC
         (http://www.w3.org/TR/xproc/) pipeline containing the translations needed for the response.
     -->
-    <response-translation-process href="/etc/powerapi/translation/response-pipeline.xpl">
+    <response-translation-process href="/etc/repose/translation/response-pipeline.xpl">
 
         <!--
             The fidelity describes the level of parsing required to translate the response.  For example, if the

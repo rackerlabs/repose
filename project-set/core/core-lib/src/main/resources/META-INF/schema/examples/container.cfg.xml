@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<powerapi-container xmlns='http://docs.rackspacecloud.com/power-api/container/v2.0'>
+<repose-container xmlns='http://docs.rackspacecloud.com/repose/container/v2.0'>
     <deployment-config http-port="8774" https-port="8775" connection-timeout="30000" read-timeout="30000">
         <deployment-directory auto-clean="false">/var/repose</deployment-directory>
         
@@ -14,4 +14,4 @@
             <key-password>password</key-password>
         </ssl-configuration>
     </deployment-config>
-</powerapi-container>
+</repose-container>

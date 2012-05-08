@@ -8,7 +8,7 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 
-import com.rackspacecloud.api.docs.powerapi.header_normalization.v1.HttpMethod;
+import com.rackspacecloud.api.docs.repose.header_normalization.v1.HttpMethod;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 

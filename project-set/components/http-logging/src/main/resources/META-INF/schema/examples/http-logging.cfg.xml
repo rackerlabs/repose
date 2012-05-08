@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<http-logging xmlns="http://docs.rackspacecloud.com/power-api/http-logging/v1.0">
+<http-logging xmlns="http://docs.rackspacecloud.com/repose/http-logging/v1.0">
         <!-- The id attribute is to help the user easily identify the log -->
         <!-- The format includes what will be logged.  The arguments with % are a subset of the apache mod_log_config
              found at http://httpd.apache.org/docs/2.2/mod/mod_log_config.html#formats -->

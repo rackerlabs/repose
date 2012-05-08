@@ -1,4 +1,4 @@
-<rate-limiting xmlns="http://docs.rackspacecloud.com/power-api/rate-limiting/v1.0">
+<rate-limiting xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0">
   <request-endpoint include-absolute-limits="true" uri-regex="/v\d/[^/]+/limits/?"/>
   <limit-group default="true" id="admin-limits" roles="Admin">
     <limit uri="/v*" http-methods="GET" unit="MINUTE" value="6" uri-regex="/(v\d/[^/]+).*"/>

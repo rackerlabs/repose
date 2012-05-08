@@ -125,7 +125,7 @@ Setting the Configuration Root Directory
 
     <context-param>
         <param-name>powerapi-config-directory</param-name>
-        <param-value>/etc/powerapi/</param-value>
+        <param-value>/etc/repose/</param-value>
     </context-param>
 
 ###Configuration Mappings###

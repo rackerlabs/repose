@@ -3,9 +3,9 @@ package com.rackspace.papi.components.hnorm;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.components.hnorm.util.CompiledRegexAndList;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import com.rackspacecloud.api.docs.powerapi.header_normalization.v1.HeaderFilterList;
-import com.rackspacecloud.api.docs.powerapi.header_normalization.v1.HeaderNormalizationConfig;
-import com.rackspacecloud.api.docs.powerapi.header_normalization.v1.Target;
+import com.rackspacecloud.api.docs.repose.header_normalization.v1.HeaderFilterList;
+import com.rackspacecloud.api.docs.repose.header_normalization.v1.HeaderNormalizationConfig;
+import com.rackspacecloud.api.docs.repose.header_normalization.v1.Target;
 
 import java.util.HashMap;
 import java.util.LinkedList;
