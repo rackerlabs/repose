@@ -20,7 +20,8 @@
       <filter name="default-router"/>
     </filters>
     <destinations>
-      <endpoint id="auth_staging" protocol="https" hostname="staging.identity.api.rackspacecloud.com" root-path="/" port="443" default="true"/>
+      <!-- Update this endpoint if you want Repose to send requests to a different service -->
+      <endpoint id="open_repose" protocol="http" hostname="openrepose.org" root-path="/" port="80" default="true"/>
     </destinations>
   </repose-cluster>
 </system-model>
