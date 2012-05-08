@@ -268,11 +268,11 @@
 
     <profiles>
         <profile>
-            <id>Build Valve RPM</id>
+            <id>build-system-packages</id>
 
             <activation>
                 <property>
-                    <name>build-system-packages</name>
+                    <name>Build Valve</name>
                 </property>
             </activation>
 

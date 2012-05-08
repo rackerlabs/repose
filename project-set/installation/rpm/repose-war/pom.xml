@@ -24,11 +24,11 @@
 
     <profiles>
         <profile>
-            <id>Build ROOT Web Application RPM</id>
+            <id>build-system-packages</id>
 
             <activation>
                 <property>
-                    <name>build-system-packages</name>
+                    <name>Build ROOT Web Application RPM</name>
                 </property>
             </activation>
 

@@ -424,11 +424,11 @@
 
     <profiles>
         <profile>
-            <id>Build Filter Bundle RPM</id>
+            <id>build-system-packages</id>
 
             <activation>
                 <property>
-                    <name>build-system-packages</name>
+                    <name>Build Filter Bundle RPM</name>
                 </property>
             </activation>
 

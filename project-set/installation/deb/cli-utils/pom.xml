@@ -24,11 +24,11 @@
 
     <profiles>
         <profile>
-            <id>Build Command Line Utilities DEB</id>
+            <id>build-system-packages</id>
 
             <activation>
                 <property>
-                    <name>build-system-packages</name>
+                    <name>Build Command Line Utilities DEB</name>
                 </property>
             </activation>
 
