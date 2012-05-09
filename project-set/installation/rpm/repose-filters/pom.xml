@@ -5,12 +5,12 @@
     <parent>
         <groupId>com.rackspace.repose.installation.rpm</groupId>
         <artifactId>rpm</artifactId>
-        <version>2.0.0</version>
+        <version>2.0.1-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.repose.installation.rpm.filters</groupId>
     <artifactId>repose-filters</artifactId>
-    <version>2.0.0</version>
+    <version>2.0.1-SNAPSHOT</version>
 
     <name>Repose - Installation Filters RPM</name>
 
