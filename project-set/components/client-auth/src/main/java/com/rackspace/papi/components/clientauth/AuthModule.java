@@ -1,4 +1,4 @@
-package com.rackspace.papi.auth;
+package com.rackspace.papi.components.clientauth;
 
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.FilterLogicHandler;

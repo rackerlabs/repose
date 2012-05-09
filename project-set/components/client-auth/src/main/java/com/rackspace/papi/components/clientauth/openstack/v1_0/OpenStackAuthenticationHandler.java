@@ -5,10 +5,10 @@ import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.auth.openstack.ids.CachableUserInfo;
 import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
+import com.rackspace.papi.components.clientauth.AuthModule;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 
-import com.rackspace.papi.auth.AuthModule;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
