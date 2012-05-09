@@ -2,7 +2,7 @@ package com.rackspace.papi.components.clientauth.openstack.v1_0;
 
 import com.rackspace.auth.openstack.ids.AuthenticationServiceClient;
 import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
-import com.rackspace.papi.auth.AuthModule;
+import com.rackspace.papi.components.clientauth.AuthModule;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
