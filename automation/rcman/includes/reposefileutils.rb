@@ -24,7 +24,7 @@ module ReposeFileUtils
     end
 
     def uploadChefFiles(server)
-        Net::SCP.start( server.ip , "root", :password => server.password) do |scp|
+        Net::SCP.start( server.ip , "root", :password => server.password, :paranoid => false) do |scp|
           scp.upload!("#{File.expand_path(File.dirname(__FILE__))}/chef-solo", "/root/", :recursive => true)
         end
     end

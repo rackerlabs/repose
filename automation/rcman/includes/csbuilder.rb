@@ -53,7 +53,7 @@ module Clouds
 
     def executeCommand(server, command)
 
-        Net::SSH.start( server.ip , "root", :password => server.password) do |ssh|
+        Net::SSH.start( server.ip , "root", :password => server.password, :paranoid => false) do |ssh|
             channel = ssh.open_channel do |ch|
                 ch.exec command do |ch, success|
                     raise "could not execute command" unless success
