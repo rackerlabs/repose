@@ -73,14 +73,15 @@ public class ArtifactManagerServiceContext implements ServiceContext<ArtifactMan
       }
    }
 
-   private void delete(File f) {
-      if (f.isDirectory()) {
-         for (File c : f.listFiles())
+   private void delete(File file) {
+      if (file.isDirectory()) {
+         for (File c : file.listFiles()) {
             delete(c);
+         }            
       }
 
-      if(!f.delete()) {
-         LOG.warn("Failure to delete file " + f.getName() + " on repose shutdown.");
+      if(!file.delete()) {
+         LOG.warn("Failure to delete file " + file.getName() + " on repose shutdown.");
       }
    }
 }
