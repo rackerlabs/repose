@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.clientauth.rackspace.v1_1;
 
-import com.rackspace.papi.components.clientauth.AuthModule;
+import com.rackspace.papi.components.clientauth.common.AuthModule;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 
