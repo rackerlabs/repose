@@ -4,7 +4,7 @@ package com.rackspace.papi.commons.util;
 import java.lang.management.ManagementFactory;
 
 
-public class SystemUtils {
+public final class SystemUtils {
     
     private SystemUtils(){
     }
