@@ -5,7 +5,7 @@ import com.rackspace.papi.service.logging.common.log4jconf.Log4jPropertiesBuilde
 import org.apache.log4j.Level;
 import org.apache.log4j.PropertyConfigurator;
 
-public class DefaultLogConfigurator {
+public final class DefaultLogConfigurator {
 
    private static final String DEFAULT_LOG_DIR = "/var/log/repose/current.log";
    private static final String DEFAULT_LAYOUT = "PatternLayout";
