@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.clientauth;
+package com.rackspace.papi.components.clientauth.common;
 
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.FilterLogicHandler;
@@ -17,7 +17,6 @@ public interface AuthModule extends FilterLogicHandler {
      * realm as a string to be assigned to the WWW-Authenticate header. This method
      * is used to acquire that realm string.
      * 
-     * @return 
      */
     String getWWWAuthenticateHeaderContents();
 }
