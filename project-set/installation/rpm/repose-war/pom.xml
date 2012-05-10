@@ -105,7 +105,6 @@
                                     <username>tomcat</username>
                                     <groupname>tomcat</groupname>
                                     <filemode>765</filemode>
-                                    <configuration>noreplace</configuration>
                                 </mapping>
 
                                 <mapping>
