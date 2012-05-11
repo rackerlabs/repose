@@ -77,7 +77,7 @@
                                 </mapping>
 
                                 <mapping>
-                                    <directory>/usr/local/bin</directory>
+                                    <directory>/usr/bin</directory>
                                     <username>tomcat</username>
                                     <groupname>tomcat</groupname>
                                     <filemode>755</filemode>
