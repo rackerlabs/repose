@@ -33,8 +33,8 @@ CLEAN=/usr/bin/clean-repose-deploy
 ###########################
 start_repose()
 {
-  start-stop-daemon $START_ARGS --exec $JAVA -- -jar $REPOSE_JAR START -p $RUN_PORT -s $SHUTDOWN_PORT -c $CONFIG_DIRECTORY
   $CLEAN $CONFIG_DIRECTORY
+  start-stop-daemon $START_ARGS --exec $JAVA -- -jar $REPOSE_JAR START -p $RUN_PORT -s $SHUTDOWN_PORT -c $CONFIG_DIRECTORY
   log_progress_msg "repose-valve"
 }
 

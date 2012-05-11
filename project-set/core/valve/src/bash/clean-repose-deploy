@@ -29,7 +29,7 @@ echo Deployment directory: $BASE_DIR
 
 REPOSE_PREFIX=repose
 dirs=$( ls $BASE_DIR )
-pids=$( ps -a | sed 's/ \([0-9]*\).*/\1/' )
+pids=$( ps -e | sed 's/ \([0-9]*\).*/\1/' )
 
 checkDirs()
 {
