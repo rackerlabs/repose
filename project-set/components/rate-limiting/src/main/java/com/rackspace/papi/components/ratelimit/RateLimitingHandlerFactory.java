@@ -62,7 +62,7 @@ public final class RateLimitingHandlerFactory extends AbstractConfiguredFilterHa
                 // Makes sure that only the first limit group set to default is the only default group
                 if (limitGroup.isDefault()) {
 
-                    if (defaultSet == true) {
+                    if (defaultSet) {
                         limitGroup.setDefault(false);
                         LOG.warn("Rate-limiting Configuration has more than one default group set. Limit Group '"
                                 + limitGroup.getId() + "' will not be set as a default limit group. Please update your configuration file.");

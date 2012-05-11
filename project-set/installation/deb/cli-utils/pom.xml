@@ -73,7 +73,7 @@
                                             </mapper>
                                         </data>
 
-                                            <!-- The start script -->
+                                            <!-- The clean up script -->
                                         <data>
                                             <src>${basedir}/../../../core/valve/src/bash/clean-repose-deploy</src>
                                             <type>file</type>
