@@ -1,27 +1,35 @@
 package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.service.context.ServiceContext;
-import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.impl.PowerApiDatastoreService;
 import com.rackspace.papi.service.datastore.impl.ehcache.EHCacheDatastoreManager;
+import javax.annotation.Resource;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 
-import javax.naming.Context;
-import javax.naming.NamingException;
 import javax.servlet.ServletContextEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Required;
+import org.springframework.stereotype.Component;
 
+@Component("datastoreServiceContext")
 public class DatastoreServiceContext implements ServiceContext<DatastoreService> {
 
    private static final Logger LOG = LoggerFactory.getLogger(DatastoreServiceContext.class);
    public static final String DATASTORE_NAME = "powerapi:/datastore";
    public static final String SERVICE_NAME = "powerapi:/datastore/service";
-   private DatastoreService datastoreService;
-
+   private final DatastoreService datastoreService;
+   
+   @Autowired
+   public DatastoreServiceContext(@Qualifier("datastoreSerivce") DatastoreService datastoreService) {
+      this.datastoreService = datastoreService;
+   }
+   
    @Override
    public DatastoreService getService() {
       return datastoreService;
@@ -34,6 +42,7 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
 
    @Override
    public void contextDestroyed(ServletContextEvent sce) {
+      /*
       final Context namingContext = ServletContextHelper.getInstance().namingContext(sce.getServletContext());
 
       try {
@@ -41,6 +50,8 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
       } catch (NamingException ne) {
          LOG.warn("Failure in attempting to destroy sub-context \"" + SERVICE_NAME + "\" - Reason: " + ne.getMessage(), ne);
       }
+      * 
+      */
    }
 
    @Override
@@ -52,7 +63,6 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
 
       final CacheManager ehCacheManager = new CacheManager(defaultConfiguration);
 
-      datastoreService = new PowerApiDatastoreService();
       datastoreService.registerDatastoreManager(DatastoreService.DEFAULT_LOCAL, new EHCacheDatastoreManager(ehCacheManager));
    }
 }

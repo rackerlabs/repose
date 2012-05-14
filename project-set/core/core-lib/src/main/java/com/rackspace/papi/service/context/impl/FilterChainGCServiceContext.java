@@ -8,16 +8,23 @@ import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.filterchain.GarbageCollectionService;
 import com.rackspace.papi.service.threading.ThreadingService;
+import javax.annotation.Resource;
 import javax.servlet.ServletContextEvent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Required;
+import org.springframework.stereotype.Component;
 
+@Component("filterChainGCServiceContext")
 public class FilterChainGCServiceContext implements ServiceContext<GarbageCollectionService> {
 
    public static final String SERVICE_NAME = "powerapi:/services/filter-chain-gc";
-   private final SweepingGarbageCollector filterChainGarbageCollector;
+   private final GarbageCollectionService filterChainGarbageCollector;
    private DestroyableThreadWrapper gcThread;
 
-   public FilterChainGCServiceContext() {
-      filterChainGarbageCollector = new SweepingGarbageCollector();
+   @Autowired
+   public FilterChainGCServiceContext(@Qualifier("garbageService") GarbageCollectionService filterChainGarbageCollector) {
+      this.filterChainGarbageCollector = filterChainGarbageCollector;
    }
 
    @Override

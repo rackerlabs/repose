@@ -3,7 +3,6 @@ package com.rackspace.papi.service.context.impl;
 import com.rackspace.papi.commons.config.resource.impl.DirectoryResourceResolver;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.config.impl.PowerApiConfigurationManager;
 import com.rackspace.papi.service.config.impl.PowerApiConfigurationUpdateManager;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.ServletContextHelper;
@@ -13,15 +12,20 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
+@Component("configurationServiceContext")
 public class ConfigurationServiceContext implements ServiceContext<ConfigurationService> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ConfigurationServiceContext.class);
     public static final String SERVICE_NAME = "powerapi:/services/configuration";
-    private final PowerApiConfigurationManager configurationManager;
+    private final ConfigurationService configurationManager;
 
-    public ConfigurationServiceContext() {
-        configurationManager = new PowerApiConfigurationManager();
+    @Autowired
+    public ConfigurationServiceContext(@Qualifier("configurationManager") ConfigurationService configurationManager) {
+       this.configurationManager = configurationManager;
     }
 
     @Override

@@ -17,6 +17,14 @@ public class ArtifactManagerServiceContext implements ServiceContext<ArtifactMan
    public static final String SERVICE_NAME = "powerapi:/kernel/artifact-deployment";
    private DestroyableThreadWrapper watcherThread;
    private ArtifactManager artifactManager;
+   private EventService eventManagerReference;
+   private ContainerConfigurationListener containerCfgListener;
+   
+   public ArtifactManagerServiceContext(ArtifactManager artifactManager, EventService eventManagerReference, ContainerConfigurationListener containerCfgListener) {
+      this.artifactManager = artifactManager;
+      this.eventManagerReference = eventManagerReference;
+      this.containerCfgListener = containerCfgListener;
+   }
 
    @Override
    public String getServiceName() {
@@ -33,17 +41,11 @@ public class ArtifactManagerServiceContext implements ServiceContext<ArtifactMan
       final ServletContext ctx = sce.getServletContext();
       final ContextAdapter contextAdapter = ServletContextHelper.getInstance().getPowerApiContext(ctx);
 
-      final EventService eventManagerReference = contextAdapter.eventService();
-
-      final ContainerConfigurationListener containerCfgListener = new ContainerConfigurationListener(eventManagerReference);
       watcherThread = new DestroyableThreadWrapper(contextAdapter.threadingService().newThread(containerCfgListener.getDirWatcher(), "Artifact Watcher Thread"), containerCfgListener.getDirWatcher());
 
       contextAdapter.configurationService().subscribeTo("container.cfg.xml", containerCfgListener, ContainerConfiguration.class);
 
-      artifactManager = new ArtifactManager(containerCfgListener);
-
       eventManagerReference.listen(artifactManager, ApplicationArtifactEvent.class);
-
       eventManagerReference.listen(new SingleFireEventListener<PowerFilterEvent, Long>(PowerFilterEvent.class) {
 
          @Override

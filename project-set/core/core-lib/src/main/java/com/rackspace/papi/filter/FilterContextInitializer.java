@@ -12,6 +12,7 @@ import java.util.List;
 import javax.servlet.FilterConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 /**
  * @author fran
@@ -21,8 +22,8 @@ public class FilterContextInitializer {
    private static final Logger LOG = LoggerFactory.getLogger(FilterContextInitializer.class);
    private final FilterContextManager filterContextManager;
 
-   public FilterContextInitializer(FilterConfig filterConfig) {
-      filterContextManager = new FilterContextManagerImpl(filterConfig);
+   public FilterContextInitializer(FilterConfig filterConfig, ApplicationContext applicationContext) {
+      filterContextManager = new FilterContextManagerImpl(filterConfig, applicationContext);
    }
 
    public List<FilterContext> buildFilterContexts(ClassLoaderManagerService classLoaderContextManager, SystemModel powerProxy, List<Port> ports) {

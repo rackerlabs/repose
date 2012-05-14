@@ -4,7 +4,8 @@ import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.ServletContextHelper;
-import com.rackspace.papi.service.context.jndi.JndiContextAdapterProvider;
+import com.rackspace.papi.service.context.spring.SpringContextAdapter;
+import com.rackspace.papi.service.context.spring.SpringContextAdapterProvider;
 import java.io.IOException;
 import java.util.Hashtable;
 import javax.naming.Context;
@@ -19,6 +20,7 @@ import org.junit.*;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import static org.mockito.Mockito.*;
+import org.springframework.context.ApplicationContext;
 
 @RunWith(Enclosed.class)
 public class HttpLoggingFilterTest {
@@ -30,7 +32,7 @@ public class HttpLoggingFilterTest {
       protected FilterConfig filterConfig;
       protected ServletContext servletContext;
       protected Context context;
-      protected ServiceContext<ConfigurationService> serviceContext;
+      protected ConfigurationServiceContext serviceContext;
       protected ConfigurationService configService;
       protected FilterChain filterChain;
 
@@ -40,15 +42,18 @@ public class HttpLoggingFilterTest {
          filterConfig = mock(FilterConfig.class);
          servletContext = mock(ServletContext.class);
          context = mock(Context.class);
-         serviceContext = mock(ServiceContext.class);
+         serviceContext = mock(ConfigurationServiceContext.class);
          configService = mock(ConfigurationService.class);
          filterChain = mock(FilterChain.class);
-         ServletContextHelper.configureInstance(new JndiContextAdapterProvider(), servletContext, context);
+         ApplicationContext appContext = mock(ApplicationContext.class);
 
          when(filterConfig.getServletContext()).thenReturn(servletContext);
-         when(servletContext.getAttribute(ServletContextHelper.SERVLET_CONTEXT_ATTRIBUTE_NAME)).thenReturn(context);
-         when(context.lookup(ConfigurationServiceContext.SERVICE_NAME)).thenReturn(serviceContext);
+         when(servletContext.getAttribute(eq(ServletContextHelper.SPRING_APPLICATION_CONTEXT_ATTRIBUTE_NAME))).thenReturn(appContext);
+         when(appContext.getBean(anyString(), eq(ConfigurationServiceContext.class))).thenReturn(serviceContext);
          when(serviceContext.getService()).thenReturn(configService);
+         
+         ServletContextHelper.configureInstance(new SpringContextAdapterProvider(appContext), servletContext, appContext);
+
 
       }
    }

@@ -1,14 +1,15 @@
 package com.rackspace.papi.service.classloader;
 
-import com.rackspace.papi.commons.util.Destroyable;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoader;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.stereotype.Component;
 
-public class ApplicationClassLoaderManagerImpl implements ClassLoaderManagerService, Destroyable {
+@Component("classLoaderManager")
+public class ApplicationClassLoaderManagerImpl implements ClassLoaderManagerService {
 
     private final Map<String, EarClassLoaderContext> classLoaderMap;
 
@@ -16,10 +17,12 @@ public class ApplicationClassLoaderManagerImpl implements ClassLoaderManagerServ
         this.classLoaderMap = new HashMap<String, EarClassLoaderContext>();
     }
 
+   @Override
     public synchronized void removeApplication(String contextName) {
         classLoaderMap.remove(contextName);
     }
 
+   @Override
     public synchronized void putApplication(String contextName, EarClassLoaderContext context) {
         classLoaderMap.put(contextName, context);
     }

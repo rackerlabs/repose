@@ -6,6 +6,6 @@ import com.rackspace.papi.filter.resource.ResourceMonitor;
 public interface GarbageCollectionService {
 
    void reclaimDestroyable(Destroyable destroyable);
-
    void reclaimDestroyable(Destroyable destroyable, ResourceMonitor resourceMonitor);
+   void sweepGarbageCollectors();
 }

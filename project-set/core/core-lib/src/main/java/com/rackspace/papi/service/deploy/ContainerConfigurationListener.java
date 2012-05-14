@@ -11,13 +11,29 @@ import com.rackspace.papi.container.config.DeploymentDirectory;
 import com.rackspace.papi.service.event.common.EventService;
 
 import java.io.File;
+import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Required;
+import org.springframework.stereotype.Component;
 
+@Component("containerConfigurationListener")
 public class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
-    private final ArtifactDirectoryWatcher dirWatcher;
+    private ArtifactDirectoryWatcher dirWatcher;
     private File deploymentDirectory;
     private EarUnpacker unpacker;
 
+    public ContainerConfigurationListener() {
+       
+    }
+    
     public ContainerConfigurationListener(EventService eventManagerReference) {
+        dirWatcher = new ArtifactDirectoryWatcher(eventManagerReference);
+        dirWatcher.updateArtifactDirectoryLocation(deploymentDirectory);
+        unpacker = null;
+    }
+    
+    @Required
+    @Resource(name="eventManager")
+    public void setEventService(EventService eventManagerReference) {
         dirWatcher = new ArtifactDirectoryWatcher(eventManagerReference);
         dirWatcher.updateArtifactDirectoryLocation(deploymentDirectory);
         unpacker = null;

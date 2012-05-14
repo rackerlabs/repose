@@ -1,140 +1,104 @@
 package com.rackspace.papi.service.context.impl;
 
+import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServiceContext;
-import com.rackspace.papi.service.context.banner.PapiBanner;
 import com.rackspace.papi.service.context.ServletContextHelper;
-import com.rackspace.papi.service.context.jndi.JndiContextAdapterProvider;
+import com.rackspace.papi.service.context.banner.PapiBanner;
+import com.rackspace.papi.service.context.spring.SpringContextAdapterProvider;
 import com.rackspace.papi.service.deploy.ArtifactManagerServiceContext;
-import com.rackspace.papi.service.naming.InitialServiceContextFactory;
 import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
-import com.rackspace.papi.servlet.PowerApiContextException;
-import java.util.Iterator;
+import com.rackspace.papi.spring.SpringConfiguration;
 import java.util.LinkedList;
-import javax.naming.Context;
-import javax.naming.NamingException;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class PowerApiContextManager implements ServletContextListener {
 
    private static final Logger LOG = LoggerFactory.getLogger(PowerApiContextManager.class);
-   private final LinkedList<String> boundServiceContextNames;
-   private Context initialContext;
+   private static final String APPLICATION_CONTEXT_CONFIG = "/spring/repose-core-context.xml";
+   private final LinkedList<ServiceContext> boundServiceContexts;
+   private ApplicationContext applicationContext;
 
    public PowerApiContextManager() {
-      boundServiceContextNames = new LinkedList<String>();
+      boundServiceContexts = new LinkedList<ServiceContext>();
    }
 
    private <T extends ServiceContext> void initService(T resource, ServletContextEvent sce) {
-      // Bind the service first
-      bindServletContextBoundService(resource);
-
-      // Initialize the service after binding it in our naming context
       resource.contextInitialized(sce);
+      boundServiceContexts.add(resource);
    }
-
-   private <T extends ServiceContext> T bindServletContextBoundService(T resource) {
-      try {
-         final String serviceName = resource.getServiceName();
-
-         initialContext.bind(serviceName, resource);
-         boundServiceContextNames.add(serviceName);
-      } catch (NamingException ne) {
-         handleNamingException("Failed to bind, \"" + resource.getServiceName() + "\" in the JNDI initial context.", ne);
+   
+   private void showBanner(ServletContextEvent sce) {
+      final String showMePapi = sce.getServletContext().getInitParameter("show-me-papi");
+      if (StringUtilities.nullSafeEqualsIgnoreCase(showMePapi, "true")) {
+         PapiBanner.print(LOG);
       }
-
-      return resource;
    }
 
-   public void handleNamingException(String message, NamingException ne) throws PowerApiContextException {
-      final PowerApiContextException newException = new PowerApiContextException(message + " Reason: " + ne.getExplanation(), ne);
-      LOG.error(newException.getMessage(), ne);
-
-      throw newException;
+   private void intializeServices(ServletContextEvent sce) {
+      ServletContextHelper helper = ServletContextHelper.getInstance();
+      ContextAdapter ca = helper.getPowerApiContext(sce.getServletContext());
+      
+      initService(ca.getContext(ThreadingServiceContext.class), sce);
+      initService(ca.getContext(EventManagerServiceContext.class), sce);
+      initService(ca.getContext(ConfigurationServiceContext.class), sce);
+      initService(ca.getContext(ContainerServiceContext.class), sce);
+      initService(ca.getContext(RoutingServiceContext.class), sce);
+      initService(ca.getContext(LoggingServiceContext.class), sce);
+      showBanner(sce);
+      initService(ca.getContext(ResponseMessageServiceContext.class), sce);
+      // TODO:Refactor - This service should be bound to a fitler-chain specific JNDI context
+      initService(ca.getContext(DatastoreServiceContext.class), sce);
+      initService(ca.getContext(ClassLoaderServiceContext.class), sce);
+      initService(ca.getContext(ArtifactManagerServiceContext.class), sce);
+      initService(ca.getContext(FilterChainGCServiceContext.class), sce);
+      
+      /*
+      initService(applicationContext.getBean("threadingServiceContext", ThreadingServiceContext.class), sce);
+      initService(applicationContext.getBean("eventManagerServiceContext", EventManagerServiceContext.class), sce);
+      initService(applicationContext.getBean("configurationServiceContext", ConfigurationServiceContext.class), sce);
+      initService(applicationContext.getBean("containerServiceContext", ContainerServiceContext.class), sce);
+      initService(applicationContext.getBean("routingServiceContext", RoutingServiceContext.class), sce);
+      initService(applicationContext.getBean("loggingServiceContext", LoggingServiceContext.class), sce);
+      showBanner(sce);
+      initService(applicationContext.getBean("responseMessageServiceContext", ResponseMessageServiceContext.class), sce);
+      // TODO:Refactor - This service should be bound to a fitler-chain specific JNDI context
+      initService(applicationContext.getBean("datastoreServiceContext", DatastoreServiceContext.class), sce);
+      initService(applicationContext.getBean("classLoaderServiceContext", ClassLoaderServiceContext.class), sce);
+      initService(applicationContext.getBean("artifactManagerServiceContext", ArtifactManagerServiceContext.class), sce);
+      initService(applicationContext.getBean("filterChainGCServiceContext", FilterChainGCServiceContext.class), sce);
+      * 
+      */
    }
 
    @Override
    public void contextInitialized(ServletContextEvent sce) {
       final ServletContext servletContext = sce.getServletContext();
-      final String showMePapi = servletContext.getInitParameter("show-me-papi");
-
-      try {
-         this.initialContext = new InitialServiceContextFactory().getInitialContext();
-      } catch (NamingException ne) {
-         handleNamingException("Failed to build initial context", ne);
-      }
-
-      try {
-         // Initial subcontexts
-         initialContext.createSubcontext("kernel");
-         initialContext.createSubcontext("services");
-      } catch (NamingException ne) {
-         handleNamingException("Failed to create required subcontexts in the JNDI initial context.", ne);
-      }
 
       // Most bootstrap steps require or will try to load some kind of
       // configuration so we need to set our naming context in the servlet context
       // first before anything else
-      ServletContextHelper.configureInstance(new JndiContextAdapterProvider(), servletContext, initialContext);
+      applicationContext = new AnnotationConfigApplicationContext(SpringConfiguration.class);
+      //applicationContext = new ClassPathXmlApplicationContext(APPLICATION_CONTEXT_CONFIG);
+      ServletContextHelper.configureInstance(
+                                                       new SpringContextAdapterProvider(applicationContext), 
+                                                       servletContext, 
+                                                       applicationContext);
 
-      // Services Bootstrap
-
-      // Threading Service
-      initService(new ThreadingServiceContext(), sce);
-
-      // Event kernel init
-      initService(new EventManagerServiceContext(), sce);
-
-      // Configuration Services
-      initService(new ConfigurationServiceContext(), sce);
-
-      initService(new ContainerServiceContext(), sce);
-      
-      initService(new RoutingServiceContext(), sce);
-
-      // Logging Service
-      initService(new LoggingServiceContext(), sce);
-      if (showMePapi == null || showMePapi.equalsIgnoreCase("true")) {
-         PapiBanner.print(LOG);
-      }
-
-      // Response message service
-      initService(new ResponseMessageServiceContext(), sce);
-
-      // Datastore Service
-      // TODO:Refactor - This service should be bound to a fitler-chain specific JNDI context
-      initService(new DatastoreServiceContext(), sce);
-
-      // Start up the class loader manager
-      initService(new ClassLoaderServiceContext(), sce);
-
-      /// Start the deployment manager
-      initService(new ArtifactManagerServiceContext(), sce);
-
-      /// Start the filter chain garbage collector
-      initService(new FilterChainGCServiceContext(), sce);
-
-
+      intializeServices(sce);
    }
 
    @Override
    public void contextDestroyed(ServletContextEvent sce) {
-      final Iterator<String> iterator = boundServiceContextNames.descendingIterator();
 
-      while (iterator.hasNext()) {
-         final String ctxName = iterator.next();
-
-         try {
-            final ServiceContext ctx = (ServiceContext) initialContext.lookup(ctxName);
-            initialContext.unbind(ctxName);
-
+      for (ServiceContext ctx: boundServiceContexts) {
             ctx.contextDestroyed(sce);
-         } catch (NamingException ne) {
-            handleNamingException("Unable to destroy service context \"" + ctxName + "\" - Reason: " + ne.getMessage(), ne);
-         }
       }
    }
 }

@@ -58,7 +58,10 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
          if (currentSystemModel != null) {
             SystemModelInterrogator interrogator = new SystemModelInterrogator(currentSystemModel, ports);
-            final List<FilterContext> newFilterChain = new FilterContextInitializer(filterConfig).buildFilterContexts(papiContext.classLoader(), currentSystemModel, ports);
+            final List<FilterContext> newFilterChain = new FilterContextInitializer(
+                    filterConfig, 
+                    ServletContextHelper.getInstance().getApplicationContext(filterConfig.getServletContext())
+                    ).buildFilterContexts(papiContext.classLoader(), currentSystemModel, ports);
 
             updateFilterChainBuilder(interrogator.getLocalServiceDomain(), interrogator.getLocalHost(), newFilterChain);
          }
@@ -84,7 +87,10 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                papiContext.eventService().newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
             } else {
                SystemModelInterrogator interrogator = new SystemModelInterrogator(currentSystemModel, ports);
-               final List<FilterContext> newFilterChain = new FilterContextInitializer(filterConfig).buildFilterContexts(papiContext.classLoader(), currentSystemModel, ports);
+               final List<FilterContext> newFilterChain = new FilterContextInitializer(
+                       filterConfig, 
+                       ServletContextHelper.getInstance().getApplicationContext(filterConfig.getServletContext())
+                       ).buildFilterContexts(papiContext.classLoader(), currentSystemModel, ports);
                updateFilterChainBuilder(interrogator.getLocalServiceDomain(), interrogator.getLocalHost(), newFilterChain);
             }
          }

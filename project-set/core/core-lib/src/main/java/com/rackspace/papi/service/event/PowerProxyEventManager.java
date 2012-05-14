@@ -21,7 +21,9 @@ import java.util.TreeMap;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import org.springframework.stereotype.Component;
 
+@Component("eventManager")
 public class PowerProxyEventManager implements EventService {
 
     private final Map<ComparableClassWrapper<Enum>, Set<EventListenerDescriptor>> listenerMap;

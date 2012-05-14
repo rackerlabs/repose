@@ -3,11 +3,17 @@ package com.rackspace.papi.service.routing.robin;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.routing.RoutingService;
+import org.springframework.stereotype.Component;
 
+@Component("routingService")
 public class RoundRobinRoutingService implements RoutingService {
-   private final Clusters domains;
+   private Clusters domains;
 
-   public RoundRobinRoutingService(SystemModel config) {
+   public RoundRobinRoutingService() {
+   }
+   
+   @Override
+   public void setSystemModel(SystemModel config) {
       this.domains = new Clusters(config);
    }
    

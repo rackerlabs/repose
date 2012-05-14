@@ -2,10 +2,8 @@ package com.rackspace.papi.filter;
 
 import com.oracle.javaee6.FilterType;
 import com.oracle.javaee6.FullyQualifiedClassType;
-import com.rackspace.papi.filter.FilterClassFactory;
 import javax.servlet.*;
 
-import com.rackspace.papi.filter.FilterClassException;
 import com.rackspace.papi.servlet.PowerApiContextException;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -17,6 +15,7 @@ import java.net.URL;
 import static org.junit.Assert.*;
 
 import static org.mockito.Mockito.*;
+import org.springframework.context.ApplicationContext;
 
 
 /**
@@ -131,7 +130,7 @@ public class FilterClassFactoryTest {
 
             FilterClassFactory filterClassFactory = new FilterClassFactory(mockedFilterType, mockedClassLoader);
 
-            Filter newFilter = filterClassFactory.newInstance();
+            Filter newFilter = filterClassFactory.newInstance(mock(ApplicationContext.class));
 
             assertNotNull(newFilter);
         }
@@ -148,7 +147,7 @@ public class FilterClassFactoryTest {
 
             FilterClassFactory filterClassFactory = new FilterClassFactory(mockedFilterType, mockedClassLoader);
 
-            filterClassFactory.newInstance();
+            filterClassFactory.newInstance(mock(ApplicationContext.class));
         }
 
         @Test(expected= FilterClassException.class)
@@ -163,7 +162,7 @@ public class FilterClassFactoryTest {
 
             FilterClassFactory filterClassFactory = new FilterClassFactory(mockedFilterType, mockedClassLoader);
 
-            filterClassFactory.newInstance();
+            filterClassFactory.newInstance(mock(ApplicationContext.class));
         }        
     }
 }

@@ -23,4 +23,7 @@ public interface ContextAdapter {
     ResponseMessageService responseMessageService();
     LoggingService loggingService();
     RoutingService routingService();
+    
+   <T extends ServiceContext<?>> T getContext(Class<T> clazz);
+
 }
