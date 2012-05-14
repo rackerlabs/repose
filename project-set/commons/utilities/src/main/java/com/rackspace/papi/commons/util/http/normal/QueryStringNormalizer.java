@@ -53,7 +53,7 @@ public class QueryStringNormalizer implements Normalizer<String> {
 
             if (parameterFilter.shouldAccept(queryParameter.getName())) {
                 
-                if(!queryStringBuilder.toString().isEmpty()){
+                if(!queryStringBuilder.toString().isEmpty() && !queryStringBuilder.toString().endsWith("&")){
                     queryStringBuilder.append(QueryParameterCollection.QUERY_PAIR_DELIMITER);
                 }
                 queryStringBuilder.append(queryParameter.getName());
