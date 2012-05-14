@@ -22,6 +22,7 @@
 
     <modules>
         <module>cli-utils</module>
+        <module>repose-filter-bundle</module>
     </modules>
 
 </project>
