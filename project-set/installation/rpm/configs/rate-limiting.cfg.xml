@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- http://wiki.openrepose.org/display/REPOSE/Rate+Limiting+Filter -->
+<rate-limiting delegation="true" xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0">
+    <!--
+        Defines an endpoint with a matching regex to bind GET requests for
+        returning live rate limiting information.
+    -->
+    <request-endpoint uri-regex="/v[0-9]\.[0-9]/limits" include-absolute-limits="false"/>
+
+    <!-- Limits for all other requests -->
+    <limit-group id="limited" groups="X-Auth-Token,X-Forwarded-For,IP_Standard" default="true">
+      <limit uri="*" uri-regex="/v[^/]/?.*" http-methods="POST GET DELETE" unit="MINUTE" value="10" />
+    </limit-group>
+
+    <!-- Limits for WhiteListed IPs -->
+    <limit-group id="unlimited" groups="IP_Super" default="false"/>
+
+</rate-limiting>
