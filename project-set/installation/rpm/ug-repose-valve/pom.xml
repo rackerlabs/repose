@@ -9,13 +9,13 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.rackspace.repose.installation.rpm.ug.filters</groupId>
-    <artifactId>ug-repose-filters</artifactId>
+    <groupId>com.rackspace.repose.installation.rpm.ug.valve</groupId>
+    <artifactId>ug-repose-valve</artifactId>
 
-    <name>Repose - Installation Utility Grid Filters RPM</name>
+    <name>Repose - Installation Utility Grid Valve RPM</name>
 
     <description>
-        Module for the Utility Grid Filters RPM.
+        Module for the Utility Grid Valve RPM.
     </description>
 
     <packaging>pom</packaging>
@@ -26,7 +26,7 @@
 
             <activation>
                 <property>
-                    <name>Build Filter Bundle RPM</name>
+                    <name>Build Valve</name>
                 </property>
             </activation>
 
@@ -35,7 +35,7 @@
                     <plugin>
                         <groupId>pl.project13.maven</groupId>
                         <artifactId>git-commit-id-plugin</artifactId>
-                        <version>2.0.2</version>
+                        <version>1.9</version>
                         <executions>
                             <execution>
                                 <goals>
@@ -45,9 +45,8 @@
                         </executions>
                         <configuration>
                             <prefix>git</prefix>
-                            <verbose>true</verbose>
+                            <verbose>false</verbose>
                             <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
-                            <skipPomProjects>false</skipPomProjects>
                             <generateGitPropertiesFile>true</generateGitPropertiesFile>
                             <generateGitPropertiesFilename>target/git.properties</generateGitPropertiesFilename>
                         </configuration>
@@ -78,40 +77,98 @@
                         <version>2.1-alpha-1</version>
 
                         <configuration>
+                            <!-- _tmppath is not set correctly on al OSs so it is forced here -->
+                            <defineStatements>
+                                <defineStatement>_tmppath /tmp</defineStatement>
+                            </defineStatements>
+
                             <mappings>
-                                <mapping>
-                                    <directory>/usr/share/repose/filters</directory>
-                                    <username>intermediary</username>
-                                    <groupname>intermediary</groupname>
-                                    <filemode>755</filemode>
-
-                                    <sources>
-                                        <source>
-                                            <location>
-                                                ${basedir}/../../../components/filter-bundle/target/filter-bundle-${project.version}.ear
-                                            </location>
-                                        </source>
-                                    </sources>
-                                </mapping>
-
                                 <mapping>
                                     <directory>/etc/repose/</directory>
                                     <username>intermediary</username>
                                     <groupname>intermediary</groupname>
                                     <configuration>noreplace</configuration>
                                     <filemode>755</filemode>
-                                    <directoryIncluded>false</directoryIncluded>
 
                                     <sources>
                                         <source>
-                                            <!-- This grabs all the config files in configs directory -->
-                                            <location>${basedir}/../configs/filters</location>
+                                            <!-- Grabs all the config files in configs/core -->
+                                            <location>${basedir}/../configs/core</location>
                                         </source>
                                     </sources>
                                 </mapping>
 
                                 <mapping>
-                                    <directory>/usr/share/doc/repose-filter-bundle</directory>
+                                    <directory>/usr/share/lib/repose</directory>
+                                    <username>intermediary</username>
+                                    <groupname>intermediary</groupname>
+                                    <filemode>755</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>${basedir}/../../../core/valve/target/repose-valve.jar</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/etc/init.d</directory>
+                                    <username>intermediary</username>
+                                    <groupname>intermediary</groupname>
+                                    <filemode>755</filemode>
+                                    <directoryIncluded>false</directoryIncluded>
+
+                                    <sources>
+                                        <source>
+                                            <location>src/rpm/etc/init.d/repose-valve</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/var/log/repose</directory>
+                                    <username>intermediary</username>
+                                    <groupname>intermediary</groupname>
+                                    <filemode>755</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>${project.build.directory}/../src/rpm/.log_dir_placeholder
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/usr/local/bin</directory>
+                                    <username>intermediary</username>
+                                    <groupname>intermediary</groupname>
+                                    <filemode>755</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>${project.build.directory}/../src/bash/clean-repose-deploy
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/var/repose</directory>
+                                    <username>intermediary</username>
+                                    <groupname>intermediary</groupname>
+                                    <filemode>760</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>${project.build.directory}/../src/rpm/.var_repose_dir_placeholder
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/usr/share/doc/repose-valve</directory>
                                     <username>root</username>
                                     <groupname>root</groupname>
                                     <filemode>644</filemode>
@@ -122,6 +179,21 @@
                                     <!--</source>-->
                                     <!--</sources>-->
                                 </mapping>
+
+                                <mapping>
+                                    <directory>/etc/logrotate.d</directory>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <filemode>644</filemode>
+                                    <directoryIncluded>false</directoryIncluded>
+
+                                    <sources>
+                                        <source>
+                                            <location>src/rpm/etc/logrotate.d/repose</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
                             </mappings>
 
                             <preinstallScriptlet>
@@ -133,7 +205,9 @@
                             </preinstallScriptlet>
 
                             <requires>
-                                <require>valve</require>
+                                <require>java</require>
+                                <require>logrotate</require>
+                                <require>daemonize</require>
                             </requires>
                         </configuration>
                     </plugin>
