@@ -86,6 +86,11 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
        return queryParameter;
    }
    
+   @Override
+   public String[] getParameterValues(String name){
+       return queryParameter.get(name);
+   }
+   
    public void setParameterMap(String queryString){
        QueryParameterCollection collection = new QueryParameterCollection(queryString);
        HashMap<String,String[]> newParamMap = new HashMap<String, String[]>();

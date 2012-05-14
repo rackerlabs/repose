@@ -10,54 +10,60 @@ import java.util.List;
  */
 public class QueryStringNormalizer implements Normalizer<String> {
 
-   private final ParameterFilterFactory parameterFilterFactory;
+    private final ParameterFilterFactory parameterFilterFactory;
 
-   public QueryStringNormalizer(ParameterFilterFactory parameterFilterFactory) {
-      this.parameterFilterFactory = parameterFilterFactory;
-   }
+    public QueryStringNormalizer(ParameterFilterFactory parameterFilterFactory) {
+        this.parameterFilterFactory = parameterFilterFactory;
+    }
 
-   @Override
-   public String normalize(String source) {
-      final QueryParameterCollection parsedQueryParameters = new QueryParameterCollection(source);
+    @Override
+    public String normalize(String source) {
+        final QueryParameterCollection parsedQueryParameters = new QueryParameterCollection(source);
 
-      final List<QueryParameter> queryParameters = parsedQueryParameters.getParameters();
-      Collections.sort(queryParameters);
+        final List<QueryParameter> queryParameters = parsedQueryParameters.getParameters();
+        Collections.sort(queryParameters);
 
-      return writeParameters(queryParameters);
-   }
+        return writeParameters(queryParameters);
+    }
 
-   private String writeParameters(List<QueryParameter> queryParameters) {
-      final ParameterFilter parameterFilter = parameterFilterFactory.newInstance();
-      final StringBuilder queryStringBuilder = new StringBuilder();
+    //TODO: Refactor - Had to mangle this a bit to get it to do multiplicity correctly.
+    private String writeParameters(List<QueryParameter> queryParameters) {
 
-      for (Iterator<QueryParameter> paramIterator = queryParameters.iterator(); paramIterator.hasNext();) {
-         final QueryParameter nextParameter = paramIterator.next();
+        final StringBuilder queryStringBuilder = new StringBuilder();
 
-         // TODO:Refactor - Composition? New method maybe.
-         if (parameterFilter.shouldAccept(nextParameter.getName())) {
+        for (Iterator<QueryParameter> paramIterator = queryParameters.iterator(); paramIterator.hasNext();) {
+            final QueryParameter nextParameter = paramIterator.next();
+
+
             writeParameter(queryStringBuilder, nextParameter);
-
             if (paramIterator.hasNext()) {
-               queryStringBuilder.append(QueryParameterCollection.QUERY_PAIR_DELIMITER);
+                queryStringBuilder.append(QueryParameterCollection.QUERY_PAIR_DELIMITER);
             }
-         }
-      }
 
-      return queryStringBuilder.toString();
-   }
+        }
 
-   // TODO:Refactor - Consider returning a string value
-   public void writeParameter(StringBuilder queryStringBuilder, QueryParameter queryParameter) {
-      for (Iterator<String> valueIterator = queryParameter.getValues().iterator(); valueIterator.hasNext();) {
-         final String value = valueIterator.next();
+        return queryStringBuilder.toString();
+    }
 
-         queryStringBuilder.append(queryParameter.getName());
-         queryStringBuilder.append(QueryParameterCollection.QUERY_KEY_VALUE_DELIMITER);
-         queryStringBuilder.append(value);
+    // TODO:Refactor - Consider returning a string value
+    public void writeParameter(StringBuilder queryStringBuilder, QueryParameter queryParameter) {
+        final ParameterFilter parameterFilter = parameterFilterFactory.newInstance();
+        for (Iterator<String> valueIterator = queryParameter.getValues().iterator(); valueIterator.hasNext();) {
+            final String value = valueIterator.next();
 
-         if (valueIterator.hasNext()) {
-            queryStringBuilder.append(QueryParameterCollection.QUERY_PAIR_DELIMITER);
-         }
-      }
-   }
+            if (parameterFilter.shouldAccept(queryParameter.getName())) {
+                
+                if(!queryStringBuilder.toString().isEmpty()){
+                    queryStringBuilder.append(QueryParameterCollection.QUERY_PAIR_DELIMITER);
+                }
+                queryStringBuilder.append(queryParameter.getName());
+                queryStringBuilder.append(QueryParameterCollection.QUERY_KEY_VALUE_DELIMITER);
+                queryStringBuilder.append(value);
+
+               
+            }else{
+                break;
+            }
+        }
+    }
 }
