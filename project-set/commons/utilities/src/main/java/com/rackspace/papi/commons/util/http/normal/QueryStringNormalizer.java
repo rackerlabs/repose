@@ -22,7 +22,7 @@ public class QueryStringNormalizer implements Normalizer<String> {
 
         final List<QueryParameter> queryParameters = parsedQueryParameters.getParameters();
         Collections.sort(queryParameters);
-
+        
         return writeParameters(queryParameters);
     }
 
@@ -36,10 +36,6 @@ public class QueryStringNormalizer implements Normalizer<String> {
 
 
             writeParameter(queryStringBuilder, nextParameter);
-            if (paramIterator.hasNext()) {
-                queryStringBuilder.append(QueryParameterCollection.QUERY_PAIR_DELIMITER);
-            }
-
         }
 
         return queryStringBuilder.toString();
