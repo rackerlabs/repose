@@ -53,7 +53,7 @@ public class MediaTypeNormalizer {
 
             if (requestedVariantMediaType != null) {
                 director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.toString(), requestedVariantMediaType.getName());
-            } else if (!requestHasAcceptHeader || MimeType.getMatchingMimeType(request.getHeader(acceptHeader)).equals(MimeType.WILDCARD)) {
+            } else if (!requestHasAcceptHeader || MimeType.getMatchingMimeType(acceptHeader).equals(MimeType.WILDCARD)) {
                 director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.toString(), configuredPreferredMediaType.getName());
             }
         }
