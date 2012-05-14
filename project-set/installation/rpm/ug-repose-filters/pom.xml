@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>rpm</artifactId>
+        <groupId>com.rackspace.repose.installation.rpm</groupId>
+        <version>2.0.1-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.rackspace.repose.installation.rpm.ug.filters</groupId>
+    <artifactId>ug-repose-filters</artifactId>
+
+    <name>Repose - Installation Utility Grid Filters RPM</name>
+
+    <description>
+        Module for the Utility Grid Filters RPM.
+    </description>
+
+    <packaging>pom</packaging>
+
+    <profiles>
+        <profile>
+            <id>build-system-packages</id>
+
+            <activation>
+                <property>
+                    <name>Build Filter Bundle RPM</name>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>pl.project13.maven</groupId>
+                        <artifactId>git-commit-id-plugin</artifactId>
+                        <version>2.0.2</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>revision</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <prefix>git</prefix>
+                            <verbose>true</verbose>
+                            <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+                            <skipPomProjects>false</skipPomProjects>
+                            <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                            <generateGitPropertiesFilename>target/git.properties</generateGitPropertiesFilename>
+                        </configuration>
+                    </plugin>
+
+                    <!--<plugin>-->
+                    <!--<groupId>org.codehaus.mojo</groupId>-->
+                    <!--<artifactId>properties-maven-plugin</artifactId>-->
+                    <!--<version>1.0-alpha-2</version>-->
+                    <!--<executions>-->
+                    <!--<execution>-->
+                    <!--<phase>process-resources</phase>-->
+                    <!--<goals>-->
+                    <!--<goal>read-project-properties</goal>-->
+                    <!--</goals>-->
+                    <!--<configuration>-->
+                    <!--<files>-->
+                    <!--<file>${basedir}/target/git.properties</file>-->
+                    <!--</files>-->
+                    <!--</configuration>-->
+                    <!--</execution>-->
+                    <!--</executions>-->
+                    <!--</plugin>-->
+
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>rpm-maven-plugin</artifactId>
+                        <version>2.1-alpha-1</version>
+
+                        <configuration>
+                            <mappings>
+                                <mapping>
+                                    <directory>/usr/share/repose/filters</directory>
+                                    <username>intermediary</username>
+                                    <groupname>intermediary</groupname>
+                                    <filemode>755</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>
+                                                ${basedir}/../../../components/filter-bundle/target/filter-bundle-${project.version}.ear
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/etc/repose/</directory>
+                                    <username>intermediary</username>
+                                    <groupname>intermediary</groupname>
+                                    <configuration>noreplace</configuration>
+                                    <filemode>755</filemode>
+                                    <directoryIncluded>false</directoryIncluded>
+
+                                    <sources>
+                                        <source>
+                                            <!-- This grabs all the config files in configs directory -->
+                                            <location>${basedir}/../configs/filters</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/usr/share/doc/repose-filter-bundle</directory>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <filemode>644</filemode>
+
+                                    <!--<sources>-->
+                                    <!--<source>-->
+                                    <!--<location>${basedir}/target/git.properties</location>-->
+                                    <!--</source>-->
+                                    <!--</sources>-->
+                                </mapping>
+                            </mappings>
+
+                            <preinstallScriptlet>
+                                <script>
+                                    getent group intermediary || groupadd -r intermediary
+                                    getent passwd intermediary || useradd -r -g intermediary -s /sbin/nologin
+                                    intermediary
+                                </script>
+                            </preinstallScriptlet>
+
+                            <requires>
+                                <require>valve</require>
+                            </requires>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>
