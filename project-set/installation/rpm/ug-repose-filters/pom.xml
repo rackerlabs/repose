@@ -35,7 +35,7 @@
                     <plugin>
                         <groupId>pl.project13.maven</groupId>
                         <artifactId>git-commit-id-plugin</artifactId>
-                        <version>2.0.2</version>
+                        <version>1.9</version>
                         <executions>
                             <execution>
                                 <goals>
@@ -47,7 +47,7 @@
                             <prefix>git</prefix>
                             <verbose>true</verbose>
                             <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
-                            <skipPomProjects>false</skipPomProjects>
+                            <!--<skipPomProjects>false</skipPomProjects>-->
                             <generateGitPropertiesFile>true</generateGitPropertiesFile>
                             <generateGitPropertiesFilename>target/git.properties</generateGitPropertiesFilename>
                         </configuration>
@@ -78,6 +78,13 @@
                         <version>2.1-alpha-1</version>
 
                         <configuration>
+                            <name>ug-repose-filters</name>
+
+                            <!-- _tmppath is not set correctly on al OSs so it is forced here -->
+                            <defineStatements>
+                                <defineStatement>_tmppath /tmp</defineStatement>
+                            </defineStatements>
+
                             <mappings>
                                 <mapping>
                                     <directory>/usr/share/repose/filters</directory>
@@ -95,22 +102,6 @@
                                 </mapping>
 
                                 <mapping>
-                                    <directory>/etc/repose/</directory>
-                                    <username>intermediary</username>
-                                    <groupname>intermediary</groupname>
-                                    <configuration>noreplace</configuration>
-                                    <filemode>755</filemode>
-                                    <directoryIncluded>false</directoryIncluded>
-
-                                    <sources>
-                                        <source>
-                                            <!-- This grabs all the config files in configs directory -->
-                                            <location>${basedir}/../configs/filters</location>
-                                        </source>
-                                    </sources>
-                                </mapping>
-
-                                <mapping>
                                     <directory>/usr/share/doc/repose-filter-bundle</directory>
                                     <username>root</username>
                                     <groupname>root</groupname>
@@ -122,6 +113,23 @@
                                     <!--</source>-->
                                     <!--</sources>-->
                                 </mapping>
+
+                                <mapping>
+                                    <directory>/etc/repose/</directory>
+                                    <username>intermediary</username>
+                                    <groupname>intermediary</groupname>
+                                    <configuration>noreplace</configuration>
+                                    <filemode>755</filemode>
+                                    <directoryIncluded>false</directoryIncluded>
+
+                                    <sources>
+                                        <source>
+                                            <!-- This grabs all the config files in configs directory -->
+                                            <location>${basedir}/../../configs/filters</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+                                
                             </mappings>
 
                             <preinstallScriptlet>

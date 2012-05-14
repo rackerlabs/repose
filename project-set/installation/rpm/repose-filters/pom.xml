@@ -33,6 +33,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
+                        <version>2.1-alpha-1</version>
 
                         <configuration>
                             <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer
@@ -47,8 +48,7 @@
 
                                     <sources>
                                         <source>
-                                            <location>${basedir}/../../../components/filter-bundle/target/filter-bundle-${project.version}.ear
-                                            </location>
+                                            <location>${basedir}/../../../components/filter-bundle/target/filter-bundle-${project.version}.ear</location>
                                         </source>
                                     </sources>
                                 </mapping>
@@ -64,7 +64,7 @@
                                     <sources>
                                         <source>
                                             <!-- This grabs all the config files in configs directory -->
-                                            <location>${basedir}/../configs/filters</location>
+                                            <location>${basedir}/../../configs/filters</location>
                                         </source>
                                     </sources>
                                 </mapping>

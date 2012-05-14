@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -32,7 +33,45 @@
 
             <build>
                 <plugins>
+                    <plugin>
+                        <groupId>pl.project13.maven</groupId>
+                        <artifactId>git-commit-id-plugin</artifactId>
+                        <version>1.9</version>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>revision</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <prefix>git</prefix>
+                            <verbose>false</verbose>
+                            <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+                            <generateGitPropertiesFile>true</generateGitPropertiesFile>
+                            <generateGitPropertiesFilename>target/git.properties</generateGitPropertiesFilename>
+                        </configuration>
+                    </plugin>
 
+                    <!--<plugin>-->
+                        <!--<groupId>org.codehaus.mojo</groupId>-->
+                        <!--<artifactId>properties-maven-plugin</artifactId>-->
+                        <!--<version>1.0-alpha-2</version>-->
+                        <!--<executions>-->
+                            <!--<execution>-->
+                                <!--<phase>process-resources</phase>-->
+                                <!--<goals>-->
+                                    <!--<goal>read-project-properties</goal>-->
+                                <!--</goals>-->
+                                <!--<configuration>-->
+                                    <!--<files>-->
+                                        <!--<file>${basedir}/target/git.properties</file>-->
+                                    <!--</files>-->
+                                <!--</configuration>-->
+                            <!--</execution>-->
+                        <!--</executions>-->
+                    <!--</plugin>-->
+                    
                     <plugin>
                         <groupId>org.vafer</groupId>
                         <artifactId>jdeb</artifactId>
@@ -46,12 +85,12 @@
                                 </goals>
 
                                 <configuration>
-                                    <deb>[[buildDir]]/repose-[[artifactId]]-[[version]].deb</deb> 
+                                    <!--<deb>[[buildDir]]/repose-[[artifactId]]-[[version]]-${git.commit.id.abbrev}.deb</deb>-->
+                                    <deb>[[buildDir]]/repose-[[artifactId]]-[[version]].deb</deb>
                                     <timestamped>true</timestamped>
+                                    
                                     <dataSet>
-
-
-                                            <!-- The jar file -->
+                                        <!-- The jar file -->
                                         <data>
                                             <src>${basedir}/../../../components/cli-utils/target/repose-cli.jar</src>
                                             <type>file</type>
@@ -62,9 +101,9 @@
                                             </mapper>
                                         </data>
 
-                                            <!-- The start script -->
+                                        <!-- The start script -->
                                         <data>
-                                            <src>${basedir}/../../../components/cli-utils/src/bash/dd-remove</src>
+                                            <src>${basedir}/../../bash/dd-remove</src>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
@@ -73,9 +112,9 @@
                                             </mapper>
                                         </data>
 
-                                            <!-- The clean up script -->
+                                        <!-- The clean up script -->
                                         <data>
-                                            <src>${basedir}/../../../core/valve/src/bash/clean-repose-deploy</src>
+                                            <src>${basedir}/../../bash/clean-repose-deploy</src>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>

@@ -47,6 +47,7 @@
                             <prefix>git</prefix>
                             <verbose>false</verbose>
                             <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+                            <!--<skipPomProjects>false</skipPomProjects>-->
                             <generateGitPropertiesFile>true</generateGitPropertiesFile>
                             <generateGitPropertiesFilename>target/git.properties</generateGitPropertiesFilename>
                         </configuration>
@@ -77,12 +78,40 @@
                         <version>2.1-alpha-1</version>
 
                         <configuration>
+                            <name>ug-repose-valve</name>
+                            
                             <!-- _tmppath is not set correctly on al OSs so it is forced here -->
                             <defineStatements>
                                 <defineStatement>_tmppath /tmp</defineStatement>
                             </defineStatements>
 
                             <mappings>
+                                <mapping>
+                                    <directory>/usr/share/lib/repose</directory>
+                                    <username>intermediary</username>
+                                    <groupname>intermediary</groupname>
+                                    <filemode>755</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>${basedir}/../../../core/valve/target/repose-valve.jar</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/usr/share/doc/repose-valve</directory>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <filemode>644</filemode>
+
+                                    <!--<sources>-->
+                                    <!--<source>-->
+                                    <!--<location>${basedir}/target/git.properties</location>-->
+                                    <!--</source>-->
+                                    <!--</sources>-->
+                                </mapping>
+
                                 <mapping>
                                     <directory>/etc/repose/</directory>
                                     <username>intermediary</username>
@@ -93,20 +122,21 @@
                                     <sources>
                                         <source>
                                             <!-- Grabs all the config files in configs/core -->
-                                            <location>${basedir}/../configs/core</location>
+                                            <location>${basedir}/../../configs/core</location>
                                         </source>
                                     </sources>
                                 </mapping>
 
                                 <mapping>
-                                    <directory>/usr/share/lib/repose</directory>
+                                    <directory>/usr/local/bin</directory>
                                     <username>intermediary</username>
                                     <groupname>intermediary</groupname>
                                     <filemode>755</filemode>
 
                                     <sources>
                                         <source>
-                                            <location>${basedir}/../../../core/valve/target/repose-valve.jar</location>
+                                            <location>${basedir}/../../bash/clean-repose-deploy
+                                            </location>
                                         </source>
                                     </sources>
                                 </mapping>
@@ -133,21 +163,7 @@
 
                                     <sources>
                                         <source>
-                                            <location>${project.build.directory}/../src/rpm/.log_dir_placeholder
-                                            </location>
-                                        </source>
-                                    </sources>
-                                </mapping>
-
-                                <mapping>
-                                    <directory>/usr/local/bin</directory>
-                                    <username>intermediary</username>
-                                    <groupname>intermediary</groupname>
-                                    <filemode>755</filemode>
-
-                                    <sources>
-                                        <source>
-                                            <location>${project.build.directory}/../src/bash/clean-repose-deploy
+                                            <location>src/rpm/.log_dir_placeholder
                                             </location>
                                         </source>
                                     </sources>
@@ -161,23 +177,10 @@
 
                                     <sources>
                                         <source>
-                                            <location>${project.build.directory}/../src/rpm/.var_repose_dir_placeholder
+                                            <location>src/rpm/.var_repose_dir_placeholder
                                             </location>
                                         </source>
                                     </sources>
-                                </mapping>
-
-                                <mapping>
-                                    <directory>/usr/share/doc/repose-valve</directory>
-                                    <username>root</username>
-                                    <groupname>root</groupname>
-                                    <filemode>644</filemode>
-
-                                    <!--<sources>-->
-                                    <!--<source>-->
-                                    <!--<location>${basedir}/target/git.properties</location>-->
-                                    <!--</source>-->
-                                    <!--</sources>-->
                                 </mapping>
 
                                 <mapping>
