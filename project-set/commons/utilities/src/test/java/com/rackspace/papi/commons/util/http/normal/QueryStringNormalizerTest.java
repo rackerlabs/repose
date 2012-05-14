@@ -38,6 +38,7 @@ public class QueryStringNormalizerTest {
       }
    }
 
+   @Ignore
    public static class WhenNormalizingQueryParameters extends TestParent {
 
       @Test

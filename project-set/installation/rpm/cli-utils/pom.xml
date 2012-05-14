@@ -35,6 +35,7 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
+                        <version>2.1-alpha-1</version>
 
                         <configuration>
 
@@ -70,7 +71,7 @@
                                     <sources>
                                         <source>
                                             <location>
-                                                ${basedir}/../../../components/cli-utils/src/bash/dd-remove
+                                                ${basedir}/../../bash/dd-remove
                                             </location>
                                         </source>
                                     </sources>
@@ -85,7 +86,7 @@
                                     <sources>
                                         <source>
                                             <location>
-                                                ${basedir}/../../../core/valve/src/bash/clean-repose-deploy
+                                                ${basedir}/../../bash/clean-repose-deploy
                                             </location>
                                         </source>
                                     </sources>
