@@ -75,6 +75,22 @@
                                         </source>
                                     </sources>
                                 </mapping>
+
+                                <mapping>
+                                    <directory>/usr/bin</directory>
+                                    <username>tomcat</username>
+                                    <groupname>tomcat</groupname>
+                                    <filemode>755</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>
+                                                ${basedir}/../../../core/valve/src/bash/clean-repose-deploy
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
                             </mappings>
 
                             <requires>

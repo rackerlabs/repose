@@ -9,17 +9,20 @@ import com.rackspace.papi.service.event.PowerFilterEvent;
 import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.event.listener.SingleFireEventListener;
+import java.io.File;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
+import org.slf4j.Logger;
 
 public class ArtifactManagerServiceContext implements ServiceContext<ArtifactManager> {
 
+   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ArtifactManagerServiceContext.class);
    public static final String SERVICE_NAME = "powerapi:/kernel/artifact-deployment";
    private DestroyableThreadWrapper watcherThread;
    private ArtifactManager artifactManager;
    private EventService eventManagerReference;
-   private ContainerConfigurationListener containerCfgListener;
-   
+   private ContainerConfigurationListener containerCfgListener = null;
+
    public ArtifactManagerServiceContext(ArtifactManager artifactManager, EventService eventManagerReference, ContainerConfigurationListener containerCfgListener) {
       this.artifactManager = artifactManager;
       this.eventManagerReference = eventManagerReference;
@@ -60,8 +63,24 @@ public class ArtifactManagerServiceContext implements ServiceContext<ArtifactMan
       try {
          final EventService eventManagerReference = ServletContextHelper.getInstance().getPowerApiContext(sce.getServletContext()).eventService();
          eventManagerReference.squelch(artifactManager, ApplicationArtifactEvent.class);
+
+         if (containerCfgListener.isAutoClean()) {
+            delete(containerCfgListener.getUnpacker().getDeploymentDirectory());
+         }
       } finally {
          watcherThread.destroy();
+      }
+   }
+
+   private void delete(File file) {
+      if (file.isDirectory()) {
+         for (File c : file.listFiles()) {
+            delete(c);
+         }
+      }
+
+      if (!file.delete()) {
+         LOG.warn("Failure to delete file " + file.getName() + " on repose shutdown.");
       }
    }
 }

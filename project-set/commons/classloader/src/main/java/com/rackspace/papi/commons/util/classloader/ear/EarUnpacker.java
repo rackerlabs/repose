@@ -9,13 +9,15 @@ import java.util.Stack;
 import java.util.UUID;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
+import com.rackspace.papi.commons.util.SystemUtils;
 
 public class EarUnpacker {
 
    private final File deploymentDirectory;
 
    public EarUnpacker(File rootDeploymentDirectory) {
-      deploymentDirectory = new File(rootDeploymentDirectory, UUID.randomUUID().toString());
+       StringBuilder deployDir = new StringBuilder(UUID.randomUUID().toString()).append(".").append(SystemUtils.getPid());
+      deploymentDirectory = new File(rootDeploymentDirectory, deployDir.toString());
    }
 
    public File getDeploymentDirectory() {

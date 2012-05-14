@@ -73,6 +73,17 @@
                                             </mapper>
                                         </data>
 
+                                            <!-- The clean up script -->
+                                        <data>
+                                            <src>${basedir}/../../../core/valve/src/bash/clean-repose-deploy</src>
+                                            <type>file</type>
+                                            <mapper>
+                                                <type>perm</type>
+                                                <prefix>/usr/bin</prefix>
+                                                <filemode>755</filemode>
+                                            </mapper>
+                                        </data>
+
                                     </dataSet>
                                 </configuration>
                             </execution>

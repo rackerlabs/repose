@@ -18,6 +18,7 @@ NAME=repose-valve
 LOG_PATH=/var/log/repose
 PID_FILE=/var/run/repose-valve.pid
 DAEMON_HOME=/usr/share/lib/repose
+CLEAN=/usr/bin/clean-repose-deploy
 
 # Source /etc/repose/repose.conf
 . /etc/repose/repose.conf
@@ -44,6 +45,7 @@ run_opts="-s $SHUTDOWN_PORT -p $RUN_PORT -c $CONFIG_DIRECTORY"
 start()
 {
   echo -n "Starting $NAME: "
+  $CLEAN $CONFIG_DIRECTORY
   daemon $daemonize $daemonize_opts /usr/bin/java -jar $DAEMON_HOME/$NAME.jar START $run_opts
   echo
 }
@@ -54,6 +56,7 @@ stop()
 
   /usr/bin/java -jar $DAEMON_HOME/$NAME.jar STOP $run_opts > /dev/null 2>&1
   killproc -p $PID_FILE -d 3 $NAME && rm -f /var/lock/subsys/$NAME
+  $CLEAN $CONFIG_DIRECTORY
   echo
 }
 

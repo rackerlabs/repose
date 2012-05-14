@@ -24,6 +24,7 @@
         <module>repose-war</module>
         <module>repose-filters</module>
         <module>cli-utils</module>
+        <module>ug-repose-filters</module>
     </modules>
 
     <profiles>

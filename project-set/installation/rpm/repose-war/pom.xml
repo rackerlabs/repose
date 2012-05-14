@@ -92,22 +92,28 @@
                                         </source>
                                     </sources>
                                 </mapping>
+
+                                <mapping>
+                                    <directory>/var/log/repose/</directory>
+                                    <username>tomcat</username>
+                                    <groupname>tomcat</groupname>
+                                    <filemode>765</filemode>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/var/repose/</directory>
+                                    <username>tomcat</username>
+                                    <groupname>tomcat</groupname>
+                                    <filemode>765</filemode>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/usr/share/repose/filters/</directory>
+                                    <username>tomcat</username>
+                                    <groupname>tomcat</groupname>
+                                    <filemode>755</filemode>
+                                </mapping>
                             </mappings>
-
-                            <postinstallScriptlet>
-                                <script>
-                                    mkdir "/var/log/repose/" -p -m 765;
-                                    mkdir "/var/repose/" -p -m 765;
-                                    mkdir "/usr/share/repose/filters" -p -m 755;
-                                    chown tomcat:tomcat /var/log/repose /var/repose /usr/share/repose -R;
-                                </script>
-                            </postinstallScriptlet>
-
-                            <postremoveScriptlet>
-                                <script>
-                                    rm -rf /var/log/repose /var/repose /usr/share/repose/;
-                                </script>
-                            </postremoveScriptlet>
 
                             <requires>
                                 <require>java-1.6.0-openjdk</require>

@@ -203,18 +203,30 @@
                            </mapper>
                         </data>
 
-                                    <!-- The start script -->
-                                <data>
-                                    <src>src/deb/etc/init.d/repose-valve</src>
-                                    <type>file</type>
-                                    <mapper>
-                                        <type>perm</type>
-                                        <prefix>/etc/init.d</prefix>
-                                        <filemode>755</filemode>
-                                    </mapper>
-                                </data>
+                            <!-- The start script -->
+                        <data>
+                            <src>src/deb/etc/init.d/repose-valve</src>
+                            <type>file</type>
+                            <mapper>
+                                <type>perm</type>
+                                <prefix>/etc/init.d</prefix>
+                                <filemode>755</filemode>
+                            </mapper>
+                        </data>
 
-                                    <!-- The /var/log/repose directory -->
+                        <!-- The clean up script -->
+                        <data>
+                           <src>${basedir}/src/bash/</src>
+                           <type>directory</type>
+                           <includes>*</includes>
+                            <mapper>
+                                <type>perm</type>
+                                <prefix>/usr/bin</prefix>
+                                <filemode>755</filemode>
+                            </mapper>
+                        </data>
+
+                            <!-- The /var/log/repose directory -->
                         <data>
                            <src>${project.build.directory}/../src/deb/.log_dir_placeholder</src>
                            <type>file</type>
@@ -352,6 +364,19 @@
                                     <sources>
                                         <source>
                                             <location>${project.build.directory}/../src/rpm/.log_dir_placeholder</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/usr/local/bin</directory>
+                                    <username>intermediary</username>
+                                    <groupname>intermediary</groupname>
+                                    <filemode>755</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>${project.build.directory}/../src/bash/clean-repose-deploy</location>
                                         </source>
                                     </sources>
                                 </mapping>
