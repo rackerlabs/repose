@@ -25,6 +25,7 @@
         <module>repose-filters</module>
         <module>cli-utils</module>
         <module>ug-repose-filters</module>
+        <module>ug-repose-valve</module>
     </modules>
 
     <profiles>

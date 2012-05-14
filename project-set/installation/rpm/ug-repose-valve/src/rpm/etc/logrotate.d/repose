@@ -1,0 +1,8 @@
+/var/log/respose/*.log {
+    daily
+    rotate 31
+    missingok
+    notifempty
+    weekly
+    compress
+}

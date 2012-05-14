@@ -10,7 +10,6 @@
 
     <groupId>com.rackspace.repose.installation.rpm.war</groupId>
     <artifactId>repose-war</artifactId>
-    <version>2.0.1-SNAPSHOT</version>
 
     <name>Repose - Installation ROOT.WAR RPM</name>
 
@@ -71,24 +70,8 @@
 
                                     <sources>
                                         <source>
-                                            <location>
-                                                ../repose-war/src/main/resources/META-INF/configs/container.cfg.xml
-                                            </location>
-                                        </source>
-                                        <source>
-                                            <location>
-                                                ../repose-war/src/main/resources/META-INF/configs/system-model.cfg.xml
-                                            </location>
-                                        </source>
-                                        <source>
-                                            <location>
-                                                ../repose-war/src/main/resources/META-INF/configs/log4j.properties
-                                            </location>
-                                        </source>
-                                        <source>
-                                            <location>
-                                                ../repose-war/src/main/resources/META-INF/configs/response-messaging.cfg.xml
-                                            </location>
+                                            <!-- Grabs all the config files in configs/core -->
+                                            <location>${basedir}/../configs/core</location>
                                         </source>
                                     </sources>
                                 </mapping>
