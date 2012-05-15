@@ -32,8 +32,8 @@ script "getVersionAndBuildNumbers" do
    vValue= vTimeStamp[vTimeStamp.size-2]
    fValue= fTimeStamp[fTimeStamp.size-2]
 
-   `wget #{valveUrl}/valve-#{vValue}.deb -O /root/repose-valve.deb`
-   `wget #{filterBundleUrl}/filter-bundle-#{fValue}.deb -O /root/filterBundle.deb`
+   `wget #{valveUrl}/repose-valve-#{vValue}.deb -O /root/repose-valve.deb`
+   `wget #{filterBundleUrl}/repose-filter-bundle-#{fValue}.deb -O /root/filterBundle.deb`
 end
 
 package "papiCore" do
