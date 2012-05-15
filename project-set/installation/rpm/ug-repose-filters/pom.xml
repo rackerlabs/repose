@@ -9,6 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>com.rackspace.repose.installation.rpm.ug.filters</groupId>
     <artifactId>ug-repose-filters</artifactId>
 
     <name>Repose - Installation Utility Grid Filters RPM</name>
@@ -33,49 +34,21 @@
                 <plugins>
                     <plugin>
                         <groupId>pl.project13.maven</groupId>
-                        <artifactId>git-commit-id-plugin</artifactId>
-                        <version>2.0.2</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>revision</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <prefix>git</prefix>
-                            <verbose>true</verbose>                            
-                            <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
-                            <skipPomProjects>false</skipPomProjects>
-                            <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                            <generateGitPropertiesFilename>target/git.properties</generateGitPropertiesFilename>
-                        </configuration>
+                        <artifactId>git-commit-id-plugin</artifactId>                        
                     </plugin>
 
-                    <!--<plugin>-->
-                        <!--<groupId>org.codehaus.mojo</groupId>-->
-                        <!--<artifactId>properties-maven-plugin</artifactId>-->
-                        <!--<version>1.0-alpha-2</version>-->
-                        <!--<executions>-->
-                            <!--<execution>-->
-                                <!--<phase>process-resources</phase>-->
-                                <!--<goals>-->
-                                    <!--<goal>read-project-properties</goal>-->
-                                <!--</goals>-->
-                                <!--<configuration>-->
-                                    <!--<files>-->
-                                        <!--<file>${basedir}/target/git.properties</file>-->
-                                    <!--</files>-->
-                                <!--</configuration>-->
-                            <!--</execution>-->
-                        <!--</executions>-->
-                    <!--</plugin>-->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>properties-maven-plugin</artifactId>
+                    </plugin>
+
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
-                        <version>2.1-alpha-1</version>
 
                         <configuration>
+                            <name>ug-repose-filters</name>
+
                             <mappings>
                                 <mapping>
                                     <directory>/usr/share/repose/filters</directory>
@@ -93,6 +66,19 @@
                                 </mapping>
 
                                 <mapping>
+                                    <directory>/usr/share/doc/repose-filter-bundle</directory>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <filemode>644</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>${basedir}/target/git.properties</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
                                     <directory>/etc/repose/</directory>
                                     <username>intermediary</username>
                                     <groupname>intermediary</groupname>
@@ -103,23 +89,11 @@
                                     <sources>
                                         <source>
                                             <!-- This grabs all the config files in configs directory -->
-                                            <location>${basedir}/../configs</location>
+                                            <location>${basedir}/../../configs/filters</location>
                                         </source>
                                     </sources>
                                 </mapping>
-
-                                <mapping>
-                                    <directory>/usr/share/doc/repose-filter-bundle</directory>
-                                    <username>root</username>
-                                    <groupname>root</groupname>
-                                    <filemode>644</filemode>
-
-                                    <!--<sources>-->
-                                        <!--<source>-->
-                                            <!--<location>${basedir}/target/git.properties</location>-->
-                                        <!--</source>-->
-                                    <!--</sources>-->
-                                </mapping>
+                                
                             </mappings>
 
                             <preinstallScriptlet>

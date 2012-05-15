@@ -62,4 +62,21 @@ public class QueryParameterCollection {
 
         parameterTracker.put(name, uriParameter);
     }
+    
+    @Override
+    public String toString(){
+        StringBuilder queryParams = new StringBuilder();
+        
+        for(QueryParameter parameter: parameterTracker.values()){
+            
+            for(String value: parameter.getValues()){
+                if(!queryParams.toString().isEmpty()){
+                    queryParams.append("&");
+                }
+                queryParams.append(parameter.getName()).append("=").append(value);
+            }
+        }
+        
+        return queryParams.toString();
+    }
 }

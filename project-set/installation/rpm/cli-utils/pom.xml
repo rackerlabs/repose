@@ -40,11 +40,6 @@
 
                             <name>cli-utils</name>
 
-                            <!-- _tmppath is not set correctly on al OSs so it is forced here -->
-                            <defineStatements>
-                                <defineStatement>_tmppath /tmp</defineStatement>
-                            </defineStatements>
-
                             <mappings>
                                 <mapping>
                                     <directory>/usr/share/lib/repose</directory>
@@ -70,7 +65,7 @@
                                     <sources>
                                         <source>
                                             <location>
-                                                ${basedir}/../../../components/cli-utils/src/bash/dd-remove
+                                                ${basedir}/../../bash/dd-remove
                                             </location>
                                         </source>
                                     </sources>
@@ -85,7 +80,7 @@
                                     <sources>
                                         <source>
                                             <location>
-                                                ${basedir}/../../../core/valve/src/bash/clean-repose-deploy
+                                                ${basedir}/../../bash/clean-repose-deploy
                                             </location>
                                         </source>
                                     </sources>

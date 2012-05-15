@@ -83,7 +83,6 @@
                     <jmeterPreserveIncludeOrder>true</jmeterPreserveIncludeOrder>
                     <excludes>
                         <exclude>Power API - Content-Normalization Test.jmx</exclude>
-                        <exclude>Power API - URI Normalization Tests.jmx</exclude>
                     </excludes>
                 </configuration>
             </plugin>

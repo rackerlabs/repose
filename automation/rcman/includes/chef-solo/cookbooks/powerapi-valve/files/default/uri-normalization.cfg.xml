@@ -11,13 +11,14 @@
    </media-variants>
 
    <uri-filters>
-      <target uri-regex="/uri_normalization/.*" http-methods="GET" alphabetize="true">
+       <target uri-regex=".*/uri_normalization/?.*" http-methods="GET" alphabetize="true">
          <whitelist id="pagination-params">
-            <parameter name="a" multiplicity="1" case-sensitive="false"/>
-            <parameter name="r" multiplicity="1" case-sensitive="false"/>
-            <parameter name="n" multiplicity="1" case-sensitive="false"/>
+            <parameter name="a" multiplicity="0" case-sensitive="false"/>
+            <parameter name="r" multiplicity="3" case-sensitive="false"/>
+            <parameter name="n" multiplicity="1" case-sensitive="true"/>
          </whitelist>
       </target>
    </uri-filters>
 </uri-normalization>
+
 

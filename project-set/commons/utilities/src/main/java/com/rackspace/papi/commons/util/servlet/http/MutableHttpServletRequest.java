@@ -3,9 +3,12 @@ package com.rackspace.papi.commons.util.servlet.http;
 import com.rackspace.papi.commons.util.http.header.HeaderFieldParser;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.header.QualityFactorHeaderChooser;
+import com.rackspace.papi.commons.util.http.normal.QueryParameter;
+import com.rackspace.papi.commons.util.http.normal.QueryParameterCollection;
 import com.rackspace.papi.commons.util.io.BufferedServletInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -30,6 +33,7 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
    private BufferedServletInputStream inputStream;
    private StringBuffer requestUrl;
    private String requestUri, requestUriQuery;
+   private Map<String, String[]> queryParameter;
    
    private MutableHttpServletRequest(HttpServletRequest request) {
       super(request);
@@ -41,8 +45,10 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
 
       headers = new HashMap<String, List<String>>();
       destinations = new ArrayList<RouteDestination>();
+      queryParameter = new HashMap<String, String[]>();
 
       copyHeaders(request);
+      copyParameters(request);
    }
    
    public void addDestination(String id, String uri, float quality) {
@@ -69,6 +75,32 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
    public String getQueryString() {
       return requestUriQuery;
    }
+   
+   @Override
+   public Enumeration<String> getParameterNames(){
+       return Collections.enumeration(queryParameter.keySet());
+   }
+   
+   @Override 
+   public Map<String, String[]> getParameterMap(){
+       return queryParameter;
+   }
+   
+   @Override
+   public String[] getParameterValues(String name){
+       return queryParameter.get(name);
+   }
+   
+   public void setParameterMap(String queryString){
+       QueryParameterCollection collection = new QueryParameterCollection(queryString);
+       HashMap<String,String[]> newParamMap = new HashMap<String, String[]>();
+       
+       for(QueryParameter param: collection.getParameters()){
+           newParamMap.put(param.getName(), Arrays.copyOf(param.getValues().toArray(), param.getValues().size(), String[].class));
+       }
+       queryParameter = newParamMap;
+   }
+   
 
    public void setQueryString(String requestUriQuery) {
       this.requestUriQuery = requestUriQuery;
@@ -99,6 +131,16 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
 
          headers.put(headerName, copiedHeaderValues);
       }
+   }
+   
+   private void copyParameters(HttpServletRequest request){
+       final Enumeration<String> paramNames = request.getParameterNames();
+       
+       while(paramNames != null && paramNames.hasMoreElements()){
+           
+           String paramName = paramNames.nextElement();
+           queryParameter.put(paramName, request.getParameterValues(paramName));
+       }
    }
 
    @Override

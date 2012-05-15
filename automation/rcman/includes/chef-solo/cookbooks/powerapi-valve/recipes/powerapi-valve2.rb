@@ -9,14 +9,14 @@ end
 script "getVersionAndBuildNumbers" do
    interpreter "ruby"
    `rm -rf /var/lib/tomcat7/webapps/*`
-   latestUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/papi/core/valve/maven-metadata.xml"
-   latest = `wget -qO- '#{latestUrl}'`.split(/<\/?latest>/).select{|v| v=~ /SNAPSHOT/}.shift
+   latestUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/war/repose-valve/maven-metadata.xml"
+   latest = `wget -qO- '#{latestUrl}'`.split(/<\/?version>/).select{|v| v=~ /SNAPSHOT/}.shift
 
 
    rootWarUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/papi/core/web-application/#{latest}"
    mocksUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/papi/external/testing/test-service-mock/#{latest}/"
-   valveUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/papi/core/valve/#{latest}"
-   filterBundleUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/papi/components/filter-bundle/#{latest}"
+   valveUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/war/repose-valve/#{latest}"
+   filterBundleUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/filters/repose-filter-bundle/#{latest}"
 
    rTimeStamp= `wget -qO- "#{rootWarUrl}/maven-metadata.xml"`.split(/<\/?value>/)
    mTimeStamp = `wget -qO- "#{mocksUrl}/maven-metadata.xml"`.split(/<\/?value>/)
@@ -30,8 +30,8 @@ script "getVersionAndBuildNumbers" do
 
    `wget #{rootWarUrl}/web-application-#{rValue}.war -O /var/lib/tomcat7/webapps/ROOT.war`
    `wget #{mocksUrl}/test-service-mock-#{mValue}.war -O /var/lib/tomcat7/webapps/mocks.war`
-   `wget #{valveUrl}/valve-#{vValue}.deb -O /root/repose-valve.deb`
-   `wget #{filterBundleUrl}/filter-bundle-#{fValue}.deb -O /root/filterBundle.deb`
+   `wget #{valveUrl}/repose-valve-#{vValue}.deb -O /root/repose-valve.deb`
+   `wget #{filterBundleUrl}/repose-filter-bundle-#{fValue}.deb -O /root/filterBundle.deb`
 end
 
 package "papiCore" do
