@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.unorm.normalizer;
 
+import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.components.uri.normalization.config.MediaType;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
@@ -116,6 +117,48 @@ public class MediaTypeNormalizerTest {
             assertEquals("xml", identifiedMediaType.getVariantExtension());
             assertEquals("/a/request/uri/", director.getRequestUri());
             assertEquals("http://localhost/a/request/uri/", director.getRequestUrl().toString());
+        }
+        
+        @Test
+        public void shouldSetCorrectMediaTypeWhenWildCardIsProvided(){
+            final HttpServletRequest request = mock(HttpServletRequest.class);
+            final FilterDirector director = new FilterDirectorImpl();
+            
+            when(request.getHeader(CommonHttpHeader.ACCEPT.toString())).thenReturn("*/*");
+            when(request.getRequestURI()).thenReturn("/a/request/uri");
+            when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost/a/request/uri"));
+            normalizer.normalizeContentMediaType(request, director);
+            
+            assertTrue(director.requestHeaderManager().headersToAdd().keySet().contains("accept"));
+            assertTrue(director.requestHeaderManager().headersToAdd().get("accept").contains("application/xml"));
+        }
+        
+        @Test
+        public void shouldNotSetMediaTypesWhenAcceptIsProvided(){
+            final HttpServletRequest request = mock(HttpServletRequest.class);
+            final FilterDirector director = new FilterDirectorImpl();
+            
+            when(request.getHeader(CommonHttpHeader.ACCEPT.toString())).thenReturn("application/json");
+            when(request.getRequestURI()).thenReturn("/a/request/uri");
+            when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost/a/request/uri"));
+            normalizer.normalizeContentMediaType(request, director);
+            
+            assertFalse(director.requestHeaderManager().headersToAdd().keySet().contains("accept"));
+            assertTrue(director.requestHeaderManager().headersToAdd().isEmpty());
+        }
+        
+        @Test
+        public void shouldSetProperMediaTypeFromExtension(){
+            final HttpServletRequest request = mock(HttpServletRequest.class);
+            final FilterDirector director = new FilterDirectorImpl();
+            
+            //when(request.getHeader(CommonHttpHeader.ACCEPT.toString())).thenReturn("application/json");
+            when(request.getRequestURI()).thenReturn("/a/request/uri.xml");
+            when(request.getRequestURL()).thenReturn(new StringBuffer("http://localhost/a/request/uri.xml"));
+            normalizer.normalizeContentMediaType(request, director);
+            
+            assertTrue(director.requestHeaderManager().headersToAdd().keySet().contains("accept"));
+            assertTrue(director.requestHeaderManager().headersToAdd().get("accept").contains("application/xml"));
         }
 
         @Test

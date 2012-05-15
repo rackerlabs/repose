@@ -52,8 +52,9 @@ public class MockServiceProvider {
         }
         if (!queryParams.isEmpty()) {
             resp.append("\n\t\t<h2>Query Parameters</h2>");
+            resp.append("\n\t\t<h2>").append(uri.getRequestUri().getQuery()).append("</h2>");
             for (String q : queryParams) {
-                resp.append("\n\t\t<h3> ").append(q).append(" : ").append(uri.getQueryParameters().get(q)).append("</h3>");
+                resp.append("\n\t\t<h2> ").append(q).append(" : ").append(uri.getQueryParameters().get(q)).append("</h2>");
             }
         }
         if (!body.isEmpty()) {
