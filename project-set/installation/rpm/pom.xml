@@ -59,6 +59,11 @@
                             </executions>
 
                             <configuration>
+                                <!-- _tmppath is not set correctly on al OSs so it is forced here -->
+                                <defineStatements>
+                                    <defineStatement>_tmppath /tmp</defineStatement>
+                                </defineStatements>
+
                                 <group>Rackspace Repose</group>
                                 <packager>Rackspace - Cloud Integration Team</packager>
 
@@ -74,7 +79,5 @@
                 </pluginManagement>
             </build>
         </profile>
-
     </profiles>
-
 </project>
