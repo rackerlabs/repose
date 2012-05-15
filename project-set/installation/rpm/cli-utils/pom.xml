@@ -35,16 +35,10 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
-                        <version>2.1-alpha-1</version>
 
                         <configuration>
 
                             <name>cli-utils</name>
-
-                            <!-- _tmppath is not set correctly on al OSs so it is forced here -->
-                            <defineStatements>
-                                <defineStatement>_tmppath /tmp</defineStatement>
-                            </defineStatements>
 
                             <mappings>
                                 <mapping>

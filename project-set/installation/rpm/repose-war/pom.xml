@@ -34,17 +34,11 @@
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
-                        <version>2.1-alpha-1</version>
 
                         <configuration>
                             <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer
                                  to this RPM.-->
                             <name>repose-war</name>
-
-                            <!-- _tmppath is not set correctly on al OSs so it is forced here -->
-                            <defineStatements>
-                                <defineStatement>_tmppath /tmp</defineStatement>
-                            </defineStatements>
 
                             <mappings>
                                 <mapping>
