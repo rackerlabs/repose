@@ -35,57 +35,22 @@
                     <plugin>
                         <groupId>pl.project13.maven</groupId>
                         <artifactId>git-commit-id-plugin</artifactId>
-                        <version>1.9</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>revision</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <prefix>git</prefix>
-                            <verbose>false</verbose>
-                            <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
-                            <generateGitPropertiesFile>true</generateGitPropertiesFile>
-                            <generateGitPropertiesFilename>target/git.properties</generateGitPropertiesFilename>
-                        </configuration>
                     </plugin>
 
-                    <!--<plugin>-->
-                        <!--<groupId>org.codehaus.mojo</groupId>-->
-                        <!--<artifactId>properties-maven-plugin</artifactId>-->
-                        <!--<version>1.0-alpha-2</version>-->
-                        <!--<executions>-->
-                            <!--<execution>-->
-                                <!--<phase>process-resources</phase>-->
-                                <!--<goals>-->
-                                    <!--<goal>read-project-properties</goal>-->
-                                <!--</goals>-->
-                                <!--<configuration>-->
-                                    <!--<files>-->
-                                        <!--<file>${basedir}/target/git.properties</file>-->
-                                    <!--</files>-->
-                                <!--</configuration>-->
-                            <!--</execution>-->
-                        <!--</executions>-->
-                    <!--</plugin>-->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>properties-maven-plugin</artifactId>                        
+                    </plugin>
                     
                     <plugin>
                         <groupId>org.vafer</groupId>
                         <artifactId>jdeb</artifactId>
-                        <version>0.9</version>
 
                         <executions>
                             <execution>
-                                <phase>package</phase>
-                                <goals>
-                                    <goal>jdeb</goal>
-                                </goals>
 
                                 <configuration>
-                                    <!--<deb>[[buildDir]]/repose-[[artifactId]]-[[version]]-${git.commit.id.abbrev}.deb</deb>-->
-                                    <deb>[[buildDir]]/repose-[[artifactId]]-[[version]].deb</deb>
+                                    <deb>[[buildDir]]/repose-[[artifactId]]-[[version]]-${git.commit.id.abbrev}.deb</deb>
                                     <timestamped>true</timestamped>
                                     
                                     <dataSet>
