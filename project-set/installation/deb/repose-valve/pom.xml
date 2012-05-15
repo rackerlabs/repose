@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.rackspace.repose.installation.deb.war</groupId>
+    <groupId>com.rackspace.repose.installation.deb.valve</groupId>
     <artifactId>repose-valve</artifactId>
 
     <name>Repose - Installation Repose Valve DEB</name>
