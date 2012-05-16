@@ -2,6 +2,7 @@ package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.util.net.NetUtilities;
 import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.model.FilterList;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.NodeList;
@@ -24,8 +25,8 @@ public class LocalhostFilterListTest {
 
    public static class WhenUsingLocalhostFilterList {
 
-      private List<Port> getHttpPortList(int port) {
-         List<Port> ports = new ArrayList<Port>();
+      private ServicePorts getHttpPortList(int port) {
+         ServicePorts ports = new ServicePorts();
          ports.add(new Port("http", port));
          return ports;
       }
@@ -34,7 +35,7 @@ public class LocalhostFilterListTest {
       public void shouldInstantiate() {
          SystemModel powerProxy = new SystemModel();
          // TODO Model: HTTPS
-         SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(powerProxy, getHttpPortList(8080));
+         SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(getHttpPortList(8080));
 
          assertNotNull(localhostFilterList);
       }
@@ -46,8 +47,8 @@ public class LocalhostFilterListTest {
          when(mockedPowerProxy.getReposeCluster()).thenReturn(domains);
 
          // TODO Model: HTTPS
-         SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(mockedPowerProxy, getHttpPortList(8080));
-         ReposeCluster localServiceDomain = localhostFilterList.getLocalServiceDomain();
+         SystemModelInterrogator localhostFilterList = new SystemModelInterrogator(getHttpPortList(8080));
+         ReposeCluster localServiceDomain = localhostFilterList.getLocalServiceDomain(mockedPowerProxy);
          
          assertNotNull(localServiceDomain);
          

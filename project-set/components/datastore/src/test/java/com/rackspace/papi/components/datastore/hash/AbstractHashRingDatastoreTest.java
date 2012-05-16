@@ -3,6 +3,7 @@ package com.rackspace.papi.components.datastore.hash;
 import com.rackspace.papi.components.datastore.hash.remote.RemoteConnectionException;
 import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
 import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
@@ -39,8 +40,8 @@ public class AbstractHashRingDatastoreTest {
       protected Datastore mockedDatastore;
       protected TestingHashRingDatastore datastore;
 
-      private List<Port> getHttpPortList(int port) {
-         List<Port> ports = new ArrayList<Port>();
+      private ServicePorts getHttpPortList(int port) {
+         ServicePorts ports = new ServicePorts();
          ports.add(new Port("http", port));
          return ports;
       }

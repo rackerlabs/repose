@@ -4,6 +4,7 @@ import com.rackspace.papi.container.config.SslConfiguration;
 import com.rackspace.papi.filter.ValvePowerFilter;
 import com.rackspace.cloud.valve.jetty.servlet.ProxyServlet;
 import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.context.impl.PowerApiContextManager;
 import com.rackspace.papi.servlet.InitParameter;
 
@@ -25,7 +26,7 @@ import java.util.List;
 
 public class ValveJettyServerBuilder {
 
-   private final List<Port> ports = new ArrayList<Port>();
+   private final ServicePorts ports = new ServicePorts();
    private String configurationPathAndFile = "";
    private final SslConfiguration sslConfiguration;
 

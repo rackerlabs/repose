@@ -7,6 +7,7 @@ import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.model.ReposeCluster;
@@ -34,7 +35,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
    private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
    private final EventListener<ApplicationDeploymentEvent, String> applicationDeploymentListener;
    private final UpdateListener<SystemModel> systemModelConfigurationListener;
-   private List<Port> ports;
+   private ServicePorts ports;
    private boolean firstInitialization;
    private PowerFilterChainBuilder powerFilterChainBuilder;
    private ContextAdapter papiContext;
@@ -57,13 +58,16 @@ public class PowerFilter extends ApplicationContextAwareFilter {
          LOG.info("Application collection has been modified. Application that changed: " + e.payload());
 
          if (currentSystemModel != null) {
-            SystemModelInterrogator interrogator = new SystemModelInterrogator(currentSystemModel, ports);
+            SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
             final List<FilterContext> newFilterChain = new FilterContextInitializer(
                     filterConfig, 
                     ServletContextHelper.getInstance().getApplicationContext(filterConfig.getServletContext())
                     ).buildFilterContexts(papiContext.classLoader(), currentSystemModel, ports);
 
-            updateFilterChainBuilder(interrogator.getLocalServiceDomain(), interrogator.getLocalHost(), newFilterChain);
+            updateFilterChainBuilder(
+                    interrogator.getLocalServiceDomain(currentSystemModel), 
+                    interrogator.getLocalHost(currentSystemModel), 
+                    newFilterChain);
          }
       }
    };
@@ -86,12 +90,15 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
                papiContext.eventService().newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
             } else {
-               SystemModelInterrogator interrogator = new SystemModelInterrogator(currentSystemModel, ports);
+               SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
                final List<FilterContext> newFilterChain = new FilterContextInitializer(
                        filterConfig, 
                        ServletContextHelper.getInstance().getApplicationContext(filterConfig.getServletContext())
                        ).buildFilterContexts(papiContext.classLoader(), currentSystemModel, ports);
-               updateFilterChainBuilder(interrogator.getLocalServiceDomain(), interrogator.getLocalHost(), newFilterChain);
+               updateFilterChainBuilder(
+                       interrogator.getLocalServiceDomain(currentSystemModel), 
+                       interrogator.getLocalHost(currentSystemModel), 
+                       newFilterChain);
             }
          }
       }

@@ -2,6 +2,7 @@ package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.Filter;
 import com.rackspace.papi.model.ReposeCluster;
@@ -26,11 +27,11 @@ public class FilterContextInitializer {
       filterContextManager = new FilterContextManagerImpl(filterConfig, applicationContext);
    }
 
-   public List<FilterContext> buildFilterContexts(ClassLoaderManagerService classLoaderContextManager, SystemModel powerProxy, List<Port> ports) {
+   public List<FilterContext> buildFilterContexts(ClassLoaderManagerService classLoaderContextManager, SystemModel powerProxy, ServicePorts ports) {
       final List<FilterContext> filterContexts = new LinkedList<FilterContext>();
-      SystemModelInterrogator interrogator = new SystemModelInterrogator(powerProxy, ports);
-      ReposeCluster domain = interrogator.getLocalServiceDomain();
-      final Node localHost = interrogator.getLocalHost();
+      SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
+      ReposeCluster domain = interrogator.getLocalServiceDomain(powerProxy);
+      final Node localHost = interrogator.getLocalHost(powerProxy);
 
       if (localHost != null) {
          // TODO: This may need to move once we determine what parts of repose should be instrumented via JMX.

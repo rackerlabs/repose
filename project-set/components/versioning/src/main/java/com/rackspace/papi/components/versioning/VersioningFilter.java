@@ -5,6 +5,7 @@ import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList;
 import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
@@ -64,7 +65,7 @@ public class VersioningFilter implements Filter {
    @Override
    public void init(FilterConfig filterConfig) throws ServletException {
       final ServletContext servletContext = filterConfig.getServletContext();
-      final List<Port> ports = ServletContextHelper.getInstance().getServerPorts(servletContext);
+      final ServicePorts ports = ServletContextHelper.getInstance().getServerPorts(servletContext);
       
       handlerFactory = new VersioningHandlerFactory(ports);
       

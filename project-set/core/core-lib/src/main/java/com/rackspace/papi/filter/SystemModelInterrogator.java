@@ -5,6 +5,7 @@ import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
 import com.rackspace.papi.commons.util.net.NetworkNameResolver;
 import com.rackspace.papi.commons.util.net.StaticNetworkInterfaceProvider;
 import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
@@ -18,26 +19,29 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 /**
  * @author franshua
  */
+@Component("modelInterrogator")
 public class SystemModelInterrogator {
 
    private static final Logger LOG = LoggerFactory.getLogger(SystemModelInterrogator.class);
    private final NetworkInterfaceProvider networkInterfaceProvider;
    private final NetworkNameResolver nameResolver;
-   private final SystemModel systemModel;
    private final List<Port> ports;
 
-   public SystemModelInterrogator(SystemModel powerProxy, List<Port> ports) {
-      this(StaticNetworkNameResolver.getInstance(), StaticNetworkInterfaceProvider.getInstance(), powerProxy, ports);
+    @Autowired
+   public SystemModelInterrogator(@Qualifier("servicePorts") ServicePorts ports) {
+      this(StaticNetworkNameResolver.getInstance(), StaticNetworkInterfaceProvider.getInstance(), ports);
    }
 
-   public SystemModelInterrogator(NetworkNameResolver nameResolver, NetworkInterfaceProvider nip, SystemModel systemModel, List<Port> ports) {
+   public SystemModelInterrogator(NetworkNameResolver nameResolver, NetworkInterfaceProvider nip, ServicePorts ports) {
       this.nameResolver = nameResolver;
       this.networkInterfaceProvider = nip;
-      this.systemModel = systemModel;
       this.ports = ports;
    }
 
@@ -141,7 +145,7 @@ public class SystemModelInterrogator {
       }
    }
 
-   public ReposeCluster getLocalServiceDomain() {
+   public ReposeCluster getLocalServiceDomain(SystemModel systemModel) {
       ReposeCluster domain = null;
 
       for (ReposeCluster possibleDomain : systemModel.getReposeCluster()) {
@@ -154,7 +158,7 @@ public class SystemModelInterrogator {
       return domain;
    }
 
-   public Node getLocalHost() {
+   public Node getLocalHost(SystemModel systemModel) {
       Node localHost = null;
 
       for (ReposeCluster domain : systemModel.getReposeCluster()) {
@@ -169,8 +173,8 @@ public class SystemModelInterrogator {
       return localHost;
    }
 
-   public Destination getDefaultDestination() {
-      ServiceDomainWrapper domain = new ServiceDomainWrapper(getLocalServiceDomain());
+   public Destination getDefaultDestination(SystemModel systemModel) {
+      ServiceDomainWrapper domain = new ServiceDomainWrapper(getLocalServiceDomain(systemModel));
 
       return domain.getDefaultDestination();
    }

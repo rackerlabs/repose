@@ -3,6 +3,7 @@ package com.rackspace.papi.components.datastore.integration;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.components.datastore.hash.HashRingDatastoreManager;
 import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
@@ -119,8 +120,8 @@ public class MultiKeyContentionInserter {
       }
    }
 
-   private static List<Port> getHttpPortList(int port) {
-      List<Port> ports = new ArrayList<Port>();
+   private static ServicePorts getHttpPortList(int port) {
+      ServicePorts ports = new ServicePorts();
       ports.add(new Port("http", port));
       return ports;
    }

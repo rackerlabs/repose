@@ -1,6 +1,7 @@
 package com.rackspace.papi.service.context;
 
 import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.servlet.InitParameter;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,13 +56,13 @@ public final class ServletContextHelper {
       ctx.setAttribute(SPRING_APPLICATION_CONTEXT_ATTRIBUTE_NAME, applicationContext);
    }
 
-   public List<Port> getServerPorts(ServletContext ctx) {
+   public ServicePorts getServerPorts(ServletContext ctx) {
       Object port = ctx.getAttribute(InitParameter.PORT.getParameterName());
 
       if (port != null) {
-         return (List<Port>) ctx.getAttribute(InitParameter.PORT.getParameterName());
+         return (ServicePorts) ctx.getAttribute(InitParameter.PORT.getParameterName());
       } else {
-         return new ArrayList<Port>();
+         return new ServicePorts();
       }
    }
 }

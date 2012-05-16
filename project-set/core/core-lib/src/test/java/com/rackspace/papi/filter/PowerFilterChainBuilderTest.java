@@ -13,6 +13,7 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import com.rackspace.papi.commons.util.net.NetUtilities;
 import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.NodeList;
 import com.rackspace.papi.model.FilterList;
@@ -60,8 +61,8 @@ public class PowerFilterChainBuilderTest {
        * when(mockedEarClassLoader.loadClass(any(String.class))).thenReturn((Class) FakeFilterClass.class);
        */
 
-      private List<Port> getHttpPortList(int port) {
-         List<Port> ports = new ArrayList<Port>();
+      private ServicePorts getHttpPortList(int port) {
+         ServicePorts ports = new ServicePorts();
          ports.add(new Port("http", port));
          return ports;
       }

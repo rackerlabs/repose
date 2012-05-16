@@ -1,43 +1,49 @@
 package com.rackspace.papi.components.routing;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.domain.Port;
-import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.model.SystemModel;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
-public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RoutingTagger> {
+public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RoutingTagger> implements ApplicationContextAware {
 
-   private final List<Port> ports;
-   private SystemModel systemModel;
+    private ApplicationContext applicationContext;
+    private SystemModel systemModel;
 
-   public RoutingHandlerFactory(List<Port> ports) {
-      this.ports = ports;
-   }
+    public RoutingHandlerFactory() {
+    }
 
-   private class RoutingConfigurationListener implements UpdateListener<SystemModel> {
+    @Override
+    public void setApplicationContext(ApplicationContext ac) throws BeansException {
+        this.applicationContext = ac;
+    }
 
-      @Override
-      public void configurationUpdated(SystemModel configurationObject) {
-         systemModel = configurationObject;
-      }
-   }
+    private class RoutingConfigurationListener implements UpdateListener<SystemModel> {
 
-   @Override
-   protected RoutingTagger buildHandler() {
-      return new RoutingTagger(new SystemModelInterrogator(systemModel, ports));
-   }
+        @Override
+        public void configurationUpdated(SystemModel configurationObject) {
+            systemModel = configurationObject;
+        }
+    }
 
-   @Override
-   protected Map<Class, UpdateListener<?>> getListeners() {
-      return new HashMap<Class, UpdateListener<?>>() {
+    @Override
+    protected RoutingTagger buildHandler() {
+        return applicationContext
+            .getBean("routingTagger", RoutingTagger.class)
+            .setSystemModel(systemModel);
+    }
 
-         {
-            put(SystemModel.class, new RoutingConfigurationListener());
-         }
-      };
-   }
+    @Override
+    protected Map<Class, UpdateListener<?>> getListeners() {
+        return new HashMap<Class, UpdateListener<?>>() {
+
+            {
+                put(SystemModel.class, new RoutingConfigurationListener());
+            }
+        };
+    }
 }

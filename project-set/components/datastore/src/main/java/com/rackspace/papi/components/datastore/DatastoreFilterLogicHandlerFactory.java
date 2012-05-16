@@ -55,7 +55,7 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
       try {
          final List<InetSocketAddress> cacheSiblings = new LinkedList<InetSocketAddress>();
          
-         ReposeCluster domain = new SystemModelInterrogator(configuration, clusterView.getListenPorts()).getLocalServiceDomain();
+         ReposeCluster domain = new SystemModelInterrogator(clusterView.getListenPorts()).getLocalServiceDomain(configuration);
 
          for (Node node : domain.getNodes().getNode()) {
             if (domain.getFilters() != null) {

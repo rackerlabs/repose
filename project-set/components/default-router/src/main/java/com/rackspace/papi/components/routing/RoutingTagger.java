@@ -7,6 +7,7 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.model.Destination;
+import com.rackspace.papi.model.SystemModel;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,9 +16,15 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
 
    private static final Logger LOG = LoggerFactory.getLogger(RoutingTagger.class);
    private final SystemModelInterrogator modelInterrogator;
+    private SystemModel model;
 
    public RoutingTagger(SystemModelInterrogator modelInterrogator) {
       this.modelInterrogator = modelInterrogator;
+   }
+   
+   public RoutingTagger setSystemModel(SystemModel model) {
+       this.model = model;
+       return this;
    }
 
    @Override
@@ -25,33 +32,13 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
       final FilterDirector myDirector = new FilterDirectorImpl();
       myDirector.setFilterAction(FilterAction.PASS);
 
-      Destination defaultDest = modelInterrogator.getDefaultDestination();
+      Destination defaultDest = modelInterrogator.getDefaultDestination(model);
       
       if (defaultDest != null) {
          myDirector.addDestination(defaultDest, request.getRequestURI(), -1);
       } else {
-         LOG.warn("No default destination configured for service domain: " + modelInterrogator.getLocalServiceDomain().getId());
+         LOG.warn("No default destination configured for service domain: " + modelInterrogator.getLocalServiceDomain(model).getId());
       }
-
-      /*
-      final String firstRoutingDestination = request.getHeader(PowerApiHeader.NEXT_ROUTE.toString());
-      * 
-      if (firstRoutingDestination == null) {
-         final Destination nextRoutableHost = modelInterrogator.getDefaultDestination();
-
-         // TODO Model: add destination to possible next routes
-         try {
-            myDirector.requestHeaderManager().putHeader(PowerApiHeader.NEXT_ROUTE.toString(), HostUtilities.asUrl(nextRoutableHost, request.getRequestURI()));
-         } catch (MalformedURLException murle) {
-            // Malformed URL Expcetions are unexpected and should return as a 502
-            LOG.error(murle.getMessage(), murle);
-
-            myDirector.setFilterAction(FilterAction.RETURN);
-            myDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
-         }
-      }
-      * 
-      */
 
       return myDirector;
    }

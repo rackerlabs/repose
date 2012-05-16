@@ -6,6 +6,7 @@ import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList
 import com.rackspace.papi.components.versioning.domain.ConfigurationData;
 import com.rackspace.papi.components.versioning.util.ContentTransformer;
 import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.model.Destination;
@@ -22,11 +23,11 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
    private final Map<String, ServiceVersionMapping> configuredMappings = new HashMap<String, ServiceVersionMapping>();
    private final Map<String, Destination> configuredHosts = new HashMap<String, Destination>();
    private final ContentTransformer transformer;
-   private final List<Port> ports;
+   private final ServicePorts ports;
    private ReposeCluster localDomain;
    private Node localHost;
 
-   public VersioningHandlerFactory(List<Port> ports) {
+   public VersioningHandlerFactory(ServicePorts ports) {
       this.ports = ports;
 
       transformer = new ContentTransformer();
@@ -47,9 +48,9 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
       @Override
       public void configurationUpdated(SystemModel configurationObject) {
-         SystemModelInterrogator interrogator = new SystemModelInterrogator(configurationObject, ports);
-         localDomain = interrogator.getLocalServiceDomain();
-         localHost = interrogator.getLocalHost();
+         SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
+         localDomain = interrogator.getLocalServiceDomain(configurationObject);
+         localHost = interrogator.getLocalHost(configurationObject);
          List<Destination> destinations = new ArrayList<Destination>();
 
          destinations.addAll(localDomain.getDestinations().getEndpoint());

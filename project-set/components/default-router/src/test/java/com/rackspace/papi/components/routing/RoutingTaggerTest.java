@@ -13,6 +13,7 @@ import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
 import com.rackspace.papi.commons.util.net.NetworkNameResolver;
 import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.model.DestinationEndpoint;
 import com.rackspace.papi.model.DestinationList;
@@ -44,8 +45,8 @@ public class RoutingTaggerTest {
    String myHostName, requestUri, nextHostName;
    DestinationEndpoint defaultDest;
 
-   private List<Port> getHttpPortList(int port) {
-      List<Port> ports = new ArrayList<Port>();
+   private ServicePorts getHttpPortList(int port) {
+      ServicePorts ports = new ServicePorts();
       ports.add(new Port("http", port));
       return ports;
    }
@@ -66,7 +67,7 @@ public class RoutingTaggerTest {
       NetworkInterfaceProvider interfaceProvider = mock(NetworkInterfaceProvider.class);
       when(interfaceProvider.hasInterfaceFor(any(InetAddress.class))).thenReturn(Boolean.TRUE);
 
-      interrogator = new SystemModelInterrogator(resolver, interfaceProvider, systemModel, getHttpPortList(8080));
+      interrogator = new SystemModelInterrogator(resolver, interfaceProvider, getHttpPortList(8080));
 
       ReposeCluster domain = new ReposeCluster();
       domain.setFilters(mock(FilterList.class));
@@ -101,6 +102,7 @@ public class RoutingTaggerTest {
    @Test
    public void shouldNotChangeNextRouteWhenValueIsPresent() {
       routingTagger = new RoutingTagger(interrogator);
+      routingTagger.setSystemModel(systemModel);
       when(request.getHeader(PowerApiHeader.NEXT_ROUTE.toString())).thenReturn("http://mockendservice.com:8082");
       FilterDirector result = routingTagger.handleRequest(request, response);
       assertTrue("Should not change route destination", request.getHeader(PowerApiHeader.NEXT_ROUTE.toString()).equals("http://mockendservice.com:8082"));
@@ -110,6 +112,7 @@ public class RoutingTaggerTest {
    @Test
    public void shouldRouteToNextNonLocalHost() throws MalformedURLException {
       routingTagger = new RoutingTagger(interrogator);
+      routingTagger.setSystemModel(systemModel);
 
       FilterDirector result = routingTagger.handleRequest(request, response);
 

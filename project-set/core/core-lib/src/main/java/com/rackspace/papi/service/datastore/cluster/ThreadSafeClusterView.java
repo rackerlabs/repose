@@ -3,6 +3,7 @@ package com.rackspace.papi.service.datastore.cluster;
 import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
 import com.rackspace.papi.commons.util.net.StaticNetworkInterfaceProvider;
 import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.datastore.cluster.member.ClusterMember;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
@@ -30,17 +31,17 @@ public class ThreadSafeClusterView implements MutableClusterView {
    private static final int DEFAULT_REST_DURATION_IN_MILISECONDS = 10000;
    private final NetworkInterfaceProvider networkInterfaceProvider;
    private final List<ClusterMember> clusterMembers;
-   private final List<Port> listenPorts;
+   private final ServicePorts listenPorts;
 
-   public ThreadSafeClusterView(List<Port> listenPorts) {
+   public ThreadSafeClusterView(ServicePorts listenPorts) {
       this(new LinkedList<ClusterMember>(), listenPorts);
    }
 
-   public ThreadSafeClusterView(List<ClusterMember> clusterMembers, List<Port> listenPorts) {
+   public ThreadSafeClusterView(List<ClusterMember> clusterMembers, ServicePorts listenPorts) {
       this(StaticNetworkInterfaceProvider.getInstance(), new LinkedList<ClusterMember>(clusterMembers), listenPorts);
    }
 
-   public ThreadSafeClusterView(NetworkInterfaceProvider networkInterfaceProvider, List<ClusterMember> clusterMembers, List<Port> listenPorts) {
+   public ThreadSafeClusterView(NetworkInterfaceProvider networkInterfaceProvider, List<ClusterMember> clusterMembers, ServicePorts listenPorts) {
       this.networkInterfaceProvider = networkInterfaceProvider;
       this.clusterMembers = clusterMembers;
       this.listenPorts = listenPorts;
@@ -129,7 +130,7 @@ public class ThreadSafeClusterView implements MutableClusterView {
    }
 
    @Override
-   public List<Port> getListenPorts() {
+   public ServicePorts getListenPorts() {
       return listenPorts;
    }
 }

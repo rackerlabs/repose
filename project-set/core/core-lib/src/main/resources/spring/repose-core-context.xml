@@ -37,6 +37,7 @@
    </bean>
    
    <!-- Other -->
+   
    <!--
    <bean name="containerConfigurationListener" class="com.rackspace.papi.service.deploy.ContainerConfigurationListener" scope="prototype">
       <constructor-arg index="0" ref="eventManager" />
