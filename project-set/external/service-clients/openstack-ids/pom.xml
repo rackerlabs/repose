@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -17,12 +18,12 @@
     <packaging>jar</packaging>
 
     <dependencies>
-        <!--
+
+        <!-- Due to an issue between javax.mail and another java dependency, this needs to be here for junit to work -->
         <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache-core</artifactId>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
         </dependency>
-        -->
 
         <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
@@ -56,7 +57,7 @@
                 </configuration>
             </plugin>
 
-            
+
             <plugin>
                 <groupId>com.sun.tools.xjc.maven2</groupId>
                 <artifactId>maven-jaxb-plugin</artifactId>
@@ -89,42 +90,42 @@
             </plugin>
 
             <!--<plugin>-->
-                <!--<groupId>org.jvnet.jaxb2.maven2</groupId>-->
-                <!--<artifactId>maven-jaxb2-plugin</artifactId>-->
+            <!--<groupId>org.jvnet.jaxb2.maven2</groupId>-->
+            <!--<artifactId>maven-jaxb2-plugin</artifactId>-->
 
-                <!--<configuration>-->
-                    <!--<specVersion>2.1</specVersion>-->
-                    <!--<schemaDirectory>target/generated-resources/xml/xslt/</schemaDirectory>-->
+            <!--<configuration>-->
+            <!--<specVersion>2.1</specVersion>-->
+            <!--<schemaDirectory>target/generated-resources/xml/xslt/</schemaDirectory>-->
 
-                    <!--<schemaIncludes>-->
-                        <!--<schemaInclude>atom/atom.xsd</schemaInclude>-->
-                        <!--<schemaInclude>atom/xml.xsd</schemaInclude>-->
-                        <!--<schemaInclude>api-common.xsd</schemaInclude>-->
-                        <!--<schemaInclude>api.xsd</schemaInclude>-->
-                        <!--<schemaInclude>credentials.xsd</schemaInclude>-->
-                        <!--<schemaInclude>endpoints.xsd</schemaInclude>-->
-                        <!--<schemaInclude>extensions.xsd</schemaInclude>-->
-                        <!--<schemaInclude>fault.xsd</schemaInclude>-->
-                        <!--<schemaInclude>OS-KSADM.xsd</schemaInclude>-->
-                        <!--<schemaInclude>OS-KSCATALOG.xsd</schemaInclude>-->
-                        <!--<schemaInclude>OS-KSEC2-credentials.xsd</schemaInclude>-->
-                        <!--<schemaInclude>RAX-KSADM-credentials.xsd</schemaInclude>-->
-                        <!--<schemaInclude>RAX-KSADM-users.xsd</schemaInclude>-->
-                        <!--<schemaInclude>RAX-KSGRP-groups.xsd</schemaInclude>-->
-                        <!--<schemaInclude>RAX-KSKEY-credentials.xsd</schemaInclude>-->
-                        <!--<schemaInclude>RAX-KSQA-secretQA.xsd</schemaInclude>-->
-                        <!--<schemaInclude>roles.xsd</schemaInclude>-->
-                        <!--<schemaInclude>services.xsd</schemaInclude>-->
-                        <!--<schemaInclude>tenant.xsd</schemaInclude>-->
-                        <!--<schemaInclude>token.xsd</schemaInclude>-->
-                        <!--<schemaInclude>user.xsd</schemaInclude>-->
-                        <!--<schemaInclude>version.xsd</schemaInclude>-->
+            <!--<schemaIncludes>-->
+            <!--<schemaInclude>atom/atom.xsd</schemaInclude>-->
+            <!--<schemaInclude>atom/xml.xsd</schemaInclude>-->
+            <!--<schemaInclude>api-common.xsd</schemaInclude>-->
+            <!--<schemaInclude>api.xsd</schemaInclude>-->
+            <!--<schemaInclude>credentials.xsd</schemaInclude>-->
+            <!--<schemaInclude>endpoints.xsd</schemaInclude>-->
+            <!--<schemaInclude>extensions.xsd</schemaInclude>-->
+            <!--<schemaInclude>fault.xsd</schemaInclude>-->
+            <!--<schemaInclude>OS-KSADM.xsd</schemaInclude>-->
+            <!--<schemaInclude>OS-KSCATALOG.xsd</schemaInclude>-->
+            <!--<schemaInclude>OS-KSEC2-credentials.xsd</schemaInclude>-->
+            <!--<schemaInclude>RAX-KSADM-credentials.xsd</schemaInclude>-->
+            <!--<schemaInclude>RAX-KSADM-users.xsd</schemaInclude>-->
+            <!--<schemaInclude>RAX-KSGRP-groups.xsd</schemaInclude>-->
+            <!--<schemaInclude>RAX-KSKEY-credentials.xsd</schemaInclude>-->
+            <!--<schemaInclude>RAX-KSQA-secretQA.xsd</schemaInclude>-->
+            <!--<schemaInclude>roles.xsd</schemaInclude>-->
+            <!--<schemaInclude>services.xsd</schemaInclude>-->
+            <!--<schemaInclude>tenant.xsd</schemaInclude>-->
+            <!--<schemaInclude>token.xsd</schemaInclude>-->
+            <!--<schemaInclude>user.xsd</schemaInclude>-->
+            <!--<schemaInclude>version.xsd</schemaInclude>-->
 
-                    <!--</schemaIncludes>-->
+            <!--</schemaIncludes>-->
 
-                    <!--<strict>true</strict>-->
-                    <!--<verbose>false</verbose>-->
-                <!--</configuration>-->
+            <!--<strict>true</strict>-->
+            <!--<verbose>false</verbose>-->
+            <!--</configuration>-->
             <!--</plugin>-->
         </plugins>
     </build>
