@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util;
 
+import java.util.Comparator;
 import java.util.regex.Pattern;
 
 /**
@@ -8,9 +9,9 @@ import java.util.regex.Pattern;
  * 
  */
 public final class StringUtilities {
+
     private StringUtilities() {
     }
-    
     private static final Pattern IS_BLANK_PATTERN = Pattern.compile("[\\s]*");
 
     public static boolean isEmpty(String st) {
@@ -43,21 +44,21 @@ public final class StringUtilities {
     public static boolean isNotBlank(String s) {
         return !isBlank(s);
     }
-    
+
     public static String getValue(String string, String defaultValue) {
-      if (string != null) {
-        return string;
-      }
-      
-      return defaultValue;
+        if (string != null) {
+            return string;
+        }
+
+        return defaultValue;
     }
 
     public static String getNonBlankValue(String string, String defaultValue) {
-      if (!isBlank(string)) {
-        return string;
-      }
-      
-      return defaultValue;
+        if (!isBlank(string)) {
+            return string;
+        }
+
+        return defaultValue;
     }
 
     public static boolean nullSafeEqualsIgnoreCase(String one, String two) {
