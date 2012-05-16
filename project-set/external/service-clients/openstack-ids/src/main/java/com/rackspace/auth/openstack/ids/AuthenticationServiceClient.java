@@ -2,10 +2,13 @@ package com.rackspace.auth.openstack.ids;
 
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import com.rackspace.papi.commons.util.http.ServiceClient;
 import org.openstack.docs.identity.api.v2.*;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,17 +22,21 @@ import javax.xml.bind.JAXBElement;
 public class AuthenticationServiceClient implements OpenStackAuthenticationService {
 
    private static final Logger LOG = LoggerFactory.getLogger(AuthenticationServiceClient.class);
+   private static final String AUTH_TOKEN_HEADER = "X-Auth-Token";
+   private static final String ACCEPT_HEADER = "Accept";
+
    private final String targetHostUri;
-   private final GenericServiceClient serviceClient;
+   private final ServiceClient serviceClient;
    private final OpenStackCoreResponseUnmarshaller openStackCoreResponseUnmarshaller;
    private final OpenStackGroupsResponseUnmarshaller openStackGroupsResponseUnmarshaller;
    private AdminToken currentAdminToken;
    private final JAXBElement jaxbRequest;
+   private final Map<String, String> headers = new HashMap<String, String>();
 
    public AuthenticationServiceClient(String targetHostUri, String username, String password) {
       this.openStackCoreResponseUnmarshaller = new OpenStackCoreResponseUnmarshaller();
       this.openStackGroupsResponseUnmarshaller = new OpenStackGroupsResponseUnmarshaller();
-      this.serviceClient = new GenericServiceClient();
+      this.serviceClient = new ServiceClient(null);
       this.targetHostUri = targetHostUri;
 
       ObjectFactory objectFactory = new ObjectFactory();
@@ -43,13 +50,16 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
       request.setCredential(jaxbCredentials);
 
       this.jaxbRequest = objectFactory.createAuth(request);
+
+      this.headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
    }
 
    @Override
    public CachableUserInfo validateToken(String tenant, String userToken) {
+      headers.put(AUTH_TOKEN_HEADER, getAdminToken());
       CachableUserInfo token = null;
       
-      final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, getAdminToken(), "belongsTo", tenant);
+      final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, headers, "belongsTo", tenant);
 
       switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
          case OK:
@@ -75,7 +85,9 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
 
    @Override
    public List<Endpoint> getEndpointsForToken(String userToken) {
-      final ServiceClientResponse<EndpointList> endpointListResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken + "/endpoints", getAdminToken());
+      headers.put(AUTH_TOKEN_HEADER, getAdminToken());
+
+      final ServiceClientResponse<EndpointList> endpointListResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken + "/endpoints", headers);
       List<Endpoint> endpointList = null;
 
       switch (HttpStatusCode.fromInt(endpointListResponse.getStatusCode())) {
@@ -98,7 +110,9 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
 
    @Override
    public Groups getGroups(String userId) {
-      final ServiceClientResponse<Groups> serviceResponse = serviceClient.get(targetHostUri + "/users/" + userId + "/RAX-KSGRP", getAdminToken());
+      headers.put(AUTH_TOKEN_HEADER, getAdminToken());
+
+      final ServiceClientResponse<Groups> serviceResponse = serviceClient.get(targetHostUri + "/users/" + userId + "/RAX-KSGRP", headers);
       Groups groups = null;
 
       switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
