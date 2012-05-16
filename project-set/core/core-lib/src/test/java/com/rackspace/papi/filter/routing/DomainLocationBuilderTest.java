@@ -1,11 +1,13 @@
 package com.rackspace.papi.filter.routing;
 
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.model.DestinationCluster;
 import com.rackspace.papi.model.DestinationList;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.NodeList;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.service.routing.RoutingService;
+import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -21,6 +23,7 @@ public class DomainLocationBuilderTest {
       private RoutingService routingService;
       private Node domainNode;
       private DestinationCluster dest;
+      private HttpServletRequest request;
 
       @Before
       public void setUp() {
@@ -40,6 +43,9 @@ public class DomainLocationBuilderTest {
          routingService = mock(RoutingService.class);
          when(routingService.getRoutableNode(anyString())).thenReturn(domainNode);
          
+         request = mock(HttpServletRequest.class);
+         when(request.getQueryString()).thenReturn(null);
+         
          dest = new DestinationCluster();
          dest.setDefault(true);
          dest.setId("destId");
@@ -58,7 +64,7 @@ public class DomainLocationBuilderTest {
       public void shouldFindNodeAndBuildDestination() throws Exception {
          final String uri = "/context";
          
-         instance = new DomainLocationBuilder(routingService, dest, uri);
+         instance = new DomainLocationBuilder(routingService, dest, uri,request);
          DestinationLocation build = instance.build();
          assertNotNull(build);
          assertNotNull(build.getUri());
@@ -78,7 +84,7 @@ public class DomainLocationBuilderTest {
          
          dest.setProtocol("https");
          
-         instance = new DomainLocationBuilder(routingService, dest, uri);
+         instance = new DomainLocationBuilder(routingService, dest, uri,request);
          DestinationLocation build = instance.build();
          assertNotNull(build);
          assertNotNull(build.getUri());
@@ -98,7 +104,7 @@ public class DomainLocationBuilderTest {
 
          when(routingService.getRoutableNode(anyString())).thenReturn(null);
          
-         instance = new DomainLocationBuilder(routingService, dest, uri);
+         instance = new DomainLocationBuilder(routingService, dest, uri,request);
          DestinationLocation build = instance.build();
          assertNull(build);
       }

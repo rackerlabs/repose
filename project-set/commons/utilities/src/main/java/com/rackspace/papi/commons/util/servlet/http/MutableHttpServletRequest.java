@@ -15,6 +15,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
@@ -45,7 +47,7 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
 
       headers = new HashMap<String, List<String>>();
       destinations = new ArrayList<RouteDestination>();
-      queryParameter = new HashMap<String, String[]>();
+      queryParameter = new TreeMap<String, String[]>();
 
       copyHeaders(request);
       copyParameters(request);
@@ -93,7 +95,7 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
    
    public void setParameterMap(String queryString){
        QueryParameterCollection collection = new QueryParameterCollection(queryString); //Currently not preserving order
-       HashMap<String,String[]> newParamMap = new HashMap<String, String[]>();
+       TreeMap<String,String[]> newParamMap = new TreeMap<String, String[]>();
        
        for(QueryParameter param: collection.getParameters()){
            newParamMap.put(param.getName(), Arrays.copyOf(param.getValues().toArray(), param.getValues().size(), String[].class));

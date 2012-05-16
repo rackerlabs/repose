@@ -9,6 +9,7 @@ import com.rackspace.papi.model.Node;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 
 public class EndpointUriBuilder {
 
@@ -16,11 +17,13 @@ public class EndpointUriBuilder {
    private final Node localhost;
    private final String uri;
    private final List<Port> localPorts;
+   private final HttpServletRequest request;
 
-   EndpointUriBuilder(Node localhost, List<Port> localPorts, Destination destination, String uri) {
+   EndpointUriBuilder(Node localhost, List<Port> localPorts, Destination destination, String uri, HttpServletRequest request) {
       this.localhost = localhost;
       this.uri = uri;
       this.localPorts = localPorts;
+      this.request = request;
       endpoint = (DestinationEndpoint) destination;
 
    }
@@ -62,6 +65,6 @@ public class EndpointUriBuilder {
       String path = StringUriUtilities.concatUris(rootPath, uri);
       int port = scheme == null || hostname == null ? -1 : endpoint.getPort();
 
-      return new URI(hostname != null ? scheme : null, null, hostname, port, path, null, null);
+      return new URI(hostname != null ? scheme : null, null, hostname, port, path, request.getQueryString(), null);
    }
 }

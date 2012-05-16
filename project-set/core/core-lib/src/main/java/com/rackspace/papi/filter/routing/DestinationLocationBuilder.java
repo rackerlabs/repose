@@ -26,7 +26,7 @@ public class DestinationLocationBuilder {
         if (destination instanceof DestinationEndpoint) {
             builder = new EndpointLocationBuilder(localhost, destination, uri, request);
         } else if (destination instanceof DestinationCluster) {
-            builder = new DomainLocationBuilder(routingService, destination, uri);
+            builder = new DomainLocationBuilder(routingService, destination, uri, request);
         } else {
             throw new IllegalArgumentException("Unknown destination type: " + destination.getClass().getName());
         }
