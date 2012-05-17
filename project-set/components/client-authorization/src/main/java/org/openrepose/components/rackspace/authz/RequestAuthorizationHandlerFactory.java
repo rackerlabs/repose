@@ -1,7 +1,8 @@
 package org.openrepose.components.rackspace.authz;
 
-import com.rackspace.auth.openstack.ids.AuthenticationServiceClient;
-import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
+import com.rackspace.auth.openstack.AuthenticationService;
+import com.rackspace.auth.openstack.AuthenticationServiceClient;
+
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.datastore.Datastore;
@@ -19,7 +20,7 @@ public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilter
    private static final Logger LOG = LoggerFactory.getLogger(RequestAuthorizationHandlerFactory.class);
    private final Datastore datastore;
    private RackspaceAuthorization authorizationConfiguration;
-   private OpenStackAuthenticationService authenticationService;
+   private AuthenticationService authenticationService;
 
    public RequestAuthorizationHandlerFactory(Datastore datastore) {
       this.datastore = datastore;

@@ -1,14 +1,14 @@
 package com.rackspace.papi.components.clientauth.openstack.v1_0;
 
-import com.rackspace.auth.openstack.ids.CachableUserInfo;
+import com.rackspace.auth.AuthToken;
 import com.rackspace.papi.components.clientauth.common.UserAuthTokenCache;
 import com.rackspace.papi.service.datastore.Datastore;
 
-public class OpenStackUserInfoCache extends UserAuthTokenCache<CachableUserInfo> {
+public class OpenStackUserInfoCache extends UserAuthTokenCache<AuthToken> {
    public static final String AUTH_TOKEN_CACHE_PREFIX = "openstack.identity.token";
    
    public OpenStackUserInfoCache(Datastore store) {
-      super(store, CachableUserInfo.class);
+      super(store, AuthToken.class);
    }
 
    @Override
@@ -17,7 +17,7 @@ public class OpenStackUserInfoCache extends UserAuthTokenCache<CachableUserInfo>
    }
 
    @Override
-   public boolean validateToken(CachableUserInfo cachedValue, String passedValue) {
+   public boolean validateToken(AuthToken cachedValue, String passedValue) {
       return cachedValue != null && cachedValue.getTokenId() != null && cachedValue.safeTokenTtl() > 0 && cachedValue.getTokenId().equals(passedValue);
    }
 }

@@ -1,10 +1,12 @@
 package com.rackspace.papi.components.clientauth.openstack.v1_0;
 
+import com.rackspace.auth.AuthToken;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
-import com.rackspace.auth.openstack.ids.CachableUserInfo;
-import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
-import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
+
+import com.rackspace.auth.openstack.AuthenticationService;
+import com.rackspace.auth.AuthGroup;
+
 import com.rackspace.papi.components.clientauth.common.AuthModule;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
@@ -19,6 +21,7 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import java.io.IOException;
+import java.util.List;
 
 import com.sun.jersey.api.client.ClientHandlerException;
 import org.slf4j.Logger;
@@ -31,15 +34,15 @@ import javax.servlet.http.HttpServletRequest;
 public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler implements AuthModule {
 
    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(OpenStackAuthenticationHandler.class);
-   private final OpenStackAuthenticationService authenticationService;
+   private final AuthenticationService authenticationService;
    private boolean delegable;
    private final String authServiceUri;
    private final KeyedRegexExtractor<Object> keyedRegexExtractor;
-   private final UserAuthTokenCache<CachableUserInfo> cache;
+   private final UserAuthTokenCache<AuthToken> cache;
    private final UriMatcher uriMatcher;
    private boolean  includeQueryParams;
 
-   public OpenStackAuthenticationHandler(OpenstackAuth cfg, OpenStackAuthenticationService serviceClient, KeyedRegexExtractor keyedRegexExtractor, UserAuthTokenCache cache, UriMatcher uriMatcher) {
+   public OpenStackAuthenticationHandler(OpenstackAuth cfg, AuthenticationService serviceClient, KeyedRegexExtractor keyedRegexExtractor, UserAuthTokenCache cache, UriMatcher uriMatcher) {
       this.authenticationService = serviceClient;
       this.delegable = cfg.isDelegable();
       this.authServiceUri = cfg.getIdentityService().getUri();
@@ -85,7 +88,7 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
           
       }
       final ExtractorResult<Object> account = keyedRegexExtractor.extract(accountString.toString());
-      CachableUserInfo user = null;
+      AuthToken user = null;
 
       if ((!StringUtilities.isBlank(authToken) && account != null)) {
          user = checkUserCache(account.getResult(), authToken);
@@ -104,7 +107,7 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
          }
       }
 
-      Groups groups = null;
+      List<AuthGroup> groups = null;
       if (user != null) {
          groups = authenticationService.getGroups(user.getUserId());
       }
@@ -115,7 +118,7 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
       return filterDirector;
    }
 
-   private CachableUserInfo checkUserCache(String userId, String token) {
+   private AuthToken checkUserCache(String userId, String token) {
       if (cache == null) {
          return null;
       }
@@ -123,7 +126,7 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
       return cache.getUserToken(userId, token);
    }
 
-   private void cacheUserInfo(CachableUserInfo user) {
+   private void cacheUserInfo(AuthToken user) {
       if (user == null || cache ==  null) {
          return;
       }

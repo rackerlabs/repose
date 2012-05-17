@@ -1,8 +1,7 @@
 package com.rackspace.papi.components.clientauth.openstack.v1_0;
 
-import com.rackspace.auth.openstack.ids.CachableUserInfo;
-import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
-import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
+import com.rackspace.auth.AuthGroup;
+import com.rackspace.auth.AuthToken;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.IdentityStatus;
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
@@ -26,32 +25,32 @@ public class AuthenticationHeaderManager {
    private static final String X_AUTH_PROXY = "Proxy";
 
    private final String authToken;
-   private final CachableUserInfo cachableTokenInfo;
+   private final AuthToken cachableToken;
    private final Boolean isDelegatable;
    private final FilterDirector filterDirector;
    private final String tenantId;
    private final Boolean validToken;
-   private final Groups groups;
+   private final List<AuthGroup> groups;
    private final HttpServletRequest request;
 
    // Hard code QUALITY for now as the auth component will have
    // the highest QUALITY in terms of using the user it supplies for rate limiting
    private static final String QUALITY = ";q=1.0";
 
-    public AuthenticationHeaderManager(String authToken, CachableUserInfo cachableTokenInfo, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, Groups groups, HttpServletRequest request) {
+   public AuthenticationHeaderManager(String authToken, AuthToken token, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, List<AuthGroup> groups, HttpServletRequest request) {
       this.authToken = authToken;
-      this.cachableTokenInfo = cachableTokenInfo;
+      this.cachableToken = token;
       this.isDelegatable = isDelegatable;
       this.filterDirector = filterDirector;
       this.tenantId = tenantId;
-      this.validToken = cachableTokenInfo != null && cachableTokenInfo.getTokenId() != null;
+      this.validToken = token != null && token.getTokenId() != null;
       this.groups = groups;
       this.request = request;
    }
 
    public void setFilterDirectorValues() {
 
-        if (validToken) {
+      if (validToken) {
          filterDirector.setFilterAction(FilterAction.PASS);
          setExtendedAuthorization();
          setUser();
@@ -110,10 +109,10 @@ public class AuthenticationHeaderManager {
     * The OpenStackServiceHeader is used for an OpenStack service
     */
    private void setUser() {
-      filterDirector.requestHeaderManager().appendToHeader(request, PowerApiHeader.USER.toString(), cachableTokenInfo.getUsername() + QUALITY);
+      filterDirector.requestHeaderManager().appendToHeader(request, PowerApiHeader.USER.toString(), cachableToken.getUsername() + QUALITY);
 
-      filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_NAME.toString(), cachableTokenInfo.getUsername());
-      filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_ID.toString(), cachableTokenInfo.getUserId());
+      filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_NAME.toString(), cachableToken.getUsername());
+      filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_ID.toString(), cachableToken.getUserId());
    }
 
    /**
@@ -121,7 +120,7 @@ public class AuthenticationHeaderManager {
     * The OpenStackServiceHeader is used for an OpenStack service
     */
    private void setRoles() {
-      String roles = cachableTokenInfo.getRoles();
+      String roles = cachableToken.getRoles();
 
       if (StringUtilities.isNotBlank(roles)) {
          filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.ROLES.toString(), roles);
@@ -133,13 +132,11 @@ public class AuthenticationHeaderManager {
     * The PowerApiHeader is used for Rate Limiting
     */
    private void setGroups() {
-      if (groups != null) {
-
-         List<String> groupIds = new ArrayList<String>();
-         for (Group group : groups.getGroup()) {
-            groupIds.add(group.getId());
-            filterDirector.requestHeaderManager().appendHeader(PowerApiHeader.GROUPS.toString(), group.getId() + QUALITY);
-         }
+      List<String> groupIds = new ArrayList<String>();
+      for (AuthGroup group : groups) {
+         groupIds.add(group.getId());
+         filterDirector.requestHeaderManager().appendHeader(PowerApiHeader.GROUPS.toString(), group.getId() + QUALITY);
       }
    }
+
 }

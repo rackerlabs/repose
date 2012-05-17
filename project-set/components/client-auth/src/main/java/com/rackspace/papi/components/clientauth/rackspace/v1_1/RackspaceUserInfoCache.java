@@ -1,14 +1,14 @@
 package com.rackspace.papi.components.clientauth.rackspace.v1_1;
 
-import com.rackspace.auth.v1_1.CachableTokenInfo;
+import com.rackspace.auth.AuthToken;
 import com.rackspace.papi.components.clientauth.common.UserAuthTokenCache;
 import com.rackspace.papi.service.datastore.Datastore;
 
-public class RackspaceUserInfoCache extends UserAuthTokenCache<CachableTokenInfo> {
+public class RackspaceUserInfoCache extends UserAuthTokenCache<AuthToken> {
    public static final String AUTH_TOKEN_CACHE_PREFIX = "rackspace.v1.1.token";
 
    public RackspaceUserInfoCache(Datastore store) {
-      super(store, CachableTokenInfo.class);
+      super(store, AuthToken.class);
    }
    
    @Override
@@ -17,7 +17,7 @@ public class RackspaceUserInfoCache extends UserAuthTokenCache<CachableTokenInfo
    }
 
    @Override
-   public boolean validateToken(CachableTokenInfo cachedValue, String passedValue) {
+   public boolean validateToken(AuthToken cachedValue, String passedValue) {
       return cachedValue != null && cachedValue.getTokenId() != null && cachedValue.safeTokenTtl() > 0 && cachedValue.getTokenId().equals(passedValue);
    }
    
