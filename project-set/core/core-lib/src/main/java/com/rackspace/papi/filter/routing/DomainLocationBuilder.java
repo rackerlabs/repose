@@ -8,6 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,11 +18,13 @@ public class DomainLocationBuilder implements LocationBuilder {
     private final DestinationCluster domain;
     private final RoutingService routingService;
     private final String uri;
+    private final HttpServletRequest request;
 
-    public DomainLocationBuilder(RoutingService routingService, Destination destination, String uri) {
+    public DomainLocationBuilder(RoutingService routingService, Destination destination, String uri, HttpServletRequest request) {
         this.routingService = routingService;
         this.uri = uri;
         this.domain = (DestinationCluster) destination;
+        this.request = request;
     }
 
     @Override
@@ -34,6 +37,6 @@ public class DomainLocationBuilder implements LocationBuilder {
         int port = HTTPS_PROTOCOL.equalsIgnoreCase(domain.getProtocol()) ? node.getHttpsPort() : node.getHttpPort();
         return new DestinationLocation(
                 new URL(domain.getProtocol(), node.getHostname(), port, domain.getRootPath() + uri),
-                new URI(domain.getProtocol(), null, node.getHostname(), port, domain.getRootPath() + uri, null, null));
+                new URI(domain.getProtocol(), null, node.getHostname(), port, domain.getRootPath() + uri, request.getQueryString(), null));
     }
 }

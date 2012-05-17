@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -25,217 +26,217 @@ import javax.servlet.http.HttpServletRequestWrapper;
  */
 public class MutableHttpServletRequest extends HttpServletRequestWrapper {
 
-   public static MutableHttpServletRequest wrap(HttpServletRequest request) {
-      return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request);
-   }
-   private final Map<String, List<String>> headers;
-   private final List<RouteDestination> destinations;
-   private BufferedServletInputStream inputStream;
-   private StringBuffer requestUrl;
-   private String requestUri, requestUriQuery;
-   private Map<String, String[]> queryParameter;
-   
-   private MutableHttpServletRequest(HttpServletRequest request) {
-      super(request);
+    public static MutableHttpServletRequest wrap(HttpServletRequest request) {
+        return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request);
+    }
+    private final Map<String, List<String>> headers;
+    private final List<RouteDestination> destinations;
+    private BufferedServletInputStream inputStream;
+    private StringBuffer requestUrl;
+    private String requestUri, requestUriQuery;
+    private Map<String, String[]> queryParameter;
 
-      requestUrl = request.getRequestURL();
-      requestUri = request.getRequestURI();
-      
-      requestUriQuery = request.getQueryString();
+    private MutableHttpServletRequest(HttpServletRequest request) {
+        super(request);
 
-      headers = new HashMap<String, List<String>>();
-      destinations = new ArrayList<RouteDestination>();
-      queryParameter = new HashMap<String, String[]>();
+        requestUrl = request.getRequestURL();
+        requestUri = request.getRequestURI();
 
-      copyHeaders(request);
-      copyParameters(request);
-   }
-   
-   public void addDestination(String id, String uri, float quality) {
-      addDestination(new RouteDestination(id, uri, quality));
-   }
-   
-   public void addDestination(RouteDestination dest) {
-      if (dest == null) {
-         throw new IllegalArgumentException("Destination cannot be null");
-      }
-      destinations.add(dest);
-   }
-   
-   public RouteDestination getDestination() {
-      if (destinations.isEmpty()) {
-         return null;
-      }
-      
-      Collections.sort(destinations);
-      return destinations.get(destinations.size() - 1);
-   }
+        requestUriQuery = request.getQueryString();
 
-   @Override
-   public String getQueryString() {
-      return requestUriQuery;
-   }
-   
-   @Override
-   public Enumeration<String> getParameterNames(){
-       return Collections.enumeration(queryParameter.keySet());
-   }
-   
-   @Override 
-   public Map<String, String[]> getParameterMap(){
-       return queryParameter;
-   }
-   
-   @Override
-   public String[] getParameterValues(String name){
-       return queryParameter.get(name);
-   }
-   
-   public void setParameterMap(String queryString){
-       QueryParameterCollection collection = new QueryParameterCollection(queryString); //Currently not preserving order
-       HashMap<String,String[]> newParamMap = new HashMap<String, String[]>();
-       
-       for(QueryParameter param: collection.getParameters()){
-           newParamMap.put(param.getName(), Arrays.copyOf(param.getValues().toArray(), param.getValues().size(), String[].class));
-       }
-       queryParameter = newParamMap;
-   }
-   
+        headers = new HashMap<String, List<String>>();
+        destinations = new ArrayList<RouteDestination>();
+        queryParameter = new LinkedHashMap<String, String[]>();
 
-   public void setQueryString(String requestUriQuery) {
-      this.requestUriQuery = requestUriQuery;
-   }
-   
-   @Override
-   public ServletInputStream getInputStream() throws IOException {
-      synchronized (this) {
-         if (inputStream == null) {
-            inputStream = new BufferedServletInputStream(super.getInputStream());
-         }
-      }
-      return inputStream;
-   }
-   
-   private void copyHeaders(HttpServletRequest request) {
-      final Enumeration<String> headerNames = request.getHeaderNames();
+        copyHeaders(request);
+        if (!request.getParameterMap().isEmpty()) {
+            copyParameters(request);
+        }
+    }
 
-      while (headerNames != null && headerNames.hasMoreElements()) {
-         final String headerName = headerNames.nextElement().toLowerCase();  //Normalize to lowercase
+    public void addDestination(String id, String uri, float quality) {
+        addDestination(new RouteDestination(id, uri, quality));
+    }
 
-         final Enumeration<String> headerValues = request.getHeaders(headerName);
-         final List<String> copiedHeaderValues = new LinkedList<String>();
+    public void addDestination(RouteDestination dest) {
+        if (dest == null) {
+            throw new IllegalArgumentException("Destination cannot be null");
+        }
+        destinations.add(dest);
+    }
 
-         while (headerValues.hasMoreElements()) {
-            copiedHeaderValues.add(headerValues.nextElement());
-         }
+    public RouteDestination getDestination() {
+        if (destinations.isEmpty()) {
+            return null;
+        }
 
-         headers.put(headerName, copiedHeaderValues);
-      }
-   }
-   
-   private void copyParameters(HttpServletRequest request){
-       final Enumeration<String> paramNames = request.getParameterNames();
-       
-       while(paramNames != null && paramNames.hasMoreElements()){
-           
-           String paramName = paramNames.nextElement();
-           queryParameter.put(paramName, request.getParameterValues(paramName));
-       }
-   }
+        Collections.sort(destinations);
+        return destinations.get(destinations.size() - 1);
+    }
 
-   @Override
-   public String getRequestURI() {
-      return requestUri;
-   }
+    @Override
+    public String getQueryString() {
+        return requestUriQuery;
+    }
 
-   public void setRequestUri(String requestUri) {
-      this.requestUri = requestUri;
-   }
+    @Override
+    public Enumeration<String> getParameterNames() {
+        return Collections.enumeration(queryParameter.keySet());
+    }
 
-   @Override
-   public StringBuffer getRequestURL() {
-      return requestUrl;
-   }
+    @Override
+    public Map<String, String[]> getParameterMap() {
+        return queryParameter;
+    }
 
-   public void setRequestUrl(StringBuffer requestUrl) {
-      this.requestUrl = requestUrl;
-   }
+    @Override
+    public String[] getParameterValues(String name) {
+        return queryParameter.get(name);
+    }
 
-   public void addHeader(String name, String value) {
-      final String lowerCaseName = name.toLowerCase();
+    public void setParameterMap(String queryString) {
+        QueryParameterCollection collection = new QueryParameterCollection(queryString); //Currently not preserving order
+        LinkedHashMap<String, String[]> newParamMap = new LinkedHashMap<String, String[]>();
 
-      List<String> headerValues = headers.get(lowerCaseName);
+        for (QueryParameter param : collection.getParameters()) {
+            newParamMap.put(param.getName(), Arrays.copyOf(param.getValues().toArray(), param.getValues().size(), String[].class));
+        }
+        queryParameter = newParamMap;
+    }
 
-      if (headerValues == null) {
-         headerValues = new LinkedList<String>();
-      }
+    public void setQueryString(String requestUriQuery) {
+        this.requestUriQuery = requestUriQuery;
+    }
 
-      headerValues.add(value);
+    @Override
+    public ServletInputStream getInputStream() throws IOException {
+        synchronized (this) {
+            if (inputStream == null) {
+                inputStream = new BufferedServletInputStream(super.getInputStream());
+            }
+        }
+        return inputStream;
+    }
 
-      headers.put(lowerCaseName, headerValues);
-   }
+    private void copyHeaders(HttpServletRequest request) {
+        final Enumeration<String> headerNames = request.getHeaderNames();
 
-   public void replaceHeader(String name, String value) {
-      final List<String> headerValues = new LinkedList<String>();
+        while (headerNames != null && headerNames.hasMoreElements()) {
+            final String headerName = headerNames.nextElement().toLowerCase();  //Normalize to lowercase
 
-      headerValues.add(value);
+            final Enumeration<String> headerValues = request.getHeaders(headerName);
+            final List<String> copiedHeaderValues = new LinkedList<String>();
 
-      headers.put(name.toLowerCase(), headerValues);
-   }
+            while (headerValues.hasMoreElements()) {
+                copiedHeaderValues.add(headerValues.nextElement());
+            }
 
-   public void removeHeader(String name) {
-      headers.remove(name.toLowerCase());
-   }
+            headers.put(headerName, copiedHeaderValues);
+        }
+    }
 
-   @Override
-   public String getHeader(String name) {
-      return fromMap(headers, name.toLowerCase());
-   }
+    private void copyParameters(HttpServletRequest request) {
+        QueryParameterCollection collection = new QueryParameterCollection(request.getQueryString());
 
-   @Override
-   public Enumeration<String> getHeaderNames() {
-      return Collections.enumeration(headers.keySet());
-   }
+        for (QueryParameter param : collection.getParameters()) {
 
-   @Override
-   public Enumeration<String> getHeaders(String name) {
-      final List<String> headerValues = headers.get(name.toLowerCase());
+            queryParameter.put(param.getName(), Arrays.copyOf(param.getValues().toArray(), param.getValues().size(), String[].class));
+        }
+    }
 
-      return Collections.enumeration(headerValues != null ? headerValues : Collections.EMPTY_SET);
-   }
-   
-   public HeaderValue getPreferredHeader(String name) {
-      return getPreferredHeader(name, null);
-   }
-   
-   public HeaderValue getPreferredHeader(String name, HeaderValue defaultValue) {
-      List<HeaderValue> values = getPreferredHeaderValues(name, defaultValue);
-      
-      return !values.isEmpty()? values.get(0): null;
-   }
+    @Override
+    public String getRequestURI() {
+        return requestUri;
+    }
 
-   public List<HeaderValue> getPreferredHeaderValues(String name) {
-      return getPreferredHeaderValues(name, null);
-   }
+    public void setRequestUri(String requestUri) {
+        this.requestUri = requestUri;
+    }
 
-   public List<HeaderValue> getPreferredHeaderValues(String name, HeaderValue defaultValue) {
-      HeaderFieldParser parser = new HeaderFieldParser(headers.get(name.toLowerCase()));
-      List<HeaderValue> headerValues = parser.parse();
-      
-      QualityFactorHeaderChooser chooser = new QualityFactorHeaderChooser<HeaderValue>();
-      List<HeaderValue> values = chooser.choosePreferredHeaderValues(headerValues);
-      
-      if (values.isEmpty() && defaultValue != null) {
-         values.add(defaultValue);
-      }
-      
-      return values;
-      
-   }
+    @Override
+    public StringBuffer getRequestURL() {
+        return requestUrl;
+    }
 
-   static String fromMap(Map<String, List<String>> headers, String headerName) {
-      final List<String> headerValues = headers.get(headerName);
+    public void setRequestUrl(StringBuffer requestUrl) {
+        this.requestUrl = requestUrl;
+    }
 
-      return (headerValues != null && headerValues.size() > 0) ? headerValues.get(0) : null;
-   }
+    public void addHeader(String name, String value) {
+        final String lowerCaseName = name.toLowerCase();
+
+        List<String> headerValues = headers.get(lowerCaseName);
+
+        if (headerValues == null) {
+            headerValues = new LinkedList<String>();
+        }
+
+        headerValues.add(value);
+
+        headers.put(lowerCaseName, headerValues);
+    }
+
+    public void replaceHeader(String name, String value) {
+        final List<String> headerValues = new LinkedList<String>();
+
+        headerValues.add(value);
+
+        headers.put(name.toLowerCase(), headerValues);
+    }
+
+    public void removeHeader(String name) {
+        headers.remove(name.toLowerCase());
+    }
+
+    @Override
+    public String getHeader(String name) {
+        return fromMap(headers, name.toLowerCase());
+    }
+
+    @Override
+    public Enumeration<String> getHeaderNames() {
+        return Collections.enumeration(headers.keySet());
+    }
+
+    @Override
+    public Enumeration<String> getHeaders(String name) {
+        final List<String> headerValues = headers.get(name.toLowerCase());
+
+        return Collections.enumeration(headerValues != null ? headerValues : Collections.EMPTY_SET);
+    }
+
+    public HeaderValue getPreferredHeader(String name) {
+        return getPreferredHeader(name, null);
+    }
+
+    public HeaderValue getPreferredHeader(String name, HeaderValue defaultValue) {
+        List<HeaderValue> values = getPreferredHeaderValues(name, defaultValue);
+
+        return !values.isEmpty() ? values.get(0) : null;
+    }
+
+    public List<HeaderValue> getPreferredHeaderValues(String name) {
+        return getPreferredHeaderValues(name, null);
+    }
+
+    public List<HeaderValue> getPreferredHeaderValues(String name, HeaderValue defaultValue) {
+        HeaderFieldParser parser = new HeaderFieldParser(headers.get(name.toLowerCase()));
+        List<HeaderValue> headerValues = parser.parse();
+
+        QualityFactorHeaderChooser chooser = new QualityFactorHeaderChooser<HeaderValue>();
+        List<HeaderValue> values = chooser.choosePreferredHeaderValues(headerValues);
+
+        if (values.isEmpty() && defaultValue != null) {
+            values.add(defaultValue);
+        }
+
+        return values;
+
+    }
+
+    static String fromMap(Map<String, List<String>> headers, String headerName) {
+        final List<String> headerValues = headers.get(headerName);
+
+        return (headerValues != null && headerValues.size() > 0) ? headerValues.get(0) : null;
+    }
 }

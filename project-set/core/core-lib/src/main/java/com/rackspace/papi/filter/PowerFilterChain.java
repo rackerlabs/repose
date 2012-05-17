@@ -153,7 +153,7 @@ public class PowerFilterChain implements FilterChain {
                 String uri = new DispatchPathBuilder(location.getUri().getPath(), targetContext.getContextPath()).build();
                 final RequestDispatcher dispatcher = targetContext.getRequestDispatcher(uri);
 
-                mutableRequest.setRequestUrl(new StringBuffer(location.getUrl().toExternalForm()));
+                mutableRequest.setRequestUrl(new StringBuffer(location.getUri().toURL().toExternalForm()));
                 mutableRequest.setRequestUri(location.getUri().getPath());
                 if (dispatcher != null) {
                     LOG.debug("Attempting to route to " + location.getUri());

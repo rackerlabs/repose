@@ -2,7 +2,7 @@ package com.rackspace.papi.commons.util.http.normal;
 
 import java.net.URI;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -25,7 +25,7 @@ public class QueryParameterCollection {
     }
 
     public QueryParameterCollection(String query) {
-        parameterTracker = new HashMap<String, QueryParameter>();
+        parameterTracker = new LinkedHashMap<String, QueryParameter>();
 
         parseQueryParameters(query);
     }

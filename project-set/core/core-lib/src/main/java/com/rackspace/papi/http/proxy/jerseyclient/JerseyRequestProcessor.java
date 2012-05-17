@@ -1,7 +1,6 @@
 package com.rackspace.papi.http.proxy.jerseyclient;
 
-import com.sun.jersey.core.util.MultivaluedMapImpl;
-import javax.ws.rs.core.MultivaluedMap;
+import com.rackspace.papi.commons.collections.OrderedMultiValuedMap;
 import com.sun.jersey.api.client.WebResource.Builder;
 import java.io.ByteArrayOutputStream;
 import java.io.BufferedInputStream;
@@ -30,7 +29,7 @@ class JerseyRequestProcessor {
     
     public WebResource setRequestParameters(WebResource method) {
       Enumeration<String> names = sourceRequest.getParameterNames();
-      MultivaluedMap<String,String> params = new MultivaluedMapImpl();
+      OrderedMultiValuedMap params = new OrderedMultiValuedMap();
 
       while (names.hasMoreElements()) {
         String name = names.nextElement();
