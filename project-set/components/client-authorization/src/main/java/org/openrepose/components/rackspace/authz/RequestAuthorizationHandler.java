@@ -1,6 +1,6 @@
 package org.openrepose.components.rackspace.authz;
 
-import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
+import com.rackspace.auth.openstack.AuthenticationService;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
@@ -24,11 +24,11 @@ import org.slf4j.LoggerFactory;
 public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
    private static final Logger LOG = LoggerFactory.getLogger(RequestAuthorizationHandler.class);
-   private final OpenStackAuthenticationService authenticationService;
+   private final AuthenticationService authenticationService;
    private final EndpointListCache endpointListCache;
    private final ServiceEndpoint myEndpoint;
 
-   public RequestAuthorizationHandler(OpenStackAuthenticationService authenticationService, EndpointListCache endpointListCache, ServiceEndpoint myEndpoint) {
+   public RequestAuthorizationHandler(AuthenticationService authenticationService, EndpointListCache endpointListCache, ServiceEndpoint myEndpoint) {
       this.authenticationService = authenticationService;
       this.endpointListCache = endpointListCache;
       this.myEndpoint = myEndpoint;

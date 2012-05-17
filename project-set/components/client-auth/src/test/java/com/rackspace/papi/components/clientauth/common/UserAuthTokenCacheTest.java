@@ -1,13 +1,12 @@
 package com.rackspace.papi.components.clientauth.common;
 
-import com.rackspace.papi.components.clientauth.common.UserAuthTokenCache;
-import com.rackspace.auth.openstack.ids.CachableUserInfo;
+import com.rackspace.auth.AuthToken;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.StoredElement;
 import com.rackspace.papi.service.datastore.impl.StoredElementImpl;
+import static org.junit.Assert.assertEquals;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -25,21 +24,26 @@ public class UserAuthTokenCacheTest {
    
    public static class WhenCachingAuthTokens {
 
-      protected UserAuthTokenCache<CachableUserInfo> userInfoCache;
-      protected CachableUserInfo originalUserInfo;
+      protected UserAuthTokenCache<AuthToken> userInfoCache;
+      protected AuthToken originalUser;
       protected Datastore mockedDatastore;
 
       @Before
       public void standUp() throws Exception {
-         originalUserInfo = new CachableUserInfo("token", "userId", "username", "roles", 10000, null);
+         originalUser = mock(AuthToken.class, withSettings().serializable());
+         when(originalUser.getUserId()).thenReturn("userId");
+         when(originalUser.getUsername()).thenReturn("username");
+         when(originalUser.getExpires()).thenReturn(10000l);
+         when(originalUser.getRoles()).thenReturn("roles");
+         when(originalUser.getTokenId()).thenReturn("token");
          mockedDatastore = mock(Datastore.class);
          
          final String cacheFullName =CACHE_PREFIX + "." + VALID_USER; 
          
-         final StoredElement storedElement = new StoredElementImpl(cacheFullName, ObjectSerializer.instance().writeObject(originalUserInfo));
+         final StoredElement storedElement = new StoredElementImpl(cacheFullName, ObjectSerializer.instance().writeObject(originalUser));
          when(mockedDatastore.get(eq(cacheFullName))).thenReturn(storedElement);
          
-         userInfoCache = new UserAuthTokenCache<CachableUserInfo>(mockedDatastore, CachableUserInfo.class) {
+         userInfoCache = new UserAuthTokenCache<AuthToken>(mockedDatastore, AuthToken.class) {
 
             @Override
             public String getCachePrefix() {
@@ -47,7 +51,7 @@ public class UserAuthTokenCacheTest {
             }
 
             @Override
-            public boolean validateToken(CachableUserInfo cachedValue, String passedValue) {
+            public boolean validateToken(AuthToken cachedValue, String passedValue) {
                return true;
             }
          };
@@ -55,13 +59,13 @@ public class UserAuthTokenCacheTest {
 
       @Test
       public void shouldCorrectlyRetrieveValidCachedUserInfo() {
-         final CachableUserInfo userInfo = userInfoCache.getUserToken(VALID_USER, VALID_AUTH_TOKEN);
-         
-         assertEquals("UserId must match original", originalUserInfo.getUserId(), userInfo.getUserId());
-         assertEquals("Username must match original", originalUserInfo.getUsername(), userInfo.getUsername());
-         assertEquals("Expires must match original", originalUserInfo.getExpires(), userInfo.getExpires());
-         assertEquals("Roles must match original", originalUserInfo.getRoles(), userInfo.getRoles());
-         assertEquals("TokenId must match original", originalUserInfo.getTokenId(), userInfo.getTokenId());
+         final AuthToken user = userInfoCache.getUserToken(VALID_USER, VALID_AUTH_TOKEN);
+
+         assertEquals("UserId must match original", originalUser.getUserId(), user.getUserId());
+         assertEquals("Username must match original", originalUser.getUsername(), user.getUsername());
+         assertEquals("Expires must match original", originalUser.getExpires(), user.getExpires());
+         assertEquals("Roles must match original", originalUser.getRoles(), user.getRoles());
+         assertEquals("TokenId must match original", originalUser.getTokenId(), user.getTokenId());
       }
    }
 }

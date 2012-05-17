@@ -1,9 +1,11 @@
 package com.rackspace.papi.components.clientauth.rackspace.v1_1;
 
+import com.rackspace.auth.AuthGroup;
+import com.rackspace.auth.AuthToken;
+import com.rackspace.auth.rackspace.AuthenticationService;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
-import com.rackspace.auth.v1_1.AuthenticationServiceClient;
-import com.rackspace.auth.v1_1.CachableTokenInfo;
+
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
@@ -17,8 +19,7 @@ import com.rackspace.papi.components.clientauth.rackspace.config.RackspaceAuth;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspacecloud.docs.auth.api.v1.FullToken;
-import com.rackspacecloud.docs.auth.api.v1.Group;
-import com.rackspacecloud.docs.auth.api.v1.GroupsList;
+
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -50,10 +51,10 @@ public class RackspaceAuthenticationHandlerTest {
         protected static String xAuthProxy = "Proxy";
         protected HttpServletRequest request;
         protected ReadableHttpServletResponse response;
-        protected AuthenticationServiceClient authServiceClient;
+        protected AuthenticationService authServiceClient;
         protected RackspaceAuthenticationHandler handler;
         protected RackspaceAuth rackAuthConfig;
-        protected GroupsList groups;
+        protected List<AuthGroup> groups;
         protected KeyedRegexExtractor keyedRegexExtractor;
         protected List<Pattern> whiteListRegexPatterns;
 
@@ -63,13 +64,13 @@ public class RackspaceAuthenticationHandlerTest {
             response = mock(ReadableHttpServletResponse.class);
 
             // Add a default group to the groups list
-            groups = new GroupsList();
+            groups = new ArrayList<AuthGroup>();
 
-            final Group defaultGroup = new Group();
-            defaultGroup.setDescription("A default group");
-            defaultGroup.setId("group-id");
+            final AuthGroup defaultGroup = mock(AuthGroup.class);//new AuthGroup();
+            when(defaultGroup.getDescription()).thenReturn("A default group");
+            when(defaultGroup.getId()).thenReturn("group-id");
 
-            groups.getGroup().add(defaultGroup);
+            groups.add(defaultGroup);
 
             // Setup config
             rackAuthConfig = new RackspaceAuth();
@@ -96,7 +97,7 @@ public class RackspaceAuthenticationHandlerTest {
             authenticationServer.setUri("http://some.auth.endpoint");
             rackAuthConfig.setAuthenticationServer(authenticationServer);
 
-            authServiceClient = mock(AuthenticationServiceClient.class);
+            authServiceClient = mock(AuthenticationService.class);
 
             whiteListRegexPatterns = new ArrayList<Pattern>();
             whiteListRegexPatterns.add(Pattern.compile("/v1.0/application\\.wadl"));
@@ -169,7 +170,7 @@ public class RackspaceAuthenticationHandlerTest {
             FullToken fullToken = new FullToken();
             fullToken.setId(tokenId);
             fullToken.setUserId(userName);
-            CachableTokenInfo token = new CachableTokenInfo(null, fullToken);
+            AuthToken token = mock(AuthToken.class);
             when(request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn("some-random-auth-token");
             when(request.getRequestURI()).thenReturn("/start/accountId/resource");
             when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(token);
@@ -256,7 +257,7 @@ public class RackspaceAuthenticationHandlerTest {
             FullToken fullToken = new FullToken();
             fullToken.setId(tokenId);
             fullToken.setUserId(userName);
-            CachableTokenInfo token = new CachableTokenInfo("tenantId", fullToken);
+            AuthToken token = mock(AuthToken.class);
             when(request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn(tokenId);
             when(request.getRequestURI()).thenReturn("/start/accountId/resource");
             when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(token);
