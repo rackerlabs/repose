@@ -2,6 +2,7 @@ package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.domain.ServicePorts;
+import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.ServletContextHelper;
@@ -10,7 +11,6 @@ import com.rackspace.papi.service.context.spring.SpringContextAdapterProvider;
 import com.rackspace.papi.service.deploy.ArtifactManagerServiceContext;
 import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
 import com.rackspace.papi.spring.SpringConfiguration;
-import java.util.LinkedList;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -22,13 +22,11 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 public class PowerApiContextManager implements ServletContextListener {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerApiContextManager.class);
-    private final LinkedList<ServiceContext> boundServiceContexts;
     private ApplicationContext applicationContext;
 
     public PowerApiContextManager() {
         //applicationContext = new ClassPathXmlApplicationContext(APPLICATION_CONTEXT_CONFIG);
         applicationContext = new AnnotationConfigApplicationContext(SpringConfiguration.class);
-        boundServiceContexts = new LinkedList<ServiceContext>();
     }
 
     public PowerApiContextManager setPorts(ServicePorts ports) {
@@ -36,11 +34,6 @@ public class PowerApiContextManager implements ServletContextListener {
         servicePorts.clear();
         servicePorts.addAll(ports);
         return this;
-    }
-
-    private <T extends ServiceContext> void initService(T resource, ServletContextEvent sce) {
-        resource.contextInitialized(sce);
-        boundServiceContexts.add(resource);
     }
 
     private void showBanner(ServletContextEvent sce) {
@@ -54,19 +47,19 @@ public class PowerApiContextManager implements ServletContextListener {
         ServletContextHelper helper = ServletContextHelper.getInstance();
         ContextAdapter ca = helper.getPowerApiContext(sce.getServletContext());
 
-        initService(ca.getContext(ThreadingServiceContext.class), sce);
-        initService(ca.getContext(EventManagerServiceContext.class), sce);
-        initService(ca.getContext(ConfigurationServiceContext.class), sce);
-        initService(ca.getContext(ContainerServiceContext.class), sce);
-        initService(ca.getContext(RoutingServiceContext.class), sce);
-        initService(ca.getContext(LoggingServiceContext.class), sce);
+        ca.getContext(ThreadingServiceContext.class).contextInitialized(sce);
+        ca.getContext(EventManagerServiceContext.class).contextInitialized(sce);
+        ca.getContext(ConfigurationServiceContext.class).contextInitialized(sce);
+        ca.getContext(ContainerServiceContext.class).contextInitialized(sce);
+        ca.getContext(RoutingServiceContext.class).contextInitialized(sce);
+        ca.getContext(LoggingServiceContext.class).contextInitialized(sce);
         showBanner(sce);
-        initService(ca.getContext(ResponseMessageServiceContext.class), sce);
+        ca.getContext(ResponseMessageServiceContext.class).contextInitialized(sce);
         // TODO:Refactor - This service should be bound to a fitler-chain specific JNDI context
-        initService(ca.getContext(DatastoreServiceContext.class), sce);
-        initService(ca.getContext(ClassLoaderServiceContext.class), sce);
-        initService(ca.getContext(ArtifactManagerServiceContext.class), sce);
-        initService(ca.getContext(FilterChainGCServiceContext.class), sce);
+        ca.getContext(DatastoreServiceContext.class).contextInitialized(sce);
+        ca.getContext(ClassLoaderServiceContext.class).contextInitialized(sce);
+        ca.getContext(ArtifactManagerServiceContext.class).contextInitialized(sce);
+        ca.getContext(FilterChainGCServiceContext.class).contextInitialized(sce);
 
     }
 
@@ -87,8 +80,8 @@ public class PowerApiContextManager implements ServletContextListener {
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
-
-        for (ServiceContext ctx : boundServiceContexts) {
+        ServiceRegistry registry = applicationContext.getBean("serviceRegistry", ServiceRegistry.class);
+        for (ServiceContext ctx : registry.getServices()) {
             ctx.contextDestroyed(sce);
         }
     }

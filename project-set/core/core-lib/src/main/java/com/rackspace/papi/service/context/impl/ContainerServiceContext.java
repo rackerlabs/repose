@@ -5,15 +5,15 @@ import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.DeploymentConfiguration;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ServicePorts;
+import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.container.ContainerConfigurationService;
 import com.rackspace.papi.service.context.container.ContainerConfigurationServiceImpl;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.servlet.InitParameter;
+import javax.annotation.PostConstruct;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import org.slf4j.Logger;
@@ -32,14 +32,23 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
     private ConfigurationService configurationManager;
     private ServletContext servletContext;
     private ServicePorts servicePorts;
+    private final ServiceRegistry registry;
 
     @Autowired
     public ContainerServiceContext(
             @Qualifier("containerConfigurationService") ContainerConfigurationService containerConfigurationService,
-            @Qualifier("servicePorts") ServicePorts servicePorts) {
+            @Qualifier("servicePorts") ServicePorts servicePorts,
+            @Qualifier("serviceRegistry") ServiceRegistry registry) {
         this.containerConfigurationService = containerConfigurationService;
         this.configurationListener = new ContainerConfigurationListener();
         this.servicePorts = servicePorts;
+        this.registry = registry;
+    }
+
+    public void register() {
+        if (registry != null) {
+            registry.addService(this);
+        }
     }
 
     @Override
@@ -123,11 +132,10 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
-
         servletContext = servletContextEvent.getServletContext();
         configurationManager = ServletContextHelper.getInstance().getPowerApiContext(servletContext).configurationService();
-
         configurationManager.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);
+        register();
     }
 
     @Override

@@ -17,14 +17,17 @@
    <context:annotation-config/>
    
    <!-- Service Contexts -->
-   <bean name="artifactManagerServiceContext" class="com.rackspace.papi.service.deploy.ArtifactManagerServiceContext" >
+   <bean name="artifactManagerServiceContext" class="com.rackspace.papi.service.deploy.ArtifactManagerServiceContext">
       <constructor-arg index="0" ref="artifactManager" />
       <constructor-arg index="1" ref="eventManager" />
       <constructor-arg index="2" ref="containerConfigurationListener" />
+      <constructor-arg index="3" ref="serviceRegistry" />
    </bean>
 
    <bean name="loggingServiceContext" class="com.rackspace.papi.service.context.impl.LoggingServiceContext">
       <constructor-arg index="0" ref="log4jLoggingService" />
+      <constructor-arg index="1" ref="serviceRegistry" />
+      
    </bean>
 
    <!-- Services -->

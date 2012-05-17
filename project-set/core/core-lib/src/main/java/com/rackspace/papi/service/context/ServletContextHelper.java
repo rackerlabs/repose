@@ -1,10 +1,6 @@
 package com.rackspace.papi.service.context;
 
-import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ServicePorts;
-import com.rackspace.papi.servlet.InitParameter;
-import java.util.ArrayList;
-import java.util.List;
 import javax.servlet.ServletContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

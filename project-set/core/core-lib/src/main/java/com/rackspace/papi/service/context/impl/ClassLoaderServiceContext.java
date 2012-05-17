@@ -1,6 +1,7 @@
 package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
+import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.ServletContextHelper;
@@ -18,11 +19,20 @@ public class ClassLoaderServiceContext implements ServiceContext<ClassLoaderMana
 
     public static final String SERVICE_NAME = "powerapi:/kernel/classloader";
     private final ClassLoaderManagerService classLoaderContext;
+    private final ServiceRegistry registry;
 
     @Autowired
-    public ClassLoaderServiceContext(@Qualifier("classLoaderManager") ClassLoaderManagerService classLoaderContext) {
+    public ClassLoaderServiceContext(
+            @Qualifier("classLoaderManager") ClassLoaderManagerService classLoaderContext,
+            @Qualifier("serviceRegistry") ServiceRegistry registry) {
        this.classLoaderContext = classLoaderContext;
-       
+       this.registry = registry;
+    }
+
+    private void register() {
+        if (registry != null) {
+            registry.addService(this);
+        }
     }
 
     @Override
@@ -60,6 +70,7 @@ public class ClassLoaderServiceContext implements ServiceContext<ClassLoaderMana
                         e.eventManager().newEvent(ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED, e.payload());
                     }
                 }, ApplicationDeploymentEvent.APPLICATION_DELETED);
+        register();
     }
 
     @Override

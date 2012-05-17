@@ -1,16 +1,14 @@
 package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
+import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.context.ServiceContext;
-import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.event.PowerProxyEventKernel;
 import com.rackspace.papi.service.event.common.EventService;
-import com.rackspace.papi.service.threading.ThreadingService;
-import javax.annotation.Resource;
+import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
 import javax.servlet.ServletContextEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Component;
 
 @Component("eventManagerServiceContext")
@@ -20,10 +18,26 @@ public class EventManagerServiceContext implements ServiceContext<EventService> 
     
     private final EventService eventManager;
     private DestroyableThreadWrapper eventKernelThread;
+    private final ServiceRegistry registry;
+    private final ThreadingServiceContext threadingContext;
+    private final PowerProxyEventKernel eventKernel;
 
     @Autowired
-    public EventManagerServiceContext(@Qualifier("eventManager") EventService eventManager) {
+    public EventManagerServiceContext(
+            @Qualifier("eventManager") EventService eventManager,
+            @Qualifier("serviceRegistry") ServiceRegistry registry,
+            @Qualifier("threadingServiceContext") ThreadingServiceContext threadingContext,
+            @Qualifier("powerProxyEventKernel") PowerProxyEventKernel eventKernel) {
        this.eventManager = eventManager;
+       this.registry = registry;
+       this.threadingContext = threadingContext;
+       this.eventKernel = eventKernel;
+    }
+
+    public void register() {
+        if (registry != null) {
+            registry.addService(this);
+        }
     }
 
     @Override
@@ -38,12 +52,9 @@ public class EventManagerServiceContext implements ServiceContext<EventService> 
     
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        final ThreadingService threadManager = ServletContextHelper.getInstance().getPowerApiContext(sce.getServletContext()).threadingService();
-
-        final PowerProxyEventKernel eventKernel = new PowerProxyEventKernel(eventManager);
-        eventKernelThread = new DestroyableThreadWrapper(threadManager.newThread(eventKernel, "Event Kernel Thread"), eventKernel);
-        
+        eventKernelThread = new DestroyableThreadWrapper(threadingContext.getService().newThread(eventKernel, "Event Kernel Thread"), eventKernel);
         eventKernelThread.start();
+        register();
     }
 
     @Override

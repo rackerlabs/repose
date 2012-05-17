@@ -5,16 +5,19 @@ import com.rackspace.papi.service.event.common.EventDispatcher;
 import com.rackspace.papi.service.event.common.EventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
+@Component("powerProxyEventKernel")
 public class PowerProxyEventKernel implements Runnable, Destroyable {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerProxyEventKernel.class);
-
     private final EventService eventManager;
-
     private volatile boolean shouldContinue;
 
-    public PowerProxyEventKernel(EventService eventManager) {
+    @Autowired
+    public PowerProxyEventKernel(@Qualifier("eventManager") EventService eventManager) {
         this.eventManager = eventManager;
     }
 
