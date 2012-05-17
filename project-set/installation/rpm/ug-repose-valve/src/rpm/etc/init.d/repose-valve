@@ -56,6 +56,7 @@ stop()
 
   /usr/bin/java -jar $DAEMON_HOME/$NAME.jar STOP $run_opts > /dev/null 2>&1
   killproc -p $PID_FILE -d 3 $NAME && rm -f /var/lock/subsys/$NAME
+  sleep 1
   $CLEAN $CONFIG_DIRECTORY
   echo
 }
