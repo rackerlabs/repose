@@ -11,9 +11,11 @@ import java.util.List;
 public class QueryStringNormalizer implements Normalizer<String> {
 
     private final ParameterFilterFactory parameterFilterFactory;
+    private final boolean alphabetize; 
 
-    public QueryStringNormalizer(ParameterFilterFactory parameterFilterFactory) {
+    public QueryStringNormalizer(ParameterFilterFactory parameterFilterFactory, boolean alphabetize) {
         this.parameterFilterFactory = parameterFilterFactory;
+        this.alphabetize = alphabetize;
     }
 
     @Override
@@ -21,8 +23,10 @@ public class QueryStringNormalizer implements Normalizer<String> {
         final QueryParameterCollection parsedQueryParameters = new QueryParameterCollection(source);
 
         final List<QueryParameter> queryParameters = parsedQueryParameters.getParameters();
-        Collections.sort(queryParameters);
-        
+        if (alphabetize) {
+            Collections.sort(queryParameters);
+        }
+
         return writeParameters(queryParameters);
     }
 
@@ -48,16 +52,16 @@ public class QueryStringNormalizer implements Normalizer<String> {
             final String value = valueIterator.next();
 
             if (parameterFilter.shouldAccept(queryParameter.getName())) {
-                
-                if(!queryStringBuilder.toString().isEmpty() && !queryStringBuilder.toString().endsWith("&")){
+
+                if (!queryStringBuilder.toString().isEmpty() && !queryStringBuilder.toString().endsWith("&")) {
                     queryStringBuilder.append(QueryParameterCollection.QUERY_PAIR_DELIMITER);
                 }
                 queryStringBuilder.append(queryParameter.getName());
                 queryStringBuilder.append(QueryParameterCollection.QUERY_KEY_VALUE_DELIMITER);
                 queryStringBuilder.append(value);
 
-               
-            }else{
+
+            } else {
                 break;
             }
         }

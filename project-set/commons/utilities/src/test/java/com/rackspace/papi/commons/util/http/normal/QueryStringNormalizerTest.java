@@ -23,7 +23,7 @@ public class QueryStringNormalizerTest {
       @Before
       public final void beforeAll() {
          final ParameterFilterFactory parameterFilterFactory = new ArrayWhiteListParameterFilterFactory(new String[]{"a", "b", "c", "d"});
-         queryStringNormalizer = new QueryStringNormalizer(parameterFilterFactory);
+         queryStringNormalizer = new QueryStringNormalizer(parameterFilterFactory,true);
       }
    }
 

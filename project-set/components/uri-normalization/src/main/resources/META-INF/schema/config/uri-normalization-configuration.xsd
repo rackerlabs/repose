@@ -58,6 +58,15 @@
             </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      
+      <xs:attribute name="alphabetize" type="xs:boolean" use="optional" default="false">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Orders the query parameters in alpha order
+               </html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
 
       <xs:attribute name="http-methods" type="unorm:HttpMethodList" use="optional" default="ALL">
          <xs:annotation>

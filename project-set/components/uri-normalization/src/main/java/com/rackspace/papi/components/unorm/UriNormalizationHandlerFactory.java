@@ -28,14 +28,15 @@ public class UriNormalizationHandlerFactory extends AbstractConfiguredFilterHand
 
          if (uriFilterList != null) {
             for (Target target : uriFilterList.getTarget()) {
+               boolean alphabetize = target.isAlphabetize();
                final MultiInstanceWhiteListFactory whiteListFactory = new MultiInstanceWhiteListFactory(target.getWhitelist());
-               final QueryStringNormalizer normalizerInstance = new QueryStringNormalizer(whiteListFactory);
+               final QueryStringNormalizer normalizerInstance = new QueryStringNormalizer(whiteListFactory,alphabetize);
                
                for (HttpMethod method : target.getHttpMethods()) {
                   QueryParameterNormalizer methodScopedNormalizer = newNormalizers.get(method.name());
                   
                   if (methodScopedNormalizer == null) {
-                     methodScopedNormalizer = new QueryParameterNormalizer(method);
+                     methodScopedNormalizer = new QueryParameterNormalizer(method, alphabetize);
                      newNormalizers.put(method.name(), methodScopedNormalizer);
                   }
                   
