@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.datastore;
 
+import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.ServletContextHelper;
@@ -49,9 +50,11 @@ public class DatastoreDatastoreFilterTest {
          
          when(mockFilterConfig.getServletContext()).thenReturn(servletContext);
          when(servletContext.getAttribute(ServletContextHelper.SERVLET_CONTEXT_ATTRIBUTE_NAME)).thenReturn(context);
+         when(servletContext.getAttribute(ServletContextHelper.SPRING_APPLICATION_CONTEXT_ATTRIBUTE_NAME)).thenReturn(appContext);
 
          when(appContext.getBean(anyString(), eq(ConfigurationServiceContext.class))).thenReturn(configurationServiceContext);
          when(appContext.getBean(anyString(), eq(DatastoreServiceContext.class))).thenReturn(datastoreServiceContext);
+         when(appContext.getBean(anyString(), eq(ServicePorts.class))).thenReturn(new ServicePorts());
 
          when(configurationServiceContext.getService()).thenReturn(configurationService);
          when(datastoreServiceContext.getService()).thenReturn(datastoreService);

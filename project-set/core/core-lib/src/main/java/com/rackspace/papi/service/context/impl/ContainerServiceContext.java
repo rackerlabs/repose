@@ -99,7 +99,8 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
 
                 if (!ports.isEmpty()) {
                     containerConfigurationService = new ContainerConfigurationServiceImpl(ports);
-                    servletContext.setAttribute(InitParameter.PORT.getParameterName(), ports);
+                    servicePorts.clear();
+                    servicePorts.addAll(ports);
                     LOG.info("Setting " + InitParameter.PORT.getParameterName() + " to " + ports);
                 } else {
                     // current port and port specified in container.cfg.xml are -1 (not set)
@@ -110,11 +111,12 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
                     // Port changed and is different from port already available in servlet context.
                     LOG.warn("****** " + InitParameter.PORT.getParameterName() + " changed from " + currentPorts + " --> " + ports
                             + ".  Restart is required for this change.");
+                } else {
+                    servicePorts.clear();
+                    servicePorts.addAll(ports);
                 }
             }
 
-            servicePorts.clear();
-            servicePorts.addAll(ports);
             setTimeoutParameters(deployConfig);
         }
     }

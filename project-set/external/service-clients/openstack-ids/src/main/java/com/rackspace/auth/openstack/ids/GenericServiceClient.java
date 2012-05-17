@@ -7,16 +7,12 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
-import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
-import com.sun.ws.rs.ext.RuntimeDelegateImpl;
-import org.openstack.docs.identity.api.v2.AuthenticationRequest;
-import org.openstack.docs.identity.api.v2.PasswordCredentialsRequiredUsername;
+
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.logging.jersey.LoggingFilter;
 
-import javax.ws.rs.ext.RuntimeDelegate;
 import javax.xml.bind.JAXBElement;
-import javax.xml.namespace.QName;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,69 +21,40 @@ import org.slf4j.LoggerFactory;
  */
 public class GenericServiceClient {
    private static final Logger LOG = LoggerFactory.getLogger(GenericServiceClient.class);
-   
-    static {
-        // TODO: This should be removed, relocated or ignored. This is related to the issues we were seeing
-        // where Jersey would work on some JVM installations but not all. This was rectified by adding a dependency
-        // on jersey-server
-        
-        RuntimeDelegate.setInstance(new RuntimeDelegateImpl());
-    }
 
-    private final Client client;
-    private final String username, password;
+   private final Client client;
 
-    public GenericServiceClient(String username, String password) {
-        this.username = username;
-        this.password = password;
-        
-        DefaultClientConfig cc = new DefaultClientConfig();
-        cc.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, false);
-        // TODO: Eventually make these values configurable in Repose and implement
-        // a "backoff" approach with logging.
-        cc.getProperties().put(ClientConfig.PROPERTY_CONNECT_TIMEOUT, 30000);
-        cc.getProperties().put(ClientConfig.PROPERTY_READ_TIMEOUT, 30000);
-        client = Client.create(cc);
+   public GenericServiceClient() {
+      DefaultClientConfig cc = new DefaultClientConfig();
+      cc.getProperties().put(ClientConfig.PROPERTY_FOLLOW_REDIRECTS, false);
+      cc.getProperties().put(ClientConfig.PROPERTY_CONNECT_TIMEOUT, 30000);
+      cc.getProperties().put(ClientConfig.PROPERTY_READ_TIMEOUT, 30000);
+      client = Client.create(cc);
 
-        // TODO: Validate that this is required for all calls or only some
-        HTTPBasicAuthFilter authFilter = new HTTPBasicAuthFilter(username, password);
-        client.addFilter(authFilter);
+      LOG.info("Enabling info logging of OpenStack Identity Service client requests");
+      client.addFilter(new LoggingFilter());
+   }
 
-        LOG.info("Enabling info logging of OpenStack Identity Service client requests");
-        client.addFilter(new LoggingFilter());
-    }
+   public ServiceClientResponse post(String uri, JAXBElement body, MediaType contentType) throws AuthServiceException {
+      WebResource resource = client.resource(uri);
 
-    public ServiceClientResponse getAdminToken(String uri) throws AuthServiceException {
-        WebResource resource = client.resource(uri);
+      ClientResponse response = resource.type(contentType).header("Accept", "application/xml").post(ClientResponse.class, body);
 
-        PasswordCredentialsRequiredUsername credentials = new PasswordCredentialsRequiredUsername();
-        credentials.setUsername(username);
-        credentials.setPassword(password);
+      return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
+   }
 
-        // TODO: These QNames should come from the schema objects themselves
-        JAXBElement jaxbCredentials = new JAXBElement(new QName("http://docs.openstack.org/identity/api/v2.0","passwordCredentials"), PasswordCredentialsRequiredUsername.class, credentials);
-        AuthenticationRequest request = new AuthenticationRequest();
-        request.setCredential(jaxbCredentials);
+   public ServiceClientResponse get(String uri, String adminToken, String... queryParameters) throws AuthServiceException {
+      WebResource resource = client.resource(uri);
 
-        // TODO: These QNames should come from the schema objects themselves
-        JAXBElement jaxbRequest = new JAXBElement(new QName("http://docs.openstack.org/identity/api/v2.0", "auth"), AuthenticationRequest.class, request);
-        ClientResponse response = resource.type(MediaType.APPLICATION_XML_TYPE).header("Accept", "application/xml").post(ClientResponse.class, jaxbRequest);
+      if (queryParameters.length % 2 != 0) {
+         throw new IllegalArgumentException("Query parameters must be in pairs.");
+      }
 
-        return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
-    }
+      for (int index = 0; index < queryParameters.length; index = index + 2) {
+         resource = resource.queryParam(queryParameters[index], queryParameters[index + 1]);
+      }
 
-    public ServiceClientResponse get(String uri, String adminToken, String... queryParameters) throws AuthServiceException {
-        WebResource resource = client.resource(uri);
-
-        if (queryParameters.length % 2 != 0) {
-           throw new IllegalArgumentException("Query parameters must be in pairs.");
-        }
-
-        for (int index = 0; index < queryParameters.length; index = index + 2) {
-           resource = resource.queryParam(queryParameters[index], queryParameters[index + 1]);
-        }
-
-        ClientResponse response = resource.header("Accept", "application/xml").header("X-Auth-Token", adminToken).get(ClientResponse.class);
-        return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
-    }
+      ClientResponse response = resource.header("Accept", "application/xml").header("X-Auth-Token", adminToken).get(ClientResponse.class);
+      return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
+   }
 }

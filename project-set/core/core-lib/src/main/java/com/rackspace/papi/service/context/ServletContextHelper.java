@@ -12,57 +12,58 @@ import org.springframework.context.ApplicationContext;
 
 public final class ServletContextHelper {
 
-   public static final String SERVLET_CONTEXT_ATTRIBUTE_NAME = "PAPI_ServletContext";
-   public static final String SPRING_APPLICATION_CONTEXT_ATTRIBUTE_NAME = "PAPI_SpringApplicationContext";
-   private static final Logger LOG = LoggerFactory.getLogger(ServletContextHelper.class);
-   private static final Object lock = new Object();
-   private static ServletContextHelper instance = null;
-   private final ContextAdapterProvider adapterProvider;
+    public static final String SERVLET_CONTEXT_ATTRIBUTE_NAME = "PAPI_ServletContext";
+    public static final String SPRING_APPLICATION_CONTEXT_ATTRIBUTE_NAME = "PAPI_SpringApplicationContext";
+    private static final Logger LOG = LoggerFactory.getLogger(ServletContextHelper.class);
+    private static final Object lock = new Object();
+    private static ServletContextHelper instance = null;
+    private final ContextAdapterProvider adapterProvider;
 
-   public static ServletContextHelper configureInstance(ContextAdapterProvider adapterProvider, ServletContext ctx, ApplicationContext applicationContext) {
-      synchronized (lock) {
-         if (adapterProvider != null) {
-            LOG.debug("Configuring ContextAdapterProvider: " + adapterProvider.getClass().getName());
-            instance = new ServletContextHelper(adapterProvider);
-            instance.setPowerApiContext(ctx, applicationContext);
-         }
-         return instance;
-      }
-   }
+    public static ServletContextHelper configureInstance(ContextAdapterProvider adapterProvider, ServletContext ctx, ApplicationContext applicationContext) {
+        synchronized (lock) {
+            if (adapterProvider != null) {
+                LOG.debug("Configuring ContextAdapterProvider: " + adapterProvider.getClass().getName());
+                instance = new ServletContextHelper(adapterProvider);
+                instance.setPowerApiContext(ctx, applicationContext);
+            }
+            return instance;
+        }
+    }
 
-   public static ServletContextHelper getInstance() {
-      synchronized (lock) {
-         return instance;
-      }
-   }
+    public static ServletContextHelper getInstance() {
+        synchronized (lock) {
+            return instance;
+        }
+    }
 
-   private ServletContextHelper() {
-      this.adapterProvider = null;
-   }
+    private ServletContextHelper() {
+        this.adapterProvider = null;
+    }
 
-   private ServletContextHelper(ContextAdapterProvider adapterProvider) {
-      this.adapterProvider = adapterProvider;
-   }
+    private ServletContextHelper(ContextAdapterProvider adapterProvider) {
+        this.adapterProvider = adapterProvider;
+    }
 
-   public ApplicationContext getApplicationContext(ServletContext ctx) {
-      return (ApplicationContext) ctx.getAttribute(SPRING_APPLICATION_CONTEXT_ATTRIBUTE_NAME);
-   }
+    public ApplicationContext getApplicationContext(ServletContext ctx) {
+        return (ApplicationContext) ctx.getAttribute(SPRING_APPLICATION_CONTEXT_ATTRIBUTE_NAME);
+    }
 
-   public ContextAdapter getPowerApiContext(ServletContext ctx) {
-      return adapterProvider.newInstance(null);
-   }
+    public ContextAdapter getPowerApiContext(ServletContext ctx) {
+        return adapterProvider.newInstance(null);
+    }
 
-   public void setPowerApiContext(ServletContext ctx, ApplicationContext applicationContext) {
-      ctx.setAttribute(SPRING_APPLICATION_CONTEXT_ATTRIBUTE_NAME, applicationContext);
-   }
+    public void setPowerApiContext(ServletContext ctx, ApplicationContext applicationContext) {
+        ctx.setAttribute(SPRING_APPLICATION_CONTEXT_ATTRIBUTE_NAME, applicationContext);
+    }
 
-   public ServicePorts getServerPorts(ServletContext ctx) {
-      Object port = ctx.getAttribute(InitParameter.PORT.getParameterName());
-
-      if (port != null) {
-         return (ServicePorts) ctx.getAttribute(InitParameter.PORT.getParameterName());
-      } else {
-         return new ServicePorts();
-      }
-   }
+    public ServicePorts getServerPorts(ServletContext ctx) {
+        return getApplicationContext(ctx).getBean("servicePorts", ServicePorts.class);
+        /*
+         * Object port = ctx.getAttribute(InitParameter.PORT.getParameterName());
+         *
+         * if (port != null) { return (ServicePorts) ctx.getAttribute(InitParameter.PORT.getParameterName()); } else {
+         * return new ServicePorts(); }
+         *
+         */
+    }
 }
