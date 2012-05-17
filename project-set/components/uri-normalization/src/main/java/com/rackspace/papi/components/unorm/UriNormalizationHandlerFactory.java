@@ -36,7 +36,7 @@ public class UriNormalizationHandlerFactory extends AbstractConfiguredFilterHand
                   QueryParameterNormalizer methodScopedNormalizer = newNormalizers.get(method.name());
                   
                   if (methodScopedNormalizer == null) {
-                     methodScopedNormalizer = new QueryParameterNormalizer(method, alphabetize);
+                     methodScopedNormalizer = new QueryParameterNormalizer(method);
                      newNormalizers.put(method.name(), methodScopedNormalizer);
                   }
                   

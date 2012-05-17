@@ -1,6 +1,5 @@
 package com.rackspace.papi.commons.util;
 
-import java.util.Comparator;
 import java.util.regex.Pattern;
 
 /**
