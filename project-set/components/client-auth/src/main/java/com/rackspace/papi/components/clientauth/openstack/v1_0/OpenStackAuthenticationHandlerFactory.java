@@ -1,7 +1,8 @@
 package com.rackspace.papi.components.clientauth.openstack.v1_0;
 
-import com.rackspace.auth.openstack.ids.AuthenticationServiceClient;
-import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
+import com.rackspace.auth.openstack.AuthenticationService;
+import com.rackspace.auth.openstack.AuthenticationServiceClient;
+
 import com.rackspace.papi.components.clientauth.common.AuthModule;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
@@ -18,7 +19,7 @@ public final class OpenStackAuthenticationHandlerFactory {
       final OpenStackUserInfoCache cache = new OpenStackUserInfoCache(datastore);
       final OpenstackAuth authConfig = config.getOpenstackAuth();
       final OpenStackIdentityService ids = authConfig.getIdentityService();
-      final OpenStackAuthenticationService authService = new AuthenticationServiceClient(ids.getUri(), ids.getUsername(), ids.getPassword());
+      final AuthenticationService authService = new AuthenticationServiceClient(ids.getUri(), ids.getUsername(), ids.getPassword());
 
       return new OpenStackAuthenticationHandler(authConfig, authService, accountRegexExtractor, cache, uriMatcher);
    }   
