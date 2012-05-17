@@ -33,8 +33,8 @@
         </dependency>
 
         <dependency>
-            <groupId>com.rackspace.cloud.services.clients</groupId>
-            <artifactId>openstack-ids</artifactId>
+            <groupId>com.rackspace.papi.external</groupId>
+            <artifactId>os-auth-schemas</artifactId>
         </dependency>
 
         <dependency>

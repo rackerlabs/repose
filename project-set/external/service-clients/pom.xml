@@ -17,9 +17,8 @@
     <packaging>pom</packaging>
 
     <modules>
-        <module>rackspace-auth-v1.1</module>
-        <module>openstack-ids</module>
-    </modules>  
+        <module>auth</module>
+    </modules>
 
     <dependencyManagement>
         <dependencies>

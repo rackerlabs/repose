@@ -1,6 +1,6 @@
 package org.openrepose.components.rackspace.authz;
 
-import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
+import com.rackspace.auth.openstack.AuthenticationService;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
@@ -36,7 +36,7 @@ public class RequestAuthorizationHandlerTest {
    @Ignore
    public static class TestParent {
 
-      protected OpenStackAuthenticationService mockedAuthService;
+      protected AuthenticationService mockedAuthService;
       protected RequestAuthorizationHandler handler;
       protected EndpointListCache mockedCache;
       protected HttpServletRequest mockedRequest;
@@ -67,7 +67,7 @@ public class RequestAuthorizationHandlerTest {
          endpointList.add(endpointb);
          endpointList.add(endpoint);
 
-         mockedAuthService = mock(OpenStackAuthenticationService.class);
+         mockedAuthService = mock(AuthenticationService.class);
          when(mockedAuthService.getEndpointsForToken(UNAUTHORIZED_TOKEN)).thenReturn(Collections.EMPTY_LIST);
          when(mockedAuthService.getEndpointsForToken(AUTHORIZED_TOKEN)).thenReturn(endpointList);
          when(mockedAuthService.getEndpointsForToken(CACHED_TOKEN)).thenReturn(endpointList);

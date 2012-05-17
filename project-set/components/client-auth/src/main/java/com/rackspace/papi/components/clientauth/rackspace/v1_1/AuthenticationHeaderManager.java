@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.clientauth.rackspace.v1_1;
 
+import com.rackspace.auth.AuthGroup;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.IdentityStatus;
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
@@ -9,7 +10,6 @@ import com.rackspace.papi.components.clientauth.rackspace.config.User;
 import com.rackspace.papi.components.clientauth.rackspace.config.UserRoles;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspacecloud.docs.auth.api.v1.GroupsList;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -30,14 +30,14 @@ public class AuthenticationHeaderManager {
    private final UserRoles userRoles;
    private final FilterDirector filterDirector;
    private final String accountUsername;
-   private final GroupsList groups;
+   private final List<AuthGroup> groups;
    private final HttpServletRequest request;
 
    // Hard code QUALITY for now as the auth component will have
    // the highest QUALITY in terms of using the user it supplies for rate limiting
    private static final String QUALITY = ";q=1";
 
-    public AuthenticationHeaderManager(boolean validToken, RackspaceAuth cfg, FilterDirector filterDirector, String accountUsername, GroupsList groups, HttpServletRequest request) {
+   public AuthenticationHeaderManager(boolean validToken, RackspaceAuth cfg, FilterDirector filterDirector, String accountUsername, List<AuthGroup> groups, HttpServletRequest request) {
       this.validToken = validToken;
       this.isDelegatable = cfg.isDelegable();
       this.keystone = cfg.isKeystoneActive();
@@ -50,32 +50,30 @@ public class AuthenticationHeaderManager {
 
    public void setFilterDirectorValues() {
 
-         setIdentityStatus();
+      setIdentityStatus();
 
-         if (validToken || isDelegatable) {
-            filterDirector.setFilterAction(FilterAction.PASS);
-         }
-
-         if (validToken) {
-            getGroupsListIds();
-            filterDirector.requestHeaderManager().appendToHeader(request, PowerApiHeader.USER.toString(), accountUsername + QUALITY);
-            setRoles();
-         }
+      if (validToken || isDelegatable) {
+         filterDirector.setFilterAction(FilterAction.PASS);
       }
+
+      if (validToken) {
+         getGroupsListIds();
+         filterDirector.requestHeaderManager().appendToHeader(request, PowerApiHeader.USER.toString(), accountUsername + QUALITY);
+         setRoles();
+      }
+   }
 
    private void getGroupsListIds() {
 
-      if (groups != null) {
-         int groupCount = groups.getGroup().size();
+      int groupCount = groups.size();
 
-         String[] groupsArray = new String[groupCount];
+      String[] groupsArray = new String[groupCount];
 
-         for (int i = 0; i < groupCount; i++) {
-            groupsArray[i] = groups.getGroup().get(i).getId() + QUALITY;
-         }
-
-         filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.toString(), groupsArray);
+      for (int i = 0; i < groupCount; i++) {
+         groupsArray[i] = groups.get(i).getId() + QUALITY;
       }
+
+      filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.toString(), groupsArray);
    }
 
    /**
@@ -104,22 +102,16 @@ public class AuthenticationHeaderManager {
          filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.toString(), accountUsername);
          filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), accountUsername);
 
-         List<String> roleList = new ArrayList<String>();
-
          for (String r : userRoles.getDefault().getRoles().getRole()) {
-            roleList.add(r);
+            filterDirector.requestHeaderManager().appendHeader(OpenStackServiceHeader.ROLES.toString(), r);
          }
 
          for (User user : userRoles.getUser()) {
             if (user.getName().equalsIgnoreCase(accountUsername)) {
                for (String r : user.getRoles().getRole()) {
-                  roleList.add(r);
+                  filterDirector.requestHeaderManager().appendHeader(OpenStackServiceHeader.ROLES.toString(), r);
                }
             }
-         }
-
-         if (roleList.size() > 0) {
-            filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.ROLES.toString(), roleList.toArray(new String[0]));
          }
       }
    }

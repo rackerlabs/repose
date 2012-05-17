@@ -1,13 +1,12 @@
 package com.rackspace.papi.components.clientauth.rackspace.v1_1;
 
+import com.rackspace.auth.AuthGroup;
+import com.rackspace.auth.AuthToken;
+import com.rackspace.auth.rackspace.AuthenticationService;
 import com.rackspace.papi.components.clientauth.common.AuthModule;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 
-
-import com.rackspace.auth.v1_1.AuthenticationServiceClient;
-import com.rackspace.auth.v1_1.CachableTokenInfo;
-import com.rackspacecloud.docs.auth.api.v1.GroupsList;
 import org.slf4j.Logger;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
@@ -21,6 +20,7 @@ import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import java.io.IOException;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -29,14 +29,14 @@ import javax.servlet.http.HttpServletRequest;
 public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler implements AuthModule {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RackspaceAuthenticationHandler.class);
-    private final AuthenticationServiceClient authenticationService;
+    private final AuthenticationService authenticationService;
     private final RackspaceAuth cfg;
     private final KeyedRegexExtractor<String> keyedRegexExtractor;
     private final RackspaceUserInfoCache cache;
     private final UriMatcher uriMatcher;
     private boolean includeQueryParams;
 
-    public RackspaceAuthenticationHandler(RackspaceAuth cfg, AuthenticationServiceClient authServiceClient, KeyedRegexExtractor keyedRegexExtractor, RackspaceUserInfoCache cache, UriMatcher uriMatcher) {
+    public RackspaceAuthenticationHandler(RackspaceAuth cfg, AuthenticationService authServiceClient, KeyedRegexExtractor keyedRegexExtractor, RackspaceUserInfoCache cache, UriMatcher uriMatcher) {
         this.authenticationService = authServiceClient;
         this.cfg = cfg;
         this.keyedRegexExtractor = keyedRegexExtractor;
@@ -81,7 +81,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
 
         final ExtractorResult<String> extractedResult = keyedRegexExtractor.extract(accountString.toString());
 
-        CachableTokenInfo token = null;
+        AuthToken token = null;
 
         if ((!StringUtilities.isBlank(authToken) && extractedResult != null)) {
             token = checkUserCache(extractedResult.getResult(), authToken);
@@ -97,7 +97,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
             }
         }
 
-        GroupsList groups = null;
+        List<AuthGroup> groups = null;
         if (token != null) {
             groups = authenticationService.getGroups(token.getUserId());
         }
@@ -108,7 +108,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
         return filterDirector;
     }
 
-    private CachableTokenInfo checkUserCache(String userId, String token) {
+    private AuthToken checkUserCache(String userId, String token) {
         if (cache == null) {
             return null;
         }
@@ -116,7 +116,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
         return cache.getUserToken(userId, token);
     }
 
-    private void cacheUserInfo(CachableTokenInfo user) {
+    private void cacheUserInfo(AuthToken user) {
         if (user == null || cache == null) {
             return;
         }
