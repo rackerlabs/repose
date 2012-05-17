@@ -6,8 +6,10 @@ import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Set;
 import javax.servlet.ServletContextEvent;
+import org.springframework.stereotype.Component;
 
 //TODO:Refactor SRP Violation - Remove ThreadingService logic to external class
+@Component("threadingServiceContext")
 public class ThreadingServiceContext implements ServiceContext<ThreadingService>, ThreadingService {
 
     public static final String SERVICE_NAME = "powerapi:/kernel/threading";

@@ -92,4 +92,10 @@ public class JndiContextAdapter implements ContextAdapter {
    public ContainerConfigurationService containerConfigurationService() {
         return lookup(ContainerServiceContext.SERVICE_NAME);
    }
+
+   @Override
+   public <T extends ServiceContext<?>> T getContext(Class<T> clazz) {
+      throw new UnsupportedOperationException("Not supported yet.");
+   }
+
 }

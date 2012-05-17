@@ -19,10 +19,12 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import java.util.Properties;
+import org.springframework.stereotype.Component;
 
 /**
  * @author fran
  */
+@Component("loggingServiceContext")
 public class LoggingServiceContext implements ServiceContext<LoggingService> {
    private static final Logger LOG = LoggerFactory.getLogger(LoggingServiceContext.class);
 
@@ -34,7 +36,11 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
    private String loggingConfigurationConfig = "";
 
    public LoggingServiceContext() {
-      this.loggingService = new LoggingServiceImpl(LogFrameworks.LOG4J);
+      this(new LoggingServiceImpl(LogFrameworks.LOG4J));
+   }
+   
+   public LoggingServiceContext(LoggingService loggingService) {
+      this.loggingService = loggingService;
       this.configurationListener = new ContainerConfigurationListener();
       this.loggingConfigurationListener = new LoggingConfigurationListener();
    }

@@ -37,7 +37,7 @@ public class PowerFilterChainBuilderTest {
       @Test
       public void shouldInitialize() {
          FilterConfig mockedFilterConfig = mock(FilterConfig.class);
-         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig);
+         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig, null);
 
          assertNotNull(powerFilterChainBuilder);
       }
@@ -92,7 +92,7 @@ public class PowerFilterChainBuilderTest {
          Filter mockedFilter = mock(Filter.class);
          when(mockedFilter.getName()).thenReturn("filterName");
 
-         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig);
+         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig, null);
 
          SystemModel mockedPowerProxy = mock(SystemModel.class);
          List<ReposeCluster> hosts = createTestHosts();
@@ -130,7 +130,7 @@ public class PowerFilterChainBuilderTest {
          Filter mockedFilter = mock(Filter.class);
          when(mockedFilter.getName()).thenReturn("filterName");
 
-         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig);
+         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig, null);
 
          SystemModel mockedPowerProxy = mock(SystemModel.class);
          List<ReposeCluster> hosts = createTestHosts();

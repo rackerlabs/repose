@@ -1,5 +1,6 @@
 package com.rackspace.papi.servlet.boot.service.config;
 
+import com.rackspace.papi.service.config.impl.PowerApiConfigurationManager;
 import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
 import com.rackspace.papi.service.event.common.EventService;
 import org.junit.Ignore;
@@ -54,7 +55,7 @@ public class PowerApiConfigurationManagerTest {
 
         @Test(expected = PowerApiContextException.class)
         public void shouldFailOnMissingConfigurationDirectoryInitParam() {
-            final ConfigurationServiceContext configurationManager = new ConfigurationServiceContext();
+            final ConfigurationServiceContext configurationManager = new ConfigurationServiceContext(new PowerApiConfigurationManager());
 
             final ServletContextEvent event = new ServletContextEvent(context);
             configurationManager.contextInitialized(event);
@@ -64,7 +65,7 @@ public class PowerApiConfigurationManagerTest {
         public void shouldInitializeCorrectly() {
             mockAll();
 
-            final ConfigurationServiceContext configurationManager = new ConfigurationServiceContext();
+            final ConfigurationServiceContext configurationManager = new ConfigurationServiceContext(new PowerApiConfigurationManager());
 
             final ServletContextEvent event = new ServletContextEvent(context);
             configurationManager.contextInitialized(event);
@@ -81,7 +82,7 @@ public class PowerApiConfigurationManagerTest {
         public void shouldTearDownCleanly() {
             mockAll();
 
-            final ConfigurationServiceContext configurationManager = new ConfigurationServiceContext();
+            final ConfigurationServiceContext configurationManager = new ConfigurationServiceContext(new PowerApiConfigurationManager());
 
             final ServletContextEvent event = new ServletContextEvent(context);
             configurationManager.contextInitialized(event);

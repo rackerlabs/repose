@@ -12,10 +12,15 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import java.io.IOException;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-public class RoutingFilter implements Filter {
+public class RoutingFilter implements Filter, ApplicationContextAware {
 
     private RoutingHandlerFactory handlerFactory;
+    private ApplicationContext applicationContext;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -33,4 +38,9 @@ public class RoutingFilter implements Filter {
 
         manager.subscribeTo("system-model.cfg.xml", handlerFactory, SystemModel.class);
     }
+
+   @Override
+   public void setApplicationContext(ApplicationContext ac) throws BeansException {
+      applicationContext = new ClassPathXmlApplicationContext(new String[] {"default-router-context.xml"}, ac);
+   }
 }

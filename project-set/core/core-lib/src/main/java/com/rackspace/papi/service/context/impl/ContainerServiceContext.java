@@ -17,7 +17,11 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
+@Component("containerServiceContext")
 public class ContainerServiceContext implements ServiceContext<ContainerConfigurationService> {
 
    private static final Logger LOG = LoggerFactory.getLogger(ContainerServiceContext.class);
@@ -27,8 +31,9 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
    private ConfigurationService configurationManager;
    private ServletContext servletContext;
 
-   public ContainerServiceContext() {
-      this.containerConfigurationService = new ContainerConfigurationServiceImpl();
+   @Autowired
+   public ContainerServiceContext(@Qualifier("containerConfigurationService") ContainerConfigurationService containerConfigurationService) {
+      this.containerConfigurationService = containerConfigurationService;
       this.configurationListener = new ContainerConfigurationListener();
    }
 

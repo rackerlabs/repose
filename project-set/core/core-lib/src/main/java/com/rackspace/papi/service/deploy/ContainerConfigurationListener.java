@@ -9,17 +9,31 @@ import com.rackspace.papi.container.config.ArtifactDirectory;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.DeploymentDirectory;
 import com.rackspace.papi.service.event.common.EventService;
-
 import java.io.File;
+import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Required;
+import org.springframework.stereotype.Component;
 
+@Component("containerConfigurationListener")
 public class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
-   private final ArtifactDirectoryWatcher dirWatcher;
+
+   private ArtifactDirectoryWatcher dirWatcher;
    private File deploymentDirectory;
    private EarUnpacker unpacker;
-
    private boolean autoClean = false;
 
+   public ContainerConfigurationListener() {
+   }
+
    public ContainerConfigurationListener(EventService eventManagerReference) {
+      dirWatcher = new ArtifactDirectoryWatcher(eventManagerReference);
+      dirWatcher.updateArtifactDirectoryLocation(deploymentDirectory);
+      unpacker = null;
+   }
+
+   @Required
+   @Resource(name = "eventManager")
+   public void setEventService(EventService eventManagerReference) {
       dirWatcher = new ArtifactDirectoryWatcher(eventManagerReference);
       dirWatcher.updateArtifactDirectoryLocation(deploymentDirectory);
       unpacker = null;
@@ -50,16 +64,16 @@ public class ContainerConfigurationListener implements UpdateListener<ContainerC
       if (deploymentDirectory == null) {
          throw new IllegalStateException("The Power API configured deployment directory is null.  Please check the Power API configuration file.");
       } else if (!deploymentDirectory.exists()) {
-         throw new IllegalStateException("The deployment directory " + deploymentDirectory.getPath() + " does not exist.  Please " +
-                 "create the Power API deployment directory.");
+         throw new IllegalStateException("The deployment directory " + deploymentDirectory.getPath() + " does not exist.  Please "
+                 + "create the Power API deployment directory.");
       } else if (!deploymentDirectory.canWrite()) {
-         throw new IllegalStateException("Power API does not have permission to write to the deployment directory " +
-                 deploymentDirectory.getPath() + ".  Please ensure the directory is configured with permissions 760 " +
-                 "and has the correct owner and group.");
+         throw new IllegalStateException("Power API does not have permission to write to the deployment directory "
+                 + deploymentDirectory.getPath() + ".  Please ensure the directory is configured with permissions 760 "
+                 + "and has the correct owner and group.");
       } else if (!deploymentDirectory.canExecute()) {
-         throw new IllegalStateException("Power API does not have permission to execute against the deployment directory " +
-                 deploymentDirectory.getPath() + ".  Please ensure the directory is configured with permissions 760 " +
-                 "and has the correct owner and group.");
+         throw new IllegalStateException("Power API does not have permission to execute against the deployment directory "
+                 + deploymentDirectory.getPath() + ".  Please ensure the directory is configured with permissions 760 "
+                 + "and has the correct owner and group.");
       }
    }
 

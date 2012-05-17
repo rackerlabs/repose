@@ -17,10 +17,12 @@
 package com.rackspace.papi.service.rms;
 
 import com.rackspace.papi.commons.util.Destroyable;
+import com.rackspace.papi.service.rms.config.StatusCodeMatcher;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 /**
  *
@@ -28,5 +30,6 @@ import java.io.IOException;
  */
 public interface ResponseMessageService extends Destroyable {
     
-    void handle(HttpServletRequest request, HttpServletResponse response) throws IOException;
+   void handle(HttpServletRequest request, HttpServletResponse response) throws IOException;
+   void updateConfiguration(List<StatusCodeMatcher> statusCodeMatchers);
 }

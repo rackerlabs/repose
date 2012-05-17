@@ -3,6 +3,8 @@ package com.rackspace.papi.filter;
 import com.oracle.javaee6.FilterType;
 import com.rackspace.papi.servlet.PowerApiContextException;
 import javax.servlet.Filter;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 /**
  * @author franshua
@@ -34,13 +36,17 @@ public class FilterClassFactory {
         }
     }
 
-    public Filter newInstance() throws ClassNotFoundException {
+    public Filter newInstance(ApplicationContext parentContext) throws ClassNotFoundException {
         Class clazz = classLoader.loadClass(filterClass.getFilterClass().getValue());       
         validate(clazz);
 
         try {
             // just loadClass in here and no need to keep Class as member
-            return (Filter) clazz.newInstance();
+            Filter filter = (Filter) clazz.newInstance();
+            if (filter instanceof ApplicationContextAware) {
+               ((ApplicationContextAware)filter).setApplicationContext(parentContext);
+            }
+            return filter;
         } catch (InstantiationException e) {
             throw new FilterClassException("failed to create new instance of " + filterClass, e);
         } catch (IllegalAccessException e) {

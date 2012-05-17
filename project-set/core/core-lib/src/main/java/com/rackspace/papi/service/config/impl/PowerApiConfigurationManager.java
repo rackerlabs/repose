@@ -14,7 +14,9 @@ import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
+@Component("configurationManager")
 public class PowerApiConfigurationManager implements ConfigurationService {
 
    private static final Logger LOG = LoggerFactory.getLogger(PowerApiConfigurationManager.class);
@@ -26,15 +28,18 @@ public class PowerApiConfigurationManager implements ConfigurationService {
       parserLookaside = new HashMap<Class, WeakReference<ConfigurationParser>>();
    }
 
+   @Override
    public void destroy() {
       parserLookaside.clear();
       updateManager.destroy();
    }
 
+   @Override
    public void setResourceResolver(ConfigurationResourceResolver resourceResolver) {
       this.resourceResolver = resourceResolver;
    }
 
+   @Override
    public void setUpdateManager(ConfigurationUpdateManager updateManager) {
       this.updateManager = updateManager;
    }

@@ -1,30 +1,35 @@
 package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
-import com.rackspace.papi.service.classloader.ApplicationClassLoaderManagerImpl;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.deploy.ApplicationDeploymentEvent;
 import com.rackspace.papi.service.event.common.Event;
-import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.event.common.EventListener;
+import com.rackspace.papi.service.event.common.EventService;
 import javax.servlet.ServletContextEvent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
+@Component("classLoaderServiceContext")
 public class ClassLoaderServiceContext implements ServiceContext<ClassLoaderManagerService> {
 
     public static final String SERVICE_NAME = "powerapi:/kernel/classloader";
-    private final ApplicationClassLoaderManagerImpl classLoaderContext;
+    private final ClassLoaderManagerService classLoaderContext;
 
-    public ClassLoaderServiceContext() {
-        classLoaderContext = new ApplicationClassLoaderManagerImpl();
+    @Autowired
+    public ClassLoaderServiceContext(@Qualifier("classLoaderManager") ClassLoaderManagerService classLoaderContext) {
+       this.classLoaderContext = classLoaderContext;
+       
     }
 
     @Override
     public String getServiceName() {
         return SERVICE_NAME;
     }
-
+    
     @Override
     public ClassLoaderManagerService getService() {
         return classLoaderContext;

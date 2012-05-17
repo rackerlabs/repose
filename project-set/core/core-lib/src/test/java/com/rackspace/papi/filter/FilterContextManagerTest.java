@@ -20,6 +20,7 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import org.springframework.context.ApplicationContext;
 
 @RunWith(Enclosed.class)
 public class FilterContextManagerTest {
@@ -64,7 +65,7 @@ public class FilterContextManagerTest {
             Collection<EarClassLoaderContext> loadedApplications = new LinkedList<EarClassLoaderContext>();
             loadedApplications.add(mockedEarClassLoaderContext);
 
-            contextManager = new FilterContextManagerImpl(mockedFilterConfig);
+            contextManager = new FilterContextManagerImpl(mockedFilterConfig, mock(ApplicationContext.class));
             FilterContext filterContext = contextManager.loadFilterContext("FilterName", loadedApplications);
 
             assertNotNull(filterContext);
@@ -79,7 +80,7 @@ public class FilterContextManagerTest {
             loadedApplications.add(mockedEarClassLoaderContextWithNullClassName);
             loadedApplications.add(mockedEarClassLoaderContextWithClassName);
 
-            contextManager = new FilterContextManagerImpl(mockedFilterConfig);
+            contextManager = new FilterContextManagerImpl(mockedFilterConfig, mock(ApplicationContext.class));
             FilterContext filterContext = contextManager.loadFilterContext("FilterName", loadedApplications);
 
             assertNotNull(filterContext);
@@ -91,7 +92,7 @@ public class FilterContextManagerTest {
             Collection<EarClassLoaderContext> loadedApplications = new LinkedList<EarClassLoaderContext>();
             loadedApplications.add(mockedEarClassLoaderContext);
 
-            contextManager = new FilterContextManagerImpl(mockedFilterConfig);
+            contextManager = new FilterContextManagerImpl(mockedFilterConfig, mock(ApplicationContext.class));
             contextManager.loadFilterContext("FilterName", loadedApplications);
         }
     }

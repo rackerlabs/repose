@@ -7,18 +7,26 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.service.routing.robin.RoundRobinRoutingService;
+import javax.annotation.Resource;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Required;
+import org.springframework.stereotype.Component;
 
+@Component("routingServiceContext")
 public class RoutingServiceContext implements ServiceContext<RoutingService> {
    public static final String SERVICE_NAME = "powerapi:/services/routing";
-   private RoutingService service;
+   private final RoutingService service;
    private SystemModel config;
    private ServletContext servletContext;
    private ConfigurationService configurationManager;
    private final PowerApiConfigListener configListener;
    
-   public RoutingServiceContext() {
+   @Autowired
+   public RoutingServiceContext(@Qualifier("routingService") RoutingService service) {
+      this.service = service;
       configListener = new PowerApiConfigListener();
    }
 
@@ -36,7 +44,7 @@ public class RoutingServiceContext implements ServiceContext<RoutingService> {
       @Override
       public void configurationUpdated(SystemModel configurationObject) {
          config = configurationObject;
-         service = new RoundRobinRoutingService(config);
+         service.setSystemModel(config);
       }
       
    }

@@ -22,7 +22,9 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 import java.util.List;
+import org.springframework.stereotype.Component;
 
+@Component("responseMessagingService")
 public class ResponseMessageServiceImpl implements ResponseMessageService {
 
    private static final Logger LOG = LoggerFactory.getLogger(ResponseMessageServiceImpl.class);
@@ -65,6 +67,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
       }
    }
 
+   @Override
    public void updateConfiguration(List<StatusCodeMatcher> statusCodeMatchers) {
       configurationLock.lock(updateKey);
 

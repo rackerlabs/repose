@@ -11,6 +11,10 @@ import java.util.Properties;
  */
 public class LoggingServiceImpl implements LoggingService {
     private final LoggingConfigurationFacade loggingConfigurationFacade;
+    
+    public LoggingServiceImpl(String framework) {
+       this(LogFrameworks.valueOf(framework));
+    }
 
     public LoggingServiceImpl(LogFrameworks logFramework) {
         loggingConfigurationFacade = new LoggingConfigurationFacadeImpl(logFramework);
