@@ -19,11 +19,11 @@ end
 script "getVersionAndBuildNumbers" do
    interpreter "ruby"
 
-   latestUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/war/repose-valve/maven-metadata.xml"
+   latestUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/valve/repose-valve/maven-metadata.xml"
    latest = `wget -qO- '#{latestUrl}'`.split(/<\/?version>/).select{|v| v=~ /SNAPSHOT/}.shift
 
 
-   valveUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/war/repose-valve/#{latest}"
+   valveUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/valve/repose-valve/#{latest}"
    filterBundleUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/filters/repose-filter-bundle/#{latest}"
 
    vTimeStamp= `wget -qO- "#{valveUrl}/maven-metadata.xml"`.split(/<\/?value>/)

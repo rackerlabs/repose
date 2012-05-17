@@ -9,13 +9,13 @@ end
 script "getVersionAndBuildNumbers" do
    interpreter "ruby"
    `rm -rf /var/lib/tomcat7/webapps/*`
-   latestUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/war/repose-valve/maven-metadata.xml"
+   latestUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/valve/repose-valve/maven-metadata.xml"
    latest = `wget -qO- '#{latestUrl}'`.split(/<\/?version>/).select{|v| v=~ /SNAPSHOT/}.shift
 
 
    rootWarUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/papi/core/web-application/#{latest}"
    mocksUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/papi/external/testing/test-service-mock/#{latest}/"
-   valveUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/war/repose-valve/#{latest}"
+   valveUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/valve/repose-valve/#{latest}"
    filterBundleUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/filters/repose-filter-bundle/#{latest}"
 
    rTimeStamp= `wget -qO- "#{rootWarUrl}/maven-metadata.xml"`.split(/<\/?value>/)

@@ -46,7 +46,7 @@
          <xs:element name="whitelist" type="unorm:HttpUriParameterList" minOccurs="0" maxOccurs="1"/>
       </xs:sequence>
 
-      <xs:attribute name="uri-regex" type="xs:string" use="optional">
+      <xs:attribute name="uri-regex" type="xs:string" use="optional" default=".*">
          <xs:annotation>
             <xs:documentation>
                <html:p>The uri regex to match against when determining whether or not to apply the filter

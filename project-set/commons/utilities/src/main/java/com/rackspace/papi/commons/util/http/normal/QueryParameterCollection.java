@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util.http.normal;
 
+import com.rackspace.papi.commons.util.StringUtilities;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -14,10 +15,8 @@ import java.util.regex.Pattern;
 public class QueryParameterCollection {
 
     public static final String QUERY_PAIR_DELIMITER = "&", QUERY_KEY_VALUE_DELIMITER = "=";
-    
     public static final Pattern QUERY_PAIR_PATTERN = Pattern.compile(QUERY_PAIR_DELIMITER),
             QUERY_KEY_VALUE_PATTERN = Pattern.compile(QUERY_KEY_VALUE_DELIMITER);
-    
     private final Map<String, QueryParameter> parameterTracker;
 
     public QueryParameterCollection(URI uri) {
@@ -27,7 +26,9 @@ public class QueryParameterCollection {
     public QueryParameterCollection(String query) {
         parameterTracker = new LinkedHashMap<String, QueryParameter>();
 
-        parseQueryParameters(query);
+        if (!StringUtilities.isBlank(query)) { //This, in theory, should never be blank, but just in case...
+            parseQueryParameters(query);
+        }
     }
 
     private void parseQueryParameters(String query) {
@@ -62,21 +63,21 @@ public class QueryParameterCollection {
 
         parameterTracker.put(name, uriParameter);
     }
-    
+
     @Override
-    public String toString(){
+    public String toString() {
         StringBuilder queryParams = new StringBuilder();
-        
-        for(QueryParameter parameter: parameterTracker.values()){
-            
-            for(String value: parameter.getValues()){
-                if(!queryParams.toString().isEmpty()){
+
+        for (QueryParameter parameter : parameterTracker.values()) {
+
+            for (String value : parameter.getValues()) {
+                if (!queryParams.toString().isEmpty()) {
                     queryParams.append("&");
                 }
                 queryParams.append(parameter.getName()).append("=").append(value);
             }
         }
-        
+
         return queryParams.toString();
     }
 }

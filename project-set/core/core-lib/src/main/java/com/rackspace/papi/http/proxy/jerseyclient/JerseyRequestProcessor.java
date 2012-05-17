@@ -31,6 +31,8 @@ class JerseyRequestProcessor {
     
 
     public WebResource setRequestParameters(WebResource method) {
+        
+        WebResource newMethod = method;
 
         if (!sourceRequest.getParameterMap().isEmpty()) {
             Pattern delimiter = Pattern.compile("&");
@@ -40,13 +42,13 @@ class JerseyRequestProcessor {
             for (String param : params) {
                 String[] paramPair = pair.split(param);
                 if (paramPair.length == 2) {
-                    method = method.queryParam(paramPair[0], paramPair[1]);
+                    newMethod = newMethod.queryParam(paramPair[0], paramPair[1]);
                 }
             }
         }
 
 
-        return method;
+        return newMethod;
     }
 
     /**

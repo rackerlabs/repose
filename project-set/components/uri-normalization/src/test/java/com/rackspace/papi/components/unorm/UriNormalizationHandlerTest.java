@@ -39,7 +39,7 @@ public class UriNormalizationHandlerTest {
          when(mockedRequest.getQueryString()).thenReturn("a=1&b=2&c=3&d=4");
 
          final List<QueryParameterNormalizer> normalizers = new LinkedList<QueryParameterNormalizer>();
-         final QueryParameterNormalizer queryParameterNormalizer = new QueryParameterNormalizer(HttpMethod.GET,true);
+         final QueryParameterNormalizer queryParameterNormalizer = new QueryParameterNormalizer(HttpMethod.GET);
          
          normalizers.add(queryParameterNormalizer);
          

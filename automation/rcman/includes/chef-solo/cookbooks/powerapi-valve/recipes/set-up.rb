@@ -19,7 +19,7 @@ end
 script "getVersionAndBuildNumbers" do
     interpreter "ruby"
 
-    latestUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/papi/core/valve/maven-metadata.xml"
+   latestUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/valve/repose-valve/maven-metadata.xml"
     latest = `wget -qO- '#{latestUrl}'`.split(/<\/?version>/).select{|v| v=~ /SNAPSHOT/}.pop
 
 
