@@ -15,10 +15,12 @@ public class QueryParameterNormalizer {
 
    private final RegexSelector<Normalizer<String>> uriSelector;
    private final HttpMethod method;
+   private final boolean alphabetize;
 
-   public QueryParameterNormalizer(HttpMethod method) {
+   public QueryParameterNormalizer(HttpMethod method, boolean alphabetize) {
       this.uriSelector = new RegexSelector<Normalizer<String>>();
       this.method = method;
+      this.alphabetize = alphabetize;
    }
 
    public RegexSelector<Normalizer<String>> getUriSelector() {
