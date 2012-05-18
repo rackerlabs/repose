@@ -20,6 +20,7 @@ import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
@@ -97,7 +98,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
             }
         }
 
-        List<AuthGroup> groups = null;
+        List<AuthGroup> groups = new ArrayList<AuthGroup>();
         if (token != null) {
             groups = authenticationService.getGroups(token.getUserId());
         }

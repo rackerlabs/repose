@@ -2,6 +2,7 @@ package com.rackspace.auth.openstack;
 
 import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthToken;
+import com.rackspace.auth.ResponseUnmarshaller;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClient;
@@ -31,15 +32,17 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
    private final String targetHostUri;
    private final ServiceClient serviceClient;
-   private final OpenStackCoreResponseUnmarshaller openStackCoreResponseUnmarshaller;
-   private final OpenStackGroupsResponseUnmarshaller openStackGroupsResponseUnmarshaller;
+   private final ResponseUnmarshaller openStackCoreResponseUnmarshaller;
+   private final ResponseUnmarshaller openStackGroupsResponseUnmarshaller;
    private AdminToken currentAdminToken;
    private final JAXBElement jaxbRequest;
    private final Map<String, String> headers = new HashMap<String, String>();
 
-   public AuthenticationServiceClient(String targetHostUri, String username, String password) {
-      this.openStackCoreResponseUnmarshaller = new OpenStackCoreResponseUnmarshaller();
-      this.openStackGroupsResponseUnmarshaller = new OpenStackGroupsResponseUnmarshaller();
+   public AuthenticationServiceClient(String targetHostUri, String username, String password,
+                                      ResponseUnmarshaller openStackCoreResponseUnmarshaller,
+                                      ResponseUnmarshaller openStackGroupsResponseUnmarshaller) {
+      this.openStackCoreResponseUnmarshaller = openStackCoreResponseUnmarshaller;
+      this.openStackGroupsResponseUnmarshaller = openStackGroupsResponseUnmarshaller;
       this.serviceClient = new ServiceClient(null);
       this.targetHostUri = targetHostUri;
 
@@ -105,7 +108,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
             break;
             
          default:
-            LOG.warn("Unable to get endpoints for token: " + endpointListResponse.getStatusCode());
+            LOG.warn("Unable to get endpoints for token. Status code: " + endpointListResponse.getStatusCode());
             break;
       }
 
@@ -129,7 +132,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
             break;
             
          default:
-            LOG.warn("Unable to get groups for user id: " + serviceResponse.getStatusCode());
+            LOG.warn("Unable to get groups for user id: " + userId + " Status code: " + serviceResponse.getStatusCode());
             break;
             
       }

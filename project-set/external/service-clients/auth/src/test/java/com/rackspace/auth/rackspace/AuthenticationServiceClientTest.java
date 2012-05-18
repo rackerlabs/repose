@@ -2,6 +2,7 @@ package com.rackspace.auth.rackspace;
 
 import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthToken;
+import com.rackspace.auth.ResponseUnmarshaller;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
@@ -15,6 +16,8 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import javax.ws.rs.core.MediaType;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import java.util.*;
 
 import static org.junit.Assert.assertEquals;
@@ -22,8 +25,6 @@ import static org.junit.Assert.assertTrue;
 
 
 import static org.junit.Assert.*;
-
-import org.junit.Ignore;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -53,15 +54,14 @@ public class AuthenticationServiceClientTest {
       private final Map<String, String> headers = new HashMap<String, String>();
 
       @Before
-      public void setup() {
-
-//        expirationTime = mock(GregorianCalendar.class);
-//        currentSystemTime = (mock(Calendar.class))
-//
+      public void setup() throws JAXBException {
+         
          serviceClient = mock(ServiceClient.class);
          serviceClientResponse = mock(ServiceClientResponse.class);
 
-         responseUnmarshaller = new ResponseUnmarshaller();
+         JAXBContext jaxbContext = JAXBContext.newInstance(com.rackspacecloud.docs.auth.api.v1.ObjectFactory.class);
+      
+         responseUnmarshaller = new ResponseUnmarshaller(jaxbContext);
 
          authenticationServiceClient = new AuthenticationServiceClient(authEndpoint, responseUnmarshaller, serviceClient);
 
