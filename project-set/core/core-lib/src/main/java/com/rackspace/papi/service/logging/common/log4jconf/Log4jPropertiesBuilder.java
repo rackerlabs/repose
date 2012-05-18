@@ -4,6 +4,7 @@
  */
 package com.rackspace.papi.service.logging.common.log4jconf;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import org.apache.log4j.Level;
@@ -16,7 +17,7 @@ public class Log4jPropertiesBuilder {
     //bunch of default values
     private Properties properties;
     private Level logLevel;
-    private ArrayList<Log4jAppender> appenders;
+    private List<Log4jAppender> appenders;
     private static final String ROOT_LOGGER = "log4j.rootLogger";
     
     public Log4jPropertiesBuilder() {
