@@ -44,8 +44,6 @@ start_repose()
 stop_repose()
 {
   start-stop-daemon -p $PID_FILE --stop --exec $JAVA -- -jar $REPOSE_JAR STOP
-  sleep 1
-  $CLEAN $CONFIG_DIRECTORY
   log_progress_msg "repose-valve"
 }
 
