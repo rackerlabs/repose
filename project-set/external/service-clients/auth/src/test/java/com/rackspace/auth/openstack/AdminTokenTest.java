@@ -27,7 +27,6 @@ public class AdminTokenTest {
       @Test
       public void shouldBeInvalidIfTokenExpired() {
          Calendar expires = Calendar.getInstance();
-         // token expired 1 minute in the past
          expires.add(Calendar.MINUTE, -1);
          AdminToken token = new AdminToken("SomeToken", expires);
 

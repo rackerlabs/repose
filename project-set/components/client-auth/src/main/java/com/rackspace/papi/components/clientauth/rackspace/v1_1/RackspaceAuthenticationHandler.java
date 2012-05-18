@@ -4,6 +4,7 @@ import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthToken;
 import com.rackspace.auth.rackspace.AuthenticationService;
 import com.rackspace.papi.components.clientauth.common.AuthModule;
+import com.rackspace.papi.components.clientauth.common.AuthTokenCache;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 
@@ -33,11 +34,11 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
     private final AuthenticationService authenticationService;
     private final RackspaceAuth cfg;
     private final KeyedRegexExtractor<String> keyedRegexExtractor;
-    private final RackspaceUserInfoCache cache;
+    private final AuthTokenCache cache;
     private final UriMatcher uriMatcher;
     private boolean includeQueryParams;
 
-    public RackspaceAuthenticationHandler(RackspaceAuth cfg, AuthenticationService authServiceClient, KeyedRegexExtractor keyedRegexExtractor, RackspaceUserInfoCache cache, UriMatcher uriMatcher) {
+    public RackspaceAuthenticationHandler(RackspaceAuth cfg, AuthenticationService authServiceClient, KeyedRegexExtractor keyedRegexExtractor, AuthTokenCache cache, UriMatcher uriMatcher) {
         this.authenticationService = authServiceClient;
         this.cfg = cfg;
         this.keyedRegexExtractor = keyedRegexExtractor;

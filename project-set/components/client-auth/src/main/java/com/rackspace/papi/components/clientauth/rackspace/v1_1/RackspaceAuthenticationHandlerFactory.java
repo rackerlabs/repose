@@ -5,18 +5,20 @@ import com.rackspace.auth.rackspace.AuthenticationServiceFactory;
 
 import com.rackspace.papi.components.clientauth.common.AuthModule;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
+import com.rackspace.papi.components.clientauth.common.AuthTokenCache;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
 import com.rackspace.papi.components.clientauth.rackspace.config.RackspaceAuth;
 import com.rackspace.papi.service.datastore.Datastore;
 
 public final class RackspaceAuthenticationHandlerFactory {
+   private static final String AUTH_TOKEN_CACHE_PREFIX = "rackspace.v1.1.token";
 
    private RackspaceAuthenticationHandlerFactory() {}
    
    public static AuthModule newInstance(ClientAuthConfig cfg, KeyedRegexExtractor accountRegexExtractor, Datastore datastore, UriMatcher uriMatcher) {
       final RackspaceAuth authConfig = cfg.getRackspaceAuth();
-      final RackspaceUserInfoCache cache = new RackspaceUserInfoCache(datastore);
+      final AuthTokenCache cache = new AuthTokenCache(datastore, AUTH_TOKEN_CACHE_PREFIX);
 
       final AuthenticationService serviceClient = new AuthenticationServiceFactory().build(
               authConfig.getAuthenticationServer().getUri(), authConfig.getAuthenticationServer().getUsername(), authConfig.getAuthenticationServer().getPassword());
