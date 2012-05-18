@@ -47,7 +47,7 @@ public class ConfigurationData {
       final Destination host = configuredHosts.get(mapping.getPpDestId());
 
       if (host == null) {
-         throw new VersionedHostNotFoundException("Power Proxy Host: " + mapping.getPpDestId() + " is not specified in the power proxy system model");
+         throw new VersionedHostNotFoundException("Endpoin: " + mapping.getPpDestId() + " is not specified in the system model");
       }
 
       return host;
