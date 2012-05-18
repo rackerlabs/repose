@@ -26,9 +26,9 @@ public class QueryParameterNormalizer {
    }
 
    public boolean normalize(HttpServletRequest request, FilterDirector myDirector) {
-      return !method.name().equalsIgnoreCase(request.getMethod())
-              ? false
-              : normalize(request.getRequestURI(), request.getQueryString(), myDirector);
+      return method.name().equalsIgnoreCase(request.getMethod()) || method.name().equalsIgnoreCase(HttpMethod.ALL.value())
+              ? normalize(request.getRequestURI(), request.getQueryString(), myDirector)
+              : false;
    }
 
    private boolean normalize(String requestUri, String queryString, FilterDirector myDirector) {
