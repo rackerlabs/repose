@@ -12,7 +12,6 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -58,7 +57,7 @@ public class AuthenticationHeaderManager {
 
       if (validToken) {
          getGroupsListIds();
-         filterDirector.requestHeaderManager().appendToHeader(request, PowerApiHeader.USER.toString(), accountUsername + QUALITY);
+         filterDirector.requestHeaderManager().appendHeader(PowerApiHeader.USER.toString(), accountUsername + QUALITY);
          setRoles();
       }
    }
