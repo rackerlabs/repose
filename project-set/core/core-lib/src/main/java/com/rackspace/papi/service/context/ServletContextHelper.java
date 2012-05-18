@@ -13,12 +13,12 @@ public final class ServletContextHelper {
 
    public static final String SERVLET_CONTEXT_ATTRIBUTE_NAME = "PAPI_ServletContext";
    private static final Logger LOG = LoggerFactory.getLogger(ServletContextHelper.class);
-   private static final Object lock = new Object();
+   private static final Object LOCK = new Object();
    private static ServletContextHelper instance = null;
    private final ContextAdapterProvider adapterProvider;
 
    public static void configureInstance(ContextAdapterProvider adapterProvider, ServletContext ctx, Context namingContext) {
-      synchronized (lock) {
+      synchronized (LOCK) {
          if (instance == null && adapterProvider != null) {
             LOG.debug("Configuring ContextAdapterProvider: " + adapterProvider.getClass().getName());
             instance = new ServletContextHelper(adapterProvider);
@@ -28,7 +28,7 @@ public final class ServletContextHelper {
    }
 
    public static ServletContextHelper getInstance() {
-      synchronized (lock) {
+      synchronized (LOCK) {
          return instance;
       }
    }
