@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.clientauth.rackspace.v1_1;
 
 import com.rackspace.auth.rackspace.AuthenticationService;
-import com.rackspace.auth.rackspace.AuthenticationServiceClientFactory;
+import com.rackspace.auth.AuthenticationServiceClientFactory;
 
 import com.rackspace.papi.components.clientauth.common.AuthModule;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
@@ -18,7 +18,7 @@ public final class RackspaceAuthenticationHandlerFactory {
       final RackspaceAuth authConfig = cfg.getRackspaceAuth();
       final RackspaceUserInfoCache cache = new RackspaceUserInfoCache(datastore);
 
-      final AuthenticationService serviceClient = new AuthenticationServiceClientFactory().buildAuthServiceClient(
+      final AuthenticationService serviceClient = new AuthenticationServiceClientFactory().buildRSAuthServiceClient(
               authConfig.getAuthenticationServer().getUri(), authConfig.getAuthenticationServer().getUsername(), authConfig.getAuthenticationServer().getPassword());
       return new RackspaceAuthenticationHandler(authConfig, serviceClient, accountRegexExtractor, cache, uriMatcher);
    }
