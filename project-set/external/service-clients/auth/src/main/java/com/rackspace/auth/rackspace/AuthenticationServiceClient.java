@@ -2,6 +2,7 @@ package com.rackspace.auth.rackspace;
 
 import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthToken;
+import com.rackspace.auth.ResponseUnmarshaller;
 import com.rackspacecloud.docs.auth.api.v1.Group;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;

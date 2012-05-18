@@ -21,6 +21,7 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.sun.jersey.api.client.ClientHandlerException;
@@ -107,7 +108,7 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
          }
       }
 
-      List<AuthGroup> groups = null;
+      List<AuthGroup> groups = new ArrayList<AuthGroup>();
       if (user != null) {
          groups = authenticationService.getGroups(user.getUserId());
       }

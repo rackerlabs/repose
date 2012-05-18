@@ -1,7 +1,7 @@
 package org.openrepose.components.rackspace.authz;
 
+import com.rackspace.auth.AuthenticationServiceClientFactory;
 import com.rackspace.auth.openstack.AuthenticationService;
-import com.rackspace.auth.openstack.AuthenticationServiceClient;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
@@ -35,7 +35,7 @@ public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilter
          final AuthenticationServer serverInfo = authorizationConfiguration.getAuthenticationServer();
 
          if (serverInfo != null && authorizationConfiguration.getServiceEndpoint() != null) {
-            authenticationService = new AuthenticationServiceClient(serverInfo.getHref(), serverInfo.getUsername(), serverInfo.getPassword());
+            authenticationService = new AuthenticationServiceClientFactory().buildOSAuthServiceClient(serverInfo.getHref(), serverInfo.getUsername(), serverInfo.getPassword());
          } else {
             LOG.error("Errors detected in rackspace authorization configuration. Please check configurations.");
          }
