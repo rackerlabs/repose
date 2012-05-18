@@ -36,7 +36,6 @@ public class AuthenticationServiceClient implements AuthenticationService {
    private final ResponseUnmarshaller openStackGroupsResponseUnmarshaller;
    private AdminToken currentAdminToken;
    private final JAXBElement jaxbRequest;
-   private final Map<String, String> headers = new HashMap<String, String>();
 
    public AuthenticationServiceClient(String targetHostUri, String username, String password,
                                       ResponseUnmarshaller openStackCoreResponseUnmarshaller,
@@ -57,15 +56,17 @@ public class AuthenticationServiceClient implements AuthenticationService {
       request.setCredential(jaxbCredentials);
 
       this.jaxbRequest = objectFactory.createAuth(request);
-
-      this.headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
    }
 
    @Override
    public AuthToken validateToken(String tenant, String userToken) {
+      final Map<String, String> headers = new HashMap<String, String>();
+
+      headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
       headers.put(AUTH_TOKEN_HEADER, getAdminToken());
+
       OpenStackToken token = null;
-      
+
       final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, headers, "belongsTo", tenant);
 
       switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
@@ -92,6 +93,9 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
    @Override
    public List<Endpoint> getEndpointsForToken(String userToken) {
+      final Map<String, String> headers = new HashMap<String, String>();
+
+      headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
       headers.put(AUTH_TOKEN_HEADER, getAdminToken());
 
       final ServiceClientResponse<EndpointList> endpointListResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken + "/endpoints", headers);
@@ -117,6 +121,9 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
    @Override
    public List<AuthGroup> getGroups(String userId) {
+      final Map<String, String> headers = new HashMap<String, String>();
+
+      headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
       headers.put(AUTH_TOKEN_HEADER, getAdminToken());
 
       final ServiceClientResponse<Groups> serviceResponse = serviceClient.get(targetHostUri + "/users/" + userId + "/RAX-KSGRP", headers);

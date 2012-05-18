@@ -6,7 +6,6 @@ import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
-import org.slf4j.Logger;
 
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -24,7 +23,6 @@ import java.util.List;
  */
 public class VersioningFilter implements Filter {
 
-   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(VersioningFilter.class);
    private VersioningHandlerFactory handlerFactory;
    private ConfigurationService configurationManager;
 

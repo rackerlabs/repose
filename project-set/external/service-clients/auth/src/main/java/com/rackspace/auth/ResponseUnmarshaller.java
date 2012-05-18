@@ -42,7 +42,7 @@ public class ResponseUnmarshaller {
       return pool.use(new UnmarshallerContext<T>(new InputStreamReader(data), expectedType));
    }
 
-   private final static class UnmarshallerContext<T> implements ResourceContext<Unmarshaller, T> {
+   private static final class UnmarshallerContext<T> implements ResourceContext<Unmarshaller, T> {
 
       private final Reader reader;
       private final Class<T> expectedType;
