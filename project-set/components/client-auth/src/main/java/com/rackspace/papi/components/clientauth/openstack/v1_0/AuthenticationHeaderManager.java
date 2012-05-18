@@ -10,8 +10,6 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import org.slf4j.Logger;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,13 +29,12 @@ public class AuthenticationHeaderManager {
    private final String tenantId;
    private final Boolean validToken;
    private final List<AuthGroup> groups;
-   private final HttpServletRequest request;
 
    // Hard code QUALITY for now as the auth component will have
    // the highest QUALITY in terms of using the user it supplies for rate limiting
    private static final String QUALITY = ";q=1.0";
 
-   public AuthenticationHeaderManager(String authToken, AuthToken token, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, List<AuthGroup> groups, HttpServletRequest request) {
+   public AuthenticationHeaderManager(String authToken, AuthToken token, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, List<AuthGroup> groups) {
       this.authToken = authToken;
       this.cachableToken = token;
       this.isDelegatable = isDelegatable;
@@ -45,7 +42,6 @@ public class AuthenticationHeaderManager {
       this.tenantId = tenantId;
       this.validToken = token != null && token.getTokenId() != null;
       this.groups = groups;
-      this.request = request;
    }
 
    public void setFilterDirectorValues() {
@@ -109,7 +105,7 @@ public class AuthenticationHeaderManager {
     * The OpenStackServiceHeader is used for an OpenStack service
     */
    private void setUser() {
-      filterDirector.requestHeaderManager().appendToHeader(request, PowerApiHeader.USER.toString(), cachableToken.getUsername() + QUALITY);
+      filterDirector.requestHeaderManager().appendHeader(PowerApiHeader.USER.toString(), cachableToken.getUsername() + QUALITY);
 
       filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_NAME.toString(), cachableToken.getUsername());
       filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.USER_ID.toString(), cachableToken.getUserId());
@@ -132,9 +128,7 @@ public class AuthenticationHeaderManager {
     * The PowerApiHeader is used for Rate Limiting
     */
    private void setGroups() {
-      List<String> groupIds = new ArrayList<String>();
       for (AuthGroup group : groups) {
-         groupIds.add(group.getId());
          filterDirector.requestHeaderManager().appendHeader(PowerApiHeader.GROUPS.toString(), group.getId() + QUALITY);
       }
    }
