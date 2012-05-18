@@ -41,8 +41,10 @@ public class ServiceClient {
    }
 
    private WebResource.Builder setHeaders(WebResource.Builder builder, Map<String, String> headers) {
+      WebResource.Builder newBuilder = builder;
+      
       for (String key : headers.keySet()) {
-         builder = builder.header(key, headers.get(key));
+         newBuilder = newBuilder.header(key, headers.get(key));
       }
 
       return builder;

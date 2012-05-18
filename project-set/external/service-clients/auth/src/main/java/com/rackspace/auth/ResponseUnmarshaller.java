@@ -3,7 +3,6 @@ package com.rackspace.auth;
 import com.rackspace.papi.commons.util.pooling.ConstructionStrategy;
 import com.rackspace.papi.commons.util.pooling.GenericBlockingResourcePool;
 import com.rackspace.papi.commons.util.pooling.ResourceConstructionException;
-import com.rackspace.papi.commons.util.pooling.ResourceContextException;
 import com.rackspace.papi.commons.util.pooling.Pool;
 import com.rackspace.papi.commons.util.pooling.ResourceContext;
 
@@ -28,7 +27,7 @@ public class ResponseUnmarshaller {
       pool = new GenericBlockingResourcePool<Unmarshaller>(new ConstructionStrategy<Unmarshaller>() {
 
          @Override
-         public Unmarshaller construct() throws ResourceConstructionException {
+         public Unmarshaller construct() {
             try {
                return ResponseUnmarshaller.this.jaxbContext.createUnmarshaller();
             } catch (JAXBException ex) {
@@ -39,7 +38,11 @@ public class ResponseUnmarshaller {
 
    }
 
-   private static class UnmarshallerContext<T> implements ResourceContext<Unmarshaller, T> {
+   public <T> T unmarshall(final InputStream data, final Class<T> expectedType) {
+      return pool.use(new UnmarshallerContext<T>(new InputStreamReader(data), expectedType));
+   }
+
+   private final static class UnmarshallerContext<T> implements ResourceContext<Unmarshaller, T> {
 
       private final Reader reader;
       private final Class<T> expectedType;
@@ -50,7 +53,7 @@ public class ResponseUnmarshaller {
       }
 
       @Override
-      public T perform(Unmarshaller resource) throws ResourceContextException {
+      public T perform(Unmarshaller resource) {
          try {
             final Object o = resource.unmarshal(reader);
 
@@ -65,9 +68,5 @@ public class ResponseUnmarshaller {
                     + jaxbe.getMessage(), jaxbe);
          }
       }
-   }
-
-   public <T> T unmarshall(final InputStream data, final Class<T> expectedType) {
-      return pool.use(new UnmarshallerContext<T>(new InputStreamReader(data), expectedType));
-   }
+   }   
 }
