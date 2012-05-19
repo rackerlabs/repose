@@ -1,10 +1,11 @@
 package com.rackspace.papi.components.clientauth.openstack.v1_0;
 
+import com.rackspace.auth.openstack.AuthenticationServiceFactory;
 import com.rackspace.auth.openstack.AuthenticationService;
-import com.rackspace.auth.openstack.AuthenticationServiceClient;
 
 import com.rackspace.papi.components.clientauth.common.AuthModule;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
+import com.rackspace.papi.components.clientauth.common.AuthTokenCache;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenStackIdentityService;
@@ -12,14 +13,15 @@ import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
 import com.rackspace.papi.service.datastore.Datastore;
 
 public final class OpenStackAuthenticationHandlerFactory {
+   private static final String AUTH_TOKEN_CACHE_PREFIX = "openstack.identity.token";
 
    private OpenStackAuthenticationHandlerFactory() {}
    
    public static AuthModule newInstance(ClientAuthConfig config, KeyedRegexExtractor accountRegexExtractor, Datastore datastore, UriMatcher uriMatcher) {
-      final OpenStackUserInfoCache cache = new OpenStackUserInfoCache(datastore);
+      final AuthTokenCache cache = new AuthTokenCache(datastore, AUTH_TOKEN_CACHE_PREFIX);
       final OpenstackAuth authConfig = config.getOpenstackAuth();
       final OpenStackIdentityService ids = authConfig.getIdentityService();
-      final AuthenticationService authService = new AuthenticationServiceClient(ids.getUri(), ids.getUsername(), ids.getPassword());
+      final AuthenticationService authService = new AuthenticationServiceFactory().build(ids.getUri(), ids.getUsername(), ids.getPassword());
 
       return new OpenStackAuthenticationHandler(authConfig, authService, accountRegexExtractor, cache, uriMatcher);
    }   

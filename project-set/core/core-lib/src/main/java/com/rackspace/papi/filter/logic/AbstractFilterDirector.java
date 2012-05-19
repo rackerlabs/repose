@@ -100,26 +100,26 @@ public class AbstractFilterDirector implements FilterDirector {
 
    @Override
    public int getResponseStatusCode() {
-      throw new UnsupportedOperationException("Not supported yet.");
+      throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
    }
 
    @Override
    public void setResponseStatusCode(int status) {
-      throw new UnsupportedOperationException("Not supported yet.");
+      throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
    }
 
    @Override
    public void addDestination(String id, String uri, float quality) {
-      throw new UnsupportedOperationException("Not supported yet.");
+      throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
    }
 
    @Override
    public void addDestination(Destination dest, String uri, float quality) {
-      throw new UnsupportedOperationException("Not supported yet.");
+      throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
    }
 
    @Override
    public List<RouteDestination> getDestinations() {
-      throw new UnsupportedOperationException("Not supported yet.");
+      throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
    }
 }

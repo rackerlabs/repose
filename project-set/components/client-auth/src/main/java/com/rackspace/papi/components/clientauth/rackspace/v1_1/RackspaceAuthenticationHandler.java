@@ -4,6 +4,7 @@ import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthToken;
 import com.rackspace.auth.rackspace.AuthenticationService;
 import com.rackspace.papi.components.clientauth.common.AuthModule;
+import com.rackspace.papi.components.clientauth.common.AuthTokenCache;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 
@@ -20,6 +21,7 @@ import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
@@ -32,11 +34,11 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
     private final AuthenticationService authenticationService;
     private final RackspaceAuth cfg;
     private final KeyedRegexExtractor<String> keyedRegexExtractor;
-    private final RackspaceUserInfoCache cache;
+    private final AuthTokenCache cache;
     private final UriMatcher uriMatcher;
     private boolean includeQueryParams;
 
-    public RackspaceAuthenticationHandler(RackspaceAuth cfg, AuthenticationService authServiceClient, KeyedRegexExtractor keyedRegexExtractor, RackspaceUserInfoCache cache, UriMatcher uriMatcher) {
+    public RackspaceAuthenticationHandler(RackspaceAuth cfg, AuthenticationService authServiceClient, KeyedRegexExtractor keyedRegexExtractor, AuthTokenCache cache, UriMatcher uriMatcher) {
         this.authenticationService = authServiceClient;
         this.cfg = cfg;
         this.keyedRegexExtractor = keyedRegexExtractor;
@@ -97,12 +99,12 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
             }
         }
 
-        List<AuthGroup> groups = null;
+        List<AuthGroup> groups = new ArrayList<AuthGroup>();
         if (token != null) {
             groups = authenticationService.getGroups(token.getUserId());
         }
 
-        final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(token != null, cfg, filterDirector, extractedResult == null ? "" : extractedResult.getResult(), groups, request);
+        final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(token != null, cfg, filterDirector, extractedResult == null ? "" : extractedResult.getResult(), groups);
         headerManager.setFilterDirectorValues();
 
         return filterDirector;
@@ -130,44 +132,6 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
 
     @Override
     public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
-        FilterDirector myDirector = new FilterDirectorImpl();
-        myDirector.setResponseStatusCode(response.getStatus());
-        /// The WWW Authenticate header can be used to communicate to the client
-        // (since we are a proxy) how to correctly authenticate itself
-        final String wwwAuthenticateHeader = response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString());
-
-        switch (myDirector.getResponseStatus()) {
-            // NOTE: We should only mutate the WWW-Authenticate header on a
-            // 401 (unauthorized) or 403 (forbidden) response from the origin service
-            case UNAUTHORIZED:
-            case FORBIDDEN:
-                updateHttpResponse(myDirector, wwwAuthenticateHeader);
-                break;
-            case NOT_IMPLEMENTED:
-                if ((!StringUtilities.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains("Delegated"))) {
-                    myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                    LOG.error("Repose authentication component is configured as delegetable but origin service does not support delegated mode.");
-                } else {
-                    myDirector.setResponseStatus(HttpStatusCode.NOT_IMPLEMENTED);
-                }
-                break;
-        }
-
-        return myDirector;
-    }
-
-    private void updateHttpResponse(FilterDirector director, String wwwAuthenticateHeader) {
-        // If in the case that the origin service supports delegated authentication
-        // we should then communicate to the client how to authenticate with us
-        if (!StringUtilities.isBlank(wwwAuthenticateHeader) && wwwAuthenticateHeader.contains("Delegated")) {
-            final String replacementWwwAuthenticateHeader = getWWWAuthenticateHeaderContents();
-            director.responseHeaderManager().putHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString(), replacementWwwAuthenticateHeader);
-        } else {
-            // In the case where authentication has failed and we did not receive
-            // a delegated WWW-Authenticate header, this means that our own authentication
-            // with the origin service has failed and must then be communicated as
-            // a 500 (internal server error) to the client
-            director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-        }
+        return new ResponseHandler(response, getWWWAuthenticateHeaderContents()).handle();
     }
 }

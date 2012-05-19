@@ -31,7 +31,9 @@ public class UriNormalizationHandlerFactory extends AbstractConfiguredFilterHand
                boolean alphabetize = target.isAlphabetize();
                final MultiInstanceWhiteListFactory whiteListFactory = new MultiInstanceWhiteListFactory(target.getWhitelist());
                final QueryStringNormalizer normalizerInstance = new QueryStringNormalizer(whiteListFactory,alphabetize);
-               
+               if(target.getHttpMethods().isEmpty()){
+                   target.getHttpMethods().add(HttpMethod.ALL);
+               }
                for (HttpMethod method : target.getHttpMethods()) {
                   QueryParameterNormalizer methodScopedNormalizer = newNormalizers.get(method.name());
                   

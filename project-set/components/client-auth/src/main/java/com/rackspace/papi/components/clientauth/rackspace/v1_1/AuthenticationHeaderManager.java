@@ -11,8 +11,6 @@ import com.rackspace.papi.components.clientauth.rackspace.config.UserRoles;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 
-import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,13 +29,12 @@ public class AuthenticationHeaderManager {
    private final FilterDirector filterDirector;
    private final String accountUsername;
    private final List<AuthGroup> groups;
-   private final HttpServletRequest request;
 
    // Hard code QUALITY for now as the auth component will have
    // the highest QUALITY in terms of using the user it supplies for rate limiting
    private static final String QUALITY = ";q=1";
 
-   public AuthenticationHeaderManager(boolean validToken, RackspaceAuth cfg, FilterDirector filterDirector, String accountUsername, List<AuthGroup> groups, HttpServletRequest request) {
+   public AuthenticationHeaderManager(boolean validToken, RackspaceAuth cfg, FilterDirector filterDirector, String accountUsername, List<AuthGroup> groups) {
       this.validToken = validToken;
       this.isDelegatable = cfg.isDelegable();
       this.keystone = cfg.isKeystoneActive();
@@ -45,7 +42,6 @@ public class AuthenticationHeaderManager {
       this.filterDirector = filterDirector;
       this.accountUsername = accountUsername;
       this.groups = groups;
-      this.request = request;
    }
 
    public void setFilterDirectorValues() {
@@ -58,22 +54,15 @@ public class AuthenticationHeaderManager {
 
       if (validToken) {
          getGroupsListIds();
-         filterDirector.requestHeaderManager().appendToHeader(request, PowerApiHeader.USER.toString(), accountUsername + QUALITY);
+         filterDirector.requestHeaderManager().appendHeader(PowerApiHeader.USER.toString(), accountUsername + QUALITY);
          setRoles();
       }
    }
 
-   private void getGroupsListIds() {
-
-      int groupCount = groups.size();
-
-      String[] groupsArray = new String[groupCount];
-
-      for (int i = 0; i < groupCount; i++) {
-         groupsArray[i] = groups.get(i).getId() + QUALITY;
+   private void getGroupsListIds() {      
+      for (AuthGroup group : groups) {
+         filterDirector.requestHeaderManager().appendHeader(PowerApiHeader.GROUPS.toString(), group.getId() + QUALITY);
       }
-
-      filterDirector.requestHeaderManager().putHeader(PowerApiHeader.GROUPS.toString(), groupsArray);
    }
 
    /**

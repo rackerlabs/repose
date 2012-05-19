@@ -8,6 +8,7 @@ import com.rackspace.auth.openstack.AuthenticationService;
 import com.rackspace.auth.AuthGroup;
 
 import com.rackspace.papi.components.clientauth.common.AuthModule;
+import com.rackspace.papi.components.clientauth.common.AuthTokenCache;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 
@@ -15,12 +16,12 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.clientauth.common.UserAuthTokenCache;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.sun.jersey.api.client.ClientHandlerException;
@@ -38,11 +39,11 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
    private boolean delegable;
    private final String authServiceUri;
    private final KeyedRegexExtractor<Object> keyedRegexExtractor;
-   private final UserAuthTokenCache<AuthToken> cache;
+   private final AuthTokenCache cache;
    private final UriMatcher uriMatcher;
    private boolean  includeQueryParams;
 
-   public OpenStackAuthenticationHandler(OpenstackAuth cfg, AuthenticationService serviceClient, KeyedRegexExtractor keyedRegexExtractor, UserAuthTokenCache cache, UriMatcher uriMatcher) {
+   public OpenStackAuthenticationHandler(OpenstackAuth cfg, AuthenticationService serviceClient, KeyedRegexExtractor keyedRegexExtractor, AuthTokenCache cache, UriMatcher uriMatcher) {
       this.authenticationService = serviceClient;
       this.delegable = cfg.isDelegable();
       this.authServiceUri = cfg.getIdentityService().getUri();
@@ -107,12 +108,12 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
          }
       }
 
-      List<AuthGroup> groups = null;
+      List<AuthGroup> groups = new ArrayList<AuthGroup>();
       if (user != null) {
          groups = authenticationService.getGroups(user.getUserId());
       }
 
-      final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(authToken, user, delegable, filterDirector, account == null ? "" : account.getResult(), groups, request);
+      final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(authToken, user, delegable, filterDirector, account == null ? "" : account.getResult(), groups);
       headerManager.setFilterDirectorValues();
 
       return filterDirector;
