@@ -12,7 +12,6 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import java.io.IOException;
-import javax.servlet.ServletContext;
 import org.openrepose.components.routing.servlet.config.DestinationRouterConfiguration;
 
 public class DestinationRouterFilter implements Filter {
@@ -30,9 +29,7 @@ public class DestinationRouterFilter implements Filter {
     }
 
     @Override
-    public void init(FilterConfig filterConfig) throws ServletException {
-        
-        final ServletContext servletContext = filterConfig.getServletContext();
+    public void init(FilterConfig filterConfig) throws ServletException {        
         final ConfigurationService manager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
         
         handlerFactory = new DestinationRouterHandlerFactory();
