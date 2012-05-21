@@ -6,10 +6,10 @@ import org.openrepose.rackspace.auth_2_0.identity.content.credentials.AuthCreden
 import org.openrepose.rackspace.auth_2_0.identity.parsers.AuthContentParser;
 
 public class JsonMapAuthContentParser implements AuthContentParser {
-   private final JacksonJaxbTransform transform;
+//   private final JacksonJaxbTransform transform;
 
    public JsonMapAuthContentParser(JacksonJaxbTransform transform) {
-      this.transform = transform;
+//      this.transform = transform;
    }
 
    @Override
