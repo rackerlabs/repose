@@ -34,14 +34,14 @@
       </dependency>
         
       <dependency>
-         <groupId>com.rackspace.cloud.services.clients</groupId>
-         <artifactId>rackspace-auth-v1.1</artifactId>
+         <groupId>com.rackspace.papi.external</groupId>
+         <artifactId>rs-auth-schemas</artifactId>
          <version>${project.version}</version>
       </dependency>
 
       <dependency>
-         <groupId>com.rackspace.cloud.services.clients</groupId>
-         <artifactId>openstack-ids</artifactId>
+         <groupId>com.rackspace.papi.external</groupId>
+         <artifactId>os-auth-schemas</artifactId>
          <version>${project.version}</version>
       </dependency>
 
