@@ -27,20 +27,20 @@ public class MediaTypeNormalizer {
     }
 
     private MediaType getPreferredMediaType(List<MediaType> mediaTypes) {
-        MediaType preferredMediaType = mediaTypes.size() > 0 ? mediaTypes.get(0) : null;
+        MediaType prefMediaType = mediaTypes.size() > 0 ? mediaTypes.get(0) : null;
 
         for (MediaType mediaType : configuredMediaTypes) {
             if (mediaType.isPreferred()) {
-                preferredMediaType = mediaType;
+                prefMediaType = mediaType;
                 break;
             }
         }
 
-        if (preferredMediaType != null && !preferredMediaType.isPreferred()) {
+        if (prefMediaType != null && !prefMediaType.isPreferred()) {
             LOG.info("No preferred media type specified in the content normalization configuration.  Using the first in the list.");
         }
 
-        return preferredMediaType;
+        return prefMediaType;
     }
 
     public void normalizeContentMediaType(HttpServletRequest request, FilterDirector director) {
