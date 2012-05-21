@@ -36,13 +36,6 @@ public class PowerApiContextManager implements ServletContextListener {
         return this;
     }
 
-    private void showBanner(ServletContextEvent sce) {
-        final String showMePapi = sce.getServletContext().getInitParameter("show-me-papi");
-        if (StringUtilities.nullSafeEqualsIgnoreCase(showMePapi, "true")) {
-            PapiBanner.print(LOG);
-        }
-    }
-
     private void intializeServices(ServletContextEvent sce) {
         ServletContextHelper helper = ServletContextHelper.getInstance();
         ContextAdapter ca = helper.getPowerApiContext(sce.getServletContext());
@@ -53,7 +46,7 @@ public class PowerApiContextManager implements ServletContextListener {
         ca.getContext(ContainerServiceContext.class).contextInitialized(sce);
         ca.getContext(RoutingServiceContext.class).contextInitialized(sce);
         ca.getContext(LoggingServiceContext.class).contextInitialized(sce);
-        showBanner(sce);
+        PapiBanner.print(LOG);
         ca.getContext(ResponseMessageServiceContext.class).contextInitialized(sce);
         // TODO:Refactor - This service should be bound to a fitler-chain specific JNDI context
         ca.getContext(DatastoreServiceContext.class).contextInitialized(sce);
