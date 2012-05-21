@@ -8,6 +8,7 @@ import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
+import com.rackspace.papi.components.clientauth.common.AuthTokenCache;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.components.clientauth.openstack.config.ClientMapping;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenStackIdentityService;
@@ -48,6 +49,7 @@ public class OpenStackAuthenticationHandlerTest {
 
    @Ignore
    public static abstract class TestParent {
+      protected static final String AUTH_TOKEN_CACHE_PREFIX = "openstack.identity.token";
 
       protected HttpServletRequest request;
       protected ReadableHttpServletResponse response;
@@ -95,7 +97,7 @@ public class OpenStackAuthenticationHandlerTest {
 
          // Handler with cache
          store = mock(Datastore.class);
-         OpenStackUserInfoCache cache = new OpenStackUserInfoCache(store);
+         AuthTokenCache cache = new AuthTokenCache(store, AUTH_TOKEN_CACHE_PREFIX);
 
          handlerWithCache = new OpenStackAuthenticationHandler(osauthConfig, authService, keyedRegexExtractor, cache, new UriMatcher(whiteListRegexPatterns));
       }
@@ -175,7 +177,7 @@ public class OpenStackAuthenticationHandlerTest {
 
          final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
-         verify(store).get(eq(OpenStackUserInfoCache.AUTH_TOKEN_CACHE_PREFIX + ".104772"));
+         verify(store).get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"));
          assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
       }
 
@@ -187,7 +189,7 @@ public class OpenStackAuthenticationHandlerTest {
          when(element.elementAs(AuthToken.class)).thenReturn(user);
          when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
-         when(store.get(eq(OpenStackUserInfoCache.AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(element);
+         when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(element);
 
          final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
@@ -203,7 +205,7 @@ public class OpenStackAuthenticationHandlerTest {
          when(element.elementIsNull()).thenReturn(false);
          when(element.elementAs(AuthToken.class)).thenReturn(user);
          when(authService.validateToken(anyString(), anyString())).thenReturn(user);
-         when(store.get(eq(OpenStackUserInfoCache.AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(element);
+         when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(element);
 
          // Wait until token expires
          Thread.sleep(1000);
@@ -224,7 +226,7 @@ public class OpenStackAuthenticationHandlerTest {
          when(element.elementAs(AuthToken.class)).thenReturn(user);
          when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
-         when(store.get(eq(OpenStackUserInfoCache.AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(element);
+         when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(element);
 
          final FilterDirector director = handlerWithCache.handleRequest(request, response);
 

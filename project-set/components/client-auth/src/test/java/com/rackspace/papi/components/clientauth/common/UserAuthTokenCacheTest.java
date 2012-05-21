@@ -24,7 +24,7 @@ public class UserAuthTokenCacheTest {
    
    public static class WhenCachingAuthTokens {
 
-      protected UserAuthTokenCache<AuthToken> userInfoCache;
+      protected AuthTokenCache infoCache;
       protected AuthToken originalUser;
       protected Datastore mockedDatastore;
 
@@ -43,12 +43,7 @@ public class UserAuthTokenCacheTest {
          final StoredElement storedElement = new StoredElementImpl(cacheFullName, ObjectSerializer.instance().writeObject(originalUser));
          when(mockedDatastore.get(eq(cacheFullName))).thenReturn(storedElement);
          
-         userInfoCache = new UserAuthTokenCache<AuthToken>(mockedDatastore, AuthToken.class) {
-
-            @Override
-            public String getCachePrefix() {
-               return "prefix";
-            }
+         infoCache = new AuthTokenCache(mockedDatastore, "prefix") {
 
             @Override
             public boolean validateToken(AuthToken cachedValue, String passedValue) {
@@ -59,7 +54,7 @@ public class UserAuthTokenCacheTest {
 
       @Test
       public void shouldCorrectlyRetrieveValidCachedUserInfo() {
-         final AuthToken user = userInfoCache.getUserToken(VALID_USER, VALID_AUTH_TOKEN);
+         final AuthToken user = infoCache.getUserToken(VALID_USER, VALID_AUTH_TOKEN);
 
          assertEquals("UserId must match original", originalUser.getUserId(), user.getUserId());
          assertEquals("Username must match original", originalUser.getUsername(), user.getUsername());
