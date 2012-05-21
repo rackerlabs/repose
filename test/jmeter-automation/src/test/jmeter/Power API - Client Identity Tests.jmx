@@ -348,7 +348,7 @@
                 <stringProp name="TestPlan.comments">This pings whatismyip.com to get the external IP address of the JMeter box so we can validate this is the IP the client IP filter sets.</stringProp>
               </GenericController>
               <hashTree>
-                <BSFSampler guiclass="BSFSamplerGui" testclass="BSFSampler" testname="Get the External IP of the JMeter box" enabled="true">
+                <BSFSampler guiclass="BSFSamplerGui" testclass="BSFSampler" testname="Get the External IP of the JMeter box" enabled="false">
                   <stringProp name="BSFSampler.filename"></stringProp>
                   <stringProp name="BSFSampler.language">javascript</stringProp>
                   <stringProp name="BSFSampler.parameters"></stringProp>
@@ -364,6 +364,36 @@ function getSourceIp() {
 vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                 </BSFSampler>
                 <hashTree/>
+                <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Get the External IP of the Jmeter box" enabled="true">
+                  <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                    <collectionProp name="Arguments.arguments"/>
+                  </elementProp>
+                  <stringProp name="HTTPSampler.domain"></stringProp>
+                  <stringProp name="HTTPSampler.port"></stringProp>
+                  <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                  <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                  <stringProp name="HTTPSampler.protocol"></stringProp>
+                  <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+                  <stringProp name="HTTPSampler.path">http://50.57.189.15:8080/whatismyip</stringProp>
+                  <stringProp name="HTTPSampler.method">GET</stringProp>
+                  <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+                  <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+                  <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+                  <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+                  <boolProp name="HTTPSampler.monitor">false</boolProp>
+                  <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+                </HTTPSamplerProxy>
+                <hashTree>
+                  <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Get the External IP of the Jmeter box" enabled="true">
+                    <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+                    <stringProp name="RegexExtractor.refname">sourceIp</stringProp>
+                    <stringProp name="RegexExtractor.regex">\d+\.\d+\.\d+\.\d+</stringProp>
+                    <stringProp name="RegexExtractor.template"></stringProp>
+                    <stringProp name="RegexExtractor.default">0</stringProp>
+                    <stringProp name="RegexExtractor.match_number"></stringProp>
+                  </RegexExtractor>
+                  <hashTree/>
+                </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When X-Header-Manager has no value" enabled="true">
                 <stringProp name="TestPlan.comments">This tests the happy path case where there is a single valid IP address in the X-Forwarded-For header.</stringProp>
