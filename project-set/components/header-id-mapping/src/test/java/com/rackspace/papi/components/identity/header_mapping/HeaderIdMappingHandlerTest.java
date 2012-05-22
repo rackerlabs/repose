@@ -34,12 +34,14 @@ public class HeaderIdMappingHandlerTest {
       private static String DEFAULT_QUALITY_VALUE = ";q=0.1";
       private HttpServletRequest request;
       private ReadableHttpServletResponse response;
+      private HeaderIdMappingHandlerFactory factory;
       private HeaderIdMappingHandler handler;
       private HeaderIdMappingConfig config;
 
       @Before
       public void setUp() {
          HttpHeaderList headerList = new HttpHeaderList();
+         factory = new HeaderIdMappingHandlerFactory();
 
          // Tell the handler to look for two headers called IP1 and IP2
          config = new HeaderIdMappingConfig();
@@ -58,8 +60,9 @@ public class HeaderIdMappingHandlerTest {
          header.setGroupHeader(GROUP_HEADER_NAME_2);
          headerList.getHeader().add(header);
          config.setSourceHeaders(headerList);
+         factory.configurationUpdated(config);
          
-         handler = new HeaderIdMappingHandler(config);
+         handler = factory.buildHandler();
          request = mock(HttpServletRequest.class);
          response = mock(ReadableHttpServletResponse.class);
          

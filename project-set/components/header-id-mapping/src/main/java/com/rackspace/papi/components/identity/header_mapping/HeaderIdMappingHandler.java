@@ -11,7 +11,6 @@ import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
-import com.rackspace.papi.components.identity.header_mapping.config.HeaderIdMappingConfig;
 import com.rackspace.papi.components.identity.header_mapping.config.HttpHeader;
 
 
@@ -19,8 +18,8 @@ public class HeaderIdMappingHandler extends AbstractFilterLogicHandler {
 
    private final List<HttpHeader> sourceHeaders;
 
-   public HeaderIdMappingHandler(HeaderIdMappingConfig config) {
-      this.sourceHeaders = config.getSourceHeaders().getHeader();
+   public HeaderIdMappingHandler(List<HttpHeader> sourceHeaders) {
+      this.sourceHeaders = sourceHeaders;
    }
    
    @Override
