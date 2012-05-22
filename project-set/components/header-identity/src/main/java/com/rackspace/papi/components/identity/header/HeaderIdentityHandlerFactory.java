@@ -13,7 +13,6 @@ import java.util.Map;
 public class HeaderIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFactory<HeaderIdentityHandler> {
 
 
-   private HeaderIdentityConfig config;
    private List<HttpHeader> sourceHeaders;
 
    public HeaderIdentityHandlerFactory() {
@@ -34,7 +33,7 @@ public class HeaderIdentityHandlerFactory extends AbstractConfiguredFilterHandle
 
       @Override
       public void configurationUpdated(HeaderIdentityConfig configurationObject) {
-          sourceHeaders = config.getSourceHeaders().getHeader();
+          sourceHeaders = configurationObject.getSourceHeaders().getHeader();
       }
    }
 
