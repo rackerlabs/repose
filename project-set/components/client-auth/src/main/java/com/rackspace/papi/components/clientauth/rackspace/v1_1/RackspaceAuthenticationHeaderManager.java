@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * @author fran
  */
-public class AuthenticationHeaderManager {
+public class RackspaceAuthenticationHeaderManager {
 
    // Proxy is specified in the OpenStack auth blue print:
    // http://wiki.openstack.org/openstack-authn
@@ -29,7 +29,7 @@ public class AuthenticationHeaderManager {
    // the highest QUALITY in terms of using the user it supplies for rate limiting
    private static final String QUALITY = ";q=1";
 
-   public AuthenticationHeaderManager(boolean validToken, boolean delegatable, FilterDirector filterDirector, String accountUsername, List<AuthGroup> groups) {
+   public RackspaceAuthenticationHeaderManager(boolean validToken, boolean delegatable, FilterDirector filterDirector, String accountUsername, List<AuthGroup> groups) {
       this.validToken = validToken;
       this.isDelegatable = delegatable;
       this.filterDirector = filterDirector;
