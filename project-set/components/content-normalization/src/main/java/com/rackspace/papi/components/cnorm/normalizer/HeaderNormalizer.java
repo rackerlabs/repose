@@ -3,9 +3,10 @@ package com.rackspace.papi.components.cnorm.normalizer;
 import com.rackspace.papi.components.normalization.config.HeaderFilterList;
 import com.rackspace.papi.components.normalization.config.HttpHeader;
 import com.rackspace.papi.filter.logic.FilterDirector;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.Enumeration;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 
 /**
  *

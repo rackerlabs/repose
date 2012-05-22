@@ -18,12 +18,12 @@ import org.junit.runner.RunWith;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
-
-import java.io.*;
-import java.util.*;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.Vector;
 
 import static junit.framework.Assert.assertTrue;
-
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

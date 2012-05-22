@@ -1,35 +1,30 @@
 package com.rackspace.papi.filter;
 
-import com.rackspace.papi.filter.resource.ResourceMonitor;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.RouteDestination;
+import com.rackspace.papi.filter.logic.DispatchPathBuilder;
+import com.rackspace.papi.filter.resource.ResourceMonitor;
 import com.rackspace.papi.filter.routing.DestinationLocation;
 import com.rackspace.papi.filter.routing.DestinationLocationBuilder;
-
-import com.rackspace.papi.filter.logic.DispatchPathBuilder;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.sun.jersey.api.client.ClientHandlerException;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author fran

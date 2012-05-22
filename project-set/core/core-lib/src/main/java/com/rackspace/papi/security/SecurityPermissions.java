@@ -1,15 +1,11 @@
 package com.rackspace.papi.security;
 
-import java.security.Permission;
-import java.security.PermissionCollection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.security.Permission;
+import java.security.PermissionCollection;
+import java.util.*;
 
 /**
  * This is a collection class for Permissions that allows the merging of

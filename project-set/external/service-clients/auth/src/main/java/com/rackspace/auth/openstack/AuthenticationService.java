@@ -2,9 +2,9 @@ package com.rackspace.auth.openstack;
 
 import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthToken;
+import org.openstack.docs.identity.api.v2.Endpoint;
 
 import java.util.List;
-import org.openstack.docs.identity.api.v2.Endpoint;
 
 /**
  *

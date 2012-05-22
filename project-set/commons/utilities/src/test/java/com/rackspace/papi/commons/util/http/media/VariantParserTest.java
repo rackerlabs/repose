@@ -1,15 +1,10 @@
 package com.rackspace.papi.commons.util.http.media;
 
-import com.rackspace.papi.commons.util.http.media.VariantParser;
-import com.rackspace.papi.commons.util.http.media.MimeType;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author fran

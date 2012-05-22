@@ -1,11 +1,16 @@
 package com.rackspace.papi.commons.util.io;
 
-import java.io.IOException;
-import java.io.Serializable;
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import java.io.IOException;
+import java.io.Serializable;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @RunWith(Enclosed.class)
 public class ObjectSerializerTest {

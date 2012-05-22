@@ -1,8 +1,8 @@
 package com.rackspace.papi.commons.util.io;
 
+import javax.servlet.ServletInputStream;
 import java.io.BufferedInputStream;
 import java.io.IOException;
-import javax.servlet.ServletInputStream;
 
 public class BufferedServletInputStream extends ServletInputStream {
    private final BufferedInputStream inputStream;

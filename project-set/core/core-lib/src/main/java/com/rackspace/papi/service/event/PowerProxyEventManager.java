@@ -1,27 +1,18 @@
 package com.rackspace.papi.service.event;
 
-import com.rackspace.papi.service.event.common.impl.EventDispatcherImpl;
 import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.common.EventDispatcher;
-import com.rackspace.papi.service.event.common.EventService;
-import com.rackspace.papi.service.event.impl.SimpleEvent;
 import com.rackspace.papi.service.event.common.EventListener;
+import com.rackspace.papi.service.event.common.EventService;
+import com.rackspace.papi.service.event.common.impl.EventDispatcherImpl;
 import com.rackspace.papi.service.event.common.impl.EventListenerDescriptor;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.TreeMap;
+import com.rackspace.papi.service.event.impl.SimpleEvent;
+import org.springframework.stereotype.Component;
+
+import java.util.*;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import org.springframework.stereotype.Component;
 
 @Component("eventManager")
 public class PowerProxyEventManager implements EventService {

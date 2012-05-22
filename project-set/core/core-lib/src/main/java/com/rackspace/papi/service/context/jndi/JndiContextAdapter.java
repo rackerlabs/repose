@@ -1,20 +1,12 @@
 package com.rackspace.papi.service.context.jndi;
 
-import com.rackspace.papi.service.context.impl.RoutingServiceContext;
-import com.rackspace.papi.service.context.impl.ResponseMessageServiceContext;
-import com.rackspace.papi.service.context.impl.EventManagerServiceContext;
-import com.rackspace.papi.service.context.impl.LoggingServiceContext;
-import com.rackspace.papi.service.context.impl.FilterChainGCServiceContext;
-import com.rackspace.papi.service.context.impl.DatastoreServiceContext;
-import com.rackspace.papi.service.context.impl.ClassLoaderServiceContext;
-import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
-import com.rackspace.papi.service.context.impl.ContainerServiceContext;
-import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.ServiceUnavailableException;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.*;
+import com.rackspace.papi.service.context.ContextAdapter;
+import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.container.ContainerConfigurationService;
+import com.rackspace.papi.service.context.impl.*;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.filterchain.GarbageCollectionService;
@@ -23,6 +15,7 @@ import com.rackspace.papi.service.rms.ResponseMessageService;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.service.threading.ThreadingService;
 import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
+
 import javax.naming.Context;
 import javax.naming.NamingException;
 

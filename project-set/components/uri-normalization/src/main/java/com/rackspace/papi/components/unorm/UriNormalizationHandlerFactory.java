@@ -5,11 +5,11 @@ import com.rackspace.papi.commons.util.http.normal.QueryStringNormalizer;
 import com.rackspace.papi.components.unorm.normalizer.MediaTypeNormalizer;
 import com.rackspace.papi.components.unorm.normalizer.MultiInstanceWhiteListFactory;
 import com.rackspace.papi.components.uri.normalization.config.HttpMethod;
-
 import com.rackspace.papi.components.uri.normalization.config.Target;
 import com.rackspace.papi.components.uri.normalization.config.UriFilterList;
 import com.rackspace.papi.components.uri.normalization.config.UriNormalizationConfig;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;

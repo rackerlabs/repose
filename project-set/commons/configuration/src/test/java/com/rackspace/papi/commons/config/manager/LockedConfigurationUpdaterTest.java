@@ -1,13 +1,14 @@
 package com.rackspace.papi.commons.config.manager;
 
-import org.junit.Ignore;
 import com.rackspace.papi.commons.util.thread.KeyedStackLock;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.Assert.assertEquals;
 

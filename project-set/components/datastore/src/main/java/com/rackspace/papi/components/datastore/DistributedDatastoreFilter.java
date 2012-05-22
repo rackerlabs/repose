@@ -2,26 +2,21 @@ package com.rackspace.papi.components.datastore;
 
 import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
 import com.rackspace.papi.components.datastore.hash.HashRingDatastoreManager;
-import com.rackspace.papi.model.SystemModel;
-import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
+import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.context.ContextAdapter;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
 import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
+import org.openrepose.components.datastore.config.DistributedDatastoreConfiguration;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import java.io.IOException;
 import java.util.Collection;
-import org.openrepose.components.datastore.config.DistributedDatastoreConfiguration;
 
 public class DistributedDatastoreFilter implements Filter {
    

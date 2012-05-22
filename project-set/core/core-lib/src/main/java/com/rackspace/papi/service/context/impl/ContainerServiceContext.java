@@ -6,21 +6,20 @@ import com.rackspace.papi.container.config.DeploymentConfiguration;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.ServiceRegistry;
-import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.config.ConfigurationService;
+import com.rackspace.papi.service.context.ServiceContext;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.container.ContainerConfigurationService;
 import com.rackspace.papi.service.context.container.ContainerConfigurationServiceImpl;
-import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.servlet.InitParameter;
-import javax.annotation.PostConstruct;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
 
 @Component("containerServiceContext")
 public class ContainerServiceContext implements ServiceContext<ContainerConfigurationService> {

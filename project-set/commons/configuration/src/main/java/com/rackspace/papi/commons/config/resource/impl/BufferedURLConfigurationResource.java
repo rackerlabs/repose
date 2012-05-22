@@ -3,12 +3,13 @@ package com.rackspace.papi.commons.config.resource.impl;
 import com.rackspace.papi.commons.config.ConfigurationResourceException;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.arrays.ByteArrayComparator;
-import com.rackspace.papi.commons.util.io.MessageDigesterOutputStream;
-import com.rackspace.papi.commons.util.io.OutputStreamSplitter;
 import com.rackspace.papi.commons.util.io.ByteBufferInputStream;
 import com.rackspace.papi.commons.util.io.ByteBufferOutputStream;
-import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
+import com.rackspace.papi.commons.util.io.MessageDigesterOutputStream;
+import com.rackspace.papi.commons.util.io.OutputStreamSplitter;
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
+import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

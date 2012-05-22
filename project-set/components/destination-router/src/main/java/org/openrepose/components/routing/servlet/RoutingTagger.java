@@ -5,8 +5,9 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import javax.servlet.http.HttpServletRequest;
 import org.openrepose.components.routing.servlet.config.Target;
+
+import javax.servlet.http.HttpServletRequest;
 
 public class RoutingTagger extends AbstractFilterLogicHandler {
 

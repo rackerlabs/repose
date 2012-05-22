@@ -1,11 +1,7 @@
 package com.rackspace.papi.mocks.auth.osids.wrappers;
 
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
-import org.openstack.docs.identity.api.v2.AuthenticateResponse;
-import org.openstack.docs.identity.api.v2.ItemNotFoundFault;
-import org.openstack.docs.identity.api.v2.ObjectFactory;
-import org.openstack.docs.identity.api.v2.UnauthorizedFault;
-import org.openstack.docs.identity.api.v2.EndpointList;
+import org.openstack.docs.identity.api.v2.*;
 
 public class JaxbElementWrapper implements ResponseWrapper {
    private final ObjectFactory objectFactory;

@@ -1,7 +1,7 @@
 package com.rackspace.papi.filter;
 
-import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.config.impl.PowerApiConfigurationManager;
+import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.event.PowerProxyEventManager;
 import com.rackspace.papi.service.rms.ResponseMessageService;
 import org.junit.Ignore;
@@ -14,12 +14,10 @@ import javax.naming.NamingException;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.IOException;
 import java.util.Enumeration;
 
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
 /**

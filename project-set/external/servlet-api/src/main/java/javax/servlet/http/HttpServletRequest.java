@@ -58,10 +58,11 @@
 
 package javax.servlet.http;
 
-import java.io.IOException;
-import java.util.*;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Enumeration;
 
 /**
  *

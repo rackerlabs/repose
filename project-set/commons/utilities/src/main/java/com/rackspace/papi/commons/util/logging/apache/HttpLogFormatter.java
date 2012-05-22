@@ -1,17 +1,19 @@
 package com.rackspace.papi.commons.util.logging.apache;
 
-import static com.rackspace.papi.commons.util.StringUtilities.isBlank;
-import static com.rackspace.papi.commons.util.StringUtilities.isEmpty;
 import com.rackspace.papi.commons.util.logging.apache.constraint.StatusCodeConstraint;
 import com.rackspace.papi.commons.util.logging.apache.format.FormatArgumentHandler;
 import com.rackspace.papi.commons.util.logging.apache.format.LogArgumentFormatter;
 import com.rackspace.papi.commons.util.logging.apache.format.stock.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
+import static com.rackspace.papi.commons.util.StringUtilities.isBlank;
+import static com.rackspace.papi.commons.util.StringUtilities.isEmpty;
 
 public class HttpLogFormatter {
 

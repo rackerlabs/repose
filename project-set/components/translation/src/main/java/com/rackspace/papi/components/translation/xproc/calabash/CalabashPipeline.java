@@ -9,20 +9,17 @@ import com.xmlcalabash.core.XProcRuntime;
 import com.xmlcalabash.io.ReadablePipe;
 import com.xmlcalabash.model.RuntimeValue;
 import com.xmlcalabash.runtime.XPipeline;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.Source;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.dom.DOMResult;
 import net.sf.saxon.s9api.QName;
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmNode;
 import org.xml.sax.InputSource;
+
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CalabashPipeline extends AbstractPipeline implements Pipeline {
    private final XProcRuntime runtime;

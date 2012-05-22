@@ -3,8 +3,9 @@ package com.rackspace.papi.components.identity.header_mapping.extractor;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.components.identity.header_mapping.config.HttpHeader;
-import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 public class HeaderValueExtractor {
 

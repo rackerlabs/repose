@@ -2,18 +2,17 @@ package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.service.ServiceRegistry;
-import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.rms.ResponseMessageService;
+import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.ServletContextHelper;
+import com.rackspace.papi.service.rms.ResponseMessageService;
 import com.rackspace.papi.service.rms.config.ResponseMessagingConfiguration;
-import javax.annotation.PostConstruct;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
 
 @Component("responseMessageServiceContext")
 public class ResponseMessageServiceContext implements ServiceContext<ResponseMessageService> {

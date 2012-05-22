@@ -1,16 +1,19 @@
 package com.rackspace.papi.components.identity.header_mapping.extractor;
 
-import com.rackspace.papi.components.identity.header_mapping.extractor.HeaderValueExtractor;
+import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.components.identity.header_mapping.config.HttpHeader;
-import java.util.ArrayList;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import com.rackspace.papi.commons.util.regex.ExtractorResult;
-import static org.mockito.Mockito.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(Enclosed.class)
 public class HeaderValueExtractorTest {

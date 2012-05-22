@@ -4,11 +4,11 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.io.OutputStreamSplitter;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.plugin.archive.jar.DirectoryHelper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.*;
 import java.util.jar.JarInputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ArchiveEntryProcessor {
 

@@ -1,12 +1,13 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
 import com.rackspace.papi.commons.util.logging.ExceptionLogger;
+import org.slf4j.Logger;
+
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
 
 /**
  * User: joshualockwood Date: May 19, 2011 Time: 10:02:36 AM

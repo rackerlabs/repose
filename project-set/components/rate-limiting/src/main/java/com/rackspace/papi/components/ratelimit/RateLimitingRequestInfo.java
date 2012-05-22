@@ -7,8 +7,8 @@ import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.components.limits.schema.HttpMethod;
 
-import java.util.List;
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 public class RateLimitingRequestInfo {
    

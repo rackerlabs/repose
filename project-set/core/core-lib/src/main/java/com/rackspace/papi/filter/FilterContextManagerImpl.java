@@ -3,14 +3,14 @@ package com.rackspace.papi.filter;
 import com.oracle.javaee6.FilterType;
 import com.oracle.javaee6.ParamValueType;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
-import java.util.*;
-import javax.servlet.ServletException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
-import org.springframework.context.ApplicationContext;
+import javax.servlet.ServletException;
+import java.util.*;
 
 public class FilterContextManagerImpl implements FilterContextManager {
 

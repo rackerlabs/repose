@@ -1,11 +1,12 @@
 package com.rackspace.papi.commons.util.plugin.archive;
 
-import java.util.jar.JarEntry;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import java.util.jar.JarEntry;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  * @author fran

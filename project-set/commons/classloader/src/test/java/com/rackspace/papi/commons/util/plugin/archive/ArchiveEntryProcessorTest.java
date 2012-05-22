@@ -1,15 +1,15 @@
 package com.rackspace.papi.commons.util.plugin.archive;
 
-import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import static org.junit.Assert.*;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.jar.JarInputStream;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
 
 /**

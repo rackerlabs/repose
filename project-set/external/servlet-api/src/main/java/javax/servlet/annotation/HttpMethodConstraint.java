@@ -40,11 +40,11 @@
 
 package javax.servlet.annotation;
 
+import javax.servlet.annotation.ServletSecurity.EmptyRoleSemantic;
+import javax.servlet.annotation.ServletSecurity.TransportGuarantee;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import javax.servlet.annotation.ServletSecurity.EmptyRoleSemantic;
-import javax.servlet.annotation.ServletSecurity.TransportGuarantee;
 
 /**
  * This annotation is used within the {@link ServletSecurity} annotation to

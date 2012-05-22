@@ -1,19 +1,20 @@
 package com.rackspace.papi.mocks.auth.osids;
 
-import java.io.IOException;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
-import javax.xml.bind.JAXBElement;
-import javax.xml.datatype.DatatypeConfigurationException;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openstack.docs.identity.api.v2.*;
 
-import static org.mockito.Mockito.*;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.JAXBElement;
+import javax.xml.datatype.DatatypeConfigurationException;
+import java.io.IOException;
+
 import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.Ignore;
+import static org.mockito.Mockito.mock;
 
 @RunWith(Enclosed.class)
 public class KeystoneResourceTest {

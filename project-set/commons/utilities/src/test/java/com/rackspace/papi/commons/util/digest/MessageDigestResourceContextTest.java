@@ -1,6 +1,5 @@
 package com.rackspace.papi.commons.util.digest;
 
-import com.rackspace.papi.commons.util.digest.MessageDigestResourceContext;
 import com.rackspace.papi.commons.util.digest.impl.HexHelper;
 import com.rackspace.papi.commons.util.digest.impl.MD5MessageDigester;
 import com.rackspace.papi.commons.util.pooling.ResourceContextException;

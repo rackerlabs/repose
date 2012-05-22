@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.springframework.context.ApplicationContext;
 
 import javax.servlet.FilterConfig;
 import java.util.Collection;
@@ -20,7 +21,6 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import org.springframework.context.ApplicationContext;
 
 @RunWith(Enclosed.class)
 public class FilterContextManagerTest {

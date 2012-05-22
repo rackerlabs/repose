@@ -1,10 +1,11 @@
 package com.rackspace.papi.filter.logic;
 
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import java.util.Map;
-import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *

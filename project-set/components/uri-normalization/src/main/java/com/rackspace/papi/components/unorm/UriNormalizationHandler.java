@@ -3,12 +3,13 @@ package com.rackspace.papi.components.unorm;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.unorm.normalizer.MediaTypeNormalizer;
-import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import java.util.Collection;
+
 import javax.servlet.http.HttpServletRequest;
+import java.util.Collection;
 
 /**
  *

@@ -5,8 +5,9 @@ import com.rackspace.papi.components.identity.ip.config.IpIdentityConfig;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
-import java.io.IOException;
+
 import javax.servlet.*;
+import java.io.IOException;
 
 public class IpIdentityFilter implements Filter {
 

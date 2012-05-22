@@ -2,11 +2,12 @@ package com.rackspace.papi.commons.util.io.buffer;
 
 import com.rackspace.papi.commons.util.arrays.ByteArrayComparator;
 import org.junit.Before;
-import java.io.IOException;
-import java.util.Random;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import java.io.IOException;
+import java.util.Random;
 
 import static org.junit.Assert.*;
 

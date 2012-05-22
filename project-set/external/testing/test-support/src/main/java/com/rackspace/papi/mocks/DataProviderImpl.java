@@ -1,10 +1,10 @@
 package com.rackspace.papi.mocks;
 
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 public class DataProviderImpl implements DataProvider {
 

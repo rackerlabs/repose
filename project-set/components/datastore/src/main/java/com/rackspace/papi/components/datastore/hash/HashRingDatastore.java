@@ -1,8 +1,8 @@
 package com.rackspace.papi.components.datastore.hash;
 
 import com.rackspace.papi.components.datastore.common.RemoteBehavior;
-import com.rackspace.papi.components.datastore.hash.remote.RemoteConnectionException;
 import com.rackspace.papi.components.datastore.hash.remote.RemoteCommandExecutor;
+import com.rackspace.papi.components.datastore.hash.remote.RemoteConnectionException;
 import com.rackspace.papi.components.datastore.hash.remote.command.Delete;
 import com.rackspace.papi.components.datastore.hash.remote.command.Get;
 import com.rackspace.papi.components.datastore.hash.remote.command.Put;
@@ -13,12 +13,13 @@ import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
 import com.rackspace.papi.service.datastore.impl.AbstractHashedDatastore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.concurrent.TimeUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HashRingDatastore extends AbstractHashedDatastore {
 
