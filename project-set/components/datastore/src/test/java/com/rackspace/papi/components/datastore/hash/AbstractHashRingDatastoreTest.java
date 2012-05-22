@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.datastore.hash;
 
-import com.rackspace.papi.components.datastore.hash.remote.RemoteConnectionException;
 import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ServicePorts;
@@ -12,18 +11,18 @@ import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
 import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
 import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 /**

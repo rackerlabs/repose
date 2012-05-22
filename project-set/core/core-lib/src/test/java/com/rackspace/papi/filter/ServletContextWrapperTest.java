@@ -2,13 +2,15 @@ package com.rackspace.papi.filter;
 
 import com.rackspace.papi.http.proxy.HttpRequestDispatcher;
 import com.rackspace.papi.servlet.InitParameter;
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)

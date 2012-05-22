@@ -3,10 +3,11 @@ package com.rackspace.papi.service.config.impl;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.thread.RecurringTask;
 import com.rackspace.papi.service.event.common.EventService;
-import java.util.HashMap;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class represents a thread that continuously monitors configuration

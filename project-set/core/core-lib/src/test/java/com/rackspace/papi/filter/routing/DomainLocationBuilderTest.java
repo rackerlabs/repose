@@ -1,18 +1,15 @@
 package com.rackspace.papi.filter.routing;
 
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import com.rackspace.papi.model.DestinationCluster;
-import com.rackspace.papi.model.DestinationList;
-import com.rackspace.papi.model.Node;
-import com.rackspace.papi.model.NodeList;
-import com.rackspace.papi.model.ReposeCluster;
+import com.rackspace.papi.model.*;
 import com.rackspace.papi.service.routing.RoutingService;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)

@@ -2,14 +2,14 @@ package com.rackspace.papi.service.deploy;
 
 import com.rackspace.papi.commons.util.Destroyable;
 import com.rackspace.papi.service.event.common.EventService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ArtifactDirectoryWatcher implements Runnable, Destroyable {
    private static final Logger LOG = LoggerFactory.getLogger(ArtifactDirectoryWatcher.class);

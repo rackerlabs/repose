@@ -2,20 +2,19 @@ package com.rackspace.papi.filter;
 
 import com.oracle.javaee6.FilterType;
 import com.oracle.javaee6.FullyQualifiedClassType;
-import javax.servlet.*;
-
 import com.rackspace.papi.servlet.PowerApiContextException;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.springframework.context.ApplicationContext;
 
+import javax.servlet.Filter;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import static org.junit.Assert.*;
-
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
-import org.springframework.context.ApplicationContext;
 
 
 /**

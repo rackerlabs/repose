@@ -6,16 +6,20 @@ package com.rackspace.papi.components.identity.uri;
 
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.identity.uri.config.UriIdentityConfig;
 import com.rackspace.papi.components.identity.uri.config.IdentificationMapping;
 import com.rackspace.papi.components.identity.uri.config.IdentificationMappingList;
-import com.rackspace.papi.components.identity.uri.UriIdentityHandler;
+import com.rackspace.papi.components.identity.uri.config.UriIdentityConfig;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import java.util.Set;
+import org.junit.Before;
+import org.junit.Test;
+
 import javax.servlet.http.HttpServletRequest;
-import org.junit.*;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  *

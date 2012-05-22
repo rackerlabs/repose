@@ -9,10 +9,11 @@ import com.rackspace.papi.commons.util.transform.xslt.JaxbXsltToStringTransform;
 import com.rackspace.papi.commons.util.transform.xslt.XsltToStreamTransform;
 import com.rackspace.papi.commons.util.xslt.TemplatesFactory;
 import com.rackspace.papi.servlet.PowerApiContextException;
-import java.io.OutputStream;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.transform.Templates;
+import java.io.OutputStream;
 
 public class ContentTransformer {
 

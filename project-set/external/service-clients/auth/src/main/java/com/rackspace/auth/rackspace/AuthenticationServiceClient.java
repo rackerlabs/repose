@@ -3,14 +3,13 @@ package com.rackspace.auth.rackspace;
 import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthToken;
 import com.rackspace.auth.ResponseUnmarshaller;
-import com.rackspacecloud.docs.auth.api.v1.Group;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspacecloud.docs.auth.api.v1.FullToken;
+import com.rackspacecloud.docs.auth.api.v1.Group;
 import com.rackspacecloud.docs.auth.api.v1.GroupsList;
-
-import com.rackspace.papi.commons.util.http.ServiceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

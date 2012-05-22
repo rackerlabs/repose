@@ -1,17 +1,18 @@
 package com.rackspace.papi.http.proxy.jerseyclient;
 
+import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
-import java.io.ByteArrayOutputStream;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import com.sun.jersey.api.client.WebResource;
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.regex.Pattern;
-import javax.servlet.http.HttpServletRequest;
 
-import static com.rackspace.papi.http.Headers.*;
+import static com.rackspace.papi.http.Headers.HOST;
 
 /**
  * Process a request to copy over header values, query string parameters, and

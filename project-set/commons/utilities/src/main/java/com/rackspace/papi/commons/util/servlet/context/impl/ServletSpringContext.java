@@ -1,11 +1,12 @@
 package com.rackspace.papi.commons.util.servlet.context.impl;
 
 import com.rackspace.papi.commons.util.servlet.context.ApplicationContextAdapter;
-import javax.servlet.ServletContext;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import javax.servlet.ServletContext;
 
 public class ServletSpringContext implements ApplicationContextAware, ApplicationContextAdapter {
 

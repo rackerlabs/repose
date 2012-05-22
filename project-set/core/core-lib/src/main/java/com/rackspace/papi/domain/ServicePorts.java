@@ -1,7 +1,8 @@
 package com.rackspace.papi.domain;
 
-import java.util.ArrayList;
 import org.springframework.stereotype.Component;
+
+import java.util.ArrayList;
 
 @Component("servicePorts")
 public class ServicePorts extends ArrayList<Port> {

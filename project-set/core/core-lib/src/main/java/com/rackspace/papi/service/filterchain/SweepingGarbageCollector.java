@@ -5,9 +5,10 @@ import com.rackspace.papi.filter.resource.ResourceMonitor;
 import com.rackspace.papi.filter.resource.reclaim.ObjectReclaimer;
 import com.rackspace.papi.filter.resource.reclaim.ResourceUseConstrainedReclaimer;
 import com.rackspace.papi.filter.resource.reclaim.UnconstrainedReclaimer;
+import org.springframework.stereotype.Component;
+
 import java.util.LinkedList;
 import java.util.List;
-import org.springframework.stereotype.Component;
 
 /**
  *

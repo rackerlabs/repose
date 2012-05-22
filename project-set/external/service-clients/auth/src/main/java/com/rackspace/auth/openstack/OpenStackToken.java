@@ -1,7 +1,6 @@
 package com.rackspace.auth.openstack;
 
 import com.rackspace.auth.AuthToken;
-
 import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 import org.openstack.docs.identity.api.v2.Role;
 

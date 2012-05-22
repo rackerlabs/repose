@@ -1,7 +1,6 @@
 package com.rackspace.papi.components.versioning.util;
 
 
-
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.io.FilePathReaderImpl;
@@ -10,18 +9,19 @@ import com.rackspace.papi.commons.util.transform.Transform;
 import com.rackspace.papi.commons.util.transform.jaxb.StreamToJaxbTransform;
 import com.rackspace.papi.components.versioning.schema.VersionChoice;
 import com.rackspace.papi.components.versioning.schema.VersionChoiceList;
-import java.io.InputStream;
-import java.util.Map;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.custommonkey.xmlunit.Diff;
-import static org.junit.Assert.*;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.codehaus.jackson.map.ObjectMapper;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import java.io.InputStream;
+import java.util.Map;
+
+import static org.junit.Assert.*;
 
 /**
  *

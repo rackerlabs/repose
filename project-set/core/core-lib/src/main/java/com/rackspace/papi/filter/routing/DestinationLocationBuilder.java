@@ -5,9 +5,10 @@ import com.rackspace.papi.model.DestinationCluster;
 import com.rackspace.papi.model.DestinationEndpoint;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.service.routing.RoutingService;
+
+import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import javax.servlet.http.HttpServletRequest;
 
 public class DestinationLocationBuilder {
     private final LocationBuilder builder;

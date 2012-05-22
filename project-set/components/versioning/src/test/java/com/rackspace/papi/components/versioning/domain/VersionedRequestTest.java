@@ -1,17 +1,18 @@
 package com.rackspace.papi.components.versioning.domain;
 
-import java.util.List;
-import org.junit.Before;
-import com.rackspace.papi.components.versioning.util.http.HttpRequestInfo;
-import com.rackspace.papi.components.versioning.util.http.HttpRequestInfoImpl;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
-import java.util.LinkedList;
+import com.rackspace.papi.components.versioning.util.http.HttpRequestInfo;
+import com.rackspace.papi.components.versioning.util.http.HttpRequestInfoImpl;
+import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import java.util.LinkedList;
+import java.util.List;
 
 import static org.junit.Assert.*;
 

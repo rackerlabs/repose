@@ -1,24 +1,8 @@
 package com.rackspace.papi.service.naming;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.TreeMap;
-import javax.naming.Binding;
-import javax.naming.CompositeName;
-import javax.naming.Context;
-import javax.naming.InvalidNameException;
-import javax.naming.LinkRef;
-import javax.naming.Name;
-import javax.naming.NameAlreadyBoundException;
-import javax.naming.NameClassPair;
-import javax.naming.NameNotFoundException;
-import javax.naming.NameParser;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.Reference;
+import javax.naming.*;
 import javax.naming.spi.NamingManager;
+import java.util.*;
 
 @SuppressWarnings("UseOfObsoleteCollectionType")
 public class ServiceContext implements Context {

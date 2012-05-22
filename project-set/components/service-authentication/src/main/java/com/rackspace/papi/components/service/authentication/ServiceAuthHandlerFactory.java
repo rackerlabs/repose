@@ -1,8 +1,8 @@
 package com.rackspace.papi.components.service.authentication;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.components.service.authentication.ServiceAuthenticationConfig;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 

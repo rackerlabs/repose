@@ -5,14 +5,15 @@ import com.rackspace.papi.components.limits.schema.Limits;
 import com.rackspace.papi.components.limits.schema.RateLimitList;
 import com.rackspace.papi.components.ratelimit.cache.CachedRateLimit;
 import com.rackspace.papi.components.ratelimit.config.ConfiguredLimitGroup;
-import java.util.HashMap;
-import java.util.Map;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import java.util.HashMap;
+import java.util.Map;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *

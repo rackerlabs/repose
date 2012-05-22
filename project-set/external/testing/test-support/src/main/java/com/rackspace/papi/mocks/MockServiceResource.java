@@ -1,10 +1,13 @@
 package com.rackspace.papi.mocks;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.*;
-
 import com.rackspace.papi.mocks.providers.MockServiceProvider;
+
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 /**
  * @author malconis

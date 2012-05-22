@@ -1,17 +1,18 @@
 package com.rackspace.papi.components.identity.header_mapping;
 
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
+import com.rackspace.papi.components.identity.header_mapping.config.HttpHeader;
 import com.rackspace.papi.components.identity.header_mapping.extractor.HeaderValueExtractor;
-import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.HeaderManager;
+import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
-import com.rackspace.papi.commons.util.regex.ExtractorResult;
-import com.rackspace.papi.components.identity.header_mapping.config.HttpHeader;
+import java.util.List;
 
 
 public class HeaderIdMappingHandler extends AbstractFilterLogicHandler {

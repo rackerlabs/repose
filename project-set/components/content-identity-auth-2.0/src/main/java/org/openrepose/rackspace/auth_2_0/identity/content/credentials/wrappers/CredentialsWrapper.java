@@ -1,11 +1,12 @@
 package org.openrepose.rackspace.auth_2_0.identity.content.credentials.wrappers;
 
+import org.openrepose.rackspace.auth_2_0.identity.content.credentials.AuthCredentials;
+import org.openstack.docs.identity.api.v2.CredentialType;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import org.openrepose.rackspace.auth_2_0.identity.content.credentials.AuthCredentials;
-import org.openstack.docs.identity.api.v2.CredentialType;
 
 
 public abstract class CredentialsWrapper<T extends CredentialType> implements AuthCredentials {

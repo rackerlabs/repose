@@ -1,11 +1,8 @@
 package com.rackspace.papi.service.naming;
 
 import com.rackspace.papi.commons.util.StringUtilities;
-import javax.naming.CompositeName;
-import javax.naming.InvalidNameException;
-import javax.naming.Name;
-import javax.naming.NameParser;
-import javax.naming.NamingException;
+
+import javax.naming.*;
 
 public abstract class SchemeAwareNameParser implements NameParser {
 

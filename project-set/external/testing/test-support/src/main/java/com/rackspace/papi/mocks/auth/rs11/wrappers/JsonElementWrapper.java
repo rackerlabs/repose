@@ -1,9 +1,10 @@
 package com.rackspace.papi.mocks.auth.rs11.wrappers;
 
 import com.rackspacecloud.docs.auth.api.v1.*;
-import java.util.List;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.List;
 
 public class JsonElementWrapper implements ResponseWrapper {
 

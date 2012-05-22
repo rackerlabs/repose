@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.identity.content.credentials.maps;
 
 import com.rackspace.papi.components.identity.content.credentials.AuthCredentials;
+
 import java.util.HashMap;
 import java.util.Map;
 

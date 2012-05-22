@@ -1,13 +1,8 @@
 package com.rackspace.papi.commons.util.transform.xslt;
 
-import com.rackspace.papi.commons.util.pooling.ConstructionStrategy;
-import com.rackspace.papi.commons.util.pooling.GenericBlockingResourcePool;
-import com.rackspace.papi.commons.util.pooling.Pool;
-import com.rackspace.papi.commons.util.pooling.ResourceConstructionException;
-import com.rackspace.papi.commons.util.pooling.ResourceContext;
-import com.rackspace.papi.commons.util.pooling.ResourceContextException;
+import com.rackspace.papi.commons.util.pooling.*;
 import com.rackspace.papi.commons.util.transform.Transform;
-import java.io.StringWriter;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.util.JAXBSource;
@@ -15,6 +10,7 @@ import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.stream.StreamResult;
+import java.io.StringWriter;
 
 public class JaxbXsltToStringTransform implements Transform<JAXBElement, String> {
 

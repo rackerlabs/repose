@@ -6,14 +6,16 @@ import com.rackspace.papi.components.identity.header_mapping.config.HeaderIdMapp
 import com.rackspace.papi.components.identity.header_mapping.config.HttpHeader;
 import com.rackspace.papi.components.identity.header_mapping.config.HttpHeaderList;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

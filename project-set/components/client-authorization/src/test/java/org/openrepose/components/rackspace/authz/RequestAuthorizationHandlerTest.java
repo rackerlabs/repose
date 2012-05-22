@@ -6,22 +6,23 @@ import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
+import org.openrepose.components.authz.rackspace.config.ServiceEndpoint;
+import org.openrepose.components.rackspace.authz.cache.CachedEndpoint;
+import org.openrepose.components.rackspace.authz.cache.EndpointListCache;
+import org.openstack.docs.identity.api.v2.Endpoint;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import org.junit.Before;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
-import org.junit.Test;
-import org.openrepose.components.authz.rackspace.config.ServiceEndpoint;
-import org.openstack.docs.identity.api.v2.Endpoint;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
-import org.openrepose.components.rackspace.authz.cache.CachedEndpoint;
-import org.openrepose.components.rackspace.authz.cache.EndpointListCache;
 
 /**
  *

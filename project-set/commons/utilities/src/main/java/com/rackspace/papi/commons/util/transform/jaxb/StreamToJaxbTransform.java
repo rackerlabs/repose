@@ -3,11 +3,12 @@ package com.rackspace.papi.commons.util.transform.jaxb;
 import com.rackspace.papi.commons.util.pooling.ResourceContext;
 import com.rackspace.papi.commons.util.pooling.ResourceContextException;
 import com.rackspace.papi.commons.util.transform.Transform;
-import java.io.InputStream;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import java.io.InputStream;
 
 public class StreamToJaxbTransform<T> extends AbstractJaxbTransform implements Transform<InputStream, JAXBElement<T>> {
 

@@ -2,14 +2,14 @@ package com.rackspace.papi.commons.util.classloader.ear;
 
 import com.rackspace.papi.commons.util.classloader.EarTestSupport;
 import com.rackspace.papi.commons.util.classloader.jar.test.EmptyClass;
-import java.security.Permission;
-
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+import java.security.Permission;
+
 import static org.junit.Assert.*;
-import org.junit.Ignore;
 
 /**
  *

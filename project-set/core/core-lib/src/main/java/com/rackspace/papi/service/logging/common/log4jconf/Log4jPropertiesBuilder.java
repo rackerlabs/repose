@@ -3,11 +3,13 @@
  * and open the template in the editor.
  */
 package com.rackspace.papi.service.logging.common.log4jconf;
+
+import org.apache.log4j.Level;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import org.apache.log4j.Level;
 /**
  *
  * @author malconis

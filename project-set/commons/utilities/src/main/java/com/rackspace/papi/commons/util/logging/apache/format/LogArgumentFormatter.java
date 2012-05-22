@@ -1,6 +1,7 @@
 package com.rackspace.papi.commons.util.logging.apache.format;
 
 import com.rackspace.papi.commons.util.logging.apache.constraint.StatusCodeConstraint;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 

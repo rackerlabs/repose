@@ -1,6 +1,9 @@
 package com.rackspace.papi.components.ratelimit;
 
-import com.rackspace.papi.commons.util.http.*;
+import com.rackspace.papi.commons.util.http.CommonHttpHeader;
+import com.rackspace.papi.commons.util.http.HttpDate;
+import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.components.ratelimit.cache.NextAvailableResponse;
 import com.rackspace.papi.components.ratelimit.cache.RateLimitCache;
 import com.rackspace.papi.components.ratelimit.config.ConfiguredLimitGroup;
@@ -9,9 +12,9 @@ import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
 import com.rackspace.papi.components.ratelimit.util.RateLimitKeyGenerator;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import java.io.IOException;
 import org.slf4j.Logger;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;

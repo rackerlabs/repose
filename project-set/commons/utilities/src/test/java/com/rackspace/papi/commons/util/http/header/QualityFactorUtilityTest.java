@@ -1,10 +1,11 @@
 package com.rackspace.papi.commons.util.http.header;
 
-import java.util.Collections;
-import java.util.List;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.Assert.*;
 

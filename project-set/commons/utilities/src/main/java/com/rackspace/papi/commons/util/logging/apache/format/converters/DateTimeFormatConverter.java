@@ -1,9 +1,10 @@
 package com.rackspace.papi.commons.util.logging.apache.format.converters;
 
 import com.rackspace.papi.commons.util.StringUtilities;
+import org.slf4j.LoggerFactory;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import org.slf4j.LoggerFactory;
 
 public class DateTimeFormatConverter implements FormatConverter {
 

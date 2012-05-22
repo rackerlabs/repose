@@ -1,6 +1,7 @@
 package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.util.Destroyable;
+
 import javax.servlet.Filter;
 
 public class FilterContext implements Destroyable {

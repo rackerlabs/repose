@@ -1,6 +1,7 @@
 package com.rackspace.papi.commons.util.http.media;
 
 import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
+
 import java.util.Map;
 
 public class MediaType extends HeaderValueImpl {

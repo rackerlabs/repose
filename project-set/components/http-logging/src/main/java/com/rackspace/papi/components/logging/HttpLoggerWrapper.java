@@ -2,10 +2,11 @@ package com.rackspace.papi.components.logging;
 
 import com.rackspace.papi.commons.util.logging.apache.HttpLogFormatter;
 import com.rackspace.papi.components.logging.util.SimpleLogger;
-import java.util.LinkedList;
-import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  *

@@ -3,6 +3,7 @@ package com.rackspace.papi.components.unorm.normalizer;
 import com.rackspace.papi.commons.util.http.normal.ParameterFilter;
 import com.rackspace.papi.components.uri.normalization.config.HttpUriParameterList;
 import com.rackspace.papi.components.uri.normalization.config.UriParameter;
+
 import java.util.HashMap;
 import java.util.Map;
 

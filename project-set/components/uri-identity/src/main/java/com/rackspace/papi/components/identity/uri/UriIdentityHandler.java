@@ -9,6 +9,7 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.HeaderManager;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+
 import javax.servlet.http.HttpServletRequest;
 
 public class UriIdentityHandler extends AbstractFilterLogicHandler {

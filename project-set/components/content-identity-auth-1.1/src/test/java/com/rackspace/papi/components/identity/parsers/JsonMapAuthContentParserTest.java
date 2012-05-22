@@ -3,12 +3,13 @@ package com.rackspace.papi.components.identity.parsers;
 import com.rackspace.papi.commons.util.transform.json.JacksonJaxbTransform;
 import com.rackspace.papi.components.identity.content.credentials.AuthCredentials;
 import com.rackspace.papi.components.identity.parsers.json.JsonMapAuthContentParser;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import static org.junit.Assert.*;
 
 @RunWith(Enclosed.class)
 public class JsonMapAuthContentParserTest {

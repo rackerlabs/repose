@@ -1,13 +1,14 @@
 package com.rackspace.papi.http.proxy.httpcomponent;
 
-import org.apache.http.HttpException;
+import com.rackspace.papi.http.proxy.common.AbstractResponseProcessor;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
+import org.apache.http.HttpException;
 import org.apache.http.HttpResponse;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
-import javax.servlet.http.HttpServletResponse;
-import com.rackspace.papi.http.proxy.common.AbstractResponseProcessor;
 
 public class HttpComponentResponseProcessor extends AbstractResponseProcessor {
     private final HttpResponse httpResponse;

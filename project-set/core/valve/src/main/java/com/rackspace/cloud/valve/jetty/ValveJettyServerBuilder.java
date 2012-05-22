@@ -1,15 +1,12 @@
 package com.rackspace.cloud.valve.jetty;
 
-import com.rackspace.papi.container.config.SslConfiguration;
-import com.rackspace.papi.filter.ValvePowerFilter;
 import com.rackspace.cloud.valve.jetty.servlet.ProxyServlet;
+import com.rackspace.papi.container.config.SslConfiguration;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ServicePorts;
+import com.rackspace.papi.filter.ValvePowerFilter;
 import com.rackspace.papi.service.context.impl.PowerApiContextManager;
 import com.rackspace.papi.servlet.InitParameter;
-
-import java.util.ArrayList;
-
 import org.eclipse.jetty.http.ssl.SslContextFactory;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
@@ -20,6 +17,7 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 import javax.servlet.DispatcherType;
+import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 

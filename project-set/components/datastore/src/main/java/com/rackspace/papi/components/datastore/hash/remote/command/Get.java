@@ -6,11 +6,12 @@ import com.rackspace.papi.components.datastore.common.CacheRequest;
 import com.rackspace.papi.components.datastore.common.RemoteBehavior;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.impl.StoredElementImpl;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.methods.HttpGet;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpGet;
 
 /**
  *

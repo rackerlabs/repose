@@ -6,10 +6,11 @@ import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.DestinationEndpoint;
 import com.rackspace.papi.model.Node;
+
+import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 
 public class EndpointUriBuilder {
 

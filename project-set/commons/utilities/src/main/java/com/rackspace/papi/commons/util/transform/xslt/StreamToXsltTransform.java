@@ -3,13 +3,14 @@ package com.rackspace.papi.commons.util.transform.xslt;
 import com.rackspace.papi.commons.util.pooling.ResourceContextException;
 import com.rackspace.papi.commons.util.pooling.SimpleResourceContext;
 import com.rackspace.papi.commons.util.transform.StreamTransform;
-import java.io.InputStream;
-import java.io.OutputStream;
+
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  *

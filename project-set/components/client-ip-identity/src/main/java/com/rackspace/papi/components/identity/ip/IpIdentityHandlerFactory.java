@@ -4,12 +4,13 @@ import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.net.IpAddressRange;
 import com.rackspace.papi.components.identity.ip.config.IpIdentityConfig;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.slf4j.LoggerFactory;
+
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.LoggerFactory;
 
 public class IpIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFactory<IpIdentityHandler> {
 

@@ -1,10 +1,6 @@
 package com.rackspace.auth;
 
-import com.rackspace.papi.commons.util.pooling.ConstructionStrategy;
-import com.rackspace.papi.commons.util.pooling.GenericBlockingResourcePool;
-import com.rackspace.papi.commons.util.pooling.ResourceConstructionException;
-import com.rackspace.papi.commons.util.pooling.Pool;
-import com.rackspace.papi.commons.util.pooling.ResourceContext;
+import com.rackspace.papi.commons.util.pooling.*;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;

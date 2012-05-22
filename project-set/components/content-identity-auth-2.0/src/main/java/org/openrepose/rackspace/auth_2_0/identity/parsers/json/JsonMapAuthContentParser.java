@@ -1,9 +1,10 @@
 package org.openrepose.rackspace.auth_2_0.identity.parsers.json;
 
 import com.rackspace.papi.commons.util.transform.json.JacksonJaxbTransform;
-import java.io.InputStream;
 import org.openrepose.rackspace.auth_2_0.identity.content.credentials.AuthCredentials;
 import org.openrepose.rackspace.auth_2_0.identity.parsers.AuthContentParser;
+
+import java.io.InputStream;
 
 public class JsonMapAuthContentParser implements AuthContentParser {
 //   private final JacksonJaxbTransform transform;
