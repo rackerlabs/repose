@@ -35,7 +35,7 @@ module Clouds
         p "Building repose server..."
         while status!="ACTIVE"
             if status == "ERROR" || num>60
-                p "error occured with server"
+                p "error occured with server, Status: #{status}"
                 exit
             end
             num+=1
