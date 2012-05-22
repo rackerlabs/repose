@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.clientauth;
 
-import com.rackspace.papi.components.clientauth.common.AuthModule;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 
@@ -32,10 +31,10 @@ import org.slf4j.Logger;
  * example, a Rackspace specific or Basic Http authentication.
  *
  */
-public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<AuthModule> {
+public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<AuthenticationHandler> {
 
    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ClientAuthenticationHandlerFactory.class);
-   private AuthModule authenticationModule;
+   private AuthenticationHandler authenticationModule;
    private KeyedRegexExtractor<String> accountRegexExtractor = new KeyedRegexExtractor<String>();
    private UriMatcher uriMatcher;
    private final Datastore datastore;
@@ -91,16 +90,16 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
       uriMatcher = new UriMatcher(whiteListRegexPatterns);
    }
 
-   private AuthModule getRackspaceAuthHandler(ClientAuthConfig cfg) {
+   private AuthenticationHandler getRackspaceAuthHandler(ClientAuthConfig cfg) {
       return RackspaceAuthenticationHandlerFactory.newInstance(cfg, accountRegexExtractor, datastore, uriMatcher);
    }
 
-   private AuthModule getOpenStackAuthHandler(ClientAuthConfig config) {
+   private AuthenticationHandler getOpenStackAuthHandler(ClientAuthConfig config) {
       return OpenStackAuthenticationHandlerFactory.newInstance(config, accountRegexExtractor, datastore, uriMatcher);
    }
 
    @Override
-   protected AuthModule buildHandler() {
+   protected AuthenticationHandler buildHandler() {
       return authenticationModule;
    }
 }

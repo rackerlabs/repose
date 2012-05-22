@@ -8,14 +8,14 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import org.slf4j.Logger;
 
-public class ResponseHandler {
-   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ResponseHandler.class);
+public class OpenStackResponseHandler {
+   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(OpenStackResponseHandler.class);
 
    private final ReadableHttpServletResponse response;
    private final String wwwAuthenticate;
    private static final String DELEGATED = "Delegated";
 
-   public ResponseHandler(ReadableHttpServletResponse response, String wwwAuthenticate) {
+   public OpenStackResponseHandler(ReadableHttpServletResponse response, String wwwAuthenticate) {
       this.response = response;
       this.wwwAuthenticate = wwwAuthenticate;
    }

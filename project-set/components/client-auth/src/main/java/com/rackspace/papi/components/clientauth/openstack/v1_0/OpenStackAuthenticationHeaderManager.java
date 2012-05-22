@@ -15,8 +15,8 @@ import java.util.List;
 /**
  * @author fran
  */
-public class AuthenticationHeaderManager {
-   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationHeaderManager.class);
+public class OpenStackAuthenticationHeaderManager {
+   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(OpenStackAuthenticationHeaderManager.class);
 
    // Proxy is specified in the OpenStack auth blue print:
    // http://wiki.openstack.org/openstack-authn
@@ -34,7 +34,7 @@ public class AuthenticationHeaderManager {
    // the highest QUALITY in terms of using the user it supplies for rate limiting
    private static final String QUALITY = ";q=1.0";
 
-   public AuthenticationHeaderManager(String authToken, AuthToken token, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, List<AuthGroup> groups) {
+   public OpenStackAuthenticationHeaderManager(String authToken, AuthToken token, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, List<AuthGroup> groups) {
       this.authToken = authToken;
       this.cachableToken = token;
       this.isDelegatable = isDelegatable;
