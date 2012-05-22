@@ -32,7 +32,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RackspaceAuthenticationHandler.class);
     private final AuthenticationService authenticationService;
-    private final RackspaceAuth cfg;
+    private boolean delegatable;
     private final KeyedRegexExtractor<String> keyedRegexExtractor;
     private final AuthTokenCache cache;
     private final UriMatcher uriMatcher;
@@ -40,7 +40,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
 
     public RackspaceAuthenticationHandler(RackspaceAuth cfg, AuthenticationService authServiceClient, KeyedRegexExtractor keyedRegexExtractor, AuthTokenCache cache, UriMatcher uriMatcher) {
         this.authenticationService = authServiceClient;
-        this.cfg = cfg;
+        this.delegatable = cfg.isDelegable();
         this.keyedRegexExtractor = keyedRegexExtractor;
         this.cache = cache;
         this.uriMatcher = uriMatcher;
@@ -104,7 +104,7 @@ public class RackspaceAuthenticationHandler extends AbstractFilterLogicHandler i
             groups = authenticationService.getGroups(token.getUserId());
         }
 
-        final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(token != null, cfg, filterDirector, extractedResult == null ? "" : extractedResult.getResult(), groups);
+        final AuthenticationHeaderManager headerManager = new AuthenticationHeaderManager(token != null, delegatable, filterDirector, extractedResult == null ? "" : extractedResult.getResult(), groups);
         headerManager.setFilterDirectorValues();
 
         return filterDirector;
