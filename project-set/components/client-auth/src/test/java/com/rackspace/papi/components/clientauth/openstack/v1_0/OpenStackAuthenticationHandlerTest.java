@@ -9,6 +9,7 @@ import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.clientauth.common.AuthTokenCache;
+import com.rackspace.papi.components.clientauth.common.Configurables;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.components.clientauth.openstack.config.ClientMapping;
 import com.rackspace.papi.components.clientauth.openstack.config.OpenStackIdentityService;
@@ -92,14 +93,15 @@ public class OpenStackAuthenticationHandlerTest {
          whiteListRegexPatterns = new ArrayList<Pattern>();
          whiteListRegexPatterns.add(Pattern.compile("/v1.0/application\\.wadl"));
 
-         handler = new OpenStackAuthenticationHandler(osauthConfig, authService, keyedRegexExtractor, null, new UriMatcher(whiteListRegexPatterns));
+         Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, includeQueryParams());
+         handler = new OpenStackAuthenticationHandler(configurables, authService, null, new UriMatcher(whiteListRegexPatterns));
 
 
          // Handler with cache
          store = mock(Datastore.class);
          AuthTokenCache cache = new AuthTokenCache(store, AUTH_TOKEN_CACHE_PREFIX);
 
-         handlerWithCache = new OpenStackAuthenticationHandler(osauthConfig, authService, keyedRegexExtractor, cache, new UriMatcher(whiteListRegexPatterns));
+         handlerWithCache = new OpenStackAuthenticationHandler(configurables, authService, cache, new UriMatcher(whiteListRegexPatterns));
       }
 
       protected abstract boolean delegable();
