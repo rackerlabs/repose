@@ -36,7 +36,6 @@ public class HeaderIdentityHandlerTest {
          HttpHeaderList headerList = new HttpHeaderList();
 
          // Tell the handler to look for two headers called IP1 and IP2
-         config = new HeaderIdentityConfig();
          //config.setQuality(QUALITY);
          
          HttpHeader header = new HttpHeader();
@@ -46,9 +45,9 @@ public class HeaderIdentityHandlerTest {
          header = new HttpHeader();
          header.setId(IP_HEADER_NAME_2);
          headerList.getHeader().add(header);
-         config.setSourceHeaders(headerList);
+  
          
-         handler = new HeaderIdentityHandler(config);
+         handler = new HeaderIdentityHandler(headerList.getHeader());
          request = mock(HttpServletRequest.class);
          response = mock(ReadableHttpServletResponse.class);
          

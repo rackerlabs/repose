@@ -2,7 +2,6 @@ package com.rackspace.papi.components.identity.header;
 
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.identity.header.config.HeaderIdentityConfig;
 import com.rackspace.papi.components.identity.header.config.HttpHeader;
 import com.rackspace.papi.components.identity.header.extractor.HeaderValueExtractor;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
@@ -19,8 +18,8 @@ public class HeaderIdentityHandler extends AbstractFilterLogicHandler {
 
    private final List<HttpHeader> sourceHeaders;
 
-   public HeaderIdentityHandler(HeaderIdentityConfig config) {
-      this.sourceHeaders = config.getSourceHeaders().getHeader();
+   public HeaderIdentityHandler(List<HttpHeader> sourceHeaders) {
+      this.sourceHeaders = sourceHeaders;
    }
    
    @Override
