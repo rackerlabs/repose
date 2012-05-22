@@ -1,45 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <client-auth xmlns="http://docs.rackspacecloud.com/repose/client-auth/v1.0">
-    <rackspace-auth delegable="false" keystone-active="true" xmlns="http://docs.rackspacecloud.com/repose/client-auth/rs-auth-1.1/v1.0">
+    <rackspace-auth delegable="false" xmlns="http://docs.rackspacecloud.com/repose/client-auth/rs-auth-1.1/v1.0">
         <authentication-server username="auth" password="auth123" uri="http://50.57.189.15:8080/v1.1" />
         <account-mapping id-regex="/v\d/([\w-]+)/?" type="CLOUD"/>
         <account-mapping id-regex="/([a-zA-Z\-][a-zA-Z\-]+\d+)[^\w]/?" type="CLOUD"/>
-        <user-roles>
-            <default>
-                <roles>
-                    <role>sysadmin</role>
-                    <role>netadmin</role>
-                    <role>developer</role>
-                </roles>
-            </default>
-            <user name="usertest1">
-                <roles>
-                    <role>cloudadmin</role>
-                    <role>testuser1</role>
-                    <role>superuser</role>
-                </roles>
-            </user>
-            <user name="usertest2">
-                <roles>
-                    <role>cloudadmin</role>
-                    <role>testuser2</role>
-                    <role>regularuser</role>
-                </roles>
-            </user>
-            <user name="usertest3">
-                <roles>
-                    <role>cloudadmin</role>
-                    <role>testuser3</role>
-                </roles>
-            </user>
-            <user name="usertest4">
-                <roles>
-                    <role>cloudadmin</role>
-                    <role>testuser4</role>
-                </roles>
-            </user>
-        </user-roles>
-
     </rackspace-auth>
 </client-auth>
