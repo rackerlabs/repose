@@ -5,7 +5,6 @@ import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
 import java.io.IOException;
 import javax.servlet.*;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -13,7 +12,6 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 public class RoutingFilter implements Filter, ApplicationContextAware {
 
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(RoutingFilter.class);
     private RoutingHandlerFactory handlerFactory;
     private ApplicationContext applicationContext;
 

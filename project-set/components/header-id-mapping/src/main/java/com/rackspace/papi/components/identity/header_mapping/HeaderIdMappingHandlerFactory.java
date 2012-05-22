@@ -13,7 +13,6 @@ import java.util.Map;
 public class HeaderIdMappingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<HeaderIdMappingHandler> {
 
 
-   private HeaderIdMappingConfig config;
    private List<HttpHeader> sourceHeaders;
 
    public HeaderIdMappingHandlerFactory() {
