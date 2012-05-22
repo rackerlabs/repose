@@ -9,8 +9,9 @@ import com.xmlcalabash.core.XProcConfiguration;
 import com.xmlcalabash.core.XProcRuntime;
 import com.xmlcalabash.runtime.XPipeline;
 import com.xmlcalabash.util.XProcURIResolver;
-import javax.xml.transform.URIResolver;
 import net.sf.saxon.s9api.SaxonApiException;
+
+import javax.xml.transform.URIResolver;
 
 public class CalabashPipelineBuilder implements PipelineBuilder {
    private final boolean schemaAware;

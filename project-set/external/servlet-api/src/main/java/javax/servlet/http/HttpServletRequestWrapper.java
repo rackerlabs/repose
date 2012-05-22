@@ -58,10 +58,11 @@
 
 package javax.servlet.http;
 
-import java.io.IOException;
-import java.util.*;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequestWrapper;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.Enumeration;
 
 /**
  * Provides a convenient implementation of the HttpServletRequest interface

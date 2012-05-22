@@ -1,9 +1,10 @@
 package com.rackspace.papi.commons.util.logging.apache.format.converters;
 
 import com.rackspace.papi.commons.util.StringUtilities;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.LoggerFactory;
 
 public enum TypeConversionFormatFactory {
 

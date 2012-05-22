@@ -2,27 +2,27 @@ package com.rackspace.papi.components.identity.content.auth;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.commons.util.http.media.MediaRangeProcessor;
+import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.io.stream.LimitedReadInputStream;
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.commons.util.transform.Transform;
 import com.rackspace.papi.commons.util.transform.json.JacksonJaxbTransform;
-import com.rackspace.papi.commons.util.http.media.MediaRangeProcessor;
-import com.rackspace.papi.commons.util.http.media.MediaType;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.components.identity.content.credentials.AuthCredentials;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.HeaderManager;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import java.io.IOException;
-import java.io.InputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.JAXBElement;
-
 import com.rackspacecloud.docs.auth.api.v1.Credentials;
 import org.openrepose.rackspace.auth.content_identity.config.ContentIdentityAuthConfig;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.JAXBElement;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class ContentIdentityAuthHandler extends AbstractFilterLogicHandler {
 

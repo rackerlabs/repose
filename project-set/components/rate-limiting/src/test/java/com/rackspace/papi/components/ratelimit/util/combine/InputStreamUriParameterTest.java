@@ -1,7 +1,5 @@
 package com.rackspace.papi.components.ratelimit.util.combine;
 
-import com.rackspace.papi.components.ratelimit.util.combine.CombinedLimitsTransformerException;
-import com.rackspace.papi.components.ratelimit.util.combine.InputStreamUriParameter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

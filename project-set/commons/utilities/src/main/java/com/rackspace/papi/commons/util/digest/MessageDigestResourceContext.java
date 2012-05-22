@@ -3,6 +3,7 @@ package com.rackspace.papi.commons.util.digest;
 import com.rackspace.papi.commons.util.io.MessageDigesterOutputStream;
 import com.rackspace.papi.commons.util.pooling.ResourceContext;
 import com.rackspace.papi.commons.util.pooling.ResourceContextException;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.MessageDigest;

@@ -8,7 +8,6 @@ import org.openrepose.rackspace.auth_2_0.identity.content.credentials.AuthCreden
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-
 import java.io.ByteArrayInputStream;
 
 import static org.junit.Assert.assertEquals;

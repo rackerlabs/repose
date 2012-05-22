@@ -10,13 +10,12 @@ import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
 import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
 import com.rackspace.papi.service.datastore.impl.ehcache.EHCacheDatastoreManager;
+import net.sf.ehcache.CacheManager;
+
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicIntegerArray;
-import net.sf.ehcache.CacheManager;
 
 public class MultiKeyContentionInserter {
 

@@ -59,10 +59,10 @@
 package javax.servlet.http;
 
 import javax.servlet.ServletInputStream;
+import java.io.IOException;
 import java.util.Hashtable;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
-import java.io.IOException;
 
 /**
  * @deprecated		As of Java(tm) Servlet API 2.3. 

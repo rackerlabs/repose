@@ -5,24 +5,21 @@ import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.media.MediaRangeProcessor;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MimeType;
-
 import com.rackspace.papi.commons.util.logging.apache.HttpLogFormatter;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.commons.util.thread.KeyedStackLock;
-
 import com.rackspace.papi.service.rms.config.Message;
 import com.rackspace.papi.service.rms.config.OverwriteType;
 import com.rackspace.papi.service.rms.config.StatusCodeMatcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
 import java.util.List;
-import org.springframework.stereotype.Component;
 
 @Component("responseMessagingService")
 public class ResponseMessageServiceImpl implements ResponseMessageService {

@@ -6,10 +6,12 @@ import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.model.Filter;
 import com.rackspace.papi.model.Node;
-import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.model.ReposeCluster;
+import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
+import org.openrepose.components.datastore.config.DistributedDatastoreConfiguration;
+import org.openrepose.components.datastore.config.HostAccessControl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,8 +19,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import java.util.*;
-import org.openrepose.components.datastore.config.DistributedDatastoreConfiguration;
-import org.openrepose.components.datastore.config.HostAccessControl;
 
 public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilterHandlerFactory<DatastoreFilterLogicHandler> {
 

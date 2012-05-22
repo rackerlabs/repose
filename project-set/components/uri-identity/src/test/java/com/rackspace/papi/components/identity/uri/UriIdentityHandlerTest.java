@@ -3,18 +3,18 @@ package com.rackspace.papi.components.identity.uri;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.identity.uri.config.UriIdentityConfig;
-import com.rackspace.papi.components.identity.uri.config.IdentificationMapping;
-import com.rackspace.papi.components.identity.uri.config.IdentificationMappingList;
-import com.rackspace.papi.components.identity.uri.UriIdentityHandler;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import static org.mockito.Mockito.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Set;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(Enclosed.class)
 public class UriIdentityHandlerTest {

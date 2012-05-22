@@ -3,13 +3,10 @@ package org.openrepose.cli.command.datastore.distributed;
 import com.rackspace.papi.commons.util.io.charset.CharacterSets;
 import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
-import java.security.NoSuchAlgorithmException;
 import org.openrepose.cli.command.AbstractCommand;
-import org.openrepose.cli.command.results.CommandResult;
-import org.openrepose.cli.command.results.CommandFailure;
-import org.openrepose.cli.command.results.InvalidArguments;
-import org.openrepose.cli.command.results.MessageResult;
-import org.openrepose.cli.command.results.StatusCodes;
+import org.openrepose.cli.command.results.*;
+
+import java.security.NoSuchAlgorithmException;
 
 /**
  *

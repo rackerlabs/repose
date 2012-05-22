@@ -6,10 +6,6 @@ import com.rackspace.auth.ResponseUnmarshaller;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
-
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -18,14 +14,13 @@ import org.junit.runner.RunWith;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
-import java.util.*;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
-
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

@@ -1,7 +1,5 @@
 package com.rackspace.papi.components.versioning;
 
-import com.rackspace.papi.components.versioning.util.http.HttpRequestInfo;
-import com.rackspace.papi.components.versioning.util.http.HttpRequestInfoImpl;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.versioning.domain.ConfigurationData;
@@ -12,16 +10,18 @@ import com.rackspace.papi.components.versioning.schema.ObjectFactory;
 import com.rackspace.papi.components.versioning.schema.VersionChoiceList;
 import com.rackspace.papi.components.versioning.util.ContentTransformer;
 import com.rackspace.papi.components.versioning.util.VersionChoiceFactory;
-import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
+import com.rackspace.papi.components.versioning.util.http.HttpRequestInfo;
+import com.rackspace.papi.components.versioning.util.http.HttpRequestInfoImpl;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-
-import java.net.MalformedURLException;
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.JAXBElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.JAXBElement;
+import java.net.MalformedURLException;
 
 public class VersioningHandler extends AbstractFilterLogicHandler {
 

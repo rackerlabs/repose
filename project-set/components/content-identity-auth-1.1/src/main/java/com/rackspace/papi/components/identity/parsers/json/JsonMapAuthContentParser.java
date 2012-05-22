@@ -4,6 +4,7 @@ import com.rackspace.papi.commons.util.transform.json.JacksonJaxbTransform;
 import com.rackspace.papi.components.identity.content.credentials.AuthCredentials;
 import com.rackspace.papi.components.identity.content.credentials.maps.CredentialMap;
 import com.rackspace.papi.components.identity.parsers.AuthContentParser;
+
 import java.io.InputStream;
 
 public class JsonMapAuthContentParser implements AuthContentParser {

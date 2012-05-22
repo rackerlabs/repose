@@ -1,9 +1,10 @@
 package com.rackspace.papi.commons.util.io;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
 public class BufferCapacityExceptionTest {

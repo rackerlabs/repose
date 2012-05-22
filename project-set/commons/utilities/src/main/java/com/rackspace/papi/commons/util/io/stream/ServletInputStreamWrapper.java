@@ -1,8 +1,8 @@
 package com.rackspace.papi.commons.util.io.stream;
 
+import javax.servlet.ServletInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import javax.servlet.ServletInputStream;
 
 /**
  *

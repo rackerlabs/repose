@@ -2,17 +2,20 @@ package com.rackspace.papi.mocks.auth.rs11;
 
 import com.rackspacecloud.docs.auth.api.v1.GroupsList;
 import com.rackspacecloud.docs.auth.api.v1.Token;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
-import javax.ws.rs.core.UriInfo;
-import javax.xml.bind.JAXBElement;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriInfo;
+import javax.xml.bind.JAXBElement;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
 
 @Ignore
 @RunWith(Enclosed.class)

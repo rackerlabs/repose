@@ -1,10 +1,11 @@
 package com.rackspace.papi.mocks.auth.provider;
 
 import com.rackspace.papi.mocks.DataProviderImpl;
+
+import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
-import javax.xml.datatype.DatatypeConfigurationException;
 
 public class UserDataPropertiesProviderImpl extends DataProviderImpl implements UserDataProvider {
    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(UserDataPropertiesProviderImpl.class);

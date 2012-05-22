@@ -5,9 +5,10 @@ import com.rackspace.papi.components.identity.content.credentials.AuthCredential
 import com.rackspace.papi.components.identity.content.credentials.maps.CredentialFactory;
 import com.rackspace.papi.components.identity.parsers.AuthContentParser;
 import com.rackspacecloud.docs.auth.api.v1.Credentials;
+
+import javax.xml.bind.JAXBElement;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
-import javax.xml.bind.JAXBElement;
 
 /**
  * @author fran

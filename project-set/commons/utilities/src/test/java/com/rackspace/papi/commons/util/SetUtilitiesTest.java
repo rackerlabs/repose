@@ -1,14 +1,14 @@
 package com.rackspace.papi.commons.util;
 
-import com.rackspace.papi.commons.util.SetUtilities;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
-
-import java.util.Set;
 import java.util.HashSet;
+import java.util.Set;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author fran

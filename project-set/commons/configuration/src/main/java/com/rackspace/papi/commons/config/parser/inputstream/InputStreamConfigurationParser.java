@@ -3,6 +3,7 @@ package com.rackspace.papi.commons.config.parser.inputstream;
 import com.rackspace.papi.commons.config.parser.common.AbstractConfigurationObjectParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.config.resource.ResourceResolutionException;
+
 import java.io.IOException;
 import java.io.InputStream;
 

@@ -2,6 +2,7 @@ package com.rackspace.papi.commons.util.digest;
 
 import com.rackspace.papi.commons.util.pooling.GenericBlockingResourcePool;
 import com.rackspace.papi.commons.util.pooling.Pool;
+
 import java.io.InputStream;
 import java.security.MessageDigest;
 

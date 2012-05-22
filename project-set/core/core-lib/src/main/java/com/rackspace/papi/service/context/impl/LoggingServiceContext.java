@@ -3,13 +3,11 @@ package com.rackspace.papi.service.context.impl;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.config.parser.properties.PropertiesFileConfigurationParser;
 import com.rackspace.papi.commons.util.StringUtilities;
-
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.LoggingConfiguration;
 import com.rackspace.papi.service.ServiceRegistry;
-
-import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.config.ConfigurationService;
+import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.logging.LoggingService;
 import com.rackspace.papi.service.logging.LoggingServiceImpl;

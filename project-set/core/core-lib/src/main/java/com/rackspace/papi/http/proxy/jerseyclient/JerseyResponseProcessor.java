@@ -2,14 +2,15 @@ package com.rackspace.papi.http.proxy.jerseyclient;
 
 import com.rackspace.papi.http.proxy.common.AbstractResponseProcessor;
 import com.sun.jersey.api.client.ClientResponse;
+import org.apache.http.HttpException;
+
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.core.MultivaluedMap;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MultivaluedMap;
-import org.apache.http.HttpException;
 
 public class JerseyResponseProcessor extends AbstractResponseProcessor {
 

@@ -1,7 +1,9 @@
 
 package com.rackspace.papi.components.hnorm.util;
 
-import com.rackspacecloud.api.docs.repose.header_normalization.v1.*;
+import com.rackspacecloud.api.docs.repose.header_normalization.v1.HttpHeader;
+import com.rackspacecloud.api.docs.repose.header_normalization.v1.HttpMethod;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;

@@ -2,6 +2,7 @@ package com.rackspace.papi.commons.util.digest;
 
 import com.rackspace.papi.commons.util.pooling.ConstructionStrategy;
 import com.rackspace.papi.commons.util.pooling.ResourceConstructionException;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 

@@ -1,17 +1,10 @@
 package com.rackspace.papi.service.naming;
 
 
-import javax.naming.Context;
+import javax.naming.*;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
-import javax.naming.Binding;
-import javax.naming.Name;
-import javax.naming.NameClassPair;
-import javax.naming.NameParser;
-import javax.naming.NamingEnumeration;
-import javax.naming.NamingException;
-import javax.naming.OperationNotSupportedException;
 
 @SuppressWarnings("UseOfObsoleteCollectionType")
 public abstract class AbstractContext implements Context {

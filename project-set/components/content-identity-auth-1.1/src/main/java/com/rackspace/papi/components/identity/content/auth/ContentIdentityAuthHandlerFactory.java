@@ -5,11 +5,6 @@ import com.rackspace.papi.commons.util.transform.Transform;
 import com.rackspace.papi.commons.util.transform.jaxb.StreamToJaxbTransform;
 import com.rackspace.papi.commons.util.transform.json.JacksonJaxbTransform;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-
-import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
-
 import com.rackspacecloud.docs.auth.api.v1.Credentials;
 import org.openrepose.rackspace.auth.content_identity.config.ContentIdentityAuthConfig;
 import org.slf4j.Logger;
@@ -17,6 +12,9 @@ import org.slf4j.Logger;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ContentIdentityAuthHandlerFactory extends AbstractConfiguredFilterHandlerFactory<ContentIdentityAuthHandler> {
 

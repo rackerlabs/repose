@@ -3,15 +3,14 @@ package org.openrepose.rackspace.auth_2_0.identity.content.auth;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.transform.json.JacksonJaxbTransform;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-
-import java.util.HashMap;
-import java.util.Map;
 import org.openrepose.rackspace.auth2.content_identity.config.ContentIdentityAuthConfig;
 import org.slf4j.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ContentIdentityAuthHandlerFactory extends AbstractConfiguredFilterHandlerFactory<ContentIdentityAuthHandler> {
 

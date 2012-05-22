@@ -1,6 +1,7 @@
 package com.rackspace.papi.commons.util.net;
 
 import com.rackspace.papi.commons.collections.EnumerationIterable;
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;

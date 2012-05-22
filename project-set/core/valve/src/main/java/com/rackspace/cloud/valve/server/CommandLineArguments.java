@@ -1,6 +1,7 @@
 package com.rackspace.cloud.valve.server;
 
-import org.kohsuke.args4j.*;
+import org.kohsuke.args4j.Argument;
+import org.kohsuke.args4j.Option;
 
 public class CommandLineArguments {
    private static final String DEFAULT_HTTP_PORT_INFO = "(Range is 1024 to 49150)";

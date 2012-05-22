@@ -1,10 +1,13 @@
 package com.rackspace.papi.commons.util.io;
 
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
-import java.io.IOException;
-import org.junit.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import java.io.IOException;
+
 import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)

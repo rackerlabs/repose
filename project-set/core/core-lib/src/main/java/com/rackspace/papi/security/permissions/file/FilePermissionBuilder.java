@@ -1,6 +1,7 @@
 package com.rackspace.papi.security.permissions.file;
 
 import com.rackspace.papi.commons.util.StringUtilities;
+
 import java.io.File;
 import java.io.FilePermission;
 import java.security.Permission;

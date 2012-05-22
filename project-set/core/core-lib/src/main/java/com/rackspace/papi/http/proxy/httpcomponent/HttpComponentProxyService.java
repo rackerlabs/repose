@@ -16,31 +16,24 @@
  */
 package com.rackspace.papi.http.proxy.httpcomponent;
 
-import java.net.URISyntaxException;
-
 import com.rackspace.papi.http.proxy.common.ProxyService;
 import org.apache.http.HttpException;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
-
-import java.io.IOException;
-import java.net.URI;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.utils.URIUtils;
 import org.apache.http.conn.ClientConnectionManager;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-
-/**
- *
- * @author John Hopper
- */
-import org.apache.http.HttpHost;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.utils.URIUtils;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 public class HttpComponentProxyService implements ProxyService {
     private static final Logger LOG = LoggerFactory.getLogger(HttpComponentProxyService.class);
 

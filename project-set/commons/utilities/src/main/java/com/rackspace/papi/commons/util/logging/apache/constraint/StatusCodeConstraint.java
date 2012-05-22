@@ -1,9 +1,9 @@
 package com.rackspace.papi.commons.util.logging.apache.constraint;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Pattern;
-import javax.servlet.http.HttpServletResponse;
 
 public class StatusCodeConstraint {
 

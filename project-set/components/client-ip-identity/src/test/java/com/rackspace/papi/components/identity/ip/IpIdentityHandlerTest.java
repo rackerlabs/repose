@@ -3,21 +3,21 @@ package com.rackspace.papi.components.identity.ip;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.net.IpAddressRange;
-import com.rackspace.papi.components.identity.ip.config.IpIdentityConfig;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
+import com.rackspace.papi.components.identity.ip.config.IpIdentityConfig;
 import com.rackspace.papi.components.identity.ip.config.WhiteList;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.servlet.http.HttpServletRequest;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.junit.Before;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class IpIdentityHandlerTest {
 

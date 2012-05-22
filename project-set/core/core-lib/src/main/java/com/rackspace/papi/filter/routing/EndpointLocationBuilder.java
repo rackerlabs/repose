@@ -3,11 +3,12 @@ package com.rackspace.papi.filter.routing;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.Node;
+
+import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 
 public class EndpointLocationBuilder implements LocationBuilder {
 

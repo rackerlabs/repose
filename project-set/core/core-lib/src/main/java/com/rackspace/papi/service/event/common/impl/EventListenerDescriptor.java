@@ -1,12 +1,8 @@
 package com.rackspace.papi.service.event.common.impl;
 
 import com.rackspace.papi.service.event.common.EventListener;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+
+import java.util.*;
 
 public class EventListenerDescriptor<T extends Enum> {
 

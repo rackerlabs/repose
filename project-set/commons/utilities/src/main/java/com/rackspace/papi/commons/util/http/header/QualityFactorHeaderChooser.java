@@ -1,6 +1,7 @@
 package com.rackspace.papi.commons.util.http.header;
 
 import com.rackspace.papi.commons.util.StringUtilities;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;

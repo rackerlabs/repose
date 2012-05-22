@@ -1,13 +1,15 @@
 package com.rackspace.papi.mocks.auth.providers;
 
 import com.rackspace.papi.mocks.auth.provider.UserDataPropertiesProviderImpl;
-import java.io.IOException;
-import javax.xml.datatype.DatatypeConfigurationException;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 @RunWith(Enclosed.class)
 public class UserDataPropertiesProviderImplTest {

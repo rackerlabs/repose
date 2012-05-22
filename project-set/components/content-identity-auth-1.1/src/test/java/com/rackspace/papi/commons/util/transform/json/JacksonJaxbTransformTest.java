@@ -4,20 +4,20 @@ import com.rackspace.papi.components.identity.content.credentials.wrappers.Mosso
 import com.rackspace.papi.components.identity.content.credentials.wrappers.NastCredentialsWrapper;
 import com.rackspace.papi.components.identity.content.credentials.wrappers.PasswordCredentialsWrapper;
 import com.rackspace.papi.components.identity.content.credentials.wrappers.UserCredentialsWrapper;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map.Entry;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonNode;
-import org.codehaus.jackson.JsonParser;
-import org.codehaus.jackson.JsonToken;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.node.ObjectNode;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import java.io.IOException;
+import java.util.Iterator;
+import java.util.Map.Entry;
+
+import static org.junit.Assert.*;
 
 @RunWith(Enclosed.class)
 public class JacksonJaxbTransformTest {

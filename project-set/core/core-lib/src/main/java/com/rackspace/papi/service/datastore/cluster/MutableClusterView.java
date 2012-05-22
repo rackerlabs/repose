@@ -1,6 +1,7 @@
 package com.rackspace.papi.service.datastore.cluster;
 
 import com.rackspace.papi.domain.ServicePorts;
+
 import java.net.InetSocketAddress;
 
 public interface MutableClusterView extends ClusterView {

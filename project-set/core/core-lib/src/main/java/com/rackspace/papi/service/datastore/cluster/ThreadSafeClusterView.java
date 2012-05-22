@@ -5,6 +5,9 @@ import com.rackspace.papi.commons.util.net.StaticNetworkInterfaceProvider;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.datastore.cluster.member.ClusterMember;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
@@ -12,8 +15,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ThreadSafeClusterView implements MutableClusterView {
 

@@ -40,7 +40,8 @@
 
 package javax.servlet;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.EnumSet;
 
 /**
  * Interface through which a {@link Filter} may be further configured.

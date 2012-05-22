@@ -1,11 +1,10 @@
-
 import com.rackspace.papi.components.datastore.DistributedDatastoreFilter;
 import com.rackspace.papi.components.ratelimit.RateLimitingFilter;
-import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.filter.PowerFilter;
-import com.rackspace.papi.service.context.impl.PowerApiContextManager;
 import com.rackspace.papi.jetty.JettyServerBuilder;
 import com.rackspace.papi.jetty.JettyTestingContext;
+import com.rackspace.papi.service.context.impl.PowerApiContextManager;
+import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.test.DummyServlet;
 
 public class StandAloneRateLimitingServer extends JettyTestingContext {

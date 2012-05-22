@@ -3,17 +3,15 @@ package com.rackspace.papi.filter;
 import com.rackspace.papi.commons.util.net.NetUtilities;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ServicePorts;
-import com.rackspace.papi.model.FilterList;
-import com.rackspace.papi.model.Node;
-import com.rackspace.papi.model.NodeList;
-import com.rackspace.papi.model.ReposeCluster;
-import com.rackspace.papi.model.SystemModel;
-import java.util.ArrayList;
-import java.util.List;
-import static org.junit.Assert.assertNotNull;
+import com.rackspace.papi.model.*;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

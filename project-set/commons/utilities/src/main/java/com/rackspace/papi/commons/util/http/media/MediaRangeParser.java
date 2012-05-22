@@ -3,6 +3,7 @@ package com.rackspace.papi.commons.util.http.media;
 import com.rackspace.papi.commons.util.http.header.CustomHeaderParser;
 import com.rackspace.papi.commons.util.http.header.HeaderFieldParser;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
+
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;

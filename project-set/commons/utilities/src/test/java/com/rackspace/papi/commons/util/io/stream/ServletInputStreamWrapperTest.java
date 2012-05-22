@@ -1,12 +1,15 @@
 package com.rackspace.papi.commons.util.io.stream;
 
-import java.io.IOException;
-import java.io.InputStream;
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import static org.mockito.Mockito.*;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 @RunWith(Enclosed.class)
 public class ServletInputStreamWrapperTest {

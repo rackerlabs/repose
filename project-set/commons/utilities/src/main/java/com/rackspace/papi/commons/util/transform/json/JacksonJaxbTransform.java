@@ -1,12 +1,13 @@
 package com.rackspace.papi.commons.util.transform.json;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import org.codehaus.jackson.map.AnnotationIntrospector;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
 import org.slf4j.Logger;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class JacksonJaxbTransform {
    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(JacksonJaxbTransform.class);

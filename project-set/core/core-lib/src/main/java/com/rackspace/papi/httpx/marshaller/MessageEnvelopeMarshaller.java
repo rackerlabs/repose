@@ -3,7 +3,8 @@ package com.rackspace.papi.httpx.marshaller;
 import com.rackspace.httpx.MessageEnvelope;
 import com.rackspace.papi.httpx.ObjectFactoryUser;
 
-import javax.xml.bind.*;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;

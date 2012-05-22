@@ -1,20 +1,16 @@
 package com.rackspace.papi.service.naming;
 
-import com.rackspace.papi.service.naming.PowerApiNamingContext;
-import javax.naming.NameAlreadyBoundException;
-import javax.naming.Name;
-import org.junit.Ignore;
-import java.util.Hashtable;
-import javax.naming.CompositeName;
-import javax.naming.Context;
-import javax.naming.InvalidNameException;
-import javax.naming.NameNotFoundException;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import javax.naming.*;
+import java.util.Hashtable;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 @SuppressWarnings("UseOfObsoleteCollectionType")
 @RunWith(Enclosed.class)

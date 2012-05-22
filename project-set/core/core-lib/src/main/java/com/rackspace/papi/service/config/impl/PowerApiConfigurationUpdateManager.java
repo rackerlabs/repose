@@ -9,9 +9,10 @@ import com.rackspace.papi.commons.util.thread.Poller;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.threading.ThreadingService;
+
+import javax.servlet.ServletContext;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.ServletContext;
 
 public class PowerApiConfigurationUpdateManager implements ConfigurationUpdateManager {
 
