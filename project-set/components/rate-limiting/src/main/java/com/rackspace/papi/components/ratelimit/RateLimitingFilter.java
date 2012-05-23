@@ -2,7 +2,7 @@ package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
-import com.rackspace.papi.service.context.ContextAdapter;
+import com.rackspace.papi.service.context.common.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreManager;

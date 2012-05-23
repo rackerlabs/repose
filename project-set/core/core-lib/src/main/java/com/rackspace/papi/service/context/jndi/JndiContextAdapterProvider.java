@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.context.jndi;
 
-import com.rackspace.papi.service.context.ContextAdapter;
-import com.rackspace.papi.service.context.ContextAdapterProvider;
+import com.rackspace.papi.service.context.common.ContextAdapter;
+import com.rackspace.papi.service.context.common.ContextAdapterProvider;
 
 import javax.naming.Context;
 

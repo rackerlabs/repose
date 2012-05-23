@@ -2,7 +2,7 @@ package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.ServiceRegistry;
-import com.rackspace.papi.service.context.ContextAdapter;
+import com.rackspace.papi.service.context.common.ContextAdapter;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.banner.PapiBanner;

@@ -4,7 +4,7 @@ import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.service.config.impl.PowerApiConfigurationUpdateManager;
-import com.rackspace.papi.service.context.ContextAdapter;
+import com.rackspace.papi.service.context.common.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.threading.ThreadingService;
