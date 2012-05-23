@@ -8,10 +8,11 @@ import com.rackspace.papi.service.deploy.ApplicationDeploymentEvent;
 import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.common.EventListener;
 import com.rackspace.papi.service.event.common.EventService;
-import javax.servlet.ServletContextEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import javax.servlet.ServletContextEvent;
 
 @Component("classLoaderServiceContext")
 public class ClassLoaderServiceContext implements ServiceContext<ClassLoaderManagerService> {

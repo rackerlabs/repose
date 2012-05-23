@@ -3,6 +3,7 @@ package com.rackspace.papi.commons.util.servlet.filter;
 import com.rackspace.papi.commons.util.servlet.InitParameter;
 import com.rackspace.papi.commons.util.servlet.context.ApplicationContextAdapter;
 import com.rackspace.papi.commons.util.servlet.context.exceptions.ContextAdapterResolutionException;
+
 import javax.servlet.Filter;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;

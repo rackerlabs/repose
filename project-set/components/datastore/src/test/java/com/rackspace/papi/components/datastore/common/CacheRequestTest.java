@@ -1,24 +1,24 @@
 package com.rackspace.papi.components.datastore.common;
 
-import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
 import com.rackspace.papi.commons.util.io.stream.ServletInputStreamWrapper;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import org.junit.Before;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 
-import org.junit.Ignore;
-import org.junit.Test;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  *

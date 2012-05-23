@@ -1,12 +1,13 @@
 package com.rackspace.papi.components.versioning.domain;
 
 import com.rackspace.papi.commons.util.StringUriUtilities;
-import static com.rackspace.papi.commons.util.StringUriUtilities.indexOfUriFragment;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.string.JCharSequenceFactory;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
 import com.rackspace.papi.components.versioning.util.http.HttpRequestInfo;
 import com.rackspace.papi.components.versioning.util.http.UniformResourceInfo;
+
+import static com.rackspace.papi.commons.util.StringUriUtilities.indexOfUriFragment;
 
 public class VersionedRequest {
    

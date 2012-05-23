@@ -4,16 +4,16 @@ import com.rackspace.papi.model.DestinationCluster;
 import com.rackspace.papi.model.DestinationEndpoint;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.service.routing.RoutingService;
-import javax.servlet.http.HttpServletRequest;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.BeforeClass;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import static org.mockito.Mockito.*;
+
+import javax.servlet.http.HttpServletRequest;
+
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(Enclosed.class)
 public class DestinationLocationBuilderTest {

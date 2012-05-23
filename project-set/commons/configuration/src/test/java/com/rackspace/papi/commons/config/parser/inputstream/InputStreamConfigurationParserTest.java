@@ -2,13 +2,15 @@ package com.rackspace.papi.commons.config.parser.inputstream;
 
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.config.resource.ResourceResolutionException;
-import java.io.IOException;
-import java.io.InputStream;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import java.io.IOException;
+import java.io.InputStream;
+
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)

@@ -1,6 +1,7 @@
 package com.rackspace.papi.commons.util.classloader.ear;
 
 import com.rackspace.papi.commons.util.plugin.archive.ArchiveEntryDescriptor;
+
 import java.io.File;
 
 public class SimpleEarClassLoaderContext implements EarClassLoaderContext {

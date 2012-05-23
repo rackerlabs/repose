@@ -4,6 +4,7 @@ import com.rackspace.papi.commons.util.pooling.ConstructionStrategy;
 import com.rackspace.papi.commons.util.pooling.GenericBlockingResourcePool;
 import com.rackspace.papi.commons.util.pooling.Pool;
 import com.rackspace.papi.commons.util.pooling.ResourceConstructionException;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;

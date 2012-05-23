@@ -4,8 +4,9 @@ import com.rackspace.papi.components.identity.header.config.HeaderIdentityConfig
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
-import java.io.IOException;
+
 import javax.servlet.*;
+import java.io.IOException;
 
 public class HeaderIdentityFilter implements Filter {
 

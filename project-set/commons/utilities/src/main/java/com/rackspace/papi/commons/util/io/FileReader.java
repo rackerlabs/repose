@@ -1,6 +1,7 @@
 package com.rackspace.papi.commons.util.io;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
 
 /**
  * Created by IntelliJ IDEA. User: joshualockwood Date: 6/27/11 Time: 9:24 AM

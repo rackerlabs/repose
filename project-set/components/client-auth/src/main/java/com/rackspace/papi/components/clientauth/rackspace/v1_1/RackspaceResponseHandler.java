@@ -8,15 +8,15 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import org.slf4j.Logger;
 
-public class ResponseHandler {
+public class RackspaceResponseHandler {
 
-   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ResponseHandler.class);
+   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RackspaceResponseHandler.class);
 
    private final ReadableHttpServletResponse response;
    private final String wwwAuthenticate;
    private static final String DELEGATED = "Delegated";
 
-   public ResponseHandler(ReadableHttpServletResponse response, String wwwAuthenticate) {
+   public RackspaceResponseHandler(ReadableHttpServletResponse response, String wwwAuthenticate) {
       this.response = response;
       this.wwwAuthenticate = wwwAuthenticate;
    }

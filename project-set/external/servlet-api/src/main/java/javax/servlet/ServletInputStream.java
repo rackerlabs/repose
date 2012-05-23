@@ -58,8 +58,8 @@
 
 package javax.servlet;
 
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * 

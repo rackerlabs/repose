@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.versioning.util;
 
-import com.rackspace.papi.components.versioning.util.RequestUrlTokenizer;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -8,10 +7,8 @@ import org.junit.runner.RunWith;
 
 import java.util.Set;
 
-import static org.junit.Assert.assertEquals;
 import static com.rackspace.papi.components.versioning.testhelpers.ConfigurationDataCreator.createVersionIds;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by IntelliJ IDEA.

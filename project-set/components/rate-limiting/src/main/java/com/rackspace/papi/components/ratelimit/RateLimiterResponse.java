@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.ratelimit;
 
-import com.rackspace.papi.commons.util.http.*;
+import com.rackspace.papi.commons.util.http.CommonHttpHeader;
+import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.limits.schema.Limits;
@@ -12,12 +13,10 @@ import com.rackspace.papi.components.ratelimit.util.LimitsEntityStreamTransforme
 import com.rackspace.papi.components.ratelimit.util.combine.LimitsTransformPair;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import org.slf4j.Logger;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-
-import org.slf4j.Logger;
-
 import java.io.IOException;
 import java.util.Map;
 

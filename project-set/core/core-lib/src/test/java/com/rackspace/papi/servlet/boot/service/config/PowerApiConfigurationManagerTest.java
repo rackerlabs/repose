@@ -1,23 +1,24 @@
 package com.rackspace.papi.servlet.boot.service.config;
 
 import com.rackspace.papi.service.config.impl.PowerApiConfigurationManager;
-import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
-import com.rackspace.papi.service.event.common.EventService;
-import org.junit.Ignore;
-import com.rackspace.papi.servlet.PowerApiContextException;
-import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
+import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
+import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.threading.ThreadingService;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
+import com.rackspace.papi.servlet.InitParameter;
+import com.rackspace.papi.servlet.PowerApiContextException;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
 
 @Ignore("remove this tag after a testing strategy for jndi contexts has been fleshed out")
 @RunWith(Enclosed.class)

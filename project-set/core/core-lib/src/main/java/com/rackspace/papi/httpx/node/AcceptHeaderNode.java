@@ -4,8 +4,8 @@ import com.rackspace.httpx.AcceptHeader;
 import com.rackspace.httpx.RequestHeaders;
 import com.rackspace.httpx.SimpleParameter;
 import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MediaRangeParser;
+import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.httpx.ObjectFactoryUser;
 
 import java.util.List;

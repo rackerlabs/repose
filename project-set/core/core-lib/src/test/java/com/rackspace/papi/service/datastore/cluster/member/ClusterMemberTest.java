@@ -1,12 +1,13 @@
 package com.rackspace.papi.service.datastore.cluster.member;
 
-import java.net.InetSocketAddress;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+import java.net.InetSocketAddress;
+
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
 
 /**
  * I love well composed code just as much as I love testing it.

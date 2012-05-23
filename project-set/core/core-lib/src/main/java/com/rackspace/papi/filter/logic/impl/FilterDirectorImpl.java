@@ -9,15 +9,12 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.HeaderManager;
 import com.rackspace.papi.model.Destination;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.servlet.http.HttpServletResponse;
 
 public class FilterDirectorImpl implements FilterDirector {
 

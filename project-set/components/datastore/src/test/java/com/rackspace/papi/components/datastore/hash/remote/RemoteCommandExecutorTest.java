@@ -5,7 +5,6 @@ import com.rackspace.papi.commons.util.pooling.GenericBlockingResourcePool;
 import com.rackspace.papi.commons.util.pooling.Pool;
 import com.rackspace.papi.commons.util.pooling.ResourceConstructionException;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
-import java.io.IOException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -14,7 +13,9 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 /**

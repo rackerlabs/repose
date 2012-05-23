@@ -10,9 +10,7 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.io.*;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;

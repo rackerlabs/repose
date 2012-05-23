@@ -6,12 +6,13 @@ import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.common.EventListener;
 import com.rackspace.papi.service.event.common.EventService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ArtifactManager implements EventListener<ApplicationArtifactEvent, String> {
 

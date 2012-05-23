@@ -1,6 +1,5 @@
 package com.rackspace.papi.commons.config.parser.jaxb;
 
-import com.rackspace.papi.commons.config.parser.jaxb.UnmarshallerConstructionStrategy;
 import com.rackspace.papi.commons.util.pooling.ConstructionStrategy;
 import com.rackspace.papi.commons.util.pooling.ResourceConstructionException;
 import org.junit.Test;

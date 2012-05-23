@@ -4,9 +4,10 @@ import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.StoredElement;
 import com.rackspace.papi.service.datastore.impl.StoredElementImpl;
-import java.util.concurrent.TimeUnit;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
+
+import java.util.concurrent.TimeUnit;
 
 public class EHCacheDatastore implements Datastore {
 

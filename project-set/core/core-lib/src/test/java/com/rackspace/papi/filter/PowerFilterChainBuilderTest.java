@@ -5,27 +5,21 @@ import com.oracle.javaee6.FullyQualifiedClassType;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoader;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.commons.util.classloader.ear.EarDescriptor;
-import com.rackspace.papi.model.Filter;
-import com.rackspace.papi.model.SystemModel;
+import com.rackspace.papi.commons.util.net.NetUtilities;
+import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.domain.ServicePorts;
+import com.rackspace.papi.model.*;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import com.rackspace.papi.commons.util.net.NetUtilities;
-import com.rackspace.papi.domain.Port;
-import com.rackspace.papi.domain.ServicePorts;
-import com.rackspace.papi.model.Node;
-import com.rackspace.papi.model.NodeList;
-import com.rackspace.papi.model.FilterList;
-import com.rackspace.papi.model.ReposeCluster;
 
 import javax.servlet.FilterConfig;
-
 import java.util.*;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
-
-import static org.junit.Assert.*;
 
 /**
  * @author fran

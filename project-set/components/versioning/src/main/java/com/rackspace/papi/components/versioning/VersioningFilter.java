@@ -1,22 +1,14 @@
 package com.rackspace.papi.components.versioning;
 
 import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList;
-import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ServicePorts;
+import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
-import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import java.io.IOException;
-import java.util.List;
 
 /**
  *

@@ -1,7 +1,8 @@
 package com.rackspace.papi.commons.util;
 
 import com.rackspace.papi.commons.util.string.JCharSequence;
-import static com.rackspace.papi.commons.util.string.JCharSequenceFactory.*;
+
+import static com.rackspace.papi.commons.util.string.JCharSequenceFactory.jchars;
 
 /**
  * This is a simple helper class that can be used to generalize URI related

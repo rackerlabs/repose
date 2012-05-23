@@ -2,17 +2,22 @@ package com.rackspace.papi.components.identity.header;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.components.identity.header.config.HeaderIdentityConfig;
+import com.rackspace.papi.components.identity.header.config.HttpHeader;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
 public class HeaderIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFactory<HeaderIdentityHandler> {
 
 
-   private HeaderIdentityConfig config;
+   private List<HttpHeader> sourceHeaders;
 
    public HeaderIdentityHandlerFactory() {
+       sourceHeaders = new ArrayList<HttpHeader>();
    }
 
    @Override
@@ -29,12 +34,12 @@ public class HeaderIdentityHandlerFactory extends AbstractConfiguredFilterHandle
 
       @Override
       public void configurationUpdated(HeaderIdentityConfig configurationObject) {
-         config = configurationObject;
+          sourceHeaders = configurationObject.getSourceHeaders().getHeader();
       }
    }
 
    @Override
    protected HeaderIdentityHandler buildHandler() {
-      return new HeaderIdentityHandler(config);
+      return new HeaderIdentityHandler(sourceHeaders);
    }
 }

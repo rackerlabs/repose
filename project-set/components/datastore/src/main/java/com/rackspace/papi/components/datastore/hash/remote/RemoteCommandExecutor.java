@@ -2,7 +2,6 @@ package com.rackspace.papi.components.datastore.hash.remote;
 
 import com.rackspace.papi.commons.util.pooling.*;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
-import java.io.IOException;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -14,6 +13,8 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
 
 /**
  *

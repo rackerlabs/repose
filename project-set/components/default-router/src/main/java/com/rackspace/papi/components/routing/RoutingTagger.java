@@ -8,9 +8,10 @@ import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.SystemModel;
-import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletRequest;
 
 public class RoutingTagger extends AbstractFilterLogicHandler {
 

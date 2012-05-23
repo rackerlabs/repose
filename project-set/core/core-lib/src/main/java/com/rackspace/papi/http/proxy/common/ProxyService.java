@@ -5,9 +5,9 @@
 
 package com.rackspace.papi.http.proxy.common;
 
-import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  *

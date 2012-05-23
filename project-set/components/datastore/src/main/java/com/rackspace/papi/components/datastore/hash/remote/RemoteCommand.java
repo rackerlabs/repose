@@ -1,9 +1,10 @@
 package com.rackspace.papi.components.datastore.hash.remote;
 
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
-import java.io.IOException;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpRequestBase;
+
+import java.io.IOException;
 
 /**
  *

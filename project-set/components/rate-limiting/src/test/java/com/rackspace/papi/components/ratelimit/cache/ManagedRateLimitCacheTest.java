@@ -1,17 +1,19 @@
 package com.rackspace.papi.components.ratelimit.cache;
 
+import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.components.limits.schema.HttpMethod;
 import com.rackspace.papi.components.limits.schema.TimeUnit;
 import com.rackspace.papi.components.ratelimit.config.ConfiguredRatelimit;
-import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.impl.StoredElementImpl;
-import java.util.HashMap;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import java.util.HashMap;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 /**

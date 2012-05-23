@@ -1,14 +1,15 @@
 package com.rackspace.papi.http.proxy.httpcomponent;
 
 import org.apache.http.HttpHost;
-import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.entity.InputStreamEntity;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.Enumeration;
-import javax.servlet.http.HttpServletRequest;
 
-import static com.rackspace.papi.http.Headers.*;
+import static com.rackspace.papi.http.Headers.HOST;
 
 /**
  * Process a request to copy over header values, query string parameters, and

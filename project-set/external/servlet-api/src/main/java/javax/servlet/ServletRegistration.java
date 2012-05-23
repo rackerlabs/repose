@@ -40,7 +40,8 @@
 
 package javax.servlet;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Set;
 
 /**
  * Interface through which a {@link Servlet} may be further configured.

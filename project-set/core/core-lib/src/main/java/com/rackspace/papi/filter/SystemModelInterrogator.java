@@ -1,27 +1,26 @@
 package com.rackspace.papi.filter;
 
-import com.rackspace.papi.commons.util.net.StaticNetworkNameResolver;
 import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
 import com.rackspace.papi.commons.util.net.NetworkNameResolver;
 import com.rackspace.papi.commons.util.net.StaticNetworkInterfaceProvider;
+import com.rackspace.papi.commons.util.net.StaticNetworkNameResolver;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
 
 /**
  * @author franshua

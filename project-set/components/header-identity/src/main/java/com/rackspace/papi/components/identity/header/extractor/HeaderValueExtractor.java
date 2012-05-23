@@ -1,12 +1,11 @@
 package com.rackspace.papi.components.identity.header.extractor;
 
+import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.components.identity.header.config.HttpHeader;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-
-import com.rackspace.papi.commons.util.regex.ExtractorResult;
 
 public class HeaderValueExtractor {
 

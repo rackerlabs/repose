@@ -1,19 +1,19 @@
 package com.rackspace.papi.service.context.jndi;
 
-import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.ServiceUnavailableException;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
+import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.impl.ClassLoaderServiceContext;
-
-import javax.naming.Context;
-import javax.naming.NamingException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+import javax.naming.Context;
+import javax.naming.NamingException;
+
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
 
 /**
  * TODO: Finish testing the rest of the service names and their associated methods on the context adapter

@@ -1,11 +1,11 @@
 package com.rackspace.papi.components.ratelimit;
 
 
+import com.rackspace.papi.commons.util.transform.Transform;
+import com.rackspace.papi.commons.util.transform.jaxb.StreamToJaxbTransform;
 import com.rackspace.papi.components.limits.schema.Limits;
 import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
 import com.rackspace.papi.components.ratelimit.util.LimitsEntityTransformer;
-import com.rackspace.papi.commons.util.transform.Transform;
-import com.rackspace.papi.commons.util.transform.jaxb.StreamToJaxbTransform;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

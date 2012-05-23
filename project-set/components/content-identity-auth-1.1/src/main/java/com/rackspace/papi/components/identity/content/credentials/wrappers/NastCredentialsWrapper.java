@@ -1,8 +1,9 @@
 package com.rackspace.papi.components.identity.content.credentials.wrappers;
 
 import com.rackspacecloud.docs.auth.api.v1.NastCredentials;
-import java.util.Map;
+
 import javax.xml.bind.annotation.XmlRootElement;
+import java.util.Map;
 
 @XmlRootElement(name = "nastCredentials")
 public class NastCredentialsWrapper extends CredentialsWrapper<NastCredentials> {

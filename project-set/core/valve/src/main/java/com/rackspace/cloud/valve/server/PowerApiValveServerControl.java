@@ -1,14 +1,5 @@
 package com.rackspace.cloud.valve.server;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.MalformedURLException;
-import java.net.Socket;
-import java.io.OutputStream;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.rackspace.cloud.valve.jetty.ValveJettyServerBuilder;
 import com.rackspace.papi.commons.config.ConfigurationResourceException;
 import com.rackspace.papi.commons.config.parser.ConfigurationParserFactory;
@@ -20,6 +11,15 @@ import com.rackspace.papi.domain.Port;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.MalformedURLException;
+import java.net.Socket;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PowerApiValveServerControl {
 

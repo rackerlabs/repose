@@ -7,10 +7,11 @@ import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.filterchain.GarbageCollectionService;
 import com.rackspace.papi.service.threading.ThreadingService;
-import javax.servlet.ServletContextEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import javax.servlet.ServletContextEvent;
 
 @Component("filterChainGCServiceContext")
 public class FilterChainGCServiceContext implements ServiceContext<GarbageCollectionService> {

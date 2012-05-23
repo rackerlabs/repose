@@ -9,14 +9,15 @@ import com.rackspace.papi.components.limits.schema.AbsoluteLimitList;
 import com.rackspace.papi.components.limits.schema.Limits;
 import com.rackspace.papi.components.limits.schema.ObjectFactory;
 import com.rackspace.papi.components.ratelimit.util.LimitsEntityTransformer;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.util.List;
-import java.util.Set;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.List;
+import java.util.Set;
 
 public class MockServiceProvider {
 

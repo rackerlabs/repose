@@ -1,9 +1,10 @@
 package com.rackspace.papi.commons.util.net;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 
 public class IpAddressRange {
 

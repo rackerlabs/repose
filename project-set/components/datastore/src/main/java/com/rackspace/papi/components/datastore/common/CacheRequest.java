@@ -6,12 +6,10 @@ import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
 import com.rackspace.papi.commons.util.http.HeaderConstant;
 import com.rackspace.papi.commons.util.io.BufferCapacityException;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
-import java.io.IOException;
-
-import java.net.InetSocketAddress;
-
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.InetSocketAddress;
 
 public class CacheRequest {
 

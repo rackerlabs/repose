@@ -1,17 +1,12 @@
 package com.rackspace.papi.components.translation;
 
-import com.rackspace.papi.components.translation.config.*;
+import com.rackspace.papi.components.translation.config.TranslationConfig;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
 
 @RunWith(Enclosed.class)
 public class TranslationHandlerTest {

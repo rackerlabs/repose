@@ -7,16 +7,17 @@ import com.rackspace.papi.commons.util.servlet.http.RouteDestination;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.model.DestinationCluster;
-import java.io.IOException;
-import java.util.Vector;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.Vector;
+
 import static org.junit.Assert.*;
-import org.junit.Before;
 import static org.mockito.Mockito.*;
 
 /**

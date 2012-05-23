@@ -1,6 +1,7 @@
 package com.rackspace.papi.commons.util.classloader;
 
 import com.rackspace.papi.commons.util.plugin.archive.ArchiveEntryDescriptor;
+
 import java.util.Arrays;
 
 public class ResourceDescriptor {

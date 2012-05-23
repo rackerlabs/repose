@@ -4,13 +4,11 @@ import com.rackspace.papi.components.translation.config.TranslationConfig;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
-import org.slf4j.Logger;
 
 import javax.servlet.*;
 import java.io.IOException;
 
 public class TranslationFilter implements Filter {
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(TranslationFilter.class);
     private TranslationHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;
 

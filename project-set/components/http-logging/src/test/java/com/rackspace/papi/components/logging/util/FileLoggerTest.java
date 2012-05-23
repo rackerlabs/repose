@@ -1,10 +1,10 @@
 package com.rackspace.papi.components.logging.util;
 
-import java.io.*;
+import org.junit.*;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import org.junit.*;
+import java.io.*;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;

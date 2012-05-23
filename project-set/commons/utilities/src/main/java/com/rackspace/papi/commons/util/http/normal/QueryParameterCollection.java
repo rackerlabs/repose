@@ -1,6 +1,7 @@
 package com.rackspace.papi.commons.util.http.normal;
 
 import com.rackspace.papi.commons.util.StringUtilities;
+
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;

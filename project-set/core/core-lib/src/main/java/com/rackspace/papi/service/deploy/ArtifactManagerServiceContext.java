@@ -10,9 +10,10 @@ import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.event.listener.SingleFireEventListener;
 import com.rackspace.papi.service.threading.ThreadingService;
-import java.io.File;
-import javax.servlet.ServletContextEvent;
 import org.slf4j.Logger;
+
+import javax.servlet.ServletContextEvent;
+import java.io.File;
 
 public class ArtifactManagerServiceContext implements ServiceContext<ArtifactManager> {
 

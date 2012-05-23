@@ -1,6 +1,7 @@
 package com.rackspace.papi.filter.logic;
 
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**

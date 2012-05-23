@@ -4,12 +4,12 @@ import com.rackspace.papi.httpx.processor.cdata.UnknownContentStreamProcessor;
 import com.rackspace.papi.httpx.processor.common.InputStreamProcessor;
 import com.rackspace.papi.httpx.processor.json.JsonxStreamProcessor;
 import com.rackspace.papi.httpx.processor.util.BodyContentMediaType;
-import java.io.IOException;
-import java.io.InputStream;
+import org.codehaus.jackson.JsonFactory;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.xml.transform.sax.SAXTransformerFactory;
-
-import org.codehaus.jackson.JsonFactory;
+import java.io.IOException;
+import java.io.InputStream;
 
 public class TranslationRequestPreProcessor {
 

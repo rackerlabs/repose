@@ -2,8 +2,12 @@ package com.rackspace.papi.components.identity.header_mapping;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.components.identity.header_mapping.config.HeaderIdMappingConfig;
+import com.rackspace.papi.components.identity.header_mapping.config.HttpHeader;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
@@ -11,8 +15,10 @@ public class HeaderIdMappingHandlerFactory extends AbstractConfiguredFilterHandl
 
 
    private HeaderIdMappingConfig config;
+   private List<HttpHeader> sourceHeaders;
 
    public HeaderIdMappingHandlerFactory() {
+       sourceHeaders = new ArrayList<HttpHeader>();
    }
 
    @Override
@@ -29,12 +35,13 @@ public class HeaderIdMappingHandlerFactory extends AbstractConfiguredFilterHandl
 
       @Override
       public void configurationUpdated(HeaderIdMappingConfig configurationObject) {
-         config = configurationObject;
+          
+          sourceHeaders = configurationObject.getSourceHeaders().getHeader();
       }
    }
 
    @Override
    protected HeaderIdMappingHandler buildHandler() {
-      return new HeaderIdMappingHandler(config);
+      return new HeaderIdMappingHandler(sourceHeaders);
    }
 }
