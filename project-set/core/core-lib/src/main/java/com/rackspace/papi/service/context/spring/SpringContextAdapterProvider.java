@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.context.spring;
 
-import com.rackspace.papi.service.context.common.ContextAdapter;
-import com.rackspace.papi.service.context.common.ContextAdapterProvider;
+import com.rackspace.papi.service.context.ContextAdapter;
+import com.rackspace.papi.service.context.ContextAdapterProvider;
 import org.springframework.context.ApplicationContext;
 
 import javax.naming.Context;

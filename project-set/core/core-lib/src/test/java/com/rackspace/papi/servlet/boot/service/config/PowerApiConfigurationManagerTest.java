@@ -1,7 +1,7 @@
 package com.rackspace.papi.servlet.boot.service.config;
 
 import com.rackspace.papi.service.config.impl.PowerApiConfigurationManager;
-import com.rackspace.papi.service.context.common.ContextAdapter;
+import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
 import com.rackspace.papi.service.event.common.EventService;
