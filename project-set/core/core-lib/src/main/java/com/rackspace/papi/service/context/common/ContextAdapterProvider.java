@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.context;
+package com.rackspace.papi.service.context.common;
 
 import javax.naming.Context;
 
