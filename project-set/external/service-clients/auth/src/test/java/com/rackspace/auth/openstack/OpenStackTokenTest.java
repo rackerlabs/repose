@@ -1,17 +1,16 @@
 package com.rackspace.auth.openstack;
 
 import com.rackspace.auth.AuthToken;
-import org.junit.Test;
-
-import java.util.Calendar;
-import java.util.GregorianCalendar;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openstack.docs.identity.api.v2.*;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import java.util.Calendar;
+import java.util.GregorianCalendar;
 
 import static org.junit.Assert.*;
 

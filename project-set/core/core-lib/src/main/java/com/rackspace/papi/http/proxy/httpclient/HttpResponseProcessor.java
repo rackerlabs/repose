@@ -1,15 +1,16 @@
 package com.rackspace.papi.http.proxy.httpclient;
 
-import com.rackspace.papi.http.proxy.common.HttpResponseCodeProcessor;
 import com.rackspace.papi.http.proxy.common.AbstractResponseProcessor;
+import com.rackspace.papi.http.proxy.common.HttpResponseCodeProcessor;
+import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.http.HttpException;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.http.HttpException;
 
 public class HttpResponseProcessor extends AbstractResponseProcessor {
     private final HttpMethod httpMethodResponse;

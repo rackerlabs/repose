@@ -1,9 +1,12 @@
 package com.rackspace.papi.httpx.parser;
 
-import com.rackspace.httpx.*;
+import com.rackspace.httpx.MessageDetail;
+import com.rackspace.httpx.MessageEnvelope;
+import com.rackspace.httpx.RequestHeadDetail;
 import com.rackspace.papi.httpx.ObjectFactoryUser;
 import com.rackspace.papi.httpx.marshaller.MarshallerFactory;
-import com.rackspace.papi.httpx.node.*;
+import com.rackspace.papi.httpx.node.ComplexNode;
+import com.rackspace.papi.httpx.node.RequestNode;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.InputStream;

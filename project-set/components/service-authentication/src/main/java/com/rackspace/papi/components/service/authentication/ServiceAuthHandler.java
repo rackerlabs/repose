@@ -4,14 +4,15 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import java.io.UnsupportedEncodingException;
-import org.slf4j.Logger;
 import org.apache.commons.codec.binary.Base64;
+import org.slf4j.Logger;
+
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 
 public class ServiceAuthHandler extends AbstractFilterLogicHandler {
 

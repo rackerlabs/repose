@@ -2,8 +2,8 @@ package com.rackspace.papi;
 
 import com.rackspace.papi.commons.util.io.ByteBufferInputStream;
 import com.rackspace.papi.commons.util.io.ByteBufferOutputStream;
-import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
+import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
 import com.rackspace.papi.container.config.ObjectFactory;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

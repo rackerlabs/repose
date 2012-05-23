@@ -5,28 +5,28 @@ import com.rackspace.papi.commons.util.io.stream.ServletInputStreamWrapper;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.datastore.common.CacheRequest;
 import com.rackspace.papi.components.datastore.common.DatastoreHeader;
-import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
 import com.rackspace.papi.components.datastore.common.RemoteBehavior;
+import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.impl.StoredElementImpl;
-import java.io.ByteArrayInputStream;
-import java.net.InetAddress;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayInputStream;
+import java.net.InetAddress;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
 
 /**
  *

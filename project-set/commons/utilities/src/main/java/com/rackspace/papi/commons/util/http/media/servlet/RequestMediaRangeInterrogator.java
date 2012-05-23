@@ -1,12 +1,12 @@
 package com.rackspace.papi.commons.util.http.media.servlet;
 
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
+import com.rackspace.papi.commons.util.http.media.MediaRangeProcessor;
+import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.http.media.VariantParser;
-import com.rackspace.papi.commons.util.http.media.MediaType;
-import com.rackspace.papi.commons.util.http.media.MediaRangeProcessor;
-import java.util.ArrayList;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 

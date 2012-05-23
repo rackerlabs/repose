@@ -2,7 +2,6 @@ package org.openrepose.rackspace.auth_2_0.identity.content.auth;
 
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.transform.json.JacksonJaxbTransform;
-
 import org.openrepose.rackspace.auth_2_0.identity.content.credentials.AuthCredentials;
 import org.openrepose.rackspace.auth_2_0.identity.parsers.AuthContentParser;
 import org.openrepose.rackspace.auth_2_0.identity.parsers.json.JsonMapAuthContentParser;

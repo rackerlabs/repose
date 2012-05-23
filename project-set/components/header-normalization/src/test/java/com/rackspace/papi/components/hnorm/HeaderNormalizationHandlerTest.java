@@ -4,23 +4,21 @@
  */
 package com.rackspace.papi.components.hnorm;
 
-import java.util.Enumeration;
-import com.rackspacecloud.api.docs.repose.header_normalization.v1.Target;
-import com.rackspacecloud.api.docs.repose.header_normalization.v1.HeaderFilterList;
-import org.junit.runner.RunWith;
-import org.junit.experimental.runners.Enclosed;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import com.rackspacecloud.api.docs.repose.header_normalization.v1.HeaderNormalizationConfig;
-import com.rackspacecloud.api.docs.repose.header_normalization.v1.HttpHeader;
-import com.rackspacecloud.api.docs.repose.header_normalization.v1.HttpHeaderList;
-import com.rackspacecloud.api.docs.repose.header_normalization.v1.HttpMethod;
-import javax.servlet.http.HttpServletRequest;
+import com.rackspacecloud.api.docs.repose.header_normalization.v1.*;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
+
+import javax.servlet.http.HttpServletRequest;
 import java.lang.reflect.Array;
+import java.util.Enumeration;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 
 /**

@@ -1,9 +1,9 @@
 package com.rackspace.papi.commons.util.xslt;
 
-import java.util.Properties;
 import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
+import java.util.Properties;
 
 
 public final class LogTemplatesWrapper implements Templates {

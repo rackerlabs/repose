@@ -1,6 +1,7 @@
 package com.rackspace.papi.commons.util.http.media;
 
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
+
 import java.util.ArrayList;
 import java.util.List;
 

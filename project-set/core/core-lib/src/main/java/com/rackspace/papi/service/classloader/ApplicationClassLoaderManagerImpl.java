@@ -2,11 +2,12 @@ package com.rackspace.papi.service.classloader;
 
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoader;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
+import org.springframework.stereotype.Component;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import org.springframework.stereotype.Component;
 
 @Component("classLoaderManager")
 public class ApplicationClassLoaderManagerImpl implements ClassLoaderManagerService {

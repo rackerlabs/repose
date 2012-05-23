@@ -1,6 +1,8 @@
 package com.rackspace.papi.httpx.node;
 
-import com.rackspace.httpx.*;
+import com.rackspace.httpx.Response;
+import com.rackspace.httpx.ResponseHead;
+import com.rackspace.httpx.ResponseHeadDetail;
 import com.rackspace.papi.httpx.ObjectFactoryUser;
 
 import javax.servlet.http.HttpServletResponse;

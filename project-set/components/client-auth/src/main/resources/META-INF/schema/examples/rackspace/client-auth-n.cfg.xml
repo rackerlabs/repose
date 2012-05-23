@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <client-auth xmlns="http://docs.rackspacecloud.com/repose/client-auth/v1.0">
-    <rackspace-auth delegable="true" keystone-active="true" xmlns="http://docs.rackspacecloud.com/repose/client-auth/rs-auth-1.1/v1.0">
+    <rackspace-auth delegable="true" xmlns="http://docs.rackspacecloud.com/repose/client-auth/rs-auth-1.1/v1.0">
         <authentication-server username="admin_username" password="admin_password" uri="http://184.106.208.75:8080/auth-mock/" />
 
         <!-- Example Regex to capture user identity in uri
@@ -18,26 +18,6 @@
             e.g: /service/reposeuser/action => x-pp-user=reposeuser
             -->
         <account-mapping id-regex=".*.com/service/([-|\w]+)/?.*" type="MOSSO"/>
-
-        <user-roles>
-            <default>
-                <roles>
-                    <role>sysadmin</role>
-                    <role>netadmin</role>
-                    <role>developer</role>
-                </roles>
-            </default>
-            <user name="cmarin1">
-                <roles>
-                    <role>cloudadmin</role>
-                    <role>itsec</role>
-                </roles>
-            </user>
-            <user name="username2">
-                <roles>
-                    <role>cloudadmin</role>
-                </roles>
-            </user>
-        </user-roles>
+        
     </rackspace-auth>
 </client-auth>

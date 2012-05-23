@@ -2,12 +2,13 @@ package com.rackspace.papi.security;
 
 import com.rackspace.papi.security.permissions.file.FilePermissionBuilder;
 import com.rackspace.papi.security.permissions.file.FileSystemAction;
-import java.io.FilePermission;
-import java.net.SocketPermission;
-import java.security.Permission;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import java.io.FilePermission;
+import java.net.SocketPermission;
+import java.security.Permission;
 
 import static org.mockito.Mockito.*;
 

@@ -2,12 +2,11 @@ package com.rackspace.papi.components.ratelimit.util;
 
 
 import com.rackspace.papi.components.limits.schema.TimeUnit;
-
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  *

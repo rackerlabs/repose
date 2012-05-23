@@ -5,9 +5,10 @@ import com.rackspace.papi.commons.util.transform.json.JacksonJaxbTransform;
 import com.rackspace.papi.components.identity.content.credentials.AuthCredentials;
 import com.rackspace.papi.components.identity.content.credentials.wrappers.CredentialsWrapper;
 import com.rackspace.papi.components.identity.parsers.AuthContentParser;
+import org.slf4j.Logger;
+
 import java.io.IOException;
 import java.io.InputStream;
-import org.slf4j.Logger;
 
 public class JsonJaxbAuthContentParser implements AuthContentParser {
    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(JsonJaxbAuthContentParser.class);

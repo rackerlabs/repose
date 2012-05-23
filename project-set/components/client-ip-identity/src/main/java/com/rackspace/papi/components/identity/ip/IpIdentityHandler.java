@@ -7,17 +7,17 @@ import com.rackspace.papi.commons.util.net.IpAddressRange;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.identity.ip.config.IpIdentityConfig;
 import com.rackspace.papi.components.identity.ip.config.WhiteList;
-import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.HeaderManager;
+import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletRequest;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.List;
-
-import javax.servlet.http.HttpServletRequest;
-import org.slf4j.LoggerFactory;
 
 public class IpIdentityHandler extends AbstractFilterLogicHandler {
 

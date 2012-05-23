@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.clientauth.common;
 
-import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;

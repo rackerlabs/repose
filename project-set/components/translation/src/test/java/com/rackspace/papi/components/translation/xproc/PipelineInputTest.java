@@ -1,9 +1,11 @@
 package com.rackspace.papi.components.translation.xproc;
 
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
 public class PipelineInputTest {

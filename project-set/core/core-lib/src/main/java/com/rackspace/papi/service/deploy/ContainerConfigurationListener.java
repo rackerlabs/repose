@@ -9,10 +9,11 @@ import com.rackspace.papi.container.config.ArtifactDirectory;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.DeploymentDirectory;
 import com.rackspace.papi.service.event.common.EventService;
-import java.io.File;
-import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.Resource;
+import java.io.File;
 
 @Component("containerConfigurationListener")
 public class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {

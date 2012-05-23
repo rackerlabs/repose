@@ -6,14 +6,16 @@ import com.rackspace.papi.components.identity.header_mapping.config.HeaderIdMapp
 import com.rackspace.papi.components.identity.header_mapping.config.HttpHeader;
 import com.rackspace.papi.components.identity.header_mapping.config.HttpHeaderList;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Set;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -34,12 +36,14 @@ public class HeaderIdMappingHandlerTest {
       private static String DEFAULT_QUALITY_VALUE = ";q=0.1";
       private HttpServletRequest request;
       private ReadableHttpServletResponse response;
+      private HeaderIdMappingHandlerFactory factory;
       private HeaderIdMappingHandler handler;
       private HeaderIdMappingConfig config;
 
       @Before
       public void setUp() {
          HttpHeaderList headerList = new HttpHeaderList();
+         factory = new HeaderIdMappingHandlerFactory();
 
          // Tell the handler to look for two headers called IP1 and IP2
          config = new HeaderIdMappingConfig();
@@ -58,8 +62,9 @@ public class HeaderIdMappingHandlerTest {
          header.setGroupHeader(GROUP_HEADER_NAME_2);
          headerList.getHeader().add(header);
          config.setSourceHeaders(headerList);
+         factory.configurationUpdated(config);
          
-         handler = new HeaderIdMappingHandler(config);
+         handler = factory.buildHandler();
          request = mock(HttpServletRequest.class);
          response = mock(ReadableHttpServletResponse.class);
          

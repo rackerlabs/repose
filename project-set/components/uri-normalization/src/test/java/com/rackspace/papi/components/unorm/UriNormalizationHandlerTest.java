@@ -1,21 +1,22 @@
 package com.rackspace.papi.components.unorm;
 
 import com.rackspace.papi.commons.util.http.normal.Normalizer;
-import com.rackspace.papi.commons.util.regex.RegexSelector;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.unorm.normalizer.MediaTypeNormalizer;
 import com.rackspace.papi.components.uri.normalization.config.HttpMethod;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import java.util.LinkedList;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
-import org.junit.Test;
+import javax.servlet.http.HttpServletRequest;
+import java.util.LinkedList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.*;
 
 /**

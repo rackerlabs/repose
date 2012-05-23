@@ -1,11 +1,11 @@
 package com.rackspace.papi.commons.util.io.charset;
 
-import java.security.Permission;
 import junit.framework.TestCase;
 import org.junit.Test;
-
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import java.security.Permission;
 
 /**
  *

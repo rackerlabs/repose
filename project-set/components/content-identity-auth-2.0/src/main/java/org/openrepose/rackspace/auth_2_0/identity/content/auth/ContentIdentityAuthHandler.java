@@ -14,12 +14,11 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.HeaderManager;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import javax.servlet.http.HttpServletRequest;
-import javax.xml.bind.Unmarshaller;
-
 import org.openrepose.rackspace.auth2.content_identity.config.ContentIdentityAuthConfig;
 import org.openrepose.rackspace.auth_2_0.identity.content.credentials.AuthCredentials;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
 import java.io.InputStream;
 

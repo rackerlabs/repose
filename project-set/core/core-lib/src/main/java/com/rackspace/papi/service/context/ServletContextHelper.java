@@ -1,10 +1,11 @@
 package com.rackspace.papi.service.context;
 
 import com.rackspace.papi.domain.ServicePorts;
-import javax.servlet.ServletContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
+
+import javax.servlet.ServletContext;
 
 public final class ServletContextHelper {
 

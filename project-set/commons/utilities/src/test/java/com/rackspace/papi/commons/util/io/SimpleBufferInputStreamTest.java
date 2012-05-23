@@ -1,14 +1,14 @@
 package com.rackspace.papi.commons.util.io;
 
-import com.rackspace.papi.commons.util.io.ByteBufferInputStream;
-import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
-import java.io.InputStream;
+import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import java.io.InputStream;
+
+import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
 public class SimpleBufferInputStreamTest {

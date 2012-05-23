@@ -10,21 +10,23 @@ import com.rackspace.papi.components.ratelimit.cache.NextAvailableResponse;
 import com.rackspace.papi.components.ratelimit.cache.RateLimitCache;
 import com.rackspace.papi.components.ratelimit.config.ConfiguredRatelimit;
 import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
-import org.junit.Test;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import java.util.Calendar;
-import javax.servlet.http.HttpServletRequest;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-import static com.rackspace.papi.components.ratelimit.FilterDirectorTestHelper.*;
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+
+import static com.rackspace.papi.components.ratelimit.FilterDirectorTestHelper.directorMustAddHeaderToRequest;
+import static com.rackspace.papi.components.ratelimit.FilterDirectorTestHelper.directorMustAddHeaderToResponse;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
 public class RateLimiterTest extends RateLimitingTestSupport {

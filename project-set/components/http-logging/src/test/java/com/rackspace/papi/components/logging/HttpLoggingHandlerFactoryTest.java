@@ -4,13 +4,16 @@ import com.rackspace.papi.components.logging.config.FileTarget;
 import com.rackspace.papi.components.logging.config.HttpLog;
 import com.rackspace.papi.components.logging.config.HttpLoggingConfig;
 import com.rackspace.papi.components.logging.config.Targets;
-import com.rackspace.papi.components.logging.util.FileLogger;
-import java.io.File;
-import java.io.IOException;
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import java.io.File;
+import java.io.IOException;
+
+import static org.junit.Assert.*;
 
 @RunWith(Enclosed.class)
 public class HttpLoggingHandlerFactoryTest {

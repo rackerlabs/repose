@@ -2,6 +2,7 @@ package com.rackspace.papi.components.identity.content.credentials.wrappers;
 
 import com.rackspace.papi.components.identity.content.credentials.AuthCredentials;
 import com.rackspacecloud.docs.auth.api.v1.Credentials;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;

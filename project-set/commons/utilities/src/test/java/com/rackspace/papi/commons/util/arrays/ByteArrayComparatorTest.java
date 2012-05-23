@@ -1,11 +1,11 @@
 package com.rackspace.papi.commons.util.arrays;
 
-import com.rackspace.papi.commons.util.arrays.ByteArrayComparator;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Enclosed.class)
 public class ByteArrayComparatorTest {

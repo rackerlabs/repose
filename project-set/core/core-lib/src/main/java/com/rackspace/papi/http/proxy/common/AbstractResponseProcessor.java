@@ -1,13 +1,15 @@
 package com.rackspace.papi.http.proxy.common;
 
 import com.rackspace.papi.commons.util.StringUtilities;
-import static com.rackspace.papi.http.Headers.CONTENT_LENGTH;
-import static com.rackspace.papi.http.Headers.LOCATION;
+import org.apache.http.HttpException;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.TreeSet;
-import javax.servlet.http.HttpServletResponse;
-import org.apache.http.HttpException;
+
+import static com.rackspace.papi.http.Headers.CONTENT_LENGTH;
+import static com.rackspace.papi.http.Headers.LOCATION;
 
 public abstract class AbstractResponseProcessor {
    private static final String[] EXCLUDE_HEADERS = { "connection", "transfer-encoding", "server" };

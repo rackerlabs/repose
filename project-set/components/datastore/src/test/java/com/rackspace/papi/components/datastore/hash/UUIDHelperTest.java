@@ -1,12 +1,13 @@
 package com.rackspace.papi.components.datastore.hash;
 
 import com.rackspace.papi.commons.util.arrays.ByteArrayComparator;
-import java.util.UUID;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import java.util.UUID;
+
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Enclosed.class)
 public class UUIDHelperTest {

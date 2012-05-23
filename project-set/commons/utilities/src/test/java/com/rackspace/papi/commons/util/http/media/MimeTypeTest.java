@@ -1,6 +1,5 @@
 package com.rackspace.papi.commons.util.http.media;
 
-import com.rackspace.papi.commons.util.http.media.MimeType;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;

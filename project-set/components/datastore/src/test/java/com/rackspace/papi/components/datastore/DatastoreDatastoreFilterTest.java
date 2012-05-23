@@ -2,24 +2,24 @@ package com.rackspace.papi.components.datastore;
 
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.ServletContextHelper;
-import com.rackspace.papi.service.datastore.DatastoreManager;
-import com.rackspace.papi.service.datastore.DatastoreService;
+import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.impl.DatastoreServiceContext;
 import com.rackspace.papi.service.context.spring.SpringContextAdapterProvider;
-import javax.naming.Context;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-
+import com.rackspace.papi.service.datastore.DatastoreManager;
+import com.rackspace.papi.service.datastore.DatastoreService;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.springframework.context.ApplicationContext;
+
+import javax.naming.Context;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
 
 import static org.mockito.Mockito.*;
-import org.springframework.context.ApplicationContext;
 
 @RunWith(Enclosed.class)
 public class DatastoreDatastoreFilterTest {

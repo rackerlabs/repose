@@ -3,9 +3,12 @@
  * and open the template in the editor.
  */
 package com.rackspace.papi.service.logging.common.log4jconf;
+
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  *

@@ -1,14 +1,14 @@
 package com.rackspace.papi.commons.util.net;
 
-import java.net.UnknownHostException;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
-import org.junit.BeforeClass;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import java.net.UnknownHostException;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 @RunWith(Enclosed.class)
 public class IpAddressRangeTest {

@@ -6,12 +6,12 @@ import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspacecloud.api.docs.repose.header_normalization.v1.HeaderFilterList;
 import com.rackspacecloud.api.docs.repose.header_normalization.v1.HeaderNormalizationConfig;
 import com.rackspacecloud.api.docs.repose.header_normalization.v1.Target;
+import org.slf4j.Logger;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.slf4j.Logger;
 
 public class HeaderNormalizationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<HeaderNormalizationHandler> {
 

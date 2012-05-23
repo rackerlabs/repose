@@ -1,9 +1,10 @@
 package org.openrepose.cli;
 
 import com.rackspace.papi.commons.util.StringUtilities;
-import java.util.Arrays;
 import org.openrepose.cli.command.Command;
 import org.openrepose.cli.command.results.CommandResult;
+
+import java.util.Arrays;
 
 /**
  *

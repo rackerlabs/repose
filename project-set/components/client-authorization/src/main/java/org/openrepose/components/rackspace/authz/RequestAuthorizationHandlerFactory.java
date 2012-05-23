@@ -1,19 +1,19 @@
 package org.openrepose.components.rackspace.authz;
 
-import com.rackspace.auth.openstack.AuthenticationServiceFactory;
 import com.rackspace.auth.openstack.AuthenticationService;
-
+import com.rackspace.auth.openstack.AuthenticationServiceFactory;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.datastore.Datastore;
-import java.util.HashMap;
-import java.util.Map;
 import org.openrepose.components.authz.rackspace.config.AuthenticationServer;
 import org.openrepose.components.authz.rackspace.config.RackspaceAuthorization;
 import org.openrepose.components.rackspace.authz.cache.EndpointListCache;
 import org.openrepose.components.rackspace.authz.cache.EndpointListCacheImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RequestAuthorizationHandler> {
 

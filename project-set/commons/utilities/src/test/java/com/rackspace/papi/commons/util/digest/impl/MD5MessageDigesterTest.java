@@ -1,12 +1,12 @@
 package com.rackspace.papi.commons.util.digest.impl;
 
-import com.rackspace.papi.commons.util.digest.impl.MD5MessageDigester;
-import java.io.ByteArrayInputStream;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import java.io.ByteArrayInputStream;
+
+import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
 public class MD5MessageDigesterTest {

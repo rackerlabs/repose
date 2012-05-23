@@ -5,9 +5,6 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.IdentityStatus;
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.components.clientauth.rackspace.config.RackspaceAuth;
-import com.rackspace.papi.components.clientauth.rackspace.config.User;
-import com.rackspace.papi.components.clientauth.rackspace.config.UserRoles;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 
@@ -16,7 +13,7 @@ import java.util.List;
 /**
  * @author fran
  */
-public class AuthenticationHeaderManager {
+public class RackspaceAuthenticationHeaderManager {
 
    // Proxy is specified in the OpenStack auth blue print:
    // http://wiki.openstack.org/openstack-authn
@@ -24,8 +21,6 @@ public class AuthenticationHeaderManager {
 
    private final boolean validToken;
    private final boolean isDelegatable;
-   private final boolean keystone;
-   private final UserRoles userRoles;
    private final FilterDirector filterDirector;
    private final String accountUsername;
    private final List<AuthGroup> groups;
@@ -34,11 +29,9 @@ public class AuthenticationHeaderManager {
    // the highest QUALITY in terms of using the user it supplies for rate limiting
    private static final String QUALITY = ";q=1";
 
-   public AuthenticationHeaderManager(boolean validToken, RackspaceAuth cfg, FilterDirector filterDirector, String accountUsername, List<AuthGroup> groups) {
+   public RackspaceAuthenticationHeaderManager(boolean validToken, boolean delegatable, FilterDirector filterDirector, String accountUsername, List<AuthGroup> groups) {
       this.validToken = validToken;
-      this.isDelegatable = cfg.isDelegable();
-      this.keystone = cfg.isKeystoneActive();
-      this.userRoles = cfg.getUserRoles();
+      this.isDelegatable = delegatable;
       this.filterDirector = filterDirector;
       this.accountUsername = accountUsername;
       this.groups = groups;
@@ -55,7 +48,6 @@ public class AuthenticationHeaderManager {
       if (validToken) {
          getGroupsListIds();
          filterDirector.requestHeaderManager().appendHeader(PowerApiHeader.USER.toString(), accountUsername + QUALITY);
-         setRoles();
       }
    }
 
@@ -79,29 +71,6 @@ public class AuthenticationHeaderManager {
          }
 
          filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.IDENTITY_STATUS.toString(), identityStatus.name());
-      }
-   }
-
-   /**
-    * Set Roles
-    * This is temporary to support roles until REPOSE supports the OpenStack Identity Service Specification
-    */
-   private void setRoles() {
-      if (keystone) {
-         filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.toString(), accountUsername);
-         filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), accountUsername);
-
-         for (String r : userRoles.getDefault().getRoles().getRole()) {
-            filterDirector.requestHeaderManager().appendHeader(OpenStackServiceHeader.ROLES.toString(), r);
-         }
-
-         for (User user : userRoles.getUser()) {
-            if (user.getName().equalsIgnoreCase(accountUsername)) {
-               for (String r : user.getRoles().getRole()) {
-                  filterDirector.requestHeaderManager().appendHeader(OpenStackServiceHeader.ROLES.toString(), r);
-               }
-            }
-         }
       }
    }
 }

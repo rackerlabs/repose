@@ -40,9 +40,11 @@
 
 package javax.servlet;
 
-import java.util.*;
 import javax.servlet.annotation.HttpMethodConstraint;
 import javax.servlet.annotation.ServletSecurity;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 
 /**
  * Java Class represntation of a {@link ServletSecurity} annotation value.
