@@ -1,8 +1,6 @@
 package com.rackspace.papi.service.context;
 
 import com.rackspace.papi.domain.ServicePorts;
-import com.rackspace.papi.service.context.common.ContextAdapter;
-import com.rackspace.papi.service.context.common.ContextAdapterProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
