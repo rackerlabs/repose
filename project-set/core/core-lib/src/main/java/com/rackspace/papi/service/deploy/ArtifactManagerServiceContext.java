@@ -3,7 +3,7 @@ package com.rackspace.papi.service.deploy;
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.service.ServiceRegistry;
-import com.rackspace.papi.service.context.common.ContextAdapter;
+import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.event.PowerFilterEvent;
