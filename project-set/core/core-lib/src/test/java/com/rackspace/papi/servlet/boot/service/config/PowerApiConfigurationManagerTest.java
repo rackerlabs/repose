@@ -55,7 +55,7 @@ public class PowerApiConfigurationManagerTest {
 
         @Test(expected = PowerApiContextException.class)
         public void shouldFailOnMissingConfigurationDirectoryInitParam() {
-            final ConfigurationServiceContext configurationManager = new ConfigurationServiceContext(new PowerApiConfigurationManager(), null);
+            final ConfigurationServiceContext configurationManager = new ConfigurationServiceContext(new PowerApiConfigurationManager(), null, null);
 
             final ServletContextEvent event = new ServletContextEvent(context);
             configurationManager.contextInitialized(event);
@@ -65,7 +65,7 @@ public class PowerApiConfigurationManagerTest {
         public void shouldInitializeCorrectly() {
             mockAll();
 
-            final ConfigurationServiceContext configurationManager = new ConfigurationServiceContext(new PowerApiConfigurationManager(), null);
+            final ConfigurationServiceContext configurationManager = new ConfigurationServiceContext(new PowerApiConfigurationManager(), null, null);
 
             final ServletContextEvent event = new ServletContextEvent(context);
             configurationManager.contextInitialized(event);
@@ -82,7 +82,7 @@ public class PowerApiConfigurationManagerTest {
         public void shouldTearDownCleanly() {
             mockAll();
 
-            final ConfigurationServiceContext configurationManager = new ConfigurationServiceContext(new PowerApiConfigurationManager(), null);
+            final ConfigurationServiceContext configurationManager = new ConfigurationServiceContext(new PowerApiConfigurationManager(), null, null);
 
             final ServletContextEvent event = new ServletContextEvent(context);
             configurationManager.contextInitialized(event);

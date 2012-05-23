@@ -4,7 +4,6 @@ import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import com.rackspace.papi.service.context.ServiceContext;
-import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.deploy.ApplicationDeploymentEvent;
 import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.common.EventListener;
@@ -20,13 +19,16 @@ public class ClassLoaderServiceContext implements ServiceContext<ClassLoaderMana
     public static final String SERVICE_NAME = "powerapi:/kernel/classloader";
     private final ClassLoaderManagerService classLoaderContext;
     private final ServiceRegistry registry;
+   private final EventService eventService;
 
     @Autowired
     public ClassLoaderServiceContext(
             @Qualifier("classLoaderManager") ClassLoaderManagerService classLoaderContext,
-            @Qualifier("serviceRegistry") ServiceRegistry registry) {
+            @Qualifier("serviceRegistry") ServiceRegistry registry,
+            @Qualifier("eventManager") EventService eventSerivce) {
        this.classLoaderContext = classLoaderContext;
        this.registry = registry;
+       this.eventService = eventSerivce;
     }
 
     private void register() {
@@ -47,9 +49,7 @@ public class ClassLoaderServiceContext implements ServiceContext<ClassLoaderMana
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-        final EventService eventSerivce = ServletContextHelper.getInstance().getPowerApiContext(sce.getServletContext()).eventService();
-
-        eventSerivce.listen(
+        eventService.listen(
                 new EventListener<ApplicationDeploymentEvent, EarClassLoaderContext>() {
 
                     @Override
@@ -61,7 +61,7 @@ public class ClassLoaderServiceContext implements ServiceContext<ClassLoaderMana
                     }
                 }, ApplicationDeploymentEvent.APPLICATION_LOADED);
 
-        eventSerivce.listen(
+        eventService.listen(
                 new EventListener<ApplicationDeploymentEvent, String>() {
 
                     @Override

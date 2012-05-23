@@ -6,7 +6,7 @@ import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.config.impl.PowerApiConfigurationUpdateManager;
 import com.rackspace.papi.service.context.ServiceContext;
-import com.rackspace.papi.service.context.ServletContextHelper;
+import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.servlet.PowerApiContextException;
 import javax.servlet.ServletContext;
@@ -24,13 +24,16 @@ public class ConfigurationServiceContext implements ServiceContext<Configuration
     public static final String SERVICE_NAME = "powerapi:/services/configuration";
     private final ConfigurationService configurationManager;
     private final ServiceRegistry registry;
+   private final EventService eventService;
 
     @Autowired
     public ConfigurationServiceContext(
             @Qualifier("configurationManager") ConfigurationService configurationManager, 
-            @Qualifier("serviceRegistry") ServiceRegistry registry) {
+            @Qualifier("serviceRegistry") ServiceRegistry registry,
+            @Qualifier("eventManager") EventService eventSerivce) {
        this.configurationManager = configurationManager;
        this.registry = registry;
+       this.eventService = eventSerivce;
     }
 
     public void register() {
@@ -63,7 +66,7 @@ public class ConfigurationServiceContext implements ServiceContext<Configuration
 
         configurationManager.setResourceResolver(new DirectoryResourceResolver(configurationRoot));
 
-        final PowerApiConfigurationUpdateManager papiUpdateManager = new PowerApiConfigurationUpdateManager(ServletContextHelper.getInstance().getPowerApiContext(ctx).eventService());
+        final PowerApiConfigurationUpdateManager papiUpdateManager = new PowerApiConfigurationUpdateManager(eventService);
         papiUpdateManager.initialize(ctx);
 
         configurationManager.setUpdateManager(papiUpdateManager);
