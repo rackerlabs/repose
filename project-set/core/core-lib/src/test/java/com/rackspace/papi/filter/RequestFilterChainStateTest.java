@@ -43,7 +43,7 @@ public class RequestFilterChainStateTest {
             RoutingServiceContext routingContext = mock(RoutingServiceContext.class);
             when(mockedFilterContext.getFilter()).thenReturn(mockedFilter);
             when(mockedFilterContext.getFilterClassLoader()).thenReturn(mockedClassLoader);
-            when(appContext.getBean(anyString(), eq(RoutingServiceContext.class))).thenReturn(routingContext);
+            when(appContext.getBean(anyString())).thenReturn(routingContext);
             filterContextList.add(mockedFilterContext);
             FilterChain mockedFilterChain = mock(FilterChain.class);
 

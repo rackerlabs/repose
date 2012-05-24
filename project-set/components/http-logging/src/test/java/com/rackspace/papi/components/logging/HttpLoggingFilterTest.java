@@ -3,6 +3,7 @@ package com.rackspace.papi.components.logging;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
+import com.rackspace.papi.service.context.spring.SpringContextAdapter;
 import com.rackspace.papi.service.context.spring.SpringContextAdapterProvider;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -51,7 +52,7 @@ public class HttpLoggingFilterTest {
 
          when(filterConfig.getServletContext()).thenReturn(servletContext);
          when(servletContext.getAttribute(eq(ServletContextHelper.SPRING_APPLICATION_CONTEXT_ATTRIBUTE_NAME))).thenReturn(appContext);
-         when(appContext.getBean(anyString(), eq(ConfigurationServiceContext.class))).thenReturn(serviceContext);
+         when(appContext.getBean(eq(SpringContextAdapter.CONFIGURATION_SERVICE_CONTEXT))).thenReturn(serviceContext);
          when(serviceContext.getService()).thenReturn(configService);
          
          ServletContextHelper.configureInstance(new SpringContextAdapterProvider(appContext), servletContext, appContext);
