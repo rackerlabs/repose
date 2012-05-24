@@ -39,6 +39,7 @@ public class EHCacheDatastoreManager implements DatastoreManager {
       available = false;
       
       cacheManagerInstance.removeCache(cacheName);
+      cacheManagerInstance.shutdown();
    }
 
    @Override

@@ -55,8 +55,9 @@ public class ConfigurationServiceContext implements ServiceContext<Configuration
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
+        final String configProp = InitParameter.POWER_API_CONFIG_DIR.getParameterName();
         final ServletContext ctx = sce.getServletContext();
-        final String configurationRoot = ctx.getInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName());
+        final String configurationRoot = System.getProperty(configProp, ctx.getInitParameter(configProp));
         LOG.debug("Loading configuration files from directory: " + configurationRoot);
 
         if (StringUtilities.isBlank(configurationRoot)) {
