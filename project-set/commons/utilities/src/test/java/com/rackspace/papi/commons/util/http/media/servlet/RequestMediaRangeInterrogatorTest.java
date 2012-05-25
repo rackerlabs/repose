@@ -1,14 +1,15 @@
 package com.rackspace.papi.commons.util.http.media.servlet;
 
 import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
-import java.util.List;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
 public class RequestMediaRangeInterrogatorTest {

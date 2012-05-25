@@ -4,13 +4,14 @@ import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.DestinationCluster;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.service.routing.RoutingService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletRequest;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import javax.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DomainLocationBuilder implements LocationBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(DomainLocationBuilder.class);

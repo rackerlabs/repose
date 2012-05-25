@@ -4,8 +4,6 @@
  */
 package com.rackspace.papi.components.versioning.domain;
 
-import java.util.HashMap;
-import com.rackspace.papi.model.FilterList;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.components.versioning.config.MediaTypeList;
@@ -16,15 +14,16 @@ import com.rackspace.papi.components.versioning.util.http.HttpRequestInfo;
 import com.rackspace.papi.components.versioning.util.http.UniformResourceInfo;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import com.rackspace.papi.model.Destination;
-import com.rackspace.papi.model.DestinationEndpoint;
-import com.rackspace.papi.model.Node;
-import com.rackspace.papi.model.ReposeCluster;
-import java.util.Map;
+import com.rackspace.papi.model.*;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  *

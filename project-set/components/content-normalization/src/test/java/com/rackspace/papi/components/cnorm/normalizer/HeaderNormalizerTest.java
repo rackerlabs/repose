@@ -1,17 +1,22 @@
 package com.rackspace.papi.components.cnorm.normalizer;
 
-import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import com.rackspace.papi.components.normalization.config.HeaderFilterList;
+import com.rackspace.papi.components.normalization.config.HttpHeader;
+import com.rackspace.papi.components.normalization.config.HttpHeaderList;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import javax.servlet.http.HttpServletRequest;
-import org.junit.Test;
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-import com.rackspace.papi.components.normalization.config.*;
-import java.lang.reflect.Array;
-
-import java.util.Enumeration;
+import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import org.junit.Before;
 import org.junit.Ignore;
+import org.junit.Test;
+
+import javax.servlet.http.HttpServletRequest;
+import java.lang.reflect.Array;
+import java.util.Enumeration;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class HeaderNormalizerTest {
 

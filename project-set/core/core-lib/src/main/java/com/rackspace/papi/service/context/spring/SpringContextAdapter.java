@@ -5,15 +5,6 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.container.ContainerConfigurationService;
-import com.rackspace.papi.service.context.impl.ClassLoaderServiceContext;
-import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
-import com.rackspace.papi.service.context.impl.ContainerServiceContext;
-import com.rackspace.papi.service.context.impl.DatastoreServiceContext;
-import com.rackspace.papi.service.context.impl.EventManagerServiceContext;
-import com.rackspace.papi.service.context.impl.FilterChainGCServiceContext;
-import com.rackspace.papi.service.context.impl.LoggingServiceContext;
-import com.rackspace.papi.service.context.impl.ResponseMessageServiceContext;
-import com.rackspace.papi.service.context.impl.RoutingServiceContext;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.filterchain.GarbageCollectionService;
@@ -21,9 +12,6 @@ import com.rackspace.papi.service.logging.LoggingService;
 import com.rackspace.papi.service.rms.ResponseMessageService;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.service.threading.ThreadingService;
-import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
-import java.util.HashMap;
-import java.util.Map;
 import org.springframework.context.ApplicationContext;
 
 public class SpringContextAdapter implements ContextAdapter {
@@ -50,7 +38,7 @@ public class SpringContextAdapter implements ContextAdapter {
    }
    
    public ServiceContext<ClassLoaderManagerService> classLoaderContext() {
-      return applicationContext.getBean(CLASS_LOADER_SERVICE_CONTEXT, ClassLoaderServiceContext.class);
+      return (ServiceContext<ClassLoaderManagerService>)applicationContext.getBean(CLASS_LOADER_SERVICE_CONTEXT);
    }
    
    private String beanNameForClass(Class clazz) {
@@ -75,47 +63,47 @@ public class SpringContextAdapter implements ContextAdapter {
 
    @Override
    public ConfigurationService configurationService() {
-      return applicationContext.getBean(CONFIGURATION_SERVICE_CONTEXT, ConfigurationServiceContext.class).getService();
+      return ((ServiceContext<ConfigurationService>)applicationContext.getBean(CONFIGURATION_SERVICE_CONTEXT)).getService();
    }
 
    @Override
    public ContainerConfigurationService containerConfigurationService() {
-      return applicationContext.getBean(CONTAINER_SERVICE_CONTEXT, ContainerServiceContext.class).getService();
+      return ((ServiceContext<ContainerConfigurationService>)applicationContext.getBean(CONTAINER_SERVICE_CONTEXT)).getService();
    }
 
    @Override
    public DatastoreService datastoreService() {
-      return applicationContext.getBean(DATASTORE_SERVICE_CONTEXT, DatastoreServiceContext.class).getService();
+      return ((ServiceContext<DatastoreService>)applicationContext.getBean(DATASTORE_SERVICE_CONTEXT)).getService();
    }
 
    @Override
    public EventService eventService() {
-      return applicationContext.getBean(EVENT_MANAGER_SERVICE_CONTEXT, EventManagerServiceContext.class).getService();
+      return ((ServiceContext<EventService>)applicationContext.getBean(EVENT_MANAGER_SERVICE_CONTEXT)).getService();
    }
 
    @Override
    public GarbageCollectionService filterChainGarbageCollectorService() {
-      return applicationContext.getBean(FILTER_CHAIN_GC_SERVICE_CONTEXT, FilterChainGCServiceContext.class).getService();
+      return ((ServiceContext<GarbageCollectionService>)applicationContext.getBean(FILTER_CHAIN_GC_SERVICE_CONTEXT)).getService();
    }
 
    @Override
    public LoggingService loggingService() {
-      return applicationContext.getBean(LOGGING_SERVICE_CONTEXT, LoggingServiceContext.class).getService();
+      return ((ServiceContext<LoggingService>)applicationContext.getBean(LOGGING_SERVICE_CONTEXT)).getService();
    }
 
    @Override
    public ResponseMessageService responseMessageService() {
-      return applicationContext.getBean(RESPONSE_MESSAGE_SERVICE_CONTEXT, ResponseMessageServiceContext.class).getService();
+      return ((ServiceContext<ResponseMessageService>)applicationContext.getBean(RESPONSE_MESSAGE_SERVICE_CONTEXT)).getService();
    }
 
    @Override
    public RoutingService routingService() {
-      return applicationContext.getBean(ROUTING_SERVICE_CONTEXT, RoutingServiceContext.class).getService();
+      return ((ServiceContext<RoutingService>)applicationContext.getBean(ROUTING_SERVICE_CONTEXT)).getService();
    }
    
    @Override
    public ThreadingService threadingService() {
-      return applicationContext.getBean(THREADING_SERVICE_CONTEXT, ThreadingServiceContext.class).getService();
+      return ((ServiceContext<ThreadingService>)applicationContext.getBean(THREADING_SERVICE_CONTEXT)).getService();
    }
 
 }

@@ -1,19 +1,16 @@
 package com.rackspace.papi.http.proxy.httpclient;
 
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.*;
+import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
+import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.httpclient.HostConfiguration;
-import org.apache.commons.httpclient.HttpMethodBase;
-import org.apache.commons.httpclient.NameValuePair;
-import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
-import org.apache.commons.httpclient.methods.InputStreamRequestEntity;
 
-import static com.rackspace.papi.http.Headers.*;
+import static com.rackspace.papi.http.Headers.HOST;
 
 /**
  * Process a request to copy over header values, query string parameters, and

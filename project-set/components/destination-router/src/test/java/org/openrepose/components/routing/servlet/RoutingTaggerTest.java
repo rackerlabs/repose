@@ -2,23 +2,18 @@ package org.openrepose.components.routing.servlet;
 
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import com.rackspace.papi.model.DestinationEndpoint;
-import com.rackspace.papi.model.DestinationList;
-import com.rackspace.papi.model.Node;
-import com.rackspace.papi.model.NodeList;
-import com.rackspace.papi.model.SystemModel;
-import com.rackspace.papi.model.ReposeCluster;
-import javax.servlet.http.HttpServletRequest;
-
-import javax.servlet.http.HttpServletResponse;
+import com.rackspace.papi.model.*;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openrepose.components.routing.servlet.config.Target;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
-import org.junit.Before;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 /**
  *

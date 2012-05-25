@@ -58,8 +58,8 @@
 
 package javax.servlet.http;
 
-import java.util.Enumeration;
 import javax.servlet.ServletContext;
+import java.util.Enumeration;
 
 /**
  *

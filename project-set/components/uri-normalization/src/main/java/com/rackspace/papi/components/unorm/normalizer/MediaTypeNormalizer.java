@@ -8,10 +8,10 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.servlet.http.HttpServletRequest;
 
 public class MediaTypeNormalizer {
 

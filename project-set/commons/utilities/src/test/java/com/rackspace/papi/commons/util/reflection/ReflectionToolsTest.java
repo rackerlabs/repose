@@ -9,9 +9,7 @@ import org.junit.runner.RunWith;
 import java.lang.reflect.Constructor;
 
 import static junit.framework.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * Created by IntelliJ IDEA.

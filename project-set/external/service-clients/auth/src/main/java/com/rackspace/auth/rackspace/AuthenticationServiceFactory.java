@@ -2,9 +2,8 @@ package com.rackspace.auth.rackspace;
 
 import com.rackspace.auth.AuthServiceException;
 import com.rackspace.auth.ResponseUnmarshaller;
-
-import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.rackspace.papi.commons.util.http.ServiceClient;
+import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

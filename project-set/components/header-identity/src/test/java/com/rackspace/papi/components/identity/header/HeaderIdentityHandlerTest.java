@@ -6,13 +6,18 @@ import com.rackspace.papi.components.identity.header.config.HeaderIdentityConfig
 import com.rackspace.papi.components.identity.header.config.HttpHeader;
 import com.rackspace.papi.components.identity.header.config.HttpHeaderList;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import static org.mockito.Mockito.*;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.Set;
+
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(Enclosed.class)
 public class HeaderIdentityHandlerTest {

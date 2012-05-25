@@ -6,19 +6,12 @@ import com.rackspace.papi.commons.util.http.header.QualityFactorHeaderChooser;
 import com.rackspace.papi.commons.util.http.normal.QueryParameter;
 import com.rackspace.papi.commons.util.http.normal.QueryParameterCollection;
 import com.rackspace.papi.commons.util.io.BufferedServletInputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
+import java.io.IOException;
+import java.util.*;
 
 /**
  *

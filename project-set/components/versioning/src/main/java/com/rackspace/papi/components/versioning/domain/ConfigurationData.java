@@ -16,10 +16,11 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
-import java.util.Collection;
-import java.util.Map;
 import org.ietf.atom.schema.Link;
 import org.ietf.atom.schema.Relation;
+
+import java.util.Collection;
+import java.util.Map;
 
 public class ConfigurationData {
 

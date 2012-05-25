@@ -14,19 +14,16 @@ import com.rackspace.papi.components.versioning.util.ContentTransformer;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import com.rackspace.papi.model.Destination;
-import com.rackspace.papi.model.DestinationEndpoint;
-import com.rackspace.papi.model.FilterList;
-import com.rackspace.papi.model.Node;
-import com.rackspace.papi.model.ReposeCluster;
+import com.rackspace.papi.model.*;
+import org.junit.Before;
+import org.junit.Test;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
+
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.assertTrue;
-import org.junit.Before;
-import org.junit.Test;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

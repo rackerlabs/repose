@@ -3,14 +3,13 @@ package com.rackspace.papi.components.clientauth.rackspace.v1_1;
 import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthToken;
 import com.rackspace.auth.rackspace.AuthenticationService;
-import com.rackspace.papi.commons.util.regex.ExtractorResult;
-import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
-
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.commons.util.http.IdentityStatus;
+import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.commons.util.regex.ExtractorResult;
+import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
+import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.clientauth.common.Configurables;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.components.clientauth.rackspace.config.AccountMapping;
@@ -20,7 +19,6 @@ import com.rackspace.papi.components.clientauth.rackspace.config.RackspaceAuth;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspacecloud.docs.auth.api.v1.FullToken;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -28,16 +26,14 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.when;
 
 /**

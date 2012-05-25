@@ -5,10 +5,11 @@ import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
 import com.rackspace.papi.commons.config.parser.inputstream.InputStreamConfigurationParser;
 import com.rackspace.papi.commons.config.parser.jaxb.JaxbConfigurationParser;
 import com.rackspace.papi.commons.config.parser.properties.PropertiesFileConfigurationParser;
-import java.io.InputStream;
-import java.util.Properties;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
+import java.io.InputStream;
+import java.util.Properties;
 
 public final class ConfigurationParserFactory {
 

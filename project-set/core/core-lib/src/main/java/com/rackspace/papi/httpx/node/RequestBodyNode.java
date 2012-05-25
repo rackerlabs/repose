@@ -4,10 +4,11 @@ import com.rackspace.httpx.Body;
 import com.rackspace.httpx.Request;
 import com.rackspace.papi.httpx.ObjectFactoryUser;
 import com.rackspace.papi.httpx.processor.TranslationRequestPreProcessor;
-import java.io.IOException;
-import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 /**
  * @author fran

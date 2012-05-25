@@ -1,25 +1,20 @@
-package com.rackspace.papi.components.clientauth;
+package com.rackspace.papi.components.clientauth.common;
 
 import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthToken;
-
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-
-import com.rackspace.papi.components.clientauth.common.AuthTokenCache;
-import com.rackspace.papi.components.clientauth.common.Configurables;
-import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-
 import com.sun.jersey.api.client.ClientHandlerException;
 import org.slf4j.Logger;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;

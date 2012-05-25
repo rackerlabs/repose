@@ -3,9 +3,10 @@ package com.rackspace.papi.commons.config.parser.jaxb;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.pooling.ResourceContext;
 import com.rackspace.papi.commons.util.pooling.ResourceContextException;
-import java.io.IOException;
+
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import java.io.IOException;
 
 public class UnmarshallerResourceContext implements ResourceContext<Unmarshaller, Object> {
 

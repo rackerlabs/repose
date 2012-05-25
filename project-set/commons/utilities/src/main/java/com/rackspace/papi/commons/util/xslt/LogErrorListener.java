@@ -1,9 +1,10 @@
 package com.rackspace.papi.commons.util.xslt;
 
 import com.rackspace.papi.commons.util.logging.ExceptionLogger;
+import org.slf4j.Logger;
+
 import javax.xml.transform.ErrorListener;
 import javax.xml.transform.TransformerException;
-import org.slf4j.Logger;
 
 public final class LogErrorListener implements ErrorListener {
 

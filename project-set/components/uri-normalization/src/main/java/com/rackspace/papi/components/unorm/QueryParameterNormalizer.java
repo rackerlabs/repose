@@ -5,6 +5,7 @@ import com.rackspace.papi.commons.util.regex.RegexSelector;
 import com.rackspace.papi.commons.util.regex.SelectorResult;
 import com.rackspace.papi.components.uri.normalization.config.HttpMethod;
 import com.rackspace.papi.filter.logic.FilterDirector;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**

@@ -3,6 +3,7 @@ package com.rackspace.papi.commons.util.digest;
 import com.rackspace.papi.commons.util.ArrayUtilities;
 import com.rackspace.papi.commons.util.pooling.ResourceContext;
 import com.rackspace.papi.commons.util.pooling.ResourceContextException;
+
 import java.security.MessageDigest;
 
 public class ByteArrayResourceContext implements ResourceContext<MessageDigest, byte[]> {

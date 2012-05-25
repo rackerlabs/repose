@@ -1,8 +1,8 @@
 package com.rackspace.papi.filter;
 
-import java.util.Enumeration;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
+import java.util.Enumeration;
 
 /**
  *

@@ -1,9 +1,9 @@
 package com.rackspace.papi.components.clientauth;
 
-import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
+import com.rackspace.papi.components.clientauth.common.AuthenticationHandler;
+import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
 import com.rackspace.papi.components.clientauth.config.URIPattern;
 import com.rackspace.papi.components.clientauth.config.WhiteList;
@@ -13,14 +13,13 @@ import com.rackspace.papi.components.clientauth.rackspace.config.AccountMapping;
 import com.rackspace.papi.components.clientauth.rackspace.v1_1.RackspaceAuthenticationHandlerFactory;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.datastore.Datastore;
+import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
-
-import org.slf4j.Logger;
 
 /**
  *

@@ -17,12 +17,14 @@
       <constructor-arg index="1" ref="eventManager" />
       <constructor-arg index="2" ref="containerConfigurationListener" />
       <constructor-arg index="3" ref="serviceRegistry" />
+      <constructor-arg index="4" ref="configurationManager" />
+      <constructor-arg index="5" ref="threadingServiceContext" />
    </bean>
 
    <bean name="loggingServiceContext" class="com.rackspace.papi.service.context.impl.LoggingServiceContext">
       <constructor-arg index="0" ref="log4jLoggingService" />
       <constructor-arg index="1" ref="serviceRegistry" />
-      
+      <constructor-arg index="2" ref="configurationManager" />
    </bean>
 
    <!-- Services -->

@@ -5,8 +5,9 @@ import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.servlet.RequestMediaRangeInterrogator;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 // NOTE: This does not belong in util - this is a domain object for versioning only
 public class HttpRequestInfoImpl implements HttpRequestInfo {

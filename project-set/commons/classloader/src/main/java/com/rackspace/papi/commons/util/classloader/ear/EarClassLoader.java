@@ -3,14 +3,15 @@ package com.rackspace.papi.commons.util.classloader.ear;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.classloader.ResourceDescriptor;
 import com.rackspace.papi.commons.util.classloader.ResourceIdentityTree;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class EarClassLoader extends ClassLoader {
 

@@ -2,6 +2,7 @@ package com.rackspace.papi.commons.config.parser.jaxb;
 
 import com.rackspace.papi.commons.util.pooling.ConstructionStrategy;
 import com.rackspace.papi.commons.util.pooling.ResourceConstructionException;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;

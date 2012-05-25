@@ -58,15 +58,14 @@
 
 package javax.servlet;
 
+import javax.servlet.descriptor.JspConfigDescriptor;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
-import java.util.EnumSet;
 import java.util.EventListener;
 import java.util.Map;
 import java.util.Set;
-import javax.servlet.descriptor.JspConfigDescriptor;
 
 /**
  * Defines a set of methods that a servlet uses to communicate with its

@@ -3,27 +3,26 @@ package com.rackspace.papi.filter;
 import com.rackspace.papi.filter.resource.ResourceMonitor;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
-import com.rackspace.papi.service.context.impl.RoutingServiceContext;
 import com.rackspace.papi.service.context.ServletContextHelper;
+import com.rackspace.papi.service.context.impl.RoutingServiceContext;
 import com.rackspace.papi.service.context.spring.SpringContextAdapterProvider;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
+import org.springframework.context.ApplicationContext;
+
+import javax.naming.NamingException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import javax.naming.NamingException;
 
-import javax.servlet.http.HttpServletRequest;
 import static org.mockito.Mockito.*;
-import org.springframework.context.ApplicationContext;
 
 /**
  * @author fran
@@ -44,7 +43,7 @@ public class RequestFilterChainStateTest {
             RoutingServiceContext routingContext = mock(RoutingServiceContext.class);
             when(mockedFilterContext.getFilter()).thenReturn(mockedFilter);
             when(mockedFilterContext.getFilterClassLoader()).thenReturn(mockedClassLoader);
-            when(appContext.getBean(anyString(), eq(RoutingServiceContext.class))).thenReturn(routingContext);
+            when(appContext.getBean(anyString())).thenReturn(routingContext);
             filterContextList.add(mockedFilterContext);
             FilterChain mockedFilterChain = mock(FilterChain.class);
 

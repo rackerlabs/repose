@@ -10,20 +10,20 @@ import com.rackspace.papi.commons.config.resource.impl.ByteArrayConfigurationRes
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.classloader.ResourceDescriptor;
 import com.rackspace.papi.commons.util.classloader.digest.Sha1Digester;
-import com.rackspace.papi.commons.util.plugin.archive.EntryAction;
 import com.rackspace.papi.commons.util.plugin.archive.ArchiveEntryDescriptor;
 import com.rackspace.papi.commons.util.plugin.archive.DeploymentAction;
+import com.rackspace.papi.commons.util.plugin.archive.EntryAction;
 import com.rackspace.papi.commons.util.plugin.archive.ProcessingAction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.jar.Manifest;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DefaultEarArchiveEntryListener implements EarArchiveEntryListener {
 

@@ -1,10 +1,11 @@
 package com.rackspace.papi.service.context.banner;
 
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
-import java.io.IOException;
-import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public final class PapiBanner {
 

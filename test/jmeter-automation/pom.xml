@@ -83,6 +83,7 @@
                     <jmeterPreserveIncludeOrder>true</jmeterPreserveIncludeOrder>
                     <excludes>
                         <exclude>Power API - Content-Normalization Test.jmx</exclude>
+                        <exclude>Repose_GA_Performance.jmx</exclude>
                     </excludes>
                 </configuration>
             </plugin>

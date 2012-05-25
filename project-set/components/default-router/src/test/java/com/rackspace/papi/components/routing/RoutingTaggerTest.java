@@ -5,29 +5,21 @@
 package com.rackspace.papi.components.routing;
 
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.filter.logic.FilterDirector;
-import java.net.MalformedURLException;
-import javax.servlet.http.HttpServletRequest;
-import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
 import com.rackspace.papi.commons.util.net.NetworkNameResolver;
+import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.filter.SystemModelInterrogator;
-import com.rackspace.papi.model.DestinationEndpoint;
-import com.rackspace.papi.model.DestinationList;
-import com.rackspace.papi.model.Node;
-import com.rackspace.papi.model.NodeList;
-
-
-import com.rackspace.papi.model.FilterList;
-import com.rackspace.papi.model.ReposeCluster;
-import java.net.InetAddress;
-import java.util.ArrayList;
-import java.util.List;
+import com.rackspace.papi.filter.logic.FilterDirector;
+import com.rackspace.papi.model.*;
 import org.junit.Before;
 import org.junit.Test;
+
+import javax.servlet.http.HttpServletRequest;
+import java.net.InetAddress;
+import java.net.MalformedURLException;
+
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 

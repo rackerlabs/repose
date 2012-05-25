@@ -1,7 +1,8 @@
 package com.rackspace.papi.commons.util.io.charset;
 
-import java.nio.charset.Charset;
 import org.slf4j.Logger;
+
+import java.nio.charset.Charset;
 
 /**
  *

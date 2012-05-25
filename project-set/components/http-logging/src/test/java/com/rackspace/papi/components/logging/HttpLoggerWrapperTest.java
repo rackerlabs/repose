@@ -1,12 +1,13 @@
 package com.rackspace.papi.components.logging;
 
 import com.rackspace.papi.commons.util.logging.apache.HttpLogFormatter;
-import static org.junit.Assert.*;
+import com.rackspace.papi.components.logging.util.SimpleLogger;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import com.rackspace.papi.components.logging.util.SimpleLogger;
+
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
         
 @RunWith(Enclosed.class)

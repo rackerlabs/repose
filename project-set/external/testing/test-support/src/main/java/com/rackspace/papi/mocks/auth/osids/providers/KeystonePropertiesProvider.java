@@ -3,9 +3,10 @@ package com.rackspace.papi.mocks.auth.osids.providers;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import com.rackspace.papi.mocks.auth.provider.UserDataPropertiesProviderImpl;
-import java.util.Calendar;
-import javax.xml.datatype.DatatypeConfigurationException;
 import org.openstack.docs.identity.api.v2.*;
+
+import javax.xml.datatype.DatatypeConfigurationException;
+import java.util.Calendar;
 
 public class KeystonePropertiesProvider extends UserDataPropertiesProviderImpl implements KeystoneProvider {
 

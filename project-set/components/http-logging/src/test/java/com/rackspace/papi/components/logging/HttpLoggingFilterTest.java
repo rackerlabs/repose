@@ -1,13 +1,17 @@
 package com.rackspace.papi.components.logging;
 
-import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.ServletContextHelper;
+import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.spring.SpringContextAdapter;
 import com.rackspace.papi.service.context.spring.SpringContextAdapterProvider;
-import java.io.IOException;
-import java.util.Hashtable;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
+import org.springframework.context.ApplicationContext;
+
 import javax.naming.Context;
 import javax.naming.NamingException;
 import javax.servlet.FilterChain;
@@ -16,11 +20,10 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.junit.*;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
+import java.io.IOException;
+import java.util.Hashtable;
+
 import static org.mockito.Mockito.*;
-import org.springframework.context.ApplicationContext;
 
 @RunWith(Enclosed.class)
 public class HttpLoggingFilterTest {
@@ -49,7 +52,7 @@ public class HttpLoggingFilterTest {
 
          when(filterConfig.getServletContext()).thenReturn(servletContext);
          when(servletContext.getAttribute(eq(ServletContextHelper.SPRING_APPLICATION_CONTEXT_ATTRIBUTE_NAME))).thenReturn(appContext);
-         when(appContext.getBean(anyString(), eq(ConfigurationServiceContext.class))).thenReturn(serviceContext);
+         when(appContext.getBean(eq(SpringContextAdapter.CONFIGURATION_SERVICE_CONTEXT))).thenReturn(serviceContext);
          when(serviceContext.getService()).thenReturn(configService);
          
          ServletContextHelper.configureInstance(new SpringContextAdapterProvider(appContext), servletContext, appContext);

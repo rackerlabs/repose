@@ -1,16 +1,21 @@
 package com.rackspace.papi.components.translation.xproc;
 
 import com.rackspace.papi.components.translation.util.InputStreamUriParameterResolver;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
+
+import javax.xml.transform.Source;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.transform.Source;
-import org.junit.*;
-import static org.junit.Assert.*;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
-import static org.mockito.Mockito.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 
 @RunWith(Enclosed.class)
 public class AbstractPipelineTest {

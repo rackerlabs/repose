@@ -1,10 +1,13 @@
 package com.rackspace.papi.commons.util.logging.apache;
 
-import java.util.regex.Matcher;
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import java.util.regex.Matcher;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 @RunWith(Enclosed.class)
 public class LogArgumentGroupExtractorTest {

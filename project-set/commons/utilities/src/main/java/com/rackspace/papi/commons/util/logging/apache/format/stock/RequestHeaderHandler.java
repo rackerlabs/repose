@@ -1,9 +1,10 @@
 package com.rackspace.papi.commons.util.logging.apache.format.stock;
 
 import com.rackspace.papi.commons.util.logging.apache.format.FormatterLogic;
-import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 public class RequestHeaderHandler extends HeaderHandler implements FormatterLogic {
 

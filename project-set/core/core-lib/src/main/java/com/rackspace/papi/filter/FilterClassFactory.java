@@ -2,9 +2,10 @@ package com.rackspace.papi.filter;
 
 import com.oracle.javaee6.FilterType;
 import com.rackspace.papi.servlet.PowerApiContextException;
-import javax.servlet.Filter;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+
+import javax.servlet.Filter;
 
 /**
  * @author franshua

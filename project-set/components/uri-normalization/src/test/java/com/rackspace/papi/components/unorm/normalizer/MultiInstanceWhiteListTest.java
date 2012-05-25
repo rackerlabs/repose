@@ -3,12 +3,13 @@ package com.rackspace.papi.components.unorm.normalizer;
 import com.rackspace.papi.components.uri.normalization.config.HttpUriParameterList;
 import com.rackspace.papi.components.uri.normalization.config.UriParameter;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
-import org.junit.Ignore;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 /**
  *

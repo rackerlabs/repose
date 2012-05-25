@@ -2,8 +2,9 @@ package com.rackspace.papi.mocks.auth.rs11.providers;
 
 import com.rackspace.papi.mocks.auth.provider.UserDataPropertiesProviderImpl;
 import com.rackspacecloud.docs.auth.api.v1.*;
-import java.util.Calendar;
+
 import javax.xml.datatype.DatatypeConfigurationException;
+import java.util.Calendar;
 
 public class AuthPropertiesProvider extends UserDataPropertiesProviderImpl implements AuthProvider {
    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthPropertiesProvider.class);

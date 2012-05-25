@@ -4,9 +4,10 @@ import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.components.ratelimit.config.ConfiguredLimitGroup;
 import com.rackspace.papi.components.ratelimit.config.LimitsFormat;
 import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 public abstract class RateLimitingOperation {
 

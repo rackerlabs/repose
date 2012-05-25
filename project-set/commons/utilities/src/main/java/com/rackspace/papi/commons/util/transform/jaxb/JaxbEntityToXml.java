@@ -4,11 +4,12 @@ import com.rackspace.papi.commons.util.pooling.ResourceConstructionException;
 import com.rackspace.papi.commons.util.pooling.ResourceContext;
 import com.rackspace.papi.commons.util.pooling.ResourceContextException;
 import com.rackspace.papi.commons.util.transform.Transform;
-import java.io.StringWriter;
+
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
+import java.io.StringWriter;
 
 public class JaxbEntityToXml extends AbstractJaxbTransform implements Transform<JAXBElement, String> {
 

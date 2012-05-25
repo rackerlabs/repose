@@ -1,8 +1,9 @@
 package com.rackspace.papi.service.logging.facade;
 
 import com.rackspace.papi.service.logging.common.LogFrameworks;
-import java.util.Properties;
 import org.apache.log4j.PropertyConfigurator;
+
+import java.util.Properties;
 
 
 /**

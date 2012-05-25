@@ -1,8 +1,8 @@
 package com.rackspace.papi.commons.config.resource.impl;
 
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
-import org.junit.Test;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 

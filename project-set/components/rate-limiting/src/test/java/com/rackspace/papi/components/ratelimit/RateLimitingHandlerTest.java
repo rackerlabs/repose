@@ -2,32 +2,28 @@ package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.service.datastore.Datastore;
-import org.junit.Ignore;
-import com.rackspace.papi.service.datastore.impl.StoredElementImpl;
-import com.rackspace.papi.filter.logic.FilterAction;
-import com.rackspace.papi.filter.logic.FilterDirector;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.ratelimit.cache.RateLimitCache;
 import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.Map;
-import java.util.Vector;
-
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import com.rackspace.papi.filter.logic.FilterAction;
+import com.rackspace.papi.filter.logic.FilterDirector;
+import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.service.datastore.impl.StoredElementImpl;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
+
+import javax.servlet.http.HttpServletRequest;
+import java.util.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
 public class RateLimitingHandlerTest extends RateLimitingTestSupport {

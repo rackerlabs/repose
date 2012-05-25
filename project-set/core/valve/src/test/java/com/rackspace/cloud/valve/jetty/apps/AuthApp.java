@@ -3,14 +3,14 @@ package com.rackspace.cloud.valve.jetty.apps;
 import com.rackspace.cloud.valve.jetty.servlet.BasicResponseServlet;
 import com.rackspace.papi.components.clientauth.ClientAuthenticationFilter;
 import com.rackspace.papi.servlet.InitParameter;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.springframework.web.context.ContextLoaderListener;
+
+import javax.servlet.DispatcherType;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import javax.servlet.DispatcherType;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-
-import org.springframework.web.context.ContextLoaderListener;
 
 /**
  *

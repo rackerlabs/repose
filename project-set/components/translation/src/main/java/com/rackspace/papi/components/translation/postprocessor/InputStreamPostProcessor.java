@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.translation.postprocessor;
 
-import java.io.InputStream;
 import javax.xml.transform.Source;
+import java.io.InputStream;
 
 public interface InputStreamPostProcessor {
 

@@ -2,6 +2,7 @@ package com.rackspace.papi.commons.util.logging.apache.format.stock;
 
 import com.rackspace.papi.commons.util.logging.apache.format.converters.FormatConverter;
 import com.rackspace.papi.commons.util.logging.apache.format.converters.TypeConversionFormatFactory;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;

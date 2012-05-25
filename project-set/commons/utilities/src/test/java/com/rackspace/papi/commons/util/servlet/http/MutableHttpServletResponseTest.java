@@ -1,8 +1,8 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
 import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
-import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
+import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -10,14 +10,14 @@ import org.junit.runner.RunWith;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @RunWith(Enclosed.class)
 public class MutableHttpServletResponseTest {

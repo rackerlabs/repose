@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util.classloader.ear;
 
+import com.rackspace.papi.commons.util.SystemUtils;
 import com.rackspace.papi.commons.util.plugin.archive.*;
 
 import java.io.File;
@@ -9,7 +10,6 @@ import java.util.Stack;
 import java.util.UUID;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
-import com.rackspace.papi.commons.util.SystemUtils;
 
 public class EarUnpacker {
 
