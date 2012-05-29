@@ -84,14 +84,27 @@ public class PowerFilterChain implements FilterChain {
             resourceMonitor.released();
         }
     }
+    
+    private List<FilterContext> getFilterChainForRequest(String uri) {
+        List<FilterContext> filters = new LinkedList<FilterContext>();
+        for (FilterContext filter: filterChainCopy) {
+            if (filter.getUriPattern() == null || filter.getUriPattern().matcher(uri).matches()) {
+                filters.add(filter);
+            }
+        }
+        
+        return filters;
+    }
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
+        final HttpServletRequest request = (HttpServletRequest)servletRequest;
         final Thread currentThread = Thread.currentThread();
         final ClassLoader previousClassLoader = currentThread.getContextClassLoader();
+        final List<FilterContext> currentFilters = getFilterChainForRequest(request.getRequestURI());
 
-        if (position < filterChainCopy.size()) {
-            final FilterContext nextFilterContext = filterChainCopy.get(position++);
+        if (position < currentFilters.size()) {
+            final FilterContext nextFilterContext = currentFilters.get(position++);
             final ClassLoader nextClassLoader = nextFilterContext.getFilterClassLoader();
 
             currentThread.setContextClassLoader(nextClassLoader);
