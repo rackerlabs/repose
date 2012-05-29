@@ -163,6 +163,13 @@ for nodeNumber in 1..6
 
    when 4..6
       #Distirubted Datastore
+      ["ip-identity.cfg.xml"].each do |config|
+         cookbook_file "/etc/repose/node#{nodeNumber}/#{config}" do
+            source "/dist-datastore/#{config}"
+            mode 0644
+         end
+      end
+
       template "/etc/repose/node#{nodeNumber}/system-model.cfg.xml" do
          source "dist-datastore/system-model.cfg.xml.erb"
          mode 0644
