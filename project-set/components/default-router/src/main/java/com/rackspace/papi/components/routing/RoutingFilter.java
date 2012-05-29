@@ -14,7 +14,6 @@ import java.io.IOException;
 
 public class RoutingFilter implements Filter, ApplicationContextAware {
 
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(RoutingFilter.class);
     private RoutingHandlerFactory handlerFactory;
     private ApplicationContext applicationContext;
 

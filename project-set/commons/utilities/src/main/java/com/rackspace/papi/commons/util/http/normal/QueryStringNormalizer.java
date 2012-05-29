@@ -38,7 +38,6 @@ public class QueryStringNormalizer implements Normalizer<String> {
         for (Iterator<QueryParameter> paramIterator = queryParameters.iterator(); paramIterator.hasNext();) {
             final QueryParameter nextParameter = paramIterator.next();
 
-
             writeParameter(queryStringBuilder, nextParameter);
         }
 
