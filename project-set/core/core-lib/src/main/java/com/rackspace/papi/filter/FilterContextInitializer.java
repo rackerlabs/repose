@@ -64,7 +64,8 @@ public class FilterContextInitializer {
       FilterContext context = null;
 
       try {
-         context = filterContextManager.loadFilterContext(papiFilter.getName(),
+         context = filterContextManager.loadFilterContext(
+                 papiFilter,
                  classLoaderContextManager.getLoadedApplications());
       } catch (Exception e) {
          LOG.info("Problem loading the filter class. Just process the next filter. Reason: " + e.getMessage(), e);

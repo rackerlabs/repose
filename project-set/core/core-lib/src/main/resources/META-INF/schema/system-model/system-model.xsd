@@ -27,9 +27,9 @@
         <xs:annotation>
             <xs:documentation>
                 <html:p>
-               Defines a single service cluster in the system model. A service cluster is a collection of nodes
-               that provide equivalent functionality. If a service cluster represents a repose cluster, then
-               it will contain a filter list and a destination list.
+                    Defines a single service cluster in the system model. A service cluster is a collection of nodes
+                    that provide equivalent functionality. If a service cluster represents a repose cluster, then
+                    it will contain a filter list and a destination list.
                 </html:p>
             </xs:documentation>
         </xs:annotation>
@@ -51,19 +51,19 @@
         <xs:annotation>
             <xs:documentation>
                 <html:p>
-               Defines a single service cluster in the system model. A service cluster is a collection of nodes
-               that provide equivalent functionality. If a service cluster represents a repose cluster, then
-               it will contain a filter list and a destination list.
+                    Defines a single service cluster in the system model. A service cluster is a collection of nodes
+                    that provide equivalent functionality. If a service cluster represents a repose cluster, then
+                    it will contain a filter list and a destination list.
                 </html:p>
             </xs:documentation>
         </xs:annotation>
      
         <xs:complexContent>
             <xs:extension base="mod:Cluster">
-               <xs:sequence>
-                     <xs:element name="filters" type="mod:FilterList" minOccurs="0" maxOccurs="1" />
-                     <xs:element name="destinations" type="mod:DestinationList" minOccurs="0" maxOccurs="1" />
-               </xs:sequence>
+                <xs:sequence>
+                    <xs:element name="filters" type="mod:FilterList" minOccurs="0" maxOccurs="1" />
+                    <xs:element name="destinations" type="mod:DestinationList" minOccurs="0" maxOccurs="1" />
+                </xs:sequence>
             </xs:extension>
         </xs:complexContent>
 
@@ -156,6 +156,14 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        <xs:attribute name="uri-regex" type="xs:string" use="optional" default=".*">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Regex of what uri is allowed access.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="DestinationList">
@@ -198,7 +206,7 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Defines the endpoint's base path element. This will be used in building the URI/path
-                  for connecting to the service. Any additional URI info will be appended to this.
+                        for connecting to the service. Any additional URI info will be appended to this.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>

@@ -8,7 +8,6 @@ import com.rackspace.papi.components.logging.config.HttpLoggingConfig;
 import com.rackspace.papi.components.logging.config.Targets;
 import com.rackspace.papi.components.logging.util.FileLogger;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-
 import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedList;

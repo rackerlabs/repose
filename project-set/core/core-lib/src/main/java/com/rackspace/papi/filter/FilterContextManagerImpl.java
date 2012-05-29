@@ -3,14 +3,14 @@ package com.rackspace.papi.filter;
 import com.oracle.javaee6.FilterType;
 import com.oracle.javaee6.ParamValueType;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-
+import com.rackspace.papi.model.Filter;
+import java.util.*;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
-import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 public class FilterContextManagerImpl implements FilterContextManager {
 
@@ -24,10 +24,10 @@ public class FilterContextManagerImpl implements FilterContextManager {
    }
 
    @Override
-   public FilterContext loadFilterContext(String filterName, Collection<EarClassLoaderContext> loadedApplications) throws ClassNotFoundException {
-      FilterClassFactory filterClassFactory = FilterContextManagerImpl.getFilterClassFactory(filterName, loadedApplications);
+   public FilterContext loadFilterContext(Filter filter, Collection<EarClassLoaderContext> loadedApplications) throws ClassNotFoundException {
+      FilterClassFactory filterClassFactory = FilterContextManagerImpl.getFilterClassFactory(filter.getName(), loadedApplications);
 
-      return initializeFilter(filterClassFactory);
+      return initializeFilter(filterClassFactory, filter);
    }
 
    public static FilterClassFactory getFilterClassFactory(String filterName, Collection<EarClassLoaderContext> loadedApplications) {
@@ -46,8 +46,9 @@ public class FilterContextManagerImpl implements FilterContextManager {
       private final FilterConfig parent;
       private final FilterType filterType;
       private final Map<String, String> initParams;
+      private final String config;
       
-      public FilterConfigWrapper(FilterConfig parent, FilterType filterType) {
+      public FilterConfigWrapper(FilterConfig parent, FilterType filterType, String config) {
          if (parent == null) {
             throw new IllegalArgumentException("filter config cannot be null");
          }
@@ -57,7 +58,10 @@ public class FilterContextManagerImpl implements FilterContextManager {
          }
          this.parent = parent;
          this.filterType = filterType;
+         this.config = config;
          initParams = new HashMap<String, String>();
+         
+         initParams.put("filter-config", config);
          
          for (ParamValueType param: filterType.getInitParam()) {
             initParams.put(param.getParamName().getValue(), param.getParamValue().getValue());
@@ -84,9 +88,13 @@ public class FilterContextManagerImpl implements FilterContextManager {
          return new Vector(initParams.keySet()).elements();
       }
       
+      public String getFilterConfig() {
+          return config;
+      }
+      
    }
 
-   public FilterContext initializeFilter(FilterClassFactory filterClassFactory) {
+   public FilterContext initializeFilter(FilterClassFactory filterClassFactory, Filter filter) {
       final Thread currentThread = Thread.currentThread();
       final ClassLoader previousClassLoader = currentThread.getContextClassLoader();
       final ClassLoader nextClassLoader = filterClassFactory.getClassLoader();
@@ -95,11 +103,11 @@ public class FilterContextManagerImpl implements FilterContextManager {
          currentThread.setContextClassLoader(nextClassLoader);
          final javax.servlet.Filter newFilterInstance = filterClassFactory.newInstance(applicationContext);
 
-         newFilterInstance.init(new FilterConfigWrapper(filterConfig, filterClassFactory.getFilterType()));
+         newFilterInstance.init(new FilterConfigWrapper(filterConfig, filterClassFactory.getFilterType(), filter.getConfiguration()));
 
          LOG.info("Filter: " + newFilterInstance + " successfully created");
 
-         return new FilterContext(newFilterInstance, filterClassFactory.getClassLoader());
+         return new FilterContext(newFilterInstance, filterClassFactory.getClassLoader(), filter);
       } catch (ClassNotFoundException e) {
          LOG.error("Failed to initialize filter " + filterClassFactory + ".");
          throw new FilterInitializationException(e.getMessage(), e);

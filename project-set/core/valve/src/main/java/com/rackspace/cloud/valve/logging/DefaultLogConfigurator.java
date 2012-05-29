@@ -30,5 +30,6 @@ public final class DefaultLogConfigurator {
         // Turn off default Jetty and Jersey logging
         org.apache.log4j.Logger.getLogger("org.eclipse.jetty").setLevel(Level.OFF);
         org.apache.log4j.Logger.getLogger("com.sun.jersey").setLevel(Level.OFF);
+        org.apache.log4j.Logger.getLogger("org.springframework").setLevel(Level.WARN);
    }
 }
