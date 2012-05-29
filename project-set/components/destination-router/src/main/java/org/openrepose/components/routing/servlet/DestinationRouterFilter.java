@@ -1,5 +1,6 @@
 package org.openrepose.components.routing.servlet;
 
+import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
@@ -8,11 +9,16 @@ import org.openrepose.components.routing.servlet.config.DestinationRouterConfigu
 
 import javax.servlet.*;
 import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DestinationRouterFilter implements Filter {
 
-    //private static final Logger LOG = LoggerFactory.getLogger(DestinationRouterFilter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DestinationRouterFilter.class);
+    private static String DEFAULT_CONFIG = "destination-router.cfg.xml";
+    private String config;
     private DestinationRouterHandlerFactory handlerFactory;
+    private ConfigurationService manager;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -21,15 +27,17 @@ public class DestinationRouterFilter implements Filter {
 
     @Override
     public void destroy() {
+        manager.unsubscribeFrom(config, handlerFactory);
     }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {        
-        final ConfigurationService manager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
-        
+        manager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
+        config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
+        LOG.info("Initializing filter using config " + config);
         handlerFactory = new DestinationRouterHandlerFactory();
         
         manager.subscribeTo("system-model.cfg.xml", handlerFactory, SystemModel.class);
-        manager.subscribeTo("destination-router.cfg.xml", handlerFactory, DestinationRouterConfiguration.class);
+        manager.subscribeTo(config, handlerFactory, DestinationRouterConfiguration.class);
     }
 }

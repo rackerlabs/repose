@@ -7,6 +7,8 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import java.io.IOException;
 import javax.servlet.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -14,6 +16,7 @@ import javax.servlet.*;
  */
 public class HttpLoggingFilter implements Filter {
 
+    private static final Logger LOG = LoggerFactory.getLogger(HttpLoggingFilter.class);
     private static String DEFAULT_CONFIG = "http-logging.cfg.xml";
     private String config;
     private ConfigurationService manager;
@@ -32,6 +35,7 @@ public class HttpLoggingFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
+        LOG.info("Initializing filter using config " + config);
         handlerFactory = new HttpLoggingHandlerFactory();
         manager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
         manager.subscribeTo(config, handlerFactory, HttpLoggingConfig.class);
