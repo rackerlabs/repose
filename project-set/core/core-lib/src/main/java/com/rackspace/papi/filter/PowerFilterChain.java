@@ -20,6 +20,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -161,7 +162,7 @@ public class PowerFilterChain implements FilterChain {
                 String uri = new DispatchPathBuilder(location.getUri().getPath(), targetContext.getContextPath()).build();
                 final RequestDispatcher dispatcher = targetContext.getRequestDispatcher(uri);
 
-                mutableRequest.setRequestUrl(new StringBuffer(location.getUri().toURL().toExternalForm()));
+                mutableRequest.setRequestUrl(new StringBuffer(location.getUrl().toExternalForm()));
                 mutableRequest.setRequestUri(location.getUri().getPath());
                 if (dispatcher != null) {
                     LOG.debug("Attempting to route to " + location.getUri());
