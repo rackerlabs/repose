@@ -1,59 +1,58 @@
 package com.rackspace.papi.components.datastore.hash.remote.command;
 
+import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import com.rackspace.papi.components.datastore.common.CacheRequest;
 import com.rackspace.papi.components.datastore.common.DatastoreHeader;
 import com.rackspace.papi.components.datastore.common.RemoteBehavior;
 import com.rackspace.papi.components.datastore.hash.remote.RemoteCommand;
-import org.apache.http.client.methods.HttpRequestBase;
-
+import com.rackspace.papi.service.proxy.RequestProxyService;
 import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  * @author zinic
  */
-public abstract class AbstractRemoteCommand<T extends HttpRequestBase> implements RemoteCommand {
+public abstract class AbstractRemoteCommand implements RemoteCommand {
 
-   private final InetSocketAddress remoteEndpoint;
-   private final RemoteBehavior remoteBehavior;
-   private final String cacheObjectKey;
-   private String hostKey;
+    private final InetSocketAddress remoteEndpoint;
+    private final String cacheObjectKey;
+    private String hostKey;
 
-   public AbstractRemoteCommand(String cacheObjectKey, InetSocketAddress remoteEndpoint, RemoteBehavior remoteBehavior) {
-      this.cacheObjectKey = cacheObjectKey;
-      this.remoteEndpoint = remoteEndpoint;
-      this.remoteBehavior = remoteBehavior;
-   }
+    public AbstractRemoteCommand(String cacheObjectKey, InetSocketAddress remoteEndpoint) {
+        this.cacheObjectKey = cacheObjectKey;
+        this.remoteEndpoint = remoteEndpoint;
+    }
+    
+    protected String getUrl() {
+        return CacheRequest.urlFor(getRemoteEndpoint(), getCacheObjectKey());
+    }
+    
+    public abstract ServiceClientResponse execute(RequestProxyService proxyService, RemoteBehavior remoteBehavior);
 
-   protected abstract T newHttpRequestBase();
+    protected byte[] getBody() {
+        return null;
+    }
 
-   protected void prepareRequest(T httpRequestBase) {
-   }
+    protected Map<String, String> getHeaders(RemoteBehavior remoteBehavior) {
+        Map<String, String> headers = new HashMap<String, String>();
+        headers.put(DatastoreHeader.HOST_KEY.toString(), hostKey);
+        headers.put(DatastoreHeader.REMOTE_BEHAVIOR.toString(), remoteBehavior.name());
+        
+        return headers;
+    }
 
-   @Override
-   public final T buildRequest() {
-      final T requestBase = newHttpRequestBase();
+    protected InetSocketAddress getRemoteEndpoint() {
+        return remoteEndpoint;
+    }
 
-      setDefaultHeaders(requestBase, remoteBehavior);
-      prepareRequest(requestBase);
+    protected String getCacheObjectKey() {
+        return cacheObjectKey;
+    }
 
-      return requestBase;
-   }
-
-   private void setDefaultHeaders(HttpRequestBase httpMessage, RemoteBehavior remoteBehavior) {
-      httpMessage.addHeader(DatastoreHeader.HOST_KEY.toString(), hostKey);
-      httpMessage.addHeader(DatastoreHeader.REMOTE_BEHAVIOR.toString(), remoteBehavior.name());
-   }
-
-   protected InetSocketAddress getRemoteEndpoint() {
-      return remoteEndpoint;
-   }
-
-   protected String getCacheObjectKey() {
-      return cacheObjectKey;
-   }
-
-   @Override
-   public void setHostKey(String hostKey) {
-      this.hostKey = hostKey;
-   }
+    @Override
+    public void setHostKey(String hostKey) {
+        this.hostKey = hostKey;
+    }
 }

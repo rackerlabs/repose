@@ -1,8 +1,8 @@
 package com.rackspace.papi.service.proxy.jersey;
 
+import com.rackspace.papi.http.proxy.HttpException;
 import com.rackspace.papi.http.proxy.common.AbstractResponseProcessor;
 import com.sun.jersey.api.client.ClientResponse;
-import org.apache.http.HttpException;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MultivaluedMap;

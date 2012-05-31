@@ -1,30 +1,18 @@
 package com.rackspace.papi.components.datastore.hash.remote;
 
-import com.rackspace.papi.commons.util.pooling.ConstructionStrategy;
-import com.rackspace.papi.commons.util.pooling.GenericBlockingResourcePool;
-import com.rackspace.papi.commons.util.pooling.Pool;
-import com.rackspace.papi.commons.util.pooling.ResourceConstructionException;
-import com.rackspace.papi.service.datastore.DatastoreOperationException;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.junit.Before;
-import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import org.junit.Ignore;
 
 /**
  *
  * @author zinic
  */
+@Ignore
 @RunWith(Enclosed.class)
 public class RemoteCommandExecutorTest {
-
+/*
    public static final String HOST_KEY = "host_key";
 
    public static class WhenExecutingRemoteCommands {
@@ -119,4 +107,6 @@ public class RemoteCommandExecutorTest {
          assertEquals("Executor must return the remote command's response", Boolean.TRUE, result);
       }
    }
+   * 
+   */
 }

@@ -43,11 +43,6 @@
       </dependency>
         
       <dependency>
-         <groupId>org.apache.httpcomponents</groupId>
-         <artifactId>httpclient</artifactId>
-      </dependency>
-        
-      <dependency>
          <groupId>com.rackspace.papi.commons</groupId>
          <artifactId>jetty-container</artifactId>
          <scope>test</scope>

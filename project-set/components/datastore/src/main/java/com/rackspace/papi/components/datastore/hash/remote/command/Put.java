@@ -2,53 +2,57 @@ package com.rackspace.papi.components.datastore.hash.remote.command;
 
 import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import com.rackspace.papi.components.datastore.common.CacheRequest;
+import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.components.datastore.common.RemoteBehavior;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
-import org.apache.http.HttpResponse;
-import org.apache.http.client.methods.HttpPut;
-import org.apache.http.entity.ByteArrayEntity;
-
+import com.rackspace.papi.service.proxy.RequestProxyService;
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import javax.ws.rs.core.MediaType;
 
 /**
  *
  * @author zinic
  */
-public class Put extends AbstractRemoteCommand<HttpPut> {
+public class Put extends AbstractRemoteCommand {
 
-   private final TimeUnit timeUnit;
-   private final byte[] value;
-   private final int ttl;
+    private final TimeUnit timeUnit;
+    private final byte[] value;
+    private final int ttl;
 
-   public Put(TimeUnit timeUnit, byte[] value, int ttl, String cacheObjectKey, InetSocketAddress remoteEndpoint, RemoteBehavior remoteBehavior) {
-      super(cacheObjectKey, remoteEndpoint, remoteBehavior);
-      this.timeUnit = timeUnit;
-      this.value = value;
-      this.ttl = ttl;
-   }
+    public Put(TimeUnit timeUnit, byte[] value, int ttl, String cacheObjectKey, InetSocketAddress remoteEndpoint) {
+        super(cacheObjectKey, remoteEndpoint);
+        this.timeUnit = timeUnit;
+        this.value = value;
+        this.ttl = ttl;
+    }
 
-   @Override
-   protected HttpPut newHttpRequestBase() {
-      final String targetUrl = CacheRequest.urlFor(getRemoteEndpoint(), getCacheObjectKey());
+    @Override
+    protected Map<String, String> getHeaders(RemoteBehavior remoteBehavior) {
+        Map<String, String> headers = super.getHeaders(remoteBehavior);
+        headers.put(ExtendedHttpHeader.X_TTL.toString(), String.valueOf(TimeUnit.SECONDS.convert(ttl, timeUnit)));
+        return headers;
+    }
+    
+    @Override
+    protected byte[] getBody() {
+        return value;
+    }
 
-      return new HttpPut(targetUrl);
-   }
+    @Override
+    public Object handleResponse(ServiceClientResponse response) throws IOException, DatastoreOperationException {
+        if (response.getStatusCode() != HttpStatusCode.ACCEPTED.intValue()) {
+            throw new DatastoreOperationException("Remote request failed with: " + response.getStatusCode());
+        }
 
-   @Override
-   protected void prepareRequest(HttpPut httpRequestBase) {
-      httpRequestBase.setEntity(new ByteArrayEntity(value));
-      httpRequestBase.addHeader(ExtendedHttpHeader.X_TTL.toString(), String.valueOf(TimeUnit.SECONDS.convert(ttl, timeUnit)));
-   }
+        return Boolean.TRUE;
+    }
 
-   @Override
-   public Object handleResponse(HttpResponse httpResponse) throws IOException, DatastoreOperationException {
-      if (httpResponse.getStatusLine().getStatusCode() != HttpStatusCode.ACCEPTED.intValue()) {
-         throw new DatastoreOperationException("Remote request failed with: " + httpResponse.getStatusLine().getStatusCode());
-      }
-      
-      return Boolean.TRUE;
-   }
+    @Override
+    public ServiceClientResponse execute(RequestProxyService proxyService, RemoteBehavior remoteBehavior) {
+        return proxyService.put(getUrl(), getHeaders(remoteBehavior), value, MediaType.WILDCARD_TYPE);
+    }
+
 }

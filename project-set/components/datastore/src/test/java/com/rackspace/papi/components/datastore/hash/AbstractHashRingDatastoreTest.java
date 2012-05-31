@@ -11,6 +11,7 @@ import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
 import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
 import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
+import com.rackspace.papi.service.proxy.jersey.RequestProxyServiceImpl;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -98,7 +99,7 @@ public class AbstractHashRingDatastoreTest {
    public static class TestingHashRingDatastore extends HashRingDatastore {
 
       public TestingHashRingDatastore(MutableClusterView clusterView, String datastorePrefix, Datastore localDatastore, MessageDigestFactory hashProvider, EncodingProvider encodingProvider) {
-         super(clusterView, datastorePrefix, localDatastore, hashProvider, encodingProvider);
+         super(new RequestProxyServiceImpl(), clusterView, datastorePrefix, localDatastore, hashProvider, encodingProvider);
       }
    }
 }

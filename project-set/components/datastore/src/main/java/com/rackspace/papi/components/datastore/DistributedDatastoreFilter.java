@@ -66,7 +66,14 @@ public class DistributedDatastoreFilter implements Filter {
             }
         }
 
-        final HashRingDatastoreManager hashRingDatastoreManager = new HashRingDatastoreManager("", UUIDEncodingProvider.getInstance(), MD5MessageDigestFactory.getInstance(), clusterView, localDatastoreManager.getDatastore());
+        final HashRingDatastoreManager hashRingDatastoreManager = new HashRingDatastoreManager(
+                contextAdapter.requestProxyService(), 
+                "", 
+                UUIDEncodingProvider.getInstance(), 
+                MD5MessageDigestFactory.getInstance(), 
+                clusterView, 
+                localDatastoreManager.getDatastore());
+        
         hashRingDatastore = (HashRingDatastore) hashRingDatastoreManager.getDatastore();
 
         datastoreService.registerDatastoreManager(datastoreId, hashRingDatastoreManager);

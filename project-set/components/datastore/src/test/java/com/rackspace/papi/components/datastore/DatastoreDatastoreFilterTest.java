@@ -5,6 +5,7 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.impl.DatastoreServiceContext;
+import com.rackspace.papi.service.context.impl.RequestProxyServiceContext;
 import com.rackspace.papi.service.context.spring.SpringContextAdapter;
 import com.rackspace.papi.service.context.spring.SpringContextAdapterProvider;
 import com.rackspace.papi.service.datastore.DatastoreManager;
@@ -46,6 +47,7 @@ public class DatastoreDatastoreFilterTest {
          final ConfigurationServiceContext configurationServiceContext = mock(ConfigurationServiceContext.class);
          final DatastoreServiceContext datastoreServiceContext = mock(DatastoreServiceContext.class);
          final DatastoreManager localManager = mock(DatastoreManager.class);
+         final RequestProxyServiceContext proxyService = mock(RequestProxyServiceContext.class);
 
          ServletContextHelper.configureInstance(new SpringContextAdapterProvider(appContext), servletContext, mock(ApplicationContext.class));
          
@@ -55,6 +57,7 @@ public class DatastoreDatastoreFilterTest {
 
          when(appContext.getBean(eq(SpringContextAdapter.CONFIGURATION_SERVICE_CONTEXT))).thenReturn(configurationServiceContext);
          when(appContext.getBean(eq(SpringContextAdapter.DATASTORE_SERVICE_CONTEXT))).thenReturn(datastoreServiceContext);
+         when(appContext.getBean(eq(SpringContextAdapter.REQUEST_PROXY_SERVICE_CONTEXT))).thenReturn(proxyService);
          when(appContext.getBean(anyString(), eq(ServicePorts.class))).thenReturn(new ServicePorts());
 
          when(configurationServiceContext.getService()).thenReturn(configurationService);

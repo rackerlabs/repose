@@ -13,9 +13,9 @@ public interface RequestProxyService {
     int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response) throws IOException;
     void setTimeouts(Integer connectionTimeout, Integer readTimeout);
     ServiceClientResponse get(String uri, Map<String, String> headers, String... queryParameters);
-    ServiceClientResponse post(String uri, JAXBElement body, MediaType contentType);
-    ServiceClientResponse post(String uri, byte[] body, MediaType contentType);
-    ServiceClientResponse put(String uri, JAXBElement body, MediaType contentType);
-    ServiceClientResponse put(String uri, byte[] body, MediaType contentType);
+    ServiceClientResponse post(String uri, Map<String, String> headers, JAXBElement body, MediaType contentType);
+    ServiceClientResponse post(String uri, Map<String, String> headers, byte[] body, MediaType contentType);
+    ServiceClientResponse put(String uri, Map<String, String> headers, JAXBElement body, MediaType contentType);
+    ServiceClientResponse put(String uri, Map<String, String> headers, byte[] body, MediaType contentType);
     ServiceClientResponse delete(String uri, Map<String, String> headers, String... queryParameters);
 }

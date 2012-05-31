@@ -6,6 +6,7 @@ import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
+import com.rackspace.papi.service.proxy.RequestProxyService;
 
 public class HashRingDatastoreManager implements DatastoreManager {
 
@@ -14,16 +15,16 @@ public class HashRingDatastoreManager implements DatastoreManager {
    private final HashRingDatastore datastore;
    private boolean available;
 
-   public HashRingDatastoreManager(String hostKey, EncodingProvider encodingProvider, MessageDigestFactory hashProvider, MutableClusterView clusterView, Datastore localDatastore) {
-      final HashRingDatastore newHashRingDatastore = new HashRingDatastore(clusterView, hostKey, localDatastore, hashProvider, encodingProvider);
-      newHashRingDatastore.setRemoteCommandExecutor(newRemoteCommandExecutor(HOST_KEY, 300, 5000));
+   public HashRingDatastoreManager(RequestProxyService proxyService, String hostKey, EncodingProvider encodingProvider, MessageDigestFactory hashProvider, MutableClusterView clusterView, Datastore localDatastore) {
+      final HashRingDatastore newHashRingDatastore = new HashRingDatastore(proxyService, clusterView, hostKey, localDatastore, hashProvider, encodingProvider);
+      newHashRingDatastore.setRemoteCommandExecutor(newRemoteCommandExecutor(proxyService, HOST_KEY));
 
       datastore = newHashRingDatastore;
       available = true;
    }
 
-   private RemoteCommandExecutor newRemoteCommandExecutor(String hostKey, int connectionTimeout, int socketTimeout) {
-      final RemoteCommandExecutor remoteCommandExecutor = new RemoteCommandExecutor(connectionTimeout, socketTimeout);
+   private RemoteCommandExecutor newRemoteCommandExecutor(RequestProxyService proxyService, String hostKey) {
+      final RemoteCommandExecutor remoteCommandExecutor = new RemoteCommandExecutor(proxyService);
       remoteCommandExecutor.setHostKey(hostKey);
 
       return remoteCommandExecutor;

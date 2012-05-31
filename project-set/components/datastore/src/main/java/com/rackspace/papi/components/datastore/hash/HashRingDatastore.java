@@ -13,13 +13,13 @@ import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
 import com.rackspace.papi.service.datastore.impl.AbstractHashedDatastore;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.rackspace.papi.service.proxy.RequestProxyService;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class HashRingDatastore extends AbstractHashedDatastore {
 
@@ -27,12 +27,14 @@ public class HashRingDatastore extends AbstractHashedDatastore {
    private final MutableClusterView clusterView;
    private final Datastore localDatastore;
    private RemoteCommandExecutor remoteCommandExecutor;
+   private RequestProxyService proxyService;
 
-   public HashRingDatastore(MutableClusterView clusterView, String datastorePrefix, Datastore localDatastore, MessageDigestFactory hashProvider, EncodingProvider encodingProvider) {
+   public HashRingDatastore(RequestProxyService proxyService, MutableClusterView clusterView, String datastorePrefix, Datastore localDatastore, MessageDigestFactory hashProvider, EncodingProvider encodingProvider) {
       super(datastorePrefix, encodingProvider, hashProvider);
 
       this.clusterView = clusterView;
       this.localDatastore = localDatastore;
+      this.proxyService = proxyService;
    }
 
    public void setRemoteCommandExecutor(RemoteCommandExecutor remoteCommandExecutor) {
@@ -107,9 +109,7 @@ public class HashRingDatastore extends AbstractHashedDatastore {
 
          @Override
          public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {
-            final Get getRequest = new Get(name, target, remoteBehavior);
-
-            return remoteCommandExecutor.execute(getRequest);
+            return remoteCommandExecutor.execute(new Get(name, target, remoteBehavior), remoteBehavior);
          }
 
          @Override
@@ -129,9 +129,7 @@ public class HashRingDatastore extends AbstractHashedDatastore {
 
          @Override
          public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {
-            final Delete deleteRequest = new Delete(name, target, remoteBehavior);
-
-            return remoteCommandExecutor.execute(deleteRequest);
+            return remoteCommandExecutor.execute(new Delete(name, target), remoteBehavior);
          }
 
          @Override
@@ -151,10 +149,7 @@ public class HashRingDatastore extends AbstractHashedDatastore {
 
          @Override
          public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {
-            final Put putRequest = new Put(timeUnit, value, ttl, name, target, remoteBehavior);
-            remoteCommandExecutor.execute(putRequest);
-
-            return null;
+            return remoteCommandExecutor.execute(new Put(timeUnit, value, ttl, name, target), remoteBehavior);
          }
 
          @Override

@@ -3,6 +3,7 @@ package com.rackspace.papi.service.proxy.jersey;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.logging.jersey.LoggingFilter;
+import com.rackspace.papi.http.proxy.HttpException;
 import com.rackspace.papi.http.proxy.common.HttpResponseCodeProcessor;
 import com.rackspace.papi.service.proxy.RequestProxyService;
 import com.sun.jersey.api.client.Client;
@@ -19,7 +20,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBElement;
-import org.apache.http.HttpException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -149,13 +149,13 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     }
 
     @Override
-    public ServiceClientResponse post(String uri, JAXBElement body, MediaType contentType) {
+    public ServiceClientResponse post(String uri, Map<String, String> headers, JAXBElement body, MediaType contentType) {
         return new ServiceClient(getClient()).post(uri, body, contentType);
     }
 
     @Override
-    public ServiceClientResponse post(String uri, byte[] body, MediaType contentType) {
-        return new ServiceClient(getClient()).post(uri, body, contentType);
+    public ServiceClientResponse post(String uri, Map<String, String> headers, byte[] body, MediaType contentType) {
+        return new ServiceClient(getClient()).post(uri, headers, body, contentType);
     }
 
     @Override
@@ -164,12 +164,12 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     }
 
     @Override
-    public ServiceClientResponse put(String uri, JAXBElement body, MediaType contentType) {
-        return new ServiceClient(getClient()).put(uri, body, contentType);
+    public ServiceClientResponse put(String uri, Map<String, String> headers, JAXBElement body, MediaType contentType) {
+        return new ServiceClient(getClient()).put(uri, headers, body, contentType);
     }
 
     @Override
-   public ServiceClientResponse put(String uri, byte[] body, MediaType contentType) {
-        return new ServiceClient(getClient()).put(uri, body, contentType);
+   public ServiceClientResponse put(String uri, Map<String, String> headers, byte[] body, MediaType contentType) {
+        return new ServiceClient(getClient()).put(uri, headers, body, contentType);
    }
 }

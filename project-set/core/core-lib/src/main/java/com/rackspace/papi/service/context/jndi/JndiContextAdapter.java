@@ -11,6 +11,7 @@ import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.filterchain.GarbageCollectionService;
 import com.rackspace.papi.service.logging.LoggingService;
+import com.rackspace.papi.service.proxy.RequestProxyService;
 import com.rackspace.papi.service.rms.ResponseMessageService;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.service.threading.ThreadingService;
@@ -90,5 +91,10 @@ public class JndiContextAdapter implements ContextAdapter {
    public <T extends ServiceContext<?>> T getContext(Class<T> clazz) {
       throw new UnsupportedOperationException("Not supported yet.");
    }
+
+    @Override
+    public RequestProxyService requestProxyService() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
 }

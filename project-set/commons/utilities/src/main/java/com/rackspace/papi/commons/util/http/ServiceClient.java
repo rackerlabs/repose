@@ -71,26 +71,29 @@ public class ServiceClient {
       return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
    }
 
-   public ServiceClientResponse post(String uri, byte[] body, MediaType contentType) {
+   public ServiceClientResponse post(String uri, Map<String, String> headers, byte[] body, MediaType contentType) {
       WebResource resource = client.resource(uri);
-      
-      ClientResponse response = resource.type(contentType).header("Accept", "application/xml").post(ClientResponse.class, body);
+      WebResource.Builder requestBuilder = resource.getRequestBuilder();
+      requestBuilder = setHeaders(requestBuilder, headers);
+      ClientResponse response = requestBuilder.type(contentType).header("Accept", "application/xml").post(ClientResponse.class, body);
 
       return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
    }
 
-   public ServiceClientResponse put(String uri, JAXBElement body, MediaType contentType) {
+   public ServiceClientResponse put(String uri, Map<String, String> headers, JAXBElement body, MediaType contentType) {
       WebResource resource = client.resource(uri);
-
-      ClientResponse response = resource.type(contentType).header("Accept", "application/xml").put(ClientResponse.class, body);
+      WebResource.Builder requestBuilder = resource.getRequestBuilder();
+      requestBuilder = setHeaders(requestBuilder, headers);
+      ClientResponse response = requestBuilder.type(contentType).header("Accept", "application/xml").put(ClientResponse.class, body);
 
       return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
    }
 
-   public ServiceClientResponse put(String uri, byte[] body, MediaType contentType) {
+   public ServiceClientResponse put(String uri, Map<String, String> headers, byte[] body, MediaType contentType) {
       WebResource resource = client.resource(uri);
-      
-      ClientResponse response = resource.type(contentType).header("Accept", "application/xml").put(ClientResponse.class, body);
+      WebResource.Builder requestBuilder = resource.getRequestBuilder();
+      requestBuilder = setHeaders(requestBuilder, headers);
+      ClientResponse response = requestBuilder.type(contentType).header("Accept", "application/xml").put(ClientResponse.class, body);
 
       return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
    }
