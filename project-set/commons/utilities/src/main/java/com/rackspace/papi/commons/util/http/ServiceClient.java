@@ -7,6 +7,7 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
+import java.io.ByteArrayOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,6 +23,18 @@ public class ServiceClient {
    private static final int TIMEOUT = 30000;
 
    private final Client client;
+   
+   public ServiceClient(Client client) {
+       this.client = client;
+   }
+   
+   public ServiceClient(String username, String password) {
+      this(new HTTPBasicAuthFilter(username, password));
+   }
+   
+   public ServiceClient() {
+       this((HTTPBasicAuthFilter)null);
+   }
 
    public ServiceClient(HTTPBasicAuthFilter httpBasicAuthFilter) {
       DefaultClientConfig cc = new DefaultClientConfig();
@@ -58,6 +71,30 @@ public class ServiceClient {
       return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
    }
 
+   public ServiceClientResponse post(String uri, byte[] body, MediaType contentType) {
+      WebResource resource = client.resource(uri);
+      
+      ClientResponse response = resource.type(contentType).header("Accept", "application/xml").post(ClientResponse.class, body);
+
+      return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
+   }
+
+   public ServiceClientResponse put(String uri, JAXBElement body, MediaType contentType) {
+      WebResource resource = client.resource(uri);
+
+      ClientResponse response = resource.type(contentType).header("Accept", "application/xml").put(ClientResponse.class, body);
+
+      return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
+   }
+
+   public ServiceClientResponse put(String uri, byte[] body, MediaType contentType) {
+      WebResource resource = client.resource(uri);
+      
+      ClientResponse response = resource.type(contentType).header("Accept", "application/xml").put(ClientResponse.class, body);
+
+      return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
+   }
+
    public ServiceClientResponse get(String uri, Map<String, String> headers, String... queryParameters) {
       WebResource resource = client.resource(uri);
 
@@ -72,6 +109,23 @@ public class ServiceClient {
       WebResource.Builder requestBuilder = resource.getRequestBuilder();
       requestBuilder = setHeaders(requestBuilder, headers);
       ClientResponse response = requestBuilder.get(ClientResponse.class);
+      return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
+   }
+
+   public ServiceClientResponse delete(String uri, Map<String, String> headers, String... queryParameters) {
+      WebResource resource = client.resource(uri);
+
+      if (queryParameters.length % 2 != 0) {
+         throw new IllegalArgumentException("Query parameters must be in pairs.");
+      }
+
+      for (int index = 0; index < queryParameters.length; index = index + 2) {
+         resource = resource.queryParam(queryParameters[index], queryParameters[index + 1]);
+      }
+
+      WebResource.Builder requestBuilder = resource.getRequestBuilder();
+      requestBuilder = setHeaders(requestBuilder, headers);
+      ClientResponse response = requestBuilder.delete(ClientResponse.class);
       return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
    }
 }

@@ -40,7 +40,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
                                       ResponseUnmarshaller openStackGroupsResponseUnmarshaller) {
       this.openStackCoreResponseUnmarshaller = openStackCoreResponseUnmarshaller;
       this.openStackGroupsResponseUnmarshaller = openStackGroupsResponseUnmarshaller;
-      this.serviceClient = new ServiceClient(null);
+      this.serviceClient = new ServiceClient();
       this.targetHostUri = targetHostUri;
 
       ObjectFactory objectFactory = new ObjectFactory();

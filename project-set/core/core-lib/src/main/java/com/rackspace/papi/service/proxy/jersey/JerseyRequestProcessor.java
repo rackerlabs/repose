@@ -1,18 +1,17 @@
-package com.rackspace.papi.http.proxy.jerseyclient;
+package com.rackspace.papi.service.proxy.jersey;
 
+import com.rackspace.papi.commons.util.StringUtilities;
+import static com.rackspace.papi.http.Headers.HOST;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
-
-import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.util.Enumeration;
+import java.util.*;
 import java.util.regex.Pattern;
-
-import static com.rackspace.papi.http.Headers.HOST;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Process a request to copy over header values, query string parameters, and
@@ -21,24 +20,43 @@ import static com.rackspace.papi.http.Headers.HOST;
  */
 class JerseyRequestProcessor {
 
-    private final HttpServletRequest sourceRequest;
     private final URI targetHost;
+    private final String queryString;
+    private final Map<String, List<String>> headers = new HashMap<String, List<String>>();
+    private final InputStream inputStream;
 
-    public JerseyRequestProcessor(HttpServletRequest request, URI host) {
-        this.sourceRequest = request;
+    public JerseyRequestProcessor(HttpServletRequest request, URI host) throws IOException {
+        this.queryString = request.getQueryString();
         this.targetHost = host;
+        this.inputStream = request.getInputStream();
+
+        final Enumeration<String> headerNames = request.getHeaderNames();
+
+        while (headerNames.hasMoreElements()) {
+            String headerName = headerNames.nextElement();
+            headers.put(headerName, Collections.list(request.getHeaders(headerName)));
+        }
+    }
+    
+    public JerseyRequestProcessor(URI host, String queryString, Map<String, List<String>> headers) {
+        this(host, queryString, headers, null);
     }
 
-    
+    public JerseyRequestProcessor(URI host, String queryString, Map<String, List<String>> headers, InputStream inputStream) {
+        this.targetHost = host;
+        this.queryString = queryString;
+        this.headers.putAll(headers);
+        this.inputStream = inputStream;
+    }
 
-    public WebResource setRequestParameters(WebResource method) {
+    private WebResource setRequestParameters(WebResource method) {
         
         WebResource newMethod = method;
 
-        if (!sourceRequest.getParameterMap().isEmpty()) {
+        if (!StringUtilities.isEmpty(queryString)) {
             Pattern delimiter = Pattern.compile("&");
             Pattern pair = Pattern.compile("=");
-            String[] params = delimiter.split(sourceRequest.getQueryString());
+            String[] params = delimiter.split(queryString);
 
             for (String param : params) {
                 String[] paramPair = pair.split(param);
@@ -79,25 +97,18 @@ class JerseyRequestProcessor {
      * @param method 
      */
     private void setHeaders(Builder builder) {
-        final Enumeration<String> headerNames = sourceRequest.getHeaderNames();
-
-        while (headerNames.hasMoreElements()) {
-            String headerName = headerNames.nextElement();
-            final Enumeration<String> headerValues = sourceRequest.getHeaders(headerName);
-
-            while (headerValues.hasMoreElements()) {
-                String headerValue = headerValues.nextElement();
-                builder.header(headerName, processHeaderValue(headerName, headerValue));
+        for (String header: headers.keySet()) {
+            List<String> values = headers.get(header);
+            for (String value: values) {
+                builder.header(header, processHeaderValue(header, value));
             }
         }
     }
 
     private byte[] getData() throws IOException {
-        final InputStream source = sourceRequest.getInputStream();
+        if (inputStream != null) {
 
-        if (source != null) {
-
-            final BufferedInputStream httpIn = new BufferedInputStream(source);
+            final BufferedInputStream httpIn = new BufferedInputStream(inputStream);
             final ByteArrayOutputStream clientOut = new ByteArrayOutputStream();
 
             int readData;

@@ -1,16 +1,15 @@
-package com.rackspace.papi.http.proxy.jerseyclient;
+package com.rackspace.papi.service.proxy.jersey;
 
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.client.urlconnection.HTTPSProperties;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
+import javax.net.ssl.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.net.ssl.*;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
-
-public class JerseyPropertiesConfigurator {
+class JerseyPropertiesConfigurator {
    private static final Logger LOG = LoggerFactory.getLogger(JerseyPropertiesConfigurator.class);
 
    private static final Integer DEFAULT_THREADPOOL_SIZE = 20;

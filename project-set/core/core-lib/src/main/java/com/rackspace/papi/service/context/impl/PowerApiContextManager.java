@@ -8,6 +8,7 @@ import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.banner.PapiBanner;
 import com.rackspace.papi.service.context.spring.SpringContextAdapterProvider;
 import com.rackspace.papi.service.deploy.ArtifactManagerServiceContext;
+import com.rackspace.papi.service.proxy.RequestProxyService;
 import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
 import com.rackspace.papi.spring.SpringConfiguration;
 import org.slf4j.Logger;
@@ -53,6 +54,7 @@ public class PowerApiContextManager implements ServletContextListener {
         ca.getContext(ClassLoaderServiceContext.class).contextInitialized(sce);
         ca.getContext(ArtifactManagerServiceContext.class).contextInitialized(sce);
         ca.getContext(FilterChainGCServiceContext.class).contextInitialized(sce);
+        ca.getContext(RequestProxyServiceContext.class).contextInitialized(sce);
 
     }
 

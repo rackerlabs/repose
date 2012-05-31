@@ -1,19 +1,22 @@
 package com.rackspace.papi.filter;
 
 import com.rackspace.papi.http.proxy.HttpRequestDispatcher;
-import com.rackspace.papi.servlet.InitParameter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.*;
-import javax.servlet.ServletRegistration.Dynamic;
-import javax.servlet.descriptor.JspConfigDescriptor;
+import com.rackspace.papi.service.proxy.RequestProxyService;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
+import java.util.Enumeration;
+import java.util.EventListener;
+import java.util.Map;
+import java.util.Set;
+import javax.servlet.ServletRegistration.Dynamic;
+import javax.servlet.*;
+import javax.servlet.descriptor.JspConfigDescriptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 /**
  *
@@ -24,11 +27,9 @@ public class ServletContextWrapper implements ServletContext {
     private static final Logger LOG = LoggerFactory.getLogger(ServletContextWrapper.class);
     private final ServletContext context;
     private final String targetContext;
-    private static final Map<String, RequestDispatcher> DISPATCHERS = new HashMap<String, RequestDispatcher>();
     private final String target;
-    private static int connectionTimeout = 0;
-    private static int readTimeout = 0;
-    private final Object timeoutLock = new Object();
+    private ApplicationContext applicationContext = null;
+    private RequestProxyService proxyService = null;
 
     public static ServletContext getContext(ServletContext context) {
         return new ServletContextWrapper(context);
@@ -74,7 +75,7 @@ public class ServletContextWrapper implements ServletContext {
     }
 
     private String cleanPath(String uri) {
-        return uri == null? "": uri.split("\\?")[0];
+        return uri == null ? "" : uri.split("\\?")[0];
     }
 
     @Override
@@ -133,44 +134,42 @@ public class ServletContextWrapper implements ServletContext {
         return context.getResourceAsStream(path);
     }
 
-    private int getConnectionTimeout() {
-        return (Integer) context.getAttribute(InitParameter.CONNECTION_TIMEOUT.getParameterName());
-    }
-
-    private int getReadTimeout() {
-        return (Integer) context.getAttribute(InitParameter.READ_TIMEOUT.getParameterName());
-    }
-
-    private boolean timeoutsChanged() {
-        int connectionTo = getConnectionTimeout();
-        int readTo = getReadTimeout();
-        boolean changed = false;
-
-        synchronized (timeoutLock) {
-            if ((connectionTimeout != connectionTo) || (readTimeout != readTo)) {
-                changed = true;
-                connectionTimeout = connectionTo;
-                readTimeout = readTo;
-            }
-        }
-
-        return changed;
-    }
-
     private RequestDispatcher getDispatcher() {
         RequestDispatcher dispatcher = null;
 
         if (target != null) {
-            synchronized (DISPATCHERS) {
-                dispatcher = DISPATCHERS.get(target);
-                if (dispatcher == null) {
-                    dispatcher = new HttpRequestDispatcher(targetContext, getConnectionTimeout(), getReadTimeout());
-                    DISPATCHERS.put(target, dispatcher);
-                }
-            }
+            return new HttpRequestDispatcher(getProxyService(), targetContext);
+            /*
+             * synchronized (DISPATCHERS) { dispatcher =
+             * DISPATCHERS.get(target); if (dispatcher == null) { dispatcher =
+             * new HttpRequestDispatcher(targetContext, getConnectionTimeout(),
+             * getReadTimeout()); DISPATCHERS.put(target, dispatcher); } }
+             *
+             */
         }
 
         return dispatcher;
+    }
+
+    private synchronized ApplicationContext getApplicationContext() {
+        if (applicationContext != null) {
+            return applicationContext;
+        }
+
+        applicationContext = (ApplicationContext) getAttribute("PAPI_SpringApplicationContext");
+
+        return applicationContext;
+    }
+
+    private synchronized RequestProxyService getProxyService() {
+        if (proxyService != null) {
+            return proxyService;
+        }
+
+        ApplicationContext appContext = getApplicationContext();
+        proxyService = appContext != null ? appContext.getBean("requestProxyService", RequestProxyService.class) : null;
+
+        return proxyService;
     }
 
     @Override
@@ -179,18 +178,10 @@ public class ServletContextWrapper implements ServletContext {
 
         if (targetContext.matches("^https?://.*")) {
 
-            // if timeouts have changed in the config then force a rebuild of the dispatchers map
-            if (timeoutsChanged()) {
-                synchronized (DISPATCHERS) {
-                    DISPATCHERS.clear();
-                }
-
-                LOG.info("Timeouts have changed.  Clearing request dispatcher map.");
-            }
-
             dispatcher = getDispatcher();
             if (dispatcher == null) {
-                dispatcher = new HttpRequestDispatcher(targetContext, getConnectionTimeout(), getReadTimeout());
+                dispatcher = new HttpRequestDispatcher(getProxyService(), targetContext);
+                //dispatcher = new HttpRequestDispatcher(targetContext, getConnectionTimeout(), getReadTimeout());
             }
         } else {
             String dispatchPath = path.startsWith("/") ? path : "/" + path;

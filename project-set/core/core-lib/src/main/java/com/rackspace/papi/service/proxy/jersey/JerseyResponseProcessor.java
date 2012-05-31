@@ -1,4 +1,4 @@
-package com.rackspace.papi.http.proxy.jerseyclient;
+package com.rackspace.papi.service.proxy.jersey;
 
 import com.rackspace.papi.http.proxy.common.AbstractResponseProcessor;
 import com.sun.jersey.api.client.ClientResponse;
@@ -12,7 +12,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 
-public class JerseyResponseProcessor extends AbstractResponseProcessor {
+class JerseyResponseProcessor extends AbstractResponseProcessor {
 
    private final ClientResponse clientResponse;
 
