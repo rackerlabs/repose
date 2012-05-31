@@ -128,25 +128,10 @@
         <longProp name="ThreadGroup.start_time">1337872279000</longProp>
         <longProp name="ThreadGroup.end_time">1337872279000</longProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
-        <stringProp name="ThreadGroup.duration">600</stringProp>
+        <stringProp name="ThreadGroup.duration">180</stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
       </ThreadGroup>
       <hashTree>
-        <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="User Parameters" enabled="true">
-          <collectionProp name="UserParameters.names">
-            <stringProp name="3367">ip</stringProp>
-          </collectionProp>
-          <collectionProp name="UserParameters.thread_values">
-            <collectionProp name="-1423518536">
-              <stringProp name="-377264994">198.101.197.216</stringProp>
-            </collectionProp>
-            <collectionProp name="1086958488">
-              <stringProp name="-376341479">198.101.198.210</stringProp>
-            </collectionProp>
-          </collectionProp>
-          <boolProp name="UserParameters.per_iteration">true</boolProp>
-        </UserParameters>
-        <hashTree/>
         <Arguments guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
           <collectionProp name="Arguments.arguments">
             <elementProp name="local" elementType="Argument">
@@ -179,8 +164,33 @@
               <stringProp name="Argument.value">198.101.128.147</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
+            <elementProp name="node3" elementType="Argument">
+              <stringProp name="Argument.name">node3</stringProp>
+              <stringProp name="Argument.value">198.101.204.96</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="node4" elementType="Argument">
+              <stringProp name="Argument.name">node4</stringProp>
+              <stringProp name="Argument.value">198.101.204.97</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
           </collectionProp>
         </Arguments>
+        <hashTree/>
+        <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="User Parameters" enabled="true">
+          <collectionProp name="UserParameters.names">
+            <stringProp name="3367">ip</stringProp>
+          </collectionProp>
+          <collectionProp name="UserParameters.thread_values">
+            <collectionProp name="-934738974">
+              <stringProp name="-934739005">${node3}</stringProp>
+            </collectionProp>
+            <collectionProp name="-934738943">
+              <stringProp name="-934738974">${node4}</stringProp>
+            </collectionProp>
+          </collectionProp>
+          <boolProp name="UserParameters.per_iteration">true</boolProp>
+        </UserParameters>
         <hashTree/>
         <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="UserId" enabled="true">
           <stringProp name="variableName">id</stringProp>
