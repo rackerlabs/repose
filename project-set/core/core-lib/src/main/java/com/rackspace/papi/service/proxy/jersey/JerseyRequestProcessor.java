@@ -16,46 +16,25 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * Process a request to copy over header values, query string parameters, and
  * request body as necessary.
- * 
+ *
  */
 class JerseyRequestProcessor {
 
     private final URI targetHost;
-    private final String queryString;
-    private final Map<String, List<String>> headers = new HashMap<String, List<String>>();
-    private final InputStream inputStream;
+    private final HttpServletRequest request;
+    private Pattern delimiter = Pattern.compile("&");
+    private Pattern pair = Pattern.compile("=");
 
     public JerseyRequestProcessor(HttpServletRequest request, URI host) throws IOException {
-        this.queryString = request.getQueryString();
         this.targetHost = host;
-        this.inputStream = request.getInputStream();
-
-        final Enumeration<String> headerNames = request.getHeaderNames();
-
-        while (headerNames.hasMoreElements()) {
-            String headerName = headerNames.nextElement();
-            headers.put(headerName, Collections.list(request.getHeaders(headerName)));
-        }
-    }
-    
-    public JerseyRequestProcessor(URI host, String queryString, Map<String, List<String>> headers) {
-        this(host, queryString, headers, null);
-    }
-
-    public JerseyRequestProcessor(URI host, String queryString, Map<String, List<String>> headers, InputStream inputStream) {
-        this.targetHost = host;
-        this.queryString = queryString;
-        this.headers.putAll(headers);
-        this.inputStream = inputStream;
+        this.request = request;
     }
 
     private WebResource setRequestParameters(WebResource method) {
-        
         WebResource newMethod = method;
+        final String queryString = request.getQueryString();
 
-        if (!StringUtilities.isEmpty(queryString)) {
-            Pattern delimiter = Pattern.compile("&");
-            Pattern pair = Pattern.compile("=");
+        if (queryString != null && queryString.length() > 0) {
             String[] params = delimiter.split(queryString);
 
             for (String param : params) {
@@ -66,17 +45,16 @@ class JerseyRequestProcessor {
             }
         }
 
-
         return newMethod;
     }
 
     /**
-     * Scan header values and manipulate as necessary.  Host header, if provided,
+     * Scan header values and manipulate as necessary. Host header, if provided,
      * may need to be updated.
-     * 
+     *
      * @param headerName
      * @param headerValue
-     * @return 
+     * @return
      */
     private String processHeaderValue(String headerName, String headerValue) {
         String result = headerValue;
@@ -93,19 +71,26 @@ class JerseyRequestProcessor {
 
     /**
      * Copy header values from source request to the http method.
-     * 
-     * @param method 
+     *
+     * @param method
      */
     private void setHeaders(Builder builder) {
-        for (String header: headers.keySet()) {
-            List<String> values = headers.get(header);
-            for (String value: values) {
+        final Enumeration<String> headerNames = request.getHeaderNames();
+
+        while (headerNames.hasMoreElements()) {
+            String header = headerNames.nextElement();
+            
+            Enumeration<String> values = request.getHeaders(header);
+            while (values.hasMoreElements()) {
+                String value = values.nextElement();
                 builder.header(header, processHeaderValue(header, value));
             }
         }
     }
 
     private byte[] getData() throws IOException {
+        InputStream inputStream = request.getInputStream();
+        
         if (inputStream != null) {
 
             final BufferedInputStream httpIn = new BufferedInputStream(inputStream);
@@ -126,12 +111,12 @@ class JerseyRequestProcessor {
     }
 
     /**
-     * Process an entity enclosing http method.  These methods can handle
-     * a request body.
-     * 
+     * Process an entity enclosing http method. These methods can handle a
+     * request body.
+     *
      * @param method
      * @return
-     * @throws IOException 
+     * @throws IOException
      */
     public Builder process(WebResource method) throws IOException {
         return process(setRequestParameters(method).getRequestBuilder());

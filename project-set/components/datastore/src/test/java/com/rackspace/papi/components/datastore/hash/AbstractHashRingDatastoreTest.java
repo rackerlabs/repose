@@ -99,7 +99,7 @@ public class AbstractHashRingDatastoreTest {
    public static class TestingHashRingDatastore extends HashRingDatastore {
 
       public TestingHashRingDatastore(MutableClusterView clusterView, String datastorePrefix, Datastore localDatastore, MessageDigestFactory hashProvider, EncodingProvider encodingProvider) {
-         super(new RequestProxyServiceImpl(), clusterView, datastorePrefix, localDatastore, hashProvider, encodingProvider);
+         super(null, clusterView, datastorePrefix, localDatastore, hashProvider, encodingProvider);
       }
    }
 }

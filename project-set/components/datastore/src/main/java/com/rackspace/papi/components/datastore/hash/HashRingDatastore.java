@@ -13,7 +13,6 @@ import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
 import com.rackspace.papi.service.datastore.impl.AbstractHashedDatastore;
-import com.rackspace.papi.service.proxy.RequestProxyService;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
@@ -26,18 +25,13 @@ public class HashRingDatastore extends AbstractHashedDatastore {
    private static final Logger LOG = LoggerFactory.getLogger(HashRingDatastore.class);
    private final MutableClusterView clusterView;
    private final Datastore localDatastore;
-   private RemoteCommandExecutor remoteCommandExecutor;
-   private RequestProxyService proxyService;
+   private final RemoteCommandExecutor remoteCommandExecutor;
 
-   public HashRingDatastore(RequestProxyService proxyService, MutableClusterView clusterView, String datastorePrefix, Datastore localDatastore, MessageDigestFactory hashProvider, EncodingProvider encodingProvider) {
+   public HashRingDatastore(RemoteCommandExecutor remoteCommandExecutor, MutableClusterView clusterView, String datastorePrefix, Datastore localDatastore, MessageDigestFactory hashProvider, EncodingProvider encodingProvider) {
       super(datastorePrefix, encodingProvider, hashProvider);
 
       this.clusterView = clusterView;
       this.localDatastore = localDatastore;
-      this.proxyService = proxyService;
-   }
-
-   public void setRemoteCommandExecutor(RemoteCommandExecutor remoteCommandExecutor) {
       this.remoteCommandExecutor = remoteCommandExecutor;
    }
 

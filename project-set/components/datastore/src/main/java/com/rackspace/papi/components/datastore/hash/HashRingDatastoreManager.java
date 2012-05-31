@@ -16,18 +16,14 @@ public class HashRingDatastoreManager implements DatastoreManager {
    private boolean available;
 
    public HashRingDatastoreManager(RequestProxyService proxyService, String hostKey, EncodingProvider encodingProvider, MessageDigestFactory hashProvider, MutableClusterView clusterView, Datastore localDatastore) {
-      final HashRingDatastore newHashRingDatastore = new HashRingDatastore(proxyService, clusterView, hostKey, localDatastore, hashProvider, encodingProvider);
-      newHashRingDatastore.setRemoteCommandExecutor(newRemoteCommandExecutor(proxyService, HOST_KEY));
-
-      datastore = newHashRingDatastore;
+      datastore = new HashRingDatastore(
+              new RemoteCommandExecutor(proxyService, HOST_KEY),
+              clusterView, 
+              hostKey, 
+              localDatastore, 
+              hashProvider, 
+              encodingProvider);
       available = true;
-   }
-
-   private RemoteCommandExecutor newRemoteCommandExecutor(RequestProxyService proxyService, String hostKey) {
-      final RemoteCommandExecutor remoteCommandExecutor = new RemoteCommandExecutor(proxyService);
-      remoteCommandExecutor.setHostKey(hostKey);
-
-      return remoteCommandExecutor;
    }
 
    @Override

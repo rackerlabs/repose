@@ -22,6 +22,11 @@ public class RemoteCommandExecutor {
         this.proxyService = proxyService;
     }
 
+    public RemoteCommandExecutor(RequestProxyService proxyService, String hostKey) {
+        this.proxyService = proxyService;
+        this.hostKey = hostKey;
+    }
+
     public void setHostKey(String hostKey) {
         this.hostKey = hostKey;
     }

@@ -31,13 +31,14 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private Client client;
     private Integer connectionTimeout = new Integer(0);
     private Integer readTimeout = new Integer(0);
+    private Object lock = new Object();
     //private final Map<String, TargetHostInfo> hosts = new HashMap<String, TargetHostInfo>();
 
     public RequestProxyServiceImpl() {
     }
 
     @Override
-    public synchronized void setTimeouts(Integer connectionTimeout, Integer readTimeout) {
+    public void setTimeouts(Integer connectionTimeout, Integer readTimeout) {
         LOG.info("Connection and/or read timeouts changed to: " + connectionTimeout + "/" + readTimeout);
         this.connectionTimeout = connectionTimeout;
         this.readTimeout = readTimeout;
@@ -83,21 +84,23 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         }
     }
 
-    private synchronized Client getClient() {
-        if (client == null) {
-            DefaultClientConfig cc = new JerseyPropertiesConfigurator(connectionTimeout, readTimeout).configure();
-            client = Client.create(cc);
+    private Client getClient() {
+        synchronized (lock) {
+            if (client == null) {
+                DefaultClientConfig cc = new JerseyPropertiesConfigurator(connectionTimeout, readTimeout).configure();
+                client = Client.create(cc);
 
-            if (LOG.isInfoEnabled()) {
-                LOG.info("Enabling info logging of jersey client requests");
-                client.addFilter(new LoggingFilter());
-            } else {
-                LOG.warn("**** Jersey client request logging not enabled *****");
+                if (LOG.isInfoEnabled()) {
+                    LOG.info("Enabling info logging of jersey client requests");
+                    client.addFilter(new LoggingFilter());
+                } else {
+                    LOG.warn("**** Jersey client request logging not enabled *****");
+                }
+
             }
 
+            return client;
         }
-
-        return client;
     }
 
     @Override
@@ -149,6 +152,11 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     }
 
     @Override
+    public ServiceClientResponse get(String uri, Map<String, String> headers) {
+        return new ServiceClient(getClient()).get(uri, headers);
+    }
+
+    @Override
     public ServiceClientResponse post(String uri, Map<String, String> headers, JAXBElement body, MediaType contentType) {
         return new ServiceClient(getClient()).post(uri, body, contentType);
     }
@@ -164,12 +172,17 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     }
 
     @Override
+    public ServiceClientResponse delete(String uri, Map<String, String> headers) {
+        return new ServiceClient(getClient()).delete(uri, headers);
+    }
+
+    @Override
     public ServiceClientResponse put(String uri, Map<String, String> headers, JAXBElement body, MediaType contentType) {
         return new ServiceClient(getClient()).put(uri, headers, body, contentType);
     }
 
     @Override
-   public ServiceClientResponse put(String uri, Map<String, String> headers, byte[] body, MediaType contentType) {
+    public ServiceClientResponse put(String uri, Map<String, String> headers, byte[] body, MediaType contentType) {
         return new ServiceClient(getClient()).put(uri, headers, body, contentType);
-   }
+    }
 }

@@ -115,6 +115,13 @@ public class ServiceClient {
       return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
    }
 
+   public ServiceClientResponse get(String uri, Map<String, String> headers) {
+      WebResource.Builder requestBuilder = client.resource(uri).getRequestBuilder();
+      requestBuilder = setHeaders(requestBuilder, headers);
+      ClientResponse response = requestBuilder.get(ClientResponse.class);
+      return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
+   }
+
    public ServiceClientResponse delete(String uri, Map<String, String> headers, String... queryParameters) {
       WebResource resource = client.resource(uri);
 
@@ -127,6 +134,13 @@ public class ServiceClient {
       }
 
       WebResource.Builder requestBuilder = resource.getRequestBuilder();
+      requestBuilder = setHeaders(requestBuilder, headers);
+      ClientResponse response = requestBuilder.delete(ClientResponse.class);
+      return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
+   }
+
+   public ServiceClientResponse delete(String uri, Map<String, String> headers) {
+      WebResource.Builder requestBuilder = client.resource(uri).getRequestBuilder();
       requestBuilder = setHeaders(requestBuilder, headers);
       ClientResponse response = requestBuilder.delete(ClientResponse.class);
       return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
