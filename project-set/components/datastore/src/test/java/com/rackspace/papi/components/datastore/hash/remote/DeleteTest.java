@@ -3,14 +3,12 @@ package com.rackspace.papi.components.datastore.hash.remote;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.components.datastore.common.CacheRequest;
 import com.rackspace.papi.components.datastore.hash.remote.command.Delete;
-import com.sun.java.browser.net.ProxyService;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import org.junit.Ignore;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
@@ -39,7 +37,6 @@ public class DeleteTest {
          final Delete deleteCommand = new Delete("object-key", new InetSocketAddress(InetAddress.getByAddress(new byte[]{127, 0, 0, 1}), 1000));
 
          // RemoteBehavior.ALLOW_FORWARDING
-         final ProxyService proxy = mock(ProxyService.class);
          final ServiceClientResponse response = mock(ServiceClientResponse.class);
          when(response.getStatusCode()).thenReturn(202);
 

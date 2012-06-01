@@ -48,6 +48,10 @@ public class CacheRequest {
       return new StringBuilder("http://").append(remoteEndpoint.getAddress().getHostAddress()).append(":").append(remoteEndpoint.getPort()).append(CACHE_URI_PATH).append(key).toString();
    }
 
+   public static String urlFor(InetSocketAddress remoteEndpoint) {
+      return new StringBuilder("http://").append(remoteEndpoint.getAddress().getHostAddress()).append(":").append(remoteEndpoint.getPort()).append(CACHE_URI_PATH).toString();
+   }
+
    public static RemoteBehavior getRequestedRemoteBehavior(HttpServletRequest request) {
       final String remoteBehaviorHeader = request.getHeader(DatastoreHeader.REMOTE_BEHAVIOR.toString());
       RemoteBehavior remoteBehavior = RemoteBehavior.ALLOW_FORWARDING;

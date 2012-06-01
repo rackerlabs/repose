@@ -12,6 +12,10 @@ public interface RequestProxyService {
 
     int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response) throws IOException;
     void setTimeouts(Integer connectionTimeout, Integer readTimeout);
+    ServiceClientResponse get(String baseUri, String extraUri, Map<String, String> headers);
+    ServiceClientResponse delete(String baseUri, String extraUri, Map<String, String> headers);
+    ServiceClientResponse put(String baseUri, String path, Map<String, String> headers, MediaType contentType, byte[] body);
+    /*
     ServiceClientResponse get(String uri, Map<String, String> headers, String... queryParameters);
     ServiceClientResponse get(String uri, Map<String, String> headers);
     ServiceClientResponse post(String uri, Map<String, String> headers, JAXBElement body, MediaType contentType);
@@ -20,4 +24,6 @@ public interface RequestProxyService {
     ServiceClientResponse put(String uri, Map<String, String> headers, byte[] body, MediaType contentType);
     ServiceClientResponse delete(String uri, Map<String, String> headers, String... queryParameters);
     ServiceClientResponse delete(String uri, Map<String, String> headers);
+    * 
+    */
 }

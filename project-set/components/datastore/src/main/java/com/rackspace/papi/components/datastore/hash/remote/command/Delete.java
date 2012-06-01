@@ -20,7 +20,7 @@ public class Delete extends AbstractRemoteCommand {
 
     @Override
     public ServiceClientResponse execute(RequestProxyService proxyService, RemoteBehavior remoteBehavior) {
-        return proxyService.delete(getUrl(), getHeaders(remoteBehavior));
+        return proxyService.delete(getBaseUrl(), getCacheObjectKey(), getHeaders(remoteBehavior));
     }
 
     @Override

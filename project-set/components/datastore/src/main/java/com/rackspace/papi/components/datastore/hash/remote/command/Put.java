@@ -52,7 +52,7 @@ public class Put extends AbstractRemoteCommand {
 
     @Override
     public ServiceClientResponse execute(RequestProxyService proxyService, RemoteBehavior remoteBehavior) {
-        return proxyService.put(getUrl(), getHeaders(remoteBehavior), value, MediaType.WILDCARD_TYPE);
+        return proxyService.put(getBaseUrl(), getCacheObjectKey(), getHeaders(remoteBehavior), MediaType.WILDCARD_TYPE, value);
     }
 
 }

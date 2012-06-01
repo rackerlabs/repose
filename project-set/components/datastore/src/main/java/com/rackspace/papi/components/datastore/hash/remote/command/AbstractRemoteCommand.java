@@ -29,6 +29,10 @@ public abstract class AbstractRemoteCommand implements RemoteCommand {
         return CacheRequest.urlFor(getRemoteEndpoint(), getCacheObjectKey());
     }
     
+    public String getBaseUrl() {
+        return CacheRequest.urlFor(remoteEndpoint);
+    }
+    
     @Override
     public abstract ServiceClientResponse execute(RequestProxyService proxyService, RemoteBehavior remoteBehavior);
 
