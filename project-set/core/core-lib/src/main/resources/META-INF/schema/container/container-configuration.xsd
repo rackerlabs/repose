@@ -63,6 +63,15 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        <xs:attribute name="proxy-thread-pool" type="xs:int" use="optional" default="20">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Connection thread pool for communicating with end services.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
     </xs:complexType>
 
     <xs:complexType name="ArtifactDirectory">

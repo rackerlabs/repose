@@ -23,20 +23,23 @@ import org.springframework.stereotype.Component;
 @Component("requestProxyService")
 public class RequestProxyServiceImpl implements RequestProxyService {
 
+    private static final Integer DEFAULT_THREADPOOL_SIZE = 20;
     private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);
     private ClientWrapper client;
     private Integer connectionTimeout = new Integer(0);
     private Integer readTimeout = new Integer(0);
+    private Integer proxyThreadPool = new Integer(DEFAULT_THREADPOOL_SIZE);
     private final Object clientLock = new Object();
 
     public RequestProxyServiceImpl() {
     }
 
     @Override
-    public void setTimeouts(Integer connectionTimeout, Integer readTimeout) {
+    public void setTimeouts(Integer connectionTimeout, Integer readTimeout, Integer proxyThreadPool) {
         LOG.info("Connection and/or read timeouts changed to: " + connectionTimeout + "/" + readTimeout);
         this.connectionTimeout = connectionTimeout;
         this.readTimeout = readTimeout;
+        this.proxyThreadPool = proxyThreadPool;
 
         // Invalidate client
         synchronized (clientLock) {
@@ -84,7 +87,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private ClientWrapper getClient() {
         synchronized (clientLock) {
             if (client == null) {
-                JerseyPropertiesConfigurator jerseyPropertiesConfigurator = new JerseyPropertiesConfigurator(connectionTimeout, readTimeout, true);
+                JerseyPropertiesConfigurator jerseyPropertiesConfigurator = new JerseyPropertiesConfigurator(connectionTimeout, readTimeout, proxyThreadPool, true);
                 client = new ClientWrapper(Client.create(jerseyPropertiesConfigurator.configure()));
 
                 if (LOG.isInfoEnabled()) {

@@ -53,7 +53,8 @@ public class RequestProxyServiceContext implements ServiceContext<RequestProxySe
         public void configurationUpdated(ContainerConfiguration config) {
             Integer connectionTimeout = config.getDeploymentConfig().getConnectionTimeout();
             Integer readTimeout = config.getDeploymentConfig().getReadTimeout();
-            proxyService.setTimeouts(connectionTimeout, readTimeout);
+            Integer proxyThreadPool = config.getDeploymentConfig().getProxyThreadPool();
+            proxyService.setTimeouts(connectionTimeout, readTimeout, proxyThreadPool);
         }
     }
 
