@@ -12,13 +12,15 @@ import org.slf4j.LoggerFactory;
 class JerseyPropertiesConfigurator {
    private static final Logger LOG = LoggerFactory.getLogger(JerseyPropertiesConfigurator.class);
 
-   private static final Integer DEFAULT_THREADPOOL_SIZE = 20;
+   private static final Integer DEFAULT_THREADPOOL_SIZE = 30;
    private final Integer connectionTimeout;
    private final Integer readTimeout;
+    private final boolean installSslManager;
   
-   public JerseyPropertiesConfigurator(Integer connectionTimeout, Integer readTimeout) {
+   public JerseyPropertiesConfigurator(Integer connectionTimeout, Integer readTimeout, boolean installSslManager) {
       this.connectionTimeout = connectionTimeout;
       this.readTimeout = readTimeout;
+      this.installSslManager = installSslManager;
    }
 
    public DefaultClientConfig configure() {
@@ -30,7 +32,10 @@ class JerseyPropertiesConfigurator {
       
       // TODO Model: we need to make this configurable so that we don't always
       // accept all certs.
-      cc.getProperties().put(HTTPSProperties.PROPERTY_HTTPS_PROPERTIES, createJerseySslHttpsProperties());     
+      if (installSslManager) {
+        LOG.info("Installing SSL Trust Manager to accept self signed certs");
+        cc.getProperties().put(HTTPSProperties.PROPERTY_HTTPS_PROPERTIES, createJerseySslHttpsProperties());     
+      }
 
       return cc;
    }

@@ -8,7 +8,6 @@ import com.rackspace.papi.service.proxy.RequestProxyService;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.api.client.config.DefaultClientConfig;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -17,7 +16,6 @@ import java.net.URL;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MediaType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -29,7 +27,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private ClientWrapper client;
     private Integer connectionTimeout = new Integer(0);
     private Integer readTimeout = new Integer(0);
-    private final Object lock = new Object();
+    private final Object clientLock = new Object();
 
     public RequestProxyServiceImpl() {
     }
@@ -41,7 +39,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         this.readTimeout = readTimeout;
 
         // Invalidate client
-        synchronized (lock) {
+        synchronized (clientLock) {
             client = null;
         }
     }
@@ -82,12 +80,12 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             return proxiedHostUrl;
         }
     }
-
+    
     private ClientWrapper getClient() {
-        synchronized (lock) {
+        synchronized (clientLock) {
             if (client == null) {
-                DefaultClientConfig cc = new JerseyPropertiesConfigurator(connectionTimeout, readTimeout).configure();
-                client = new ClientWrapper(Client.create(cc));
+                JerseyPropertiesConfigurator jerseyPropertiesConfigurator = new JerseyPropertiesConfigurator(connectionTimeout, readTimeout, true);
+                client = new ClientWrapper(Client.create(jerseyPropertiesConfigurator.configure()));
 
                 if (LOG.isInfoEnabled()) {
                     LOG.info("Enabling info logging of jersey client requests");
@@ -156,62 +154,38 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     }
 
     @Override
+    public ServiceClientResponse get(String uri, Map<String, String> headers) {
+        WebResource.Builder requestBuilder = getClient().resource(uri).getRequestBuilder();
+        ClientResponse response = setHeaders(requestBuilder, headers).get(ClientResponse.class);
+        return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
+    }
+
+    @Override
     public ServiceClientResponse get(String baseUri, String path, Map<String, String> headers) {
         WebResource.Builder requestBuilder = getClient().resource(baseUri, true).path(path).getRequestBuilder();
-        requestBuilder = setHeaders(requestBuilder, headers);
-        ClientResponse response = requestBuilder.get(ClientResponse.class);
+        ClientResponse response = setHeaders(requestBuilder, headers).get(ClientResponse.class);
         return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
     }
 
     @Override
     public ServiceClientResponse delete(String baseUri, String path, Map<String, String> headers) {
         WebResource.Builder requestBuilder = getClient().resource(baseUri, true).path(path).getRequestBuilder();
-        requestBuilder = setHeaders(requestBuilder, headers);
-        ClientResponse response = requestBuilder.delete(ClientResponse.class);
+        ClientResponse response = setHeaders(requestBuilder, headers).delete(ClientResponse.class);
         return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
     }
 
-    public ServiceClientResponse put(String baseUri, String path, Map<String, String> headers, MediaType contentType, byte[] body) {
+    @Override
+    public ServiceClientResponse put(String uri, Map<String, String> headers, byte[] body) {
+        WebResource resource = getClient().resource(uri);
+        ClientResponse response = setHeaders(resource.getRequestBuilder(), headers).put(ClientResponse.class, body);
+        return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
+    }
+
+    @Override
+    public ServiceClientResponse put(String baseUri, String path, Map<String, String> headers, byte[] body) {
         WebResource resource = getClient().resource(baseUri, true).path(path);
-        WebResource.Builder requestBuilder = resource.getRequestBuilder();
-        requestBuilder = setHeaders(requestBuilder, headers);
-        ClientResponse response = requestBuilder.type(contentType).header("Accept", "application/xml").put(ClientResponse.class, body);
+        ClientResponse response = setHeaders(resource.getRequestBuilder(), headers).put(ClientResponse.class, body);
 
         return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
-
     }
-    /*
-     * @Override public ServiceClientResponse get(String uri, Map<String,
-     * String> headers, String... queryParameters) { return new
-     * ServiceClient(getClient()).get(uri, headers, queryParameters); }
-     *
-     * @Override public ServiceClientResponse get(String uri, Map<String,
-     * String> headers) { return new ServiceClient(getClient()).get(uri,
-     * headers); }
-     *
-     * @Override public ServiceClientResponse post(String uri, Map<String,
-     * String> headers, JAXBElement body, MediaType contentType) { return new
-     * ServiceClient(getClient()).post(uri, body, contentType); }
-     *
-     * @Override public ServiceClientResponse post(String uri, Map<String,
-     * String> headers, byte[] body, MediaType contentType) { return new
-     * ServiceClient(getClient()).post(uri, headers, body, contentType); }
-     *
-     * @Override public ServiceClientResponse delete(String uri, Map<String,
-     * String> headers, String... queryParameters) { return new
-     * ServiceClient(getClient()).delete(uri, headers, queryParameters); }
-     *
-     * @Override public ServiceClientResponse delete(String uri, Map<String,
-     * String> headers) { return new ServiceClient(getClient()).delete(uri,
-     * headers); }
-     *
-     * @Override public ServiceClientResponse put(String uri, Map<String,
-     * String> headers, JAXBElement body, MediaType contentType) { return new
-     * ServiceClient(getClient()).put(uri, headers, body, contentType); }
-     *
-     * @Override public ServiceClientResponse put(String uri, Map<String,
-     * String> headers, byte[] body, MediaType contentType) { return new
-     * ServiceClient(getClient()).put(uri, headers, body, contentType); }
-     *
-     */
 }

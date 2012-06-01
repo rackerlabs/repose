@@ -23,6 +23,7 @@ public class Get extends AbstractRemoteCommand {
 
     @Override
     public ServiceClientResponse execute(RequestProxyService proxyService, RemoteBehavior remoteBehavior) {
+        //return proxyService.get(getUrl(), getHeaders(remoteBehavior));
         return proxyService.get(getBaseUrl(), getCacheObjectKey(), getHeaders(remoteBehavior));
     }
     
