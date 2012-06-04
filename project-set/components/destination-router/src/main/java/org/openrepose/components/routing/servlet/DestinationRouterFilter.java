@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 public class DestinationRouterFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(DestinationRouterFilter.class);
-    private static String DEFAULT_CONFIG = "destination-router.cfg.xml";
+    private static final String DEFAULT_CONFIG = "destination-router.cfg.xml";
     private String config;
     private DestinationRouterHandlerFactory handlerFactory;
     private ConfigurationService manager;

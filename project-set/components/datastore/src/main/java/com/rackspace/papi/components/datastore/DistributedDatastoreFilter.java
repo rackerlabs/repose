@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 public class DistributedDatastoreFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreFilter.class);
-    private static String DEFAULT_CONFIG = "dist-datastore.cfg.xml";
+    private static final String DEFAULT_CONFIG = "dist-datastore.cfg.xml";
     private String config;
     private final String datastoreId;
     private DatastoreFilterLogicHandlerFactory handlerFactory;

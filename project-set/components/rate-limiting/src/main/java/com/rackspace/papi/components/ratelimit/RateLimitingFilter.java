@@ -21,7 +21,7 @@ import java.util.Collection;
  */
 public class RateLimitingFilter implements Filter {
 
-    private static String DEFAULT_CONFIG = "rate-limiting.cfg.xml";
+    private static final String DEFAULT_CONFIG = "rate-limiting.cfg.xml";
     private String config;
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingFilter.class);
     private RateLimitingHandlerFactory handlerFactory;

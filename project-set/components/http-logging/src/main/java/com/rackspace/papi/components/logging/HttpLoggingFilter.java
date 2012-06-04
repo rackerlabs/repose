@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 public class HttpLoggingFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(HttpLoggingFilter.class);
-    private static String DEFAULT_CONFIG = "http-logging.cfg.xml";
+    private static final String DEFAULT_CONFIG = "http-logging.cfg.xml";
     private String config;
     private ConfigurationService manager;
     private HttpLoggingHandlerFactory handlerFactory;

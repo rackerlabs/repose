@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 public class ContentNormalizationFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(ContentNormalizationFilter.class);
-    private static String DEFAULT_CONFIG = "content-normalization.cfg.xml";
+    private static final String DEFAULT_CONFIG = "content-normalization.cfg.xml";
     private String config;
     private ContentNormalizationHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;

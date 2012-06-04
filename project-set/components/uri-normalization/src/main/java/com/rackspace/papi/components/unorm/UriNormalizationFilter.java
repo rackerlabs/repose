@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 public class UriNormalizationFilter implements Filter {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(UriNormalizationFilter.class);
-    private static String DEFAULT_CONFIG = "uri-normalization.cfg.xml";
+    private static final String DEFAULT_CONFIG = "uri-normalization.cfg.xml";
     private String config;
     private UriNormalizationHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;

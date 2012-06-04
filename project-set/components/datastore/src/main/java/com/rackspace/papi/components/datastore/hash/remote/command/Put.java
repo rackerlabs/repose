@@ -10,7 +10,6 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import javax.ws.rs.core.MediaType;
 
 /**
  *

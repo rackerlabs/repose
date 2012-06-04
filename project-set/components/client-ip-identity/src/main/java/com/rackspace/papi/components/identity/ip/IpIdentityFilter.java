@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 public class IpIdentityFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(IpIdentityFilter.class);
-    private static String DEFAULT_CONFIG = "ip-identity.cfg.xml";
+    private static final String DEFAULT_CONFIG = "ip-identity.cfg.xml";
     private String config;
     private IpIdentityHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;

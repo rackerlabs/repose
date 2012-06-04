@@ -4,7 +4,7 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import javax.servlet.FilterConfig;
 
 public class FilterConfigHelper {
-    public static String FILTER_CONFIG = "filter-config";
+    public static final String FILTER_CONFIG = "filter-config";
     private final FilterConfig filterConfig;
     
     public FilterConfigHelper(FilterConfig filterConfig) {

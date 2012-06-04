@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 public class ServiceAuthFilter implements Filter {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ServiceAuthFilter.class);
-    private static String DEFAULT_CONFIG = "service-authentication.cfg.xml";
+    private static final String DEFAULT_CONFIG = "service-authentication.cfg.xml";
     private String config;
     private ServiceAuthHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;

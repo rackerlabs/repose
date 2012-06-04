@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 public class HeaderNormalizationFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(HeaderNormalizationFilter.class);
-    private static String DEFAULT_CONFIG = "header-normalization.cfg.xml";
+    private static final String DEFAULT_CONFIG = "header-normalization.cfg.xml";
     private String config;
     private HeaderNormalizationHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;

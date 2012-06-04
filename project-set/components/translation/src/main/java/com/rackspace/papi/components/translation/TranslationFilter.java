@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 
 public class TranslationFilter implements Filter {
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(TranslationFilter.class);
-    private static String DEFAULT_CONFIG = "translation.cfg.xml";
+    private static final String DEFAULT_CONFIG = "translation.cfg.xml";
     private String config;
     private TranslationHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;

@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 public class RackspaceAuthorizationFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(RackspaceAuthorizationFilter.class);
-    private static String DEFAULT_CONFIG = "openstack-authorization.cfg.xml";
+    private static final String DEFAULT_CONFIG = "openstack-authorization.cfg.xml";
     private String config;
     private RequestAuthorizationHandlerFactory handlerFactory;
     private ConfigurationService configurationService;

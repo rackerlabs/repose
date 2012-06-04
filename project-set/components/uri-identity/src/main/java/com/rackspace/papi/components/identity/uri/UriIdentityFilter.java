@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 public class UriIdentityFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(UriIdentityFilter.class);
-    private static String DEFAULT_CONFIG = "uri-identity.cfg.xml";
+    private static final String DEFAULT_CONFIG = "uri-identity.cfg.xml";
     private String config;
     private UriIdentityHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;

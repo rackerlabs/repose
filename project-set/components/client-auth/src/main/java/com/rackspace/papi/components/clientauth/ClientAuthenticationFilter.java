@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 public class ClientAuthenticationFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(ClientAuthenticationFilter.class);
-    private static String DEFAULT_CONFIG = "client-auth-n.cfg.xml";
+    private static final String DEFAULT_CONFIG = "client-auth-n.cfg.xml";
     private String config;
     private ClientAuthenticationHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;

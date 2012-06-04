@@ -11,7 +11,7 @@ import net.sf.ehcache.config.Configuration;
 
 public class ClientWrapper {
 
-    private String CACHE_NAME_PREFIX = "jersey:resources:";
+    private static final String CACHE_NAME_PREFIX = "jersey:resources:";
     private final Client client;
     private CacheManager cacheManager;
     private Cache shortCache;

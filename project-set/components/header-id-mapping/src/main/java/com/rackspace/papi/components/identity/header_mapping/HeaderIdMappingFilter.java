@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 public class HeaderIdMappingFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(HeaderIdMappingFilter.class);
-    private static String DEFAULT_CONFIG = "header-id-mapping.cfg.xml";
+    private static final String DEFAULT_CONFIG = "header-id-mapping.cfg.xml";
     private String config;
     private HeaderIdMappingHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;

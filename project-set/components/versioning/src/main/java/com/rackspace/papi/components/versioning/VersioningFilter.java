@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 public class VersioningFilter implements Filter {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(VersioningFilter.class);
-    private static String DEFAULT_CONFIG = "versioning.cfg.xml";
+    private static final String DEFAULT_CONFIG = "versioning.cfg.xml";
     private String config;
     private VersioningHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;

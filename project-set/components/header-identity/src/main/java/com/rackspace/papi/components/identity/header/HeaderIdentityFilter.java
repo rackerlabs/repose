@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 public class HeaderIdentityFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(HeaderIdentityFilter.class);
-    private static String DEFAULT_CONFIG = "header-identity.cfg.xml";
+    private static final String DEFAULT_CONFIG = "header-identity.cfg.xml";
     private String config;
     private HeaderIdentityHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;
