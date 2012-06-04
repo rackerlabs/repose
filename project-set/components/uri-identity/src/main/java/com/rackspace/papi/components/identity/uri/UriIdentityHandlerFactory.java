@@ -49,7 +49,7 @@ public class UriIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
     @Override
     protected UriIdentityHandler buildHandler() {
-        return new UriIdentityHandler(keyedRegexExtractor, StringUtilities.getNonBlankValue(group, DEFAULT_GROUP), quality);
+        return new UriIdentityHandler(keyedRegexExtractor, StringUtilities.getNonBlankValue(group, DEFAULT_GROUP), determineQuality());
     }
 
     private String determineQuality() {
