@@ -89,11 +89,4 @@ public class ServiceClient {
       return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
    }
 
-   public ServiceClientResponse get(String uri, Map<String, String> headers) {
-      WebResource.Builder requestBuilder = client.resource(uri).getRequestBuilder();
-      requestBuilder = setHeaders(requestBuilder, headers);
-      ClientResponse response = requestBuilder.get(ClientResponse.class);
-      return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
-   }
-
 }
