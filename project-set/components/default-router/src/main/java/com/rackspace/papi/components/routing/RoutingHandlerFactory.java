@@ -3,12 +3,10 @@ package com.rackspace.papi.components.routing;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.model.SystemModel;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 
 public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RoutingTagger> implements ApplicationContextAware {
 
@@ -19,7 +17,7 @@ public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactor
     }
 
     @Override
-    public void setApplicationContext(ApplicationContext ac) throws BeansException {
+    public void setApplicationContext(ApplicationContext ac) {
         this.applicationContext = ac;
     }
 

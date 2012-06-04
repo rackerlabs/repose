@@ -11,6 +11,10 @@ import net.sf.ehcache.config.Configuration;
 
 public class ClientWrapper {
 
+    private static final int SHORT_TERM_CACHE_SIZE = 5000;
+    private static final int SHORT_TERM_TTL = 2;
+    private static final int LONG_TERM_CACHE_SIZE = 1000;
+    private static final int LONG_TERM_TTL = 60;
     private static final String CACHE_NAME_PREFIX = "jersey:resources:";
     private final Client client;
     private CacheManager cacheManager;
@@ -41,8 +45,8 @@ public class ClientWrapper {
         config.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
         config.setUpdateCheck(false);
         cacheManager = new CacheManager(config);
-        shortCache = newCache(cacheManager, 5000, 2, 2);
-        longCache = newCache(cacheManager, 1000, 60, 60);
+        shortCache = newCache(cacheManager, SHORT_TERM_CACHE_SIZE, SHORT_TERM_TTL, SHORT_TERM_TTL);
+        longCache = newCache(cacheManager, LONG_TERM_CACHE_SIZE, LONG_TERM_TTL, LONG_TERM_TTL);
     }
 
     public WebResource resource(String url) {

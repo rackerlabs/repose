@@ -34,7 +34,7 @@ class JerseyResponseProcessor extends AbstractResponseProcessor {
    @Override
    protected void setResponseBody() throws IOException {
       final InputStream source = clientResponse.getEntityInputStream();
-      final int BUFFER_SIZE = 1024;
+      final int bufferSize = 1024;
 
       if (source != null) {
 
@@ -43,7 +43,7 @@ class JerseyResponseProcessor extends AbstractResponseProcessor {
 
          //Using a buffered stream so this isn't nearly as expensive as it looks
          int readData;
-         byte bytes[] = new byte[BUFFER_SIZE];
+         byte bytes[] = new byte[bufferSize];
 
          while ((readData = httpIn.read(bytes)) != -1) {
             clientOut.write(bytes, 0, readData);
