@@ -8,17 +8,15 @@ import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.banner.PapiBanner;
 import com.rackspace.papi.service.context.spring.SpringContextAdapterProvider;
 import com.rackspace.papi.service.deploy.ArtifactManagerServiceContext;
-import com.rackspace.papi.service.proxy.RequestProxyService;
 import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
 import com.rackspace.papi.spring.SpringConfiguration;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
 
 public class PowerApiContextManager implements ServletContextListener {
 

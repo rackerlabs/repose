@@ -17,7 +17,7 @@ import java.net.InetSocketAddress;
  */
 public class Get extends AbstractRemoteCommand {
 
-   public Get(String cacheObjectKey, InetSocketAddress remoteEndpoint, RemoteBehavior remoteBehavior) {
+   public Get(String cacheObjectKey, InetSocketAddress remoteEndpoint) {
       super(cacheObjectKey, remoteEndpoint);
    }
 

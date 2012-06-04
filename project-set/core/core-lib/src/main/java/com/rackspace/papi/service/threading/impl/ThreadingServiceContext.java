@@ -3,22 +3,18 @@ package com.rackspace.papi.service.threading.impl;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.threading.ThreadingService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
-
-import javax.servlet.ServletContextEvent;
 import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Set;
+import javax.servlet.ServletContextEvent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 //TODO:Refactor SRP Violation - Remove ThreadingService logic to external class
 @Component("threadingServiceContext")
 public class ThreadingServiceContext implements ServiceContext<ThreadingService>, ThreadingService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ThreadingServiceContext.class);
     public static final String SERVICE_NAME = "powerapi:/kernel/threading";
     private final Set<WeakReference<Thread>> liveThreadReferences;
     private final ServiceRegistry registry;

@@ -103,7 +103,7 @@ public class HashRingDatastore extends AbstractHashedDatastore {
 
          @Override
          public Object performRemote(String name, InetSocketAddress target, RemoteBehavior remoteBehavior) {
-            return remoteCommandExecutor.execute(new Get(name, target, remoteBehavior), remoteBehavior);
+            return remoteCommandExecutor.execute(new Get(name, target), remoteBehavior);
          }
 
          @Override

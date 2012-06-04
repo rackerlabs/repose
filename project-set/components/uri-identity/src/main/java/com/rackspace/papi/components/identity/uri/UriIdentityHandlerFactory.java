@@ -6,7 +6,6 @@ import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.components.identity.uri.config.IdentificationMapping;
 import com.rackspace.papi.components.identity.uri.config.UriIdentityConfig;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -50,7 +49,7 @@ public class UriIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
     @Override
     protected UriIdentityHandler buildHandler() {
-        return new UriIdentityHandler(keyedRegexExtractor, StringUtilities.getNonBlankValue(group, DEFAULT_GROUP), determineQuality());
+        return new UriIdentityHandler(keyedRegexExtractor, StringUtilities.getNonBlankValue(group, DEFAULT_GROUP), quality);
     }
 
     private String determineQuality() {

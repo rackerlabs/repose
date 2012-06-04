@@ -5,8 +5,6 @@ import com.rackspace.papi.components.datastore.common.RemoteBehavior;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.proxy.RequestProxyService;
 import java.io.IOException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -14,7 +12,6 @@ import org.slf4j.LoggerFactory;
  */
 public class RemoteCommandExecutor {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RemoteCommandExecutor.class);
     private String hostKey;
     private final RequestProxyService proxyService;
 

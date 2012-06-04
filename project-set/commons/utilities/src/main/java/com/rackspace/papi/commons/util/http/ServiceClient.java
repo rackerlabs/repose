@@ -18,6 +18,8 @@ import org.slf4j.LoggerFactory;
  * @author fran
  */
 public class ServiceClient {
+    private static final String ACCEPT_HEADER = "Accept";
+    private static final String MEDIA_TYPE = "application/xml";
    private static final Logger LOG = LoggerFactory.getLogger(ServiceClient.class);
    private static final int TIMEOUT = 30000;
 
@@ -65,34 +67,7 @@ public class ServiceClient {
    public ServiceClientResponse post(String uri, JAXBElement body, MediaType contentType) {
       WebResource resource = client.resource(uri);
 
-      ClientResponse response = resource.type(contentType).header("Accept", "application/xml").post(ClientResponse.class, body);
-
-      return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
-   }
-
-   public ServiceClientResponse post(String uri, Map<String, String> headers, byte[] body, MediaType contentType) {
-      WebResource resource = client.resource(uri);
-      WebResource.Builder requestBuilder = resource.getRequestBuilder();
-      requestBuilder = setHeaders(requestBuilder, headers);
-      ClientResponse response = requestBuilder.type(contentType).header("Accept", "application/xml").post(ClientResponse.class, body);
-
-      return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
-   }
-
-   public ServiceClientResponse put(String uri, Map<String, String> headers, JAXBElement body, MediaType contentType) {
-      WebResource resource = client.resource(uri);
-      WebResource.Builder requestBuilder = resource.getRequestBuilder();
-      requestBuilder = setHeaders(requestBuilder, headers);
-      ClientResponse response = requestBuilder.type(contentType).header("Accept", "application/xml").put(ClientResponse.class, body);
-
-      return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
-   }
-
-   public ServiceClientResponse put(String uri, Map<String, String> headers, byte[] body, MediaType contentType) {
-      WebResource resource = client.resource(uri);
-      WebResource.Builder requestBuilder = resource.getRequestBuilder();
-      requestBuilder = setHeaders(requestBuilder, headers);
-      ClientResponse response = requestBuilder.type(contentType).header("Accept", "application/xml").put(ClientResponse.class, body);
+      ClientResponse response = resource.type(contentType).header(ACCEPT_HEADER, MEDIA_TYPE).post(ClientResponse.class, body);
 
       return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
    }
@@ -121,27 +96,4 @@ public class ServiceClient {
       return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
    }
 
-   public ServiceClientResponse delete(String uri, Map<String, String> headers, String... queryParameters) {
-      WebResource resource = client.resource(uri);
-
-      if (queryParameters.length % 2 != 0) {
-         throw new IllegalArgumentException("Query parameters must be in pairs.");
-      }
-
-      for (int index = 0; index < queryParameters.length; index = index + 2) {
-         resource = resource.queryParam(queryParameters[index], queryParameters[index + 1]);
-      }
-
-      WebResource.Builder requestBuilder = resource.getRequestBuilder();
-      requestBuilder = setHeaders(requestBuilder, headers);
-      ClientResponse response = requestBuilder.delete(ClientResponse.class);
-      return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
-   }
-
-   public ServiceClientResponse delete(String uri, Map<String, String> headers) {
-      WebResource.Builder requestBuilder = client.resource(uri).getRequestBuilder();
-      requestBuilder = setHeaders(requestBuilder, headers);
-      ClientResponse response = requestBuilder.delete(ClientResponse.class);
-      return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
-   }
 }

@@ -26,9 +26,9 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private static final Integer DEFAULT_THREADPOOL_SIZE = 20;
     private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);
     private ClientWrapper client;
-    private Integer connectionTimeout = new Integer(0);
-    private Integer readTimeout = new Integer(0);
-    private Integer proxyThreadPool = new Integer(DEFAULT_THREADPOOL_SIZE);
+    private Integer connectionTimeout = Integer.valueOf(0);
+    private Integer readTimeout = Integer.valueOf(0);
+    private Integer proxyThreadPool = Integer.valueOf(DEFAULT_THREADPOOL_SIZE);
     private final Object clientLock = new Object();
 
     public RequestProxyServiceImpl() {
