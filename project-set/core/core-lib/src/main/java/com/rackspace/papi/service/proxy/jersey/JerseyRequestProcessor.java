@@ -3,14 +3,14 @@ package com.rackspace.papi.service.proxy.jersey;
 import static com.rackspace.papi.http.Headers.HOST;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
-import java.util.*;
+import java.net.URLDecoder;
+import java.util.Enumeration;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Process a request to copy over header values, query string parameters, and
@@ -19,6 +19,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 class JerseyRequestProcessor {
 
+    private static final Logger LOG = LoggerFactory.getLogger(JerseyRequestProcessor.class);
     private final URI targetHost;
     private final HttpServletRequest request;
     private Pattern delimiter = Pattern.compile("&");
@@ -39,7 +40,15 @@ class JerseyRequestProcessor {
             for (String param : params) {
                 String[] paramPair = pair.split(param);
                 if (paramPair.length == 2) {
-                    newMethod = newMethod.queryParam(paramPair[0], paramPair[1]);
+                    String paramValue = paramPair[1];
+                    try {
+                        paramValue = URLDecoder.decode(paramValue, "UTF-8");
+                    } catch (IllegalArgumentException ex) {
+                        LOG.warn("Error decoding query parameter named: " + paramPair[0] + " value: " + paramValue, ex);
+                    } catch (UnsupportedEncodingException ex) {
+                        LOG.warn("Error decoding query parameter named: " + paramPair[0] + " value: " + paramValue, ex);
+                    }
+                    newMethod = newMethod.queryParam(paramPair[0], paramValue);
                 }
             }
         }
