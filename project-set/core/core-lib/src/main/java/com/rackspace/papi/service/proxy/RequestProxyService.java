@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 public interface RequestProxyService {
 
     int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response) throws IOException;
-    void setTimeouts(Integer connectionTimeout, Integer readTimeout, Integer proxyThreadPool);
+    void setTimeouts(Integer connectionTimeout, Integer readTimeout, Integer proxyThreadPool, boolean requestLogging);
     ServiceClientResponse get(String uri, Map<String, String> headers);
     ServiceClientResponse get(String baseUri, String extraUri, Map<String, String> headers);
     ServiceClientResponse delete(String baseUri, String extraUri, Map<String, String> headers);

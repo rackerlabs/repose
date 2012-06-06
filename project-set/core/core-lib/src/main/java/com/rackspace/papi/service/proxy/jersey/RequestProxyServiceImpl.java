@@ -30,16 +30,18 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private Integer readTimeout = Integer.valueOf(0);
     private Integer proxyThreadPool = Integer.valueOf(DEFAULT_THREADPOOL_SIZE);
     private final Object clientLock = new Object();
+    private boolean requestLogging;
 
     public RequestProxyServiceImpl() {
     }
 
     @Override
-    public void setTimeouts(Integer connectionTimeout, Integer readTimeout, Integer proxyThreadPool) {
+    public void setTimeouts(Integer connectionTimeout, Integer readTimeout, Integer proxyThreadPool, boolean requestLogging) {
         LOG.info("Connection and/or read timeouts changed to: " + connectionTimeout + "/" + readTimeout);
         this.connectionTimeout = connectionTimeout;
         this.readTimeout = readTimeout;
         this.proxyThreadPool = proxyThreadPool;
+        this.requestLogging = requestLogging;
 
         // Invalidate client
         synchronized (clientLock) {
@@ -90,8 +92,8 @@ public class RequestProxyServiceImpl implements RequestProxyService {
                 JerseyPropertiesConfigurator jerseyPropertiesConfigurator = new JerseyPropertiesConfigurator(connectionTimeout, readTimeout, proxyThreadPool, true);
                 client = new ClientWrapper(Client.create(jerseyPropertiesConfigurator.configure()));
 
-                if (LOG.isInfoEnabled()) {
-                    LOG.info("Enabling info logging of jersey client requests");
+                if (requestLogging) {
+                    LOG.warn("Enabling info logging of jersey client requests");
                     client.getClient().addFilter(new LoggingFilter());
                 } else {
                     LOG.warn("**** Jersey client request logging not enabled *****");

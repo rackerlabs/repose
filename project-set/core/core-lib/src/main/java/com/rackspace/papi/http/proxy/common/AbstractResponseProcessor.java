@@ -32,7 +32,10 @@ public abstract class AbstractResponseProcessor {
    }
    
    protected void sendRedirect(String url) throws IOException {
-      response.sendRedirect(url);
+      response.setStatus(302);
+      response.addHeader("Location", url);
+      response.addIntHeader("Content-Length", 0);
+      //response.sendRedirect(url);
    }
    
    protected void setStatus() {
@@ -67,7 +70,9 @@ public abstract class AbstractResponseProcessor {
       final String proxiedRedirectUrl = getResponseHeaderValue(LOCATION.name());
       final String translatedRedirectUrl = translateRedirectUrl(proxiedRedirectUrl, proxiedHostUrl, requestHostPath);
 
+      setResponseHeaders();
       sendRedirect(translatedRedirectUrl);
+      //setResponseBody();
    }
    
    public void process() throws IOException {
