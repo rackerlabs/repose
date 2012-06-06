@@ -1,6 +1,10 @@
 package com.rackspace.papi.mocks;
 
 import com.rackspace.papi.mocks.providers.MockServiceProvider;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
@@ -15,129 +19,130 @@ import javax.ws.rs.core.UriInfo;
 @Path("/")
 public class MockServiceResource {
 
-   private MockServiceProvider provider;
+    private MockServiceProvider provider;
 
-   public MockServiceResource() {
-      provider = new MockServiceProvider();
-   }
+    public MockServiceResource() {
+        provider = new MockServiceProvider();
+    }
 
-   @GET
-   @Path("{id : .*}")
-   public Response getEndService(String body, @Context HttpHeaders headers, @Context UriInfo uri) {
-      return provider.getEndService(body, headers, uri);
-   }
+    @GET
+    @Path("{id : .*}")
+    public Response getEndService(String body, @Context HttpHeaders headers, @Context UriInfo uri) {
+        return provider.getEndService(body, headers, uri);
+    }
 
-   @GET
-   @Path("/")
-   public Response getService(String body, @Context HttpHeaders headers, @Context UriInfo uri) {
-      return provider.getEndService(body, headers, uri);
-   }
+    @GET
+    @Path("/")
+    public Response getService(String body, @Context HttpHeaders headers, @Context UriInfo uri) {
+        return provider.getEndService(body, headers, uri);
+    }
 
-   @POST
-   @Path("{id : .*}")
-   public Response postEndService(String body, @Context HttpHeaders headers, @Context UriInfo uri) {
-      return provider.getEndService(body, headers, uri);
-   }
+    @POST
+    @Path("{id : .*}")
+    public Response postEndService(String body, @Context HttpHeaders headers, @Context UriInfo uri) {
+        return provider.getEndService(body, headers, uri);
+    }
 
-   @POST
-   @Path("/")
-   public Response postService(String body, @Context HttpHeaders headers, @Context UriInfo uri) {
-      return provider.getEndService(body, headers, uri);
-   }
+    @POST
+    @Path("/")
+    public Response postService(String body, @Context HttpHeaders headers, @Context UriInfo uri) {
+        return provider.getEndService(body, headers, uri);
+    }
 
-   @GET
-   @Path("/{service}/limits")
-   @Produces("application/json")
-   public Response getLimitsJson() {
-      return provider.getAbsoluteLimitsJSON();
-   }
+    @GET
+    @Path("/{service}/limits")
+    @Produces("application/json")
+    public Response getLimitsJson() {
+        return provider.getAbsoluteLimitsJSON();
+    }
 
-   @GET
-   @Path("/{service}/limits")
-   @Produces("application/xml")
-   public Response getLimitsXml() {
-      return provider.getAbsoluteLimitsXML();
-   }
+    @GET
+    @Path("/{service}/limits")
+    @Produces("application/xml")
+    public Response getLimitsXml() {
+        return provider.getAbsoluteLimitsXML();
+    }
 
-   @GET
-   @Path("/{version}/{user}/limits")
-   @Produces("application/json")
-   public Response getAbsoluteLimitsJson() {
-      return provider.getAbsoluteLimitsJSON();
+    @GET
+    @Path("/{version}/{user}/limits")
+    @Produces("application/json")
+    public Response getAbsoluteLimitsJson() {
+        return provider.getAbsoluteLimitsJSON();
 
-   }
+    }
 
-   @GET
-   @Path("/{version}/{user}/limits")
-   @Produces("application/xml")
-   public Response getAbsoluteLimits() {
-      return provider.getAbsoluteLimitsXML();
-   }
+    @GET
+    @Path("/{version}/{user}/limits")
+    @Produces("application/xml")
+    public Response getAbsoluteLimits() {
+        return provider.getAbsoluteLimitsXML();
+    }
 
-   @GET
-   @Path("*/statuscode/{statusCode}")
-   public Response getStatusCode(@PathParam("statusCode") String statusCode) {
-      return provider.getStatusCode(statusCode);
-   }
+    @GET
+    @Path("*/statuscode/{statusCode}")
+    public Response getStatusCode(String body, @PathParam("statusCode") String statusCode, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException {
+        URI uri = uriInfo.getAbsolutePath();
+        Map<String, String> responseHeaders = new HashMap<String, String>();
+        responseHeaders.put("Location", uri.toURL().toExternalForm().replaceAll("/statuscode/", "/"));
+        return provider.getEndService(body, statusCode, headers, uriInfo, responseHeaders);
+    }
 
-   @GET
-   @Path("*/delayedresponse/{time}")
-   public Response getDelayedResponse(@PathParam("time") int time, @Context HttpHeaders headers, @Context UriInfo uri) {
-      return provider.getDelayedResponse(time, headers, uri);
-   }
+    @GET
+    @Path("*/delayedresponse/{time}")
+    public Response getDelayedResponse(@PathParam("time") int time, @Context HttpHeaders headers, @Context UriInfo uri) {
+        return provider.getDelayedResponse(time, headers, uri);
+    }
 
-   @GET
-   @Path("/nova/limits")
-   public Response getNovaLimits() {
+    @GET
+    @Path("/nova/limits")
+    public Response getNovaLimits() {
 
-      StringBuilder limits = new StringBuilder();
+        StringBuilder limits = new StringBuilder();
 
-      limits.append("<limits xmlns:atom=\"http://www.w3.org/2005/Atom\"");
-      limits.append(" xmlns=\"http://docs.openstack.org/common/api/v1.1\"><rates/><absolute><limit name=\"maxServerMeta\"");
-      limits.append(" value=\"5\"/><limit name=\"maxPersonality\" value=\"5\"/><limit name=\"maxImageMeta\" value=\"5\"/><limit name=\"maxPersonalitySize\"");
-      limits.append(" value=\"1000\"/><limit name=\"maxTotalInstances\" value=\"1000\"/><limit name=\"maxTotalRAMSize\" value=\"10240000\"/></absolute></limits>");
+        limits.append("<limits xmlns:atom=\"http://www.w3.org/2005/Atom\"");
+        limits.append(" xmlns=\"http://docs.openstack.org/common/api/v1.1\"><rates/><absolute><limit name=\"maxServerMeta\"");
+        limits.append(" value=\"5\"/><limit name=\"maxPersonality\" value=\"5\"/><limit name=\"maxImageMeta\" value=\"5\"/><limit name=\"maxPersonalitySize\"");
+        limits.append(" value=\"1000\"/><limit name=\"maxTotalInstances\" value=\"1000\"/><limit name=\"maxTotalRAMSize\" value=\"10240000\"/></absolute></limits>");
 
-      return Response.ok(limits.toString()).build();
-   }
+        return Response.ok(limits.toString()).build();
+    }
 
-   @GET
-   @Path("*/loadbalancers/absolutelimits")
-   @Produces("application/xml")
-   public Response getLBaaSLimitsXml() {
+    @GET
+    @Path("*/loadbalancers/absolutelimits")
+    @Produces("application/xml")
+    public Response getLBaaSLimitsXml() {
 
-      return provider.getLBaaSLimitsXml();
-   }
+        return provider.getLBaaSLimitsXml();
+    }
 
-   @GET
-   @Path("*/loadbalancers/absolutelimits")
-   @Produces("application/json")
-   public Response getLBaaSLimitsJson() {
+    @GET
+    @Path("*/loadbalancers/absolutelimits")
+    @Produces("application/json")
+    public Response getLBaaSLimitsJson() {
 
-      return provider.getLBaaSLimitsJson();
-   }
-   
-   @GET
-   @Path("/{user}/loadbalancers/absolutelimits")
-   @Produces("application/xml")
-   public Response getLBaaSLimitsXmlUser() {
+        return provider.getLBaaSLimitsJson();
+    }
 
-      return provider.getLBaaSLimitsXml();
-   }
-   
-   @GET
-   @Path("/{user}/loadbalancers/absolutelimits")
-   @Produces("application/json")
-   public Response getLBaaSLimitsJsonUser() {
+    @GET
+    @Path("/{user}/loadbalancers/absolutelimits")
+    @Produces("application/xml")
+    public Response getLBaaSLimitsXmlUser() {
 
-      return provider.getLBaaSLimitsJson();
-   }
-   
-   @GET
-   @Path("/whatismyip")
-   public Response getRequestingIp(@Context HttpServletRequest req){
-       
-       return provider.getRequestingIp(req);
-   }
-   
+        return provider.getLBaaSLimitsXml();
+    }
 
+    @GET
+    @Path("/{user}/loadbalancers/absolutelimits")
+    @Produces("application/json")
+    public Response getLBaaSLimitsJsonUser() {
+
+        return provider.getLBaaSLimitsJson();
+    }
+
+    @GET
+    @Path("/whatismyip")
+    public Response getRequestingIp(@Context HttpServletRequest req) {
+
+        return provider.getRequestingIp(req);
+    }
 }

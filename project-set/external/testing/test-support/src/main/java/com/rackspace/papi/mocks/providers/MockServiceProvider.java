@@ -15,9 +15,14 @@ import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import java.net.InetAddress;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.UnknownHostException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import javax.ws.rs.core.Response.ResponseBuilder;
 
 public class MockServiceProvider {
 
@@ -29,8 +34,17 @@ public class MockServiceProvider {
     }
 
     public Response getEndService(String body, HttpHeaders headers, UriInfo uri) {
-
-
+        return getEndService(body, "200", headers, uri, new HashMap<String, String>());
+    }
+    
+    public Response getEndService(String body, String statusCode, HttpHeaders headers, UriInfo uri, Map<String, String> responseHeaders) {
+        int status;
+        try {
+            status = Integer.parseInt(statusCode);
+        } catch (NumberFormatException e) {
+            status = 404;
+        }
+        
         Set<String> headerPairs = headers.getRequestHeaders().keySet();
         Set<String> queryParams = uri.getQueryParameters().keySet();
         StringBuilder resp = new StringBuilder("<html>\n\t<head>\n\t\t<title>Servlet version</title>\n\t</head>\n\t<body>\n\t\t<h1>Servlet version at ");
@@ -63,8 +77,14 @@ public class MockServiceProvider {
             resp.append("\n\t\t\t<h3>").append(body).append("</h3>");
 
         }
+        ResponseBuilder response = Response.status(status);
+        
+        for (String headerName: responseHeaders.keySet()) {
+            response = response.header(headerName, responseHeaders.get(headerName));
+        }
+        
         resp.append("\n\t</body>\n</html>");
-        return Response.ok(resp.toString()).header("x-request-id", "somevalue").header("Content-Length", resp.length()).build();
+        return response.entity(resp.toString()).header("x-request-id", "somevalue").header("Content-Length", resp.length()).build();
     }
 
     public Response getAbsoluteLimitsJSON() {
@@ -112,6 +132,21 @@ public class MockServiceProvider {
         }
 
         return Response.status(status).build();
+
+    }
+
+    public Response getStatusCode(String statusCode, String location, String body) throws URISyntaxException {
+
+        int status;
+        try {
+            status = Integer.parseInt(statusCode);
+        } catch (NumberFormatException e) {
+            status = 404;
+        }
+        
+        URI newLocation = new URI(location);
+
+        return Response.status(status).contentLocation(newLocation).entity(body).build();
 
     }
 
