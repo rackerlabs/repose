@@ -71,19 +71,19 @@ public class SystemModelInterrogator {
       }
 
       private List<Port> getPortsList() {
-         List<Port> ports = new ArrayList<Port>();
+         List<Port> portList = new ArrayList<Port>();
          
          
          // TODO Model: use constants or enum for possible protocols
          if (node.getHttpPort() > 0) {
-            ports.add(new Port("http", node.getHttpPort()));
+            portList.add(new Port("http", node.getHttpPort()));
          }
          
          if (node.getHttpsPort() > 0) {
-            ports.add(new Port("https", node.getHttpsPort()));
+            portList.add(new Port("https", node.getHttpsPort()));
          }
          
-         return ports;
+         return portList;
       }
 
    }

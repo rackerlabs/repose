@@ -31,8 +31,8 @@ public abstract class AbstractResponseProcessor {
       return responseCode;
    }
    
-   protected void sendRedirect(String url) throws IOException {
-      response.setStatus(302);
+   protected void sendRedirect(String url, int statusCode) throws IOException {
+      response.setStatus(statusCode);
       response.addHeader("Location", url);
       response.addIntHeader("Content-Length", 0);
       //response.sendRedirect(url);
@@ -63,15 +63,16 @@ public abstract class AbstractResponseProcessor {
     *
     * @param proxiedHostUrl - host:port/contextPath to the origin service
     * @param requestHostPath - host:port/contextPath from the client request
+    * @param statusCode
     * @throws HttpException
     * @throws IOException
     */
-   public void sendTranslatedRedirect(String proxiedHostUrl, String requestHostPath) throws HttpException, IOException {
+   public void sendTranslatedRedirect(String proxiedHostUrl, String requestHostPath, int statusCode) throws HttpException, IOException {
       final String proxiedRedirectUrl = getResponseHeaderValue(LOCATION.name());
       final String translatedRedirectUrl = translateRedirectUrl(proxiedRedirectUrl, proxiedHostUrl, requestHostPath);
 
       setResponseHeaders();
-      sendRedirect(translatedRedirectUrl);
+      sendRedirect(translatedRedirectUrl, statusCode);
       //setResponseBody();
    }
    
