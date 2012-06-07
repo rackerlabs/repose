@@ -54,7 +54,8 @@ public class RequestProxyServiceContext implements ServiceContext<RequestProxySe
             Integer connectionTimeout = config.getDeploymentConfig().getConnectionTimeout();
             Integer readTimeout = config.getDeploymentConfig().getReadTimeout();
             Integer proxyThreadPool = config.getDeploymentConfig().getProxyThreadPool();
-            proxyService.setTimeouts(connectionTimeout, readTimeout, proxyThreadPool);
+            boolean requestLogging = config.getDeploymentConfig().isClientRequestLogging();
+            proxyService.setTimeouts(connectionTimeout, readTimeout, proxyThreadPool, requestLogging);
         }
     }
 

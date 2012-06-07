@@ -72,6 +72,14 @@
             </xs:annotation>
         </xs:attribute>
 
+        <xs:attribute name="client-request-logging" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Log client requests</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
     </xs:complexType>
 
     <xs:complexType name="ArtifactDirectory">
