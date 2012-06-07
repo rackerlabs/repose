@@ -222,7 +222,7 @@
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
             <stringProp name="HTTPSampler.protocol"></stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-            <stringProp name="HTTPSampler.path">/v1/${user1}/uri_normalization/?filter_me=true&amp;a=1&amp;a=4&amp;a=2&amp;r=1241.212&amp;n=test</stringProp>
+            <stringProp name="HTTPSampler.path">/v1/${user1}/uri_normalization/?filter_me=true&amp;a=1&amp;a=4&amp;a=2&amp;r=1241.212&amp;n=test&amp;a=Add+Space</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -245,7 +245,16 @@
               <collectionProp name="Asserion.test_strings">
                 <stringProp name="-174179889">&lt;h3&gt; n : [test]&lt;/h3&gt;</stringProp>
                 <stringProp name="685750980">&lt;h3&gt; r : [1241.212]&lt;/h3&gt;</stringProp>
-                <stringProp name="802343973">&lt;h3&gt; a : [1, 4, 2]&lt;/h3&gt;</stringProp>
+                <stringProp name="878338676">&lt;h3&gt; a : [1, 4, 2, Add Space]&lt;/h3&gt;</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">16</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Should replace &apos;+&apos; with space" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="878338676">&lt;h3&gt; a : [1, 4, 2, Add Space]&lt;/h3&gt;</stringProp>
               </collectionProp>
               <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
               <boolProp name="Assertion.assume_success">false</boolProp>
@@ -457,7 +466,7 @@
             <stringProp name="HTTPSampler.response_timeout"></stringProp>
             <stringProp name="HTTPSampler.protocol"></stringProp>
             <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-            <stringProp name="HTTPSampler.path">/v1/${user}/uri_normalization/?filter_me=true&amp;a=1&amp;a=4&amp;a=2&amp;r=1241.212&amp;n=test</stringProp>
+            <stringProp name="HTTPSampler.path">/v1/${user}/uri_normalization/?filter_me=true&amp;a=1&amp;a=4&amp;a=2&amp;r=1241.212&amp;n=test&amp;a=Add+Space</stringProp>
             <stringProp name="HTTPSampler.method">GET</stringProp>
             <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
             <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -480,7 +489,16 @@
               <collectionProp name="Asserion.test_strings">
                 <stringProp name="-174179889">&lt;h3&gt; n : [test]&lt;/h3&gt;</stringProp>
                 <stringProp name="685750980">&lt;h3&gt; r : [1241.212]&lt;/h3&gt;</stringProp>
-                <stringProp name="802343973">&lt;h3&gt; a : [1, 4, 2]&lt;/h3&gt;</stringProp>
+                <stringProp name="878338676">&lt;h3&gt; a : [1, 4, 2, Add Space]&lt;/h3&gt;</stringProp>
+              </collectionProp>
+              <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+              <boolProp name="Assertion.assume_success">false</boolProp>
+              <intProp name="Assertion.test_type">16</intProp>
+            </ResponseAssertion>
+            <hashTree/>
+            <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Should replace &apos;+&apos; with space" enabled="true">
+              <collectionProp name="Asserion.test_strings">
+                <stringProp name="878338676">&lt;h3&gt; a : [1, 4, 2, Add Space]&lt;/h3&gt;</stringProp>
               </collectionProp>
               <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
               <boolProp name="Assertion.assume_success">false</boolProp>
