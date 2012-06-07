@@ -7,7 +7,7 @@ public class RouteDestination implements Comparable {
 
    @Override
    public int compareTo(Object o) {
-      if (o == null || !(o instanceof RouteDestination)) {
+      if (!(o instanceof RouteDestination)) {
          throw new IllegalArgumentException("Cannot compare to null instance");
       }
       
