@@ -2,6 +2,7 @@ package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.commons.util.servlet.http.RouteDestination;
 import com.rackspace.papi.filter.logic.DispatchPathBuilder;
 import com.rackspace.papi.filter.resource.ResourceMonitor;
@@ -22,10 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author fran
@@ -51,7 +49,12 @@ public class PowerFilterChain implements FilterChain {
     private final Node localhost;
     private final Map<String, Destination> destinations;
     private final RoutingService routingService;
+
+    private List<FilterContext> currentFilters;
+    private boolean trace;
     private int position;
+    private long accumulatedTime;
+    private long requestStart;
 
     public PowerFilterChain(ReposeCluster domain, Node localhost, List<FilterContext> filterChainCopy, FilterChain containerFilterChain, ServletContext context, ResourceMonitor resourceMontior) {
         this.filterChainCopy = new LinkedList<FilterContext>(filterChainCopy);
@@ -96,22 +99,60 @@ public class PowerFilterChain implements FilterChain {
         
         return filters;
     }
+    
+    private boolean traceRequest(HttpServletRequest request) {
+       return request.getHeader("X-Trace-Request") != null;
+    }
 
+    private void initChainForRequest(HttpServletRequest request) {
+       requestStart = new Date().getTime();
+       trace = traceRequest(request);
+       currentFilters = getFilterChainForRequest(request.getRequestURI());
+    }
+    
+    private long traceEnter(MutableHttpServletResponse response, String filterName) {
+       if (!trace) {
+          return 0;
+       }
+       
+       long time = new Date().getTime() - requestStart;
+       //mutableHttpResponse.addHeader("X-" + filterName + "-Enter", String.valueOf(time));
+       return time;
+    }
+    
+    private void traceExit(MutableHttpServletResponse response, String filterName, long myStart) {
+       if (!trace) {
+          return;
+       }
+       long totalRequestTime = new Date().getTime() - requestStart;
+       long myTime = totalRequestTime - myStart - accumulatedTime;
+       accumulatedTime += myTime;
+       //mutableHttpResponse.addHeader("X-" + filterName + "-Exit", String.valueOf(totalRequestTime));
+       response.addHeader("X-" + filterName + "-Time", String.valueOf(myTime) + "ms");
+    }
+    
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
         final HttpServletRequest request = (HttpServletRequest)servletRequest;
+        final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) servletResponse);
         final Thread currentThread = Thread.currentThread();
         final ClassLoader previousClassLoader = currentThread.getContextClassLoader();
-        final List<FilterContext> currentFilters = getFilterChainForRequest(request.getRequestURI());
-
+        
+        if (position == 0) {
+           initChainForRequest(request);
+        }
+        
         if (position < currentFilters.size()) {
             final FilterContext nextFilterContext = currentFilters.get(position++);
+            final com.rackspace.papi.model.Filter filterConfig = nextFilterContext.getFilterConfig();
             final ClassLoader nextClassLoader = nextFilterContext.getFilterClassLoader();
 
             currentThread.setContextClassLoader(nextClassLoader);
 
             try {
+                long start = traceEnter(mutableHttpResponse, filterConfig.getName());
                 nextFilterContext.getFilter().doFilter(servletRequest, servletResponse, this);
+                traceExit(mutableHttpResponse, filterConfig.getName(), start);
             } catch (Exception ex) {
                 LOG.error("Failure in filter: " + nextFilterContext.getFilter().getClass().getSimpleName()
                         + "  -  Reason: " + ex.getMessage(), ex);
@@ -133,6 +174,9 @@ public class PowerFilterChain implements FilterChain {
     }
 
     private void route(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
+        final String name = "route";
+        final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) servletResponse);
+        long start = traceEnter(mutableHttpResponse, name);
         DestinationLocation location = null;
         MutableHttpServletRequest mutableRequest = (MutableHttpServletRequest) servletRequest;
         RouteDestination destination = mutableRequest.getDestination();
@@ -179,5 +223,7 @@ public class PowerFilterChain implements FilterChain {
                 }
             }
         }
+        
+        traceExit(mutableHttpResponse, name, start);
     }
 }
