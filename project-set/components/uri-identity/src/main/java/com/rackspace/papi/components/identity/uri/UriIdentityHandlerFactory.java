@@ -2,63 +2,66 @@ package com.rackspace.papi.components.identity.uri;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.components.identity.uri.config.IdentificationMapping;
 import com.rackspace.papi.components.identity.uri.config.UriIdentityConfig;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class UriIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFactory<UriIdentityHandler> {
 
-    public static final String DEFAULT_QUALITY = "0.5";
-    private static final String DEFAULT_GROUP = "User_Standard";
-    private final KeyedRegexExtractor<Object> keyedRegexExtractor;
-    private UriIdentityConfig config;
-    private String quality, group;
+   public static final String DEFAULT_QUALITY = "0.5";
+   private static final String DEFAULT_GROUP = "User_Standard";
+   private List<Pattern> patterns = new ArrayList<Pattern>();
+   private UriIdentityConfig config;
+   private String quality, group;
 
-    public UriIdentityHandlerFactory() {
-        keyedRegexExtractor = new KeyedRegexExtractor<Object>();
-    }
+   public UriIdentityHandlerFactory() {
+   }
 
-    @Override
-    protected Map<Class, UpdateListener<?>> getListeners() {
-        return new HashMap<Class, UpdateListener<?>>() {
+   @Override
+   protected Map<Class, UpdateListener<?>> getListeners() {
+      return new HashMap<Class, UpdateListener<?>>() {
 
-            {
-                put(UriIdentityConfig.class, new UriIdentityConfigurationListener());
-            }
-        };
-    }
+         {
+            put(UriIdentityConfig.class, new UriIdentityConfigurationListener());
+         }
+      };
+   }
 
-    private class UriIdentityConfigurationListener implements UpdateListener<UriIdentityConfig> {
+   private class UriIdentityConfigurationListener implements UpdateListener<UriIdentityConfig> {
 
-        @Override
-        public void configurationUpdated(UriIdentityConfig configurationObject) {
+      @Override
+      public void configurationUpdated(UriIdentityConfig configurationObject) {
 
-            keyedRegexExtractor.clear();
-            config = configurationObject;
-            for (IdentificationMapping identificationMapping : config.getIdentificationMappings().getMapping()) {
-                keyedRegexExtractor.addPattern(identificationMapping.getIdentificationRegex(), null);
-            }
+         config = configurationObject;
+         patterns.clear();
 
-            quality = determineQuality();
-            group = StringUtilities.getNonBlankValue(group, DEFAULT_GROUP);
-        }
-    }
 
-    @Override
-    protected UriIdentityHandler buildHandler() {
-        return new UriIdentityHandler(keyedRegexExtractor, StringUtilities.getNonBlankValue(group, DEFAULT_GROUP), determineQuality());
-    }
+         for (IdentificationMapping identificationMapping : config.getIdentificationMappings().getMapping()) {
+            patterns.add(Pattern.compile(identificationMapping.getIdentificationRegex()));
+         }
 
-    private String determineQuality() {
-        String q = DEFAULT_QUALITY;
+         quality = determineQuality();
+         group = StringUtilities.getNonBlankValue(group, DEFAULT_GROUP);
+      }
+   }
 
-        if (config != null) {
-            q = StringUtilities.getNonBlankValue(config.getQuality(), DEFAULT_QUALITY);
-        }
+   @Override
+   protected UriIdentityHandler buildHandler() {
+      return new UriIdentityHandler(patterns, group, quality);
+   }
 
-        return ";q=" + q;
-    }
+   private String determineQuality() {
+      String q = DEFAULT_QUALITY;
+
+      if (config != null) {
+         q = StringUtilities.getNonBlankValue(config.getQuality(), DEFAULT_QUALITY);
+      }
+
+      return ";q=" + q;
+   }
 }

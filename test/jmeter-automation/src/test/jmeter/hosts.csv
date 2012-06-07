@@ -1,7 +1,8 @@
-108.171.189.186,8887,Rackspace Auth v1.1
-108.171.189.186,8888,OpenStack Identity
-108.171.189.186,8889,Client-Ip
-108.171.189.186,8890,Dist-Datastore
-108.171.189.186,8891,Dist-Datastore
-108.171.189.186,8892,Dist-Datastore
-108.171.189.186,8080,RootWarNode
+173.45.251.128,8887,Rackspace Auth v1.1
+173.45.251.128,8888,OpenStack Identity
+173.45.251.128,8889,Client-Ip
+173.45.251.128,8890,Dist-Datastore
+173.45.251.128,8891,Dist-Datastore
+173.45.251.128,8892,Dist-Datastore
+173.45.251.128,8080,RootWarNode
+173.45.251.127,8080,RootContextNode
