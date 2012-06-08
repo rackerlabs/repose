@@ -1,18 +1,20 @@
 package com.rackspace.papi.components.identity.uri;
 
+
+
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.regex.Pattern;
+import javax.servlet.http.HttpServletRequest;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Set;
-
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -21,7 +23,7 @@ public class UriIdentityHandlerTest {
 
     public static class WhenHandlingRequests {
 
-        private KeyedRegexExtractor<Object> keyedRegexExtractor;
+        private List<Pattern> patterns;
         private static String GROUP = "DEFAULT_GROUP";
 
         private static String QUALITY_VALUE = ";q=0.5";
@@ -39,12 +41,11 @@ public class UriIdentityHandlerTest {
         @Before
         public void setUp() {
 
+            patterns = new ArrayList<Pattern>();
+            patterns.add(Pattern.compile(REGEX1));
+            patterns.add(Pattern.compile(REGEX2));
             
-            keyedRegexExtractor = new KeyedRegexExtractor<Object>();
-            keyedRegexExtractor.addPattern(REGEX1);
-            keyedRegexExtractor.addPattern(REGEX2);
-            
-            handler = new UriIdentityHandler(keyedRegexExtractor,GROUP, QUALITY_VALUE);
+            handler = new UriIdentityHandler(patterns,GROUP, QUALITY_VALUE);
             request = mock(HttpServletRequest.class);
             response = mock(ReadableHttpServletResponse.class);
 

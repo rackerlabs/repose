@@ -9,13 +9,14 @@ public class Configurables {
    private final boolean delegable;
    private final String authServiceUri;
    private final KeyedRegexExtractor<String> keyedRegexExtractor;
-   private final boolean  includeQueryParams;
+   private final boolean  includeQueryParams, tenanted;
 
-   public Configurables(boolean delegable, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor, boolean includeQueryParams) {
+   public Configurables(boolean delegable, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor, boolean includeQueryParams, boolean tenanted) {
       this.delegable = delegable;
       this.authServiceUri = authServiceUri;
       this.keyedRegexExtractor = keyedRegexExtractor;
       this.includeQueryParams = includeQueryParams;
+      this.tenanted = tenanted;
    }
 
    public boolean isDelegable() {
@@ -32,5 +33,9 @@ public class Configurables {
 
    public boolean isIncludeQueryParams() {
       return includeQueryParams;
+   }
+   
+   public boolean isTenanted(){
+       return tenanted;
    }
 }

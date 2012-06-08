@@ -5,6 +5,7 @@ import com.rackspace.auth.AuthToken;
 import com.rackspace.auth.ResponseUnmarshaller;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
@@ -65,7 +66,13 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
       OpenStackToken token = null;
 
-      final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, headers, "belongsTo", tenant);
+      ServiceClientResponse<AuthenticateResponse> serviceResponse;
+      
+      if(!StringUtilities.isEmpty(tenant)){
+          serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, headers, "belongsTo", tenant);
+      }else{
+          serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, headers);
+      }
 
       switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
          case OK:

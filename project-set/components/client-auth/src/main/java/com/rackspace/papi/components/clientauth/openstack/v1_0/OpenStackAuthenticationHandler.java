@@ -30,7 +30,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
    @Override
    public AuthToken validateToken(ExtractorResult<String> account, String token) {
-      return authenticationService.validateToken(account.getResult(), token);
+      return account != null ? authenticationService.validateToken(account.getResult(), token) : authenticationService.validateToken(null, token);
    }
 
    @Override

@@ -123,12 +123,12 @@
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <intProp name="LoopController.loops">-1</intProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">25</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <stringProp name="ThreadGroup.num_threads">50</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">0</stringProp>
         <longProp name="ThreadGroup.start_time">1337872279000</longProp>
         <longProp name="ThreadGroup.end_time">1337872279000</longProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
-        <stringProp name="ThreadGroup.duration">180</stringProp>
+        <stringProp name="ThreadGroup.duration">60</stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
       </ThreadGroup>
       <hashTree>
@@ -151,12 +151,12 @@
             </elementProp>
             <elementProp name="node1" elementType="Argument">
               <stringProp name="Argument.name">node1</stringProp>
-              <stringProp name="Argument.value">198.101.197.216</stringProp>
+              <stringProp name="Argument.value">198.101.204.71</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
             <elementProp name="node2" elementType="Argument">
               <stringProp name="Argument.name">node2</stringProp>
-              <stringProp name="Argument.value">198.101.198.210</stringProp>
+              <stringProp name="Argument.value">198.101.196.31</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
             <elementProp name="loadbalancer" elementType="Argument">
@@ -182,11 +182,11 @@
             <stringProp name="3367">ip</stringProp>
           </collectionProp>
           <collectionProp name="UserParameters.thread_values">
-            <collectionProp name="-934738974">
-              <stringProp name="-934739005">${node3}</stringProp>
+            <collectionProp name="1428592626">
+              <stringProp name="-934739067">${node1}</stringProp>
             </collectionProp>
-            <collectionProp name="-934738943">
-              <stringProp name="-934738974">${node4}</stringProp>
+            <collectionProp name="1428589179">
+              <stringProp name="-934739036">${node2}</stringProp>
             </collectionProp>
           </collectionProp>
           <boolProp name="UserParameters.per_iteration">true</boolProp>
@@ -224,7 +224,7 @@
             <collectionProp name="Arguments.arguments"/>
           </elementProp>
           <stringProp name="HTTPSampler.domain">${ip}</stringProp>
-          <stringProp name="HTTPSampler.port">8080</stringProp>
+          <stringProp name="HTTPSampler.port">8888</stringProp>
           <stringProp name="HTTPSampler.connect_timeout"></stringProp>
           <stringProp name="HTTPSampler.response_timeout"></stringProp>
           <stringProp name="HTTPSampler.protocol"></stringProp>
@@ -237,7 +237,7 @@
           <collectionProp name="HeaderManager.headers">
             <elementProp name="" elementType="Header">
               <stringProp name="Header.name">x-pp-user</stringProp>
-              <stringProp name="Header.value">usertest1;q=.001</stringProp>
+              <stringProp name="Header.value">usertest${id};q=.001</stringProp>
             </elementProp>
           </collectionProp>
         </HeaderManager>

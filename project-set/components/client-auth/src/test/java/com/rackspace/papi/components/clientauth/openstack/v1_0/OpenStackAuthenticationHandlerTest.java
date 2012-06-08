@@ -68,6 +68,7 @@ public class OpenStackAuthenticationHandlerTest {
          osauthConfig = new OpenstackAuth();
          osauthConfig.setDelegable(delegable());
          osauthConfig.setIncludeQueryParams(includeQueryParams());
+         osauthConfig.setTenanted(isTenanted());
 
          keyedRegexExtractor = new KeyedRegexExtractor();
 
@@ -91,7 +92,7 @@ public class OpenStackAuthenticationHandlerTest {
          whiteListRegexPatterns = new ArrayList<Pattern>();
          whiteListRegexPatterns.add(Pattern.compile("/v1.0/application\\.wadl"));
 
-         Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, includeQueryParams());
+         Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, includeQueryParams(),isTenanted());
          handler = new OpenStackAuthenticationHandler(configurables, authService, null, new UriMatcher(whiteListRegexPatterns));
 
 
@@ -106,6 +107,10 @@ public class OpenStackAuthenticationHandlerTest {
 
       protected boolean includeQueryParams() {
          return false;
+      }
+      
+      protected  boolean isTenanted(){
+          return true;
       }
 
       public AuthToken generateCachableTokenInfo(String roles, String tokenId, String username) {

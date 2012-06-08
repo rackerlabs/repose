@@ -7,6 +7,7 @@ import com.rackspace.papi.service.proxy.RequestProxyService;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -15,6 +16,8 @@ import java.net.URL;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.sun.jersey.client.urlconnection.URLConnectionClientHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -89,7 +92,8 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         synchronized (clientLock) {
             if (client == null) {
                 JerseyPropertiesConfigurator jerseyPropertiesConfigurator = new JerseyPropertiesConfigurator(connectionTimeout, readTimeout, proxyThreadPool, true);
-                client = new ClientWrapper(Client.create(jerseyPropertiesConfigurator.configure()), requestLogging);
+                URLConnectionClientHandler urlConnectionClientHandler = new URLConnectionClientHandler(new ReposeHttpUrlConnectionFactory());
+                client = new ClientWrapper(new Client(urlConnectionClientHandler, jerseyPropertiesConfigurator.configure()), requestLogging);
             }
 
             return client;

@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.datastore.hash;
 
+import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.components.datastore.common.RemoteBehavior;
 import com.rackspace.papi.components.datastore.hash.remote.RemoteCommandExecutor;
 import com.rackspace.papi.components.datastore.hash.remote.RemoteConnectionException;
@@ -13,19 +14,24 @@ import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
 import com.rackspace.papi.service.datastore.impl.AbstractHashedDatastore;
+import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class HashRingDatastore extends AbstractHashedDatastore {
 
+   private static final int ADDRESS_TTL_MINUTES = 5;
    private static final Logger LOG = LoggerFactory.getLogger(HashRingDatastore.class);
    private final MutableClusterView clusterView;
    private final Datastore localDatastore;
    private final RemoteCommandExecutor remoteCommandExecutor;
+   private boolean clusterMemberWarning = false;
+   private final Object lock = new Object();
 
    public HashRingDatastore(RemoteCommandExecutor remoteCommandExecutor, MutableClusterView clusterView, String datastorePrefix, Datastore localDatastore, MessageDigestFactory hashProvider, EncodingProvider encodingProvider) {
       super(datastorePrefix, encodingProvider, hashProvider);
@@ -33,24 +39,50 @@ public class HashRingDatastore extends AbstractHashedDatastore {
       this.clusterView = clusterView;
       this.localDatastore = localDatastore;
       this.remoteCommandExecutor = remoteCommandExecutor;
+      if (localDatastore == null) {
+         LOG.warn("Local datastore is null");
+      }
    }
 
    public InetSocketAddress getTarget(byte[] hashBytes) {
       final InetSocketAddress[] ringMembers = clusterView.members();
 
       if (ringMembers.length <= 0) {
-         LOG.info("No members to route to in datastore cluster... unable to route this datastore request.");
+         if (!clusterMemberWarning) {
+            LOG.info("No members to route to in datastore cluster... unable to route this datastore request.");
+            clusterMemberWarning = true;
+         }
 
          return null;
       }
-
+      
+      clusterMemberWarning = false;
       final int memberAddress = new BigInteger(hashBytes).mod(BigInteger.valueOf(ringMembers.length)).abs().intValue();
       return ringMembers[memberAddress];
    }
-
+   
    private boolean isRemoteTarget(InetSocketAddress target) throws DatastoreOperationException {
       try {
-         return !clusterView.isLocal(target);
+         
+         if (localDatastore == null) {
+            return !clusterView.isLocal(target);
+         }
+         
+         synchronized(lock) {
+            StoredElement value = localDatastore.get(target.toString());
+            Boolean isLocal = value != null && !value.elementIsNull()? value.elementAs(Boolean.class): null;
+            if (isLocal == null) {
+               isLocal = clusterView.isLocal(target);
+               byte[] bytes;
+               try {
+                  bytes = ObjectSerializer.instance().writeObject(isLocal);
+                  localDatastore.put(target.toString(), bytes, ADDRESS_TTL_MINUTES, TimeUnit.MINUTES);
+               } catch (IOException ex) {
+                  LOG.warn("Unable to cache target address", ex);
+               }
+            }
+            return !isLocal;
+         }
       } catch (SocketException se) {
          throw new DatastoreOperationException("Unable to identify local cluster target datastore", se);
       }
