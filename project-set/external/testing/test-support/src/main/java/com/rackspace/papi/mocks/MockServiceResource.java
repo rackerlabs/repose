@@ -3,6 +3,7 @@ package com.rackspace.papi.mocks;
 import com.rackspace.papi.mocks.providers.MockServiceProvider;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -80,11 +81,9 @@ public class MockServiceResource {
 
     @GET
     @Path("*/statuscode/{statusCode}")
-    public Response getStatusCode(String body, @PathParam("statusCode") String statusCode, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException {
+    public Response getStatusCode(String body, @PathParam("statusCode") String statusCode, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
         URI uri = uriInfo.getAbsolutePath();
-        Map<String, String> responseHeaders = new HashMap<String, String>();
-        responseHeaders.put("Location", uri.toURL().toExternalForm().replaceAll("/statuscode/", "/"));
-        return provider.getEndService(body, statusCode, headers, uriInfo, responseHeaders);
+        return provider.getStatusCode(statusCode, uri.toURL().toExternalForm().replaceAll("/statuscode/", "/"), body, headers, uriInfo);
     }
 
     @GET

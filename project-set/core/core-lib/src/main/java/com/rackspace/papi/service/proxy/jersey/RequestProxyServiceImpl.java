@@ -1,7 +1,6 @@
 package com.rackspace.papi.service.proxy.jersey;
 
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
-import com.rackspace.papi.commons.util.logging.jersey.LoggingFilter;
 import com.rackspace.papi.http.proxy.HttpException;
 import com.rackspace.papi.http.proxy.common.HttpResponseCodeProcessor;
 import com.rackspace.papi.service.proxy.RequestProxyService;
@@ -36,8 +35,8 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     }
 
     @Override
-    public void setTimeouts(Integer connectionTimeout, Integer readTimeout, Integer proxyThreadPool, boolean requestLogging) {
-        LOG.info("Connection and/or read timeouts changed to: " + connectionTimeout + "/" + readTimeout);
+    public void updateConfiguration(Integer connectionTimeout, Integer readTimeout, Integer proxyThreadPool, boolean requestLogging) {
+        LOG.info("Updating Request Proxy configuration");
         this.connectionTimeout = connectionTimeout;
         this.readTimeout = readTimeout;
         this.proxyThreadPool = proxyThreadPool;
@@ -90,15 +89,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         synchronized (clientLock) {
             if (client == null) {
                 JerseyPropertiesConfigurator jerseyPropertiesConfigurator = new JerseyPropertiesConfigurator(connectionTimeout, readTimeout, proxyThreadPool, true);
-                client = new ClientWrapper(Client.create(jerseyPropertiesConfigurator.configure()));
-
-                if (requestLogging) {
-                    LOG.warn("Enabling info logging of jersey client requests");
-                    client.getClient().addFilter(new LoggingFilter());
-                } else {
-                    LOG.warn("**** Jersey client request logging not enabled *****");
-                }
-
+                client = new ClientWrapper(Client.create(jerseyPropertiesConfigurator.configure()), requestLogging);
             }
 
             return client;

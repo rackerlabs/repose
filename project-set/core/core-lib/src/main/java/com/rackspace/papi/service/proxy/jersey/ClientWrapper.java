@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.proxy.jersey;
 
+import com.rackspace.papi.commons.util.logging.jersey.LoggingFilter;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import java.util.UUID;
@@ -8,9 +9,12 @@ import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ClientWrapper {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ClientWrapper.class);
     private static final int SHORT_TERM_CACHE_SIZE = 5000;
     private static final int SHORT_TERM_TTL = 2;
     private static final int LONG_TERM_CACHE_SIZE = 1000;
@@ -21,8 +25,15 @@ public class ClientWrapper {
     private Cache shortCache;
     private Cache longCache;
 
-    public ClientWrapper(Client client) {
+    public ClientWrapper(Client client, boolean requestLogging) {
         this.client = client;
+        
+        if (requestLogging) {
+            LOG.warn("Enabling info logging of jersey client requests");
+            client.addFilter(new LoggingFilter());
+        } else {
+            LOG.warn("**** Jersey client request logging not enabled *****");
+        }
         initCache();
     }
 
@@ -32,7 +43,7 @@ public class ClientWrapper {
         cacheManager.shutdown();
         super.finalize();
     }
-    
+
     private Cache newCache(CacheManager manager, int items, int ttl, int idle) {
         String name = CACHE_NAME_PREFIX + UUID.randomUUID().toString();
         Cache cache = new Cache(name, items, false, false, ttl, idle);
@@ -79,7 +90,7 @@ public class ClientWrapper {
         if (!cacheable) {
             return getResource(url, shortCache);
         }
-        
+
         return getResource(url, longCache);
     }
 

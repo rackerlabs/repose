@@ -33,18 +33,7 @@ public class MockServiceProvider {
         factory = new ObjectFactory();
     }
 
-    public Response getEndService(String body, HttpHeaders headers, UriInfo uri) {
-        return getEndService(body, "200", headers, uri, new HashMap<String, String>());
-    }
-    
-    public Response getEndService(String body, String statusCode, HttpHeaders headers, UriInfo uri, Map<String, String> responseHeaders) {
-        int status;
-        try {
-            status = Integer.parseInt(statusCode);
-        } catch (NumberFormatException e) {
-            status = 404;
-        }
-        
+    private String getEchoBody(String body, HttpHeaders headers, UriInfo uri) {
         Set<String> headerPairs = headers.getRequestHeaders().keySet();
         Set<String> queryParams = uri.getQueryParameters().keySet();
         StringBuilder resp = new StringBuilder("<html>\n\t<head>\n\t\t<title>Servlet version</title>\n\t</head>\n\t<body>\n\t\t<h1>Servlet version at ");
@@ -77,13 +66,28 @@ public class MockServiceProvider {
             resp.append("\n\t\t\t<h3>").append(body).append("</h3>");
 
         }
-        ResponseBuilder response = Response.status(status);
-        
-        for (String headerName: responseHeaders.keySet()) {
-            response = response.header(headerName, responseHeaders.get(headerName));
-        }
         
         resp.append("\n\t</body>\n</html>");
+        
+        return resp.toString();
+    }
+    
+    public Response getEndService(String body, HttpHeaders headers, UriInfo uri) {
+        return getEndService(body, "200", headers, uri);
+    }
+    
+    public Response getEndService(String body, String statusCode, HttpHeaders headers, UriInfo uri) {
+        int status;
+        try {
+            status = Integer.parseInt(statusCode);
+        } catch (NumberFormatException e) {
+            status = 404;
+        }
+        
+        String resp = getEchoBody(body, headers, uri);
+        
+        ResponseBuilder response = Response.status(status);
+        
         return response.entity(resp.toString()).header("x-request-id", "somevalue").header("Content-Length", resp.length()).build();
     }
 
@@ -135,7 +139,7 @@ public class MockServiceProvider {
 
     }
 
-    public Response getStatusCode(String statusCode, String location, String body) throws URISyntaxException {
+    public Response getStatusCode(String statusCode, String location, String body, HttpHeaders headers, UriInfo uri) throws URISyntaxException {
 
         int status;
         try {
@@ -144,9 +148,16 @@ public class MockServiceProvider {
             status = 404;
         }
         
-        URI newLocation = new URI(location);
+        if (status >= 300 && status < 400) {
+        
+            String resp = getEchoBody(body, headers, uri);
+        
+            URI newLocation = new URI(location);
 
-        return Response.status(status).contentLocation(newLocation).entity(body).build();
+            return Response.seeOther(newLocation).entity(resp).build();
+        }
+
+        return Response.status(status).entity(body).build();
 
     }
 
