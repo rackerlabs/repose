@@ -93,8 +93,8 @@ public class RoutingTaggerTest {
     */
    @Test
    public void shouldNotChangeNextRouteWhenValueIsPresent() {
-      routingTagger = new RoutingTagger(interrogator);
-      routingTagger.setSystemModel(systemModel);
+      routingTagger = new RoutingTagger();
+      routingTagger.setDestination(defaultDest);
       when(request.getHeader(PowerApiHeader.NEXT_ROUTE.toString())).thenReturn("http://mockendservice.com:8082");
       FilterDirector result = routingTagger.handleRequest(request, response);
       assertTrue("Should not change route destination", request.getHeader(PowerApiHeader.NEXT_ROUTE.toString()).equals("http://mockendservice.com:8082"));
@@ -103,8 +103,8 @@ public class RoutingTaggerTest {
 
    @Test
    public void shouldRouteToNextNonLocalHost() throws MalformedURLException {
-      routingTagger = new RoutingTagger(interrogator);
-      routingTagger.setSystemModel(systemModel);
+      routingTagger = new RoutingTagger();
+      routingTagger.setDestination(defaultDest);
 
       FilterDirector result = routingTagger.handleRequest(request, response);
 

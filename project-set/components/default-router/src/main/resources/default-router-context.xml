@@ -10,9 +10,9 @@
     <context:annotation-config/>
     -->
 
-    <bean name="routingHandlerFactory" class="com.rackspace.papi.components.routing.RoutingHandlerFactory" />
-    
-    <bean name="routingTagger" class="com.rackspace.papi.components.routing.RoutingTagger" scope="prototype">
+    <bean name="routingHandlerFactory" class="com.rackspace.papi.components.routing.RoutingHandlerFactory" >
         <constructor-arg index="0" ref="modelInterrogator"/>
     </bean>
+    
+    <bean name="routingTagger" class="com.rackspace.papi.components.routing.RoutingTagger" scope="prototype"/>
 </beans>

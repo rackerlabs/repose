@@ -1,10 +1,14 @@
 package com.rackspace.papi.components.routing;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.SystemModel;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
@@ -12,8 +16,12 @@ public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactor
 
     private ApplicationContext applicationContext;
     private SystemModel systemModel;
+    private final SystemModelInterrogator modelInterrogator;
+    Destination dst;
+    private static final Logger LOG = LoggerFactory.getLogger(RoutingTagger.class);
 
-    public RoutingHandlerFactory() {
+    public RoutingHandlerFactory(SystemModelInterrogator modelInterrogator) {
+        this.modelInterrogator = modelInterrogator;
     }
 
     @Override
@@ -25,15 +33,19 @@ public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactor
 
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
+
+
             systemModel = configurationObject;
+            dst = modelInterrogator.getDefaultDestination(systemModel);
+            if (dst == null) {
+                LOG.warn("No default destination configured for service domain: " + modelInterrogator.getLocalServiceDomain(systemModel).getId());
+            }
         }
     }
 
     @Override
     protected RoutingTagger buildHandler() {
-        return applicationContext
-            .getBean("routingTagger", RoutingTagger.class)
-            .setSystemModel(systemModel);
+        return applicationContext.getBean("routingTagger", RoutingTagger.class).setDestination(dst);
     }
 
     @Override
