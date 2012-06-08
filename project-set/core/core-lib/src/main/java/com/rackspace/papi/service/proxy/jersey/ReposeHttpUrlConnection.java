@@ -298,6 +298,7 @@ public class ReposeHttpUrlConnection extends HttpURLConnection {
             HttpResponseCodeProcessor responseCode = new HttpResponseCodeProcessor(httpUrlConnection.getResponseCode());
 
             if (responseCode.isRedirect()) {
+               LOG.info("Getting input stream on redirect.");
                stream = httpUrlConnection.getInputStream();
             }
          } catch (IOException e) {
