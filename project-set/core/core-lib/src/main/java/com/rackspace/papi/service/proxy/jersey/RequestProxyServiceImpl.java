@@ -93,14 +93,8 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         synchronized (clientLock) {
             if (client == null) {
                 JerseyPropertiesConfigurator jerseyPropertiesConfigurator = new JerseyPropertiesConfigurator(connectionTimeout, readTimeout, proxyThreadPool, true);
-                URLConnectionClientHandler urlConnectionClientHandler = new URLConnectionClientHandler(new ReposeHttpUrlConnectionFactory());
-                
-               //client = new ClientWrapper(Client.create(jerseyPropertiesConfigurator.configure()), requestLogging);
-
+                URLConnectionClientHandler urlConnectionClientHandler = new URLConnectionClientHandler(new ReposeHttpUrlConnectionFactory());                
                 client = new ClientWrapper(new Client(urlConnectionClientHandler, jerseyPropertiesConfigurator.configure()), requestLogging);
-
-               HTTPBasicAuthFilter authFilter = new HTTPBasicAuthFilter("auth", "auth123");
-               client.getClient().addFilter(authFilter);
             }
 
             return client;
