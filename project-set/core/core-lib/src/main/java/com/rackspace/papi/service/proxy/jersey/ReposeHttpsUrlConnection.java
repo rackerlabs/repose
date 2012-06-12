@@ -346,7 +346,7 @@ public class ReposeHttpsUrlConnection extends HttpsURLConnection {
          try {
             HttpResponseCodeProcessor responseCode = new HttpResponseCodeProcessor(httpsUrlConnection.getResponseCode());
 
-            if (responseCode.getCode() >= 300) {
+            if (responseCode.isRedirect()) {
                LOG.info("Getting input stream on redirect.");
                stream = httpsUrlConnection.getInputStream();
             }
