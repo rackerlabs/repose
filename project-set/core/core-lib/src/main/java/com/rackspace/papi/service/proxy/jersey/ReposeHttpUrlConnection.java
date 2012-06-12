@@ -4,6 +4,7 @@ import com.rackspace.papi.http.proxy.common.HttpResponseCodeProcessor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -26,7 +27,7 @@ public class ReposeHttpUrlConnection extends HttpURLConnection {
 
    public ReposeHttpUrlConnection(URL url) throws IOException {
       super(url);
-      httpUrlConnection = (HttpURLConnection) url.openConnection();
+      httpUrlConnection = (HttpURLConnection) url.openConnection();             
    }
 
    @Override
@@ -57,11 +58,6 @@ public class ReposeHttpUrlConnection extends HttpURLConnection {
    @Override
    public String getHeaderFieldKey(int i) {
       return httpUrlConnection.getHeaderFieldKey(i);
-   }
-
-   @Override
-   public void setFixedLengthStreamingMode(int i) {
-      httpUrlConnection.setFixedLengthStreamingMode(i);
    }
 
    @Override
@@ -290,6 +286,11 @@ public class ReposeHttpUrlConnection extends HttpURLConnection {
    }
 
    @Override
+   public void setFixedLengthStreamingMode(int i) {
+      //httpUrlConnection.setFixedLengthStreamingMode(i);
+   }
+
+   @Override
    public InputStream getErrorStream() {
       InputStream stream = httpUrlConnection.getErrorStream();
 
@@ -297,12 +298,12 @@ public class ReposeHttpUrlConnection extends HttpURLConnection {
          try {
             HttpResponseCodeProcessor responseCode = new HttpResponseCodeProcessor(httpUrlConnection.getResponseCode());
 
-            if (responseCode.isRedirect()) {
+            if (responseCode.getCode() >= 300) {
                LOG.info("Getting input stream on redirect.");
                stream = httpUrlConnection.getInputStream();
             }
          } catch (IOException e) {
-            LOG.info("IOException when reading from Input Stream for redirect response code.");
+            LOG.info("IOException when reading from Input Stream for redirect response code.", e);
          }
       }
 
