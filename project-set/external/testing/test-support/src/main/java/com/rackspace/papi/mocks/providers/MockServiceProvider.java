@@ -155,6 +155,11 @@ public class MockServiceProvider {
             URI newLocation = new URI(location);
 
             return Response.seeOther(newLocation).entity(resp).build();
+        }else if(status == 401){
+            String respBody = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><unauthorized xmlns=\"http://docs.openstack.org/identity/api/v2.0\" "
+                    + "xmlns:ns2=\"http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0\" "
+                    + "code=\"401\"><message>Unable to authenticate user with credentials provided.</message></unauthorized>";
+            return Response.status(status).entity(respBody).build();
         }
 
         return Response.status(status).entity(body).build();

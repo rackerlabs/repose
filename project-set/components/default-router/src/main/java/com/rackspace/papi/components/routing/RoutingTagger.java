@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 
 public class RoutingTagger extends AbstractFilterLogicHandler {
 
-   private static final Logger LOG = LoggerFactory.getLogger(RoutingTagger.class);
     private Destination defaultDest;
 
    public RoutingTagger() {

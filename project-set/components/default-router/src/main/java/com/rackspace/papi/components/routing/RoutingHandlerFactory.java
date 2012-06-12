@@ -17,7 +17,7 @@ public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactor
     private ApplicationContext applicationContext;
     private SystemModel systemModel;
     private final SystemModelInterrogator modelInterrogator;
-    Destination dst;
+    private Destination dst;
     private static final Logger LOG = LoggerFactory.getLogger(RoutingTagger.class);
 
     public RoutingHandlerFactory(SystemModelInterrogator modelInterrogator) {
