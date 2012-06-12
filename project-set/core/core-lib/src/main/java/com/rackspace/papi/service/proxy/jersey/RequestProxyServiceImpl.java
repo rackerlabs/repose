@@ -17,6 +17,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
 import com.sun.jersey.client.urlconnection.URLConnectionClientHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,7 +94,13 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             if (client == null) {
                 JerseyPropertiesConfigurator jerseyPropertiesConfigurator = new JerseyPropertiesConfigurator(connectionTimeout, readTimeout, proxyThreadPool, true);
                 URLConnectionClientHandler urlConnectionClientHandler = new URLConnectionClientHandler(new ReposeHttpUrlConnectionFactory());
+                
+               //client = new ClientWrapper(Client.create(jerseyPropertiesConfigurator.configure()), requestLogging);
+
                 client = new ClientWrapper(new Client(urlConnectionClientHandler, jerseyPropertiesConfigurator.configure()), requestLogging);
+
+               HTTPBasicAuthFilter authFilter = new HTTPBasicAuthFilter("auth", "auth123");
+               client.getClient().addFilter(authFilter);
             }
 
             return client;
