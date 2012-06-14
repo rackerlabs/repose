@@ -152,7 +152,7 @@ public class MockServiceProvider {
 
          URI newLocation = new URI(location);
 
-         return Response.status(status).contentLocation(newLocation).entity(resp).build();
+         return Response.status(status).header("Location", newLocation).entity(resp).build();
       }
 
       return Response.status(status).entity(body).build();
