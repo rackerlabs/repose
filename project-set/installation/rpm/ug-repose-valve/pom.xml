@@ -164,8 +164,7 @@
                             <preinstallScriptlet>
                                 <script>
                                     getent group intermediary || groupadd -r intermediary
-                                    getent passwd intermediary || useradd -r -g intermediary -s /sbin/nologin
-                                    intermediary
+                                    getent passwd intermediary || useradd -r -g intermediary -s /sbin/nologin intermediary
                                 </script>
                             </preinstallScriptlet>
 
