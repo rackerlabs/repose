@@ -11,6 +11,17 @@
       <stringProp name="TestPlan.user_define_classpath"></stringProp>
     </TestPlan>
     <hashTree>
+      <CSVDataSet guiclass="TestBeanGUI" testclass="CSVDataSet" testname="CSV Data Set Config" enabled="true">
+        <stringProp name="delimiter">,</stringProp>
+        <stringProp name="fileEncoding"></stringProp>
+        <stringProp name="filename">/home/malconis/settings.csv</stringProp>
+        <boolProp name="quotedData">false</boolProp>
+        <boolProp name="recycle">true</boolProp>
+        <stringProp name="shareMode">Current thread</stringProp>
+        <boolProp name="stopThread">false</boolProp>
+        <stringProp name="variableNames">duration</stringProp>
+      </CSVDataSet>
+      <hashTree/>
       <TestFragmentController guiclass="TestFragmentControllerGui" testclass="TestFragmentController" testname="Basic Requests" enabled="false"/>
       <hashTree>
         <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="GET Basic Return" enabled="true"/>
@@ -369,7 +380,7 @@
       </ResultCollector>
       <hashTree/>
       <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
-        <boolProp name="ResultCollector.error_logging">true</boolProp>
+        <boolProp name="ResultCollector.error_logging">false</boolProp>
         <objProp>
           <name>saveConfig</name>
           <value class="SampleSaveConfiguration">

@@ -24,155 +24,6 @@ import javax.ws.rs.core.Response.ResponseBuilder;
 
 public class MockServiceProvider {
 
-<<<<<<< HEAD
-    private ObjectFactory factory;
-    private String[] absNames = {"Admin", "Tech", "Demo"};
-
-    public MockServiceProvider() {
-        factory = new ObjectFactory();
-    }
-
-    private String getEchoBody(String body, HttpHeaders headers, UriInfo uri) {
-        Set<String> headerPairs = headers.getRequestHeaders().keySet();
-        Set<String> queryParams = uri.getQueryParameters().keySet();
-        StringBuilder resp = new StringBuilder("<html>\n\t<head>\n\t\t<title>Servlet version</title>\n\t</head>\n\t<body>\n\t\t<h1>Servlet version at ");
-        resp.append(uri.getPath()).append("</h1>");
-        try {
-            resp.append("<h3>Server : ").append(InetAddress.getLocalHost().getHostAddress()).append("</h3>");
-        } catch (UnknownHostException ex) {
-            resp.append("<h3>Server : ").append("Unknown").append("</h3>");
-        }
-
-        List<String> header;
-        if (!headerPairs.isEmpty()) {
-            resp.append("\n\t\t<h2>HEADERS</h2>");
-            for (String h : headerPairs) {
-                header = headers.getRequestHeader(h);
-                for (String hh : header) {
-                    resp.append("\n\t\t<h3> ").append(h).append(" : ").append(hh).append("</h3>");
-                }
-            }
-        }
-        if (!queryParams.isEmpty()) {
-            resp.append("\n\t\t<h2>Query Parameters</h2>");
-            resp.append("\n\t\t<h3>").append(uri.getRequestUri().getQuery()).append("</h3>");
-            for (String q : queryParams) {
-                resp.append("\n\t\t<h3> ").append(q).append(" : ").append(uri.getQueryParameters().get(q)).append("</h3>");
-            }
-        }
-        if (!body.isEmpty()) {
-            resp.append("\n\t\t<h2>Body</h2>");
-            resp.append("\n\t\t\t<h3>").append(body).append("</h3>");
-
-        }
-        
-        resp.append("\n\t</body>\n</html>");
-        
-        return resp.toString();
-    }
-    
-    public Response getEndService(String body, HttpHeaders headers, UriInfo uri) {
-        return getEndService(body, "200", headers, uri);
-    }
-    
-    public Response getEndService(String body, String statusCode, HttpHeaders headers, UriInfo uri) {
-        int status;
-        try {
-            status = Integer.parseInt(statusCode);
-        } catch (NumberFormatException e) {
-            status = 404;
-        }
-        
-        String resp = getEchoBody(body, headers, uri);
-        
-        ResponseBuilder response = Response.status(status);
-        
-        return response.entity(resp.toString()).header("x-request-id", "somevalue").header("Content-Length", resp.length()).build();
-    }
-
-    public Response getAbsoluteLimitsJSON() {
-
-        Limits limits = new Limits();
-        AbsoluteLimitList absList = buildAbsoluteLimits();
-        limits.setAbsolute(absList);
-
-        LimitsEntityTransformer transformer = new LimitsEntityTransformer();
-        return Response.ok(transformer.entityAsJson(limits)).build();
-    }
-
-    public Response getAbsoluteLimitsXML() {
-
-        Limits limits = new Limits();
-        AbsoluteLimitList absList = buildAbsoluteLimits();
-        limits.setAbsolute(absList);
-
-        return Response.ok(factory.createLimits(limits)).build();
-    }
-
-    private AbsoluteLimitList buildAbsoluteLimits() {
-        AbsoluteLimitList limitList = new AbsoluteLimitList();
-
-
-        AbsoluteLimit abs;
-        int value = 20;
-        for (String name : absNames) {
-            abs = new AbsoluteLimit();
-            abs.setName(name);
-            abs.setValue(value -= 5);
-            limitList.getLimit().add(abs);
-        }
-
-        return limitList;
-    }
-
-    public Response getStatusCode(String statusCode) {
-
-        int status;
-        try {
-            status = Integer.parseInt(statusCode);
-        } catch (NumberFormatException e) {
-            status = 404;
-        }
-
-        return Response.status(status).build();
-
-    }
-
-    public Response getStatusCode(String statusCode, String location, String body, HttpHeaders headers, UriInfo uri) throws URISyntaxException {
-
-        int status;
-        try {
-            status = Integer.parseInt(statusCode);
-        } catch (NumberFormatException e) {
-            status = 404;
-        }
-        
-        if (status >= 300 && status < 400) {
-        
-            String resp = getEchoBody(body, headers, uri);
-        
-            URI newLocation = new URI(location);
-
-            return Response.seeOther(newLocation).entity(resp).build();
-        }else if(status == 401){
-            String respBody = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><unauthorized xmlns=\"http://docs.openstack.org/identity/api/v2.0\" "
-                    + "xmlns:ns2=\"http://docs.openstack.org/identity/api/ext/OS-KSADM/v1.0\" "
-                    + "code=\"401\"><message>Unable to authenticate user with credentials provided.</message></unauthorized>";
-            return Response.status(status).entity(respBody).build();
-        }
-
-        return Response.status(status).entity(body).build();
-
-    }
-
-    public Response getDelayedResponse(int time, HttpHeaders headers, UriInfo uri) {
-        int t = time;
-        while (t > 0) {
-            try {
-                Thread.sleep(1000);
-                t--;
-            } catch (InterruptedException e) {
-=======
    private ObjectFactory factory;
    private String[] absNames = {"Admin", "Tech", "Demo"};
 
@@ -198,7 +49,6 @@ public class MockServiceProvider {
             header = headers.getRequestHeader(h);
             for (String hh : header) {
                resp.append("\n\t\t<h3> ").append(h).append(" : ").append(hh).append("</h3>");
->>>>>>> deb0123b260002bacba7f4922f9a3dccaa8fcad8
             }
          }
       }
@@ -364,4 +214,3 @@ public class MockServiceProvider {
       return Response.ok(req.getRemoteAddr()).build();
    }
 }
-
