@@ -137,7 +137,7 @@ public class MockServiceProvider {
 
    }
 
-   public Response getStatusCode(String statusCode, String location, String body, HttpHeaders headers, UriInfo uri) throws URISyntaxException {
+   public Response getStatusCode(String statusCode, String location, HttpHeaders headers, UriInfo uri) throws URISyntaxException {
 
       int status;
       try {
@@ -146,16 +146,16 @@ public class MockServiceProvider {
          status = 404;
       }
 
-      if (status >= 300 && status < 400) {
+      String resp = getEchoBody(new String(), headers, uri);
 
-         String resp = getEchoBody(body, headers, uri);
+      if (status >= 300 && status < 400) {
 
          URI newLocation = new URI(location);
 
          return Response.status(status).header("Location", newLocation).entity(resp).build();
       }
 
-      return Response.status(status).entity(body).build();
+      return Response.status(status).entity(resp).build();
 
    }
 
