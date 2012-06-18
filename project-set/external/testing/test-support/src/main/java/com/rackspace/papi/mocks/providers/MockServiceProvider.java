@@ -9,6 +9,7 @@ import com.rackspace.papi.components.limits.schema.AbsoluteLimitList;
 import com.rackspace.papi.components.limits.schema.Limits;
 import com.rackspace.papi.components.limits.schema.ObjectFactory;
 import com.rackspace.papi.components.ratelimit.util.LimitsEntityTransformer;
+import com.rackspacecloud.docs.auth.api.v1.UnauthorizedFault;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.core.HttpHeaders;
@@ -155,8 +156,48 @@ public class MockServiceProvider {
          return Response.status(status).header("Location", newLocation).entity(resp).build();
       }
 
+      if (status == 401) {
+//         final com.rackspace.api.common.fault.v1.ObjectFactory rax_of = new com.rackspace.api.common.fault.v1.ObjectFactory();
+         final com.rackspacecloud.docs.auth.api.v1.ObjectFactory of = new com.rackspacecloud.docs.auth.api.v1.ObjectFactory();
+
+         UnauthorizedFault fault = new UnauthorizedFault();
+            fault.setCode(Response.Status.UNAUTHORIZED.getStatusCode());
+            fault.setMessage("Beware!  You are unauthorized.");
+            return Response.ok(of.createUnauthorized(fault)).status(Response.Status.UNAUTHORIZED).build();
+      }
+
       return Response.status(status).entity(resp).build();
 
+   }
+
+   public Response postStatusCode(String statusCode, String location, HttpHeaders headers, UriInfo uri) throws URISyntaxException {
+
+      int status;
+      try {
+         status = Integer.parseInt(statusCode);
+      } catch (NumberFormatException e) {
+         status = 404;
+      }
+
+      String resp = getEchoBody(new String(), headers, uri);
+
+      if (status >= 300 && status < 400) {
+
+         URI newLocation = new URI(location);
+
+         return Response.status(status).header("Location", newLocation).entity(resp).build();
+      }
+
+      if (status == 401) {
+         final com.rackspacecloud.docs.auth.api.v1.ObjectFactory of = new com.rackspacecloud.docs.auth.api.v1.ObjectFactory();
+
+         UnauthorizedFault fault = new UnauthorizedFault();
+            fault.setCode(Response.Status.UNAUTHORIZED.getStatusCode());
+            fault.setMessage("Beware!  You are unauthorized.");
+            return Response.ok(of.createUnauthorized(fault)).status(Response.Status.UNAUTHORIZED).build();
+      }
+
+      return Response.status(status).entity(resp).build();
    }
 
    public Response getDelayedResponse(int time, HttpHeaders headers, UriInfo uri) {
