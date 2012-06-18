@@ -113,13 +113,21 @@
                 <stringProp name="HTTPSampler.response_timeout"></stringProp>
                 <stringProp name="HTTPSampler.protocol"></stringProp>
                 <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-                <stringProp name="HTTPSampler.path">statuscode/401</stringProp>
+                <stringProp name="HTTPSampler.path">postcode/401</stringProp>
                 <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
               </ConfigTestElement>
               <hashTree/>
               <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="When origin service returns a 401" enabled="true">
                 <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                  <collectionProp name="Arguments.arguments"/>
+                  <collectionProp name="Arguments.arguments">
+                    <elementProp name="Response Body" elementType="HTTPArgument">
+                      <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                      <stringProp name="Argument.value">Some response body to trigger fixed-length streaming mode in Jersey</stringProp>
+                      <stringProp name="Argument.metadata">=</stringProp>
+                      <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                      <stringProp name="Argument.name">Response Body</stringProp>
+                    </elementProp>
+                  </collectionProp>
                 </elementProp>
                 <stringProp name="HTTPSampler.domain"></stringProp>
                 <stringProp name="HTTPSampler.port"></stringProp>
@@ -128,7 +136,7 @@
                 <stringProp name="HTTPSampler.protocol"></stringProp>
                 <stringProp name="HTTPSampler.contentEncoding"></stringProp>
                 <stringProp name="HTTPSampler.path"></stringProp>
-                <stringProp name="HTTPSampler.method">GET</stringProp>
+                <stringProp name="HTTPSampler.method">POST</stringProp>
                 <boolProp name="HTTPSampler.follow_redirects">false</boolProp>
                 <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
                 <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
