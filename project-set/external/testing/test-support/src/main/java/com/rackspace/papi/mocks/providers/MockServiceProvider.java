@@ -197,6 +197,15 @@ public class MockServiceProvider {
             return Response.ok(of.createUnauthorized(fault)).status(Response.Status.UNAUTHORIZED).build();
       }
 
+      if (status == 404) {
+         final com.rackspacecloud.docs.auth.api.v1.ObjectFactory of = new com.rackspacecloud.docs.auth.api.v1.ObjectFactory();
+
+         UnauthorizedFault fault = new UnauthorizedFault();
+            fault.setCode(Response.Status.NOT_FOUND.getStatusCode());
+            fault.setMessage("Dude, I'd love to help you but I can't find what you're looking for.");
+            return Response.ok(of.createUnauthorized(fault)).status(Response.Status.NOT_FOUND).build();
+      }
+
       return Response.status(status).entity(resp).build();
    }
 
