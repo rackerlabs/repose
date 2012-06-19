@@ -2,11 +2,11 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
    <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>com.rackspace.papi.core</groupId>
-        <artifactId>core-support</artifactId>
-        <version>2.1.4-SNAPSHOT</version>
-    </parent>
+   <parent>
+      <groupId>com.rackspace.papi.core</groupId>
+      <artifactId>core-support</artifactId>
+      <version>2.1.4-SNAPSHOT</version>
+   </parent>
 
    <groupId>com.rackspace.papi.core</groupId>
    <artifactId>core-lib</artifactId>
@@ -63,10 +63,16 @@
       </dependency>
       
       <dependency>
-          <groupId>com.ning</groupId>
-          <artifactId>async-http-client</artifactId>
-          <version>1.7.5</version>
+         <groupId>com.ning</groupId>
+         <artifactId>async-http-client</artifactId>
+         <version>1.7.5</version>
          <type>jar</type>
+      </dependency>
+      
+      <dependency>
+         <groupId>org.apache.httpcomponents</groupId>
+         <artifactId>httpclient</artifactId>
+         <version>4.2</version>
       </dependency>
       
       <!-- Required for @Configuration annotation -->
