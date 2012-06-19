@@ -11,7 +11,6 @@ import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
 import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
 import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
-import com.rackspace.papi.service.proxy.jersey.RequestProxyServiceImpl;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

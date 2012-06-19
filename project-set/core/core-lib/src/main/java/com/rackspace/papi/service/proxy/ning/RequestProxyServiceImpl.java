@@ -133,13 +133,13 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
     @Override
     public ServiceClientResponse get(String baseUri, String extraUri, Map<String, String> headers) {
-        BoundRequestBuilder builder = getClient().prepareGet(StringUriUtilities.concatUris(baseUri, extraUri));
+        BoundRequestBuilder builder = getClient().prepareGet(StringUriUtilities.appendPath(baseUri, extraUri));
         return executeRequest(setHeader(builder, headers));
     }
 
     @Override
     public ServiceClientResponse delete(String baseUri, String extraUri, Map<String, String> headers) {
-        BoundRequestBuilder builder = getClient().prepareDelete(StringUriUtilities.concatUris(baseUri, extraUri));
+        BoundRequestBuilder builder = getClient().prepareDelete(StringUriUtilities.appendPath(baseUri, extraUri));
         return executeRequest(setHeader(builder, headers));
     }
 
@@ -151,7 +151,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
     @Override
     public ServiceClientResponse put(String baseUri, String path, Map<String, String> headers, byte[] body) {
-        BoundRequestBuilder builder = getClient().preparePut(StringUriUtilities.concatUris(baseUri, path));
+        BoundRequestBuilder builder = getClient().preparePut(StringUriUtilities.appendPath(baseUri, path));
         return executeRequest(setHeader(builder.setBody(body), headers));
     }
 }

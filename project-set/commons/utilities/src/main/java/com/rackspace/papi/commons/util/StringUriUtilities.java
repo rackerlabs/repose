@@ -26,6 +26,19 @@ public final class StringUriUtilities {
         return index;
     }
 
+    public static String appendPath(String baseUrl, String... paths) {
+       String path = concatUris(paths);
+       if (StringUtilities.isBlank(path)) {
+          return baseUrl;
+       }
+       
+       if (baseUrl.endsWith("/")) {
+          baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+       }
+       
+       return baseUrl + path;
+    }
+    
     public static String concatUris(String... uris) {
         StringBuilder builder = new StringBuilder();
 
