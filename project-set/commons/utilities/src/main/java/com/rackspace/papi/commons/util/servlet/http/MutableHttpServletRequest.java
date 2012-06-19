@@ -40,11 +40,9 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
         headers = new HashMap<String, List<String>>();
         destinations = new ArrayList<RouteDestination>();
         queryParameter = new LinkedHashMap<String, String[]>();
-
+        
         copyHeaders(request);
-        if (!request.getParameterMap().isEmpty()) {
-            copyParameters(request);
-        }
+        copyParameters(request);
     }
 
     public void addDestination(String id, String uri, float quality) {
@@ -80,6 +78,12 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
     @Override
     public Map<String, String[]> getParameterMap() {
         return queryParameter;
+    }
+    
+    @Override
+    public String getParameter(String name) {
+        String[] values = queryParameter.get(name);
+        return values != null && values.length > 0? values[0]: null;
     }
 
     @Override

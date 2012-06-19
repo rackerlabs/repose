@@ -62,6 +62,13 @@
          <artifactId>spring-context</artifactId>
       </dependency>
       
+      <dependency>
+          <groupId>com.ning</groupId>
+          <artifactId>async-http-client</artifactId>
+          <version>1.7.5</version>
+         <type>jar</type>
+      </dependency>
+      
       <!-- Required for @Configuration annotation -->
       <dependency>
          <groupId>cglib</groupId>

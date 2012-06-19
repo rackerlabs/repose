@@ -4,6 +4,7 @@ import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.http.proxy.HttpException;
 import com.rackspace.papi.http.proxy.common.HttpResponseCodeProcessor;
 import com.rackspace.papi.service.proxy.RequestProxyService;
+import com.rackspace.papi.service.proxy.TargetHostInfo;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -23,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-@Component("requestProxyService")
+@Component("xrequestProxyService")
 public class RequestProxyServiceImpl implements RequestProxyService {
 
     private static final Integer DEFAULT_THREADPOOL_SIZE = 20;
@@ -52,43 +53,6 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         }
     }
 
-    private static class TargetHostInfo {
-
-        private final URI proxiedHostUri;
-        private final URL proxiedHostUrl;
-
-        public TargetHostInfo(String targetHost) {
-            URI targetUri = null;
-
-            try {
-                targetUri = new URI(targetHost);
-            } catch (URISyntaxException e) {
-                LOG.error("Invalid target host url: " + targetHost, e);
-            }
-
-            proxiedHostUri = targetUri;
-            proxiedHostUrl = asUri(proxiedHostUri);
-
-        }
-
-        private URL asUri(URI host) {
-            try {
-                return new URL(host.getScheme(), host.getHost(), host.getPort(), "");
-            } catch (MalformedURLException ex) {
-                LOG.error("Invalid host url: " + host, ex);
-            }
-            return null;
-        }
-
-        public URI getProxiedHostUri() {
-            return proxiedHostUri;
-        }
-
-        public URL getProxiedHostUrl() {
-            return proxiedHostUrl;
-        }
-    }
-    
     private ClientWrapper getClient() {
         synchronized (clientLock) {
             if (client == null) {
