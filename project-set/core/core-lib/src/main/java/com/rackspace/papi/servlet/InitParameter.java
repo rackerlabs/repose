@@ -25,7 +25,8 @@ public enum InitParameter {
     POWER_API_CONFIG_DIR("powerapi-config-directory"),
     PORT("repose-bound-port"),
     CONNECTION_TIMEOUT("connection-timeout"),
-    READ_TIMEOUT("read-timeout");
+    READ_TIMEOUT("read-timeout"),
+    CONNECTION_FRAMEWORK("connection-framework");
 
     private final String initParameterName;
 

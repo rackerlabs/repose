@@ -9,9 +9,11 @@ import com.rackspace.papi.service.proxy.RequestProxyService;
 import javax.servlet.ServletContextEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component("requestProxyServiceContext")
+@Lazy(true)
 public class RequestProxyServiceContext implements ServiceContext<RequestProxyService> {
 
     public static final String SERVICE_NAME = "powerapi:/services/proxy";

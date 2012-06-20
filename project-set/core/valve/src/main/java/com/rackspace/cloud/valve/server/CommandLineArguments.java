@@ -25,6 +25,10 @@ public class CommandLineArguments {
            usage = "The location of the Repose configuration file")
    private String configDirectory;
 
+   @Option(name = "-cf", aliases = {"--connection-framework"},
+           usage = "The http connection framework. Available values are jersey, ning, apache.")
+   private String connectionFramework;
+   
    @Argument(usage = "Action to take - start | stop", required = true)
    private String action = ACTION_START;
 
@@ -66,5 +70,13 @@ public class CommandLineArguments {
 
    public void setAction(String action) {
       this.action = action;
+   }
+
+   public String getConnectionFramework() {
+      return connectionFramework;
+   }
+
+   public void setConnectionFramework(String connectionFramework) {
+      this.connectionFramework = connectionFramework;
    }
 }

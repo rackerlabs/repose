@@ -84,7 +84,7 @@ public class PowerApiValveServerControl {
       
       try {
 
-         serverInstance = new ValveJettyServerBuilder(commandLineArgs.getConfigDirectory(), ports, validateSsl()).newServer();
+         serverInstance = new ValveJettyServerBuilder(commandLineArgs.getConfigDirectory(), ports, validateSsl(), commandLineArgs.getConnectionFramework()).newServer();
          serverInstance.setStopAtShutdown(true);
          serverInstance.start();
          final Thread monitor = new MonitorThread(serverInstance, commandLineArgs.getStopPort(), LOCALHOST_IP);
