@@ -25,7 +25,7 @@ public class PowerApiContextManager implements ServletContextListener {
 
    private static final Logger LOG = LoggerFactory.getLogger(PowerApiContextManager.class);
    private static final String DEFAULT_CONNECTION_FRAMEWORK = "jerseyRequestProxyService";
-   private ApplicationContext applicationContext;
+   private AnnotationConfigApplicationContext applicationContext;
    private ServicePorts ports;
 
    public PowerApiContextManager() {
@@ -74,10 +74,10 @@ public class PowerApiContextManager implements ServletContextListener {
       applicationContext = new AnnotationConfigApplicationContext(SpringConfiguration.class);
       if (StringUtilities.isNotBlank(beanName) && applicationContext.containsBean(beanName)) {
          LOG.info("Using connection framework: " + beanName);
-         ((AliasRegistry) applicationContext).registerAlias(beanName, "requestProxyService");
+         applicationContext.registerAlias(beanName, "requestProxyService");
       } else {
          LOG.info("Using default connection framework: " + DEFAULT_CONNECTION_FRAMEWORK);
-         ((AliasRegistry) applicationContext).registerAlias(DEFAULT_CONNECTION_FRAMEWORK, "requestProxyService");
+         applicationContext.registerAlias(DEFAULT_CONNECTION_FRAMEWORK, "requestProxyService");
       }
       
       setPorts(ports);
