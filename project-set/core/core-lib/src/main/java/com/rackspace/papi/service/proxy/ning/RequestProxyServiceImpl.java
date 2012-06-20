@@ -73,6 +73,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private AsyncHttpClient getClient() {
         synchronized (clientLock) {
             if (client == null) {
+                LOG.info("Building Ning Async Http Client");
                 Builder builder = new AsyncHttpClientConfig.Builder();
                 builder.setRequestTimeoutInMs(readTimeout);
                 builder.setConnectionTimeoutInMs(connectionTimeout);

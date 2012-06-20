@@ -51,6 +51,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private ClientWrapper getClient() {
         synchronized (clientLock) {
             if (client == null) {
+                LOG.info("Building Jersey Http Client");
                 JerseyPropertiesConfigurator jerseyPropertiesConfigurator = new JerseyPropertiesConfigurator(connectionTimeout, readTimeout, proxyThreadPool, true);
                 URLConnectionClientHandler urlConnectionClientHandler = new URLConnectionClientHandler(new ReposeHttpUrlConnectionFactory());                
                 client = new ClientWrapper(new Client(urlConnectionClientHandler, jerseyPropertiesConfigurator.configure()), requestLogging);
