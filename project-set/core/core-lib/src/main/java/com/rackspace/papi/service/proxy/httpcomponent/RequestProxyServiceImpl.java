@@ -4,7 +4,6 @@ import com.rackspace.papi.commons.util.StringUriUtilities;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.http.proxy.HttpException;
-import com.rackspace.papi.service.proxy.ProxyUtilities;
 import com.rackspace.papi.service.proxy.RequestProxyService;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -12,7 +11,6 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
-import javax.net.ssl.SSLContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.http.HttpEntity;
@@ -24,9 +22,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIUtils;
-import org.apache.http.conn.scheme.Scheme;
-import org.apache.http.conn.scheme.SchemeRegistry;
-import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.impl.conn.PoolingClientConnectionManager;
@@ -60,6 +55,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
    private HttpClient getClient() {
       synchronized (clientLock) {
          if (client == null) {
+            LOG.info("Building Apache Components Http v4 Client");
             manager = new PoolingClientConnectionManager();
             manager.setMaxTotal(proxyThreadPool);
             manager.setDefaultMaxPerRoute(proxyThreadPool);
