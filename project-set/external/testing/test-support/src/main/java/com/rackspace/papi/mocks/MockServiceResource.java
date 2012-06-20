@@ -30,7 +30,7 @@ public class MockServiceResource {
    public Response postStatusCode(@PathParam("statusCode") String statusCode, String body, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
       URI uri = uriInfo.getAbsolutePath();
 
-      return provider.postStatusCode(statusCode, uri.toURL().toExternalForm().replaceAll("/statuscode/", "/"), headers, uriInfo);
+      return provider.postStatusCode(body, statusCode, uri.toURL().toExternalForm().replaceAll("/statuscode/", "/"), headers, uriInfo);
    }
 
    @GET
@@ -44,13 +44,13 @@ public class MockServiceResource {
    @GET
    @Path("{id : .*}")
    public Response getEndService(@Context HttpHeaders headers, @Context UriInfo uri) {
-      return provider.getEndService(new String(), headers, uri);
+      return provider.getEndService("", headers, uri);
    }
 
    @GET
    @Path("/")
    public Response getService(@Context HttpHeaders headers, @Context UriInfo uri) {
-      return provider.getEndService(new String(), headers, uri);
+      return provider.getEndService("", headers, uri);
    }
 
    @POST

@@ -27,6 +27,8 @@ public class MockServiceProvider {
 
    private ObjectFactory factory;
    private String[] absNames = {"Admin", "Tech", "Demo"};
+   private static final int THREE_HUNDRED = 300;
+   private static final int FOUR_HUNDRED = 400;
 
    public MockServiceProvider() {
       factory = new ObjectFactory();
@@ -80,7 +82,8 @@ public class MockServiceProvider {
       try {
          status = Integer.parseInt(statusCode);
       } catch (NumberFormatException e) {
-         status = 404;
+
+         status = Response.Status.NOT_FOUND.getStatusCode();
       }
 
       String resp = getEchoBody(body, headers, uri);
@@ -125,39 +128,25 @@ public class MockServiceProvider {
       return limitList;
    }
 
-   public Response getStatusCode(String statusCode) {
-
-      int status;
-      try {
-         status = Integer.parseInt(statusCode);
-      } catch (NumberFormatException e) {
-         status = 404;
-      }
-
-      return Response.status(status).build();
-
-   }
-
    public Response getStatusCode(String statusCode, String location, HttpHeaders headers, UriInfo uri) throws URISyntaxException {
 
       int status;
       try {
          status = Integer.parseInt(statusCode);
       } catch (NumberFormatException e) {
-         status = 404;
+         status = Response.Status.NOT_FOUND.getStatusCode();
       }
 
-      String resp = getEchoBody(new String(), headers, uri);
+      String resp = getEchoBody("", headers, uri);
 
-      if (status >= 300 && status < 400) {
+      if (status >= THREE_HUNDRED && status < FOUR_HUNDRED) {
 
          URI newLocation = new URI(location);
 
          return Response.status(status).header("Location", newLocation).entity(resp).build();
       }
 
-      if (status == 401) {
-//         final com.rackspace.api.common.fault.v1.ObjectFactory rax_of = new com.rackspace.api.common.fault.v1.ObjectFactory();
+      if (status == Response.Status.UNAUTHORIZED.getStatusCode()) {
          final com.rackspacecloud.docs.auth.api.v1.ObjectFactory of = new com.rackspacecloud.docs.auth.api.v1.ObjectFactory();
 
          UnauthorizedFault fault = new UnauthorizedFault();
@@ -170,25 +159,25 @@ public class MockServiceProvider {
 
    }
 
-   public Response postStatusCode(String statusCode, String location, HttpHeaders headers, UriInfo uri) throws URISyntaxException {
+   public Response postStatusCode(String body, String statusCode, String location, HttpHeaders headers, UriInfo uri) throws URISyntaxException {
 
       int status;
       try {
          status = Integer.parseInt(statusCode);
       } catch (NumberFormatException e) {
-         status = 404;
+         status = Response.Status.NOT_FOUND.getStatusCode();
       }
 
-      String resp = getEchoBody(new String(), headers, uri);
+      String resp = getEchoBody(body, headers, uri);
 
-      if (status >= 300 && status < 400) {
+      if (status >= THREE_HUNDRED && status < FOUR_HUNDRED) {
 
          URI newLocation = new URI(location);
 
          return Response.status(status).header("Location", newLocation).entity(resp).build();
       }
 
-      if (status == 401) {
+      if (status == Response.Status.UNAUTHORIZED.getStatusCode()) {
          final com.rackspacecloud.docs.auth.api.v1.ObjectFactory of = new com.rackspacecloud.docs.auth.api.v1.ObjectFactory();
 
          UnauthorizedFault fault = new UnauthorizedFault();
@@ -197,7 +186,7 @@ public class MockServiceProvider {
             return Response.ok(of.createUnauthorized(fault)).status(Response.Status.UNAUTHORIZED).build();
       }
 
-      if (status == 404) {
+      if (status == Response.Status.NOT_FOUND.getStatusCode()) {
          final com.rackspacecloud.docs.auth.api.v1.ObjectFactory of = new com.rackspacecloud.docs.auth.api.v1.ObjectFactory();
 
          UnauthorizedFault fault = new UnauthorizedFault();
