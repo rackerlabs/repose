@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://openrepose.org/repose/xsd-validator/v1.0"
+           xmlns:scr="http://openrepose.org/repose/xsd-validator/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Configuration Schema Definitions -->
+    <xs:element name="xsd-validator" type="scr:XsdValidatorConfiguration" />
+
+    <xs:complexType name="XsdValidatorConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+    </xs:complexType>
+</xs:schema>
