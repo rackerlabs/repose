@@ -85,6 +85,7 @@ public class MockServiceProvider {
 
          status = Response.Status.NOT_FOUND.getStatusCode();
       }
+      
 
       String resp = getEchoBody(body, headers, uri);
 
@@ -202,14 +203,14 @@ public class MockServiceProvider {
       int t = time;
       while (t > 0) {
          try {
-            Thread.sleep(1000);
+            Thread.sleep(1);
             t--;
          } catch (InterruptedException e) {
          }
 
       }
       StringBuilder body = new StringBuilder("Response delayed by ");
-      body.append(time).append(" seconds");
+      body.append(time).append(" milliseconds");
       return this.getEndService(body.toString(), headers, uri);
    }
 
