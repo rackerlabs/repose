@@ -4,6 +4,7 @@ import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpDate;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.components.limits.schema.HttpMethod;
 import com.rackspace.papi.components.ratelimit.cache.NextAvailableResponse;
 import com.rackspace.papi.components.ratelimit.cache.RateLimitCache;
 import com.rackspace.papi.components.ratelimit.config.ConfiguredLimitGroup;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -60,11 +62,15 @@ public class RateLimiter extends RateLimitingOperation {
          final Matcher uriMatcher = p.matcher(requestUri);
 
          // Did we find a limit that matches the current request?
-         if (uriMatcher.matches() && rateLimit.getHttpMethods().contains(requestInfo.getRequestMethod())) {
+         if (uriMatcher.matches() && httpMethodMatches(rateLimit.getHttpMethods(), requestInfo.getRequestMethod())) {
             handleRateLimit(requestInfo, uriMatcher, rateLimit, filterDirector);
             return;
          }
       }
+   }
+
+   private boolean httpMethodMatches(List<HttpMethod> configMethods, HttpMethod requestMethod) {
+      return (configMethods.contains(HttpMethod.ALL) || configMethods.contains(requestMethod));
    }
 
    private Pattern getPattern(String appliedRatesId, ConfiguredRatelimit rateLimit) {
@@ -105,7 +111,7 @@ public class RateLimiter extends RateLimitingOperation {
 
       // Get the next, shortest available time that a user has to wait for
       try {
-         final NextAvailableResponse nextAvailable = cache.updateLimit(requestInfo.getRequestMethod(), requestInfo.getUserName().getValue(), cacheIdBuffer.toString(), rateLimit);
+         final NextAvailableResponse nextAvailable = cache.updateLimit(getHttpMethod(requestInfo.getRequestMethod(), rateLimit.getHttpMethods()), requestInfo.getUserName().getValue(), cacheIdBuffer.toString(), rateLimit);
 
          if (!nextAvailable.hasRequestsRemaining()) {
             prepareNextAvailableResponse(nextAvailable, filterDirector);
@@ -122,6 +128,10 @@ public class RateLimiter extends RateLimitingOperation {
          filterDirector.setFilterAction(FilterAction.RETURN);
          filterDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
       }
+   }
+
+   private HttpMethod getHttpMethod(HttpMethod requestHttpMethod, List<HttpMethod> configuredHttpMethod) {
+      return configuredHttpMethod.contains(HttpMethod.ALL) ? HttpMethod.ALL : requestHttpMethod;
    }
 
    private void prepareNextAvailableResponse(NextAvailableResponse nextAvailable, FilterDirector filterDirector) {
