@@ -72,7 +72,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             WebResource resource = getClient().resource(target);
             WebResource.Builder builder = processor.process(resource);
             return executeProxyRequest(host, builder, request, response);
-        } catch (Exception ex) {
+        } catch (HttpException ex) {
             LOG.error("Error processing request", ex);
             MutableHttpServletResponse mutableResponse = (MutableHttpServletResponse) response;
             mutableResponse.setLastException(ex);
