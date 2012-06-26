@@ -5,9 +5,17 @@
         <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
+    <servlet>
+        <servlet-name>ErrorServlet</servlet-name>
+        <servlet-class>com.rackspace.papi.mocks.ErrorServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>ServletAdapter</servlet-name>
         <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ErrorServlet</servlet-name>
+        <url-pattern>/ErrorServlet/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

@@ -19,7 +19,8 @@ public enum LogFormatArgument {
    URL_REQUESTED("U"),
    REQUEST_HEADER("i"),
    RESPONSE_HEADER("o"),
-   STRING("STRING");
+   STRING("STRING"),
+   ERROR_MESSAGE("M");
 
    public static LogFormatArgument fromString(String st) {
       return ReverseLookup.LOOKUP_MAP.get(st);

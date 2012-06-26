@@ -67,10 +67,12 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         final String target = host.getProxiedHostUrl().toExternalForm() + request.getRequestURI();
 
         JerseyRequestProcessor processor = new JerseyRequestProcessor(request, host.getProxiedHostUri());
-        WebResource resource = getClient().resource(target);
-        WebResource.Builder builder = processor.process(resource);
         try {
+            WebResource resource = getClient().resource(target);
+            WebResource.Builder builder = processor.process(resource);
             return executeProxyRequest(host, builder, request, response);
+        } catch (RuntimeException ex) {
+            LOG.error("Error processing request", ex);
         } catch (HttpException ex) {
             LOG.error("Error processing request", ex);
         }

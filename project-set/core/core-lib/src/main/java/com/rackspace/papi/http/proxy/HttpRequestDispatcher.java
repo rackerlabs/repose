@@ -1,5 +1,6 @@
 package com.rackspace.papi.http.proxy;
 
+import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.service.proxy.RequestProxyService;
 
 import javax.servlet.RequestDispatcher;
@@ -45,7 +46,11 @@ public class HttpRequestDispatcher implements RequestDispatcher {
             LOG.warn("Request Proxy Service is not set... ignoring request");
             return;
         }
-        proxyService.proxyRequest(targetHost, (HttpServletRequest) request, (HttpServletResponse) response);
+        int status = proxyService.proxyRequest(targetHost, (HttpServletRequest) request, (HttpServletResponse) response);
+        if (status < 0) {
+            HttpServletResponse httpResponse = (HttpServletResponse)response;
+            httpResponse.sendError(HttpStatusCode.BAD_GATEWAY.intValue(), "Error processing request");
+        }
     }
 
     @Override

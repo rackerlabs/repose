@@ -117,6 +117,9 @@ public class HttpLogFormatter {
          case STRING:
             formatter.setLogic(new StringHandler(extractor.getVariable()));
             break;
+         case ERROR_MESSAGE:
+            formatter.setLogic(new ResponseMessageHandler());
+            break;
       }
    }
 

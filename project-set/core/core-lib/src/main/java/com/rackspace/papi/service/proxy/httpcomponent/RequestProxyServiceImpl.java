@@ -24,6 +24,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.params.ClientPNames;
+import org.apache.http.client.protocol.RequestAcceptEncoding;
+import org.apache.http.client.protocol.ResponseContentEncoding;
 import org.apache.http.client.utils.URIUtils;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
@@ -45,7 +47,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
    private Integer connectionTimeout = Integer.valueOf(0);
    private Integer readTimeout = Integer.valueOf(0);
    private PoolingClientConnectionManager manager;
-   private HttpClient client;
+   private DefaultHttpClient client;
    private Integer proxyThreadPool;
 
    private HttpHost getProxiedHost(String targetHost) throws HttpException {
@@ -71,6 +73,8 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             Scheme scheme = new Scheme("https", 443, ssf);
             registry.register(scheme);
             client = new DefaultHttpClient(manager);
+            //client.addResponseInterceptor(new ResponseContentEncoding());
+            //client.addRequestInterceptor(new RequestAcceptEncoding());
             client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, false);
             client.getParams().setIntParameter(CoreConnectionPNames.SO_TIMEOUT, readTimeout);
             client.getParams().setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, connectionTimeout);

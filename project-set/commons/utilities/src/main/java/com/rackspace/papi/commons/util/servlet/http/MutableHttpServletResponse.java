@@ -23,6 +23,8 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
    private final ByteBuffer internalBuffer;
    private final ServletOutputStream outputStream;
    private final PrintWriter outputStreamWriter;
+   private boolean error = false;
+   private String message;
 
    private MutableHttpServletResponse(HttpServletResponse response) {
       super(response);
@@ -93,5 +95,26 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
    @Override
    public PrintWriter getWriter() throws IOException {
       return outputStreamWriter;
+   }
+   
+   @Override
+   public void sendError(int code) throws IOException {
+       super.setStatus(code);
+       error = true;
+   }
+   
+   @Override
+   public void sendError(int code, String message) {
+       super.setStatus(code);
+       this.message = message;
+       error = true;
+   }
+   
+   public boolean isError() {
+       return error;
+   }
+   
+   public String getMessage() {
+       return message;
    }
 }
