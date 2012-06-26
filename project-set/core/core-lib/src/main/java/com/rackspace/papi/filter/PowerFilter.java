@@ -145,6 +145,10 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
       try {
          requestFilterChainState.startFilterChain(mutableHttpRequest, mutableHttpResponse);
+      } catch (RuntimeException ex) {
+         mutableHttpResponse.setStatus(HttpStatusCode.BAD_GATEWAY.intValue());
+
+         LOG.error("Exception encountered while processing filter chain. Reason: " + ex.getMessage(), ex);
       } catch (Exception ex) {
          mutableHttpResponse.setStatus(HttpStatusCode.BAD_GATEWAY.intValue());
 
