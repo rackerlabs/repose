@@ -111,15 +111,17 @@ public class RateLimiter extends RateLimitingOperation {
 
       // Get the next, shortest available time that a user has to wait for
       try {
-         final NextAvailableResponse nextAvailable = cache.updateLimit(getHttpMethod(requestInfo.getRequestMethod(), rateLimit.getHttpMethods()), requestInfo.getUserName().getValue(), cacheIdBuffer.toString(), rateLimit);
+         for (HttpMethod configuredMethod : rateLimit.getHttpMethods()) {
+            final NextAvailableResponse nextAvailable = cache.updateLimit(configuredMethod, requestInfo.getUserName().getValue(), cacheIdBuffer.toString(), rateLimit);
 
-         if (!nextAvailable.hasRequestsRemaining()) {
-            prepareNextAvailableResponse(nextAvailable, filterDirector);
-            
-            final UserIdentificationSanitizer sanitizer = new UserIdentificationSanitizer(requestInfo);
-            LOG.info("Rate limiting user " + sanitizer.getUserIdentification() + " at limit amount " + nextAvailable.getCurrentLimitAmount() + ".");
-            LOG.info("User rate limited for request " + requestInfo.getRequestMethod().value() + " " + requestInfo.getRequest().getRequestURL() + ".");
-            LOG.info("Configured rate limit is: " + rateLimit.toString());
+            if (!nextAvailable.hasRequestsRemaining()) {
+               prepareNextAvailableResponse(nextAvailable, filterDirector);
+
+               final UserIdentificationSanitizer sanitizer = new UserIdentificationSanitizer(requestInfo);
+               LOG.info("Rate limiting user " + sanitizer.getUserIdentification() + " at limit amount " + nextAvailable.getCurrentLimitAmount() + ".");
+               LOG.info("User rate limited for request " + requestInfo.getRequestMethod().value() + " " + requestInfo.getRequest().getRequestURL() + ".");
+               LOG.info("Configured rate limit is: " + rateLimit.toString());
+            }
          }
       } catch (IOException ioe) {
          LOG.error("IOException caught during cache commit for rate limit user: " + requestInfo.getUserName()
@@ -128,10 +130,6 @@ public class RateLimiter extends RateLimitingOperation {
          filterDirector.setFilterAction(FilterAction.RETURN);
          filterDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
       }
-   }
-
-   private HttpMethod getHttpMethod(HttpMethod requestHttpMethod, List<HttpMethod> configuredHttpMethod) {
-      return configuredHttpMethod.contains(HttpMethod.ALL) ? HttpMethod.ALL : requestHttpMethod;
    }
 
    private void prepareNextAvailableResponse(NextAvailableResponse nextAvailable, FilterDirector filterDirector) {

@@ -19,6 +19,7 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -40,16 +41,22 @@ public class RateLimiterTest extends RateLimitingTestSupport {
       @Before
       public void standUp() throws Exception {
          cacheMock = mock(RateLimitCache.class);
+
+         cfg = defaultRateLimitingConfiguration();
+      }
+
+      private void mockLimits() throws IOException {
          when(cacheMock.updateLimit(eq(HttpMethod.GET), anyString(), anyString(), any(ConfiguredRatelimit.class))).thenReturn(new NextAvailableResponse(true, Calendar.getInstance().getTime(), 1));
          when(cacheMock.updateLimit(eq(HttpMethod.PUT), anyString(), anyString(), any(ConfiguredRatelimit.class))).thenReturn(new NextAvailableResponse(false, Calendar.getInstance().getTime(), 1));
          when(cacheMock.updateLimit(eq(HttpMethod.POST), anyString(), anyString(), any(ConfiguredRatelimit.class))).thenReturn(new NextAvailableResponse(false, Calendar.getInstance().getTime(), 1));
 
-         cfg = defaultRateLimitingConfiguration();
          rateLimiter = new RateLimiter(cacheMock, newRegexCache(cfg.getLimitGroup()), cfg);
       }
 
       @Test
       public void shouldPassWhenRequestRemain() throws Exception {
+         mockLimits();
+
          final RateLimitingRequestInfo requestInfo = mock(RateLimitingRequestInfo.class);
          final HttpServletRequest servletRequest = mock(HttpServletRequest.class);
          final List headers = new ArrayList<HeaderValue>();
@@ -71,6 +78,8 @@ public class RateLimiterTest extends RateLimitingTestSupport {
 
       @Test
       public void shouldRejectLimitedRequestWithDelegationDisabled() throws Exception {
+         mockLimits();
+
          final RateLimitingRequestInfo requestInfo = mock(RateLimitingRequestInfo.class);
          final HttpServletRequest servletRequest = mock(HttpServletRequest.class);
          final List headers = new ArrayList<HeaderValue>();
@@ -95,6 +104,8 @@ public class RateLimiterTest extends RateLimitingTestSupport {
 
       @Test
       public void shouldPassLimitedRequestWithDelegationEnabled() throws Exception {
+         mockLimits();
+
          cfg.setDelegation(Boolean.TRUE);
          rateLimiter = new RateLimiter(cacheMock, newRegexCache(cfg.getLimitGroup()), cfg);
          
