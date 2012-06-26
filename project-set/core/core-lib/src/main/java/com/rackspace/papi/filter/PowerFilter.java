@@ -140,9 +140,6 @@ public class PowerFilter extends ApplicationContextAwareFilter {
       final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
       final PowerFilterChain requestFilterChainState = powerFilterChainBuilder.newPowerFilterChain(chain, filterConfig.getServletContext());
 
-      // TODO:Review - Should this be set for all filters regardless of what they return?
-//      mutableHttpResponse.setHeader(CommonHttpHeader.CONTENT_TYPE.toString(), mutableHttpRequest.getHeader(CommonHttpHeader.ACCEPT.toString()));
-
       try {
          requestFilterChainState.startFilterChain(mutableHttpRequest, mutableHttpResponse);
       } catch (Exception ex) {

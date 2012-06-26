@@ -167,7 +167,7 @@ public class PowerFilterChain implements FilterChain {
                 route(servletRequest, servletResponse);
             } catch (Exception ex) {
                 LOG.error("Failure in filter within container filter chain. Reason: " + ex.getMessage(), ex);
-                mutableHttpResponse.sendError(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), "Error routing request");
+                mutableHttpResponse.setStatus(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue());
                 mutableHttpResponse.setLastException(ex);
             } finally {
                 currentThread.setContextClassLoader(previousClassLoader);

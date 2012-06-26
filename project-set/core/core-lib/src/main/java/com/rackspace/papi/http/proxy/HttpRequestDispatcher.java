@@ -36,7 +36,7 @@ public class HttpRequestDispatcher implements RequestDispatcher {
         int status = proxyService.proxyRequest(targetHost, (HttpServletRequest) request, (HttpServletResponse) response);
         if (status < 0) {
             HttpServletResponse httpResponse = (HttpServletResponse)response;
-            httpResponse.sendError(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), "Error processing request");
+            httpResponse.setStatus(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue());
         }
     }
 
