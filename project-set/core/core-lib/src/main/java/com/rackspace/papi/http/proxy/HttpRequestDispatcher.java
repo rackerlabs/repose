@@ -22,22 +22,9 @@ public class HttpRequestDispatcher implements RequestDispatcher {
     private final RequestProxyService proxyService;
     private final String targetHost;
 
-    /*
-    public HttpRequestDispatcher(String targetHost, Integer connectionTimeout, Integer readTimeout) {
-        //proxyService = new HttpClientProxyService(targetHost);    // Http Client 3.1
-        //proxyService = new HttpComponentProxyService(targetHost); // Http Client 4.1
-        this.targetHost = targetHost;
-        proxyService = new JerseyClientProxyService(targetHost, connectionTimeout, readTimeout);
-    }
-    * 
-    */
-
     public HttpRequestDispatcher(RequestProxyService proxyService, String targetHost) {
-        //proxyService = new HttpClientProxyService(targetHost);    // Http Client 3.1
-        //proxyService = new HttpComponentProxyService(targetHost); // Http Client 4.1
         this.targetHost = targetHost;
         this.proxyService = proxyService;
-        //proxyService = new JerseyClientProxyService(targetHost, connectionTimeout, readTimeout);
     }
 
     @Override
