@@ -1,6 +1,7 @@
 package com.rackspace.papi.service.proxy.jersey;
 
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.http.proxy.HttpException;
 import com.rackspace.papi.http.proxy.common.HttpResponseCodeProcessor;
 import com.rackspace.papi.service.proxy.RequestProxyService;
@@ -71,10 +72,10 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             WebResource resource = getClient().resource(target);
             WebResource.Builder builder = processor.process(resource);
             return executeProxyRequest(host, builder, request, response);
-        } catch (RuntimeException ex) {
+        } catch (Exception ex) {
             LOG.error("Error processing request", ex);
-        } catch (HttpException ex) {
-            LOG.error("Error processing request", ex);
+            MutableHttpServletResponse mutableResponse = (MutableHttpServletResponse) response;
+            mutableResponse.setLastException(ex);
         }
 
         return -1;

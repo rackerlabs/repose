@@ -24,6 +24,7 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
    private final ServletOutputStream outputStream;
    private final PrintWriter outputStreamWriter;
    private boolean error = false;
+   private Throwable exception;
    private String message;
 
    private MutableHttpServletResponse(HttpServletResponse response) {
@@ -116,5 +117,14 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
    
    public String getMessage() {
        return message;
+   }
+   
+   public void setLastException(Throwable exception) {
+       this.error = true;
+       this.exception = exception;
+   }
+   
+   public Throwable getLastException() {
+       return exception;
    }
 }

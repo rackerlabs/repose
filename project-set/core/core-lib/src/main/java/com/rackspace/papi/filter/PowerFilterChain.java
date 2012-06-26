@@ -154,8 +154,8 @@ public class PowerFilterChain implements FilterChain {
                 nextFilterContext.getFilter().doFilter(servletRequest, servletResponse, this);
                 traceExit(mutableHttpResponse, filterConfig.getName(), start);
             } catch (Exception ex) {
-                LOG.error("Failure in filter: " + nextFilterContext.getFilter().getClass().getSimpleName()
-                        + "  -  Reason: " + ex.getMessage(), ex);
+                String filterName = nextFilterContext.getFilter().getClass().getSimpleName();
+                LOG.error("Failure in filter: " + filterName + "  -  Reason: " + ex.getMessage(), ex);
             } finally {
                 currentThread.setContextClassLoader(previousClassLoader);
             }
@@ -167,6 +167,8 @@ public class PowerFilterChain implements FilterChain {
                 route(servletRequest, servletResponse);
             } catch (Exception ex) {
                 LOG.error("Failure in filter within container filter chain. Reason: " + ex.getMessage(), ex);
+                mutableHttpResponse.sendError(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), "Error routing request");
+                mutableHttpResponse.setLastException(ex);
             } finally {
                 currentThread.setContextClassLoader(previousClassLoader);
             }
