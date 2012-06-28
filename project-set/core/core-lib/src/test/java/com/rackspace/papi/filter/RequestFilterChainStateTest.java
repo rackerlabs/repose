@@ -33,7 +33,7 @@ public class RequestFilterChainStateTest {
     public static class WhenUsingPowerFilterChain {
 
         @Test
-        public void shouldDoFilter() throws IOException, ServletException, NamingException {
+        public void shouldDoFilter() throws IOException, ServletException, NamingException, PowerFilterChainException {
             List<FilterContext> filterContextList = new ArrayList<FilterContext>();
             Filter mockedFilter = mock(Filter.class);
             FilterContext mockedFilterContext = mock(FilterContext.class);

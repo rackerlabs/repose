@@ -27,34 +27,35 @@ public class FilterContextInitializer {
       filterContextManager = new FilterContextManagerImpl(filterConfig, applicationContext);
    }
 
-   public List<FilterContext> buildFilterContexts(ClassLoaderManagerService classLoaderContextManager, SystemModel powerProxy, ServicePorts ports) {
+   public List<FilterContext> buildFilterContexts(ClassLoaderManagerService classLoaderContextManager, ReposeCluster domain, Node localHost) {
       final List<FilterContext> filterContexts = new LinkedList<FilterContext>();
-      SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
-      ReposeCluster domain = interrogator.getLocalServiceDomain(powerProxy);
-      final Node localHost = interrogator.getLocalHost(powerProxy);
 
-      if (localHost != null) {
-         // TODO: This may need to move once we determine what parts of repose should be instrumented via JMX.
-//         new SystemJmxAgent(localHost).registerMBean();
-
-         for (com.rackspace.papi.model.Filter papiFilter : domain.getFilters().getFilter()) {
-            if (StringUtilities.isBlank(papiFilter.getName())) {
-               LOG.error("Filter declaration has a null or empty name value - please check your system model configuration");
-               continue;
-            }
-
-            if (classLoaderContextManager.hasFilter(papiFilter.getName())) {
-               final FilterContext context = getFilterContext(classLoaderContextManager, papiFilter);
-
-               if (context != null) {
-                  filterContexts.add(context);
-               }
-            } else {
-               LOG.error("Unable to satisfy requested filter chain - none of the loaded artifacts supply a filter named " + papiFilter.getName());
-            }
-         }
-      } else {
+      if (localHost == null || domain == null) {
          LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
+         throw new IllegalArgumentException("Domain and host cannot be null");
+      }
+
+      // TODO: This may need to move once we determine what parts of repose should be instrumented via JMX.
+      // new SystemJmxAgent(localHost).registerMBean();
+
+      for (com.rackspace.papi.model.Filter papiFilter : domain.getFilters().getFilter()) {
+         if (StringUtilities.isBlank(papiFilter.getName())) {
+            LOG.error("Filter declaration has a null or empty name value - please check your system model configuration");
+            continue;
+         }
+
+         if (classLoaderContextManager.hasFilter(papiFilter.getName())) {
+            final FilterContext context = getFilterContext(classLoaderContextManager, papiFilter);
+
+            if (context != null) {
+               filterContexts.add(context);
+            } else {
+               filterContexts.add(new FilterContext(null, null, papiFilter));
+            }
+         } else {
+            LOG.error("Unable to satisfy requested filter chain - none of the loaded artifacts supply a filter named " + papiFilter.getName());
+            filterContexts.add(new FilterContext(null, null, papiFilter));
+         }
       }
 
       return filterContexts;

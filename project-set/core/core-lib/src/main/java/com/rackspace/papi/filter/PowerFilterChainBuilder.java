@@ -19,7 +19,6 @@ public class PowerFilterChainBuilder implements Destroyable {
    private final List<FilterContext> currentFilterChain;
    private final ReposeCluster domain;
    private final Node localhost;
-   
 
    public PowerFilterChainBuilder(ReposeCluster domain, Node localhost, List<FilterContext> currentFilterChain) {
       this.currentFilterChain = currentFilterChain;
@@ -31,19 +30,19 @@ public class PowerFilterChainBuilder implements Destroyable {
    public ResourceConsumerCounter getResourceConsumerMonitor() {
       return resourceConsumerMonitor;
    }
-   
-   public PowerFilterChain newPowerFilterChain(FilterChain containerFilterChain, ServletContext servletContext) {
+
+   public PowerFilterChain newPowerFilterChain(FilterChain containerFilterChain, ServletContext servletContext) throws PowerFilterChainException {
       return new PowerFilterChain(domain, localhost, currentFilterChain, containerFilterChain, servletContext, resourceConsumerMonitor);
    }
-   
+
    public ReposeCluster getReposeCluster() {
       return domain;
    }
-   
+
    public Node getLocalhost() {
       return localhost;
    }
-
+   
    @Override
    public void destroy() {
       for (FilterContext context : currentFilterChain) {

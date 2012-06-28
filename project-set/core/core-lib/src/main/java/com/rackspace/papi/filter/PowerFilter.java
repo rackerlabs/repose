@@ -36,6 +36,8 @@ public class PowerFilter extends ApplicationContextAwareFilter {
    private PowerFilterChainBuilder powerFilterChainBuilder;
    private ContextAdapter papiContext;
    private SystemModel currentSystemModel;
+   private ReposeCluster serviceDomain;
+   private Node localHost;
    private FilterConfig filterConfig;
 
    public PowerFilter() {
@@ -55,15 +57,13 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
          if (currentSystemModel != null) {
             SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
+            localHost = interrogator.getLocalHost(currentSystemModel);
+            serviceDomain = interrogator.getLocalServiceDomain(currentSystemModel);
             final List<FilterContext> newFilterChain = new FilterContextInitializer(
-                    filterConfig, 
-                    ServletContextHelper.getInstance().getApplicationContext(filterConfig.getServletContext())
-                    ).buildFilterContexts(papiContext.classLoader(), currentSystemModel, ports);
+                    filterConfig,
+                    ServletContextHelper.getInstance().getApplicationContext(filterConfig.getServletContext())).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
 
-            updateFilterChainBuilder(
-                    interrogator.getLocalServiceDomain(currentSystemModel), 
-                    interrogator.getLocalHost(currentSystemModel), 
-                    newFilterChain);
+            updateFilterChainBuilder(newFilterChain);
          }
       }
    }
@@ -87,14 +87,12 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                papiContext.eventService().newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
             } else {
                SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
+               localHost = interrogator.getLocalHost(currentSystemModel);
+               serviceDomain = interrogator.getLocalServiceDomain(currentSystemModel);
                final List<FilterContext> newFilterChain = new FilterContextInitializer(
-                       filterConfig, 
-                       ServletContextHelper.getInstance().getApplicationContext(filterConfig.getServletContext())
-                       ).buildFilterContexts(papiContext.classLoader(), currentSystemModel, ports);
-               updateFilterChainBuilder(
-                       interrogator.getLocalServiceDomain(currentSystemModel), 
-                       interrogator.getLocalHost(currentSystemModel), 
-                       newFilterChain);
+                       filterConfig,
+                       ServletContextHelper.getInstance().getApplicationContext(filterConfig.getServletContext())).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
+               updateFilterChainBuilder(newFilterChain);
             }
          }
       }
@@ -104,12 +102,12 @@ public class PowerFilter extends ApplicationContextAwareFilter {
    // existing filterChain.  If that is the case we create a new one for the deployment
    // update but the old list stays in memory as the garbage collector won't clean
    // it up until all RequestFilterChainState objects are no longer referencing it.
-   private synchronized void updateFilterChainBuilder(ReposeCluster domain, Node localhost, List<FilterContext> newFilterChain) {
+   private synchronized void updateFilterChainBuilder(List<FilterContext> newFilterChain) {
       if (powerFilterChainBuilder != null) {
          papiContext.filterChainGarbageCollectorService().reclaimDestroyable(powerFilterChainBuilder, powerFilterChainBuilder.getResourceConsumerMonitor());
       }
 
-      powerFilterChainBuilder = new PowerFilterChainBuilder(domain, localhost, newFilterChain);
+      powerFilterChainBuilder = new PowerFilterChainBuilder(serviceDomain, localHost, newFilterChain);
    }
 
    protected SystemModel getCurrentSystemModel() {
@@ -126,6 +124,8 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
       papiContext.eventService().listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
       papiContext.configurationService().subscribeTo("system-model.cfg.xml", systemModelConfigurationListener, SystemModel.class);
+
+      filterConfig.getServletContext().setAttribute("powerFilter", this);
    }
 
    @Override
@@ -138,14 +138,18 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
       final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
       final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
-      final PowerFilterChain requestFilterChainState = powerFilterChainBuilder.newPowerFilterChain(chain, filterConfig.getServletContext());
 
       try {
+         final PowerFilterChain requestFilterChainState = powerFilterChainBuilder.newPowerFilterChain(chain, filterConfig.getServletContext());
          requestFilterChainState.startFilterChain(mutableHttpRequest, mutableHttpResponse);
+      } catch (PowerFilterChainException ex) {
+         LOG.warn("Error creating filter chain", ex);
+         mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Error creating filter chain");
+         mutableHttpResponse.setLastException(ex);
       } catch (Exception ex) {
+         LOG.error("Exception encountered while processing filter chain. Reason: " + ex.getMessage(), ex);
          mutableHttpResponse.sendError(HttpStatusCode.BAD_GATEWAY.intValue(), "Error processing request");
          mutableHttpResponse.setLastException(ex);
-         LOG.error("Exception encountered while processing filter chain. Reason: " + ex.getMessage(), ex);
       } finally {
          // In the case where we pass/route the request, there is a chance that
          // the response will be committed by an underlying service, outside of repose
