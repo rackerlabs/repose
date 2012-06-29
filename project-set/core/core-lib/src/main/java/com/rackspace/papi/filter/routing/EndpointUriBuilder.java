@@ -52,7 +52,7 @@ public class EndpointUriBuilder {
          }
 
          // dispatching to this host, but not our port
-         return localhost.getHostname();
+         //return localhost.getHostname();
       }
 
       return endpoint.getHostname();
