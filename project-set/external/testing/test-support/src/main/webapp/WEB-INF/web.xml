@@ -9,6 +9,10 @@
         <servlet-name>ErrorServlet</servlet-name>
         <servlet-class>com.rackspace.papi.mocks.ErrorServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>ResponseSizeServlet</servlet-name>
+        <servlet-class>com.rackspace.papi.mocks.ResponseSizeServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>ServletAdapter</servlet-name>
         <url-pattern>/*</url-pattern>
@@ -16,6 +20,10 @@
     <servlet-mapping>
         <servlet-name>ErrorServlet</servlet-name>
         <url-pattern>/ErrorServlet/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ResponseSizeServlet</servlet-name>
+        <url-pattern>/ResponseSizeServlet/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>

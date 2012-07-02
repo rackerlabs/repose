@@ -34,7 +34,7 @@ public class MockServiceProvider {
       factory = new ObjectFactory();
    }
 
-   private String getEchoBody(String body, HttpHeaders headers, UriInfo uri) {
+   public String getEchoBody(String body, HttpHeaders headers, UriInfo uri) {
       Set<String> headerPairs = headers.getRequestHeaders().keySet();
       Set<String> queryParams = uri.getQueryParameters().keySet();
       StringBuilder resp = new StringBuilder("<html>\n\t<head>\n\t\t<title>Servlet version</title>\n\t</head>\n\t<body>\n\t\t<h1>Servlet version at ");
