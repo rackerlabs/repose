@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.proxy.jersey;
 
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.http.proxy.HttpException;
 import com.rackspace.papi.http.proxy.common.AbstractResponseProcessor;
 import com.sun.jersey.api.client.ClientResponse;
@@ -14,61 +15,65 @@ import java.util.List;
 
 class JerseyResponseProcessor extends AbstractResponseProcessor {
 
-   private final ClientResponse clientResponse;
+    private final ClientResponse clientResponse;
 
-   public JerseyResponseProcessor(ClientResponse clientResponse, HttpServletResponse response) {
-      super(response, clientResponse.getStatus());
-      this.clientResponse = clientResponse;
-   }
-   
-   @Override
-   protected void setResponseHeaders() throws IOException {
-      MultivaluedMap<String, String> headers = clientResponse.getHeaders();
-      for (String headerName : headers.keySet()) {
-         for (String value : headers.get(headerName)) {
-            addHeader(headerName, value);
-         }
-      }
-   }
+    public JerseyResponseProcessor(ClientResponse clientResponse, HttpServletResponse response) {
+        super(response, clientResponse.getStatus());
+        this.clientResponse = clientResponse;
+    }
 
-   @Override
-   protected void setResponseBody() throws IOException {
-      final InputStream source = clientResponse.getEntityInputStream();
-      final int bufferSize = 1024;
+    @Override
+    protected void setResponseHeaders() throws IOException {
+        MultivaluedMap<String, String> headers = clientResponse.getHeaders();
+        for (String headerName : headers.keySet()) {
+            for (String value : headers.get(headerName)) {
+                addHeader(headerName, value);
+            }
+        }
+    }
 
-      if (source != null) {
+    @Override
+    protected void setResponseBody() throws IOException {
+        if (getResponse() instanceof MutableHttpServletResponse) {
+            MutableHttpServletResponse mutableResponse = MutableHttpServletResponse.wrap(getResponse());
+            mutableResponse.setProxiedResponse(new JerseyResponse(clientResponse));
+        } else {
+            final InputStream source = clientResponse.getEntityInputStream();
+            final int bufferSize = 1024;
 
-         final BufferedInputStream httpIn = new BufferedInputStream(source);
-         final OutputStream clientOut = getResponse().getOutputStream();
+            if (source != null) {
 
-         //Using a buffered stream so this isn't nearly as expensive as it looks
-         int readData;
-         byte bytes[] = new byte[bufferSize];
+                final BufferedInputStream httpIn = new BufferedInputStream(source);
+                final OutputStream clientOut = getResponse().getOutputStream();
 
-         while ((readData = httpIn.read(bytes)) != -1) {
-            clientOut.write(bytes, 0, readData);
-         }
+                //Using a buffered stream so this isn't nearly as expensive as it looks
+                int readData;
+                byte bytes[] = new byte[bufferSize];
 
-         httpIn.close();
-         clientOut.flush();
-         clientOut.close();
-      }
-      clientResponse.close();
-   }
+                while ((readData = httpIn.read(bytes)) != -1) {
+                    clientOut.write(bytes, 0, readData);
+                }
 
-   @Override
-   protected String getResponseHeaderValue(String headerName) throws HttpException {
-      final List<String> locationHeader = clientResponse.getHeaders().get(headerName);
-      if (locationHeader == null || locationHeader.isEmpty()) {
-         throw new HttpException("Expected header was not found in response: " + headerName + " (Response Code: " + getResponseCode() + ")");
-      }
+                httpIn.close();
+                clientOut.flush();
+                clientOut.close();
+            }
+            clientResponse.close();
+        }
+    }
 
-      final String locationValue = locationHeader.get(0);
-      if (locationValue == null) {
-         throw new HttpException("Expected header was not found in response: " + headerName + " (Response Code: " + getResponseCode() + ")");
-      }
+    @Override
+    protected String getResponseHeaderValue(String headerName) throws HttpException {
+        final List<String> locationHeader = clientResponse.getHeaders().get(headerName);
+        if (locationHeader == null || locationHeader.isEmpty()) {
+            throw new HttpException("Expected header was not found in response: " + headerName + " (Response Code: " + getResponseCode() + ")");
+        }
 
-      return locationValue;
-   }
+        final String locationValue = locationHeader.get(0);
+        if (locationValue == null) {
+            throw new HttpException("Expected header was not found in response: " + headerName + " (Response Code: " + getResponseCode() + ")");
+        }
 
+        return locationValue;
+    }
 }

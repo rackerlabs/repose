@@ -45,11 +45,12 @@ public class MutableHttpServletResponseTest {
         }
 
         @Test
-        public void shouldHaveInitializedBuffer() {
+        public void shouldHaveInitializedBuffer() throws IOException {
             HttpServletResponse original = mock(HttpServletResponse.class);
             MutableHttpServletResponse actual;
 
             actual = MutableHttpServletResponse.wrap(original);
+            actual.getOutputStream();
 
             assertEquals(2048, actual.getBufferSize());
         }
