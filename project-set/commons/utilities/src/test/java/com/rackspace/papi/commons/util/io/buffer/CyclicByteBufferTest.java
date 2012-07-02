@@ -365,4 +365,27 @@ public class CyclicByteBufferTest {
 
       }
    }
+
+   public static class Regression {
+
+      private CyclicByteBuffer sourceBuffer;
+
+      @Before
+      public void standUp() {
+         sourceBuffer = new CyclicByteBuffer();
+      }
+
+      @Test
+      public void shouldReadFromFullBuffer() throws IOException {
+         int expected = 2048;
+         sourceBuffer.put(fill(new byte[2048]));
+         assertEquals("Available should be entire buffer", expected, sourceBuffer.available());
+         
+         byte[] buffer = new byte[2048];
+         sourceBuffer.get(buffer);
+         
+         assertEquals("Available should be zero after draining", 0, sourceBuffer.available());
+      }
+   }
+
 }

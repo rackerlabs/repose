@@ -145,7 +145,7 @@ public class CyclicByteBuffer implements ByteBuffer, Cloneable {
             nextReadableIndex = readableLength - trimmedLength;
          } else {
             System.arraycopy(buffer, nextReadableIndex, b, off, readableLength);
-            nextReadableIndex = nextReadableIndex + readableLength < buffer.length ? nextReadableIndex + readableLength : readableLength - (buffer.length - nextReadableIndex);
+            nextReadableIndex = nextReadableIndex + readableLength <= buffer.length ? nextReadableIndex + readableLength : readableLength - (buffer.length - nextReadableIndex);
          }
 
          if (nextWritableIndex == nextReadableIndex) {
