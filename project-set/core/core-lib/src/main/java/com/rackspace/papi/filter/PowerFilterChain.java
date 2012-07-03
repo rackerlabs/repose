@@ -156,7 +156,7 @@ public class PowerFilterChain implements FilterChain {
    }
 
    private boolean isResponseOk(HttpServletResponse response) {
-      return response.getStatus() == HttpStatusCode.OK.intValue();
+      return response.getStatus() < HttpStatusCode.INTERNAL_SERVER_ERROR.intValue();
    }
 
    @Override
@@ -183,7 +183,9 @@ public class PowerFilterChain implements FilterChain {
 
          try {
             long start = traceEnter(mutableHttpResponse, filterConfig.getName());
+            mutableHttpResponse.pushOutputStream();
             nextFilterContext.getFilter().doFilter(servletRequest, servletResponse, this);
+            mutableHttpResponse.popOutputStream();
             traceExit(mutableHttpResponse, filterConfig.getName(), start);
          } catch (Exception ex) {
             String filterName = nextFilterContext.getFilter().getClass().getSimpleName();

@@ -6,4 +6,5 @@ import java.io.InputStream;
 public interface ProxiedResponse {
     InputStream getInputStream() throws IOException;
     void close() throws IOException;
+    int getContentLength();
 }

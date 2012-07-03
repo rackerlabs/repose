@@ -2,172 +2,215 @@ package com.rackspace.papi.commons.util.servlet.http;
 
 import com.rackspace.papi.commons.util.io.ByteBufferInputStream;
 import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
+import com.rackspace.papi.commons.util.io.InputStreamMerger;
+import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
-import java.io.BufferedInputStream;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Queue;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
 
 public class MutableHttpServletResponse extends HttpServletResponseWrapper implements ReadableHttpServletResponse {
 
-    public static MutableHttpServletResponse wrap(HttpServletResponse response) {
-        return response instanceof MutableHttpServletResponse
-                ? (MutableHttpServletResponse) response
-                : new MutableHttpServletResponse(response);
-    }
-    private ByteBuffer internalBuffer;
-    private ServletOutputStream outputStream;
-    private PrintWriter outputStreamWriter;
-    private boolean error = false;
-    private Throwable exception;
-    private String message;
-    private ProxiedResponse proxiedResponse;
+   public static MutableHttpServletResponse wrap(HttpServletResponse response) {
+      return response instanceof MutableHttpServletResponse
+              ? (MutableHttpServletResponse) response
+              : new MutableHttpServletResponse(response);
+   }
+   private ByteBuffer internalBuffer;
+   private ServletOutputStream outputStream;
+   private PrintWriter outputStreamWriter;
 
-    private MutableHttpServletResponse(HttpServletResponse response) {
-        super(response);
-    }
+   private static class OutputStreamItem {
 
-    private void createInternalBuffer() {
-        if (internalBuffer == null) {
-            internalBuffer = new CyclicByteBuffer();
-            outputStream = new ByteBufferServletOutputStream(internalBuffer);
-            outputStreamWriter = new PrintWriter(outputStream);
-        }
-    }
+      private final ByteBuffer internalBuffer;
+      private final ServletOutputStream outputStream;
+      private final PrintWriter outputStreamWriter;
 
-    @Override
-    public InputStream getBufferedOutputAsInputStream() {
-        createInternalBuffer();
-        return new ByteBufferInputStream(internalBuffer);
-    }
+      public OutputStreamItem(ByteBuffer internalBuffer, ServletOutputStream outputStream, PrintWriter outputStreamWriter) {
+         this.internalBuffer = internalBuffer;
+         this.outputStream = outputStream;
+         this.outputStreamWriter = outputStreamWriter;
+      }
+   }
+   private final Queue<OutputStreamItem> outputs = new LinkedList<OutputStreamItem>();
+   private InputStream input;
+   private boolean error = false;
+   private Throwable exception;
+   private String message;
+   private boolean responseModified = false;
+   private ProxiedResponse proxiedResponse;
 
-    @Override
-    public void flushBuffer() throws IOException {
-        commitBufferToServletOutputStream();
+   private MutableHttpServletResponse(HttpServletResponse response) {
+      super(response);
+      createInternalBuffer();
+   }
 
-        super.flushBuffer();
-    }
+   public void pushOutputStream() {
+      outputs.offer(new OutputStreamItem(internalBuffer, outputStream, outputStreamWriter));
+      createInternalBuffer();
+   }
 
-    public void setProxiedResponse(ProxiedResponse response) {
-        this.proxiedResponse = response;
-    }
+   public void popOutputStream() throws IOException {
+      // Convert current output to input
+      input = getInputStream();
 
-    public ProxiedResponse getProxiedResponse() {
-        return proxiedResponse;
-    }
+      OutputStreamItem item = outputs.poll();
+      this.internalBuffer = item.internalBuffer;
+      this.outputStream = item.outputStream;
+      this.outputStreamWriter = item.outputStreamWriter;
+   }
 
-    public void commitBufferToServletOutputStream() throws IOException {
+   private void createInternalBuffer() {
+      internalBuffer = new CyclicByteBuffer();
+      outputStream = new ByteBufferServletOutputStream(internalBuffer);
+      outputStreamWriter = new PrintWriter(outputStream);
+   }
 
-        final byte[] bytes = new byte[2048];
-        final ServletOutputStream realOutputStream = super.getOutputStream();
+   @Override
+   public InputStream getInputStream() throws IOException {
 
-        if (internalBuffer != null) {
-            // The writer has its own buffer
-            outputStreamWriter.flush();
+      outputStreamWriter.flush();
+      
+      if (internalBuffer.available() > 0) {
+         this.
+         responseModified = true;
+         // We have written to the output stream... use that as the input stream now.
+         return new ByteBufferInputStream(internalBuffer);
+      } else if (input != null) {
+         // We didn't write anything, but we have an input stream that may have data
+         return input;
+      } else if (proxiedResponse != null) {
+         // No input stream yet, but we have a response from the end service
+         InputStream input = proxiedResponse.getInputStream();
+         if (input != null) {
+            return input;
+         }
+      }
 
-            while (internalBuffer.available() > 0) {
-                final int read = internalBuffer.get(bytes);
-                realOutputStream.write(bytes, 0, read);
-            }
-        } else if (proxiedResponse != null) {
-            InputStream input = new BufferedInputStream(proxiedResponse.getInputStream());
+      return null;
+   }
 
-            int size = input.read(bytes);
-            while (size >= 0) {
-                if (size > 0) {
-                    realOutputStream.write(bytes, 0, size);
-                }
+   @Override
+   public InputStream getBufferedOutputAsInputStream() {
+      outputStreamWriter.flush();
+      return new ByteBufferInputStream(internalBuffer);
+   }
 
-                size = input.read(bytes);
-            }
-        }
+   @Override
+   public void flushBuffer() throws IOException {
+      commitBufferToServletOutputStream();
 
-        if (proxiedResponse != null) {
+      super.flushBuffer();
+   }
+
+   public void setProxiedResponse(ProxiedResponse response) {
+      this.proxiedResponse = response;
+   }
+
+   public ProxiedResponse getProxiedResponse() {
+      return proxiedResponse;
+   }
+
+   public void commitBufferToServletOutputStream() throws IOException {
+      
+      if (!responseModified) {
+         if (proxiedResponse != null) {
+            setContentLength(proxiedResponse.getContentLength());
+         }
+      }
+
+      outputStreamWriter.flush();
+      
+      final ServletOutputStream realOutputStream = super.getOutputStream();
+      final InputStream inputStream = getInputStream();
+      try {
+         if (inputStream != null) {
+            RawInputStreamReader.instance().copyTo(inputStream, realOutputStream);
+         }
+      } finally {
+         if (proxiedResponse != null) {
             proxiedResponse.close();
-        }
-    }
+         }
+      }
+   }
 
-    private InputStream getBodyStream() throws IOException {
-        if (internalBuffer != null) {
-            return getBufferedOutputAsInputStream();
-        }
+   public boolean hasBody() {
+      boolean hasBody = false;
 
-        return proxiedResponse != null ? proxiedResponse.getInputStream() : null;
-    }
+      try {
+         InputStream body = getInputStream();
+         if (body != null && body.available() > 0) {
+            hasBody = true;
+         }
+      } catch (IOException e) {
+         hasBody = false;
+      }
 
-    public boolean hasBody() {
-        boolean hasBody = false;
+      return hasBody;
+   }
 
-        try {
-            InputStream body = getBodyStream();
-            if (body != null && body.available() > 0) {
-                hasBody = true;
-            }
-        } catch (IOException e) {
-            hasBody = false;
-        }
+   @Override
+   public void resetBuffer() {
+      if (internalBuffer != null) {
+         internalBuffer.clear();
+      }
 
-        return hasBody;
-    }
+      super.resetBuffer();
+   }
 
-    @Override
-    public void resetBuffer() {
-        if (internalBuffer != null) {
-            internalBuffer.clear();
-        }
+   public int getResponseSize() {
+      return internalBuffer != null ? internalBuffer.available() : proxiedResponse != null ? proxiedResponse.getContentLength() : 0;
+   }
 
-        super.resetBuffer();
-    }
+   @Override
+   public int getBufferSize() {
+      return internalBuffer != null ? internalBuffer.available() + internalBuffer.remaining() : 0;
+   }
 
-    @Override
-    public int getBufferSize() {
-        return internalBuffer != null ? internalBuffer.available() + internalBuffer.remaining() : 0;
-    }
+   @Override
+   public ServletOutputStream getOutputStream() throws IOException {
+      return outputStream;
+   }
 
-    @Override
-    public ServletOutputStream getOutputStream() throws IOException {
-        createInternalBuffer();
-        return outputStream;
-    }
+   @Override
+   public PrintWriter getWriter() throws IOException {
+      return outputStreamWriter;
+   }
 
-    @Override
-    public PrintWriter getWriter() throws IOException {
-        createInternalBuffer();
-        return outputStreamWriter;
-    }
+   @Override
+   public void sendError(int code) throws IOException {
+      super.setStatus(code);
+      error = true;
+   }
 
-    @Override
-    public void sendError(int code) throws IOException {
-        super.setStatus(code);
-        error = true;
-    }
+   @Override
+   public void sendError(int code, String message) {
+      super.setStatus(code);
+      this.message = message;
+      error = true;
+   }
 
-    @Override
-    public void sendError(int code, String message) {
-        super.setStatus(code);
-        this.message = message;
-        error = true;
-    }
+   public boolean isError() {
+      return error;
+   }
 
-    public boolean isError() {
-        return error;
-    }
+   public String getMessage() {
+      return message;
+   }
 
-    public String getMessage() {
-        return message;
-    }
+   public void setLastException(Throwable exception) {
+      this.error = true;
+      this.exception = exception;
+   }
 
-    public void setLastException(Throwable exception) {
-        this.error = true;
-        this.exception = exception;
-    }
-
-    public Throwable getLastException() {
-        return exception;
-    }
+   public Throwable getLastException() {
+      return exception;
+   }
 }

@@ -3,6 +3,7 @@ package com.rackspace.papi.commons.util.servlet.http;
 import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
+import java.io.*;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -10,10 +11,6 @@ import org.junit.runner.RunWith;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -96,6 +93,44 @@ public class MutableHttpServletResponseTest {
             assertNotNull("first should not be null", first);
             assertNotNull("second should not be null", second);
             assertNotSame("should not be the same", first, second);
+        }
+    }
+
+    public static class WhenWritingAndReadingInputStreams {
+        //TODO: redo this test, it doesn't really test much (this is Josh being snarky, not Fran)
+
+        @Test
+        public void should() throws IOException {
+            OutputStream out;
+            InputStream in;
+            HttpServletResponse original = mock(HttpServletResponse.class);
+            MutableHttpServletResponse response;
+
+            response = MutableHttpServletResponse.wrap(original);
+
+            out = response.getOutputStream();
+            in = response.getBufferedOutputAsInputStream();
+            final int dataLen = 10;
+            byte[] data = new byte[dataLen];
+            
+            assertNotNull("input stream should not be null", in);
+            assertNotNull("output stream should not be null", out);
+            assertEquals("available should be zero", 0, in.available());
+            
+            out.write(data);
+            
+            assertEquals("available should be " + dataLen, dataLen, in.available());
+            
+            int readLen = dataLen/2;
+            byte[] read = new byte[readLen];
+            in.read(read);
+            
+            final int expected = dataLen - readLen;
+            
+            assertEquals("available should be " + expected, expected, in.available());
+
+            out.write(read);
+            assertEquals("available should be " + dataLen, dataLen, in.available());
         }
     }
 

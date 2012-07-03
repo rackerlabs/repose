@@ -26,5 +26,10 @@ public class JerseyResponse implements ProxiedResponse {
 
         response.close();
     }
+
+   @Override
+   public int getContentLength() {
+      return response.getLength();
+   }
     
 }
