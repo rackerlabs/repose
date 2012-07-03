@@ -6,47 +6,66 @@ public class CyclicByteBuffer implements ByteBuffer, Cloneable {
 
    private static final ByteArrayProvider DEFAULT_BYTE_ARRAY_PROVIDER = HeapspaceByteArrayProvider.getInstance();
    private static final int DEFAULT_BUFFER_SIZE = 2048; //in bytes
+   private final int initialSize;
    private final ByteArrayProvider byteArrayProvider;
    private int nextWritableIndex, nextReadableIndex;
    private boolean hasElements;
    private byte[] buffer;
 
    public CyclicByteBuffer() {
-      this(DEFAULT_BYTE_ARRAY_PROVIDER, DEFAULT_BUFFER_SIZE, 0, 0, false);
+      this(DEFAULT_BYTE_ARRAY_PROVIDER, DEFAULT_BUFFER_SIZE, 0, 0, false, false);
+   }
+
+   public CyclicByteBuffer(int initialSize, boolean lazyAllocate) {
+      this(DEFAULT_BYTE_ARRAY_PROVIDER, initialSize, 0, 0, false, lazyAllocate);
    }
 
    public CyclicByteBuffer(ByteArrayProvider byteArrayProvider) {
-      this(byteArrayProvider, DEFAULT_BUFFER_SIZE, 0, 0, false);
+      this(byteArrayProvider, DEFAULT_BUFFER_SIZE, 0, 0, false, false);
    }
 
-   protected CyclicByteBuffer(ByteArrayProvider byteArrayProvider, int allocationSize, int nextWritableIndex, int nextReadableIndex, boolean hasElements) {
+   protected CyclicByteBuffer(ByteArrayProvider byteArrayProvider, int allocationSize, int nextWritableIndex, int nextReadableIndex, boolean hasElements, boolean lazyAllocate) {
       this.byteArrayProvider = byteArrayProvider;
       this.nextWritableIndex = nextWritableIndex;
       this.nextReadableIndex = nextReadableIndex;
       this.hasElements = hasElements;
-
-      buffer = byteArrayProvider.allocate(allocationSize);
+      this.initialSize = allocationSize;
+      if (lazyAllocate) {
+         buffer = null;
+      } else {
+         buffer = byteArrayProvider.allocate(initialSize);
+      }
    }
 
    public CyclicByteBuffer(ByteArrayProvider byteArrayProvider, CyclicByteBuffer byteBuffer) {
       this.byteArrayProvider = byteArrayProvider;
-
       final int readableLength = byteBuffer.available();
-      final int allocationSize = (readableLength > DEFAULT_BUFFER_SIZE ? readableLength : DEFAULT_BUFFER_SIZE);
-      buffer = byteArrayProvider.allocate(allocationSize);
+      final int allocationSize = (readableLength > 0 && readableLength > DEFAULT_BUFFER_SIZE ? readableLength : DEFAULT_BUFFER_SIZE);
+      initialSize = allocationSize;
 
-      if (byteBuffer.nextReadableIndex + readableLength > byteBuffer.buffer.length) {
-         final int trimmedLength = byteBuffer.buffer.length - byteBuffer.nextReadableIndex;
+      if (byteBuffer.buffer != null) {
 
-         System.arraycopy(byteBuffer.buffer, byteBuffer.nextReadableIndex, buffer, 0, trimmedLength);
-         System.arraycopy(byteBuffer.buffer, 0, buffer, trimmedLength, readableLength - trimmedLength);
-      } else {
-         System.arraycopy(byteBuffer.buffer, byteBuffer.nextReadableIndex, buffer, 0, readableLength);
+         buffer = byteArrayProvider.allocate(allocationSize);
+
+         if (byteBuffer.nextReadableIndex + readableLength > byteBuffer.buffer.length) {
+            final int trimmedLength = byteBuffer.buffer.length - byteBuffer.nextReadableIndex;
+
+            System.arraycopy(byteBuffer.buffer, byteBuffer.nextReadableIndex, buffer, 0, trimmedLength);
+            System.arraycopy(byteBuffer.buffer, 0, buffer, trimmedLength, readableLength - trimmedLength);
+         } else {
+            System.arraycopy(byteBuffer.buffer, byteBuffer.nextReadableIndex, buffer, 0, readableLength);
+         }
       }
 
       this.nextReadableIndex = 0;
       this.nextWritableIndex = (readableLength < allocationSize ? readableLength : 0);
       this.hasElements = byteBuffer.available() > 0;
+   }
+
+   public void allocate() {
+      if (buffer == null) {
+         buffer = byteArrayProvider.allocate(initialSize);
+      }
    }
 
    @Override
@@ -58,6 +77,7 @@ public class CyclicByteBuffer implements ByteBuffer, Cloneable {
 
    @Override
    public int skip(int len) {
+      allocate();
       int bytesSkipped = len;
 
       if (len > available()) {
@@ -80,6 +100,10 @@ public class CyclicByteBuffer implements ByteBuffer, Cloneable {
 
    @Override
    public int available() {
+      if (buffer == null) {
+         return 0;
+      }
+
       if (nextWritableIndex == nextReadableIndex && hasElements) {
          return buffer.length;
       }
@@ -89,6 +113,10 @@ public class CyclicByteBuffer implements ByteBuffer, Cloneable {
 
    @Override
    public int remaining() {
+      if (buffer == null) {
+         return initialSize;
+      }
+
       if (nextWritableIndex == nextReadableIndex && hasElements) {
          return 0;
       }
@@ -97,6 +125,8 @@ public class CyclicByteBuffer implements ByteBuffer, Cloneable {
    }
 
    private void grow(int minLength) {
+      allocate();
+
       final int newSize = buffer.length + buffer.length * (minLength / buffer.length + 1);
       final byte[] newBuffer = byteArrayProvider.allocate(newSize);
 
@@ -110,6 +140,7 @@ public class CyclicByteBuffer implements ByteBuffer, Cloneable {
 
    @Override
    public int put(byte[] b, int off, int len) {
+      allocate();
       final int remaining = remaining();
 
       if (remaining < len) {
@@ -134,6 +165,7 @@ public class CyclicByteBuffer implements ByteBuffer, Cloneable {
 
    @Override
    public int get(byte[] b, int off, int len) {
+      allocate();
       final int readableLength = available() > len ? len : available();
 
       if (hasElements) {
@@ -163,6 +195,7 @@ public class CyclicByteBuffer implements ByteBuffer, Cloneable {
 
    @Override
    public byte get() {
+      allocate();
       final byte[] singleByte = new byte[]{-1};
 
       if (available() > 0) {

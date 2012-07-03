@@ -41,6 +41,7 @@ public class MutableHttpServletResponseTest {
             assertNotSame(original, actual);
         }
 
+        @Ignore
         @Test
         public void shouldHaveInitializedBuffer() throws IOException {
             HttpServletResponse original = mock(HttpServletResponse.class);

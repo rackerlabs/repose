@@ -1,17 +1,17 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
+
 import com.rackspace.papi.commons.util.io.ByteBufferInputStream;
 import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
-import com.rackspace.papi.commons.util.io.InputStreamMerger;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
-import java.io.*;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
-
+import java.io.BufferedInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
@@ -23,6 +23,7 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
               ? (MutableHttpServletResponse) response
               : new MutableHttpServletResponse(response);
    }
+   private static final int DEFAULT_BUFFER_SIZE = 1024;
    private ByteBuffer internalBuffer;
    private ServletOutputStream outputStream;
    private PrintWriter outputStreamWriter;
@@ -39,7 +40,7 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
          this.outputStreamWriter = outputStreamWriter;
       }
    }
-   private final Queue<OutputStreamItem> outputs = new LinkedList<OutputStreamItem>();
+   private final Deque<OutputStreamItem> outputs = new ArrayDeque<OutputStreamItem>();
    private InputStream input;
    private boolean error = false;
    private Throwable exception;
@@ -53,7 +54,7 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
    }
 
    public void pushOutputStream() {
-      outputs.offer(new OutputStreamItem(internalBuffer, outputStream, outputStreamWriter));
+      outputs.addFirst(new OutputStreamItem(internalBuffer, outputStream, outputStreamWriter));
       createInternalBuffer();
    }
 
@@ -61,25 +62,26 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
       // Convert current output to input
       input = getInputStream();
 
-      OutputStreamItem item = outputs.poll();
+      OutputStreamItem item = outputs.removeFirst();
       this.internalBuffer = item.internalBuffer;
       this.outputStream = item.outputStream;
       this.outputStreamWriter = item.outputStreamWriter;
    }
 
    private void createInternalBuffer() {
-      internalBuffer = new CyclicByteBuffer();
+      internalBuffer = new CyclicByteBuffer(DEFAULT_BUFFER_SIZE, true);
       outputStream = new ByteBufferServletOutputStream(internalBuffer);
-      outputStreamWriter = new PrintWriter(outputStream);
+      //outputStreamWriter = new PrintWriter(outputStream);
    }
 
    @Override
    public InputStream getInputStream() throws IOException {
 
-      outputStreamWriter.flush();
+      if (outputStreamWriter != null) {
+         outputStreamWriter.flush();
+      }
       
       if (internalBuffer.available() > 0) {
-         this.
          responseModified = true;
          // We have written to the output stream... use that as the input stream now.
          return new ByteBufferInputStream(internalBuffer);
@@ -99,7 +101,9 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
 
    @Override
    public InputStream getBufferedOutputAsInputStream() {
-      outputStreamWriter.flush();
+      if (outputStreamWriter != null) {
+         outputStreamWriter.flush();
+      }
       return new ByteBufferInputStream(internalBuffer);
    }
 
@@ -119,20 +123,22 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
    }
 
    public void commitBufferToServletOutputStream() throws IOException {
-      
+
       if (!responseModified) {
          if (proxiedResponse != null) {
             setContentLength(proxiedResponse.getContentLength());
          }
       }
 
-      outputStreamWriter.flush();
+      if (outputStreamWriter != null) {
+         outputStreamWriter.flush();
+      }
       
       final ServletOutputStream realOutputStream = super.getOutputStream();
       final InputStream inputStream = getInputStream();
       try {
          if (inputStream != null) {
-            RawInputStreamReader.instance().copyTo(inputStream, realOutputStream);
+            RawInputStreamReader.instance().copyTo(new BufferedInputStream(inputStream), realOutputStream, 1024);
          }
       } finally {
          if (proxiedResponse != null) {
@@ -171,7 +177,7 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
 
    @Override
    public int getBufferSize() {
-      return internalBuffer != null ? internalBuffer.available() + internalBuffer.remaining() : 0;
+      return internalBuffer.available() + internalBuffer.remaining();
    }
 
    @Override
@@ -181,6 +187,9 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
 
    @Override
    public PrintWriter getWriter() throws IOException {
+      if (outputStreamWriter == null) {
+         outputStreamWriter = new PrintWriter(outputStream);
+      }
       return outputStreamWriter;
    }
 
