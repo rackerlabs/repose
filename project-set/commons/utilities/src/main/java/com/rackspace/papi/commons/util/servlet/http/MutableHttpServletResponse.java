@@ -123,11 +123,12 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
          outputStreamWriter.flush();
       }
 
-      final OutputStream out = new BufferedOutputStream(super.getOutputStream());
+      //final OutputStream out = new BufferedOutputStream(super.getOutputStream());
+      final OutputStream out = super.getOutputStream();
       final InputStream inputStream = getInputStream();
       try {
          if (inputStream != null) {
-            RawInputStreamReader.instance().copyTo(new BufferedInputStream(inputStream), out, 1024);
+            RawInputStreamReader.instance().copyTo(inputStream, out);
          }
       } finally {
          out.flush();

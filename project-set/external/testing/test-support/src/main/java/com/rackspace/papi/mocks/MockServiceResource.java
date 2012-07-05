@@ -82,9 +82,8 @@ public class MockServiceResource {
    }
 
    @GET
-   @Path("{prefix: .*}/responsesize/{size}")
+   @Path("/responsesize/{size}")
    public StreamingOutput getSizedResponse(final @PathParam("size") int size, @Context HttpHeaders headers, @Context UriInfo uri) {
-
       return new StreamingOutput() {
 
          @Override
@@ -99,9 +98,29 @@ public class MockServiceResource {
             buff.close();
          }
       };
-
-
    }
+   
+   @GET
+   @Path("{prefix: .*}/responsesize/{size}")
+   public StreamingOutput getSizedResponse2(final @PathParam("size") int size, @Context HttpHeaders headers, @Context UriInfo uri) {
+      return getSizedResponse(size, headers, uri);
+   }
+
+   /*
+   @GET
+   @Path("{prefix1: .*}/{prefix2: .*}/responsesize/{size}")
+   public StreamingOutput getSizedResponse3(final @PathParam("size") int size, @Context HttpHeaders headers, @Context UriInfo uri) {
+      return getSizedResponse(size, headers, uri);
+   }
+
+   @GET
+   @Path("{prefix1: .*}/{prefix2: .*}/{prefix3: .*}/responsesize/{size}")
+   public StreamingOutput getSizedResponse4(final @PathParam("size") int size, @Context HttpHeaders headers, @Context UriInfo uri) {
+      return getSizedResponse(size, headers, uri);
+   }
+   * 
+   */
+
 
    @POST
    @Path("{id : .*}")
