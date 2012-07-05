@@ -15,65 +15,72 @@ import java.util.List;
 
 class JerseyResponseProcessor extends AbstractResponseProcessor {
 
-    private final ClientResponse clientResponse;
+   private static final int MAX_RESPONSE_BUFFER_SIZE = 2048;
+   private static final int READ_BUFFER_SIZE = 1024;
+   private final ClientResponse clientResponse;
 
-    public JerseyResponseProcessor(ClientResponse clientResponse, HttpServletResponse response) {
-        super(response, clientResponse.getStatus());
-        this.clientResponse = clientResponse;
-    }
+   public JerseyResponseProcessor(ClientResponse clientResponse, HttpServletResponse response) {
+      super(response, clientResponse.getStatus());
+      this.clientResponse = clientResponse;
+   }
 
-    @Override
-    protected void setResponseHeaders() throws IOException {
-        MultivaluedMap<String, String> headers = clientResponse.getHeaders();
-        for (String headerName : headers.keySet()) {
-            for (String value : headers.get(headerName)) {
-                addHeader(headerName, value);
+   @Override
+   protected void setResponseHeaders() throws IOException {
+      MultivaluedMap<String, String> headers = clientResponse.getHeaders();
+      for (String headerName : headers.keySet()) {
+         for (String value : headers.get(headerName)) {
+            addHeader(headerName, value);
+         }
+      }
+   }
+
+   @Override
+   protected void setResponseBody() throws IOException {
+      int len = clientResponse.getLength();
+      
+      if (getResponse() instanceof MutableHttpServletResponse) {
+         if (len > 0 && len < MAX_RESPONSE_BUFFER_SIZE) {
+            // Tell Jersey to buffer entity and close input
+            clientResponse.bufferEntity();
+         }
+         MutableHttpServletResponse mutableResponse = MutableHttpServletResponse.wrap(getResponse());
+         mutableResponse.setInputStream(new JerseyInputStream(clientResponse));
+      } else {
+         final InputStream source = clientResponse.getEntityInputStream();
+
+         if (source != null) {
+
+            final BufferedInputStream httpIn = new BufferedInputStream(source);
+            final OutputStream clientOut = getResponse().getOutputStream();
+
+            //Using a buffered stream so this isn't nearly as expensive as it looks
+            int readData;
+            byte bytes[] = new byte[READ_BUFFER_SIZE];
+
+            while ((readData = httpIn.read(bytes)) != -1) {
+               clientOut.write(bytes, 0, readData);
             }
-        }
-    }
 
-    @Override
-    protected void setResponseBody() throws IOException {
-        if (getResponse() instanceof MutableHttpServletResponse) {
-            MutableHttpServletResponse mutableResponse = MutableHttpServletResponse.wrap(getResponse());
-            mutableResponse.setInputStream(new JerseyInputStream(clientResponse));
-        } else {
-            final InputStream source = clientResponse.getEntityInputStream();
-            final int bufferSize = 1024;
+            httpIn.close();
+            clientOut.flush();
+            clientOut.close();
+         }
+         clientResponse.close();
+      }
+   }
 
-            if (source != null) {
+   @Override
+   protected String getResponseHeaderValue(String headerName) throws HttpException {
+      final List<String> locationHeader = clientResponse.getHeaders().get(headerName);
+      if (locationHeader == null || locationHeader.isEmpty()) {
+         throw new HttpException("Expected header was not found in response: " + headerName + " (Response Code: " + getResponseCode() + ")");
+      }
 
-                final BufferedInputStream httpIn = new BufferedInputStream(source);
-                final OutputStream clientOut = getResponse().getOutputStream();
+      final String locationValue = locationHeader.get(0);
+      if (locationValue == null) {
+         throw new HttpException("Expected header was not found in response: " + headerName + " (Response Code: " + getResponseCode() + ")");
+      }
 
-                //Using a buffered stream so this isn't nearly as expensive as it looks
-                int readData;
-                byte bytes[] = new byte[bufferSize];
-
-                while ((readData = httpIn.read(bytes)) != -1) {
-                    clientOut.write(bytes, 0, readData);
-                }
-
-                httpIn.close();
-                clientOut.flush();
-                clientOut.close();
-            }
-            clientResponse.close();
-        }
-    }
-
-    @Override
-    protected String getResponseHeaderValue(String headerName) throws HttpException {
-        final List<String> locationHeader = clientResponse.getHeaders().get(headerName);
-        if (locationHeader == null || locationHeader.isEmpty()) {
-            throw new HttpException("Expected header was not found in response: " + headerName + " (Response Code: " + getResponseCode() + ")");
-        }
-
-        final String locationValue = locationHeader.get(0);
-        if (locationValue == null) {
-            throw new HttpException("Expected header was not found in response: " + headerName + " (Response Code: " + getResponseCode() + ")");
-        }
-
-        return locationValue;
-    }
+      return locationValue;
+   }
 }
