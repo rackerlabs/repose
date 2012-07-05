@@ -1,15 +1,11 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
-
 import com.rackspace.papi.commons.util.io.ByteBufferInputStream;
 import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
-import java.io.BufferedInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import javax.servlet.ServletOutputStream;
@@ -45,23 +41,25 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
    private boolean error = false;
    private Throwable exception;
    private String message;
-   private boolean responseModified = false;
-   private ProxiedResponse proxiedResponse;
 
    private MutableHttpServletResponse(HttpServletResponse response) {
       super(response);
-      createInternalBuffer();
    }
 
    public void pushOutputStream() {
       outputs.addFirst(new OutputStreamItem(internalBuffer, outputStream, outputStreamWriter));
-      createInternalBuffer();
+      this.internalBuffer = null;
+      this.outputStream = null;
+      this.outputStreamWriter = null;
    }
 
    public void popOutputStream() throws IOException {
-      // Convert current output to input
-      input = getInputStream();
-
+      
+      if (bufferedOutput()) {
+         input.close();
+         input = new ByteBufferInputStream(internalBuffer);
+      }
+      
       OutputStreamItem item = outputs.removeFirst();
       this.internalBuffer = item.internalBuffer;
       this.outputStream = item.outputStream;
@@ -69,40 +67,38 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
    }
 
    private void createInternalBuffer() {
-      internalBuffer = new CyclicByteBuffer(DEFAULT_BUFFER_SIZE, true);
-      outputStream = new ByteBufferServletOutputStream(internalBuffer);
-      //outputStreamWriter = new PrintWriter(outputStream);
+      if (internalBuffer == null) {
+         internalBuffer = new CyclicByteBuffer(DEFAULT_BUFFER_SIZE, true);
+         outputStream = new ByteBufferServletOutputStream(internalBuffer);
+         outputStreamWriter = new PrintWriter(outputStream);
+      }
+   }
+   
+   private boolean bufferedOutput() {
+      if (outputStreamWriter != null) {
+         outputStreamWriter.flush();
+      }
+
+      return internalBuffer != null && internalBuffer.available() > 0;
    }
 
    @Override
    public InputStream getInputStream() throws IOException {
 
-      if (outputStreamWriter != null) {
-         outputStreamWriter.flush();
-      }
-      
-      if (internalBuffer.available() > 0) {
-         responseModified = true;
+      if (bufferedOutput()) {
          // We have written to the output stream... use that as the input stream now.
          return new ByteBufferInputStream(internalBuffer);
-      } else if (input != null) {
-         // We didn't write anything, but we have an input stream that may have data
-         return input;
-      } else if (proxiedResponse != null) {
-         // No input stream yet, but we have a response from the end service
-         InputStream input = proxiedResponse.getInputStream();
-         if (input != null) {
-            return input;
-         }
       }
 
-      return null;
+      return input;
    }
 
    @Override
    public InputStream getBufferedOutputAsInputStream() {
       if (outputStreamWriter != null) {
          outputStreamWriter.flush();
+      } else {
+         createInternalBuffer();
       }
       return new ByteBufferInputStream(internalBuffer);
    }
@@ -113,36 +109,30 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
 
       super.flushBuffer();
    }
-
-   public void setProxiedResponse(ProxiedResponse response) {
-      this.proxiedResponse = response;
-   }
-
-   public ProxiedResponse getProxiedResponse() {
-      return proxiedResponse;
+   
+   public void setInputStream(InputStream input) throws IOException {
+      if (this.input != null) {
+         this.input.close();
+      }
+      this.input = input;
    }
 
    public void commitBufferToServletOutputStream() throws IOException {
 
-      if (!responseModified) {
-         if (proxiedResponse != null) {
-            setContentLength(proxiedResponse.getContentLength());
-         }
-      }
-
       if (outputStreamWriter != null) {
          outputStreamWriter.flush();
       }
-      
-      final ServletOutputStream realOutputStream = super.getOutputStream();
+
+      final OutputStream out = new BufferedOutputStream(super.getOutputStream());
       final InputStream inputStream = getInputStream();
       try {
          if (inputStream != null) {
-            RawInputStreamReader.instance().copyTo(new BufferedInputStream(inputStream), realOutputStream, 1024);
+            RawInputStreamReader.instance().copyTo(new BufferedInputStream(inputStream), out, 1024);
          }
       } finally {
-         if (proxiedResponse != null) {
-            proxiedResponse.close();
+         out.flush();
+         if (inputStream != null) {
+            inputStream.close();
          }
       }
    }
@@ -172,24 +162,23 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
    }
 
    public int getResponseSize() {
-      return internalBuffer != null ? internalBuffer.available() : proxiedResponse != null ? proxiedResponse.getContentLength() : 0;
+      return internalBuffer != null ? internalBuffer.available() : -1;
    }
 
    @Override
    public int getBufferSize() {
-      return internalBuffer.available() + internalBuffer.remaining();
+      return internalBuffer != null? internalBuffer.available() + internalBuffer.remaining(): 0;
    }
 
    @Override
    public ServletOutputStream getOutputStream() throws IOException {
+      createInternalBuffer();
       return outputStream;
    }
 
    @Override
    public PrintWriter getWriter() throws IOException {
-      if (outputStreamWriter == null) {
-         outputStreamWriter = new PrintWriter(outputStream);
-      }
+      createInternalBuffer();
       return outputStreamWriter;
    }
 

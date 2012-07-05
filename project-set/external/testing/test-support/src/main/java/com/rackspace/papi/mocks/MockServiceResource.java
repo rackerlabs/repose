@@ -85,7 +85,7 @@ public class MockServiceResource {
     }
 
     @GET
-    @Path("/responsesize/{size}")
+    @Path("{prefix: .*}/responsesize/{size}")
     public StreamingOutput getSizedResponse(@PathParam("size") int size, @Context HttpHeaders headers, @Context UriInfo uri) {
         final byte[] data = new byte[size];
         for (int i = 0; i < size; i++) {

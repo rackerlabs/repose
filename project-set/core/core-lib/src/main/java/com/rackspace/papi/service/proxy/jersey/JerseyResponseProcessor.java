@@ -36,7 +36,7 @@ class JerseyResponseProcessor extends AbstractResponseProcessor {
     protected void setResponseBody() throws IOException {
         if (getResponse() instanceof MutableHttpServletResponse) {
             MutableHttpServletResponse mutableResponse = MutableHttpServletResponse.wrap(getResponse());
-            mutableResponse.setProxiedResponse(new JerseyResponse(clientResponse));
+            mutableResponse.setInputStream(new JerseyInputStream(clientResponse));
         } else {
             final InputStream source = clientResponse.getEntityInputStream();
             final int bufferSize = 1024;
