@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.proxy.httpcomponent;
 
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -29,10 +30,15 @@ public class HttpComponentResponseProcessor extends AbstractResponseProcessor {
    protected void setResponseBody() throws IOException {
       HttpEntity entity = httpResponse.getEntity();
       if (entity != null) {
-         final OutputStream clientOut = getResponse().getOutputStream();
-         entity.writeTo(clientOut);
-         clientOut.flush();
-         EntityUtils.consume(entity);
+         if (getResponse() instanceof MutableHttpServletResponse) {
+            MutableHttpServletResponse mutableResponse = MutableHttpServletResponse.wrap(getResponse());
+            mutableResponse.setInputStream(new HttpComponentInputStream(entity));
+         } else {
+            final OutputStream clientOut = getResponse().getOutputStream();
+            entity.writeTo(clientOut);
+            clientOut.flush();
+            EntityUtils.consume(entity);
+         }
       }
 
    }

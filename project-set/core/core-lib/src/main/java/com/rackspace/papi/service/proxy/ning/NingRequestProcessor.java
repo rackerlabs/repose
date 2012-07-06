@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.ning.http.client.RequestBuilder;
+import com.rackspace.papi.http.proxy.common.AbstractRequestProcessor;
 import com.rackspace.papi.service.proxy.TargetHostInfo;
 import java.nio.ByteBuffer;
 import javax.servlet.ServletInputStream;
@@ -21,7 +22,7 @@ import javax.servlet.ServletInputStream;
  * request body as necessary.
  *
  */
-class NingRequestProcessor {
+class NingRequestProcessor extends AbstractRequestProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(NingRequestProcessor.class);
     private final URI targetHost;
@@ -159,6 +160,10 @@ class NingRequestProcessor {
         while (headerNames.hasMoreElements()) {
             String header = headerNames.nextElement();
 
+            if (excludeHeader(header)) {
+               continue;
+            }
+            
             Enumeration<String> values = request.getHeaders(header);
             while (values.hasMoreElements()) {
                 String value = values.nextElement();
@@ -168,7 +173,7 @@ class NingRequestProcessor {
     }
 
     private boolean canHaveBody() {
-        return !("GET".equalsIgnoreCase(request.getMethod()) || "HEAD".equalsIgnoreCase(request.getMethod()));
+        return !("GET".equalsIgnoreCase(request.getMethod()) || "HEAD".equalsIgnoreCase(request.getMethod()) || "TRACE".equalsIgnoreCase(request.getMethod()));
     }
 
     private RequestBodyGenerator getData() throws IOException {

@@ -9,13 +9,14 @@ import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
 
 import static com.rackspace.papi.http.Headers.*;
+import com.rackspace.papi.http.proxy.common.AbstractRequestProcessor;
 
 /**
  * Process a request to copy over header values, query string parameters, and
  * request body as necessary.
  * 
  */
-class HttpComponentRequestProcessor {
+class HttpComponentRequestProcessor extends AbstractRequestProcessor {
     private final HttpServletRequest sourceRequest;
     private final HttpHost targetHost;
 
@@ -73,8 +74,9 @@ class HttpComponentRequestProcessor {
 
         while (headerNames.hasMoreElements()) {
             final String headerName = headerNames.nextElement();
-            if ("Content-Length".equalsIgnoreCase(headerName)) {
-              continue;
+            
+            if (excludeHeader(headerName)) {
+               continue;
             }
 
             final Enumeration<String> headerValues = sourceRequest.getHeaders(headerName);
