@@ -6,6 +6,6 @@ import java.io.InputStream;
 
 public interface ReadableHttpServletResponse extends HttpServletResponse {
 
-    InputStream getBufferedOutputAsInputStream();
+    InputStream getBufferedOutputAsInputStream() throws IOException;
     InputStream getInputStream() throws IOException;
 }

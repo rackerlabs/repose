@@ -54,12 +54,12 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
    }
 
    public void popOutputStream() throws IOException {
-      
+
       if (bufferedOutput()) {
          input.close();
          input = new ByteBufferInputStream(internalBuffer);
       }
-      
+
       OutputStreamItem item = outputs.removeFirst();
       this.internalBuffer = item.internalBuffer;
       this.outputStream = item.outputStream;
@@ -73,7 +73,7 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
          outputStreamWriter = new PrintWriter(outputStream);
       }
    }
-   
+
    private boolean bufferedOutput() {
       if (outputStreamWriter != null) {
          outputStreamWriter.flush();
@@ -93,12 +93,19 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
       return input;
    }
 
+   private void bufferInput() throws IOException {
+      createInternalBuffer();
+      if (input != null) {
+         RawInputStreamReader.instance().copyTo(input, outputStream);
+      }
+   }
+
    @Override
-   public InputStream getBufferedOutputAsInputStream() {
+   public InputStream getBufferedOutputAsInputStream() throws IOException {
       if (outputStreamWriter != null) {
          outputStreamWriter.flush();
       } else {
-         createInternalBuffer();
+         bufferInput();
       }
       return new ByteBufferInputStream(internalBuffer);
    }
@@ -109,7 +116,7 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
 
       super.flushBuffer();
    }
-   
+
    public void setInputStream(InputStream input) throws IOException {
       if (this.input != null) {
          this.input.close();
@@ -168,7 +175,7 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
 
    @Override
    public int getBufferSize() {
-      return internalBuffer != null? internalBuffer.available() + internalBuffer.remaining(): 0;
+      return internalBuffer != null ? internalBuffer.available() + internalBuffer.remaining() : 0;
    }
 
    @Override
