@@ -56,7 +56,9 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
    public void popOutputStream() throws IOException {
 
       if (bufferedOutput()) {
-         input.close();
+         if (input != null) {
+            input.close();
+         }
          input = new ByteBufferInputStream(internalBuffer);
       }
 
@@ -131,11 +133,18 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
       }
 
       //final OutputStream out = new BufferedOutputStream(super.getOutputStream());
+
+      if (bufferedOutput()) {
+         setContentLength(internalBuffer.available());
+      }
+      
       final OutputStream out = super.getOutputStream();
       final InputStream inputStream = getInputStream();
       try {
          if (inputStream != null) {
             RawInputStreamReader.instance().copyTo(inputStream, out);
+         } else {
+            setContentLength(0);
          }
       } finally {
          out.flush();
