@@ -12,7 +12,7 @@ import static com.rackspace.papi.http.Headers.LOCATION;
 import com.rackspace.papi.http.proxy.HttpException;
 
 public abstract class AbstractResponseProcessor {
-   private static final String[] EXCLUDE_HEADERS = { "content-length", "connection", "transfer-encoding", "server" };
+   private static final String[] EXCLUDE_HEADERS = { "connection", "transfer-encoding", "server" };
    private static final TreeSet<String> EXCLUDE_HEADERS_SET = new TreeSet<String>(Arrays.asList(EXCLUDE_HEADERS));
    
    private final HttpServletResponse response;
