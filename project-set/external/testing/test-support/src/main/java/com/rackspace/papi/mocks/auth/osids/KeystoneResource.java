@@ -1,5 +1,6 @@
 package com.rackspace.papi.mocks.auth.osids;
 
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.mocks.BaseResource;
 import com.rackspace.papi.mocks.auth.osids.providers.KeystonePropertiesProvider;
 import com.rackspace.papi.mocks.auth.osids.providers.KeystoneProvider;
@@ -58,7 +59,7 @@ public class KeystoneResource extends BaseResource {
     @GET
     @Path("/tokens/{token}")
     @Produces(MediaType.APPLICATION_XML)
-    public Response validateToken(@PathParam("token") String userToken, @HeaderParam("X-Auth-Token") String authToken, @Context UriInfo context) {
+    public Response validateToken(@PathParam("token") String userToken, @HeaderParam("X-Auth-Token") String authToken, @QueryParam("belongsTo") String belongsTo, @Context UriInfo context) {
         KeystoneProvider p = getProvider();
         ResponseWrapper wrapper = new JaxbElementWrapper();
 
@@ -72,6 +73,13 @@ public class KeystoneResource extends BaseResource {
         }
 
         String userName = p.getUsernameFromToken(userToken);
+
+        if (!StringUtilities.isBlank(belongsTo)) {
+            if (!belongsTo.equals(userName)) {
+                return Response.status(Response.Status.NOT_FOUND).entity(wrapper.wrapElement(p.createItemNotFound())).build();
+
+            }
+        }
 
         AuthenticateResponse response = p.newAuthenticateResponse();
 
