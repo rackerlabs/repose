@@ -2,6 +2,7 @@ package com.rackspace.papi.service.proxy.jersey;
 
 import static com.rackspace.papi.http.Headers.HOST;
 import com.rackspace.papi.http.proxy.common.AbstractRequestProcessor;
+import com.sun.jersey.api.client.PartialRequestBuilder;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
 import java.io.*;
@@ -85,7 +86,7 @@ class JerseyRequestProcessor extends AbstractRequestProcessor {
      *
      * @param method
      */
-   private void setHeaders(Builder builder) {
+   private void setHeaders(PartialRequestBuilder builder) {
       final Enumeration<String> headerNames = request.getHeaderNames();
 
       while (headerNames.hasMoreElements()) {
@@ -124,10 +125,12 @@ class JerseyRequestProcessor extends AbstractRequestProcessor {
    }
    
    private InputStream getRequestStream() throws IOException {
-      PushbackInputStream stream = new PushbackInputStream(request.getInputStream(), 1);
-      if (stream == null) {
-         return null;
+      InputStream in = request.getInputStream();
+      
+      if (in == null) {
+          return null;
       }
+      PushbackInputStream stream = new PushbackInputStream(in, 1);
       
       int read = stream.read();
       if (read == -1) {
@@ -150,7 +153,7 @@ class JerseyRequestProcessor extends AbstractRequestProcessor {
       return process(setRequestParameters(method).getRequestBuilder());
    }
 
-   public Builder process(Builder builder) throws IOException {
+   public <T extends PartialRequestBuilder> T process(T builder) throws IOException {
 
       setHeaders(builder);
       InputStream input = getRequestStream();
