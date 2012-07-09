@@ -9,6 +9,7 @@
     </openstack-auth>
     <white-list>
         <uri-pattern uri-regex="/v2/application\.wadl" />
-        <uri-pattern uri-regex="/delayedresponse/.*" />
+        <uri-pattern uri-regex="/v2/delayedresponse/.*" />
+        <uri-pattern uri-regex="/v2/statuscode/.*" />
     </white-list>
 </client-auth>
