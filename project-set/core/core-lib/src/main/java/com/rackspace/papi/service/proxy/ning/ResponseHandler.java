@@ -15,7 +15,11 @@ public class ResponseHandler implements AsyncHandler<Response> {
     private AsyncHttpClient client;
 
     public ResponseHandler(HttpServletResponse response) {
-        this.builder = new Response.ResponseBuilder();
+        this(response, new Response.ResponseBuilder());
+    }
+    
+    ResponseHandler(HttpServletResponse response, Response.ResponseBuilder builder) {
+        this.builder = builder;
         this.response = response;
     }
 
