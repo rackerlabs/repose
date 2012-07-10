@@ -99,7 +99,11 @@ class NingRequestProcessor extends AbstractRequestProcessor {
     }
 
     public NingRequestProcessor(HttpServletRequest request, TargetHostInfo host) throws IOException {
-        this.builder = new RequestBuilder(request.getMethod());
+        this(request, host, new RequestBuilder(request.getMethod()));
+    }
+    
+    NingRequestProcessor(HttpServletRequest request, TargetHostInfo host, RequestBuilder builder) throws IOException {
+        this.builder = builder;
         this.targetHost = host.getProxiedHostUri();
         this.targetUrl = host.getProxiedHostUrl().toExternalForm() + request.getRequestURI();
         this.request = request;
