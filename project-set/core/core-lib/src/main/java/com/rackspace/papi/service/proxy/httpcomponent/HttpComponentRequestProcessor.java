@@ -1,15 +1,14 @@
 package com.rackspace.papi.service.proxy.httpcomponent;
 
-import org.apache.http.HttpHost;
-import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpRequestBase;
+import static com.rackspace.papi.http.Headers.HOST;
+import com.rackspace.papi.http.proxy.common.AbstractRequestProcessor;
 import java.io.IOException;
 import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
-
-import static com.rackspace.papi.http.Headers.*;
-import com.rackspace.papi.http.proxy.common.AbstractRequestProcessor;
+import org.apache.http.HttpHost;
+import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.entity.InputStreamEntity;
 
 /**
  * Process a request to copy over header values, query string parameters, and
@@ -38,7 +37,7 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
         String name = names.nextElement();
         String[] values = sourceRequest.getParameterValues(name);
         for (String value: values) {
-          method.getParams().setParameter(value, value);
+          method.getParams().setParameter(name, value);
         }
       }
     }

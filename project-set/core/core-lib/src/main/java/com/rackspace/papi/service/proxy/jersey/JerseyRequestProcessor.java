@@ -32,7 +32,7 @@ class JerseyRequestProcessor extends AbstractRequestProcessor {
       this.request = request;
    }
 
-   private WebResource setRequestParameters(WebResource method) {
+   public WebResource setRequestParameters(WebResource method) {
       WebResource newMethod = method;
       final String queryString = request.getQueryString();
 
@@ -100,28 +100,6 @@ class JerseyRequestProcessor extends AbstractRequestProcessor {
       }
    }
 
-   private byte[] getData() throws IOException {
-      InputStream inputStream = request.getInputStream();
-
-      if (inputStream != null) {
-
-         final BufferedInputStream httpIn = new BufferedInputStream(inputStream);
-         final ByteArrayOutputStream clientOut = new ByteArrayOutputStream();
-
-         int readData;
-
-         while ((readData = httpIn.read()) != -1) {
-            clientOut.write(readData);
-         }
-
-         clientOut.flush();
-
-         return clientOut.toByteArray();
-      }
-
-      return null;
-   }
-   
    private InputStream getRequestStream() throws IOException {
       InputStream in = request.getInputStream();
       
