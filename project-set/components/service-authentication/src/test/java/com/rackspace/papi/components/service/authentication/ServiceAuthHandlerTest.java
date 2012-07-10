@@ -38,18 +38,23 @@ public class ServiceAuthHandlerTest {
         private final String authHash = "Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==";
         private HttpServletRequest httpServletRequest;
         private ReadableHttpServletResponse httpServletResponse;
+        private ServiceAuthHandlerFactory factory;
 
         @Before
         public void setUp() {
 
             basicAuthConfig = new ServiceAuthenticationConfig();
+            factory = new ServiceAuthHandlerFactory();
             credentials = new Credentials();
+            
 
             credentials.setPassword(password);
             credentials.setUsername(username);
 
             basicAuthConfig.setCredentials(credentials);
-            handler = new ServiceAuthHandler(basicAuthConfig);
+            factory.configurationUpdated(basicAuthConfig);
+            
+            handler = factory.buildHandler();
 
             httpServletRequest = mock(HttpServletRequest.class);
             httpServletResponse = mock(ReadableHttpServletResponse.class);
