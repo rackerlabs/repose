@@ -22,6 +22,10 @@ public class HttpComponentInputStream extends InputStream {
       if (entity != null) {
          EntityUtils.consume(entity);
       }
+      
+      if (source != null) {
+          source.close();
+      }
    }
 
    @Override

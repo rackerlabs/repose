@@ -8,9 +8,7 @@ import com.sun.jersey.api.client.WebResource.Builder;
 import java.io.*;
 import java.net.URI;
 import java.net.URLDecoder;
-import java.util.Arrays;
 import java.util.Enumeration;
-import java.util.TreeSet;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -34,7 +32,7 @@ class JerseyRequestProcessor extends AbstractRequestProcessor {
       this.request = request;
    }
 
-   private WebResource setRequestParameters(WebResource method) {
+   public WebResource setRequestParameters(WebResource method) {
       WebResource newMethod = method;
       final String queryString = request.getQueryString();
 
@@ -102,28 +100,6 @@ class JerseyRequestProcessor extends AbstractRequestProcessor {
       }
    }
 
-   private byte[] getData() throws IOException {
-      InputStream inputStream = request.getInputStream();
-
-      if (inputStream != null) {
-
-         final BufferedInputStream httpIn = new BufferedInputStream(inputStream);
-         final ByteArrayOutputStream clientOut = new ByteArrayOutputStream();
-
-         int readData;
-
-         while ((readData = httpIn.read()) != -1) {
-            clientOut.write(readData);
-         }
-
-         clientOut.flush();
-
-         return clientOut.toByteArray();
-      }
-
-      return null;
-   }
-   
    private InputStream getRequestStream() throws IOException {
       InputStream in = request.getInputStream();
       
