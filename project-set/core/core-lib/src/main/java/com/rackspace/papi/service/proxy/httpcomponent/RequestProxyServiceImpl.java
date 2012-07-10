@@ -1,6 +1,7 @@
 package com.rackspace.papi.service.proxy.httpcomponent;
 
 import com.rackspace.papi.commons.util.StringUriUtilities;
+import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.http.proxy.HttpException;
@@ -24,8 +25,6 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.params.ClientPNames;
-import org.apache.http.client.protocol.RequestAcceptEncoding;
-import org.apache.http.client.protocol.ResponseContentEncoding;
 import org.apache.http.client.utils.URIUtils;
 import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.conn.scheme.SchemeRegistry;
@@ -43,6 +42,8 @@ import org.springframework.stereotype.Component;
 public class RequestProxyServiceImpl implements RequestProxyService {
 
    private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);
+   private static final int DEFAULT_HTTP_PORT = 80;
+   private static final int DEFAULT_HTTPS_PORT = 443;
    private final Object clientLock = new Object();
    private Integer connectionTimeout = Integer.valueOf(0);
    private Integer readTimeout = Integer.valueOf(0);
@@ -70,7 +71,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             SSLContext sslContext = ProxyUtilities.getTrustingSslContext();
             SSLSocketFactory ssf = new SSLSocketFactory(sslContext, SSLSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
             SchemeRegistry registry = manager.getSchemeRegistry();
-            Scheme scheme = new Scheme("https", 443, ssf);
+            Scheme scheme = new Scheme("https", DEFAULT_HTTPS_PORT, ssf);
             registry.register(scheme);
             client = new DefaultHttpClient(manager);
             //client.addResponseInterceptor(new ResponseContentEncoding());
@@ -110,7 +111,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
    private String extractHostPath(HttpServletRequest request) {
       final StringBuilder myHostName = new StringBuilder(request.getServerName());
 
-      if (request.getServerPort() != 80) {
+      if (request.getServerPort() != DEFAULT_HTTP_PORT) {
          myHostName.append(":").append(request.getServerPort());
       }
 
@@ -175,7 +176,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
          base.releaseConnection();
       }
       
-      return new ServiceClientResponse(500, null);
+      return new ServiceClientResponse(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), null);
    }
 
    @Override
