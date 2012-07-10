@@ -8,19 +8,18 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import org.apache.commons.codec.binary.Base64;
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
 
 public class ServiceAuthHandler extends AbstractFilterLogicHandler {
 
-    private final ServiceAuthenticationConfig config;
     public static final String AUTH_HEADER = "Authorization";
+    private String credentials;
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ServiceAuthHandler.class);
-    public ServiceAuthHandler(ServiceAuthenticationConfig config) {
-        this.config = config;
+
+    public ServiceAuthHandler(String credentials) {
+        this.credentials = credentials;
 
     }
 
@@ -29,22 +28,10 @@ public class ServiceAuthHandler extends AbstractFilterLogicHandler {
 
         final FilterDirector filterDirector = new FilterDirectorImpl();
         filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
-        
-        if(config.getCredentials() == null){
-            LOG.warn("Unable to locate config file for Reverse Proxy Basic Auth Filter");
-            return filterDirector;
-        }
 
-        StringBuilder preHash = new StringBuilder(config.getCredentials().getUsername());
-        StringBuilder postHash = new StringBuilder("Basic ");
-        preHash.append(":").append(config.getCredentials().getPassword());
-        try{
-            postHash.append(Base64.encodeBase64String(preHash.toString().getBytes("UTF-8")).trim());
-        }catch(UnsupportedEncodingException e){
-            LOG.error("Failed to update basic credentials. Reason: " + e.getMessage(), e);
+        if(!StringUtilities.isBlank(credentials)) {
+            filterDirector.requestHeaderManager().putHeader(AUTH_HEADER, credentials);
         }
-        
-        filterDirector.requestHeaderManager().putHeader(AUTH_HEADER, postHash.toString());
         return filterDirector;
     }
 
