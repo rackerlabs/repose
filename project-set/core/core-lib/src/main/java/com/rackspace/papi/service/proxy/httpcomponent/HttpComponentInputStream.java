@@ -52,8 +52,7 @@ public class HttpComponentInputStream extends InputStream {
          return -1;
       }
       
-      int read = source.read(bytes, i, i1);
-      return read;
+      return source.read(bytes, i, i1);
    }
 
    @Override

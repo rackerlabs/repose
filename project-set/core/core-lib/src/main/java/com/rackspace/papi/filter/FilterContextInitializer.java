@@ -1,11 +1,9 @@
 package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.model.Filter;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
-import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

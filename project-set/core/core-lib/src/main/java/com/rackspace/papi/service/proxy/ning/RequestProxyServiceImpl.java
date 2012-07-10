@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 public class RequestProxyServiceImpl implements RequestProxyService {
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);
+    private static final int DEFAULT_HTTP_PORT = 80;
     private final Object clientLock = new Object();
     private Integer connectionTimeout = Integer.valueOf(0);
     private Integer readTimeout = Integer.valueOf(0);
@@ -36,7 +37,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private String extractHostPath(HttpServletRequest request) {
         final StringBuilder myHostName = new StringBuilder(request.getServerName());
 
-        if (request.getServerPort() != 80) {
+        if (request.getServerPort() != DEFAULT_HTTP_PORT) {
             myHostName.append(":").append(request.getServerPort());
         }
 

@@ -73,12 +73,9 @@ public class KeystoneResource extends BaseResource {
         }
 
         String userName = p.getUsernameFromToken(userToken);
-
-        if (!StringUtilities.isBlank(belongsTo)) {
-            if (!belongsTo.equals(userName)) {
-                return Response.status(Response.Status.NOT_FOUND).entity(wrapper.wrapElement(p.createItemNotFound())).build();
-
-            }
+        
+        if(!StringUtilities.isBlank(belongsTo) && !StringUtilities.nullSafeEquals(belongsTo, userName)){
+            return Response.status(Response.Status.NOT_FOUND).entity(wrapper.wrapElement(p.createItemNotFound())).build();
         }
 
         AuthenticateResponse response = p.newAuthenticateResponse();
