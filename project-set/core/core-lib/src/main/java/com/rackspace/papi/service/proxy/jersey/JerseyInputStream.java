@@ -36,9 +36,8 @@ public class JerseyInputStream extends InputStream {
       if (source == null) {
          return -1;
       }
-      
-      int read = source.read(bytes, i, i1);
-      return read;
+
+      return source.read(bytes, i, i1);
    }
 
    @Override
