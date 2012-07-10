@@ -19,7 +19,7 @@
         <boolProp name="quotedData">true</boolProp>
         <boolProp name="recycle">false</boolProp>
         <boolProp name="stopThread">true</boolProp>
-        <stringProp name="shareMode">All threads</stringProp>
+        <stringProp name="shareMode">Current thread</stringProp>
       </CSVDataSet>
       <hashTree/>
       <UserParameters guiclass="UserParametersGui" testclass="UserParameters" testname="User Parameters" enabled="true">
