@@ -28,7 +28,7 @@ public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHan
             contextRouterConfiguration = configurationObject;
 
             if (contextRouterConfiguration == null || configurationObject.getTarget() == null) {
-                LOG.warn("Configuration file for Destination router seems to missing or malformed.");
+                LOG.warn("Configuration file for Destination router seems to be missing or malformed.");
             } else {
                 target = contextRouterConfiguration.getTarget();
 
