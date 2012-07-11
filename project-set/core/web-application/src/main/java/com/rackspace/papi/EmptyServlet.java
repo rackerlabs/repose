@@ -32,7 +32,9 @@ public final class EmptyServlet extends HttpServlet {
          return false;
       }
 
-      return initialized = true;
+      initialized = true;
+      
+      return initialized;
    }
 
    @Override

@@ -54,11 +54,12 @@ class JerseyResponseProcessor extends AbstractResponseProcessor {
             final OutputStream clientOut = getResponse().getOutputStream();
 
             //Using a buffered stream so this isn't nearly as expensive as it looks
-            int readData;
             byte bytes[] = new byte[READ_BUFFER_SIZE];
+            int readData = httpIn.read(bytes);
 
-            while ((readData = httpIn.read(bytes)) != -1) {
+            while (readData != -1) {
                clientOut.write(bytes, 0, readData);
+               readData = httpIn.read(bytes);
             }
 
             httpIn.close();
