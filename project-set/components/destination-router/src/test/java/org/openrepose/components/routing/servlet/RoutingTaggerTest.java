@@ -12,6 +12,7 @@ import org.openrepose.components.routing.servlet.config.Target;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.openrepose.components.routing.servlet.config.DestinationRouterConfiguration;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
 
@@ -35,10 +36,15 @@ public class RoutingTaggerTest {
         private HttpServletResponse httpServletResponse;
         private RoutingTagger routingTagger;
         private final String DST = "dst1";
+        private DestinationRouterHandlerFactory factory;
+        private DestinationRouterConfiguration destinationRouterConfig;
 
         @Before
         public void setUp() {
-
+            
+            destinationRouterConfig = new DestinationRouterConfiguration();
+            factory = new DestinationRouterHandlerFactory();
+            
             powerProxy = new SystemModel();
             serviceDomain = new ReposeCluster();
             target = new Target();
@@ -59,7 +65,9 @@ public class RoutingTaggerTest {
             serviceDomain.setId("repose");
             serviceDomain.setNodes(domainNodeList);
             serviceDomain.setDestinations(destinationList);
-
+            
+            destinationRouterConfig.setTarget(target);
+            factory.configurationUpdated(destinationRouterConfig);
 
 
             httpServletRequest = mock(HttpServletRequest.class);
@@ -70,7 +78,7 @@ public class RoutingTaggerTest {
         @Test
         public void shouldAddRoute() {
             target.setId("dst1");
-            routingTagger = new RoutingTagger(target);
+            routingTagger = factory.buildHandler();
             FilterDirector director = new FilterDirectorImpl();
 
             director = routingTagger.handleRequest(httpServletRequest, null);
