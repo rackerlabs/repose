@@ -8,10 +8,12 @@ import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import javax.servlet.http.HttpServletRequest;
 import com.rackspace.com.papi.components.checker.Validator;
 import com.rackspace.com.papi.components.checker.step.Result;
+import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -76,6 +78,7 @@ public class XsdValidatorHandler extends AbstractFilterLogicHandler {
          Result validate = validator.validate(request, response, new ValidationFilterChain());         
          if (!validate.valid()) {
             myDirector.setFilterAction(FilterAction.RETURN);
+            myDirector.setResponseStatusCode(response.getStatus());
          }
       }
       

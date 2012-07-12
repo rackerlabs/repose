@@ -1,7 +1,5 @@
 package org.openrepose.components.xsdvalidator.servlet;
 
-
-
 import com.rackspace.com.papi.components.checker.Config;
 import com.rackspace.com.papi.components.checker.Validator;
 import com.rackspace.com.papi.components.checker.handler.ServletResultHandler;
@@ -19,24 +17,24 @@ import org.xml.sax.InputSource;
 
 public class XsdValidatorHandlerFactory extends AbstractConfiguredFilterHandlerFactory<XsdValidatorHandler> {
 
-   private static final Logger LOG = LoggerFactory.getLogger(XsdValidatorHandlerFactory.class);
-   private ValidatorConfiguration validatorConfiguration;
-   private Validator defaultValidator;
-   private Map<String, Validator> validators;
+    private static final Logger LOG = LoggerFactory.getLogger(XsdValidatorHandlerFactory.class);
+    private ValidatorConfiguration validatorConfiguration;
+    private Validator defaultValidator;
+    private Map<String, Validator> validators;
+    private boolean initialized = false;
 
-   public XsdValidatorHandlerFactory() {
-   }
+    public XsdValidatorHandlerFactory() {
+    }
 
-   private class XsdValidationConfigurationListener implements UpdateListener<ValidatorConfiguration> {
+    private void initialize() {
+        if (initialized || validatorConfiguration == null) {
+            return;
+        }
 
-      @Override
-      public void configurationUpdated(ValidatorConfiguration configurationObject) {
-         validatorConfiguration = configurationObject;
+        validators = new HashMap<String, Validator>();
+        defaultValidator = null;
 
-         validators = new HashMap<String, Validator>();
-         defaultValidator = null;
-
-         for (ValidatorItem validatorItem : validatorConfiguration.getValidator()) {
+        for (ValidatorItem validatorItem : validatorConfiguration.getValidator()) {
             Config config = new Config();
             config.setResultHandler(new ServletResultHandler());
             config.setUseSaxonEEValidation(validatorItem.isUseSaxon());
@@ -46,29 +44,39 @@ public class XsdValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
             config.setXPathVersion(validatorItem.getXpathVersion());
 
             try {
-               Validator validator = Validator.apply(new SAXSource(new InputSource(validatorItem.getWadl())), config);
-               validators.put(validatorItem.getRole(), validator);
-               if (validatorItem.isDefault()) {
-                  defaultValidator = validator;
-               }
+                Validator validator = Validator.apply(new SAXSource(new InputSource(validatorItem.getWadl())), config);
+                validators.put(validatorItem.getRole(), validator);
+                if (validatorItem.isDefault()) {
+                    defaultValidator = validator;
+                }
             } catch (Throwable ex) {
-               LOG.warn("Cannot load validator for WADL: " + validatorItem.getWadl());
+                LOG.warn("Cannot load validator for WADL: " + validatorItem.getWadl());
             }
+        }
+        
+        initialized = true;
 
-         }
-      }
-   }
+    }
 
-   @Override
-   protected XsdValidatorHandler buildHandler() {
-      //return new XsdValidatorHandler();
-      return new XsdValidatorHandler(defaultValidator, validators);
-   }
+    private class XsdValidationConfigurationListener implements UpdateListener<ValidatorConfiguration> {
 
-   @Override
-   protected Map<Class, UpdateListener<?>> getListeners() {
-      final Map<Class, UpdateListener<?>> updateListeners = new HashMap<Class, UpdateListener<?>>();
-      updateListeners.put(ValidatorConfiguration.class, new XsdValidationConfigurationListener());
-      return updateListeners;
-   }
+        @Override
+        public void configurationUpdated(ValidatorConfiguration configurationObject) {
+            validatorConfiguration = configurationObject;
+            initialized = false;
+        }
+    }
+
+    @Override
+    protected XsdValidatorHandler buildHandler() {
+        initialize();
+        return new XsdValidatorHandler(defaultValidator, validators);
+    }
+
+    @Override
+    protected Map<Class, UpdateListener<?>> getListeners() {
+        final Map<Class, UpdateListener<?>> updateListeners = new HashMap<Class, UpdateListener<?>>();
+        updateListeners.put(ValidatorConfiguration.class, new XsdValidationConfigurationListener());
+        return updateListeners;
+    }
 }

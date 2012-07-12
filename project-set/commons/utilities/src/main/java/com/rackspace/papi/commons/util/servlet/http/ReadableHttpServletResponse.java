@@ -7,5 +7,6 @@ import java.io.InputStream;
 public interface ReadableHttpServletResponse extends HttpServletResponse {
 
     InputStream getBufferedOutputAsInputStream() throws IOException;
+    String getMessage();
     InputStream getInputStream() throws IOException;
 }
