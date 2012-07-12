@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://openrepose.org/repose/validator/v1.0"
+           xmlns:scr="http://openrepose.org/repose/validator/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Configuration Schema Definitions -->
+   <xs:element name="validators" type="scr:ValidatorConfiguration" />
+
+   <xs:complexType name="ValidatorConfiguration">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>
+            </html:p>
+         </xs:documentation>
+      </xs:annotation>
+      <xs:sequence>
+         <xs:element name="validator" type="scr:ValidatorItem" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+
+   </xs:complexType>
+   
+   <xs:complexType name="ValidatorItem">
+      <xs:attribute name="role" type="xs:string" use="required">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>
+               </html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="default" type="xs:boolean" use="optional" default="false">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>
+               </html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="wadl" type="xs:anyURI" use="required">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>
+               </html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="xpath-version" type="xs:int" use="optional" default="2">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>
+               </html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="check-well-formed" type="xs:boolean" use="optional" default="true">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>
+               </html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="check-xsd-grammer" type="xs:boolean" use="optional" default="true">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>
+               </html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="check-elements" type="xs:boolean" use="optional" default="true">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>
+               </html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="use-saxon" type="xs:boolean" use="optional" default="false">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>
+               </html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+
+      
+   </xs:complexType>
+</xs:schema>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-fragment xmlns="http://java.sun.com/xml/ns/javaee">
+    <filter>
+        <filter-name>xsd-validator</filter-name>
+        <filter-class>org.openrepose.components.xsdvalidator.servlet.XsdValidatorFilter</filter-class>
+    </filter>
+</web-fragment>

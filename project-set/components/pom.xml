@@ -35,7 +35,9 @@
         <module>echo</module>
         <module>client-authorization</module>
         <module>client-ip-identity</module>
+        <!--
         <module>xsd-validator</module>
+        -->
         <module>header-normalization</module>
         <module>uri-normalization</module>
     </modules>
@@ -186,12 +188,14 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <!--
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>xsd-validator</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
+            -->
+            
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>uri-identity</artifactId>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<validators xmlns='http://openrepose.org/repose/xsd-validator/v1.0'>
+   <validator 
+      role="default"
+      default="true"
+      wadl="file://my/wadl/file.wadl" 
+      check-well-formed="false" 
+      check-xsd-grammer="true" 
+      check-elements="true" 
+      use-saxon="false"/>
+   <validator role="other" default="false" uri-regex="/some/other/path/?.*" wadl="file://a/different/wadl/file.wadl"/>
+</validators>

@@ -116,11 +116,13 @@
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>client-ip-identity</artifactId>
         </dependency>
-        
+
+        <!--
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
             <artifactId>xsd-validator</artifactId>
         </dependency>
+        -->
         
     </dependencies>
 
