@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util.logging.apache;
 
+import com.rackspace.papi.commons.util.logging.apache.constraint.StatusCodeConstraint;
 import com.rackspace.papi.commons.util.logging.apache.format.FormatArgumentHandler;
 import com.rackspace.papi.commons.util.logging.apache.format.LogArgumentFormatter;
 import com.rackspace.papi.commons.util.logging.apache.format.stock.*;
