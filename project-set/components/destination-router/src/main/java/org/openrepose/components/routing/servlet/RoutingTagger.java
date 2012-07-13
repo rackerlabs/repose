@@ -13,7 +13,6 @@ import javax.servlet.http.HttpServletRequest;
 public class RoutingTagger extends AbstractFilterLogicHandler {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RoutingTagger.class);
-    private static final String DEFAULT_QUALITY = "0.5";
     private String id;
     private float quality;
 

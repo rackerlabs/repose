@@ -14,7 +14,7 @@ public abstract class AbstractHashedDatastore implements Datastore {
    private final EncodingProvider encodingProvider;
    private final MessageDigestFactory hashProvider;
    private final String datasetPrefix;
-   private final int DEFAULT_TTL = 5;
+   private static final int DEFAULT_TTL = 5;
 
    public AbstractHashedDatastore(String datasetPrefix, EncodingProvider encodingProvider, MessageDigestFactory digestProvider) {
       this.encodingProvider = encodingProvider;
