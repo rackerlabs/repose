@@ -24,6 +24,7 @@ import org.springframework.stereotype.Component;
 public class RequestProxyServiceImpl implements RequestProxyService {
 
     private static final Integer DEFAULT_THREADPOOL_SIZE = 20;
+    private static final Integer DEFAULT_HTTP_PORT = 80;
     private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);
     private ClientWrapper client;
     private Integer connectionTimeout = Integer.valueOf(0);
@@ -54,7 +55,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             if (client == null) {
                 LOG.info("Building Jersey Http Client");
                 JerseyPropertiesConfigurator jerseyPropertiesConfigurator = new JerseyPropertiesConfigurator(connectionTimeout, readTimeout, proxyThreadPool, true);
-                URLConnectionClientHandler urlConnectionClientHandler = new URLConnectionClientHandler(new ReposeHttpUrlConnectionFactory());                
+                URLConnectionClientHandler urlConnectionClientHandler = new URLConnectionClientHandler(new ReposeHttpUrlConnectionFactory());
                 client = new ClientWrapper(new Client(urlConnectionClientHandler, jerseyPropertiesConfigurator.configure()), requestLogging);
             }
 
@@ -84,7 +85,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private String extractHostPath(HttpServletRequest request) {
         final StringBuilder myHostName = new StringBuilder(request.getServerName());
 
-        if (request.getServerPort() != 80) {
+        if (request.getServerPort() != DEFAULT_HTTP_PORT) {
             myHostName.append(":").append(request.getServerPort());
         }
 

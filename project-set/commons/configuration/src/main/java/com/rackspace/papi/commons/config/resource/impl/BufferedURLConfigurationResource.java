@@ -23,11 +23,12 @@ public class BufferedURLConfigurationResource implements ConfigurationResource<B
    private final URL resourceUrl;
    private ByteBuffer byteBuffer;
    private byte[] digest;
+   private final int DEFAULT_BYTE_ARRAY_SIZE = 2048;
 
    public BufferedURLConfigurationResource(URL resourceUrl) {
       this.resourceUrl = resourceUrl;
 
-      internalByteArray = new byte[2048];
+      internalByteArray = new byte[DEFAULT_BYTE_ARRAY_SIZE];
    }
 
    @Override

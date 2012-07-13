@@ -27,6 +27,7 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
 
    private static final Logger LOG = LoggerFactory.getLogger(VersioningHandler.class);
    private static final ObjectFactory VERSIONING_OBJECT_FACTORY = new ObjectFactory();
+   private static final double VERSIONING_DEFAULT_QUALITY = 0.5;
    private final ConfigurationData configurationData;
    private final ContentTransformer transformer;
 
@@ -92,7 +93,7 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
          filterDirector.setResponseStatus(HttpStatusCode.OK);
          filterDirector.setFilterAction(FilterAction.RETURN);
       } else {
-         filterDirector.addDestination(targetOriginService.getOriginServiceHost(), versionedRequest.asInternalURI(), (float) 0.5);
+         filterDirector.addDestination(targetOriginService.getOriginServiceHost(), versionedRequest.asInternalURI(), (float) VERSIONING_DEFAULT_QUALITY);
          filterDirector.setFilterAction(FilterAction.PASS);
       }
    }

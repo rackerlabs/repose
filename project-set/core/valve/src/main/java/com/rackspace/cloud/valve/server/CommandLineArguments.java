@@ -8,6 +8,7 @@ public class CommandLineArguments {
    private static final String DEFAULT_HTTPS_PORT_INFO = "(Default is only run Repose on http if https port not specified, range is 1024 to 49150)";
    public static final String ACTION_START = "start";
    public static final String ACTION_STOP = "stop";
+   private static final int DEFAULT_STOP_PORT = 8818;
 
    @Option(name = "-p", aliases = {"--http-port"},
            usage = "Repose http port number " + DEFAULT_HTTP_PORT_INFO)
@@ -19,7 +20,7 @@ public class CommandLineArguments {
 
    @Option(name = "-s", aliases = {"--shutdown-port"},
            usage = "The port used to communicate a shutdown to Repose " + DEFAULT_HTTP_PORT_INFO)
-   private Integer stopPort = 8818;
+   private Integer stopPort = DEFAULT_STOP_PORT;
 
    @Option(name = "-c", aliases = {"--config-file"},
            usage = "The location of the Repose configuration file")

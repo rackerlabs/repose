@@ -11,6 +11,7 @@ import java.security.MessageDigest;
 public class MessageDigestResourceContext implements ResourceContext<MessageDigest, byte[]> {
 
    private final InputStream inputStream;
+   private final int BYTE_BUFFER_SIZE = 1024;
 
    public MessageDigestResourceContext(InputStream inputStream) {
       this.inputStream = inputStream;
@@ -19,7 +20,7 @@ public class MessageDigestResourceContext implements ResourceContext<MessageDige
    @Override
    public byte[] perform(MessageDigest resource) throws ResourceContextException {
       final MessageDigesterOutputStream output = new MessageDigesterOutputStream(resource);
-      final byte[] buffer = new byte[1024];
+      final byte[] buffer = new byte[BYTE_BUFFER_SIZE];
 
       int read;
 

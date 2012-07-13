@@ -14,6 +14,7 @@ public abstract class AbstractHashedDatastore implements Datastore {
    private final EncodingProvider encodingProvider;
    private final MessageDigestFactory hashProvider;
    private final String datasetPrefix;
+   private final int DEFAULT_TTL = 5;
 
    public AbstractHashedDatastore(String datasetPrefix, EncodingProvider encodingProvider, MessageDigestFactory digestProvider) {
       this.encodingProvider = encodingProvider;
@@ -55,7 +56,7 @@ public abstract class AbstractHashedDatastore implements Datastore {
 
    @Override
    public final void put(String key, byte[] value) throws DatastoreOperationException {
-      put(key, value, 5, TimeUnit.MINUTES);
+      put(key, value, DEFAULT_TTL, TimeUnit.MINUTES);
    }
 
    @Override

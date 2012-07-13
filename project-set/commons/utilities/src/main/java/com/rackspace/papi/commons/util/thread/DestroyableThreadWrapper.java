@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 public class DestroyableThreadWrapper implements Destroyable {
 
    private static final Logger LOG = LoggerFactory.getLogger(DestroyableThreadWrapper.class);
+   private static final int WAIT_TIME = 15;
 
    public static <T extends Destroyable & Runnable> DestroyableThreadWrapper newThread(T threadLogic) {
       return new DestroyableThreadWrapper(new Thread(threadLogic), threadLogic);
@@ -43,7 +44,7 @@ public class DestroyableThreadWrapper implements Destroyable {
 
          while (threadReference.getState() != Thread.State.TERMINATED) {
             try {
-               wait(15);
+               wait(WAIT_TIME);
             } catch (InterruptedException ie) {
                LOG.error("Caught an interrupted exception while waiting for thread death.", ie);
                break;

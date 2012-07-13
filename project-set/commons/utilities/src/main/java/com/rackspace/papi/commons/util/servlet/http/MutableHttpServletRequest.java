@@ -1,6 +1,5 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
-import com.rackspace.papi.commons.util.http.header.HeaderFieldParser;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.header.QualityFactorHeaderChooser;
 import com.rackspace.papi.commons.util.http.normal.QueryParameter;
