@@ -51,6 +51,8 @@ class JerseyRequestProcessor extends AbstractRequestProcessor {
                   LOG.warn("Error decoding query parameter named: " + paramPair[0] + " value: " + paramValue, ex);
                }
                newMethod = newMethod.queryParam(paramPair[0], paramValue);
+            } else {
+               newMethod = newMethod.queryParam(paramPair[0], "");
             }
          }
       }

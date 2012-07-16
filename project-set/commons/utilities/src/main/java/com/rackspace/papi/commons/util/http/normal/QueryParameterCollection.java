@@ -40,7 +40,9 @@ public class QueryParameterCollection {
 
             if (keyValuePair.length == 2) {
                 addParameter(keyValuePair[0], keyValuePair[1]);
-            } // TODO:ErrorCase - else { ... }
+            } else {
+                addParameter(keyValuePair[0], "");
+            }
         }
     }
 
