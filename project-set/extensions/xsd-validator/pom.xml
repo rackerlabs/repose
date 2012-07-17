@@ -3,12 +3,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>com.rackspace.papi.components</groupId>
-        <artifactId>components-support</artifactId>
-        <version>2.1.6-SNAPSHOT</version>
+        <groupId>com.rackspace.papi.components.extensions</groupId>
+        <artifactId>extensions-support</artifactId>
+        <version>2.1.7-SNAPSHOT</version>
     </parent>
 
-    <groupId>com.rackspace.papi.components</groupId>
+    <groupId>com.rackspace.papi.components.extensions</groupId>
     <artifactId>xsd-validator</artifactId>
 
     <name>Repose Components - XSD Validator</name>
