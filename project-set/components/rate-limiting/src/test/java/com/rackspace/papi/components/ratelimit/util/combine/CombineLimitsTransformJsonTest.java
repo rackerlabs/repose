@@ -1,13 +1,14 @@
 package com.rackspace.papi.components.ratelimit.util.combine;
 
 import com.rackspace.papi.commons.util.transform.StreamTransform;
-import com.rackspace.papi.components.limits.schema.HttpMethod;
-import com.rackspace.papi.components.limits.schema.ObjectFactory;
-import com.rackspace.papi.components.limits.schema.RateLimitList;
-import com.rackspace.papi.components.ratelimit.RateLimitListBuilder;
 import com.rackspace.papi.components.ratelimit.RateLimitTestContext;
-import com.rackspace.papi.components.ratelimit.cache.CachedRateLimit;
-import com.rackspace.papi.components.ratelimit.config.ConfiguredLimitGroup;
+import com.rackspace.repose.service.limits.schema.HttpMethod;
+import com.rackspace.repose.service.limits.schema.ObjectFactory;
+import com.rackspace.repose.service.limits.schema.RateLimitList;
+import com.rackspace.repose.service.ratelimit.RateLimitListBuilder;
+import com.rackspace.repose.service.ratelimit.cache.CachedRateLimit;
+import com.rackspace.repose.service.ratelimit.config.ConfiguredLimitGroup;
+
 import com.rackspace.papi.components.ratelimit.util.LimitsEntityStreamTransformer;
 import com.rackspace.papi.components.ratelimit.util.TransformHelper;
 import org.junit.Before;

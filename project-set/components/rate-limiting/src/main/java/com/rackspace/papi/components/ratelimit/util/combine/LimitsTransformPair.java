@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.ratelimit.util.combine;
 
-import com.rackspace.papi.components.limits.schema.RateLimitList;
+import com.rackspace.repose.service.limits.schema.RateLimitList;
 
 import java.io.InputStream;
 
