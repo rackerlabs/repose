@@ -230,6 +230,37 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
         return values;
 
     }
+    
+    // Method to retrieve a list of a specified headers values
+    // Order of values are determined first by quality then by order as they were passed to the request.
+    public List<HeaderValue> getPreferedHeaders(String name){
+        
+        HeaderFieldParser parser = new HeaderFieldParser(headers.get(name.toLowerCase()));
+        List<HeaderValue> headerValues = parser.parse();
+        
+        Map<Double,List<HeaderValue>> groupedHeaderValues = new LinkedHashMap<Double, List<HeaderValue>>();
+        
+        for(HeaderValue value: headerValues){
+            
+            if(!groupedHeaderValues.keySet().contains(value.getQualityFactor())){
+                groupedHeaderValues.put(value.getQualityFactor(), new LinkedList<HeaderValue>());
+            }
+            
+            groupedHeaderValues.get(value.getQualityFactor()).add(value);
+        }
+        
+        headerValues.clear();
+        
+        List<Double> qualities = new ArrayList<Double>(groupedHeaderValues.keySet());
+        java.util.Collections.sort(qualities);
+        java.util.Collections.reverse(qualities);
+        
+        for(Double quality: qualities){
+            headerValues.addAll(groupedHeaderValues.get(quality));
+        }
+        
+        return headerValues;
+    }
 
     static String fromMap(Map<String, List<String>> headers, String headerName) {
         final List<String> headerValues = headers.get(headerName);
