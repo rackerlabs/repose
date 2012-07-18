@@ -1,7 +1,5 @@
-package org.openrepose.components.xsdvalidator.servlet;
+package org.openrepose.components.xsdvalidator.filter;
 
-import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
@@ -13,7 +11,8 @@ import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
+import com.rackspace.papi.filter.logic.FilterAction;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -28,12 +27,12 @@ import org.slf4j.LoggerFactory;
 public class XsdValidatorHandler extends AbstractFilterLogicHandler {
 
    private static final Logger LOG = LoggerFactory.getLogger(XsdValidatorHandler.class);
-   private final Map<String, Validator> validators;
-   private final Validator defaultValidator;
+   private final Map<String, ValidatorInfo> validators;
+   private final ValidatorInfo defaultValidator;
    private FilterChain chain;
 
-   public XsdValidatorHandler(Validator defaultValidator, Map<String, Validator> validators) {
-      this.validators = new HashMap<String, Validator>();
+   public XsdValidatorHandler(ValidatorInfo defaultValidator, Map<String, ValidatorInfo> validators) {
+      this.validators = new HashMap<String, ValidatorInfo>();
       this.validators.putAll(validators);
       this.defaultValidator = defaultValidator;
 
@@ -49,8 +48,8 @@ public class XsdValidatorHandler extends AbstractFilterLogicHandler {
       public void doFilter(ServletRequest request, ServletResponse response) throws IOException, ServletException {
       }
    }
-
-   protected Validator getValidatorForRole(List<? extends HeaderValue> roles) {
+   
+   protected ValidatorInfo getValidatorForRole(List<? extends HeaderValue> roles) {
 
       if (validators != null) {
          for (String validatorRole: validators.keySet()) {
@@ -72,13 +71,22 @@ public class XsdValidatorHandler extends AbstractFilterLogicHandler {
       MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
       
       List<HeaderValue> groups = mutableRequest.getPreferredHeaderValues(PowerApiHeader.GROUPS.toString(), new HeaderValueImpl(""));
-      Validator validator = getValidatorForRole(groups);
+      ValidatorInfo validator = getValidatorForRole(groups);
      
       if (validator != null) {
-         Result validate = validator.validate(request, response, new ValidationFilterChain());         
-         if (!validate.valid()) {
-            myDirector.setFilterAction(FilterAction.RETURN);
-            myDirector.setResponseStatusCode(response.getStatus());
+         myDirector.setFilterAction(FilterAction.RETURN);
+
+         Validator v = validator.getValidator();
+         if (v == null) {
+             LOG.warn("Validator not available for request:", validator.getUri());
+             myDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
+         } else {
+             try {
+                Result validate = v.validate(request, response, chain);         
+                myDirector.setResponseStatusCode(response.getStatus());
+             } catch (Throwable t) {
+                 LOG.error("Some error", t);
+             }
          }
       }
       
