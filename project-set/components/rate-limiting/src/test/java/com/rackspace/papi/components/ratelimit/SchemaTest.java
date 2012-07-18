@@ -3,8 +3,8 @@ package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.commons.util.transform.Transform;
 import com.rackspace.papi.commons.util.transform.jaxb.StreamToJaxbTransform;
-import com.rackspace.papi.components.limits.schema.Limits;
-import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
+import com.rackspace.repose.service.limits.schema.Limits;
+import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
 import com.rackspace.papi.components.ratelimit.util.LimitsEntityTransformer;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -41,8 +41,8 @@ public class SchemaTest {
         @Before
         public void standUp() throws Exception {
             jaxbContext = JAXBContext.newInstance(
-                    com.rackspace.papi.components.limits.schema.ObjectFactory.class,
-                    com.rackspace.papi.components.ratelimit.config.ObjectFactory.class);
+                    com.rackspace.repose.service.limits.schema.ObjectFactory.class,
+                    com.rackspace.repose.service.ratelimit.config.ObjectFactory.class);
 
             jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 

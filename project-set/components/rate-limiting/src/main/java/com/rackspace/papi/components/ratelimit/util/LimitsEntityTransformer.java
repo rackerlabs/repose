@@ -3,8 +3,8 @@ package com.rackspace.papi.components.ratelimit.util;
 import com.rackspace.papi.commons.util.transform.Transform;
 import com.rackspace.papi.commons.util.transform.jaxb.JaxbEntityToXml;
 import com.rackspace.papi.commons.util.transform.xslt.JaxbXsltToStringTransform;
-import com.rackspace.papi.components.limits.schema.Limits;
-import com.rackspace.papi.components.limits.schema.ObjectFactory;
+import com.rackspace.repose.service.limits.schema.Limits;
+import com.rackspace.repose.service.limits.schema.ObjectFactory;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;

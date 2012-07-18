@@ -5,8 +5,9 @@ import com.rackspace.papi.commons.util.pooling.SimpleResourceContext;
 import com.rackspace.papi.commons.util.transform.StreamTransform;
 import com.rackspace.papi.commons.util.transform.xslt.AbstractXslTransform;
 import com.rackspace.papi.commons.util.transform.xslt.XsltTransformationException;
-import com.rackspace.papi.components.limits.schema.Limits;
-import com.rackspace.papi.components.limits.schema.ObjectFactory;
+
+import com.rackspace.repose.service.limits.schema.Limits;
+import com.rackspace.repose.service.limits.schema.ObjectFactory;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.util.JAXBSource;
