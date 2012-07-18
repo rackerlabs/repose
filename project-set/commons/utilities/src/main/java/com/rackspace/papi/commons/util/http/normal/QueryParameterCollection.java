@@ -36,7 +36,7 @@ public class QueryParameterCollection {
         final String[] queryParameters = QUERY_PAIR_PATTERN.split(query);
 
         for (String kvPair : queryParameters) {
-            final String[] keyValuePair = QUERY_KEY_VALUE_PATTERN.split(kvPair);
+            final String[] keyValuePair = QUERY_KEY_VALUE_PATTERN.split(kvPair, 2);
 
             if (keyValuePair.length == 2) {
                 addParameter(keyValuePair[0], keyValuePair[1]);

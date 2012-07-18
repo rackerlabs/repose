@@ -26,7 +26,7 @@ public class DirectoryResourceResolver implements ConfigurationResourceResolver 
 
     @Override
     public ConfigurationResource resolve(String resourceName) throws ResourceResolutionException {
-        final String spec = StringUtilities.join(configurationRoot, "/", resourceName);
+        final String spec = resourceName.contains("://")? resourceName: StringUtilities.join(configurationRoot, "/", resourceName);
         
         try {
             return new BufferedURLConfigurationResource(new URL(spec));
