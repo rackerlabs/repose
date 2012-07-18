@@ -173,4 +173,22 @@ public class HeaderValueImpl implements HeaderValue {
 
       return builder.toString();
    }
+   
+   //needed something to compare all parameters except the quality value
+   public boolean equalsTo(HeaderValue headerValue){
+       
+       
+       Map<String,String> compareParams = new HashMap(parameters);
+       compareParams.remove(QUALITY_FACTOR_PARAM_NAME);
+       
+       Map<String, String> compareParams2 = new HashMap(headerValue.getParameters());
+       compareParams2.remove(QUALITY_FACTOR_PARAM_NAME);
+       
+       if(StringUtilities.nullSafeEqualsIgnoreCase(headerValue.getValue(), value) &&
+               compareParams.equals(compareParams2)){
+           return true;
+       }
+       
+       return false;
+   }
 }

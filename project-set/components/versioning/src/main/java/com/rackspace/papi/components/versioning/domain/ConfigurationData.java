@@ -119,7 +119,8 @@ public class ConfigurationData {
       final MediaTypeList configuredMediaTypes = serviceVersionMapping.getMediaTypes();
       for (com.rackspace.papi.components.versioning.config.MediaType configuredMediaType : configuredMediaTypes.getMediaType()) {
          HeaderValue mediaType = new HeaderValueParser(configuredMediaType.getType()).parse();
-         if (preferedMediaType.getValue().equalsIgnoreCase(mediaType.getValue()) && preferedMediaType.getParameters().equals(mediaType.getParameters())) {
+         //if (preferedMediaType.getValue().equalsIgnoreCase(mediaType.getValue()) && preferedMediaType.getParameters().equals(mediaType.getParameters())) {
+         if(preferedMediaType.equalsTo(mediaType)){
             return configuredMediaType;
          }
       }
