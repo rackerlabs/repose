@@ -22,6 +22,8 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
     public static MutableHttpServletRequest wrap(HttpServletRequest request) {
         return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request);
     }
+    
+    private static String DESTINATION_ATTRIBUTE = "repose.destinations";
     private final Map<String, List<String>> headers;
     private final List<RouteDestination> destinations;
     private BufferedServletInputStream inputStream;
@@ -29,17 +31,25 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
     private String requestUri, requestUriQuery;
     private Map<String, String[]> queryParameter;
 
+    private List<RouteDestination> determineDestinations(HttpServletRequest request) {
+        List<RouteDestination> result = (List<RouteDestination>)request.getAttribute(DESTINATION_ATTRIBUTE);
+        if (result == null) {
+            result = new ArrayList<RouteDestination>();
+            request.setAttribute(DESTINATION_ATTRIBUTE, result);
+        }
+        
+        return result;
+    }
+    
     private MutableHttpServletRequest(HttpServletRequest request) {
         super(request);
 
         requestUrl = request.getRequestURL();
         requestUri = request.getRequestURI();
-
         requestUriQuery = request.getQueryString();
-
         headers = new HashMap<String, List<String>>();
-        destinations = new ArrayList<RouteDestination>();
         queryParameter = new LinkedHashMap<String, String[]>();
+        destinations = determineDestinations(request);
         
         copyHeaders(request);
         copyParameters(request);

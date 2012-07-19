@@ -82,7 +82,7 @@ public class XsdValidatorHandler extends AbstractFilterLogicHandler {
              myDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
          } else {
              try {
-                Result validate = v.validate(request, response, chain);         
+                Result validate = v.validate(request, response, chain);
                 myDirector.setResponseStatusCode(response.getStatus());
              } catch (Throwable t) {
                  LOG.error("Some error", t);
