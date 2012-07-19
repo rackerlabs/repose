@@ -18,12 +18,14 @@ public class LimitsResponseMimeTypeWriter {
       this.responseTransformer = responseTransformer;
    }
 
-   public void writeLimitsResponse(byte[] readableContents, MediaType mediaType, OutputStream outputStream) throws IOException {
-      if (MediaType.APPLICATION_XML.equals(mediaType.toString())) {
+   public MediaType writeLimitsResponse(byte[] readableContents, MediaType mediaType, OutputStream outputStream) throws IOException {
+      if (MediaType.APPLICATION_XML_TYPE.equals(mediaType)) {
          outputStream.write(readableContents);
+         return MediaType.APPLICATION_XML_TYPE;
       } else {
          // default to json for now
          responseTransformer.streamAsJson(new ByteArrayInputStream(readableContents), outputStream, limitsFormat);
+         return MediaType.APPLICATION_JSON_TYPE;
       }     
    }
 }
