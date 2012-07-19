@@ -21,7 +21,7 @@ public class ActiveLimitsWriter {
       this.limitsFormat = limitsFormat;
    }
 
-   public void write(RateLimitList activeRateLimits, MediaType mediaType, OutputStream outputStream) {
+   public MediaType write(RateLimitList activeRateLimits, MediaType mediaType, OutputStream outputStream) {
 
       try {
          final Limits limits = new Limits();
@@ -31,7 +31,8 @@ public class ActiveLimitsWriter {
          RESPONSE_TRANSFORMER.entityAsXml(limits, bos);
 
          final LimitsResponseMimeTypeWriter responseWriter = new LimitsResponseMimeTypeWriter(limitsFormat, RESPONSE_TRANSFORMER);
-         responseWriter.writeLimitsResponse(bos.toByteArray(), mediaType, outputStream);
+
+         return responseWriter.writeLimitsResponse(bos.toByteArray(), mediaType, outputStream);
       } catch (Exception ex) {
          LOG.error("Failed to serialize limits upon user request. Reason: " + ex.getMessage(), ex);
          throw new RateLimitingSerializationException("Failed to serialize limits upon user request. Reason: " + ex.getMessage(), ex);
