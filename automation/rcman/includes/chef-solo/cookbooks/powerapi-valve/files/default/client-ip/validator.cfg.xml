@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<validators xmlns='http://openrepose.org/repose/validator/v1.0'>
+   <validator
+      role="group1"
+      default="false"
+      wadl="group1.wadl"
+      check-well-formed="false"
+      check-xsd-grammer="true"
+      check-elements="true"
+      use-saxon="false"/>
+   <validator
+      role="group2"
+      default="false"
+      wadl="group2.wadl"
+      check-well-formed="false"
+      check-xsd-grammer="true"
+      check-elements="true"
+      use-saxon="false"/>
+   <validator
+      role="default"
+      default="true"
+      wadl="default.wadl"
+      check-well-formed="false"
+      check-xsd-grammer="true"
+      check-elements="true"
+      use-saxon="false"/>
+</validators>
