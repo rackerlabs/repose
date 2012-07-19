@@ -31,18 +31,26 @@ public class RateLimitingServiceWrapper {
       this.combinedLimitsWriter = combinedLimitsWriter;
    }
 
-   public void queryActiveLimits(HttpServletRequest request, MediaType preferredMediaType, OutputStream outputStream) {
+   public MimeType queryActiveLimits(HttpServletRequest request, MediaType preferredMediaType, OutputStream outputStream) {
       RateLimitList rateLimits = service.queryLimits(getPreferredUser(request), getPreferredGroups(request));
-      activeLimitsWriter.write(rateLimits, getJavaMediaType(preferredMediaType.getMimeType()), outputStream);
+      javax.ws.rs.core.MediaType mediaType = activeLimitsWriter.write(rateLimits, getJavaMediaType(preferredMediaType.getMimeType()), outputStream);
+
+      return getReposeMimeType(mediaType);
    }
 
-   public void queryCombinedLimits(HttpServletRequest request, MediaType preferredMediaType, InputStream absoluteLimits, OutputStream outputStream) {
+   public MimeType queryCombinedLimits(HttpServletRequest request, MediaType preferredMediaType, InputStream absoluteLimits, OutputStream outputStream) {
       RateLimitList rateLimits = service.queryLimits(getPreferredUser(request), getPreferredGroups(request));
-      combinedLimitsWriter.write(rateLimits, getJavaMediaType(preferredMediaType.getMimeType()), absoluteLimits, outputStream);
+      javax.ws.rs.core.MediaType mediaType = combinedLimitsWriter.write(rateLimits, getJavaMediaType(preferredMediaType.getMimeType()), absoluteLimits, outputStream);
+
+      return getReposeMimeType(mediaType);
    }
 
    public void trackLimits(HttpServletRequest request) throws OverLimitException {
       service.trackLimits(getPreferredUser(request), getPreferredGroups(request), request.getRequestURI(), request.getMethod());
+   }
+
+   public MimeType getReposeMimeType(javax.ws.rs.core.MediaType mediaType) {
+      return MimeType.guessMediaTypeFromString(mediaType.toString());
    }
 
    public javax.ws.rs.core.MediaType getJavaMediaType(MimeType reposeMimeType) {
