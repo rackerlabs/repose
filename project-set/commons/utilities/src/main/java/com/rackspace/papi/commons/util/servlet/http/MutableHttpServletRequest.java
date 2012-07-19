@@ -22,25 +22,24 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
     public static MutableHttpServletRequest wrap(HttpServletRequest request) {
         return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request);
     }
-    
     private static String DESTINATION_ATTRIBUTE = "repose.destinations";
     private final Map<String, List<String>> headers;
     private final List<RouteDestination> destinations;
     private BufferedServletInputStream inputStream;
     private StringBuffer requestUrl;
     private String requestUri, requestUriQuery;
-    private Map<String, String[]> queryParameter;
+    private Map<String, String[]> queryParameters;
 
     private List<RouteDestination> determineDestinations(HttpServletRequest request) {
-        List<RouteDestination> result = (List<RouteDestination>)request.getAttribute(DESTINATION_ATTRIBUTE);
+        List<RouteDestination> result = (List<RouteDestination>) request.getAttribute(DESTINATION_ATTRIBUTE);
         if (result == null) {
             result = new ArrayList<RouteDestination>();
             request.setAttribute(DESTINATION_ATTRIBUTE, result);
         }
-        
+
         return result;
     }
-    
+
     private MutableHttpServletRequest(HttpServletRequest request) {
         super(request);
 
@@ -48,11 +47,10 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
         requestUri = request.getRequestURI();
         requestUriQuery = request.getQueryString();
         headers = new HashMap<String, List<String>>();
-        queryParameter = new LinkedHashMap<String, String[]>();
         destinations = determineDestinations(request);
-        
+
         copyHeaders(request);
-        copyParameters(request);
+        //updateParameterMap();
     }
 
     public void addDestination(String id, String uri, float quality) {
@@ -82,37 +80,47 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
 
     @Override
     public Enumeration<String> getParameterNames() {
-        return Collections.enumeration(queryParameter.keySet());
+        return Collections.enumeration(updateParameterMap().keySet());
     }
 
     @Override
     public Map<String, String[]> getParameterMap() {
-        return queryParameter;
+        return Collections.unmodifiableMap(updateParameterMap());
     }
-    
+
     @Override
     public String getParameter(String name) {
-        String[] values = queryParameter.get(name);
-        return values != null && values.length > 0? values[0]: null;
+        String[] values = updateParameterMap().get(name);
+        return values != null && values.length > 0 ? values[0] : null;
     }
 
     @Override
     public String[] getParameterValues(String name) {
-        return queryParameter.get(name);
-    }
-
-    public void setParameterMap(String queryString) {
-        QueryParameterCollection collection = new QueryParameterCollection(queryString); //Currently not preserving order
-        LinkedHashMap<String, String[]> newParamMap = new LinkedHashMap<String, String[]>();
-
-        for (QueryParameter param : collection.getParameters()) {
-            newParamMap.put(param.getName(), Arrays.copyOf(param.getValues().toArray(), param.getValues().size(), String[].class));
-        }
-        queryParameter = newParamMap;
+        return updateParameterMap().get(name);
     }
 
     public void setQueryString(String requestUriQuery) {
-        this.requestUriQuery = requestUriQuery;
+        synchronized (this) {
+            this.requestUriQuery = requestUriQuery;
+            queryParameters = null;
+        }
+    }
+
+    private Map<String, String[]> updateParameterMap() {
+        synchronized (this) {
+            if (queryParameters == null) {
+                queryParameters = new LinkedHashMap<String, String[]>();
+
+                QueryParameterCollection collection = new QueryParameterCollection(requestUriQuery);
+                queryParameters.clear();
+
+                for (QueryParameter param : collection.getParameters()) {
+
+                    queryParameters.put(param.getName(), Arrays.copyOf(param.getValues().toArray(), param.getValues().size(), String[].class));
+                }
+            }
+            return queryParameters;
+        }
     }
 
     @Override
@@ -139,15 +147,6 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
             }
 
             headers.put(headerName, copiedHeaderValues);
-        }
-    }
-
-    private void copyParameters(HttpServletRequest request) {
-        QueryParameterCollection collection = new QueryParameterCollection(request.getQueryString());
-
-        for (QueryParameter param : collection.getParameters()) {
-
-            queryParameter.put(param.getName(), Arrays.copyOf(param.getValues().toArray(), param.getValues().size(), String[].class));
         }
     }
 
@@ -240,35 +239,35 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
         return values;
 
     }
-    
+
     // Method to retrieve a list of a specified headers values
     // Order of values are determined first by quality then by order as they were passed to the request.
-    public List<HeaderValue> getPreferedHeaders(String name){
-        
+    public List<HeaderValue> getPreferedHeaders(String name) {
+
         HeaderFieldParser parser = new HeaderFieldParser(headers.get(name.toLowerCase()));
         List<HeaderValue> headerValues = parser.parse();
-        
-        Map<Double,List<HeaderValue>> groupedHeaderValues = new LinkedHashMap<Double, List<HeaderValue>>();
-        
-        for(HeaderValue value: headerValues){
-            
-            if(!groupedHeaderValues.keySet().contains(value.getQualityFactor())){
+
+        Map<Double, List<HeaderValue>> groupedHeaderValues = new LinkedHashMap<Double, List<HeaderValue>>();
+
+        for (HeaderValue value : headerValues) {
+
+            if (!groupedHeaderValues.keySet().contains(value.getQualityFactor())) {
                 groupedHeaderValues.put(value.getQualityFactor(), new LinkedList<HeaderValue>());
             }
-            
+
             groupedHeaderValues.get(value.getQualityFactor()).add(value);
         }
-        
+
         headerValues.clear();
-        
+
         List<Double> qualities = new ArrayList<Double>(groupedHeaderValues.keySet());
         java.util.Collections.sort(qualities);
         java.util.Collections.reverse(qualities);
-        
-        for(Double quality: qualities){
+
+        for (Double quality : qualities) {
             headerValues.addAll(groupedHeaderValues.get(quality));
         }
-        
+
         return headerValues;
     }
 
