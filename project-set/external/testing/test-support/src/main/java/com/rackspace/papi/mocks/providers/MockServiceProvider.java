@@ -4,10 +4,10 @@
  */
 package com.rackspace.papi.mocks.providers;
 
-import com.rackspace.papi.components.limits.schema.AbsoluteLimit;
-import com.rackspace.papi.components.limits.schema.AbsoluteLimitList;
-import com.rackspace.papi.components.limits.schema.Limits;
-import com.rackspace.papi.components.limits.schema.ObjectFactory;
+import com.rackspace.repose.service.limits.schema.AbsoluteLimit;
+import com.rackspace.repose.service.limits.schema.AbsoluteLimitList;
+import com.rackspace.repose.service.limits.schema.Limits;
+import com.rackspace.repose.service.limits.schema.ObjectFactory;
 import com.rackspace.papi.components.ratelimit.util.LimitsEntityTransformer;
 import com.rackspacecloud.docs.auth.api.v1.UnauthorizedFault;
 

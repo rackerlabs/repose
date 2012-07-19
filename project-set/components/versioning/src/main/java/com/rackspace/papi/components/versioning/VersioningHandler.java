@@ -55,7 +55,7 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
          filterDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
          filterDirector.setFilterAction(FilterAction.RETURN);
 
-         LOG.warn("Configured versioned service mapping refers to a bad pp-host-id. Reason: " + vhnfe.getMessage(), vhnfe);
+         LOG.warn("Configured versioned service mapping refers to a bad pp-dest-id. Reason: " + vhnfe.getMessage(), vhnfe);
       } catch (MalformedURLException murlex) {
          filterDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
          filterDirector.setFilterAction(FilterAction.RETURN);

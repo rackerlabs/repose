@@ -1,17 +1,18 @@
 package com.rackspace.papi.components.ratelimit;
 
-import com.rackspace.papi.components.limits.schema.HttpMethod;
-import com.rackspace.papi.components.limits.schema.TimeUnit;
-import com.rackspace.papi.components.ratelimit.config.ConfiguredLimitGroup;
-import com.rackspace.papi.components.ratelimit.config.ConfiguredRatelimit;
-import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
-import com.rackspace.papi.components.ratelimit.config.RequestEndpoint;
+import com.rackspace.repose.service.limits.schema.HttpMethod;
+import com.rackspace.repose.service.limits.schema.TimeUnit;
+import com.rackspace.repose.service.ratelimit.config.ConfiguredLimitGroup;
+import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
+import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
+import com.rackspace.repose.service.ratelimit.config.RequestEndpoint;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+
 
 public abstract class RateLimitingTestSupport {
 
@@ -52,7 +53,7 @@ public abstract class RateLimitingTestSupport {
    public static ConfiguredLimitGroup newMultiMethodConfiguredLimitGroup(String userRole, String rateLimitUri, String uriRegex, String limitGroupId) {
       final int VALUE = 3;
       final ConfiguredLimitGroup limitGroup = new ConfiguredLimitGroup();
-      limitGroup.setDefault(Boolean.TRUE);
+      limitGroup.setDefault(Boolean.FALSE);
       limitGroup.setId(limitGroupId);
       limitGroup.getGroups().add(userRole);
 

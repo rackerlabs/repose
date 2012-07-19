@@ -29,6 +29,7 @@
         <module>commons</module>
         <module>core</module>
         <module>components</module>
+        <module>services</module>
         <module>installation</module>
     </modules>
 

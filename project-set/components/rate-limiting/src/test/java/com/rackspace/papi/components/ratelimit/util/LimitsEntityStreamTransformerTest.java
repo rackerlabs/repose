@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.ratelimit.util;
 
-import com.rackspace.papi.components.ratelimit.config.LimitsFormat;
+import com.rackspace.repose.service.ratelimit.config.LimitsFormat;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -55,5 +55,16 @@ public class LimitsEntityStreamTransformerTest {
 
          assertEquals(JSON_LIMITS.replaceAll("\\s", ""), outputStream.toString().replaceAll("\\s", ""));
       }
+
+//              @Test
+//        public void shouldMarshallContentsCorrectly() {
+//            final RateLimitList rll = new RateLimitListBuilder(cacheMap, configuredLimitGroup).toRateLimitList();
+//
+//            final Limits limits = new Limits();
+//            limits.setRates(rll);
+//
+//            System.out.println(ENTITY_TRANSFORMER.entityAsJson(limits));
+//            System.out.println(ENTITY_TRANSFORMER.entityAsXml(limits));
+//        }
    }
 }
