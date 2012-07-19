@@ -149,7 +149,7 @@ for nodeNumber in 1..6
 
    when 3
       #Client IP Identity Node
-      ["uri-identity.cfg.xml", "content-normalization.cfg.xml", "response-messaging.cfg.xml", "ip-identity.cfg.xml", "header-identity.cfg.xml", "rate-limiting.cfg.xml", "dist-datastore.cfg.xml", "responsefor5xx", "content-identity-auth-1-1.cfg.xml", "header-id-mapping.cfg.xml"].each do |config|
+      ["uri-identity.cfg.xml", "content-normalization.cfg.xml", "response-messaging.cfg.xml", "ip-identity.cfg.xml", "header-identity.cfg.xml", "rate-limiting.cfg.xml", "dist-datastore.cfg.xml", "responsefor5xx", "content-identity-auth-1-1.cfg.xml", "header-id-mapping.cfg.xml", "default.wadl", "group1.wadl", "group2.wadl", "test.xsd", "validator.cfg.xml"].each do |config|
          cookbook_file "/etc/repose/node3/#{config}" do
             source "/client-ip/#{config}"
             mode 0644
