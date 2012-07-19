@@ -17,6 +17,7 @@ public class ResponseHeaderApplicationLogic implements HeaderApplicationLogic {
     public void removeHeader(String headerName) {
        // NOOP
        // TODO: Log use of this for consideration of reworking the model
+        response.setHeader(headerName, null);
     }
 
     @Override
