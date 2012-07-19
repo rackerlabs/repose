@@ -19,7 +19,7 @@ public class LimitsResponseMimeTypeWriter {
    }
 
    public void writeLimitsResponse(byte[] readableContents, MediaType mediaType, OutputStream outputStream) throws IOException {
-      if (MediaType.APPLICATION_XML.equals(mediaType)) {
+      if (MediaType.APPLICATION_XML.equals(mediaType.toString())) {
          outputStream.write(readableContents);
       } else {
          // default to json for now
