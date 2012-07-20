@@ -29,7 +29,7 @@ public class ValidatorInfo {
         try {
             validator = Validator.apply(new SAXSource(new InputSource(uri)), config);
         } catch (Throwable ex) {
-            LOG.warn("Cannot load validator for WADL: " + uri);
+            LOG.warn("Cannot load validator for WADL: " + uri, ex);
         }
 
     }
