@@ -41,7 +41,7 @@ public class RateLimitingFilter implements Filter {
     private Datastore getDatastore(DatastoreService datastoreService) {
         Datastore targetDatastore;
 
-        final Collection<DatastoreManager> distributedDatastores = datastoreService.availableDistirbutedDatastores();
+        final Collection<DatastoreManager> distributedDatastores = datastoreService.availableDistributedDatastores();
 
         if (!distributedDatastores.isEmpty()) {
             targetDatastore = distributedDatastores.iterator().next().getDatastore();
