@@ -1,8 +1,7 @@
-package com.rackspace.repose.service.ratelimit.util;
+package com.rackspace.repose.service.ratelimit.cache.util;
 
 
 import com.rackspace.repose.service.limits.schema.TimeUnit;
-import com.rackspace.repose.service.ratelimit.cache.util.TimeUnitConverter;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;

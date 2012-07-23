@@ -19,13 +19,13 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RateLimitingServiceWrapper {
+public class RateLimitingServiceHelper {
 
    private final RateLimitingService service;
    private final ActiveLimitsWriter activeLimitsWriter;
    private final CombinedLimitsWriter combinedLimitsWriter;
 
-   public RateLimitingServiceWrapper(RateLimitingService service, ActiveLimitsWriter activeLimitsWriter, CombinedLimitsWriter combinedLimitsWriter) {
+   public RateLimitingServiceHelper(RateLimitingService service, ActiveLimitsWriter activeLimitsWriter, CombinedLimitsWriter combinedLimitsWriter) {
       this.service = service;
       this.activeLimitsWriter = activeLimitsWriter;
       this.combinedLimitsWriter = combinedLimitsWriter;
