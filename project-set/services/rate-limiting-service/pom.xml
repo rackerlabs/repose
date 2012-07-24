@@ -10,6 +10,8 @@
     <artifactId>rate-limiting-service</artifactId>
     <groupId>com.rackspace.papi.service</groupId>
 
+    <name>Repose Services - Rate Limiting</name>
+
     <packaging>jar</packaging>
 
     <dependencies>        
