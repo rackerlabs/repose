@@ -3,7 +3,7 @@ package com.rackspace.repose.service.ratelimit;
 import com.rackspace.repose.service.ratelimit.cache.RateLimitCache;
 import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
 
-public class RateLimitingServiceFactory {
+public final class RateLimitingServiceFactory {
 
    private RateLimitingServiceFactory() {
    }
