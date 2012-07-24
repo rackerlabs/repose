@@ -145,17 +145,27 @@ public class FilterDirectorImplTest {
          final String uri = "someuri";
          impl.setRequestUri(uri);
          impl.applyTo(request);
-         assertEquals(uri, impl.getRequestUri());
-         assertEquals(uri, request.getRequestURI());
+         
+         request.getRequestURI();
+         verify(httpRequest).setAttribute(eq("repose.request.uri"), eq(uri));
+         verify(httpRequest).getAttribute(eq("repose.request.uri"));
+
+         //assertEquals(uri, impl.getRequestUri());
+         //assertEquals(uri, request.getRequestURI());
       }
 
       @Test
       public void shouldSetRequestUrl() {
          final String url = "http://somehost:8080/someuri";
-         impl.setRequestUrl(new StringBuffer(url));
+         final StringBuffer urlBuffer = new StringBuffer(url);
+         impl.setRequestUrl(urlBuffer);
          impl.applyTo(request);
-         assertEquals(url, impl.getRequestUrl().toString());
-         assertEquals(url, request.getRequestURL().toString());
+         
+         request.getRequestURL();
+         verify(httpRequest).setAttribute(eq("repose.request.url"), eq(urlBuffer));
+         verify(httpRequest).getAttribute(eq("repose.request.url"));
+         //assertEquals(url, impl.getRequestUrl().toString());
+         //assertEquals(url, request.getRequestURL().toString());
       }
 
       @Test
@@ -163,8 +173,10 @@ public class FilterDirectorImplTest {
          final String queryString = "a=1&b=2&c=3";
          impl.setRequestUriQuery(queryString);
          impl.applyTo(request);
-         
-         assertEquals("When a URI query string is set, it must be rewritten it in the request object during applicaiton.", queryString, request.getQueryString());
+         request.getQueryString();
+         verify(httpRequest).setAttribute(eq("repose.request.querystring"), eq(queryString));
+         verify(httpRequest).getAttribute(eq("repose.request.querystring"));
+         //assertEquals("When a URI query string is set, it must be rewritten it in the request object during applicaiton.", queryString, request.getQueryString());
       }
 
       @Test
