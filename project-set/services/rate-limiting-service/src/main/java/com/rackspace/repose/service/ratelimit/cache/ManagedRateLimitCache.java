@@ -26,12 +26,12 @@ public class ManagedRateLimitCache implements RateLimitCache {
 
    @Override
    public Map<String, CachedRateLimit> getUserRateLimits(String account) {
-      final HashMap<String, CachedRateLimit> accountRateLimitMap = getUserRateLimitMap(account);
+      final Map<String, CachedRateLimit> accountRateLimitMap = getUserRateLimitMap(account);
 
       return Collections.unmodifiableMap(accountRateLimitMap);
    }
 
-   private HashMap<String, CachedRateLimit> getUserRateLimitMap(String user) {
+   private Map<String, CachedRateLimit> getUserRateLimitMap(String user) {
       final StoredElement element = datastore.get(user);
 
       return element.elementIsNull() ? new HashMap<String, CachedRateLimit>() : element.elementAs(HashMap.class);
@@ -39,7 +39,7 @@ public class ManagedRateLimitCache implements RateLimitCache {
 
    @Override
    public NextAvailableResponse updateLimit(HttpMethod method, String user, String limitKey, ConfiguredRatelimit rateCfg) throws IOException {
-      final HashMap<String, CachedRateLimit> userRateLimitMap = getUserRateLimitMap(user);
+      final Map<String, CachedRateLimit> userRateLimitMap = getUserRateLimitMap(user);
 
       CachedRateLimit currentLimit = userRateLimitMap != null ? userRateLimitMap.get(limitKey) : null;
 
@@ -53,7 +53,7 @@ public class ManagedRateLimitCache implements RateLimitCache {
 
       if (hasRequests) {
          currentLimit.logHit(method, rateCfg.getUnit());
-         datastore.put(user, ObjectSerializer.instance().writeObject(userRateLimitMap), 1, TimeUnitConverter.fromSchemaTypeToConcurrent(rateCfg.getUnit()));
+         datastore.put(user, ObjectSerializer.instance().writeObject((HashMap<String, CachedRateLimit>)userRateLimitMap), 1, TimeUnitConverter.fromSchemaTypeToConcurrent(rateCfg.getUnit()));
       }
 
       return new NextAvailableResponse(hasRequests, new Date(currentLimit.getEarliestExpirationTime(method)), currentLimitAmount);

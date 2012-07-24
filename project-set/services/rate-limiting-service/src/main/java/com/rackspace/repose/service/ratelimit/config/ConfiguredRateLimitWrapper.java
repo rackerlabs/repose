@@ -72,22 +72,33 @@ public class ConfiguredRateLimitWrapper extends ConfiguredRatelimit {
 
    @Override
    public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || getClass() != o.getClass()) return false;
+      if (this == o) {
+         return true;
+      }
+
+      if (o == null || getClass() != o.getClass()) {
+         return false;
+      }
 
       ConfiguredRateLimitWrapper that = (ConfiguredRateLimitWrapper) o;
 
-      if (configuredRateLimit != null ? !configuredRateLimit.equals(that.configuredRateLimit) : that.configuredRateLimit != null)
+      if (configuredRateLimit != null ? !configuredRateLimit.equals(that.configuredRateLimit) : that.configuredRateLimit != null) {
          return false;
-      if (regexPattern != null ? !regexPattern.equals(that.regexPattern) : that.regexPattern != null) return false;
+      }
+
+      if (regexPattern != null ? !regexPattern.equals(that.regexPattern) : that.regexPattern != null) {
+         return false;
+      }
 
       return true;
    }
 
+   private static final int PRIME = 31;
+   private static final int ZERO = 0;
    @Override
    public int hashCode() {
-      int result = configuredRateLimit != null ? configuredRateLimit.hashCode() : 0;
-      result = 31 * result + (regexPattern != null ? regexPattern.hashCode() : 0);
+      int result = configuredRateLimit != null ? configuredRateLimit.hashCode() : ZERO;
+      result = PRIME * result + (regexPattern != null ? regexPattern.hashCode() : ZERO);
       return result;
    }
 }
