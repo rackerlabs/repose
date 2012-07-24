@@ -23,16 +23,16 @@ import javax.ws.rs.core.MediaType;
  * @author zinic
  */
 @RunWith(Enclosed.class)
-public class RateLimitingServiceWrapperTest {
+public class RateLimitingServiceHelperTest {
 
    public static class WhenGettingPreferredMediaType {
-      private final RateLimitingServiceWrapper wrapper = new RateLimitingServiceWrapper(null, null, null);
+      private final RateLimitingServiceHelper helper = new RateLimitingServiceHelper(null, null, null);
 
       @Test
       public void shouldGetJavaMediaTypeFromReposeMimeType() {
          MimeType reposeMimeType = MimeType.APPLICATION_XML;
 
-         MediaType javaMediaType = wrapper.getJavaMediaType(reposeMimeType);
+         MediaType javaMediaType = helper.getJavaMediaType(reposeMimeType);
 
          assertEquals(MediaType.APPLICATION_XML, javaMediaType.toString());
       }
@@ -41,7 +41,7 @@ public class RateLimitingServiceWrapperTest {
    public static class WhenGettingPreferredUser {
 
       private static final String MOST_QUALIFIED_USER = "the best user of them all";
-      private final RateLimitingServiceWrapper wrapper = new RateLimitingServiceWrapper(null, null, null);
+      private final RateLimitingServiceHelper helper = new RateLimitingServiceHelper(null, null, null);
       protected HttpServletRequest mockedRequest;
 
       @Before
@@ -62,7 +62,7 @@ public class RateLimitingServiceWrapperTest {
 
          when(mockedRequest.getHeaders(PowerApiHeader.USER.toString())).thenReturn(Collections.enumeration(headerValues));
 
-         String user = wrapper.getPreferredUser(mockedRequest);
+         String user = helper.getPreferredUser(mockedRequest);
          assertEquals("Helper must understand user header quality", MOST_QUALIFIED_USER, user);
       }
 
@@ -75,7 +75,7 @@ public class RateLimitingServiceWrapperTest {
 
          when(mockedRequest.getHeaders(PowerApiHeader.USER.toString())).thenReturn(Collections.enumeration(headerValues));
 
-         String user = wrapper.getPreferredUser(mockedRequest);
+         String user = helper.getPreferredUser(mockedRequest);
          assertEquals("Helper must return correct user without quality factors", MOST_QUALIFIED_USER, user);
       }
    }
@@ -83,7 +83,7 @@ public class RateLimitingServiceWrapperTest {
    public static class WhenGettingPreferredGroup {
 
       private static final String MOST_QUALIFIED_GROUP = "the best group of them all";
-      private final RateLimitingServiceWrapper wrapper = new RateLimitingServiceWrapper(null, null, null);
+      private final RateLimitingServiceHelper helper = new RateLimitingServiceHelper(null, null, null);
       protected HttpServletRequest mockedRequest;
 
       @Before
@@ -106,7 +106,7 @@ public class RateLimitingServiceWrapperTest {
 
          when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenReturn(Collections.enumeration(headerValues));
 
-         List<String> groups = wrapper.getPreferredGroups(mockedRequest);
+         List<String> groups = helper.getPreferredGroups(mockedRequest);
 
          List<String> expected = new LinkedList<String>();
          expected.add("group-4");
@@ -118,7 +118,7 @@ public class RateLimitingServiceWrapperTest {
 
       @Test
       public void shouldReturnEmptyGroupListWhenNoGroupsHeaderIsPresent() {
-         List<String> groups = wrapper.getPreferredGroups(mockedRequest);
+         List<String> groups = helper.getPreferredGroups(mockedRequest);
 
          assertEquals("Helper must return empty list for groups when no group information is present in the request", 0, groups.size());
       }
@@ -139,7 +139,7 @@ public class RateLimitingServiceWrapperTest {
 
          when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenReturn(Collections.enumeration(headerValues));
 
-         List<String> groups = wrapper.getPreferredGroups(mockedRequest);
+         List<String> groups = helper.getPreferredGroups(mockedRequest);
 
          List<String> expected = new LinkedList<String>();
          expected.add(MOST_QUALIFIED_GROUP);

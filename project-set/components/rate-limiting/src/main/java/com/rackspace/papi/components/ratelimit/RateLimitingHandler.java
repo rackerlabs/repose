@@ -30,13 +30,13 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
    private final boolean includeAbsoluteLimits;
    private final boolean responseDelegationEnabled;
    private final Pattern describeLimitsUriPattern;
-   private final RateLimitingServiceWrapper rateLimitingServiceWrapper;
+   private final RateLimitingServiceHelper rateLimitingServiceHelper;
 
-   public RateLimitingHandler(RateLimitingServiceWrapper rateLimitingServiceWrapper, boolean includeAbsoluteLimits, boolean responseDelegationEnabled, Pattern describeLimitsUriPattern) {
+   public RateLimitingHandler(RateLimitingServiceHelper rateLimitingServiceHelper, boolean includeAbsoluteLimits, boolean responseDelegationEnabled, Pattern describeLimitsUriPattern) {
       this.includeAbsoluteLimits = includeAbsoluteLimits;
       this.responseDelegationEnabled = responseDelegationEnabled;
       this.describeLimitsUriPattern = describeLimitsUriPattern;
-      this.rateLimitingServiceWrapper = rateLimitingServiceWrapper;
+      this.rateLimitingServiceHelper = rateLimitingServiceHelper;
    }
 
    @Override
@@ -72,21 +72,6 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
       return director;
    }
 
-   @Override
-   public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
-      final FilterDirector director = new FilterDirectorImpl();
-
-      try {
-         final MimeType mimeType = rateLimitingServiceWrapper.queryCombinedLimits(request, originalPreferredAccept, response.getBufferedOutputAsInputStream(), director.getResponseOutputStream());
-
-         director.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.toString(), mimeType.toString());
-      } catch (Exception e) {
-         consumeException(e, director);
-      }
-
-      return director;
-   }
-
    private boolean requestHasExpectedHeaders(HttpServletRequest request) {
       return request.getHeader(PowerApiHeader.USER.toString()) != null;
    }
@@ -110,7 +95,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
             director.requestHeaderManager().putHeader(CommonHttpHeader.ACCEPT.toString(), MimeType.APPLICATION_XML.toString());
          } else {
             try {
-               final MimeType mimeType = rateLimitingServiceWrapper.queryActiveLimits(request, preferredMediaType, director.getResponseOutputStream());
+               final MimeType mimeType = rateLimitingServiceHelper.queryActiveLimits(request, preferredMediaType, director.getResponseOutputStream());
 
                director.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.toString(), mimeType.toString());
                director.setFilterAction(FilterAction.RETURN);
@@ -124,7 +109,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
 
    private void recordLimitedRequest(HttpServletRequest request, FilterDirector director) {
       try {
-         rateLimitingServiceWrapper.trackLimits(request);
+         rateLimitingServiceHelper.trackLimits(request);
       } catch (OverLimitException e) {
          new LimitLogger(e.getUser(), request).log(e.getConfiguredLimit(), Integer.toString(e.getCurrentLimitAmount()));
          final HttpDate nextAvailableTime = new HttpDate(e.getNextAvailableTime());
@@ -151,5 +136,20 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
          director.setFilterAction(FilterAction.RETURN);
          director.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
       }
+   }
+
+   @Override
+   public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
+      final FilterDirector director = new FilterDirectorImpl();
+
+      try {
+         final MimeType mimeType = rateLimitingServiceHelper.queryCombinedLimits(request, originalPreferredAccept, response.getBufferedOutputAsInputStream(), director.getResponseOutputStream());
+
+         director.responseHeaderManager().putHeader(CommonHttpHeader.CONTENT_TYPE.toString(), mimeType.toString());
+      } catch (Exception e) {
+         consumeException(e, director);
+      }
+
+      return director;
    }
 }

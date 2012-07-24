@@ -47,7 +47,7 @@ public class PowerApiDatastoreService implements DatastoreService {
    }
 
    @Override
-   public Collection<DatastoreManager> availableDistirbutedDatastores() {
+   public Collection<DatastoreManager> availableDistributedDatastores() {
       return filterAvailableDatastoreManagers(distributedManagers.values());
    }
 

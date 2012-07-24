@@ -2,7 +2,7 @@ package com.rackspace.repose.service.ratelimit.util;
 
 import java.util.regex.Pattern;
 
-public class StringUtilities {
+public final class StringUtilities {
 
    private StringUtilities() {
    }
