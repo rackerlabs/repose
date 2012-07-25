@@ -4,7 +4,7 @@
            targetNamespace="http://docs.openrepose.org/power-api/client-auth/os-ids-auth/v1.0"
            xmlns:os-ids-auth="http://docs.openrepose.org/power-api/client-auth/os-ids-auth/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">    
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <!-- Configuration -->
     <xs:element name="openstack-auth">
@@ -16,14 +16,23 @@
             </xs:annotation>
 
             <xs:sequence>
-                <xs:element name="identity-service" type="os-ids-auth:OpenStackIdentityService" minOccurs="1" maxOccurs="1" />
-                <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="1" maxOccurs="unbounded" />
+                <xs:element name="identity-service" type="os-ids-auth:OpenStackIdentityService" minOccurs="1"
+                            maxOccurs="1"/>
+                <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="1" maxOccurs="unbounded"/>
             </xs:sequence>
 
             <xs:attribute name="delegatable" type="xs:boolean" use="optional" default="false">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>Tells the service whether or not to support auth delegation.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+
+            <xs:attribute name="group-cache-timeout" type="xs:long" use="optional" default="600000">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Time in milliseconds to cache auth groups.</html:p>
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>

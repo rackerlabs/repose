@@ -12,14 +12,16 @@ import com.rackspace.papi.service.datastore.Datastore;
 
 public class OpenStackAuthenticationHandlerFactory {
 
-   private OpenStackAuthenticationHandlerFactory() {}
-   
-   public static AuthModule newInstance(ClientAuthConfig config, KeyedRegexExtractor accountRegexExtractor, Datastore datastore, UriMatcher uriMatcher) {
-      final OpenStackUserInfoCache cache = new OpenStackUserInfoCache(datastore);
-      final OpenstackAuth authConfig = config.getOpenstackAuth();
-      final OpenStackIdentityService ids = authConfig.getIdentityService();
-      final OpenStackAuthenticationService authService = new AuthenticationServiceClient(ids.getUri(), ids.getUsername(), ids.getPassword());
+    private OpenStackAuthenticationHandlerFactory() {
+    }
 
-      return new OpenStackAuthenticationHandler(authConfig, authService, accountRegexExtractor, cache, uriMatcher);
-   }   
+    public static AuthModule newInstance(ClientAuthConfig config, KeyedRegexExtractor accountRegexExtractor, Datastore datastore, UriMatcher uriMatcher, long groupsTtl) {
+        final OpenStackUserInfoCache cache = new OpenStackUserInfoCache(datastore);
+        final OpenStackGroupInfoCache grpCache = new OpenStackGroupInfoCache(datastore);
+        final OpenstackAuth authConfig = config.getOpenstackAuth();
+        final OpenStackIdentityService ids = authConfig.getIdentityService();
+        final OpenStackAuthenticationService authService = new AuthenticationServiceClient(ids.getUri(), ids.getUsername(), ids.getPassword(), groupsTtl);
+
+        return new OpenStackAuthenticationHandler(authConfig, authService, accountRegexExtractor, cache, uriMatcher, grpCache);
+    }
 }

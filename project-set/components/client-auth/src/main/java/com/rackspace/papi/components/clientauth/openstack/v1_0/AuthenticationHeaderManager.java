@@ -1,8 +1,7 @@
 package com.rackspace.papi.components.clientauth.openstack.v1_0;
 
+import com.rackspace.auth.openstack.ids.CachableGroupInfo;
 import com.rackspace.auth.openstack.ids.CachableUserInfo;
-import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
-import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.IdentityStatus;
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
@@ -12,8 +11,6 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author fran
@@ -31,14 +28,14 @@ public class AuthenticationHeaderManager {
    private final FilterDirector filterDirector;
    private final String tenantId;
    private final Boolean validToken;
-   private final Groups groups;
+   private final CachableGroupInfo groups;
    private final HttpServletRequest request;
 
    // Hard code QUALITY for now as the auth component will have
    // the highest QUALITY in terms of using the user it supplies for rate limiting
    private final static String QUALITY = ";q=1.0";
 
-    public AuthenticationHeaderManager(String authToken, CachableUserInfo cachableTokenInfo, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, Groups groups, HttpServletRequest request) {
+    public AuthenticationHeaderManager(String authToken, CachableUserInfo cachableTokenInfo, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, CachableGroupInfo groups, HttpServletRequest request) {
       this.authToken = authToken;
       this.cachableTokenInfo = cachableTokenInfo;
       this.isDelegatable = isDelegatable;
@@ -134,11 +131,8 @@ public class AuthenticationHeaderManager {
     */
    private void setGroups() {
       if (groups != null) {
-
-         List<String> groupIds = new ArrayList<String>();
-         for (Group group : groups.getGroup()) {
-            groupIds.add(group.getId());
-            filterDirector.requestHeaderManager().appendHeader(PowerApiHeader.GROUPS.toString(), group.getId() + QUALITY);
+         for (String groupId : groups.getGroupIds()) {
+            filterDirector.requestHeaderManager().appendHeader(PowerApiHeader.GROUPS.toString(), groupId + QUALITY);
          }
       }
    }
