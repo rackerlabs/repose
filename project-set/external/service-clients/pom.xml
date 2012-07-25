@@ -5,12 +5,12 @@
     <parent>
         <groupId>com.rackspace.papi.external</groupId>
         <artifactId>external-lib-support</artifactId>
-        <version>1.4.2</version>
+        <version>1.4.3-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.external.clients</groupId>
     <artifactId>service-client-support</artifactId>
-    <version>1.4.2</version>
+    <version>1.4.3-SNAPSHOT</version>
 
     <name>Power API Service Clients - Service Clients Support</name>
     
