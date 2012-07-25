@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.rackspace.com.papi.components.checker.Validator;
 import com.rackspace.com.papi.components.checker.step.Result;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
@@ -70,8 +71,8 @@ public class XsdValidatorHandler extends AbstractFilterLogicHandler {
       myDirector.setFilterAction(FilterAction.PASS);
       MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
       
-      List<HeaderValue> groups = mutableRequest.getPreferredHeaderValues(PowerApiHeader.GROUPS.toString(), new HeaderValueImpl(""));
-      ValidatorInfo validator = getValidatorForRole(groups);
+      List<HeaderValue> roles = mutableRequest.getPreferredHeaderValues(OpenStackServiceHeader.ROLES.toString(), new HeaderValueImpl(""));
+      ValidatorInfo validator = getValidatorForRole(roles);
      
       if (validator != null) {
          myDirector.setFilterAction(FilterAction.RETURN);

@@ -47,6 +47,14 @@
             </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:attribute name="dot-output" type="xs:string" use="optional">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>
+               </html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
       <xs:attribute name="xpath-version" type="xs:int" use="optional" default="2">
          <xs:annotation>
             <xs:documentation>

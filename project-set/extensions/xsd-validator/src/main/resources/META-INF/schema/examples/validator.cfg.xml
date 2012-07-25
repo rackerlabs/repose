@@ -5,6 +5,7 @@
       role="default"
       default="true"
       wadl="file://my/wadl/file.wadl" 
+      dot-output="/tmp/default.dot"
       check-well-formed="false" 
       check-xsd-grammer="true" 
       check-elements="true" 

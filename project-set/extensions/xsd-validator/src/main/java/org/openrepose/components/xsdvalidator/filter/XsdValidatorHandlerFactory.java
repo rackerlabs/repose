@@ -1,23 +1,33 @@
 package org.openrepose.components.xsdvalidator.filter;
 
 import com.rackspace.com.papi.components.checker.Config;
-import com.rackspace.com.papi.components.checker.Validator;
+import com.rackspace.com.papi.components.checker.handler.ResultHandler;
+import com.rackspace.com.papi.components.checker.handler.SaveDotHandler;
 import com.rackspace.com.papi.components.checker.handler.ServletResultHandler;
-import com.rackspace.com.papi.components.checker.wadl.WADLException;
+import com.rackspace.com.papi.components.checker.servlet.CheckerServletRequest;
+import com.rackspace.com.papi.components.checker.servlet.CheckerServletResponse;
+import com.rackspace.com.papi.components.checker.step.Result;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.config.parser.generic.GenericResourceConfigurationParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.config.ConfigurationService;
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import javax.servlet.FilterChain;
 import org.openrepose.components.xsdvalidator.servlet.config.ValidatorConfiguration;
 import org.openrepose.components.xsdvalidator.servlet.config.ValidatorItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Document;
+import scala.Option;
 
 public class XsdValidatorHandlerFactory extends AbstractConfiguredFilterHandlerFactory<XsdValidatorHandler> {
 
@@ -37,7 +47,6 @@ public class XsdValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         lock = new Object();
         this.configRoot = configurationRoot;
     }
-
 
     private void unsubscribeAll() {
         synchronized (lock) {
@@ -96,9 +105,51 @@ public class XsdValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         LOG.info("Watching WADL: " + wadl);
         manager.subscribeTo(wadl, wadlListener, new GenericResourceConfigurationParser());
     }
-    
+
     private String getWadlPath(String wadl) {
-        return !wadl.contains("://")? StringUtilities.join("file://", configRoot, "/", wadl): wadl;
+        return !wadl.contains("://") ? StringUtilities.join("file://", configRoot, "/", wadl) : wadl;
+    }
+
+    private static class DispatchHandler extends ResultHandler {
+
+        private final ResultHandler[] handlers;
+
+        public DispatchHandler(ResultHandler... handlers) {
+            this.handlers = handlers;
+        }
+
+        @Override
+        public void init(Option<Document> option) {
+            for (ResultHandler handler : handlers) {
+                handler.init(option);
+            }
+        }
+
+        @Override
+        public void handle(CheckerServletRequest request, CheckerServletResponse response, FilterChain chain, Result result) {
+            for (ResultHandler handler : handlers) {
+                handler.handle(request, response, chain, result);
+            }
+        }
+    }
+
+    private DispatchHandler getHandlers(ValidatorItem validatorItem) {
+        List<ResultHandler> handlers = new ArrayList<ResultHandler>();
+        handlers.add(new ServletResultHandler());
+
+        if (StringUtilities.isNotBlank(validatorItem.getDotOutput())) {
+            File out = new File(validatorItem.getDotOutput());
+            try {
+                if (out.exists() && out.canWrite() || !out.exists() && out.createNewFile() ) {
+                    handlers.add(new SaveDotHandler(out, true, true));
+                } else {
+                    LOG.warn("Cannot write to DOT file: " + validatorItem.getDotOutput());
+                }
+            } catch (IOException ex) {
+                LOG.warn("Cannot write to DOT file: " + validatorItem.getDotOutput(), ex);
+            }
+        }
+        return new DispatchHandler(handlers.toArray(new ResultHandler[0]));
     }
 
     private void initialize() {
@@ -112,14 +163,14 @@ public class XsdValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
 
             for (ValidatorItem validatorItem : validatorConfiguration.getValidator()) {
                 Config config = new Config();
-                config.setResultHandler(new ServletResultHandler());
+                config.setResultHandler(getHandlers(validatorItem));
                 config.setUseSaxonEEValidation(validatorItem.isUseSaxon());
                 config.setCheckWellFormed(validatorItem.isCheckWellFormed());
                 config.setCheckXSDGrammar(validatorItem.isCheckXsdGrammer());
                 config.setCheckElements(validatorItem.isCheckElements());
                 config.setXPathVersion(validatorItem.getXpathVersion());
-                
-                ValidatorInfo validator = new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), config);
+
+                ValidatorInfo validator = new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), validatorItem.getDotOutput(), config);
                 validators.put(validatorItem.getRole(), validator);
                 if (validatorItem.isDefault()) {
                     defaultValidator = validator;
