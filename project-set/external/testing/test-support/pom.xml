@@ -5,7 +5,7 @@
    <parent>
       <groupId>com.rackspace.papi.external</groupId>
       <artifactId>external-lib-support</artifactId>
-      <version>1.4.2-SNAPSHOT</version>
+      <version>1.4.2</version>
       <relativePath>../../pom.xml</relativePath>
    </parent>
 
