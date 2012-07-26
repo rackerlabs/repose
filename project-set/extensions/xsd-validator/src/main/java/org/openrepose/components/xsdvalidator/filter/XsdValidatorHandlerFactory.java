@@ -170,6 +170,13 @@ public class XsdValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                 config.setCheckElements(validatorItem.isCheckElements());
                 config.setXPathVersion(validatorItem.getXpathVersion());
 
+                config.setCheckPlainParams(validatorItem.isCheckPlainParams());
+                config.setDoXSDGrammarTransform(validatorItem.isDoXsdGrammerTransform());
+                config.setEnablePreProcessExtension(validatorItem.isEnablePreProcessExtension());
+                config.setRemoveDups(validatorItem.isRemoveDups());
+                config.setValidateChecker(validatorItem.isValidateChecker());
+                config.setXSLEngine(validatorItem.getXslEngine().value());
+
                 ValidatorInfo validator = new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), validatorItem.getDotOutput(), config);
                 validators.put(validatorItem.getRole(), validator);
                 if (validatorItem.isDefault()) {
