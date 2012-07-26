@@ -7,95 +7,152 @@
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <!-- Configuration Schema Definitions -->
-   <xs:element name="validators" type="scr:ValidatorConfiguration" />
+    <xs:element name="validators" type="scr:ValidatorConfiguration"/>
 
-   <xs:complexType name="ValidatorConfiguration">
-      <xs:annotation>
-         <xs:documentation>
-            <html:p>
-            </html:p>
-         </xs:documentation>
-      </xs:annotation>
-      <xs:sequence>
-         <xs:element name="validator" type="scr:ValidatorItem" minOccurs="0" maxOccurs="unbounded" />
-      </xs:sequence>
+    <xs:complexType name="ValidatorConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        <xs:sequence>
+            <xs:element name="validator" type="scr:ValidatorItem" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
 
-   </xs:complexType>
-   
-   <xs:complexType name="ValidatorItem">
-      <xs:attribute name="role" type="xs:string" use="required">
-         <xs:annotation>
-            <xs:documentation>
-               <html:p>
-               </html:p>
-            </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-      <xs:attribute name="default" type="xs:boolean" use="optional" default="false">
-         <xs:annotation>
-            <xs:documentation>
-               <html:p>
-               </html:p>
-            </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-      <xs:attribute name="wadl" type="xs:anyURI" use="required">
-         <xs:annotation>
-            <xs:documentation>
-               <html:p>
-               </html:p>
-            </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-      <xs:attribute name="dot-output" type="xs:string" use="optional">
-         <xs:annotation>
-            <xs:documentation>
-               <html:p>
-               </html:p>
-            </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-      <xs:attribute name="xpath-version" type="xs:int" use="optional" default="2">
-         <xs:annotation>
-            <xs:documentation>
-               <html:p>
-               </html:p>
-            </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-      <xs:attribute name="check-well-formed" type="xs:boolean" use="optional" default="true">
-         <xs:annotation>
-            <xs:documentation>
-               <html:p>
-               </html:p>
-            </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-      <xs:attribute name="check-xsd-grammer" type="xs:boolean" use="optional" default="true">
-         <xs:annotation>
-            <xs:documentation>
-               <html:p>
-               </html:p>
-            </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-      <xs:attribute name="check-elements" type="xs:boolean" use="optional" default="true">
-         <xs:annotation>
-            <xs:documentation>
-               <html:p>
-               </html:p>
-            </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
-      <xs:attribute name="use-saxon" type="xs:boolean" use="optional" default="false">
-         <xs:annotation>
-            <xs:documentation>
-               <html:p>
-               </html:p>
-            </xs:documentation>
-         </xs:annotation>
-      </xs:attribute>
+    </xs:complexType>
 
-      
-   </xs:complexType>
+    <xs:simpleType name="XSLEngine">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="XalanC"/>
+            <xs:enumeration value="Xalan"/>
+            <xs:enumeration value="Saxon"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="ValidatorItem">
+        <xs:attribute name="role" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="default" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="wadl" type="xs:anyURI" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="dot-output" type="xs:string" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="xpath-version" type="xs:int" use="optional" default="2">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="check-well-formed" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="check-xsd-grammer" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="check-elements" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="use-saxon" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="check-plain-params" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="do-xsd-grammer-transform" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="enable-pre-process-extension" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="remove-dups" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="validate-checker" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        <xs:attribute name="xsl-engine" type="scr:XSLEngine" use="optional" default="XalanC">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+
+    </xs:complexType>
 </xs:schema>
