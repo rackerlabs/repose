@@ -43,7 +43,7 @@ class JerseyResponseProcessor extends AbstractResponseProcessor {
             // Tell Jersey to buffer entity and close input
             clientResponse.bufferEntity();
          }
-         MutableHttpServletResponse mutableResponse = MutableHttpServletResponse.wrap(getResponse());
+         MutableHttpServletResponse mutableResponse = (MutableHttpServletResponse)getResponse();
          mutableResponse.setInputStream(new JerseyInputStream(clientResponse));
       } else {
          final InputStream source = clientResponse.getEntityInputStream();

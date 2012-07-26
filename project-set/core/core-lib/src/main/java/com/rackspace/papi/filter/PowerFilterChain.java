@@ -14,15 +14,14 @@ import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.sun.jersey.api.client.ClientHandlerException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.*;
+import javax.servlet.*;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author fran
@@ -156,12 +155,12 @@ public class PowerFilterChain implements FilterChain {
     private boolean isResponseOk(HttpServletResponse response) {
         return response.getStatus() < HttpStatusCode.INTERNAL_SERVER_ERROR.intValue();
     }
-
+    
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
         final HttpServletRequest request = (HttpServletRequest) servletRequest;
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) servletRequest);
-        final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) servletResponse);
+        final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) servletResponse);
         final Thread currentThread = Thread.currentThread();
         final ClassLoader previousClassLoader = currentThread.getContextClassLoader();
 
@@ -179,28 +178,22 @@ public class PowerFilterChain implements FilterChain {
             final ClassLoader nextClassLoader = nextFilterContext.getFilterClassLoader();
 
             currentThread.setContextClassLoader(nextClassLoader);
-
+            mutableHttpResponse.pushOutputStream();
             try {
                 long start = traceEnter(mutableHttpResponse, filterConfig.getName());
-                mutableHttpResponse.pushOutputStream();
                 nextFilterContext.getFilter().doFilter(mutableHttpRequest, mutableHttpResponse, this);
-                mutableHttpResponse.popOutputStream();
-                if (servletResponse != mutableHttpResponse) {
-                    mutableHttpResponse.commitBufferToServletOutputStream();
-                }
                 traceExit(mutableHttpResponse, filterConfig.getName(), start);
             } catch (Exception ex) {
                 String filterName = nextFilterContext.getFilter().getClass().getSimpleName();
                 LOG.error("Failure in filter: " + filterName + "  -  Reason: " + ex.getMessage(), ex);
             } finally {
+                mutableHttpResponse.popOutputStream();
                 currentThread.setContextClassLoader(previousClassLoader);
             }
         } else {
             currentThread.setContextClassLoader(containerClassLoader);
 
             try {
-                // If anything set the response status code to something other than OK
-                // then don't route to the end service.
                 if (isResponseOk(mutableHttpResponse)) {
                     containerFilterChain.doFilter(mutableHttpRequest, mutableHttpResponse);
                 }

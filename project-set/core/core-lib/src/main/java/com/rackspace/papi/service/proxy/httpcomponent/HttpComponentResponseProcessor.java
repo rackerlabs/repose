@@ -31,7 +31,7 @@ public class HttpComponentResponseProcessor extends AbstractResponseProcessor {
       HttpEntity entity = httpResponse.getEntity();
       if (entity != null) {
          if (getResponse() instanceof MutableHttpServletResponse) {
-            MutableHttpServletResponse mutableResponse = MutableHttpServletResponse.wrap(getResponse());
+            MutableHttpServletResponse mutableResponse = (MutableHttpServletResponse)getResponse();
             mutableResponse.setInputStream(new HttpComponentInputStream(entity));
          } else {
             final OutputStream clientOut = getResponse().getOutputStream();

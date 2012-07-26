@@ -4,9 +4,6 @@ import com.rackspace.com.papi.components.checker.Config;
 import com.rackspace.com.papi.components.checker.handler.ResultHandler;
 import com.rackspace.com.papi.components.checker.handler.SaveDotHandler;
 import com.rackspace.com.papi.components.checker.handler.ServletResultHandler;
-import com.rackspace.com.papi.components.checker.servlet.CheckerServletRequest;
-import com.rackspace.com.papi.components.checker.servlet.CheckerServletResponse;
-import com.rackspace.com.papi.components.checker.step.Result;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.config.parser.generic.GenericResourceConfigurationParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
@@ -21,13 +18,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.FilterChain;
 import org.openrepose.components.xsdvalidator.servlet.config.ValidatorConfiguration;
 import org.openrepose.components.xsdvalidator.servlet.config.ValidatorItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import scala.Option;
 
 public class XsdValidatorHandlerFactory extends AbstractConfiguredFilterHandlerFactory<XsdValidatorHandler> {
 
@@ -108,29 +102,6 @@ public class XsdValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
 
     private String getWadlPath(String wadl) {
         return !wadl.contains("://") ? StringUtilities.join("file://", configRoot, "/", wadl) : wadl;
-    }
-
-    private static class DispatchHandler extends ResultHandler {
-
-        private final ResultHandler[] handlers;
-
-        public DispatchHandler(ResultHandler... handlers) {
-            this.handlers = handlers;
-        }
-
-        @Override
-        public void init(Option<Document> option) {
-            for (ResultHandler handler : handlers) {
-                handler.init(option);
-            }
-        }
-
-        @Override
-        public void handle(CheckerServletRequest request, CheckerServletResponse response, FilterChain chain, Result result) {
-            for (ResultHandler handler : handlers) {
-                handler.handle(request, response, chain, result);
-            }
-        }
     }
 
     private DispatchHandler getHandlers(ValidatorItem validatorItem) {

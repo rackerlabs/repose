@@ -9,7 +9,7 @@ public class ResponseMessageHandler implements FormatterLogic {
 
     @Override
     public String handle(HttpServletRequest request, HttpServletResponse response) {
-         String message = MutableHttpServletResponse.wrap(response).getMessage();
+         String message = MutableHttpServletResponse.wrap(request, response).getMessage();
          return message != null? message: "";
     }
     

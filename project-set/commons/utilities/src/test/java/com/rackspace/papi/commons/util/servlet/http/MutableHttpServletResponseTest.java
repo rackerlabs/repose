@@ -10,6 +10,7 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static org.junit.Assert.*;
@@ -23,10 +24,10 @@ public class MutableHttpServletResponseTest {
 
         @Test
         public void shouldPassReferenceThroughIfIsWrapperInstance() {
-            MutableHttpServletResponse original = MutableHttpServletResponse.wrap(mock(HttpServletResponse.class));
+            MutableHttpServletResponse original = MutableHttpServletResponse.wrap(mock(HttpServletRequest.class), mock(HttpServletResponse.class));
             MutableHttpServletResponse actual;
 
-            actual = MutableHttpServletResponse.wrap(original);
+            actual = MutableHttpServletResponse.wrap(mock(HttpServletRequest.class), original);
 
             assertSame(original, actual);
         }
@@ -36,7 +37,7 @@ public class MutableHttpServletResponseTest {
             HttpServletResponse original = mock(HttpServletResponse.class);
             MutableHttpServletResponse actual;
 
-            actual = MutableHttpServletResponse.wrap(original);
+            actual = MutableHttpServletResponse.wrap(mock(HttpServletRequest.class), original);
 
             assertNotSame(original, actual);
         }
@@ -47,7 +48,7 @@ public class MutableHttpServletResponseTest {
             HttpServletResponse original = mock(HttpServletResponse.class);
             MutableHttpServletResponse actual;
 
-            actual = MutableHttpServletResponse.wrap(original);
+            actual = MutableHttpServletResponse.wrap(mock(HttpServletRequest.class), original);
             actual.getOutputStream();
 
             assertEquals(2048, actual.getBufferSize());
@@ -58,7 +59,7 @@ public class MutableHttpServletResponseTest {
             HttpServletResponse original = mock(HttpServletResponse.class);
             MutableHttpServletResponse actual;
 
-            actual = MutableHttpServletResponse.wrap(original);
+            actual = MutableHttpServletResponse.wrap(mock(HttpServletRequest.class), original);
 
             assertTrue(actual.getOutputStream() instanceof ByteBufferServletOutputStream);
         }
@@ -68,7 +69,7 @@ public class MutableHttpServletResponseTest {
             HttpServletResponse original = mock(HttpServletResponse.class);
             MutableHttpServletResponse actual;
 
-            actual = MutableHttpServletResponse.wrap(original);
+            actual = MutableHttpServletResponse.wrap(mock(HttpServletRequest.class), original);
 
             assertNotNull(actual.getWriter());
         }
@@ -83,7 +84,7 @@ public class MutableHttpServletResponseTest {
             HttpServletResponse original = mock(HttpServletResponse.class);
             MutableHttpServletResponse response;
 
-            response = MutableHttpServletResponse.wrap(original);
+            response = MutableHttpServletResponse.wrap(mock(HttpServletRequest.class), original);
 
             first = response.getBufferedOutputAsInputStream();
             second = response.getBufferedOutputAsInputStream();
@@ -107,7 +108,7 @@ public class MutableHttpServletResponseTest {
             HttpServletResponse original = mock(HttpServletResponse.class);
             MutableHttpServletResponse response;
 
-            response = MutableHttpServletResponse.wrap(original);
+            response = MutableHttpServletResponse.wrap(mock(HttpServletRequest.class), original);
 
             out = response.getOutputStream();
             in = response.getBufferedOutputAsInputStream();
@@ -156,7 +157,7 @@ public class MutableHttpServletResponseTest {
             ServletOutputStream outputStream = new ByteBufferServletOutputStream(byteBuffer);
             when(original.getOutputStream()).thenReturn(outputStream);
 
-            MutableHttpServletResponse response = MutableHttpServletResponse.wrap(original);
+            MutableHttpServletResponse response = MutableHttpServletResponse.wrap(mock(HttpServletRequest.class), original);
 
             response.getWriter().write(responseBody);
 

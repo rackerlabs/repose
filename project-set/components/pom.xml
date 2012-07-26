@@ -32,6 +32,7 @@
         <module>translation</module>
         <module>default-router</module>
         <module>destination-router</module>
+        <module>flush-output</module>
         <module>echo</module>
         <module>client-authorization</module>
         <module>client-ip-identity</module>
@@ -228,6 +229,12 @@
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>destination-router</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>flush-output</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
