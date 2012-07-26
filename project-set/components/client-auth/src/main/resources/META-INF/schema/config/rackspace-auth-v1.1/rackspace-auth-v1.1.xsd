@@ -43,6 +43,14 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
+
+            <xs:attribute name="group-cache-timeout" type="xs:long" use="optional" default="600000">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Time in milliseconds to cache auth groups.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
             
             <xs:attribute name="include-query-params" type="xs:boolean" use="optional" default="false">
                 <xs:annotation>

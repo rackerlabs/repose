@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.clientauth.common;
 
 import com.rackspace.auth.AuthGroup;
+import com.rackspace.auth.AuthGroups;
 import com.rackspace.auth.AuthToken;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
@@ -29,24 +30,29 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
     protected abstract AuthToken validateToken(ExtractorResult<String> account, String token);
 
-    protected abstract List<AuthGroup> getGroups(String group);
+    protected abstract AuthGroups getGroups(String group);
 
     protected abstract FilterDirector processResponse(ReadableHttpServletResponse response);
 
     protected abstract void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable, FilterDirector filterDirector, String extractedResult, List<AuthGroup> groups);
+
     private final boolean delegable;
     private final KeyedRegexExtractor<String> keyedRegexExtractor;
     private final AuthTokenCache cache;
+    private final AuthGroupCache grpCache;
     private final UriMatcher uriMatcher;
     private final boolean includeQueryParams, tenanted;
+    private final long groupCacheTtl;
 
-    protected AuthenticationHandler(Configurables configurables, AuthTokenCache cache, UriMatcher uriMatcher) {
+    protected AuthenticationHandler(Configurables configurables, AuthTokenCache cache, AuthGroupCache grpCache, UriMatcher uriMatcher) {
         this.delegable = configurables.isDelegable();
         this.keyedRegexExtractor = configurables.getKeyedRegexExtractor();
         this.cache = cache;
+        this.grpCache = grpCache;
         this.uriMatcher = uriMatcher;
         this.includeQueryParams = configurables.isIncludeQueryParams();
         this.tenanted = configurables.isTenanted();
+        this.groupCacheTtl = configurables.getGroupCacheTtl();
     }
 
     @Override
@@ -107,7 +113,25 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
         List<AuthGroup> groups = new ArrayList<AuthGroup>();
         if (token != null) {
-            groups = getGroups(token.getUserId());
+
+            AuthGroups authGroups = checkGroupCache(token.getUserId());
+
+            if (authGroups == null) {
+                try {
+                    authGroups = getGroups(token.getUserId());
+                    cacheGroupInfo(token.getUserId(), authGroups);
+                } catch (ClientHandlerException ex) {
+                    LOG.error("Failure communicating with the auth service when retrieving groups: " + ex.getMessage(), ex);
+                    LOG.error("X-PP-Groups will not be set.");
+                } catch (Exception ex) {
+                    LOG.error("Failure in auth when retrieving groups: " + ex.getMessage(), ex);
+                    LOG.error("X-PP-Groups will not be set.");
+                }
+            }
+
+            if (authGroups != null && authGroups.getGroups() != null) {
+                groups = authGroups.getGroups();
+            }
         }
 
         setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(), groups);
@@ -155,9 +179,9 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
             return;
         }
         String key;
-        if(tenanted){
+        if (tenanted) {
             key = user.getTenantId();
-        }else{
+        } else {
             key = user.getTokenId();
         }
 
@@ -166,5 +190,35 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         } catch (IOException ex) {
             LOG.warn("Unable to cache user token information: " + user.getUserId() + " Reason: " + ex.getMessage(), ex);
         }
+    }
+
+    private AuthGroups checkGroupCache(String userId) {
+        if (grpCache == null) {
+            return null;
+        }
+
+        return grpCache.getUserGroup(userId);
+    }
+
+    private void cacheGroupInfo(String userId, AuthGroups groups) {
+        if (groups == null || grpCache == null) {
+            return;
+        }
+
+        try {
+            grpCache.storeGroups(userId, groups, safeGroupTtl());
+        } catch (IOException ex) {
+            LOG.warn("Unable to cache user group information: " + userId + " Reason: " + ex.getMessage(), ex);
+        }
+    }
+
+    private int safeGroupTtl() {
+        final Long grpTtl = this.groupCacheTtl;
+
+        if (grpTtl >= Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+
+        return grpTtl.intValue();
     }
 }
