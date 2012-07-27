@@ -55,8 +55,17 @@ public class XsdValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         }
 
     }
+    
+    XsdValidatorWadlListener getWadlListener() {
+        return wadlListener;
+    }
+    
+    void setValidators(Map<String, ValidatorInfo> validators) {
+        this.validators = validators;
+    }
+    
 
-    private class XsdValidatorWadlListener implements UpdateListener<ConfigurationResource> {
+    class XsdValidatorWadlListener implements UpdateListener<ConfigurationResource> {
 
         private String getNormalizedPath(String uri) {
             String path = uri;
@@ -100,7 +109,7 @@ public class XsdValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         manager.subscribeTo(wadl, wadlListener, new GenericResourceConfigurationParser());
     }
 
-    private String getWadlPath(String wadl) {
+    String getWadlPath(String wadl) {
         return !wadl.contains("://") ? StringUtilities.join("file://", configRoot, "/", wadl) : wadl;
     }
 
@@ -148,7 +157,7 @@ public class XsdValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                 config.setValidateChecker(validatorItem.isValidateChecker());
                 config.setXSLEngine(validatorItem.getXslEngine().value());
 
-                ValidatorInfo validator = new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), validatorItem.getDotOutput(), config);
+                ValidatorInfo validator = new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), config);
                 validators.put(validatorItem.getRole(), validator);
                 if (validatorItem.isDefault()) {
                     defaultValidator = validator;
@@ -167,6 +176,10 @@ public class XsdValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
             validatorConfiguration = configurationObject;
             unsubscribeAll();
         }
+    }
+    
+    void setValidatorCOnfiguration(ValidatorConfiguration configurationObject) {
+        validatorConfiguration = configurationObject;
     }
 
     @Override

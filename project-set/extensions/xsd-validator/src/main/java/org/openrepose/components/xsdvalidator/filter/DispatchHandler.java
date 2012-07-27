@@ -18,6 +18,9 @@ public class DispatchHandler extends ResultHandler {
 
     @Override
     public void init(Option<Document> option) {
+        if (handlers == null) {
+          return;
+        }
         for (ResultHandler handler : handlers) {
             handler.init(option);
         }
@@ -25,6 +28,10 @@ public class DispatchHandler extends ResultHandler {
 
     @Override
     public void handle(CheckerServletRequest request, CheckerServletResponse response, FilterChain chain, Result result) {
+        if (handlers == null) {
+          return;
+        }
+        
         for (ResultHandler handler : handlers) {
             handler.handle(request, response, chain, result);
         }

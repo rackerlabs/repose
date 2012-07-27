@@ -14,13 +14,11 @@ public class ValidatorInfo {
     private final String role;
     private final Config config;
     private Validator validator;
-    private final String dotOutput;
 
-    public ValidatorInfo(String role, String wadlUri, String dotOutput, Config config) {
+    public ValidatorInfo(String role, String wadlUri, Config config) {
         this.role = role;
         this.uri = wadlUri;
         this.config = config;
-        this.dotOutput = dotOutput;
     }
     
     private void initValidator() {
@@ -38,6 +36,14 @@ public class ValidatorInfo {
 
     public void clearValidator() {
         validator = null;
+    }
+
+    /**
+     * This method is to simplify testing.
+     * @param validator 
+     */
+    void setValidator(Validator validator) {
+        this.validator = validator;
     }
 
     public Validator getValidator() {
