@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 public class RequestHeaderValuesImpl implements RequestHeaderValues {
 
-   private static String REQUEST_HEADERS_ATTRIBUTE = "repose.request.headers";
+   private static final String REQUEST_HEADERS_ATTRIBUTE = "repose.request.headers";
    private final Map<String, List<String>> headers;
    
    public static RequestHeaderValues extract(HttpServletRequest request) {

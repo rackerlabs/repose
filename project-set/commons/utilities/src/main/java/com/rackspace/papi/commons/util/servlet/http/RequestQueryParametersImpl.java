@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 
 public class RequestQueryParametersImpl implements RequestQueryParameters {
 
-   private static String REQUEST_QUERY_STRING_ATTRIBUTE = "repose.request.querystring";
+   private static final String REQUEST_QUERY_STRING_ATTRIBUTE = "repose.request.querystring";
    private final HttpServletRequest request;
    private Map<String, String[]> queryParameters;
 

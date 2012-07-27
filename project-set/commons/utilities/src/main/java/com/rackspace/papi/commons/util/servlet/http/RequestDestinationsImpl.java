@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 
 public class RequestDestinationsImpl implements RequestDestinations {
 
-   private static String DESTINATION_ATTRIBUTE = "repose.destinations";
+   private static final String DESTINATION_ATTRIBUTE = "repose.destinations";
    private final List<RouteDestination> destinations;
 
    public RequestDestinationsImpl(HttpServletRequest request) {
