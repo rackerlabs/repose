@@ -21,7 +21,7 @@
     <dependencies>
         <dependency>
             <groupId>com.rackspace.papi.components.extensions</groupId>
-            <artifactId>xsd-validator</artifactId>
+            <artifactId>api-validator</artifactId>
             <version>2.1.8-SNAPSHOT</version>
         </dependency>
        
@@ -54,7 +54,7 @@
                     <modules>
                         <jarModule>
                             <groupId>com.rackspace.papi.components.extensions</groupId>
-                            <artifactId>xsd-validator</artifactId>
+                            <artifactId>api-validator</artifactId>
                         </jarModule>
                     </modules>
                 </configuration>

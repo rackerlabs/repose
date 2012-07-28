@@ -1,5 +1,6 @@
-package org.openrepose.components.xsdvalidator.filter;
+package org.openrepose.components.apivalidator.filter;
 
+import org.openrepose.components.apivalidator.filter.DispatchHandler;
 import com.rackspace.com.papi.components.checker.handler.ResultHandler;
 import com.rackspace.com.papi.components.checker.servlet.CheckerServletRequest;
 import com.rackspace.com.papi.components.checker.servlet.CheckerServletResponse;

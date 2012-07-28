@@ -9,9 +9,9 @@
     </parent>
 
     <groupId>com.rackspace.papi.components.extensions</groupId>
-    <artifactId>xsd-validator</artifactId>
+    <artifactId>api-validator</artifactId>
 
-    <name>Repose Components - XSD Validator</name>
+    <name>Repose Components - API Validator</name>
     <description>TODO</description>
 
     <packaging>jar</packaging>
