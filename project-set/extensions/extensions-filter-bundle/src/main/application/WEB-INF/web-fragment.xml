@@ -3,6 +3,6 @@
 <web-fragment xmlns="http://java.sun.com/xml/ns/javaee">
     <filter>
         <filter-name>xsd-validator</filter-name>
-        <filter-class>org.openrepose.components.xsdvalidator.filter.XsdValidatorFilter</filter-class>
+        <filter-class>org.openrepose.components.apivalidator.filter.ApiValidatorFilter</filter-class>
     </filter>
 </web-fragment>

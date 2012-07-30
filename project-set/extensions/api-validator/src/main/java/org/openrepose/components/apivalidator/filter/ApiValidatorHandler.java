@@ -1,4 +1,4 @@
-package org.openrepose.components.xsdvalidator.filter;
+package org.openrepose.components.apivalidator.filter;
 
 import com.rackspace.com.papi.components.checker.Validator;
 import com.rackspace.com.papi.components.checker.step.Result;
@@ -20,14 +20,14 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class XsdValidatorHandler extends AbstractFilterLogicHandler {
+public class ApiValidatorHandler extends AbstractFilterLogicHandler {
 
-    private static final Logger LOG = LoggerFactory.getLogger(XsdValidatorHandler.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ApiValidatorHandler.class);
     private final Map<String, ValidatorInfo> validators;
     private final ValidatorInfo defaultValidator;
     private FilterChain chain;
 
-    public XsdValidatorHandler(ValidatorInfo defaultValidator, Map<String, ValidatorInfo> validators) {
+    public ApiValidatorHandler(ValidatorInfo defaultValidator, Map<String, ValidatorInfo> validators) {
         this.validators = new HashMap<String, ValidatorInfo>();
         this.validators.putAll(validators);
         this.defaultValidator = defaultValidator;

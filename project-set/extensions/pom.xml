@@ -15,7 +15,7 @@
     <packaging>pom</packaging>
    
     <modules>
-        <module>xsd-validator</module>
+        <module>api-validator</module>
         <module>extensions-filter-bundle</module>
     </modules>
     

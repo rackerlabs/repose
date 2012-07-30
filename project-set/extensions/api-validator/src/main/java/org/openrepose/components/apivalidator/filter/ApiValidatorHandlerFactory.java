@@ -1,4 +1,4 @@
-package org.openrepose.components.xsdvalidator.filter;
+package org.openrepose.components.apivalidator.filter;
 
 import com.rackspace.com.papi.components.checker.Config;
 import com.rackspace.com.papi.components.checker.handler.ResultHandler;
@@ -18,26 +18,26 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.openrepose.components.xsdvalidator.servlet.config.ValidatorConfiguration;
-import org.openrepose.components.xsdvalidator.servlet.config.ValidatorItem;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class XsdValidatorHandlerFactory extends AbstractConfiguredFilterHandlerFactory<XsdValidatorHandler> {
+public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerFactory<ApiValidatorHandler> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(XsdValidatorHandlerFactory.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ApiValidatorHandlerFactory.class);
     private ValidatorConfiguration validatorConfiguration;
     private ValidatorInfo defaultValidator;
     private Map<String, ValidatorInfo> validators;
     private boolean initialized = false;
     private final ConfigurationService manager;
-    private final XsdValidatorWadlListener wadlListener;
+    private final ApiValidatorWadlListener wadlListener;
     private final Object lock;
     private final String configRoot;
 
-    public XsdValidatorHandlerFactory(ConfigurationService manager, String configurationRoot) {
+    public ApiValidatorHandlerFactory(ConfigurationService manager, String configurationRoot) {
         this.manager = manager;
-        wadlListener = new XsdValidatorWadlListener();
+        wadlListener = new ApiValidatorWadlListener();
         lock = new Object();
         this.configRoot = configurationRoot;
     }
@@ -56,7 +56,7 @@ public class XsdValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
 
     }
     
-    XsdValidatorWadlListener getWadlListener() {
+    ApiValidatorWadlListener getWadlListener() {
         return wadlListener;
     }
     
@@ -65,7 +65,7 @@ public class XsdValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     }
     
 
-    class XsdValidatorWadlListener implements UpdateListener<ConfigurationResource> {
+    class ApiValidatorWadlListener implements UpdateListener<ConfigurationResource> {
 
         private String getNormalizedPath(String uri) {
             String path = uri;
@@ -169,7 +169,7 @@ public class XsdValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         }
     }
 
-    private class XsdValidationConfigurationListener implements UpdateListener<ValidatorConfiguration> {
+    private class ApiValidationConfigurationListener implements UpdateListener<ValidatorConfiguration> {
 
         @Override
         public void configurationUpdated(ValidatorConfiguration configurationObject) {
@@ -183,15 +183,15 @@ public class XsdValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     }
 
     @Override
-    protected XsdValidatorHandler buildHandler() {
+    protected ApiValidatorHandler buildHandler() {
         initialize();
-        return new XsdValidatorHandler(defaultValidator, validators);
+        return new ApiValidatorHandler(defaultValidator, validators);
     }
 
     @Override
     protected Map<Class, UpdateListener<?>> getListeners() {
         final Map<Class, UpdateListener<?>> updateListeners = new HashMap<Class, UpdateListener<?>>();
-        updateListeners.put(ValidatorConfiguration.class, new XsdValidationConfigurationListener());
+        updateListeners.put(ValidatorConfiguration.class, new ApiValidationConfigurationListener());
         return updateListeners;
     }
 }

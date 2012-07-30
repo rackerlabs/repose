@@ -1,5 +1,8 @@
-package org.openrepose.components.xsdvalidator.filter;
+package org.openrepose.components.apivalidator.filter;
 
+import org.openrepose.components.apivalidator.filter.ValidatorInfo;
+import org.openrepose.components.apivalidator.filter.ApiValidatorHandlerFactory;
+import org.openrepose.components.apivalidator.filter.ApiValidatorHandler;
 import com.rackspace.papi.commons.config.parser.generic.GenericResourceConfigurationParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
@@ -19,18 +22,18 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import static org.mockito.Mockito.*;
-import org.openrepose.components.xsdvalidator.servlet.config.ValidatorConfiguration;
-import org.openrepose.components.xsdvalidator.servlet.config.ValidatorItem;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
 
 @RunWith(Enclosed.class)
-public class XsdValidatorHandlerFactoryTest {
+public class ApiValidatorHandlerFactoryTest {
 
     public static class WhenCreatingHandlers {
         private ConfigurationService configService;
         private final String wadl = "default.wadl";
         private final String role = "testRole";
         private final String defaultRole = "defaultRole";
-        private XsdValidatorHandlerFactory instance;
+        private ApiValidatorHandlerFactory instance;
         private List<HeaderValue> roles;
         
         @Before
@@ -49,7 +52,7 @@ public class XsdValidatorHandlerFactoryTest {
             
             configService = mock(ConfigurationService.class);
             URL resource = this.getClass().getClassLoader().getResource(wadl);
-            instance = new XsdValidatorHandlerFactory(configService, resource.getPath());
+            instance = new ApiValidatorHandlerFactory(configService, resource.getPath());
             
             instance.setValidatorCOnfiguration(config);
             
@@ -59,17 +62,17 @@ public class XsdValidatorHandlerFactoryTest {
         
         @Test
         public void shouldBuildValidatorListAndSubscribeToWadl() {
-            XsdValidatorHandler handler = instance.buildHandler();
+            ApiValidatorHandler handler = instance.buildHandler();
             assertNotNull("Should build handler", handler);
             ValidatorInfo validatorForRole = handler.getValidatorForRole(roles);
             assertNotNull(validatorForRole);
             assertEquals("Should get validator for role", role, validatorForRole.getRole());
-            verify(configService, times(2)).subscribeTo(eq(instance.getWadlPath(wadl)), any(XsdValidatorHandlerFactory.XsdValidatorWadlListener.class), any(GenericResourceConfigurationParser.class));
+            verify(configService, times(2)).subscribeTo(eq(instance.getWadlPath(wadl)), any(ApiValidatorHandlerFactory.ApiValidatorWadlListener.class), any(GenericResourceConfigurationParser.class));
         }
 
         @Test
         public void shouldSetDefaultValidator() {
-            XsdValidatorHandler handler = instance.buildHandler();
+            ApiValidatorHandler handler = instance.buildHandler();
             assertNotNull("Should build handler", handler);
             ValidatorInfo validatorForRole = handler.getValidatorForRole(new ArrayList<HeaderValue>());
             assertNotNull(validatorForRole);
@@ -84,7 +87,7 @@ public class XsdValidatorHandlerFactoryTest {
         private final String role1 = "role1";
         private final String wadl2 = "default2.wadl";
         private final String role2 = "role2";
-        private XsdValidatorHandlerFactory instance;
+        private ApiValidatorHandlerFactory instance;
         private ValidatorInfo info2;
         private ValidatorInfo info1;
         
@@ -93,7 +96,7 @@ public class XsdValidatorHandlerFactoryTest {
             
             configService = mock(ConfigurationService.class);
             URL resource = this.getClass().getClassLoader().getResource(wadl);
-            instance = new XsdValidatorHandlerFactory(configService, resource.getPath());
+            instance = new ApiValidatorHandlerFactory(configService, resource.getPath());
 
             Map<String, ValidatorInfo> validators = new HashMap<String, ValidatorInfo>();
             info1 = mock(ValidatorInfo.class);
