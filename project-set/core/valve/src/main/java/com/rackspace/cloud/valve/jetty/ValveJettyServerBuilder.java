@@ -23,82 +23,85 @@ import java.util.List;
 
 public class ValveJettyServerBuilder {
 
-   private final ServicePorts ports = new ServicePorts();
-   private String configurationPathAndFile = "";
-   private final SslConfiguration sslConfiguration;
-   private final String connectionFramework;
-   private PowerApiContextManager contextManager;
+    private final ServicePorts ports = new ServicePorts();
+    private String configurationPathAndFile = "";
+    private final SslConfiguration sslConfiguration;
+    private final String connectionFramework;
+    private PowerApiContextManager contextManager;
+    private final String insecure;
 
-   public ValveJettyServerBuilder(String configurationPathAndFile, List<Port> ports, SslConfiguration sslConfiguration, String connectionFramework) {
-      this.ports.addAll(ports);
-      this.configurationPathAndFile = configurationPathAndFile;
-      this.sslConfiguration = sslConfiguration;
-      this.connectionFramework = connectionFramework;
-   }
+    public ValveJettyServerBuilder(String configurationPathAndFile, List<Port> ports, SslConfiguration sslConfiguration, String connectionFramework, String insecure) {
+        this.ports.addAll(ports);
+        this.configurationPathAndFile = configurationPathAndFile;
+        this.sslConfiguration = sslConfiguration;
+        this.connectionFramework = connectionFramework;
+        this.insecure = insecure;
+    }
 
-   public Server newServer() {
+    public Server newServer() {
 
-      Server server = new Server();
-      List<Connector> connectors = new ArrayList<Connector>();
+        Server server = new Server();
+        List<Connector> connectors = new ArrayList<Connector>();
 
-      for (Port p : ports) {
-         if ("http".equalsIgnoreCase(p.getProtocol())) {
-            connectors.add(createHttpConnector(p));
-         } else if ("https".equalsIgnoreCase(p.getProtocol())) {
-            connectors.add(createHttpsConnector(p));
-         }
-      }
+        for (Port p : ports) {
+            if ("http".equalsIgnoreCase(p.getProtocol())) {
+                connectors.add(createHttpConnector(p));
+            } else if ("https".equalsIgnoreCase(p.getProtocol())) {
+                connectors.add(createHttpsConnector(p));
+            }
+        }
 
-      server.setConnectors(connectors.toArray(new Connector[connectors.size()]));
+        server.setConnectors(connectors.toArray(new Connector[connectors.size()]));
 
-      final ServletContextHandler rootContext = buildRootContext(server);
-      final FilterHolder powerFilterHolder = new FilterHolder(ValvePowerFilter.class);
-      final ServletHolder valveServer = new ServletHolder(new ProxyServlet());
+        final ServletContextHandler rootContext = buildRootContext(server);
+        final FilterHolder powerFilterHolder = new FilterHolder(ValvePowerFilter.class);
+        final ServletHolder valveServer = new ServletHolder(new ProxyServlet());
 
-      rootContext.addFilter(powerFilterHolder, "/*", EnumSet.allOf(DispatcherType.class));
-      rootContext.addServlet(valveServer, "/*");
+        rootContext.addFilter(powerFilterHolder, "/*", EnumSet.allOf(DispatcherType.class));
+        rootContext.addServlet(valveServer, "/*");
 
-      server.setHandler(rootContext);
+        server.setHandler(rootContext);
 
-      return server;
-   }
+        return server;
+    }
 
-   private Connector createHttpConnector(Port port) {
-      SelectChannelConnector connector = new SelectChannelConnector();
-      connector.setPort(port.getPort());
+    private Connector createHttpConnector(Port port) {
+        SelectChannelConnector connector = new SelectChannelConnector();
+        connector.setPort(port.getPort());
 
-      return connector;
-   }
+        return connector;
+    }
 
-   private Connector createHttpsConnector(Port port) {
-      SslSelectChannelConnector sslConnector = new SslSelectChannelConnector();
+    private Connector createHttpsConnector(Port port) {
+        SslSelectChannelConnector sslConnector = new SslSelectChannelConnector();
 
-      sslConnector.setPort(port.getPort());
-      SslContextFactory cf = sslConnector.getSslContextFactory();
+        sslConnector.setPort(port.getPort());
+        SslContextFactory cf = sslConnector.getSslContextFactory();
 
-      cf.setKeyStore(configurationPathAndFile + "/" + sslConfiguration.getKeystoreFilename());
-      cf.setKeyStorePassword(sslConfiguration.getKeystorePassword());
-      cf.setKeyManagerPassword(sslConfiguration.getKeyPassword());
+        cf.setKeyStore(configurationPathAndFile + "/" + sslConfiguration.getKeystoreFilename());
+        cf.setKeyStorePassword(sslConfiguration.getKeystorePassword());
+        cf.setKeyManagerPassword(sslConfiguration.getKeyPassword());
 
-      return sslConnector;
-   }
+        return sslConnector;
+    }
 
-   private ServletContextHandler buildRootContext(Server serverReference) {
-      final ServletContextHandler servletContext = new ServletContextHandler(serverReference, "/");
-      servletContext.getInitParams().put(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), configurationPathAndFile);
-      servletContext.getInitParams().put(InitParameter.CONNECTION_FRAMEWORK.getParameterName(), connectionFramework);
-      //servletContext.getAttributes().setAttribute(InitParameter.PORT.getParameterName(), ports);
+    private ServletContextHandler buildRootContext(Server serverReference) {
+        final ServletContextHandler servletContext = new ServletContextHandler(serverReference, "/");
+        servletContext.getInitParams().put(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), configurationPathAndFile);
+        servletContext.getInitParams().put(InitParameter.CONNECTION_FRAMEWORK.getParameterName(), connectionFramework);
+        servletContext.getInitParams().put(InitParameter.INSECURE.getParameterName(), insecure);
+        //servletContext.getAttributes().setAttribute(InitParameter.PORT.getParameterName(), ports);
 
-      try {
-         contextManager = PowerApiContextManager.class.newInstance();
-         contextManager.setPorts(ports);
-         servletContext.addEventListener(contextManager);
-      } catch (InstantiationException e) {
-         throw new PowerAppException("Unable to instantiate PowerApiContextManager", e);
-      } catch (IllegalAccessException e) {
-         throw new PowerAppException("Unable to instantiate PowerApiContextManager", e);
-      }
+        try {
+            contextManager = PowerApiContextManager.class.newInstance();
+            contextManager.setPorts(ports);
+            servletContext.addEventListener(contextManager);
+        } catch (InstantiationException e) {
+            throw new PowerAppException("Unable to instantiate PowerApiContextManager", e);
+        } catch (IllegalAccessException e) {
+            throw new PowerAppException("Unable to instantiate PowerApiContextManager", e);
+        }
 
-      return servletContext;
-   }
+        return servletContext;
+    }
 }

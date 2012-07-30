@@ -3,8 +3,8 @@ package com.rackspace.papi.service.proxy.jersey;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.client.urlconnection.HTTPSProperties;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
+
+import java.security.NoSuchAlgorithmException;
 import javax.net.ssl.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,13 +15,11 @@ class JerseyPropertiesConfigurator {
     private static final Integer DEFAULT_THREADPOOL_SIZE = 20;
     private final Integer connectionTimeout;
     private final Integer readTimeout;
-    private final boolean installSslManager;
     private final Integer proxyThreadPool;
 
-    public JerseyPropertiesConfigurator(Integer connectionTimeout, Integer readTimeout, Integer proxyThreadPool, boolean installSslManager) {
+    public JerseyPropertiesConfigurator(Integer connectionTimeout, Integer readTimeout, Integer proxyThreadPool) {
         this.connectionTimeout = connectionTimeout;
         this.readTimeout = readTimeout;
-        this.installSslManager = installSslManager;
         this.proxyThreadPool = proxyThreadPool;
     }
 
@@ -32,42 +30,16 @@ class JerseyPropertiesConfigurator {
         cc.getProperties().put(ClientConfig.PROPERTY_CONNECT_TIMEOUT, connectionTimeout);
         cc.getProperties().put(ClientConfig.PROPERTY_READ_TIMEOUT, readTimeout);
 
-        // TODO Model: we need to make this configurable so that we don't always
-        // accept all certs.
-        if (installSslManager) {
-            LOG.info("Installing SSL Trust Manager to accept self signed certs");
-            cc.getProperties().put(HTTPSProperties.PROPERTY_HTTPS_PROPERTIES, createJerseySslHttpsProperties());
+        try {
+            // Use the default SSLContext since we use Jersey with HttpsURLConnection.  HttpsURLConnection
+            // settings are system-wide (not client-wide).  So let the core Repose set these based on a
+            // configuration variable and use the default here.
+            cc.getProperties().put(HTTPSProperties.PROPERTY_HTTPS_PROPERTIES, new HTTPSProperties(new ReposeHostnameVerifier(), SSLContext.getDefault()));
+        } catch (NoSuchAlgorithmException e) {
+            LOG.error("Error when setting Jersey HTTPS properties", e);
         }
 
         return cc;
-    }
-
-    private HTTPSProperties createJerseySslHttpsProperties() {
-        // Create a trust manager that does not validate certificate chains
-        TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager() {
-
-        public X509Certificate[] getAcceptedIssuers() {
-            return null;
-        }
-
-        public void checkClientTrusted(X509Certificate[] certs, String authType) {
-        }
-
-        public void checkServerTrusted(X509Certificate[] certs, String authType) {
-        }
-    }};
-
-        // Install the all-trusting trust manager
-        SSLContext sc = null;
-        try {
-            sc = SSLContext.getInstance("SSL");
-            sc.init(null, trustAllCerts, new SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        } catch (Exception e) {
-            LOG.error("Problem creating SSL context: ", e);
-        }
-
-        return new HTTPSProperties(new ReposeHostnameVerifier(), sc);
     }
 
     private class ReposeHostnameVerifier implements HostnameVerifier {
