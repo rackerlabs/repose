@@ -38,6 +38,7 @@
         <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
             <artifactId>utilities</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <dependency>
