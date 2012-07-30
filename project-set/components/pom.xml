@@ -36,9 +36,6 @@
         <module>echo</module>
         <module>client-authorization</module>
         <module>client-ip-identity</module>
-        <!--
-        <module>xsd-validator</module>
-        -->
         <module>header-normalization</module>
         <module>uri-normalization</module>
     </modules>

@@ -1,14 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<validators xmlns='http://openrepose.org/repose/xsd-validator/v1.0'>
+<validators xmlns='http://openrepose.org/repose/validator/v1.0'>
    <validator 
       role="default"
       default="true"
       wadl="file://my/wadl/file.wadl" 
       dot-output="/tmp/default.dot"
       check-well-formed="false" 
-      check-xsd-grammer="true" 
-      check-elements="true" 
+      check-xsd-grammar="true"
+      check-elements="true"
+      check-plain-params="true"
+      do-xsd-grammar-transform="true"
+      enable-pre-process-extension="true"
+      remove-dups="true"
+      xpath-version="2"
+      validate-checker="true"
+      xsl-engine="XalanC"
       use-saxon="false"/>
-   <validator role="other" default="false" uri-regex="/some/other/path/?.*" wadl="file://a/different/wadl/file.wadl"/>
+   <validator role="other" default="false" wadl="file://a/different/wadl/file.wadl"/>
 </validators>

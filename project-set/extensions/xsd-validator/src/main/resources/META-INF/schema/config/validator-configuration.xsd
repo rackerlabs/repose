@@ -79,7 +79,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="check-xsd-grammer" type="xs:boolean" use="optional" default="true">
+        <xs:attribute name="check-xsd-grammar" type="xs:boolean" use="optional" default="true">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -112,7 +112,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="do-xsd-grammer-transform" type="xs:boolean" use="optional" default="true">
+        <xs:attribute name="do-xsd-grammar-transform" type="xs:boolean" use="optional" default="true">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
