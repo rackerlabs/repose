@@ -1,6 +1,5 @@
 package com.rackspace.auth.openstack.ids;
 
-import javax.net.ssl.*;
 import javax.ws.rs.core.MediaType;
 
 import com.sun.jersey.api.client.Client;
@@ -9,7 +8,6 @@ import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
-import com.sun.jersey.client.urlconnection.HTTPSProperties;
 import com.sun.ws.rs.ext.RuntimeDelegateImpl;
 import org.openstack.docs.identity.api.v2.AuthenticationRequest;
 import org.openstack.docs.identity.api.v2.PasswordCredentialsRequiredUsername;
@@ -21,9 +19,6 @@ import javax.xml.bind.JAXBElement;
 import javax.xml.namespace.QName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
 
 /**
  * @author fran
@@ -52,7 +47,6 @@ public class GenericServiceClient {
         // a "backoff" approach with logging.
         cc.getProperties().put(ClientConfig.PROPERTY_CONNECT_TIMEOUT, 30000);
         cc.getProperties().put(ClientConfig.PROPERTY_READ_TIMEOUT, 30000);
-        cc.getProperties().put(HTTPSProperties.PROPERTY_HTTPS_PROPERTIES, createJerseySslHttpsProperties());        
         client = Client.create(cc);
 
         // TODO: Validate that this is required for all calls or only some
@@ -62,35 +56,6 @@ public class GenericServiceClient {
         LOG.info("Enabling info logging of OpenStack Identity Service client requests");
         client.addFilter(new LoggingFilter());
     }
-
-    private HTTPSProperties createJerseySslHttpsProperties() {
-      // Create a trust manager that does not validate certificate chains
-      TrustManager[] trustAllCerts = new TrustManager[]{new X509TrustManager(){
-          public X509Certificate[] getAcceptedIssuers(){return null;}
-          public void checkClientTrusted(X509Certificate[] certs, String authType){}
-          public void checkServerTrusted(X509Certificate[] certs, String authType){}
-      }};
-
-      // Install the all-trusting trust manager
-      SSLContext sc = null;
-      try {
-          sc = SSLContext.getInstance("SSL");
-          sc.init(null, trustAllCerts, new SecureRandom());
-          HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-      } catch (Exception e) {
-          LOG.error("Problem creating SSL context: ", e);
-      }
-
-      return new HTTPSProperties( new ReposeHostnameVerifier(), sc);
-   }
-
-   private class ReposeHostnameVerifier implements HostnameVerifier {
-      @Override
-      public boolean verify(String hostname, SSLSession sslSession) {
-         LOG.info("verifying: " + hostname);
-         return true;
-      }
-   }
 
     public ServiceClientResponse getAdminToken(String uri) throws AuthServiceException {
         WebResource resource = client.resource(uri);

@@ -4,6 +4,7 @@ import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.openstack.docs.identity.api.v2.Endpoint;
@@ -64,7 +65,7 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
     @Override
     public List<Endpoint> getEndpointsForToken(String userToken) {
         final ServiceClientResponse<EndpointList> endpointListResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken + "/endpoints", getAdminToken());
-        List<Endpoint> endpointList = null;
+        List<Endpoint> endpointList = new ArrayList<Endpoint>();
 
         switch (endpointListResponse.getStatusCode()) {
             case 200:
