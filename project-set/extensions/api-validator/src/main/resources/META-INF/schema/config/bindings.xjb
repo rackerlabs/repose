@@ -6,6 +6,6 @@
           schemaLocation="validator-configuration.xsd">
             
    <schemaBindings>
-      <package name="org.openrepose.components.xsdvalidator.servlet.config" />
+      <package name="org.openrepose.components.apivalidator.servlet.config" />
    </schemaBindings>
 </bindings>

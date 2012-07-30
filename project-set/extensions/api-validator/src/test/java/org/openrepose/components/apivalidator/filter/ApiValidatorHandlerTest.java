@@ -1,5 +1,7 @@
-package org.openrepose.components.xsdvalidator.filter;
+package org.openrepose.components.apivalidator.filter;
 
+import org.openrepose.components.apivalidator.filter.ValidatorInfo;
+import org.openrepose.components.apivalidator.filter.ApiValidatorHandler;
 import com.rackspace.com.papi.components.checker.Validator;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
@@ -20,7 +22,7 @@ import org.junit.runner.RunWith;
 import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
-public class XsdValidatorHandlerTest {
+public class ApiValidatorHandlerTest {
 
     public static class WhenApplyingValidators {
         private ValidatorInfo defaultValidatorInfo;
@@ -29,7 +31,7 @@ public class XsdValidatorHandlerTest {
         private Validator defaultValidator;
         private Validator role1Validator;
         private Validator role2Validator;
-        private XsdValidatorHandler instance;
+        private ApiValidatorHandler instance;
         private FilterChain chain;
         private MutableHttpServletRequest request;
         private MutableHttpServletResponse response;
@@ -71,7 +73,7 @@ public class XsdValidatorHandlerTest {
             validators.put(nullValidatorInfo.getRole(), nullValidatorInfo);
             validators.put(blowupValidatorInfo.getRole(), blowupValidatorInfo);
             
-            instance = new XsdValidatorHandler(defaultValidatorInfo, validators);
+            instance = new ApiValidatorHandler(defaultValidatorInfo, validators);
             instance.setFilterChain(chain);
 
         }
