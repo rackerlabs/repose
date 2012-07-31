@@ -16,6 +16,7 @@
       xpath-version="2"
       validate-checker="true"
       xsl-engine="XalanC"
-      use-saxon="false"/>
+      use-saxon="false"
+      join-xpath-checks="false"/>
    <validator role="other" default="false" wadl="file://a/different/wadl/file.wadl"/>
 </validators>

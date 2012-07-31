@@ -1,15 +1,10 @@
 package org.openrepose.components.apivalidator.filter;
 
-import org.openrepose.components.apivalidator.filter.ValidatorInfo;
-import org.openrepose.components.apivalidator.filter.ApiValidatorHandlerFactory;
-import org.openrepose.components.apivalidator.filter.ApiValidatorHandler;
 import com.rackspace.papi.commons.config.parser.generic.GenericResourceConfigurationParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
 import com.rackspace.papi.service.config.ConfigurationService;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -31,6 +26,7 @@ public class ApiValidatorHandlerFactoryTest {
     public static class WhenCreatingHandlers {
         private ConfigurationService configService;
         private final String wadl = "default.wadl";
+        private final String dot = "default.dot";
         private final String role = "testRole";
         private final String defaultRole = "defaultRole";
         private ApiValidatorHandlerFactory instance;
@@ -48,10 +44,11 @@ public class ApiValidatorHandlerFactoryTest {
             defaultItem.setWadl(wadl);
             defaultItem.setRole(defaultRole);
             defaultItem.setDefault(Boolean.TRUE);
+            defaultItem.setDotOutput(dot);
             config.getValidator().add(defaultItem);
             
             configService = mock(ConfigurationService.class);
-            URL resource = this.getClass().getClassLoader().getResource(wadl);
+            URL resource = this.getClass().getClassLoader().getResource("");
             instance = new ApiValidatorHandlerFactory(configService, resource.getPath());
             
             instance.setValidatorCOnfiguration(config);
