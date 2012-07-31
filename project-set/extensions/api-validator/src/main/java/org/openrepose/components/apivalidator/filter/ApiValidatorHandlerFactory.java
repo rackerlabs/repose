@@ -161,6 +161,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                 config.setRemoveDups(validatorItem.isRemoveDups());
                 config.setValidateChecker(validatorItem.isValidateChecker());
                 config.setXSLEngine(validatorItem.getXslEngine().value());
+                config.setJoinXPathChecks(validatorItem.isJoinXpathChecks());
 
                 ValidatorInfo validator = new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), config);
                 validators.put(validatorItem.getRole(), validator);
