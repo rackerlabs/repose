@@ -64,7 +64,7 @@
       </ThreadGroup>
       <hashTree>
         <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Controller" enabled="true">
-          <stringProp name="IfController.condition">&quot;${type}&quot; == &quot;Client-Ipx&quot;</stringProp>
+          <stringProp name="IfController.condition">&quot;${type}&quot; == &quot;Client-Ip&quot;</stringProp>
           <boolProp name="IfController.evaluateAll">false</boolProp>
           <stringProp name="TestPlan.comments">This controller determines what repose environment to hit when running these JMeter tests</stringProp>
         </IfController>
@@ -136,7 +136,6 @@
                   <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
                   <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                   <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
-                  <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
                   <boolProp name="HTTPSampler.monitor">false</boolProp>
                   <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
                 </HTTPSamplerProxy>
@@ -177,7 +176,6 @@
                   <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
                   <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                   <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
-                  <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
                   <boolProp name="HTTPSampler.monitor">false</boolProp>
                   <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
                 </HTTPSamplerProxy>
@@ -193,7 +191,7 @@
                   <hashTree/>
                   <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
                     <collectionProp name="Asserion.test_strings">
-                      <stringProp name="-1157359997">Resource not found</stringProp>
+                      <stringProp name="1920676340">XML Not Authorized... Syntax highlighting is magical.</stringProp>
                     </collectionProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">true</boolProp>
@@ -218,7 +216,6 @@
                   <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
                   <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                   <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
-                  <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
                   <boolProp name="HTTPSampler.monitor">false</boolProp>
                   <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
                 </HTTPSamplerProxy>
@@ -234,9 +231,9 @@
                   <hashTree/>
                   <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
                     <collectionProp name="Asserion.test_strings">
-                      <stringProp name="1547957372">Method Not Allowed</stringProp>
+                      <stringProp name="1920676340">XML Not Authorized... Syntax highlighting is magical.</stringProp>
                     </collectionProp>
-                    <stringProp name="Assertion.test_field">Assertion.response_message</stringProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">true</boolProp>
                     <intProp name="Assertion.test_type">16</intProp>
                   </ResponseAssertion>
@@ -266,7 +263,6 @@
                   <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
                   <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                   <stringProp name="HTTPSampler.implementation">Java</stringProp>
-                  <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
                   <boolProp name="HTTPSampler.monitor">false</boolProp>
                   <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
                 </HTTPSamplerProxy>
@@ -282,9 +278,9 @@
                   <hashTree/>
                   <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
                     <collectionProp name="Asserion.test_strings">
-                      <stringProp name="870485281">Unsupported Media Type</stringProp>
+                      <stringProp name="1920676340">XML Not Authorized... Syntax highlighting is magical.</stringProp>
                     </collectionProp>
-                    <stringProp name="Assertion.test_field">Assertion.response_message</stringProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">true</boolProp>
                     <intProp name="Assertion.test_type">16</intProp>
                   </ResponseAssertion>
@@ -327,7 +323,6 @@
                   <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
                   <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                   <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
-                  <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
                   <boolProp name="HTTPSampler.monitor">false</boolProp>
                   <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
                 </HTTPSamplerProxy>
@@ -368,7 +363,6 @@
                   <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
                   <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                   <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
-                  <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
                   <boolProp name="HTTPSampler.monitor">false</boolProp>
                   <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
                 </HTTPSamplerProxy>
@@ -384,7 +378,7 @@
                   <hashTree/>
                   <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
                     <collectionProp name="Asserion.test_strings">
-                      <stringProp name="-1157359997">Resource not found</stringProp>
+                      <stringProp name="1920676340">XML Not Authorized... Syntax highlighting is magical.</stringProp>
                     </collectionProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">true</boolProp>
@@ -409,7 +403,6 @@
                   <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
                   <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                   <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
-                  <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
                   <boolProp name="HTTPSampler.monitor">false</boolProp>
                   <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
                 </HTTPSamplerProxy>
@@ -425,9 +418,9 @@
                   <hashTree/>
                   <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
                     <collectionProp name="Asserion.test_strings">
-                      <stringProp name="1547957372">Method Not Allowed</stringProp>
+                      <stringProp name="1920676340">XML Not Authorized... Syntax highlighting is magical.</stringProp>
                     </collectionProp>
-                    <stringProp name="Assertion.test_field">Assertion.response_message</stringProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">true</boolProp>
                     <intProp name="Assertion.test_type">16</intProp>
                   </ResponseAssertion>
@@ -457,7 +450,6 @@
                   <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
                   <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                   <stringProp name="HTTPSampler.implementation">Java</stringProp>
-                  <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
                   <boolProp name="HTTPSampler.monitor">false</boolProp>
                   <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
                 </HTTPSamplerProxy>

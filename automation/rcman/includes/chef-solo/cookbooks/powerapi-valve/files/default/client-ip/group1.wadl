@@ -44,6 +44,14 @@
                                 <representation mediaType="*/*"/>
                             </response>
                         </method>
+                        <method name="POST" id="postItem">
+                            <request>
+                                <representation mediaType="application/xml"/>
+                            </request>
+                            <response>
+                                <representation mediaType="*/*"/>
+                            </response>
+                        </method>
                         <method name="DELETE" id="deleteItem"/>
                         <method name="GET" id="getItem">
                             <response>

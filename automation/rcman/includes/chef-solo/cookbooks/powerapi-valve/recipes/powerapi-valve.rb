@@ -19,21 +19,26 @@ end
 script "getVersionAndBuildNumbers" do
    interpreter "ruby"
 
-   latestUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/valve/repose-valve/maven-metadata.xml"
-   latest = `wget -qO- '#{latestUrl}'`.split(/<\/?version>/).select{|v| v=~ /SNAPSHOT/}.pop
+    latestUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/valve/repose-valve/maven-metadata.xml"
+    latest = `wget -qO- '#{latestUrl}'`.split(/<\/?version>/).select{|v| v=~ /SNAPSHOT/}.pop
 
 
-   valveUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/valve/repose-valve/#{latest}"
-   filterBundleUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/filters/repose-filter-bundle/#{latest}"
+    valveUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/valve/repose-valve/#{latest}"
+    filterBundleUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/filters/repose-filter-bundle/#{latest}"
+    eFilterBundleUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/papi/components/extensions/extensions-filter-bundle/#{latest}"
 
-   vTimeStamp= `wget -qO- "#{valveUrl}/maven-metadata.xml"`.split(/<\/?value>/)
-   fTimeStamp= `wget -qO- "#{filterBundleUrl}/maven-metadata.xml"`.split(/<\/?value>/)
+    vTimeStamp= `wget -qO- "#{valveUrl}/maven-metadata.xml"`.split(/<\/?value>/)
+    fTimeStamp= `wget -qO- "#{filterBundleUrl}/maven-metadata.xml"`.split(/<\/?value>/)
+    eTimeStamp= `wget -qO- "#{eFilterBundleUrl}/maven-metadata.xml"`.split(/<\/?value>/)
 
-   vValue= vTimeStamp[vTimeStamp.size-2]
-   fValue= fTimeStamp[fTimeStamp.size-2]
+    vValue= vTimeStamp[vTimeStamp.size-2]
+    fValue= fTimeStamp[fTimeStamp.size-2]
+    eValue= eTimeStamp[eTimeStamp.size-2]
 
-   `wget #{valveUrl}/repose-valve-#{vValue}.deb -O /root/repose-valve.deb`
-   `wget #{filterBundleUrl}/repose-filter-bundle-#{fValue}.deb -O /root/filterBundle.deb`
+    `wget #{valveUrl}/repose-valve-#{vValue}.deb -O /root/repose-valve.deb`
+    `wget #{filterBundleUrl}/repose-filter-bundle-#{fValue}.deb -O /root/filterBundle.deb`
+    `wget #{eFilterBundleUrl}/extentions-filter-bundle-#{eValue}.ear -O /root/extentions-filter-bundle.ear`
+
 end
 
 package "papiCore" do
@@ -48,6 +53,13 @@ package "filterBundle" do
    source "/root/filterBundle.deb"
    provider Chef::Provider::Package::Dpkg
    options "--force-all"
+end
+
+script "placeExtentionsFb" do
+   interpreter "bash"
+   code <<-EOH
+   mv /root/extentions-filter-bundle.ear /usr/share/repose/filters/
+   EOH
 end
 
 directory "/var/powerapi" do
