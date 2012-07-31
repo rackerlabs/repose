@@ -53,7 +53,6 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                 manager.unsubscribeFrom(info.getUri(), wadlListener);
             }
         }
-
     }
     
     ApiValidatorWadlListener getWadlListener() {
@@ -113,22 +112,28 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         return !wadl.contains("://") ? StringUtilities.join("file://", configRoot, "/", wadl) : wadl;
     }
 
+    String getDotPath(String dot) {
+        return dot.contains(configRoot) ? dot : StringUtilities.join(configRoot, "/", dot);
+    }
+
     private DispatchHandler getHandlers(ValidatorItem validatorItem) {
         List<ResultHandler> handlers = new ArrayList<ResultHandler>();
         handlers.add(new ServletResultHandler());
 
         if (StringUtilities.isNotBlank(validatorItem.getDotOutput())) {
-            File out = new File(validatorItem.getDotOutput());
+            final String dotPath = getDotPath(validatorItem.getDotOutput());
+            File out = new File(dotPath);
             try {
                 if (out.exists() && out.canWrite() || !out.exists() && out.createNewFile() ) {
                     handlers.add(new SaveDotHandler(out, true, true));
                 } else {
-                    LOG.warn("Cannot write to DOT file: " + validatorItem.getDotOutput());
+                    LOG.warn("Cannot write to DOT file: " + dotPath);
                 }
             } catch (IOException ex) {
-                LOG.warn("Cannot write to DOT file: " + validatorItem.getDotOutput(), ex);
+                LOG.warn("Cannot write to DOT file: " + dotPath, ex);
             }
         }
+        // TODO: Do we really just want a zero-length ResultHandler array here?
         return new DispatchHandler(handlers.toArray(new ResultHandler[0]));
     }
 
