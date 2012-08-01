@@ -40,12 +40,14 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
     private final UserAuthTokenCache<CachableUserInfo> cache;
     private final UserAuthGroupsCache<CachableGroupInfo> grpCache;
     private final UriMatcher uriMatcher;
+    private final long userCacheTtl;
 
     public OpenStackAuthenticationHandler(OpenstackAuth cfg, OpenStackAuthenticationService serviceClient, KeyedRegexExtractor keyedRegexExtractor, UserAuthTokenCache cache, UriMatcher uriMatcher, OpenStackGroupInfoCache grpCache) {
         this.authenticationService = serviceClient;
         this.delegatable = cfg.isDelegatable();
         this.authServiceUri = cfg.getIdentityService().getUri();
         this.keyedRegexExtractor = keyedRegexExtractor;
+        this.userCacheTtl = cfg.getTokenCacheTimeout();
         this.cache = cache;
         this.grpCache = grpCache;
         this.uriMatcher = uriMatcher;
@@ -139,7 +141,8 @@ public class OpenStackAuthenticationHandler extends AbstractFilterLogicHandler i
         }
 
         try {
-            cache.storeToken(user.getTenantId(), user, user.tokenTtl().intValue());
+            long ttl = userCacheTtl > 0? Math.min(userCacheTtl, user.tokenTtl().intValue()): user.tokenTtl().intValue();
+            cache.storeToken(user.getTenantId(), user, new Long(ttl).intValue());
         } catch (IOException ex) {
             LOG.warn("Unable to cache user token information: " + user.getUserId() + " Reason: " + ex.getMessage(), ex);
         }
