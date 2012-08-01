@@ -37,7 +37,7 @@ script "getVersionAndBuildNumbers" do
 
     `wget #{valveUrl}/repose-valve-#{vValue}.deb -O /root/repose-valve.deb`
     `wget #{filterBundleUrl}/repose-filter-bundle-#{fValue}.deb -O /root/filterBundle.deb`
-    `wget #{eFilterBundleUrl}/extentions-filter-bundle-#{eValue}.ear -O /root/extentions-filter-bundle.ear`
+    `wget #{eFilterBundleUrl}/extensions-filter-bundle-#{eValue}.ear -O /root/extensions-filter-bundle.ear`
 
 end
 
@@ -55,10 +55,10 @@ package "filterBundle" do
    options "--force-all"
 end
 
-script "placeExtentionsFb" do
+script "placeExtensionsFb" do
    interpreter "bash"
    code <<-EOH
-   mv /root/extentions-filter-bundle.ear /usr/share/repose/filters/
+   mv /root/extensions-filter-bundle.ear /usr/share/repose/filters/
    EOH
 end
 
