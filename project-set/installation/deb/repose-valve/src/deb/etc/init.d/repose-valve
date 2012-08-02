@@ -35,7 +35,7 @@ start_repose()
 {
   $CLEAN $CONFIG_DIRECTORY
   start-stop-daemon $START_ARGS --exec $JAVA -- -jar $REPOSE_JAR START -p $RUN_PORT -s $SHUTDOWN_PORT -c $CONFIG_DIRECTORY
-  log_progress_msg "repose-valve"
+  log_progress_msg "started"
 }
 
 ###########################
@@ -43,8 +43,8 @@ start_repose()
 ###########################
 stop_repose()
 {
-  start-stop-daemon -p $PID_FILE --stop --exec $JAVA -- -jar $REPOSE_JAR STOP
-  log_progress_msg "repose-valve"
+  start-stop-daemon -p $PID_FILE --stop --retry 2 --exec $JAVA -- -jar $REPOSE_JAR STOP
+  log_progress_msg "stopped"
 }
 
 # -----------------------------------------------------------------------------

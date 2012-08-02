@@ -29,13 +29,20 @@
         <connection>scm:git:ssh://git@github.com/rackspace/power-api.git</connection>
     </scm>
 
-    <repositories>
-        <repository>
+    <pluginRepositories>
+        <pluginRepository>
             <id>public.maven.research.rackspace.com</id>
             <name>Rackspace Research</name>
             <url>http://maven.research.rackspacecloud.com/content/groups/aggregate</url>
-        </repository>
-    </repositories>
+            <layout>default</layout>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+            <releases>
+                <updatePolicy>never</updatePolicy>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
 
     <distributionManagement>
         <repository>
@@ -64,7 +71,6 @@
             <plugin>
                 <groupId>org.apache.jmeter</groupId>
                 <artifactId>papi-maven-jmeter-plugin</artifactId>
-                <version>1.0.3-SNAPSHOT</version>
 
                 <executions>
                     <execution>
