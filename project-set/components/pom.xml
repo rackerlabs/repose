@@ -191,14 +191,6 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <!--
-            <dependency>
-                <groupId>com.rackspace.papi.components</groupId>
-                <artifactId>xsd-validator</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            -->
-
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>uri-identity</artifactId>
