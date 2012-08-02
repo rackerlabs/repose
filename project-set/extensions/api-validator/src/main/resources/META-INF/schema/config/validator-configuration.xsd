@@ -63,7 +63,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="xpath-version" type="xs:int" use="optional" default="2">
+        <xs:attribute name="xpath-version" type="xs:int" use="optional" default="1">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -71,7 +71,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="check-well-formed" type="xs:boolean" use="optional" default="true">
+        <xs:attribute name="check-well-formed" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -79,7 +79,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="check-xsd-grammar" type="xs:boolean" use="optional" default="true">
+        <xs:attribute name="check-xsd-grammar" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -87,7 +87,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="check-elements" type="xs:boolean" use="optional" default="true">
+        <xs:attribute name="check-elements" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -104,7 +104,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="check-plain-params" type="xs:boolean" use="optional" default="true">
+        <xs:attribute name="check-plain-params" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -112,7 +112,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="do-xsd-grammar-transform" type="xs:boolean" use="optional" default="true">
+        <xs:attribute name="do-xsd-grammar-transform" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
