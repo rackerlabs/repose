@@ -26,7 +26,7 @@ public final class RackspaceAuthenticationHandlerFactory {
         final Configurables configurables = new Configurables(authConfig.isDelegable(),
                 authConfig.getAuthenticationServer().getUri(),
                 accountRegexExtractor,
-                authConfig.isIncludeQueryParams(), true, authConfig.getGroupCacheTimeout()); //Auth v1.1 will always check tenant against the passed token.
+                authConfig.isIncludeQueryParams(), true, authConfig.getGroupCacheTimeout(), authConfig.getTokenCacheTimeout()); //Auth v1.1 will always check tenant against the passed token.
 
         return new RackspaceAuthenticationHandler(configurables, serviceClient, cache, grpCache, uriMatcher);
     }

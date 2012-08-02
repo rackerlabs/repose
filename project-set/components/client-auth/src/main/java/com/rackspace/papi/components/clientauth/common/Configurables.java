@@ -11,14 +11,16 @@ public class Configurables {
     private final KeyedRegexExtractor<String> keyedRegexExtractor;
     private final boolean includeQueryParams, tenanted;
     private final long groupCacheTtl;
+    private final long userCacheTtl;
 
-    public Configurables(boolean delegable, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor, boolean includeQueryParams, boolean tenanted, long groupCacheTtl) {
+    public Configurables(boolean delegable, String authServiceUri, KeyedRegexExtractor<String> keyedRegexExtractor, boolean includeQueryParams, boolean tenanted, long groupCacheTtl, long tokenCacheTtl) {
         this.delegable = delegable;
         this.authServiceUri = authServiceUri;
         this.keyedRegexExtractor = keyedRegexExtractor;
         this.includeQueryParams = includeQueryParams;
         this.tenanted = tenanted;
         this.groupCacheTtl = groupCacheTtl;
+        this.userCacheTtl = tokenCacheTtl;
     }
 
     public boolean isDelegable() {
@@ -43,5 +45,9 @@ public class Configurables {
 
     public long getGroupCacheTtl() {
         return groupCacheTtl;
+    }
+
+    public long getUserCacheTtl() {
+        return userCacheTtl;
     }
 }
