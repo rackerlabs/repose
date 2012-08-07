@@ -28,9 +28,9 @@ public class ValveJettyServerBuilder {
     private final SslConfiguration sslConfiguration;
     private final String connectionFramework;
     private PowerApiContextManager contextManager;
-    private final String insecure;
+    private final boolean insecure;
 
-    public ValveJettyServerBuilder(String configurationPathAndFile, List<Port> ports, SslConfiguration sslConfiguration, String connectionFramework, String insecure) {
+    public ValveJettyServerBuilder(String configurationPathAndFile, List<Port> ports, SslConfiguration sslConfiguration, String connectionFramework, boolean insecure) {
         this.ports.addAll(ports);
         this.configurationPathAndFile = configurationPathAndFile;
         this.sslConfiguration = sslConfiguration;
@@ -89,7 +89,7 @@ public class ValveJettyServerBuilder {
         final ServletContextHandler servletContext = new ServletContextHandler(serverReference, "/");
         servletContext.getInitParams().put(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), configurationPathAndFile);
         servletContext.getInitParams().put(InitParameter.CONNECTION_FRAMEWORK.getParameterName(), connectionFramework);
-        servletContext.getInitParams().put(InitParameter.INSECURE.getParameterName(), insecure);
+        servletContext.getInitParams().put(InitParameter.INSECURE.getParameterName(), Boolean.toString(insecure));
         //servletContext.getAttributes().setAttribute(InitParameter.PORT.getParameterName(), ports);
 
         try {

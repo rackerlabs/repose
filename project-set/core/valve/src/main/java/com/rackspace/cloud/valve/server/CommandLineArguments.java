@@ -9,6 +9,7 @@ public class CommandLineArguments {
     public static final String ACTION_START = "start";
     public static final String ACTION_STOP = "stop";
     private static final int DEFAULT_STOP_PORT = 8818;
+    private static final boolean DEFAULT_INSECURE = false;
 
     @Option(name = "-p", aliases = {"--http-port"},
             usage = "Repose http port number " + DEFAULT_HTTP_PORT_INFO)
@@ -31,8 +32,8 @@ public class CommandLineArguments {
     private String connectionFramework;
 
     @Option(name = "-k", aliases = {"--insecure"},
-            usage = "Allows Repose to connect to SSL servers (e.g. auth, origin service) without certs.  Available values are true or false.")
-    private String insecure;
+            usage = "Allows Repose to connect to SSL servers (e.g. auth, origin service) without certs.")
+    private Boolean insecure = DEFAULT_INSECURE;
 
     @Argument(usage = "Action to take - start | stop", required = true)
     private String action = ACTION_START;
@@ -85,11 +86,11 @@ public class CommandLineArguments {
         this.connectionFramework = connectionFramework;
     }
 
-    public String getInsecure() {
+    public Boolean getInsecure() {
         return insecure;
     }
 
-    public void setInsecure(String insecure) {
+    public void setInsecure(Boolean insecure) {
         this.insecure = insecure;
     }
 }
