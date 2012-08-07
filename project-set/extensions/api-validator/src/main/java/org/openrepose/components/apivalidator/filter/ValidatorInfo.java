@@ -21,21 +21,28 @@ public class ValidatorInfo {
         this.config = config;
     }
     
-    private void initValidator() {
+    public boolean initValidator() {
         if (validator != null) {
-            return;
+            return true;
         }
 
         try {
             validator = Validator.apply(new SAXSource(new InputSource(uri)), config);
+            return true;
         } catch (Throwable ex) {
             LOG.warn("Cannot load validator for WADL: " + uri, ex);
+            return false;
         }
 
     }
 
     public void clearValidator() {
         validator = null;
+    }
+    
+    public boolean reinitValidator() {
+        validator = null;
+        return initValidator();
     }
 
     /**

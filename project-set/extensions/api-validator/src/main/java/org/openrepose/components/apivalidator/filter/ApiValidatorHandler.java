@@ -29,7 +29,9 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
 
     public ApiValidatorHandler(ValidatorInfo defaultValidator, Map<String, ValidatorInfo> validators) {
         this.validators = new HashMap<String, ValidatorInfo>();
-        this.validators.putAll(validators);
+        if (validators != null) {
+            this.validators.putAll(validators);
+        }
         this.defaultValidator = defaultValidator;
 
     }

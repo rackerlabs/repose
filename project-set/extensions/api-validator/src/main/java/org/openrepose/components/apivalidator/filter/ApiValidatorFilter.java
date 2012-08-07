@@ -22,6 +22,9 @@ public class ApiValidatorFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         ApiValidatorHandler handler = handlerFactory.newHandler();
+        if (handler == null) {
+            throw new ServletException("Unable to build validator handler");
+        }
         handler.setFilterChain(chain);
         new FilterLogicHandlerDelegate(request, response, chain).doFilter(handler);
     }
@@ -40,7 +43,6 @@ public class ApiValidatorFilter implements Filter {
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
         handlerFactory = new ApiValidatorHandlerFactory(manager, configurationRoot);
-
         manager.subscribeTo(config, handlerFactory, ValidatorConfiguration.class);
     }
 }

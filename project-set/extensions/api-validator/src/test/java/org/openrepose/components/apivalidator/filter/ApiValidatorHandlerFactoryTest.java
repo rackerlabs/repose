@@ -52,6 +52,7 @@ public class ApiValidatorHandlerFactoryTest {
             instance = new ApiValidatorHandlerFactory(configService, resource.getPath());
             
             instance.setValidatorCOnfiguration(config);
+            instance.initialize();
             
             roles = new ArrayList<HeaderValue>();
             roles.add(new HeaderValueImpl(role));
@@ -111,27 +112,27 @@ public class ApiValidatorHandlerFactoryTest {
         }
         
         @Test
-        public void shouldClearMatchedValidator() throws MalformedURLException {
+        public void shouldReinitMatchedValidator() throws MalformedURLException {
             String wadl2Path = new URL(instance.getWadlPath(wadl2)).toString();
             ConfigurationResource resource = mock(ConfigurationResource.class);
             when(resource.name()).thenReturn(wadl2Path);
             
             instance.getWadlListener().configurationUpdated(resource);
             
-            verify(info1, times(0)).clearValidator();
-            verify(info2).clearValidator();
+            verify(info1, times(0)).reinitValidator();
+            verify(info2).reinitValidator();
         }
         
         @Test
-        public void shouldClearAllValidatorsIfNoMatch() throws MalformedURLException {
+        public void shouldReinitAllValidatorsIfNoMatch() throws MalformedURLException {
             String wadl2Path = new URL(instance.getWadlPath("doesn'texist.wadl")).toString();
             ConfigurationResource resource = mock(ConfigurationResource.class);
             when(resource.name()).thenReturn(wadl2Path);
             
             instance.getWadlListener().configurationUpdated(resource);
             
-            verify(info1).clearValidator();
-            verify(info2).clearValidator();
+            verify(info1).reinitValidator();
+            verify(info2).reinitValidator();
         }
     }
 }

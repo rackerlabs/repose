@@ -29,7 +29,7 @@ import java.util.List;
 public class PowerFilter extends ApplicationContextAwareFilter {
 
    private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
-   private final EventListener<ApplicationDeploymentEvent, String> applicationDeploymentListener;
+   private final EventListener<ApplicationDeploymentEvent, List<String>> applicationDeploymentListener;
    private final UpdateListener<SystemModel> systemModelConfigurationListener;
    private ServicePorts ports;
    private boolean firstInitialization;
@@ -49,10 +49,10 @@ public class PowerFilter extends ApplicationContextAwareFilter {
       applicationDeploymentListener = new ApplicationDeploymentEventListener();
    }
 
-   private class ApplicationDeploymentEventListener implements EventListener<ApplicationDeploymentEvent, String> {
+   private class ApplicationDeploymentEventListener implements EventListener<ApplicationDeploymentEvent, List<String>> {
 
       @Override
-      public void onEvent(Event<ApplicationDeploymentEvent, String> e) {
+      public void onEvent(Event<ApplicationDeploymentEvent, List<String>> e) {
          LOG.info("Application collection has been modified. Application that changed: " + e.payload());
 
          if (currentSystemModel != null) {

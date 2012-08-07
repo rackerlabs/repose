@@ -54,15 +54,14 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
             }
         }
     }
-    
+
     ApiValidatorWadlListener getWadlListener() {
         return wadlListener;
     }
-    
+
     void setValidators(Map<String, ValidatorInfo> validators) {
         this.validators = validators;
     }
-    
 
     class ApiValidatorWadlListener implements UpdateListener<ConfigurationResource> {
 
@@ -87,7 +86,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
 
                 for (ValidatorInfo info : validators.values()) {
                     if (getNormalizedPath(info.getUri()).equals(config.name())) {
-                        info.clearValidator();
+                        info.reinitValidator();
                         found = true;
                     }
                 }
@@ -96,7 +95,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                     // If we couldn't match the particular config... be safe and clear 
                     // all fo the validators
                     for (ValidatorInfo info : validators.values()) {
-                        info.clearValidator();
+                        info.reinitValidator();
                     }
                 }
             }
@@ -124,7 +123,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
             final String dotPath = getDotPath(validatorItem.getDotOutput());
             File out = new File(dotPath);
             try {
-                if (out.exists() && out.canWrite() || !out.exists() && out.createNewFile() ) {
+                if (out.exists() && out.canWrite() || !out.exists() && out.createNewFile()) {
                     handlers.add(new SaveDotHandler(out, true, true));
                 } else {
                     LOG.warn("Cannot write to DOT file: " + dotPath);
@@ -133,11 +132,10 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                 LOG.warn("Cannot write to DOT file: " + dotPath, ex);
             }
         }
-        // TODO: Do we really just want a zero-length ResultHandler array here?
-        return new DispatchHandler(handlers.toArray(new ResultHandler[0]));
+        return new DispatchHandler(handlers.toArray(new ResultHandler[handlers.size()]));
     }
 
-    private void initialize() {
+    void initialize() {
         synchronized (lock) {
             if (initialized || validatorConfiguration == null) {
                 return;
@@ -168,6 +166,9 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                 if (validatorItem.isDefault()) {
                     defaultValidator = validator;
                 }
+            }
+
+            for (ValidatorInfo validator : validators.values()) {
                 addListener(validator.getUri());
             }
 
@@ -181,16 +182,19 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         public void configurationUpdated(ValidatorConfiguration configurationObject) {
             validatorConfiguration = configurationObject;
             unsubscribeAll();
+            initialize();
         }
     }
-    
+
     void setValidatorCOnfiguration(ValidatorConfiguration configurationObject) {
         validatorConfiguration = configurationObject;
     }
 
     @Override
     protected ApiValidatorHandler buildHandler() {
-        initialize();
+        if (!initialized) {
+            return null;
+        }
         return new ApiValidatorHandler(defaultValidator, validators);
     }
 
