@@ -50,7 +50,7 @@ public class PowerApiConfigurationManager implements ConfigurationService {
       subscribeTo(configurationName, listener, getPooledJaxbConfigurationParser(configurationClass));
    }
 
-   @Override
+    @Override
    public <T> void subscribeTo(String configurationName, UpdateListener<T> listener, ConfigurationParser<T> customParser) {
       final ConfigurationResource resource = resourceResolver.resolve(configurationName);
       updateManager.registerListener(listener, resource, customParser);

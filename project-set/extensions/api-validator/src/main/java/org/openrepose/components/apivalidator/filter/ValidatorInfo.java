@@ -20,7 +20,7 @@ public class ValidatorInfo {
         this.uri = wadlUri;
         this.config = config;
     }
-    
+
     public boolean initValidator() {
         if (validator != null) {
             return true;
@@ -30,7 +30,7 @@ public class ValidatorInfo {
             validator = Validator.apply(new SAXSource(new InputSource(uri)), config);
             return true;
         } catch (Throwable ex) {
-            LOG.warn("Cannot load validator for WADL: " + uri, ex);
+            LOG.warn("Error loading validator for WADL: " + uri, ex);
             return false;
         }
 
@@ -39,7 +39,7 @@ public class ValidatorInfo {
     public void clearValidator() {
         validator = null;
     }
-    
+
     public boolean reinitValidator() {
         validator = null;
         return initValidator();
