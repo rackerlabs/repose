@@ -8,10 +8,16 @@ public class EventListenerDescriptor<T extends Enum> {
 
     private final EventListener<T, ?> listener;
     private final Set<T> subscriptions;
+    private final ClassLoader classLoader;
 
     public EventListenerDescriptor(EventListener<T, ?> listener, Collection<T> targetedEvents) {
         this.subscriptions = new HashSet<T>(targetedEvents);
         this.listener = listener;
+        classLoader = Thread.currentThread().getContextClassLoader();
+    }
+    
+    public ClassLoader getClassLoader() {
+        return classLoader;
     }
 
     public EventListener<T, ?> getListener() {

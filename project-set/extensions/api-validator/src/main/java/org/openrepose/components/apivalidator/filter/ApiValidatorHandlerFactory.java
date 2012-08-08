@@ -78,7 +78,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         @Override
         public void configurationUpdated(ConfigurationResource config) {
             LOG.info("WADL file changed: " + config.name());
-            
+
             synchronized (lock) {
                 if (validators == null) {
                     return;
@@ -87,8 +87,8 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
 
                 for (ValidatorInfo info : validators.values()) {
                     if (getNormalizedPath(info.getUri()).equals(config.name())) {
-                        info.clearValidator();
-                        //info.reinitValidator();
+                        //info.clearValidator();
+                        info.reinitValidator();
                         found = true;
                     }
                 }
@@ -97,8 +97,8 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                     // If we couldn't match the particular config... be safe and clear 
                     // all fo the validators
                     for (ValidatorInfo info : validators.values()) {
-                        info.clearValidator();
-                        //info.reinitValidator();
+                        //info.clearValidator();
+                        info.reinitValidator();
                     }
                 }
             }

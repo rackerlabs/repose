@@ -9,10 +9,12 @@ public class ParserListenerPair {
 
     private final WeakReference<UpdateListener> listener;
     private final ConfigurationParser parser;
+    private final ClassLoader classLoader;
     
     public ParserListenerPair(UpdateListener listener, ConfigurationParser parser) {
         this.listener = new WeakReference<UpdateListener>(listener);
         this.parser = parser;
+        classLoader = Thread.currentThread().getContextClassLoader();
     }
 
     public UpdateListener getListener() {
@@ -21,5 +23,9 @@ public class ParserListenerPair {
 
     public ConfigurationParser getParser() {
         return parser;
+    }
+    
+    public ClassLoader getClassLoader() {
+        return classLoader;
     }
 }

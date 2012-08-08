@@ -120,7 +120,7 @@ public class ApiValidatorHandlerFactoryTest {
             instance.getWadlListener().configurationUpdated(resource);
             
             verify(info1, times(0)).reinitValidator();
-            verify(info2).clearValidator();
+            verify(info2).reinitValidator();
         }
         
         @Test
@@ -131,8 +131,8 @@ public class ApiValidatorHandlerFactoryTest {
             
             instance.getWadlListener().configurationUpdated(resource);
             
-            verify(info1).clearValidator();
-            verify(info2).clearValidator();
+            verify(info1).reinitValidator();
+            verify(info2).reinitValidator();
         }
     }
 }
