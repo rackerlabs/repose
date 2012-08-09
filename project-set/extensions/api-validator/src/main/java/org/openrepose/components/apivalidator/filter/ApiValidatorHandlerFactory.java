@@ -166,7 +166,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
 
                 ValidatorInfo validator = new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), config);
                 validators.put(validatorItem.getRole(), validator);
-                if (validatorItem.isDefault()) {
+                if (validatorItem.isDefault() && defaultValidator == null) {
                     defaultValidator = validator;
                 }
             }
