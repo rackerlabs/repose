@@ -11,6 +11,10 @@ import java.net.URL;
  */
 public class ReposeHttpUrlConnectionFactory implements HttpURLConnectionFactory {
    private static final String HTTPS = "https";
+   
+   public ReposeHttpUrlConnectionFactory(){
+      System.setProperty("sun.net.http.allowRestrictedHeaders","true");
+   }
 
    @Override
    public HttpURLConnection getHttpURLConnection(URL url) throws IOException {

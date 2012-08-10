@@ -61,7 +61,7 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
    public ContainerConfigurationService getService() {
       return containerConfigurationService;
    }
-
+   
    /**
      * Listens for updates to the container.cfg.xml file which holds the location of the log properties file.
      */
@@ -92,12 +92,13 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
          DeploymentConfiguration deployConfig = configurationObject.getDeploymentConfig();
          ServicePorts currentPorts = ServletContextHelper.getInstance().getServerPorts(servletContext);
          ServicePorts ports = determinePorts(deployConfig);
-
+         String via = deployConfig.getVia();
+         
          if (currentPorts.isEmpty()) {
             // No port has been set into the servlet context
 
             if (!ports.isEmpty()) {
-               containerConfigurationService = new ContainerConfigurationServiceImpl(ports);
+               containerConfigurationService = new ContainerConfigurationServiceImpl(ports,via);
                servicePorts.clear();
                servicePorts.addAll(ports);
                LOG.info("Setting " + InitParameter.PORT.getParameterName() + " to " + ports);
@@ -111,11 +112,12 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
                LOG.warn("****** " + InitParameter.PORT.getParameterName() + " changed from " + currentPorts + " --> " + ports
                        + ".  Restart is required for this change.");
             } else {
+               containerConfigurationService.setVia(via);
                servicePorts.clear();
                servicePorts.addAll(ports);
             }
          }
-
+         
       }
    }
 
