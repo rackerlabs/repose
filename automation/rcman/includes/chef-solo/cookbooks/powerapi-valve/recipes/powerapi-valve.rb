@@ -82,15 +82,6 @@ for nodeNumber in 1..6
       recursive true
    end
 
-   ["container.cfg.xml"].each do |config|
-      template "/etc/repose/node#{nodeNumber}/#{config}" do
-         source "#{config}.erb"
-         mode 0644
-         variables(
-            :port => 8886 + nodeNumber
-         )
-      end
-   end
 
    ["rate-limiting.cfg.xml", "content-normalization.cfg.xml"].each do |config|
       cookbook_file "/etc/repose/node#{nodeNumber}/#{config}" do
@@ -98,6 +89,8 @@ for nodeNumber in 1..6
          mode 0644
       end
    end
+
+   via=""
 
    case nodeNumber
    when 1
@@ -126,6 +119,7 @@ for nodeNumber in 1..6
          source "/uri-normalization.cfg.xml"
          mode 0644
       end
+      via="via=\"Repose (Cloud Integration)\""
 
    when 2
       #Client Auth for OpenStack Identity
@@ -158,6 +152,7 @@ for nodeNumber in 1..6
          source "/uri-normalization.cfg.xml"
          mode 0644
       end
+      via="via=\"\""
 
    when 3
       #Client IP Identity Node
@@ -172,6 +167,7 @@ for nodeNumber in 1..6
          source "client-ip/system-model.cfg.xml.erb"
          mode 0644
       end
+      via=""
 
    when 4..6
       #Distirubted Datastore
@@ -185,6 +181,18 @@ for nodeNumber in 1..6
       template "/etc/repose/node#{nodeNumber}/system-model.cfg.xml" do
          source "dist-datastore/system-model.cfg.xml.erb"
          mode 0644
+      end
+      via=""
+   end
+
+   ["container.cfg.xml"].each do |config|
+      template "/etc/repose/node#{nodeNumber}/#{config}" do
+         source "#{config}.erb"
+         mode 0644
+         variables({
+            :port => 8886 + nodeNumber,
+            :via => via
+         })
       end
    end
 end

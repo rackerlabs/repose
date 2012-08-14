@@ -150,6 +150,15 @@
                     <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When X-RAX-User has two users" enabled="true"/>
@@ -201,6 +210,15 @@
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
                     <intProp name="Assertion.test_type">6</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
                 </hashTree>
@@ -284,6 +302,15 @@
                     <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When X-Forwarded-For has two IPs" enabled="true"/>
@@ -335,6 +362,15 @@
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
                     <intProp name="Assertion.test_type">6</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
                 </hashTree>
@@ -502,6 +538,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
             </hashTree>
@@ -576,6 +621,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Body Contains JSON Password Credentials with empty password" enabled="true"/>
@@ -624,6 +678,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <collectionProp name="Asserion.test_strings">
                       <stringProp name="1990333760">x-pp-user : .*test-user;q=</stringProp>
                       <stringProp name="-1975186714">x-pp-groups : .*My Group;q=</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
                     </collectionProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
@@ -684,6 +747,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Body Contains JSON (KEY) Credentials with empty key" enabled="true"/>
@@ -732,6 +804,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <collectionProp name="Asserion.test_strings">
                       <stringProp name="1990333760">x-pp-user : .*test-user;q=</stringProp>
                       <stringProp name="-1975186714">x-pp-groups : .*My Group;q=</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
                     </collectionProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
@@ -792,6 +873,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Body Contains JSON Nast Credentials" enabled="true"/>
@@ -840,6 +930,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <collectionProp name="Asserion.test_strings">
                       <stringProp name="1405028755">x-pp-user : .*12345;q=</stringProp>
                       <stringProp name="-1975186714">x-pp-groups : .*My Group;q=</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
                     </collectionProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
@@ -900,6 +999,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Body Contains XML Password Credentials" enabled="true"/>
@@ -948,6 +1056,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <collectionProp name="Asserion.test_strings">
                       <stringProp name="1990333760">x-pp-user : .*test-user;q=</stringProp>
                       <stringProp name="-1975186714">x-pp-groups : .*My Group;q=</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
                     </collectionProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
@@ -1008,6 +1125,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Body Contains XML (KEY) Credentials" enabled="true"/>
@@ -1056,6 +1182,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <collectionProp name="Asserion.test_strings">
                       <stringProp name="1990333760">x-pp-user : .*test-user;q=</stringProp>
                       <stringProp name="-1975186714">x-pp-groups : .*My Group;q=</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
                     </collectionProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
@@ -1116,6 +1251,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Body Contains XML Mosso Credentials" enabled="true"/>
@@ -1170,6 +1314,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Body Contains XML Nast Credentials" enabled="true"/>
@@ -1218,6 +1371,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <collectionProp name="Asserion.test_strings">
                       <stringProp name="1405028755">x-pp-user : .*12345;q=</stringProp>
                       <stringProp name="-1975186714">x-pp-groups : .*My Group;q=</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
                     </collectionProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
@@ -1281,6 +1443,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <intProp name="Assertion.test_type">6</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Body Contains JSON Password Credentials with no user name field" enabled="true"/>
@@ -1333,6 +1504,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
                     <intProp name="Assertion.test_type">6</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
                 </hashTree>
@@ -1389,6 +1569,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <intProp name="Assertion.test_type">6</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Body Contains JSON (KEY) Credentials with empty username" enabled="true"/>
@@ -1441,6 +1630,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
                     <intProp name="Assertion.test_type">6</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
                 </hashTree>
@@ -1497,6 +1695,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <intProp name="Assertion.test_type">6</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Body Contains JSON (KEY) Credentials with no key" enabled="true"/>
@@ -1549,6 +1756,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
                     <intProp name="Assertion.test_type">6</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
                 </hashTree>
@@ -1605,6 +1821,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <intProp name="Assertion.test_type">6</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Body Contains JSON Mosso Credentials with no key" enabled="true"/>
@@ -1657,6 +1882,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
                     <intProp name="Assertion.test_type">6</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
                 </hashTree>
@@ -1713,6 +1947,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <intProp name="Assertion.test_type">6</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Body Contains JSON Nast Credentials with no nast id" enabled="true"/>
@@ -1765,6 +2008,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
                     <intProp name="Assertion.test_type">6</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
                 </hashTree>
@@ -1821,6 +2073,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <intProp name="Assertion.test_type">6</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Body Contains XML Password Credentials with empty username" enabled="true"/>
@@ -1873,6 +2134,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
                     <intProp name="Assertion.test_type">6</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
                 </hashTree>
@@ -1929,6 +2199,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <intProp name="Assertion.test_type">6</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Body Contains XML (KEY) Credentials with empty username" enabled="true"/>
@@ -1981,6 +2260,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
                     <intProp name="Assertion.test_type">6</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
                 </hashTree>
@@ -2037,6 +2325,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <intProp name="Assertion.test_type">6</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Body Contains XML Mosso Credentials with empty mossoId" enabled="true"/>
@@ -2085,6 +2382,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <collectionProp name="Asserion.test_strings">
                       <stringProp name="48702454">x-pp-user : .*0;q=</stringProp>
                       <stringProp name="-1975186714">x-pp-groups : .*My Group;q=</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
                     </collectionProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
@@ -2145,6 +2451,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Body Contains XML Mosso Credentials with invalid mossoId" enabled="true"/>
@@ -2197,6 +2512,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
                     <intProp name="Assertion.test_type">6</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
                 </hashTree>
@@ -2253,6 +2577,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <intProp name="Assertion.test_type">6</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Body Contains XML Nast Credentials no nastId" enabled="true"/>
@@ -2305,6 +2638,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
                     <intProp name="Assertion.test_type">6</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
                 </hashTree>
@@ -2361,6 +2703,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <intProp name="Assertion.test_type">6</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Body Contains invalid XML" enabled="true"/>
@@ -2413,6 +2764,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
                     <intProp name="Assertion.test_type">6</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
                 </hashTree>
@@ -2472,6 +2832,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                   <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="should return full user name in body" enabled="true">
                     <collectionProp name="Asserion.test_strings">
                       <stringProp name="-1812422929">&quot;username&quot;[ ]*:[ ]*&quot;(0123456789){30}&quot;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
                     </collectionProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
@@ -2541,6 +2910,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Body Contains JSON Password Credentials with no content type" enabled="true"/>
@@ -2591,6 +2969,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <intProp name="Assertion.test_type">6</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Body Contains XML Password Credentials with no content type" enabled="true"/>
@@ -2639,6 +3026,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
                     <intProp name="Assertion.test_type">6</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="443951">&lt;h3&gt; via : 1.1 jetty&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
                 </hashTree>
