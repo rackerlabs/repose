@@ -16,7 +16,9 @@ public class AuthenticationServiceFactory {
       JAXBContext coreJaxbContext;
       JAXBContext groupJaxbContext;
       try {
-         coreJaxbContext = JAXBContext.newInstance(org.openstack.docs.identity.api.v2.ObjectFactory.class);
+         coreJaxbContext = JAXBContext.newInstance(
+                 org.openstack.docs.identity.api.v2.ObjectFactory.class,
+                 com.rackspace.docs.identity.api.ext.rax_auth.v1.ObjectFactory.class);
          groupJaxbContext = JAXBContext.newInstance(com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.ObjectFactory.class);
       } catch (JAXBException e) {
          LOG.error("Problem creating the jaxb context for the OpenStack Auth objects.", e);

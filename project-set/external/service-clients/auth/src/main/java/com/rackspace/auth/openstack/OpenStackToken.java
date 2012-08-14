@@ -6,6 +6,8 @@ import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 import org.openstack.docs.identity.api.v2.Role;
 
 import java.io.Serializable;
+import javax.xml.bind.JAXBElement;
+import org.openstack.docs.identity.api.v2.UserForAuthenticateResponse;
 
 /**
  * @author fran
@@ -18,6 +20,8 @@ public class OpenStackToken extends AuthToken implements Serializable {
     private final String tokenId;
     private final String userId;
     private final String username;
+    private final String impersonatorTenantId;
+    private final String impersonatorUsername;
 
     public OpenStackToken(String tenantId, AuthenticateResponse response) {
         if (response == null || response.getToken() == null || response.getToken().getExpires() == null) {
@@ -30,8 +34,16 @@ public class OpenStackToken extends AuthToken implements Serializable {
         this.tokenId = response.getToken().getId();
         this.userId = response.getUser().getId();
         this.username = response.getUser().getName();
+        UserForAuthenticateResponse impersonator =  getImpersonator(response);
+        if (impersonator != null) {
+            this.impersonatorTenantId = impersonator.getId();
+            this.impersonatorUsername = impersonator.getName();
+        } else {
+            this.impersonatorTenantId = "";
+            this.impersonatorUsername = "";
+        }
     }
-
+    
     @Override
     public String getTenantId() {
         return tenantId;
@@ -60,6 +72,33 @@ public class OpenStackToken extends AuthToken implements Serializable {
     @Override
     public String getRoles() {
         return roles;
+    }
+
+    @Override
+    public String getImpersonatorTenantId() {
+        return impersonatorTenantId;
+    }
+
+    @Override
+    public String getImpersonatorUsername() {
+        return impersonatorUsername;
+    }
+
+    private UserForAuthenticateResponse getImpersonator(AuthenticateResponse response) {
+        if (response.getAny() == null) {
+            return null;
+        }
+        
+        for (Object any: response.getAny()) {
+            if (any instanceof JAXBElement) {
+                JAXBElement element = (JAXBElement)any;
+                if (element.getValue() instanceof UserForAuthenticateResponse) {
+                    return (UserForAuthenticateResponse)element.getValue();
+                }
+            }
+        }
+        
+        return null;
     }
 
     private String formatRoles(AuthenticateResponse response) {

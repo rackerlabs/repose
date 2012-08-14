@@ -16,6 +16,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.io.IOException;
+import javax.xml.bind.JAXBElement;
 
 @Path("/keystone")
 @Singleton
@@ -83,8 +84,20 @@ public class KeystoneResource extends BaseResource {
         Token token = p.createToken(userToken);
         response.setToken(token);
         response.setUser(p.getUser(userName));
+        
+        if ("impersonated".equalsIgnoreCase(userName)) {
+            response.getAny().add(getImpersonator("impersonator-id", "impersonator"));
+        }
 
         return Response.ok(wrapper.wrapElement(response)).build();
+    }
+    
+    private JAXBElement<UserForAuthenticateResponse> getImpersonator(String id, String name) {
+        UserForAuthenticateResponse impersonator = new UserForAuthenticateResponse();
+        impersonator.setId(id);
+        impersonator.setName(name);
+        com.rackspace.docs.identity.api.ext.rax_auth.v1.ObjectFactory factory = new com.rackspace.docs.identity.api.ext.rax_auth.v1.ObjectFactory();
+        return factory.createImpersonator(impersonator);
     }
 
     @GET

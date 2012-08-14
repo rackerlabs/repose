@@ -7,30 +7,36 @@ import java.util.Calendar;
  * @author fran
  */
 public abstract class AuthToken implements Serializable {
-   public abstract String getTenantId();
-   public abstract String getUserId();
-   public abstract String getTokenId();
-   public abstract String getUsername();
-   public abstract String getRoles();
-   public abstract long getExpires();
 
-   public Long tokenTtl() {
-      long ttl = 0;
+    public abstract String getTenantId();
+    public abstract String getUserId();
+    public abstract String getTokenId();
+    public abstract String getUsername();
+    public abstract String getRoles();
+    public abstract long getExpires();
+    public abstract String getImpersonatorTenantId();
+    public abstract String getImpersonatorUsername();
+   
 
-      if (getExpires() > 0) {
-         ttl = getExpires() - Calendar.getInstance().getTimeInMillis();
-      }
+    
 
-      return ttl > 0 ? ttl : 0;
-   }
+    public Long tokenTtl() {
+        long ttl = 0;
 
-   public int safeTokenTtl() {
-      Long tokenTtl = tokenTtl();
+        if (getExpires() > 0) {
+            ttl = getExpires() - Calendar.getInstance().getTimeInMillis();
+        }
 
-      if (tokenTtl >= Integer.MAX_VALUE) {
-         return Integer.MAX_VALUE;
-      }
+        return ttl > 0 ? ttl : 0;
+    }
 
-      return tokenTtl.intValue();
-   }
+    public int safeTokenTtl() {
+        Long tokenTtl = tokenTtl();
+
+        if (tokenTtl >= Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+
+        return tokenTtl.intValue();
+    }
 }
