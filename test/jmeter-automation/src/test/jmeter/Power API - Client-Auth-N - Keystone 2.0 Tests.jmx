@@ -89,6 +89,11 @@
               <stringProp name="Argument.value">null</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
+            <elementProp name="impersonatedUser" elementType="Argument">
+              <stringProp name="Argument.name">impersonatedUser</stringProp>
+              <stringProp name="Argument.value">impersonated</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
           </collectionProp>
         </Arguments>
         <hashTree/>
@@ -169,6 +174,16 @@
               <stringProp name="50">2</stringProp>
               <stringProp name="-287715928">/usertest4</stringProp>
               <stringProp name="106438211">pass4</stringProp>
+            </collectionProp>
+            <collectionProp name="-1574956292">
+              <stringProp name="-1246318325">impersonated</stringProp>
+              <stringProp name="-1248326952">application/xml</stringProp>
+              <stringProp name="3708">v2</stringProp>
+              <stringProp name="3556498">test</stringProp>
+              <stringProp name="3708">v2</stringProp>
+              <stringProp name="50">2</stringProp>
+              <stringProp name="2143609530">/impersonated</stringProp>
+              <stringProp name="106438212">pass5</stringProp>
             </collectionProp>
           </collectionProp>
           <boolProp name="UserParameters.per_iteration">true</boolProp>
@@ -397,6 +412,16 @@ vars.put(&apos;user-token&apos;, randomValidToken());</stringProp>
                 <intProp name="Assertion.test_type">16</intProp>
               </ResponseAssertion>
               <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Impersonator Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="-1246318001">impersonator</stringProp>
+                </collectionProp>
+                <stringProp name="TestPlan.comments">Should not contain impersonator headers for non-impersonated tokens</stringProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">20</intProp>
+              </ResponseAssertion>
+              <hashTree/>
             </hashTree>
           </hashTree>
           <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Unhappy Paths - Non Delegatable" enabled="true">
@@ -591,6 +616,198 @@ vars.put(&apos;user-token&apos;, randomValidToken());</stringProp>
                 </ResponseAssertion>
                 <hashTree/>
               </hashTree>
+            </hashTree>
+          </hashTree>
+        </hashTree>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Host Auth Type is OpenStack" enabled="true">
+          <stringProp name="IfController.condition">&quot;${authtype}&quot; == &quot;OpenStack Identity&quot;</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+        </IfController>
+        <hashTree>
+          <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+              <collectionProp name="Arguments.arguments"/>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain">${targetHost}</stringProp>
+            <stringProp name="HTTPSampler.port">${targetPort}</stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+            <stringProp name="HTTPSampler.protocol">http</stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path"></stringProp>
+            <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+          </ConfigTestElement>
+          <hashTree/>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Data Fuzzing: Auth Token" enabled="false"/>
+          <hashTree>
+            <BSFSampler guiclass="BSFSamplerGui" testclass="BSFSampler" testname="JS: Generate Random Token" enabled="true">
+              <stringProp name="TestPlan.comments">Generates a random token that does not violate token format and content expectations</stringProp>
+              <stringProp name="BSFSampler.filename"></stringProp>
+              <stringProp name="BSFSampler.language">javascript</stringProp>
+              <stringProp name="BSFSampler.parameters"></stringProp>
+              <stringProp name="BSFSampler.query">var validCharacters = [&apos;0&apos;, &apos;1&apos;, &apos;2&apos;, &apos;3&apos;, &apos;4&apos;, &apos;5&apos;, &apos;6&apos;, &apos;7&apos;, &apos;8&apos;, &apos;9&apos;, &apos;a&apos;, &apos;b&apos;, &apos;c&apos;, &apos;d&apos;, &apos;e&apos;, &apos;f&apos;];
+
+function randomCharacter(characterSet) {
+   var charIndex = Math.floor(Math.random() * characterSet.length);
+
+   return characterSet[charIndex];
+}
+
+function randomString(length, characterSet) {
+   var randomString = &apos;&apos;;
+
+   for (var i = 0; i &lt; length; i++) {
+       randomString += randomCharacter(characterSet);
+   }
+
+   return randomString;
+}
+
+function randomValidToken() {
+   var authToken = randomString(9, validCharacters);
+
+   for(var group = 0; group &lt; 5; group++) {
+      authToken += &quot;-&quot; + randomString(9, validCharacters);
+   }
+
+   return authToken;
+}
+
+vars.put(&apos;user-token&apos;, randomValidToken());</stringProp>
+            </BSFSampler>
+            <hashTree/>
+          </hashTree>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Get Impersonated User Token" enabled="true">
+            <stringProp name="TestPlan.comments">This module attempts to auth against an OpenStack ID endpoint. The resulting auth token is stored as an internal variable callled &apos;user-token&apos;</stringProp>
+          </GenericController>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Content-Type</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Request Impersonated User Token" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                <collectionProp name="Arguments.arguments">
+                  <elementProp name="" elementType="HTTPArgument">
+                    <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                    <stringProp name="Argument.value">&lt;auth xmlns=&quot;http://docs.openstack.org/identity/api/v2.0&quot;&gt;&lt;passwordCredentials username=&quot;${impersonatedUser}&quot; password=&quot;${password}&quot;/&gt;&lt;/auth&gt;</stringProp>
+                    <stringProp name="Argument.metadata">=</stringProp>
+                    <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                  </elementProp>
+                </collectionProp>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain">${authHost}</stringProp>
+              <stringProp name="HTTPSampler.port">${authPort}</stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/keystone/tokens</stringProp>
+              <stringProp name="HTTPSampler.method">POST</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Extract Response Code" enabled="true">
+                <stringProp name="RegexExtractor.useHeaders">code</stringProp>
+                <stringProp name="RegexExtractor.refname">respcode</stringProp>
+                <stringProp name="RegexExtractor.regex">(.*)</stringProp>
+                <stringProp name="RegexExtractor.template">$1$</stringProp>
+                <stringProp name="RegexExtractor.default">null</stringProp>
+                <stringProp name="RegexExtractor.match_number">1</stringProp>
+              </RegexExtractor>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="49586">200</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                <boolProp name="Assertion.assume_success">true</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <XPathExtractor guiclass="XPathExtractorGui" testclass="XPathExtractor" testname="Extract Token" enabled="true">
+                <stringProp name="XPathExtractor.default">null</stringProp>
+                <stringProp name="XPathExtractor.refname">user-token</stringProp>
+                <stringProp name="XPathExtractor.xpathQuery">/access/token/@id</stringProp>
+                <boolProp name="XPathExtractor.validate">false</boolProp>
+                <boolProp name="XPathExtractor.tolerant">false</boolProp>
+                <boolProp name="XPathExtractor.namespace">false</boolProp>
+              </XPathExtractor>
+              <hashTree/>
+            </hashTree>
+          </hashTree>
+          <IfController guiclass="IfControllerPanel" testclass="IfController" testname="ValidImpersonatedUserValidToken-200" enabled="true">
+            <stringProp name="IfController.condition">${__javaScript(&quot;${auth-token}&quot; != &quot;null&quot;)}</stringProp>
+            <boolProp name="IfController.evaluateAll">false</boolProp>
+          </IfController>
+          <hashTree>
+            <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+              <collectionProp name="HeaderManager.headers">
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">X-Auth-Token</stringProp>
+                  <stringProp name="Header.value">${user-token}</stringProp>
+                </elementProp>
+                <elementProp name="" elementType="Header">
+                  <stringProp name="Header.name">Accept</stringProp>
+                  <stringProp name="Header.value">application/xml</stringProp>
+                </elementProp>
+              </collectionProp>
+            </HeaderManager>
+            <hashTree/>
+            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Valid Impersonated User With Valid Token-200" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain"></stringProp>
+              <stringProp name="HTTPSampler.port"></stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol"></stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/v1/${impersonatedUser}</stringProp>
+              <stringProp name="HTTPSampler.method">GET</stringProp>
+              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+              <stringProp name="HTTPSampler.implementation">Java</stringProp>
+              <boolProp name="HTTPSampler.monitor">false</boolProp>
+              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            </HTTPSamplerProxy>
+            <hashTree>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="1477249802">200 OK</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Impersonator Header Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="-139804814">&lt;h3&gt; x-impersonator-id : impersonator-id&lt;/h3&gt;</stringProp>
+                  <stringProp name="-138819530">&lt;h3&gt; x-impersonator-name : impersonator&lt;/h3&gt;</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">16</intProp>
+              </ResponseAssertion>
+              <hashTree/>
             </hashTree>
           </hashTree>
         </hashTree>
