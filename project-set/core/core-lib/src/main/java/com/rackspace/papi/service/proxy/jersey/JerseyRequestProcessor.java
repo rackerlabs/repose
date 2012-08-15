@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.proxy.jersey;
 
-import static com.rackspace.papi.http.Headers.HOST;
+import static com.rackspace.papi.commons.util.http.CommonHttpHeader.HOST;
 import com.rackspace.papi.http.proxy.common.AbstractRequestProcessor;
 import com.sun.jersey.api.client.PartialRequestBuilder;
 import com.sun.jersey.api.client.WebResource;

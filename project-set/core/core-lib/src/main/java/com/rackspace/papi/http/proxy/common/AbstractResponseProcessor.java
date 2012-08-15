@@ -7,8 +7,9 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.TreeSet;
 
-import static com.rackspace.papi.http.Headers.CONTENT_LENGTH;
-import static com.rackspace.papi.http.Headers.LOCATION;
+import static com.rackspace.papi.commons.util.http.CommonHttpHeader.CONTENT_LENGTH;
+import static com.rackspace.papi.commons.util.http.CommonHttpHeader.LOCATION;
+
 import com.rackspace.papi.http.proxy.HttpException;
 
 public abstract class AbstractResponseProcessor {

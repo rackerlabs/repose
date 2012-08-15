@@ -18,10 +18,12 @@ public enum CommonHttpHeader implements HeaderConstant {
    X_FORWARDED_FOR("X-Forwarded-For"),
    USER_AGENT("User-Agent"),
    VIA("Via"),
+   LOCATION("Location"),
    
    //Content specific
    ACCEPT("Accept"),
-   CONTENT_TYPE("Content-Type");
+   CONTENT_TYPE("Content-Type"),
+   CONTENT_LENGTH("Content-Length");
    
    private final String headerKey;
 
