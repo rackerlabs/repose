@@ -6,7 +6,6 @@ package com.rackspace.papi.commons.util.http.header;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
-import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -15,7 +14,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class UserAgentExtractor {
    
-   HttpServletRequest request;
+   private HttpServletRequest request;
    
    public UserAgentExtractor(HttpServletRequest request){
       this.request = request;

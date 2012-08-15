@@ -8,10 +8,12 @@ import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.commons.util.servlet.http.RouteDestination;
+import com.rackspace.papi.commons.util.net.NetUtilities;
 import com.rackspace.papi.filter.logic.DispatchPathBuilder;
 import com.rackspace.papi.filter.resource.ResourceMonitor;
 import com.rackspace.papi.filter.routing.DestinationLocation;
 import com.rackspace.papi.filter.routing.DestinationLocationBuilder;
+import com.rackspace.papi.http.ProxyHeadersGenerator;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
@@ -48,8 +50,8 @@ public class PowerFilterChain implements FilterChain {
    private final Node localhost;
    private final Map<String, Destination> destinations;
    private final RoutingService routingService;
-   private final ContainerConfigurationService containerConfigurationService;
    private List<FilterContext> currentFilters;
+   private ProxyHeadersGenerator proxyHeadersGenerator;
    private boolean trace;
    private int position;
    private long accumulatedTime;
@@ -68,7 +70,7 @@ public class PowerFilterChain implements FilterChain {
       this.domain = domain;
       this.localhost = localhost;
       this.routingService = ServletContextHelper.getInstance().getPowerApiContext(context).routingService();
-      this.containerConfigurationService = ServletContextHelper.getInstance().getPowerApiContext(context).containerConfigurationService();
+      this.proxyHeadersGenerator = new ProxyHeadersGenerator(ServletContextHelper.getInstance().getPowerApiContext(context).containerConfigurationService());
       destinations = new HashMap<String, Destination>();
 
       if (domain != null && domain.getDestinations() != null) {
@@ -156,31 +158,6 @@ public class PowerFilterChain implements FilterChain {
       response.addHeader("X-" + filterName + "-Time", String.valueOf(myTime) + "ms");
    }
 
-   private void setVia(MutableHttpServletRequest request) {
-      
-      String viaValue = containerConfigurationService.getVia();
-      StringBuilder builder = new StringBuilder();
-      UserAgentExtractor extractor = new UserAgentExtractor(request);   
-      
-      String userAgent = request.getProtocol();
-      ExtractorResult<String> userAgentInfo = extractor.extractAgentInfo(userAgent);
-      builder.append(userAgentInfo.getKey()).append(" ");
-      
-      if (StringUtilities.isBlank(viaValue)) {
-         
-         String server = request.getServletContext().getServerInfo();
-         
-         ExtractorResult<String> serverInfo = extractor.extractAgentInfo(server);
-         
-         builder.append(serverInfo.getResult());
-      }else{
-         builder.append(viaValue);
-      }
-      
-      request.addHeader(CommonHttpHeader.VIA.toString(), builder.toString());
-
-   }
-
    private boolean isResponseOk(HttpServletResponse response) {
       return response.getStatus() < HttpStatusCode.INTERNAL_SERVER_ERROR.intValue();
    }
@@ -228,7 +205,7 @@ public class PowerFilterChain implements FilterChain {
             }
 
             if (isResponseOk(mutableHttpResponse)) {
-               setVia(mutableHttpRequest);
+               proxyHeadersGenerator.setProxyHeaders(mutableHttpRequest);
                route(mutableHttpRequest, mutableHttpResponse);
                if (servletResponse != mutableHttpResponse) {
                   mutableHttpResponse.commitBufferToServletOutputStream();
