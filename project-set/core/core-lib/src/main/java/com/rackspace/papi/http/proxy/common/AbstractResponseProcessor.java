@@ -45,7 +45,7 @@ public abstract class AbstractResponseProcessor {
    
    protected void addHeader(String name, String value) {
       if (!EXCLUDE_HEADERS_SET.contains(name.toLowerCase())) {
-         response.setHeader(name, value);
+         response.addHeader(name, value);
       }
    }
    

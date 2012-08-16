@@ -94,6 +94,19 @@ public class MockServiceProvider {
       return response.entity(resp).header("x-request-id", "somevalue").header("Content-Length", resp.length()).build();
    }
 
+   public Response getEndServiceWithEchoHeaders(String body, HttpHeaders headers, UriInfo uri) {
+      String resp = getEchoBody(body, headers, uri);
+
+      ResponseBuilder response = Response.ok();
+      for (String headerName: headers.getRequestHeaders().keySet()) {
+          for (String headerValue: headers.getRequestHeader(headerName)) {
+              response.header(headerName, headerValue);
+          }
+      }
+
+      return response.entity(resp).header("x-request-id", "somevalue").header("Content-Length", resp.length()).build();
+   }
+
    public Response getAbsoluteLimitsJSON() {
 
       Limits limits = new Limits();

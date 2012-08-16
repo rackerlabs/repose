@@ -72,7 +72,7 @@ public class JerseyResponseProcessorTest {
             for (String header: headers.keySet()) {
                 List<String> values = headers.get(header, String.class);
                 for (String value: values) {
-                    verify(servletResponse).setHeader(header, value);
+                    verify(servletResponse).addHeader(header, value);
                 }
             }
         }
@@ -127,7 +127,7 @@ public class JerseyResponseProcessorTest {
             for (String header: headers.keySet()) {
                 List<String> values = headers.get(header, String.class);
                 for (String value: values) {
-                    verify(servletResponse).setHeader(header, value);
+                    verify(servletResponse).addHeader(header, value);
                 }
             }
         }

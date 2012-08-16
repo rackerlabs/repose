@@ -70,7 +70,7 @@ public class HttpComponentResponseProcessorTest {
             
             verify(servletResponse).setStatus(eq(200));
             for (Header header: headers) {
-                verify(servletResponse).setHeader(header.getName(), header.getValue());
+                verify(servletResponse).addHeader(header.getName(), header.getValue());
             }
         }
 
@@ -80,7 +80,7 @@ public class HttpComponentResponseProcessorTest {
             
             verify(servletResponse).setStatus(eq(200));
             for (Header header: headers) {
-                verify(servletResponse).setHeader(header.getName(), header.getValue());
+                verify(servletResponse).addHeader(header.getName(), header.getValue());
             }
             
             verify(entity).writeTo(out);
@@ -138,7 +138,7 @@ public class HttpComponentResponseProcessorTest {
             
             verify(servletResponse).setStatus(eq(200));
             for (Header header: headers) {
-                verify(servletResponse).setHeader(header.getName(), header.getValue());
+                verify(servletResponse).addHeader(header.getName(), header.getValue());
             }
         }
 
@@ -148,7 +148,7 @@ public class HttpComponentResponseProcessorTest {
             
             verify(servletResponse).setStatus(eq(200));
             for (Header header: headers) {
-                verify(servletResponse).setHeader(header.getName(), header.getValue());
+                verify(servletResponse).addHeader(header.getName(), header.getValue());
             }
             
             verify(servletResponse).setInputStream(any(HttpComponentInputStream.class));

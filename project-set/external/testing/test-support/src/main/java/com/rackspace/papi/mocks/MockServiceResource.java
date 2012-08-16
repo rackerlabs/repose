@@ -40,8 +40,17 @@ public class MockServiceResource {
    }
 
    @GET
+   @Path("/echoheaders")
+   public Response getEchoHeaders(@Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
+      URI uri = uriInfo.getAbsolutePath();
+
+      return provider.getEndServiceWithEchoHeaders("", headers, uriInfo);
+   }
+
+   @GET
    @Path("{id : .*}")
    public Response getEndService(@Context HttpHeaders headers, @Context UriInfo uri) {
+       
       return provider.getEndService("", headers, uri);
    }
 

@@ -56,7 +56,7 @@ public class NingResponseProcessorTest {
             for (String header: headers.keySet()) {
                 List<String> values = headers.get(header);
                 for (String value: values) {
-                    verify(servletResponse).setHeader(header, value);
+                    verify(servletResponse).addHeader(header, value);
                 }
             }
         }
