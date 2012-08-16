@@ -34,7 +34,7 @@ public abstract class AbstractResponseProcessor {
    
    protected void sendRedirect(String url, int statusCode) throws IOException {
       response.setStatus(statusCode);
-      response.addHeader("Location", url);
+      response.setHeader("Location", url);
 //      response.addIntHeader("Content-Length", 0);
       //response.sendRedirect(url);
    }
