@@ -1,10 +1,3 @@
-if node["powerapi-valve"]["image"] == "deb"
-   package "rpm" do
-      action :install
-      provider Chef::Provider::Package::Apt 
-   end
-end
-
 directory "/usr/share/lib" do
    owner "root"
    group "root"
