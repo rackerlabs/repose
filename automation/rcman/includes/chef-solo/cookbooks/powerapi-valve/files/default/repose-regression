@@ -10,7 +10,12 @@ JAR_DIRECTORY=/usr/share/lib/repose
 
 startRepose()
 {
-    java -jar $JAR_DIRECTORY/repose-valve.jar START -p $1 -s $2  -c $CONFIG_DIRECTORY/node$3 > $LOG_PATH/node$3/current.log 2>&1 &
+    if [ $1 -eq '8888' ]
+    then
+       java -jar $JAR_DIRECTORY/repose-valve.jar START -k -p $1 -s $2  -c $CONFIG_DIRECTORY/node$3 > $LOG_PATH/node$3/current.log 2>&1 &
+    else
+       java -jar $JAR_DIRECTORY/repose-valve.jar START -p $1 -s $2  -c $CONFIG_DIRECTORY/node$3 > $LOG_PATH/node$3/current.log 2>&1 &
+    fi
 }
 
 stopRepose()
