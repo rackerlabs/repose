@@ -83,7 +83,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     }
 
     private String extractHostPath(HttpServletRequest request) {
-        final StringBuilder myHostName = new StringBuilder(request.getServerName());
+        final StringBuilder myHostName = new StringBuilder(request.getScheme()).append("://").append(request.getServerName());
 
         if (request.getServerPort() != DEFAULT_HTTP_PORT) {
             myHostName.append(":").append(request.getServerPort());
