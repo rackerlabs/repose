@@ -7,6 +7,7 @@ import com.rackspace.com.papi.components.checker.handler.ServletResultHandler;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.config.parser.generic.GenericResourceConfigurationParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
+import com.rackspace.papi.commons.util.StringUriUtilities;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.config.ConfigurationService;
@@ -113,9 +114,10 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     String getWadlPath(String wadl) {
         return !wadl.contains("://") ? StringUtilities.join("file://", configRoot, "/", wadl) : wadl;
     }
-
-    String getDotPath(String dot) {
-        return dot.contains(configRoot) ? dot : StringUtilities.join(configRoot, "/", dot);
+    
+    String getPath(String path){
+       
+       return StringUtilities.nullSafeStartsWith(path, "/") ? path : StringUtilities.join(configRoot, "/", path);
     }
 
     private DispatchHandler getHandlers(ValidatorItem validatorItem) {
@@ -123,7 +125,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         handlers.add(new ServletResultHandler());
 
         if (StringUtilities.isNotBlank(validatorItem.getDotOutput())) {
-            final String dotPath = getDotPath(validatorItem.getDotOutput());
+            final String dotPath = StringUriUtilities.formatUri(getPath(validatorItem.getDotOutput()));
             File out = new File(dotPath);
             try {
                 if (out.exists() && out.canWrite() || !out.exists() && out.createNewFile()) {
