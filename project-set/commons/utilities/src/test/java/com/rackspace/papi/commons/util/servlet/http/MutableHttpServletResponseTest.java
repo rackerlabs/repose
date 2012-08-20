@@ -14,8 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
 public class MutableHttpServletResponseTest {
@@ -42,7 +41,6 @@ public class MutableHttpServletResponseTest {
             assertNotSame(original, actual);
         }
 
-        @Ignore
         @Test
         public void shouldHaveInitializedBuffer() throws IOException {
             HttpServletResponse original = mock(HttpServletResponse.class);
@@ -51,7 +49,7 @@ public class MutableHttpServletResponseTest {
             actual = MutableHttpServletResponse.wrap(mock(HttpServletRequest.class), original);
             actual.getOutputStream();
 
-            assertEquals(2048, actual.getBufferSize());
+            assertEquals(1024, actual.getBufferSize());
         }
 
         @Test
@@ -73,9 +71,22 @@ public class MutableHttpServletResponseTest {
 
             assertNotNull(actual.getWriter());
         }
+        
+        @Test
+        public void shouldGetOutputQueue() {
+            HttpServletResponse response = mock(HttpServletResponse.class);
+            HttpServletRequest request = mock(HttpServletRequest.class);
+            MutableHttpServletResponse actual;
+
+            actual = MutableHttpServletResponse.wrap(request, response);
+            verify(request).getAttribute(eq("repose.response.output.queue"));
+            verify(request).setAttribute(eq("repose.response.output.queue"), anyObject());
+            
+        }
+        
     }
 
-    public static class WhenGettingInputStream {
+    public static class WhenGettingAndSettingInputStream {
         //TODO: redo this test, it doesn't really test much (this is Josh being snarky, not Fran)
 
         @Test
@@ -95,6 +106,31 @@ public class MutableHttpServletResponseTest {
             assertNotNull("first should not be null", first);
             assertNotNull("second should not be null", second);
             assertNotSame("should not be the same", first, second);
+        }
+        
+        @Test
+        public void shouldResetBuffer() {
+            HttpServletResponse response = mock(HttpServletResponse.class);
+            HttpServletRequest request = mock(HttpServletRequest.class);
+            MutableHttpServletResponse actual;
+
+            actual = MutableHttpServletResponse.wrap(request, response);
+
+            actual.resetBuffer();
+            verify(response).resetBuffer();
+        }
+        
+        @Test
+        public void shouldSetInputStreamInRequest() throws IOException {
+            HttpServletResponse response = mock(HttpServletResponse.class);
+            HttpServletRequest request = mock(HttpServletRequest.class);
+            InputStream in = mock(InputStream.class);
+            MutableHttpServletResponse actual;
+
+            actual = MutableHttpServletResponse.wrap(request, response);
+            actual.setInputStream(in);
+            verify(request).setAttribute(eq("repose.response.input.stream"), eq(in));
+            
         }
     }
 
@@ -122,6 +158,8 @@ public class MutableHttpServletResponseTest {
             out.write(data);
             
             assertEquals("available should be " + dataLen, dataLen, in.available());
+            assertEquals("Response size should be " + dataLen, dataLen, response.getResponseSize());
+            assertEquals("buffer size", 1024, response.getBufferSize());
             
             int readLen = dataLen/2;
             byte[] read = new byte[readLen];

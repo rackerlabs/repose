@@ -12,7 +12,7 @@ import com.rackspace.papi.service.context.container.ContainerConfigurationServic
 
 public class ProxyHeadersGenerator {
    
-   ContainerConfigurationService configurationService;
+   private ContainerConfigurationService configurationService;
    
    public ProxyHeadersGenerator(ContainerConfigurationService configurationService){
       this.configurationService = configurationService;

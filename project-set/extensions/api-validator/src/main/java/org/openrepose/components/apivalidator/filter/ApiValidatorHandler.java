@@ -1,7 +1,6 @@
 package org.openrepose.components.apivalidator.filter;
 
 import com.rackspace.com.papi.components.checker.Validator;
-import com.rackspace.com.papi.components.checker.step.Result;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
