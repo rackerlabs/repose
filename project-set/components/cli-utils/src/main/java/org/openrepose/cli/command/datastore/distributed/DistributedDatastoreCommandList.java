@@ -7,7 +7,7 @@ import org.openrepose.cli.command.Command;
  *
  * @author zinic
  */
-public class DistirubtedDatastoreCommandList extends AbstractCommandList {
+public class DistributedDatastoreCommandList extends AbstractCommandList {
 
    @Override
    public String getCommandToken() {
