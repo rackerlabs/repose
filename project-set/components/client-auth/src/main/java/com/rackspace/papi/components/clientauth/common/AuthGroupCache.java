@@ -23,21 +23,21 @@ public class AuthGroupCache {
         return element == null || element.elementIsNull() ? null : element.elementAs(AuthGroups.class);
     }
 
-    public AuthGroups getUserGroup(String userId) {
-        AuthGroups candidate = getElementAsType(store.get(cachePrefix + "." + userId));
+    public AuthGroups getUserGroup(String tenantId) {
+        AuthGroups candidate = getElementAsType(store.get(cachePrefix + "." + tenantId));
 
         return validateGroup(candidate) ? candidate : null;
     }
 
-    public void storeGroups(String userId, AuthGroups groups, int ttl) throws IOException {
-        if (userId == null || groups == null || ttl < 0) {
+    public void storeGroups(String tenantId, AuthGroups groups, int ttl) throws IOException {
+        if (tenantId == null || groups == null || ttl < 0) {
             // TODO Should we throw an exception here?
             return;
         }
 
         byte[] data = ObjectSerializer.instance().writeObject(groups);
 
-        store.put(cachePrefix + "." + userId, data, ttl, TimeUnit.MILLISECONDS);
+        store.put(cachePrefix + "." + tenantId, data, ttl, TimeUnit.MILLISECONDS);
     }
 
     public boolean validateGroup(AuthGroups cachedValue) {
