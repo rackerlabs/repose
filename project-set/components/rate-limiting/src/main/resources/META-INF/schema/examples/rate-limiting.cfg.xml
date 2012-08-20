@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<rate-limiting-config xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0">
+<rate-limiting xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0">
   <request-endpoint uri-regex="/service/limits/" include-absolute-limits="true"/>
   <limit-group id="customer-limits " groups="customer" default="true">
     <limit uri="/service/*" uri-regex="/service/([\d^/]*)/.*" http-methods="GET" unit="SECOND" value="1"/>
@@ -10,4 +10,4 @@
   <limit-group id="admin-limits" groups="admin">
     <limit uri="/service/admin/*" uri-regex="/service/admin/(.*)" http-methods="GET POST PUT DELETE" unit="SECOND" value="1"/>
   </limit-group>
-</rate-limiting-config>
+</rate-limiting>
