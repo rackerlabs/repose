@@ -137,7 +137,7 @@ public class PowerFilterChain implements FilterChain {
       return result;
    }
 
-   private long traceEnter(MutableHttpServletResponse response, String filterName) {
+   private long traceEnter() {
       if (!trace) {
          return 0;
       }
@@ -186,7 +186,7 @@ public class PowerFilterChain implements FilterChain {
          currentThread.setContextClassLoader(nextClassLoader);
          mutableHttpResponse.pushOutputStream();
          try {
-            long start = traceEnter(mutableHttpResponse, filterConfig.getName());
+            long start = traceEnter();
             nextFilterContext.getFilter().doFilter(mutableHttpRequest, mutableHttpResponse, this);
             traceExit(mutableHttpResponse, filterConfig.getName(), start);
          } catch (Exception ex) {
@@ -223,7 +223,7 @@ public class PowerFilterChain implements FilterChain {
 
    private void route(MutableHttpServletRequest servletRequest, MutableHttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
       final String name = "route";
-      long start = traceEnter(servletResponse, name);
+      long start = traceEnter();
       DestinationLocation location = null;
       RouteDestination destination = servletRequest.getDestination();
 

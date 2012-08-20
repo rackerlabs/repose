@@ -9,13 +9,11 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 public class NingResponseProcessor extends AbstractResponseProcessor {
-    private HttpServletResponse response;
     private Response clientResponse;
     
     public NingResponseProcessor(Response clientResponse, HttpServletResponse response) {
         super(response, clientResponse.getStatusCode());
         this.clientResponse = clientResponse;
-        this.response = response;
     }
     
    @Override

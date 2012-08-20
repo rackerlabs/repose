@@ -12,7 +12,6 @@ public class ResponseHandler implements AsyncHandler<Response> {
     private static final Logger LOG = LoggerFactory.getLogger(ResponseHandler.class);
     private final Response.ResponseBuilder builder;
     private final HttpServletResponse response;
-    private AsyncHttpClient client;
 
     public ResponseHandler(HttpServletResponse response) {
         this(response, new Response.ResponseBuilder());

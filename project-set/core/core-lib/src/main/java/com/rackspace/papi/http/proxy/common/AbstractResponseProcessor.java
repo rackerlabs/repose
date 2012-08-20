@@ -11,10 +11,11 @@ import static com.rackspace.papi.commons.util.http.CommonHttpHeader.CONTENT_LENG
 import static com.rackspace.papi.commons.util.http.CommonHttpHeader.LOCATION;
 
 import com.rackspace.papi.http.proxy.HttpException;
+import java.util.Set;
 
 public abstract class AbstractResponseProcessor {
    private static final String[] EXCLUDE_HEADERS = { "connection", "transfer-encoding", "server" };
-   private static final TreeSet<String> EXCLUDE_HEADERS_SET = new TreeSet<String>(Arrays.asList(EXCLUDE_HEADERS));
+   private static final Set<String> EXCLUDE_HEADERS_SET = new TreeSet<String>(Arrays.asList(EXCLUDE_HEADERS));
    
    private final HttpServletResponse response;
    private final HttpResponseCodeProcessor responseCode;

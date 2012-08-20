@@ -62,18 +62,18 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
         MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
 
         List<HeaderValue> roles = mutableRequest.getPreferredHeaderValues(OpenStackServiceHeader.ROLES.toString(), new HeaderValueImpl(""));
-        ValidatorInfo validator = getValidatorForRole(roles);
+        ValidatorInfo validatorInfo = getValidatorForRole(roles);
 
-        if (validator != null) {
+        if (validatorInfo != null) {
             myDirector.setFilterAction(FilterAction.RETURN);
 
-            Validator v = validator.getValidator();
-            if (v == null) {
-                LOG.warn("Validator not available for request:", validator.getUri());
+            Validator validator = validatorInfo.getValidator();
+            if (validator == null) {
+                LOG.warn("Validator not available for request:", validatorInfo.getUri());
                 myDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
             } else {
                 try {
-                    Result validate = v.validate(request, response, chain);
+                    validator.validate(request, response, chain);
                     myDirector.setResponseStatusCode(response.getStatus());
                 } catch (Throwable t) {
                     LOG.error("Some error", t);
