@@ -5,7 +5,6 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.DestinationEndpoint;
-import com.rackspace.papi.model.Node;
 
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
@@ -15,13 +14,11 @@ import java.util.List;
 public class EndpointUriBuilder {
 
    private final DestinationEndpoint endpoint;
-   private final Node localhost;
    private final String uri;
    private final List<Port> localPorts;
    private final HttpServletRequest request;
 
-   EndpointUriBuilder(Node localhost, List<Port> localPorts, Destination destination, String uri, HttpServletRequest request) {
-      this.localhost = localhost;
+   EndpointUriBuilder(List<Port> localPorts, Destination destination, String uri, HttpServletRequest request) {
       this.uri = uri;
       this.localPorts = localPorts;
       this.request = request;

@@ -30,7 +30,7 @@ public class EndpointLocationBuilder implements LocationBuilder {
    public DestinationLocation build() throws MalformedURLException, URISyntaxException {
       return new DestinationLocation(
               new EndpointUrlBuilder(localhost, localPorts, destination, uri, request).build(),
-              new EndpointUriBuilder(localhost, localPorts, destination, uri, request).build());
+              new EndpointUriBuilder(localPorts, destination, uri, request).build());
    }
 
    private void determineLocalPortsList() {

@@ -38,8 +38,8 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
             this.outputStreamWriter = outputStreamWriter;
         }
     }
-    private final String OUTPUT_STREAM_QUEUE_ATTRIBUTE = "repose.response.output.queue";
-    private final String INPUT_STREAM_ATTRIBUTE = "repose.response.input.stream";
+    private static final String OUTPUT_STREAM_QUEUE_ATTRIBUTE = "repose.response.output.queue";
+    private static final String INPUT_STREAM_ATTRIBUTE = "repose.response.input.stream";
     private final Deque<OutputStreamItem> outputQueue;
     private boolean error = false;
     private Throwable exception;
