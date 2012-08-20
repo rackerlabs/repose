@@ -11,6 +11,9 @@ import org.slf4j.LoggerFactory;
 public class ProxyUtilities {
     private static final Logger LOG = LoggerFactory.getLogger(ProxyUtilities.class);
     
+    private ProxyUtilities(){
+    }
+    
     public static class AllTrustingManager implements X509TrustManager {
         @Override
         public X509Certificate[] getAcceptedIssuers() {
