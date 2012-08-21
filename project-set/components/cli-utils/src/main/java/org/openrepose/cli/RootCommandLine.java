@@ -13,8 +13,8 @@ public class RootCommandLine extends AbstractCommandList {
     @Override
     public Command[] availableCommands() {
         return new Command[]{
-                new DistributedDatastoreCommandList(),
-                new LocalDatastoreCommandList()
+                new DistributedDatastoreCommandList()
+//                new LocalDatastoreCommandList()
         };
     }
 
