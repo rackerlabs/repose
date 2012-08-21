@@ -21,7 +21,12 @@ public class FlushOutputHandler extends AbstractFilterLogicHandler {
     @Override
     public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
         final FilterDirector myDirector = new FilterDirectorImpl();
-        myDirector.setFilterAction(FilterAction.PASS);
+        myDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
+        return myDirector;
+    }
+
+    @Override
+    public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
         MutableHttpServletResponse mutableResponse = MutableHttpServletResponse.wrap(request, response);
         try {
             mutableResponse.commitBufferToServletOutputStream();
@@ -29,6 +34,6 @@ public class FlushOutputHandler extends AbstractFilterLogicHandler {
             LOG.error("Failed to flush output", ex);
         }
 
-        return myDirector;
+        return new FilterDirectorImpl();
     }
 }

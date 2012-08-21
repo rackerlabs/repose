@@ -1,14 +1,9 @@
 package com.rackspace.papi.filter;
 
-import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import com.rackspace.papi.commons.util.http.header.UserAgentExtractor;
-import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.commons.util.servlet.http.RouteDestination;
-import com.rackspace.papi.commons.util.net.NetUtilities;
 import com.rackspace.papi.filter.logic.DispatchPathBuilder;
 import com.rackspace.papi.filter.resource.ResourceMonitor;
 import com.rackspace.papi.filter.routing.DestinationLocation;
@@ -18,7 +13,6 @@ import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.service.context.ServletContextHelper;
-import com.rackspace.papi.service.context.container.ContainerConfigurationService;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.sun.jersey.api.client.ClientHandlerException;
 import java.io.IOException;
