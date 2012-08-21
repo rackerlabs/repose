@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -185,7 +186,7 @@
 
             <dependencyManagement>
                 <dependencies>
-                    
+
                     <dependency>
                         <groupId>org.springframework</groupId>
                         <artifactId>spring-core</artifactId>
@@ -209,7 +210,7 @@
                         <artifactId>spring-web</artifactId>
                         <version>${org.springframework.version}</version>
                     </dependency>
-            
+
                 </dependencies>
             </dependencyManagement>
         </profile>
@@ -223,7 +224,7 @@
 
             <dependencyManagement>
                 <dependencies>
-                    
+
                     <dependency>
                         <groupId>com.sun.jersey</groupId>
                         <artifactId>jersey-client</artifactId>
@@ -361,6 +362,25 @@
                     </plugins>
                 </pluginManagement>
             </build>
+        </profile>
+
+        <profile>
+            <id>default-tools.jar</id>
+            <activation>
+                <property>
+                    <name>java.vendor</name>
+                    <value>Sun Microsystems Inc.</value>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>com.sun</groupId>
+                    <artifactId>tools</artifactId>
+                    <version>1.6</version>
+                    <scope>system</scope>
+                    <systemPath>${java.home}/../lib/tools.jar</systemPath>
+                </dependency>
+            </dependencies>
         </profile>
     </profiles>
 </project>
