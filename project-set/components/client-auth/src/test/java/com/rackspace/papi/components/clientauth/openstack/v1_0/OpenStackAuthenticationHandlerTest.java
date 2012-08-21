@@ -291,18 +291,18 @@ public class OpenStackAuthenticationHandlerTest {
 
         @Test
         public void shouldCheckCacheForGroup() throws IOException {
-            final AuthToken user = new OpenStackToken(null, authResponse);
+            final AuthToken user = new OpenStackToken("tenantId", authResponse);
             when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
-            verify(store, times(1)).get(eq(AUTH_GROUP_CACHE_PREFIX + ".104772"));
+            verify(store, times(1)).get(eq(AUTH_GROUP_CACHE_PREFIX + ".tenantId"));
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
 
         @Test
         public void shouldUseCachedGroupInfo() {
-            final AuthToken user = new OpenStackToken(null, authResponse);
+            final AuthToken user = new OpenStackToken("tenantId", authResponse);
             when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
             final AuthGroup authGroup = new OpenStackGroup(group);
@@ -314,7 +314,7 @@ public class OpenStackAuthenticationHandlerTest {
             when(element.elementIsNull()).thenReturn(false);
             when(element.elementAs(AuthGroups.class)).thenReturn(groups);
 
-            when(store.get(eq(AUTH_GROUP_CACHE_PREFIX + ".104772"))).thenReturn(element);
+            when(store.get(eq(AUTH_GROUP_CACHE_PREFIX + ".tenantId"))).thenReturn(element);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
@@ -325,18 +325,18 @@ public class OpenStackAuthenticationHandlerTest {
 
         @Test
         public void shouldNotUseCachedGroupInfoForExpired() throws InterruptedException {
-            final AuthToken user = new OpenStackToken(null, authResponse);
+            final AuthToken user = new OpenStackToken("tenantId", authResponse);
             when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
             StoredElement element = mock(StoredElement.class);
             when(element.elementIsNull()).thenReturn(false);
             when(element.elementAs(AuthGroups.class)).thenReturn(null);
 
-            when(store.get(eq(AUTH_GROUP_CACHE_PREFIX + ".104772"))).thenReturn(null);
+            when(store.get(eq(AUTH_GROUP_CACHE_PREFIX + ".tenantId"))).thenReturn(null);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
-            verify(store, times(1)).get(eq(AUTH_GROUP_CACHE_PREFIX + ".104772"));
+            verify(store, times(1)).get(eq(AUTH_GROUP_CACHE_PREFIX + ".tenantId"));
             // Service should be called since token has expired
             verify(authService, times(1)).getGroups(anyString());
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());

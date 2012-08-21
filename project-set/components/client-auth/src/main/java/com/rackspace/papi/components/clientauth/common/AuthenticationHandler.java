@@ -114,7 +114,6 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
         List<AuthGroup> groups = getAuthGroups(token);
 
-
         setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(), groups);
 
         return filterDirector;
@@ -123,12 +122,12 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     private List<AuthGroup> getAuthGroups(AuthToken token) {
         if (token != null) {
 
-            AuthGroups authGroups = checkGroupCache(token.getUserId());
+            AuthGroups authGroups = checkGroupCache(token.getTenantId());
 
             if (authGroups == null) {
                 try {
                     authGroups = getGroups(token.getUserId());
-                    cacheGroupInfo(token.getUserId(), authGroups);
+                    cacheGroupInfo(token.getTenantId(), authGroups);
                 } catch (ClientHandlerException ex) {
                     LOG.error("Failure communicating with the auth service when retrieving groups: " + ex.getMessage(), ex);
                     LOG.error("X-PP-Groups will not be set.");
@@ -200,23 +199,23 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         }
     }
 
-    private AuthGroups checkGroupCache(String userId) {
+    private AuthGroups checkGroupCache(String tenantId) {
         if (grpCache == null) {
             return null;
         }
 
-        return grpCache.getUserGroup(userId);
+        return grpCache.getUserGroup(tenantId);
     }
 
-    private void cacheGroupInfo(String userId, AuthGroups groups) {
+    private void cacheGroupInfo(String tenantId, AuthGroups groups) {
         if (groups == null || grpCache == null) {
             return;
         }
 
         try {
-            grpCache.storeGroups(userId, groups, safeGroupTtl());
+            grpCache.storeGroups(tenantId, groups, safeGroupTtl());
         } catch (IOException ex) {
-            LOG.warn("Unable to cache user group information: " + userId + " Reason: " + ex.getMessage(), ex);
+            LOG.warn("Unable to cache user group information: " + tenantId + " Reason: " + ex.getMessage(), ex);
         }
     }
 
