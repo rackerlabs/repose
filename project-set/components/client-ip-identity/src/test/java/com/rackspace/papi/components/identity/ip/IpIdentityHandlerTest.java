@@ -31,11 +31,13 @@ public class IpIdentityHandlerTest {
    private ReadableHttpServletResponse response;
    private IpIdentityHandler handler;
    private IpIdentityConfig config;
+   private IpIdentityHandlerFactory factory;
 
    @Before
    public void setUp() {
       request = mock(HttpServletRequest.class);
       response = mock(ReadableHttpServletResponse.class);
+      factory = new IpIdentityHandlerFactory();
 
       when(request.getRemoteAddr()).thenReturn(DEFAULT_IP_VALUE);
    }
@@ -47,7 +49,8 @@ public class IpIdentityHandlerTest {
    public void testHandleRequest() {
       config = new IpIdentityConfig();
       config.setQuality(QUALITY);
-      handler = new IpIdentityHandler(config, new ArrayList<IpAddressRange>());
+      factory.configurationUpdated(config);
+      handler = factory.buildHandler();
 
       FilterDirector director = handler.handleRequest(request, response);
 
@@ -76,7 +79,10 @@ public class IpIdentityHandlerTest {
       whiteList.setQuality(WL_QUALITY);
       whiteList.getIpAddress().add(WHITELIST_IP_VALUE);
       config.setWhiteList(whiteList);
-      handler = new IpIdentityHandler(config, buildRanges(whiteList));
+      //handler = new IpIdentityHandler(config, buildRanges(whiteList));
+      
+      factory.configurationUpdated(config);
+      handler = factory.buildHandler();
 
       FilterDirector director = handler.handleRequest(request, response);
 
@@ -94,7 +100,8 @@ public class IpIdentityHandlerTest {
       whiteList.setQuality(WL_QUALITY);
       whiteList.getIpAddress().add(NETWORK);
       config.setWhiteList(whiteList);
-      handler = new IpIdentityHandler(config, buildRanges(whiteList));
+      factory.configurationUpdated(config);
+      handler = factory.buildHandler();
       
       when(request.getHeader(CommonHttpHeader.X_FORWARDED_FOR.toString())).thenReturn(IP);
 
@@ -114,7 +121,8 @@ public class IpIdentityHandlerTest {
       whiteList.setQuality(WL_QUALITY);
       whiteList.getIpAddress().add(NETWORK);
       config.setWhiteList(whiteList);
-      handler = new IpIdentityHandler(config, buildRanges(whiteList));
+      factory.configurationUpdated(config);
+      handler = factory.buildHandler();
       
       when(request.getHeader(CommonHttpHeader.X_FORWARDED_FOR.toString())).thenReturn(IP);
 
