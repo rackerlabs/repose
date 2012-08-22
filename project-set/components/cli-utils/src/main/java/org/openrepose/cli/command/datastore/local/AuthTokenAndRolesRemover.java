@@ -2,16 +2,15 @@ package org.openrepose.cli.command.datastore.local;
 
 import com.rackspace.papi.service.datastore.impl.ehcache.ReposeEHCacheMBean;
 import org.openrepose.cli.command.AbstractCommand;
-import org.openrepose.cli.command.datastore.local.jmx.LocalJVMPidRetriever;
 import com.rackspace.papi.commons.util.jmx.ReposeMBeanObjectNames;
-import org.openrepose.cli.command.datastore.local.jmx.ReposeMBeanServerConnectionFinder;
 import org.openrepose.cli.command.results.*;
 
 import javax.management.*;
-import java.util.List;
+import javax.management.remote.JMXConnector;
+import javax.management.remote.JMXConnectorFactory;
+import javax.management.remote.JMXServiceURL;
 
 public class AuthTokenAndRolesRemover extends AbstractCommand {
-    private final ReposeMBeanServerConnectionFinder reposeMBeanServerConnectionFinder = new ReposeMBeanServerConnectionFinder();
 
     @Override
     public String getCommandToken() {
@@ -26,30 +25,31 @@ public class AuthTokenAndRolesRemover extends AbstractCommand {
     @Override
     public CommandResult perform(String[] arguments) {
 
-        if (arguments.length != 1) {
-            return new InvalidArguments("The token remover expects one string argument.");
+        if (arguments.length != 2) {
+            return new InvalidArguments("The token remover expects two string arguments.");
         }
-
-        final List<String> localJVMPids = LocalJVMPidRetriever.getLocalJVMPids();
-        final ObjectName reposeEHCacheObjectName = new ReposeMBeanObjectNames().getReposeEHCache();
-        final List<MBeanServerConnection> reposeConnections = reposeMBeanServerConnectionFinder.getLocalReposeMBeanServerConnections(localJVMPids, reposeEHCacheObjectName);
 
         CommandResult result;
 
-        switch (reposeConnections.size()) {
-            case 0:
-                result = new CommandFailure(StatusCodes.NOTHING_TO_DO.getStatusCode(),
-                        "Unable to connect: No local instances of Repose detected.");
-                break;
-            default:
-                ReposeEHCacheMBean reposeEhCacheMbeanProxy = JMX.newMBeanProxy(reposeConnections.get(0), reposeEHCacheObjectName, ReposeEHCacheMBean.class, true);
+        try {
+            final String jmxRmiUrl = "service:jmx:rmi:///jndi/rmi://:" + arguments[0] + "/jmxrmi";
+            final JMXServiceURL url = new JMXServiceURL(jmxRmiUrl);
+            final JMXConnector jmxc = JMXConnectorFactory.connect(url, null);
+            final MBeanServerConnection reposeConnection = jmxc.getMBeanServerConnection();
+            final ReposeEHCacheMBean reposeEhCacheMBeanProxy = JMX.newMBeanProxy(reposeConnection,
+                                                                                 new ReposeMBeanObjectNames().getReposeEHCache(),
+                                                                                 ReposeEHCacheMBean.class,
+                                                                                 true);
 
-                if (reposeEhCacheMbeanProxy.removeTokenAndRoles(arguments[0])) {
-                    result = new MessageResult("Removed auth token and roles for user " + arguments[0]);
-                } else {
-                    result = new CommandFailure(StatusCodes.SYSTEM_PRECONDITION_FAILURE.getStatusCode(),
-                            "Failure to remove auth token and roles for user " + arguments[0]);
-                }
+            if (reposeEhCacheMBeanProxy.removeTokenAndRoles(arguments[1])) {
+                result = new MessageResult("Removed auth token and roles for user " + arguments[1]);
+            } else {
+                result = new CommandFailure(StatusCodes.SYSTEM_PRECONDITION_FAILURE.getStatusCode(),
+                        "Failure to remove auth token and roles for user " + arguments[1]);
+            }
+        } catch (Exception e) {
+            result = new CommandFailure(StatusCodes.NOTHING_TO_DO.getStatusCode(),
+                        "Unable to connect to Repose MBean Server: " + e.getMessage());
         }
 
         return result;
