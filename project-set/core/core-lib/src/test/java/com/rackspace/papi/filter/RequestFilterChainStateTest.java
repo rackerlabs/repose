@@ -52,16 +52,16 @@ public class RequestFilterChainStateTest {
 
             ServletContextHelper.configureInstance(new SpringContextAdapterProvider(appContext), context, mock(ApplicationContext.class));
             
-            PowerFilterChain powerFilterChainState = new PowerFilterChain(mock(ReposeCluster.class), mock(Node.class), filterContextList, mockedFilterChain, context, mock(ResourceMonitor.class));
+            PowerFilterChain powerFilterChainState = new PowerFilterChain(filterContextList, mockedFilterChain, mock(ResourceMonitor.class), mock(PowerFilterRouter.class));
 
             HttpServletRequest mockedServletRequest = mock(HttpServletRequest.class);
             HttpServletResponse mockedServletResponse = mock(HttpServletResponse.class);
 
             when(mockedServletRequest.getRequestURL()).thenReturn(new StringBuffer());
 
-            powerFilterChainState.doFilter(mockedServletRequest, mockedServletResponse);
+            powerFilterChainState.startFilterChain(mockedServletRequest, mockedServletResponse);
 
-            powerFilterChainState.doFilter(mockedServletRequest, mockedServletResponse);
+            powerFilterChainState.startFilterChain(mockedServletRequest, mockedServletResponse);
         }
     }
 }
