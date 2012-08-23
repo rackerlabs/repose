@@ -3,11 +3,10 @@ package com.rackspace.papi.commons.util.servlet.http;
 import com.rackspace.papi.commons.util.http.header.HeaderFieldParser;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.header.QualityFactorHeaderChooser;
-import com.rackspace.papi.commons.util.servlet.http.RequestHeaderValues;
 import java.util.*;
 import javax.servlet.http.HttpServletRequest;
 
-public class RequestHeaderValuesImpl implements RequestHeaderValues {
+public final class RequestHeaderValuesImpl implements RequestHeaderValues {
 
    private static final String REQUEST_HEADERS_ATTRIBUTE = "repose.request.headers";
    private final Map<String, List<String>> headers;
