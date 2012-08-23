@@ -1,5 +1,7 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
+import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.io.ByteBufferInputStream;
 import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
@@ -12,6 +14,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
+import org.slf4j.LoggerFactory;
 
 public class MutableHttpServletResponse extends HttpServletResponseWrapper implements ReadableHttpServletResponse {
 
@@ -20,6 +23,7 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
                 ? (MutableHttpServletResponse) response
                 : new MutableHttpServletResponse(request, response);
     }
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(MutableHttpServletResponse.class);
     private static final int DEFAULT_BUFFER_SIZE = 1024;
     private ByteBuffer internalBuffer;
     private ServletOutputStream outputStream;
@@ -119,12 +123,14 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
         return (InputStream) request.getAttribute(INPUT_STREAM_ATTRIBUTE);
     }
 
-    private void bufferInput() throws IOException {
+    public long bufferInput() throws IOException {
         createInternalBuffer();
         InputStream input = getInputStreamAttribute();
         if (input != null) {
-            RawInputStreamReader.instance().copyTo(input, outputStream);
+            return RawInputStreamReader.instance().copyTo(input, outputStream);
         }
+        
+        return 0;
     }
 
     @Override
@@ -205,8 +211,22 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
         super.resetBuffer();
     }
 
-    public int getResponseSize() {
-        return internalBuffer != null ? internalBuffer.available() : -1;
+    public long getResponseSize() {
+        if (bufferedOutput()) {
+            return internalBuffer.available();
+        }
+        
+        String contentLength = getHeader(CommonHttpHeader.CONTENT_LENGTH.name());
+        if (StringUtilities.isNotBlank(contentLength)) {
+            return Integer.parseInt(contentLength);
+        }
+        try {
+            return bufferInput();
+        } catch (IOException ex) {
+            LOG.error("Unable to buffer input", ex);
+        }
+
+        return -1;
     }
 
     @Override

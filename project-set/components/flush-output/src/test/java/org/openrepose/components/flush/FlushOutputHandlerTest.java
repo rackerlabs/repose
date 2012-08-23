@@ -24,7 +24,7 @@ public class FlushOutputHandlerTest {
     
     @Test
     public void shouldCallCommitOutput() throws IOException {
-      instance.handleRequest(mock(HttpServletRequest.class), response);
+      instance.handleResponse(mock(HttpServletRequest.class), response);
       verify(response).commitBufferToServletOutputStream();
     }
   }

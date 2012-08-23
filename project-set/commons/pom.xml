@@ -52,19 +52,19 @@
          <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-webapp</artifactId>
-            <version>8.0.1.v20110908</version>
+            <version>8.1.5.v20120716</version>
          </dependency>
 
          <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-server</artifactId>
-            <version>8.0.1.v20110908</version>
+            <version>8.1.5.v20120716</version>
          </dependency>
 
          <dependency>
             <groupId>org.eclipse.jetty</groupId>
             <artifactId>jetty-servlet</artifactId>
-            <version>8.0.1.v20110908</version>
+            <version>8.1.5.v20120716</version>
          </dependency>
 
          <dependency>
