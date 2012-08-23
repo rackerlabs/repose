@@ -1,6 +1,3 @@
-/*
- *
- */
 package com.rackspace.papi.commons.util.servlet.http;
 
 /**

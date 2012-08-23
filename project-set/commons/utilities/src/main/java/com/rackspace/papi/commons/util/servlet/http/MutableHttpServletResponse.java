@@ -78,9 +78,9 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
         if (bufferedOutput()) {
             InputStream input = getInputStreamAttribute();
             if (input != null) {
-                input.close();
                 setInputStream(null);
             }
+            
             if (internalBuffer != null) {
                 setInputStream(new ByteBufferInputStream(internalBuffer));
             }
