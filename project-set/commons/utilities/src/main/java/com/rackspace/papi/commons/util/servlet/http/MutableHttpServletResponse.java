@@ -10,8 +10,6 @@ import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
 import java.io.*;
 import java.util.ArrayDeque;
 import java.util.Deque;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

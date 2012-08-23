@@ -13,7 +13,7 @@ public class ReposeMBeanObjectNames {
         try {
             this.reposeEHCache = new ObjectName(REPOSE_EH_CACHE_OBJECT_NAME);
         } catch (MalformedObjectNameException e) {
-            throw new RuntimeException("Exception when creating " + REPOSE_EH_CACHE_OBJECT_NAME + ": " + e.getMessage());
+            throw new JmxException("Exception when creating " + REPOSE_EH_CACHE_OBJECT_NAME + ": " + e.getMessage(), e);
         }
     }
 
