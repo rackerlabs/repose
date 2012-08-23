@@ -19,7 +19,7 @@ import javax.servlet.DispatcherType;
 import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
+import org.eclipse.jetty.http.ssl.SslContextFactory;
 
 public class ValveJettyServerBuilder {
 
@@ -78,7 +78,7 @@ public class ValveJettyServerBuilder {
         sslConnector.setPort(port.getPort());
         SslContextFactory cf = sslConnector.getSslContextFactory();
 
-        cf.setKeyStorePath(configurationPathAndFile + "/" + sslConfiguration.getKeystoreFilename());
+        cf.setKeyStore(configurationPathAndFile + "/" + sslConfiguration.getKeystoreFilename());
         cf.setKeyStorePassword(sslConfiguration.getKeystorePassword());
         cf.setKeyManagerPassword(sslConfiguration.getKeyPassword());
 

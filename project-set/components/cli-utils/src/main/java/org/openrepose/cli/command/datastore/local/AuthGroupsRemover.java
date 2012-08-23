@@ -1,12 +1,12 @@
 package org.openrepose.cli.command.datastore.local;
 
-import com.rackspace.papi.commons.util.jmx.ReposeMBeanObjectNames;
-import com.rackspace.papi.service.datastore.impl.ehcache.ReposeEHCacheMBean;
+import com.rackspace.papi.service.datastore.impl.ehcache.ReposeLocalCacheMBean;
 import org.openrepose.cli.command.AbstractCommand;
 import org.openrepose.cli.command.results.*;
 
 import javax.management.JMX;
 import javax.management.MBeanServerConnection;
+import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
 import javax.management.remote.JMXServiceURL;
@@ -37,12 +37,12 @@ public class AuthGroupsRemover extends AbstractCommand {
             final JMXServiceURL url = new JMXServiceURL(jmxRmiUrl);
             final JMXConnector jmxc = JMXConnectorFactory.connect(url, null);
             final MBeanServerConnection reposeConnection = jmxc.getMBeanServerConnection();
-            final ReposeEHCacheMBean reposeEhCacheMBeanProxy = JMX.newMBeanProxy(reposeConnection,
-                                                                                 new ReposeMBeanObjectNames().getReposeEHCache(),
-                                                                                 ReposeEHCacheMBean.class,
+            final ReposeLocalCacheMBean reposeLocalCacheMBeanProxy = JMX.newMBeanProxy(reposeConnection,
+                                                                                 new ObjectName(ReposeLocalCacheMBean.OBJECT_NAME),
+                                                                                 ReposeLocalCacheMBean.class,
                                                                                  true);
 
-            if (reposeEhCacheMBeanProxy.removeGroups(arguments[1])) {
+            if (reposeLocalCacheMBeanProxy.removeGroups(arguments[1])) {
                 result = new MessageResult("Removed auth groups for user " + arguments[1]);
             } else {
                 result = new CommandFailure(StatusCodes.SYSTEM_PRECONDITION_FAILURE.getStatusCode(),

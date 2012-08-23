@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.*;
 
-@Component("datastoreSerivce")
+@Component("datastoreService")
 public class PowerApiDatastoreService implements DatastoreService {
 
    private final Map<String, DatastoreManager> localManagers;
