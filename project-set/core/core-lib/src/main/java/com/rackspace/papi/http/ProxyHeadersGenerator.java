@@ -18,7 +18,7 @@ public class ProxyHeadersGenerator {
       this.configurationService = configurationService;
    }
    
-   private String getVia(MutableHttpServletRequest request){
+   private void setVia(MutableHttpServletRequest request){
       
       String viaValue = configurationService.getVia();
       StringBuilder builder = new StringBuilder();
@@ -32,20 +32,27 @@ public class ProxyHeadersGenerator {
          
          String server = request.getServletContext().getServerInfo();
          
-         ExtractorResult<String> serverInfo = extractor.extractAgentInfo(server);
-         
-         builder.append(serverInfo.getResult());
+         builder.append("Repose (").append(server).append(")");
       }else{
          builder.append(viaValue);
       }
       
-      return builder.toString();
+      request.addHeader(CommonHttpHeader.VIA.toString(), builder.toString());
+   }
+   
+   private void setXForwardedFor(MutableHttpServletRequest request){
+      
+      if(request.getHeader(CommonHttpHeader.X_FORWARDED_FOR.toString()) == null){
+         request.addHeader(CommonHttpHeader.X_FORWARDED_FOR.toString(), request.getRemoteAddr());
+      }
+      
+      request.addHeader(CommonHttpHeader.X_FORWARDED_FOR.toString(), NetUtilities.getLocalAddress());
    }
    
    public void setProxyHeaders(MutableHttpServletRequest request){
       
-      request.addHeader(CommonHttpHeader.VIA.toString(), getVia(request));
-      request.addHeader(CommonHttpHeader.X_FORWARDED_FOR.toString(), NetUtilities.getLocalAddress());
+      setVia(request);
+      setXForwardedFor(request);
    }
    
 }
