@@ -1,6 +1,6 @@
 {
     "name": "Repose",
-    "description": "An open-source RESTful HTTP proxy",
+    "description": "An open source RESTful HTTP proxy",
     "tags": [
     "java",
     "intermediary",
@@ -52,8 +52,10 @@
     }
     ],
     "links": {
+        "Email List": "repose@lists.rackspace.com",
         "Code": "https://github.com/rackspace/repose",
-        "Wiki":"http://wiki.openrepose.org/display/REPOSE/Home"
+        "Wiki":"http://wiki.openrepose.org/display/REPOSE/Home",
+        "Website" : "http://www.openrepose.org"
     },
     "dependent_services": [
     "Nova (Cloud Servers)",
