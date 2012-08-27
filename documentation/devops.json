@@ -1,6 +1,6 @@
 {
     "name": "Repose",
-    "description": "An open-source RESTful HTTP proxy service that provides standard REST API functionality like Rate Limiting, Authentication, Authorization, Versioning, Content Normalization, API Validation, and request routing.",
+    "description": "An open-source RESTful HTTP proxy",
     "tags": [
     "java",
     "intermediary",
@@ -52,7 +52,6 @@
     }
     ],
     "links": {
-        "Email List": "repose@lists.rackspace.com",
         "Code": "https://github.com/rackspace/repose",
         "Wiki":"http://wiki.openrepose.org/display/REPOSE/Home"
     },
