@@ -48,7 +48,7 @@
 
                                     <sources>
                                         <source>
-                                            <location>${basedir}/../../../extensions/extension-filter-bundle/target/extensions-filter-bundle-${project.version}.ear</location>
+                                            <location>${basedir}/../../../extensions/extensions-filter-bundle/target/extensions-filter-bundle-${project.version}.ear</location>
                                         </source>
                                     </sources>
                                 </mapping>
