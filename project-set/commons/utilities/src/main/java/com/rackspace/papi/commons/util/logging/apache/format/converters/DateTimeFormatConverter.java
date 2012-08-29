@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.TimeZone;
 
 public class DateTimeFormatConverter implements FormatConverter {
 
@@ -17,7 +18,9 @@ public class DateTimeFormatConverter implements FormatConverter {
          try {
             String inputPattern = DateConversionFormat.getPattern(inputFormat);
             String outputPattern = DateConversionFormat.getPattern(outputFormat);
-            return new SimpleDateFormat(outputPattern).format(new SimpleDateFormat(inputPattern).parse(value));
+            SimpleDateFormat format = new SimpleDateFormat(outputPattern);
+            format.setTimeZone(TimeZone.getTimeZone("GMT"));
+            return format.format(new SimpleDateFormat(inputPattern).parse(value));
          } catch (ParseException ex) {
             LOG.warn("Invalid date conversion parameters: " + value + "/" + inputFormat + "/" + outputFormat, ex);
          }
