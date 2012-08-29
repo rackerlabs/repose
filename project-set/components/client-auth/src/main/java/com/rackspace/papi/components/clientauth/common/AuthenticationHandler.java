@@ -122,12 +122,12 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     private List<AuthGroup> getAuthGroups(AuthToken token) {
         if (token != null) {
 
-            AuthGroups authGroups = checkGroupCache(token.getTenantId());
+            AuthGroups authGroups = checkGroupCache(token);
 
             if (authGroups == null) {
                 try {
                     authGroups = getGroups(token.getUserId());
-                    cacheGroupInfo(token.getTenantId(), authGroups);
+                    cacheGroupInfo(token, authGroups);
                 } catch (ClientHandlerException ex) {
                     LOG.error("Failure communicating with the auth service when retrieving groups: " + ex.getMessage(), ex);
                     LOG.error("X-PP-Groups will not be set.");
@@ -163,21 +163,28 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
             return true;
         }
     }
-
+    
     private AuthToken checkToken(ExtractorResult<String> account, String authToken) {
         if (tenanted) {
             return checkUserCache(account.getResult(), authToken);
         } else {
-            return checkUserCache(authToken, authToken);
+            return checkUserCache("", authToken);
         }
     }
 
-    private AuthToken checkUserCache(String userId, String token) {
+    private AuthToken checkUserCache(String tenantId, String token) {
         if (cache == null) {
             return null;
         }
+        
+        String key;
+        if (StringUtilities.isNotBlank(tenantId)) {
+            key = tenantId + ":" + token;
+        } else {
+            key = token;
+        }
 
-        return cache.getUserToken(userId, token);
+        return cache.getUserToken(key, token);
     }
 
     private void cacheUserInfo(AuthToken user) {
@@ -186,7 +193,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
         }
         String key;
         if (tenanted) {
-            key = user.getTenantId();
+            key = user.getTenantId() + ":" + user.getTokenId();
         } else {
             key = user.getTokenId();
         }
@@ -198,24 +205,28 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
             LOG.warn("Unable to cache user token information: " + user.getUserId() + " Reason: " + ex.getMessage(), ex);
         }
     }
+    
+    private String getGroupCacheKey(AuthToken token) {
+        return token.getTenantId() + ":" + token.getTokenId();
+    }
 
-    private AuthGroups checkGroupCache(String tenantId) {
+    private AuthGroups checkGroupCache(AuthToken token) {
         if (grpCache == null) {
             return null;
         }
 
-        return grpCache.getUserGroup(tenantId);
+        return grpCache.getUserGroup(getGroupCacheKey(token));
     }
 
-    private void cacheGroupInfo(String tenantId, AuthGroups groups) {
+    private void cacheGroupInfo(AuthToken token, AuthGroups groups) {
         if (groups == null || grpCache == null) {
             return;
         }
 
         try {
-            grpCache.storeGroups(tenantId, groups, safeGroupTtl());
+            grpCache.storeGroups(getGroupCacheKey(token), groups, safeGroupTtl());
         } catch (IOException ex) {
-            LOG.warn("Unable to cache user group information: " + tenantId + " Reason: " + ex.getMessage(), ex);
+            LOG.warn("Unable to cache user group information: " + token + " Reason: " + ex.getMessage(), ex);
         }
     }
 

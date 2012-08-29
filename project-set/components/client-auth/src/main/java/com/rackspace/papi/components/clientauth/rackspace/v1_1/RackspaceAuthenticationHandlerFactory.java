@@ -10,7 +10,7 @@ import com.rackspace.papi.service.datastore.Datastore;
 
 public final class RackspaceAuthenticationHandlerFactory {
     private static final String AUTH_TOKEN_CACHE_PREFIX = "rackspace.v1.1.token";
-    private static final String AUTH_GROUP_CACHE_PREFIX = "openstack.identity.group";
+    private static final String AUTH_GROUP_CACHE_PREFIX = "rackspace.v1.1.group";
 
     private RackspaceAuthenticationHandlerFactory() {
     }

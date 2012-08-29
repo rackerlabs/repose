@@ -26,7 +26,7 @@ public class AuthGroupsRemover extends AbstractCommand {
     @Override
     public CommandResult perform(String[] arguments) {
 
-        if (arguments.length != 2) {
+        if (arguments.length != 3) {
             return new InvalidArguments("The groups remover expects two string arguments.");
         }
 
@@ -42,7 +42,7 @@ public class AuthGroupsRemover extends AbstractCommand {
                                                                                  ReposeLocalCacheMBean.class,
                                                                                  true);
 
-            if (reposeLocalCacheMBeanProxy.removeGroups(arguments[1])) {
+            if (reposeLocalCacheMBeanProxy.removeGroups(arguments[1], arguments[2])) {
                 result = new MessageResult("Removed auth groups for user " + arguments[1]);
             } else {
                 result = new CommandFailure(StatusCodes.SYSTEM_PRECONDITION_FAILURE.getStatusCode(),

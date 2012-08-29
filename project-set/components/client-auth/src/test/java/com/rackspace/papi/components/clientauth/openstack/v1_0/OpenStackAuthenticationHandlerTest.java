@@ -192,7 +192,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
-            verify(store).get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"));
+            verify(store).get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772" + ":" + user.getTokenId()));
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
 
@@ -204,7 +204,7 @@ public class OpenStackAuthenticationHandlerTest {
             when(element.elementAs(AuthToken.class)).thenReturn(user);
             when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
-            when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(element);
+            when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772" + ":" + user.getTokenId()))).thenReturn(element);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
@@ -296,7 +296,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
-            verify(store, times(1)).get(eq(AUTH_GROUP_CACHE_PREFIX + ".tenantId"));
+            verify(store, times(1)).get(eq(AUTH_GROUP_CACHE_PREFIX + "." + "tenantId" + ":" + user.getTokenId()));
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
 
@@ -314,7 +314,7 @@ public class OpenStackAuthenticationHandlerTest {
             when(element.elementIsNull()).thenReturn(false);
             when(element.elementAs(AuthGroups.class)).thenReturn(groups);
 
-            when(store.get(eq(AUTH_GROUP_CACHE_PREFIX + ".tenantId"))).thenReturn(element);
+            when(store.get(eq(AUTH_GROUP_CACHE_PREFIX + "." + "tenantId" + ":" + user.getTokenId()))).thenReturn(element);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
@@ -336,7 +336,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
-            verify(store, times(1)).get(eq(AUTH_GROUP_CACHE_PREFIX + ".tenantId"));
+            verify(store, times(1)).get(eq(AUTH_GROUP_CACHE_PREFIX + "." + "tenantId" + ":" + user.getTokenId()));
             // Service should be called since token has expired
             verify(authService, times(1)).getGroups(anyString());
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
