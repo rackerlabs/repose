@@ -45,7 +45,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         this.domain = domain;
         this.localhost = localhost;
         this.routingService = getRoutingService(context);
-        this.proxyHeadersGenerator = new ProxyHeadersGenerator(getContainerConfigurationService(context));
+        this.proxyHeadersGenerator = new ProxyHeadersGenerator(getContainerConfigurationService(context).getVia());
         this.context = context;
         destinations = new HashMap<String, Destination>();
 
