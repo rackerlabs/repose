@@ -26,7 +26,9 @@ public class ProxyHeadersGenerator {
       
       String userAgent = request.getProtocol();
       ExtractorResult<String> userAgentInfo = extractor.extractAgentInfo(userAgent);
-      builder.append(userAgentInfo.getKey()).append(" ");
+      if (userAgentInfo.hasKey()) {
+        builder.append(userAgentInfo.getKey()).append(" ");
+      }
       
       if (StringUtilities.isBlank(viaValue)) {
          
