@@ -26,11 +26,9 @@ public class ProxyHeadersGenerator {
       LOG.info("Request Protocol Received: "+requestProtocol);
       
       if(!StringUtilities.isBlank(requestProtocol)){
-         builder.append(" ").append(getProtocolVersion(requestProtocol)).append(getViaValue(request));
+         builder.append(getProtocolVersion(requestProtocol)).append(getViaValue(request));
       }
-      
-      
-      
+
       request.addHeader(CommonHttpHeader.VIA.toString(), builder.toString());
    }
    
@@ -41,9 +39,7 @@ public class ProxyHeadersGenerator {
          version = "1.0";
       }else{
          version = "1.1";
-      }
-      
-      
+      }   
       return version;
    }
    
