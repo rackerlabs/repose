@@ -3,7 +3,7 @@ package com.rackspace.papi.commons.util.logging.apache.format.converters;
 public enum DateConversionFormat {
 
    RFC_1123("E, dd MMM yyyy HH:mm:ss z"),
-   ISO_8601("yyyy-MM-dd'T'HH:mm:ss'z'");
+   ISO_8601("yyyy-MM-dd'T'HH:mm:ss'Z'");
    private String pattern;
 
    DateConversionFormat(String pattern) {
