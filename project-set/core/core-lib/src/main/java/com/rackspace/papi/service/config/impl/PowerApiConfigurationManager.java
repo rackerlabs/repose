@@ -16,6 +16,8 @@ import java.io.FileNotFoundException;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 @Component("configurationManager")
 public class PowerApiConfigurationManager implements ConfigurationService {
@@ -25,7 +27,9 @@ public class PowerApiConfigurationManager implements ConfigurationService {
    private ConfigurationUpdateManager updateManager;
    private ConfigurationResourceResolver resourceResolver;
 
-   public PowerApiConfigurationManager() {
+   @Autowired
+   public PowerApiConfigurationManager(@Qualifier("reposeVersion") String version) {
+      LOG.error("Repose Version: " + version);
       parserLookaside = new HashMap<Class, WeakReference<ConfigurationParser>>();
    }
 

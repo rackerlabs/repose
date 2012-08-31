@@ -11,6 +11,10 @@
     <context:component-scan base-package="com.rackspace"/>
     <context:annotation-config/>
     <context:mbean-export/>
+    
+    <bean name="reposeVersion" class="java.lang.String">
+        <constructor-arg type="java.lang.String" value="${reposeVersion}"/>
+    </bean>
 
     <!-- Service Contexts -->
     <bean name="artifactManagerServiceContext" class="com.rackspace.papi.service.deploy.ArtifactManagerServiceContext">

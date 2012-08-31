@@ -97,4 +97,9 @@ public class JndiContextAdapter implements ContextAdapter {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
+    public String getReposeVersion() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 }

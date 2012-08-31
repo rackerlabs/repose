@@ -13,9 +13,11 @@ public class ProxyHeadersGenerator {
    
    private String viaValue;
    private static final Logger LOG = LoggerFactory.getLogger(ProxyHeadersGenerator.class);
+    private final String reposeVersion;
    
-   public ProxyHeadersGenerator(String viaValue){
+   public ProxyHeadersGenerator(String viaValue, String reposeVersion){
       this.viaValue = viaValue;
+      this.reposeVersion = reposeVersion;
    }
    
    private void setVia(MutableHttpServletRequest request){
@@ -52,7 +54,7 @@ public class ProxyHeadersGenerator {
          
          String server = request.getServletContext().getServerInfo();
          
-         builder.append("Repose (").append(server).append(")");
+         builder.append("Repose (").append(reposeVersion).append(")");
       }else{
          builder.append(viaValue);
       }

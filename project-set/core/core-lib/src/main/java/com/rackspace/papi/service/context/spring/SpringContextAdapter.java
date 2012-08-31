@@ -43,6 +43,11 @@ public class SpringContextAdapter implements ContextAdapter {
       return (ServiceContext<ClassLoaderManagerService>)applicationContext.getBean(CLASS_LOADER_SERVICE_CONTEXT);
    }
    
+    @Override
+   public String getReposeVersion() {
+       return applicationContext.getBean("reposeVersion", String.class);
+   }
+   
    private String beanNameForClass(Class clazz) {
       String name = clazz != null? clazz.getSimpleName(): "";
       if (name == null || name.length() == 0) {

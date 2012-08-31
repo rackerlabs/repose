@@ -45,7 +45,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         this.domain = domain;
         this.localhost = localhost;
         this.routingService = getRoutingService(context);
-        this.proxyHeadersGenerator = new ProxyHeadersGenerator(getContainerConfigurationService(context).getVia());
+        this.proxyHeadersGenerator = new ProxyHeadersGenerator(getContainerConfigurationService(context).getVia(), getReposeVersion(context));
         this.context = context;
         destinations = new HashMap<String, Destination>();
 
@@ -54,6 +54,10 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
             addDestinations(domain.getDestinations().getTarget());
         }
 
+    }
+    
+    private String getReposeVersion(ServletContext servletContext) {
+        return ServletContextHelper.getInstance().getPowerApiContext(servletContext).getReposeVersion();
     }
 
     private RoutingService getRoutingService(ServletContext servletContext) {

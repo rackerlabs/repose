@@ -25,6 +25,7 @@ public interface ContextAdapter {
     LoggingService loggingService();
     RoutingService routingService();
     RequestProxyService requestProxyService();
+    String getReposeVersion();
     
    <T extends ServiceContext<?>> T getContext(Class<T> clazz);
 
