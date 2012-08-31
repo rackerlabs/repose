@@ -41,8 +41,8 @@ case arg
         waitForRepose(server1.ip,["8887", "8888", "8889", "8890", "8891", "8892", "8080"])
         waitForRepose(server2.ip,["8080"])
 
-        logger.info("Repose instance 1 built: #{server1.ip} : #{server1.password}")
-        logger.info("Repose instance 2 built: #{server2.ip} : #{server2.password}")
+        logger.info("Repose instance 1 built: #{server1.ip} : #{server1.password} : #{server1.getId}")
+        logger.info("Repose instance 2 built: #{server2.ip} : #{server2.password} : #{server2.getId}")
 
     when "--delete-cluster"
         puts "Destroying current cluster"
