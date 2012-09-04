@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="2.1">
+<jmeterTestPlan version="1.2" properties="2.3">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -210,12 +210,12 @@
           <hashTree/>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Data Fuzzing: Auth Token" enabled="false"/>
           <hashTree>
-            <BSFSampler guiclass="BSFSamplerGui" testclass="BSFSampler" testname="JS: Generate Random Token" enabled="true">
+            <BSFSampler guiclass="TestBeanGUI" testclass="BSFSampler" testname="JS: Generate Random Token" enabled="true">
               <stringProp name="TestPlan.comments">Generates a random token that does not violate token format and content expectations</stringProp>
-              <stringProp name="BSFSampler.filename"></stringProp>
-              <stringProp name="BSFSampler.language">javascript</stringProp>
-              <stringProp name="BSFSampler.parameters"></stringProp>
-              <stringProp name="BSFSampler.query">var validCharacters = [&apos;0&apos;, &apos;1&apos;, &apos;2&apos;, &apos;3&apos;, &apos;4&apos;, &apos;5&apos;, &apos;6&apos;, &apos;7&apos;, &apos;8&apos;, &apos;9&apos;, &apos;a&apos;, &apos;b&apos;, &apos;c&apos;, &apos;d&apos;, &apos;e&apos;, &apos;f&apos;];
+              <stringProp name="filename"></stringProp>
+              <stringProp name="scriptLanguage">javascript</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="script">var validCharacters = [&apos;0&apos;, &apos;1&apos;, &apos;2&apos;, &apos;3&apos;, &apos;4&apos;, &apos;5&apos;, &apos;6&apos;, &apos;7&apos;, &apos;8&apos;, &apos;9&apos;, &apos;a&apos;, &apos;b&apos;, &apos;c&apos;, &apos;d&apos;, &apos;e&apos;, &apos;f&apos;];
 
 function randomCharacter(characterSet) {
    var charIndex = Math.floor(Math.random() * characterSet.length);
@@ -404,7 +404,7 @@ vars.put(&apos;user-token&apos;, randomValidToken());</stringProp>
               <hashTree/>
               <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
                 <collectionProp name="Asserion.test_strings">
-                  <stringProp name="-883198463">&lt;h3&gt; via : 1.1 Repose (jetty/8.0.y.z-SNAPSHOT)&lt;/h3&gt;</stringProp>
+                  <stringProp name="725856633">&lt;h3&gt; via : 1.1 Repose (</stringProp>
                 </collectionProp>
                 <stringProp name="TestPlan.comments">via value is blank in container.cfg.xml</stringProp>
                 <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
@@ -640,12 +640,12 @@ vars.put(&apos;user-token&apos;, randomValidToken());</stringProp>
           <hashTree/>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Data Fuzzing: Auth Token" enabled="false"/>
           <hashTree>
-            <BSFSampler guiclass="BSFSamplerGui" testclass="BSFSampler" testname="JS: Generate Random Token" enabled="true">
+            <BSFSampler guiclass="TestBeanGUI" testclass="BSFSampler" testname="JS: Generate Random Token" enabled="true">
               <stringProp name="TestPlan.comments">Generates a random token that does not violate token format and content expectations</stringProp>
-              <stringProp name="BSFSampler.filename"></stringProp>
-              <stringProp name="BSFSampler.language">javascript</stringProp>
-              <stringProp name="BSFSampler.parameters"></stringProp>
-              <stringProp name="BSFSampler.query">var validCharacters = [&apos;0&apos;, &apos;1&apos;, &apos;2&apos;, &apos;3&apos;, &apos;4&apos;, &apos;5&apos;, &apos;6&apos;, &apos;7&apos;, &apos;8&apos;, &apos;9&apos;, &apos;a&apos;, &apos;b&apos;, &apos;c&apos;, &apos;d&apos;, &apos;e&apos;, &apos;f&apos;];
+              <stringProp name="filename"></stringProp>
+              <stringProp name="scriptLanguage">javascript</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="script">var validCharacters = [&apos;0&apos;, &apos;1&apos;, &apos;2&apos;, &apos;3&apos;, &apos;4&apos;, &apos;5&apos;, &apos;6&apos;, &apos;7&apos;, &apos;8&apos;, &apos;9&apos;, &apos;a&apos;, &apos;b&apos;, &apos;c&apos;, &apos;d&apos;, &apos;e&apos;, &apos;f&apos;];
 
 function randomCharacter(characterSet) {
    var charIndex = Math.floor(Math.random() * characterSet.length);
@@ -922,12 +922,12 @@ vars.put(&apos;user-token&apos;, randomValidToken());</stringProp>
           <hashTree/>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Data Fuzzing: Auth Token" enabled="false"/>
           <hashTree>
-            <BSFSampler guiclass="BSFSamplerGui" testclass="BSFSampler" testname="JS: Generate Random Token" enabled="true">
+            <BSFSampler guiclass="TestBeanGUI" testclass="BSFSampler" testname="JS: Generate Random Token" enabled="true">
               <stringProp name="TestPlan.comments">Generates a random token that does not violate token format and content expectations</stringProp>
-              <stringProp name="BSFSampler.filename"></stringProp>
-              <stringProp name="BSFSampler.language">javascript</stringProp>
-              <stringProp name="BSFSampler.parameters"></stringProp>
-              <stringProp name="BSFSampler.query">var validCharacters = [&apos;0&apos;, &apos;1&apos;, &apos;2&apos;, &apos;3&apos;, &apos;4&apos;, &apos;5&apos;, &apos;6&apos;, &apos;7&apos;, &apos;8&apos;, &apos;9&apos;, &apos;a&apos;, &apos;b&apos;, &apos;c&apos;, &apos;d&apos;, &apos;e&apos;, &apos;f&apos;];
+              <stringProp name="filename"></stringProp>
+              <stringProp name="scriptLanguage">javascript</stringProp>
+              <stringProp name="parameters"></stringProp>
+              <stringProp name="script">var validCharacters = [&apos;0&apos;, &apos;1&apos;, &apos;2&apos;, &apos;3&apos;, &apos;4&apos;, &apos;5&apos;, &apos;6&apos;, &apos;7&apos;, &apos;8&apos;, &apos;9&apos;, &apos;a&apos;, &apos;b&apos;, &apos;c&apos;, &apos;d&apos;, &apos;e&apos;, &apos;f&apos;];
 
 function randomCharacter(characterSet) {
    var charIndex = Math.floor(Math.random() * characterSet.length);
