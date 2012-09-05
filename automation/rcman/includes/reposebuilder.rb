@@ -20,13 +20,13 @@ module ReposeBuilder
 
     def buildReposeBox1
 
-        serverName = Time.new.strftime("%d%b%y%M-#{Etc.getlogin}1")
+        serverName = Time.new.strftime("rcman-%d%b%y-%H%M%S-#{Etc.getlogin}-1")
         puts "Building #{serverName}..."
 
         cs = loginCs
         server = buildServer(cs,serverName,112,3) 
 
-        logger.info("Repose instance built: #{server.ip} : #{server.password}")
+        logger.info("Repose instance built: #{server.ip} : #{server.password} : #{server.getId}")
 
         waitForServer server
 
@@ -51,7 +51,7 @@ module ReposeBuilder
         executeCommand(server,"/usr/sbin/service repose-regression start")
         executeCommand(server,"/usr/sbin/service tomcat7 restart")
 
-        logger.info("Repose instance built: #{server.ip} : #{server.password}")
+        logger.info("Repose instance built: #{server.ip} : #{server.password} : #{server.getId}")
 
         hostsCsv = buildHostsFile1 server.ip
         File.open("/tmp/hosts.csv", 'w') { |f| f.write(hostsCsv) }
@@ -63,13 +63,13 @@ module ReposeBuilder
 
     def buildReposeBox2
 
-        serverName = Time.new.strftime("%d%b%y%M-#{Etc.getlogin}2")
+        serverName = Time.new.strftime("rcman-%d%b%y-%H%M%S-#{Etc.getlogin}-2")
         puts "Building #{serverName}..."
 
         cs = loginCs
         server = buildServer(cs,serverName,112,2) 
 
-        logger.info("Repose instance built: #{server.ip} : #{server.password}")
+        logger.info("Repose instance built: #{server.ip} : #{server.password} : #{server.getId}")
 
         waitForServer server
 
@@ -93,7 +93,7 @@ module ReposeBuilder
         puts "Starting repose..."
         executeCommand(server,"/usr/sbin/service tomcat7 restart")
 
-        logger.info("Repose instance built: #{server.ip} : #{server.password}")
+        logger.info("Repose instance built: #{server.ip} : #{server.password} : #{server.getId}")
 
         hostsCsv = buildHostsFile2 server.ip
         File.open("/tmp/hosts.csv", 'a') { |f| f.write(hostsCsv) }
