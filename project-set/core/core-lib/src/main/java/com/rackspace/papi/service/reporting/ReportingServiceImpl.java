@@ -4,17 +4,22 @@ import com.rackspace.papi.service.reporting.destinations.DestinationInfo;
 import com.rackspace.papi.service.reporting.destinations.DestinationInfoLogic;
 import com.rackspace.papi.service.reporting.repose.ReposeInfo;
 import com.rackspace.papi.service.reporting.repose.ReposeInfoLogic;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+@Component("reportingService")
 public class ReportingServiceImpl implements ReportingService {
 
     private Map<String, DestinationInfo> destinations = new HashMap<String, DestinationInfo>();
     private ReposeInfo reposeInfo;
-    private final Timer timer;
+    private Timer timer;
 
-    public ReportingServiceImpl(List<String> destinationIds, int seconds) {
+    public ReportingServiceImpl() {
+    }
 
+    @Override
+    public synchronized void updateConfiguration(List<String> destinationIds, int seconds) {
         for (String id : destinationIds) {
             final DestinationInfo destinationInfo = new DestinationInfoLogic(id);
             destinations.put(id, destinationInfo);
@@ -23,12 +28,24 @@ public class ReportingServiceImpl implements ReportingService {
         reposeInfo = new ReposeInfoLogic();
 
         timer = new Timer();
-        timer.schedule(new ReportingTimerTask(), seconds * 1000);
+        long initialDelayInMilliseconds = seconds * 1000;
+        timer.scheduleAtFixedRate(new ReportingTimerTask(), initialDelayInMilliseconds, seconds * 1000);
     }
 
     @Override
     public synchronized DestinationInfo getDestinationInfo(String destinationId) {
         return destinations.get(destinationId).copy();
+    }
+
+    @Override
+    public List<DestinationInfo> getDestinations() {
+        final List<DestinationInfo> newDestinations = new ArrayList<DestinationInfo>();
+
+        for (Map.Entry<String, DestinationInfo> entry : destinations.entrySet()) {
+            newDestinations.add(entry.getValue().copy());
+        }        
+
+        return newDestinations;
     }
 
     @Override
@@ -62,22 +79,22 @@ public class ReportingServiceImpl implements ReportingService {
     }
 
     @Override
-    public void incrementReposeRequestCount() {
+    public synchronized void incrementReposeRequestCount() {
         reposeInfo.incrementRequestCount();
     }
 
     @Override
-    public void incrementReposeResponseCount() {
+    public synchronized void incrementReposeResponseCount() {
         reposeInfo.incrementResponseCount();
     }
 
     @Override
-    public void accumulateReposeRequestSize(long requestSize) {
+    public synchronized void accumulateReposeRequestSize(long requestSize) {
         reposeInfo.accumulateRequestSize(requestSize);
     }
 
     @Override
-    public void accumulateReposeResponseSize(long responseSize) {
+    public synchronized void accumulateReposeResponseSize(long responseSize) {
         reposeInfo.accumulateResponseSize(responseSize);
     }
 

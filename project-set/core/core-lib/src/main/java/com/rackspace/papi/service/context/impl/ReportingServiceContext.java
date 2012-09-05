@@ -8,7 +8,6 @@ import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.reporting.ReportingService;
-import com.rackspace.papi.service.reporting.ReportingServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -25,14 +24,16 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
     private final SystemModelListener systemModelListener;
     private final ConfigurationService configurationManager;
     private final ServiceRegistry registry;
-    private ReportingService reportingService;
+    private final ReportingService reportingService;
 
     @Autowired
     public ReportingServiceContext(@Qualifier("serviceRegistry") ServiceRegistry registry,
-                                   @Qualifier("configurationManager") ConfigurationService configurationManager) {
+                                   @Qualifier("configurationManager") ConfigurationService configurationManager,
+                                   @Qualifier("reportingService") ReportingService reportingService) {
         this.systemModelListener = new SystemModelListener();
-        this.configurationManager = configurationManager;
         this.registry = registry;
+        this.configurationManager = configurationManager;
+        this.reportingService = reportingService;        
     }
 
     public void register() {
@@ -79,12 +80,8 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
                     destinationIds.add(endpoint.getId());
                 }
 
-                newReportingService(destinationIds, REFRESH_SECONDS);
+                reportingService.updateConfiguration(destinationIds, REFRESH_SECONDS);
             }
         }
-    }
-
-    private synchronized void newReportingService(List<String> destinationIds, int refreshSeconds) {
-        reportingService = new ReportingServiceImpl(destinationIds, refreshSeconds);
     }
 }

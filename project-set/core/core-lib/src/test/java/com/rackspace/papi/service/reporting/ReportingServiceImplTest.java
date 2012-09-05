@@ -25,7 +25,8 @@ public class ReportingServiceImplTest {
             destinationIds.add("id_2");
             destinationIds.add("id_7");
 
-            reportingService = new ReportingServiceImpl(destinationIds, REFRESH_SECONDS);
+            reportingService = new ReportingServiceImpl();
+            reportingService.updateConfiguration(destinationIds, REFRESH_SECONDS);
         }
 
         @Test
@@ -39,7 +40,7 @@ public class ReportingServiceImplTest {
             // sleep for three seconds
             Thread.sleep(3*1000);
 
-            assertEquals(0, reportingService.getDestinationInfo("id_7").getTotalRequests());            
+            assertEquals(0, reportingService.getDestinationInfo("id_7").getTotalRequests());
         }
     }
 }
