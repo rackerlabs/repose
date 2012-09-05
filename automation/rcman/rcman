@@ -33,16 +33,22 @@ case arg
             end
         end
 
+        t1 = Thread.new {
+            puts "building server 1"
+            server1 = buildReposeBox1
+            waitForRepose(server1.ip,["8887", "8888", "8889", "8890", "8891", "8892", "8080"])
+            logger.info("Repose instance 1 built: #{server1.ip} : #{server1.password} : #{server1.getId}")
+        }
 
-        puts "building server 1"
-        server1 = buildReposeBox1 
-        puts "building server 2..."
-        server2 = buildReposeBox2 
-        waitForRepose(server1.ip,["8887", "8888", "8889", "8890", "8891", "8892", "8080"])
-        waitForRepose(server2.ip,["8080"])
+        t2 = Thread.new {
+            puts "building server 2..."
+            server2 = buildReposeBox2
+            waitForRepose(server2.ip,["8080"])
+            logger.info("Repose instance 2 built: #{server2.ip} : #{server2.password} : #{server2.getId}")
+        }
 
-        logger.info("Repose instance 1 built: #{server1.ip} : #{server1.password}")
-        logger.info("Repose instance 2 built: #{server2.ip} : #{server2.password}")
+        t1.join()
+        t2.join()
 
     when "--delete-cluster"
         puts "Destroying current cluster"
