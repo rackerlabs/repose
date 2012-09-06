@@ -10,6 +10,7 @@ import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.filterchain.GarbageCollectionService;
 import com.rackspace.papi.service.logging.LoggingService;
 import com.rackspace.papi.service.proxy.RequestProxyService;
+import com.rackspace.papi.service.reporting.ReportingService;
 import com.rackspace.papi.service.rms.ResponseMessageService;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.service.threading.ThreadingService;
@@ -27,6 +28,7 @@ public class SpringContextAdapter implements ContextAdapter {
    public static final String ROUTING_SERVICE_CONTEXT = "routingServiceContext";
    public static final String THREADING_SERVICE_CONTEXT = "threadingServiceContext";
    public static final String REQUEST_PROXY_SERVICE_CONTEXT = "requestProxyServiceContext";
+    public static final String REPORTING_SERVICE_CONTEXT = "reportingServiceContext";
    
    private final ApplicationContext applicationContext;
    
@@ -118,4 +120,8 @@ public class SpringContextAdapter implements ContextAdapter {
       return ((ServiceContext<RequestProxyService>)applicationContext.getBean(REQUEST_PROXY_SERVICE_CONTEXT)).getService();
     }
 
+    @Override
+    public ReportingService reportingService() {
+      return ((ServiceContext<ReportingService>)applicationContext.getBean(REPORTING_SERVICE_CONTEXT)).getService();
+    }
 }

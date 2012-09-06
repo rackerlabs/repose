@@ -1,6 +1,7 @@
 package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.model.DestinationEndpoint;
 import com.rackspace.papi.model.DestinationList;
 import com.rackspace.papi.model.SystemModel;
@@ -20,20 +21,25 @@ import java.util.List;
 public class ReportingServiceContext implements ServiceContext<ReportingService> {
 
     public static final String SERVICE_NAME = "powerapi:/services/reporting";
-    public static final int REFRESH_SECONDS = 15;
+    private final ContainerConfigurationListener containerConfigurationListener;
     private final SystemModelListener systemModelListener;
     private final ConfigurationService configurationManager;
     private final ServiceRegistry registry;
     private final ReportingService reportingService;
 
+    private final Object jmxResetTimeKey = new Object();
+    private final List<String> destinationIds = new ArrayList<String>();
+    public int jmxResetTime = 15;
+
     @Autowired
     public ReportingServiceContext(@Qualifier("serviceRegistry") ServiceRegistry registry,
                                    @Qualifier("configurationManager") ConfigurationService configurationManager,
                                    @Qualifier("reportingService") ReportingService reportingService) {
+        this.containerConfigurationListener = new ContainerConfigurationListener();
         this.systemModelListener = new SystemModelListener();
         this.registry = registry;
         this.configurationManager = configurationManager;
-        this.reportingService = reportingService;        
+        this.reportingService = reportingService;
     }
 
     public void register() {
@@ -55,12 +61,33 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         configurationManager.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
+        configurationManager.subscribeTo("container.cfg.xml", containerConfigurationListener, ContainerConfiguration.class);
         register();
     }
 
     @Override
-    public void contextDestroyed(ServletContextEvent servletContextEvent) {
+    public void contextDestroyed(ServletContextEvent servletContextEvent) {        
         configurationManager.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
+        configurationManager.unsubscribeFrom("container.cfg.xml", containerConfigurationListener);
+    }
+
+    /**
+     * Listens for updates to the container.cfg.xml file which holds the jmx-reset-time.
+     */
+    private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
+
+        @Override
+        public void configurationUpdated(ContainerConfiguration configurationObject) {
+
+            if (configurationObject.getDeploymentConfig() != null) {
+
+                synchronized(jmxResetTimeKey) {
+                    jmxResetTime = configurationObject.getDeploymentConfig().getJmxResetTime();
+                }
+
+                reportingService.updateConfiguration(destinationIds, jmxResetTime);
+            }
+        }
     }
 
     /**
@@ -74,13 +101,18 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
             if (systemModel.getReposeCluster() != null && systemModel.getReposeCluster().get(0) != null) {
 
                 final DestinationList destinations = systemModel.getReposeCluster().get(0).getDestinations();
-                final List<String> destinationIds = new ArrayList<String>();
+                final List<String> endpointIds = new ArrayList<String>();
 
                 for (DestinationEndpoint endpoint : destinations.getEndpoint()) {
-                    destinationIds.add(endpoint.getId());
+                    endpointIds.add(endpoint.getId());
                 }
 
-                reportingService.updateConfiguration(destinationIds, REFRESH_SECONDS);
+                synchronized(destinationIds) {
+                    destinationIds.clear();
+                    destinationIds.addAll(endpointIds);
+                }               
+
+                reportingService.updateConfiguration(destinationIds, jmxResetTime);
             }
         }
     }

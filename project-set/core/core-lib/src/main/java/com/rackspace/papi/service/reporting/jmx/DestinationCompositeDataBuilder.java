@@ -27,7 +27,7 @@ public class DestinationCompositeDataBuilder extends CompositeDataBuilder {
 
     @Override
     public String[] getItemNames() {
-        return new String[]{"destinationId", "totalRequests", "total400s", "total500s", "responseTime", "throughput"};
+        return new String[]{"destinationId", "totalRequests", "total400s", "total500s", "responseTimeInMillis", "throughputInSeconds"};
     }
 
     @Override
@@ -36,7 +36,7 @@ public class DestinationCompositeDataBuilder extends CompositeDataBuilder {
                 "The total number of requests sent to this destination.",
                 "The total number of 400 response codes received from this destination.",
                 "The total number of 500 response codes received from this destination.",
-                "Average response time from this destination.",
+                "Average response time in milliseconds from this destination.",
                 "Throughput in requests/second to this destination."};
     }
 

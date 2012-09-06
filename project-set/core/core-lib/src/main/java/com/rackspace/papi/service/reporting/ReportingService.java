@@ -3,11 +3,13 @@ package com.rackspace.papi.service.reporting;
 import com.rackspace.papi.service.reporting.destinations.DestinationInfo;
 import com.rackspace.papi.service.reporting.repose.ReposeInfo;
 
+import java.util.Date;
 import java.util.List;
 
 public interface ReportingService {
 
     void updateConfiguration(List<String> destinationIds, int seconds);
+    Date getLastReset();
 
     DestinationInfo getDestinationInfo(String destinationId);
     List<DestinationInfo> getDestinations();

@@ -13,6 +13,7 @@ import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.container.ContainerConfigurationService;
+import com.rackspace.papi.service.reporting.ReportingService;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.sun.jersey.api.client.ClientHandlerException;
 import java.io.IOException;
@@ -33,6 +34,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     private final HashMap<String, Destination> destinations;
     private final Node localhost;
     private final RoutingService routingService;
+    private final ReportingService reportingService;
     private final ProxyHeadersGenerator proxyHeadersGenerator;
     private final ServletContext context;
     private final ReposeCluster domain;
@@ -45,6 +47,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         this.domain = domain;
         this.localhost = localhost;
         this.routingService = getRoutingService(context);
+        this.reportingService = getReportingService(context);
         this.proxyHeadersGenerator = new ProxyHeadersGenerator(getContainerConfigurationService(context).getVia(), getReposeVersion(context));
         this.context = context;
         destinations = new HashMap<String, Destination>();
@@ -58,6 +61,10 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     
     private String getReposeVersion(ServletContext servletContext) {
         return ServletContextHelper.getInstance().getPowerApiContext(servletContext).getReposeVersion();
+    }
+
+    private ReportingService getReportingService(ServletContext servletContext) {
+        return ServletContextHelper.getInstance().getPowerApiContext(servletContext).reportingService();
     }
 
     private RoutingService getRoutingService(ServletContext servletContext) {
@@ -114,7 +121,13 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                     LOG.debug("Context path = " + targetContext.getContextPath());
 
                     try {
+                        reportingService.incrementRequestCount(destination.getDestinationId());
+                        final long startTime = System.currentTimeMillis();
                         dispatcher.forward(servletRequest, servletResponse);
+                        final long stopTime = System.currentTimeMillis();
+                        reportingService.accumulateResponseTime(destination.getDestinationId(), (stopTime - startTime));
+                        reportingService.incrementResponseCount(destination.getDestinationId());
+                        reportingService.incrementDestinationStatusCodeCount(destination.getDestinationId(), servletResponse.getStatus());
                     } catch (ClientHandlerException e) {
                         LOG.error("Connection Refused to " + location.getUri() + " " + e.getMessage(), e);
                         ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.SERVICE_UNAVAIL.intValue());

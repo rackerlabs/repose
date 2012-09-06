@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 
 import javax.management.openmbean.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Component("reposeReport")
@@ -30,15 +31,21 @@ public class ReposeReport implements ReposeReportMBean {
 
     @Override
     @ManagedOperation
+    public Date getLastReset() {
+        return reportingService.getLastReset();
+    }
+
+    @Override
+    @ManagedOperation
     public String getTotal400sReposeToClient() {
-        LOG.info("JMX: Retrieving total number of 400s from Repose to Client.");
+        LOG.debug("JMX: Retrieving total number of 400s from Repose to Client.");
         return Long.toString(reportingService.getReposeInfo().getTotalStatusCode(STATUS_CODE_400));
     }
 
     @Override
     @ManagedOperation
     public String getTotal500sReposeToClient() {
-        LOG.info("JMX: Retrieving total number of 500s from Repose to Client.");
+        LOG.debug("JMX: Retrieving total number of 500s from Repose to Client.");
         return Long.toString(reportingService.getReposeInfo().getTotalStatusCode(STATUS_CODE_500));
     }
 
@@ -47,7 +54,7 @@ public class ReposeReport implements ReposeReportMBean {
     public List<CompositeData> getDestinationInfo() throws OpenDataException {
         List<CompositeData> compositeDataList = new ArrayList<CompositeData>();
 
-        LOG.info("JMX: Retrieving destination information.");
+        LOG.debug("JMX: Retrieving destination information.");
         for (DestinationInfo destination : reportingService.getDestinations()) {
             final DestinationCompositeDataBuilder dataBuilder = new DestinationCompositeDataBuilder(destination);
             compositeDataList.add(dataBuilder.toCompositeData());

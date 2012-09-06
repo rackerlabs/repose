@@ -21,6 +21,8 @@ import java.util.List;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.rackspace.papi.service.reporting.ReportingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +39,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     private ReposeCluster serviceDomain;
     private Node localHost;
     private FilterConfig filterConfig;
+    private ReportingService reportingService;
 
     public PowerFilter() {
         firstInitialization = true;
@@ -127,6 +130,8 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         papiContext.configurationService().subscribeTo("system-model.cfg.xml", systemModelConfigurationListener, SystemModel.class);
 
         filterConfig.getServletContext().setAttribute("powerFilter", this);
+
+        reportingService = papiContext.reportingService();
     }
 
     @Override
@@ -163,6 +168,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
             }
 
             mutableHttpResponse.commitBufferToServletOutputStream();
+            reportingService.incrementReposeStatusCodeCount(((HttpServletResponse) response).getStatus());
         }
     }
 }

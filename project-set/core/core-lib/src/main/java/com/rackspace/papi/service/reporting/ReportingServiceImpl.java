@@ -11,15 +11,26 @@ import java.util.*;
 @Component("reportingService")
 public class ReportingServiceImpl implements ReportingService {
 
+    private static final String TIMER_THREAD_NAME = "Repose JMX Reset Timer Thread";
     private Map<String, DestinationInfo> destinations = new HashMap<String, DestinationInfo>();
     private ReposeInfo reposeInfo;
+    private Date lastReset;
     private Timer timer;
+    private ReportingTimerTask reportingTimerTask;
 
     public ReportingServiceImpl() {
+        timer = new Timer(TIMER_THREAD_NAME);
+        reportingTimerTask = new ReportingTimerTask();
+    }
+
+    @Override
+    public synchronized Date getLastReset() {
+        return lastReset;
     }
 
     @Override
     public synchronized void updateConfiguration(List<String> destinationIds, int seconds) {
+        destinations.clear();
         for (String id : destinationIds) {
             final DestinationInfo destinationInfo = new DestinationInfoLogic(id);
             destinations.put(id, destinationInfo);
@@ -27,9 +38,18 @@ public class ReportingServiceImpl implements ReportingService {
 
         reposeInfo = new ReposeInfoLogic();
 
-        timer = new Timer();
+        manageTimer(seconds);
+    }
+
+    private void manageTimer(int seconds) {
+
+        reportingTimerTask.cancel();
+        timer.purge();
+
+        reportingTimerTask = new ReportingTimerTask();
         long initialDelayInMilliseconds = seconds * 1000;
-        timer.scheduleAtFixedRate(new ReportingTimerTask(), initialDelayInMilliseconds, seconds * 1000);
+        lastReset = new Date(System.currentTimeMillis());
+        timer.scheduleAtFixedRate(reportingTimerTask, initialDelayInMilliseconds, seconds * 1000);
     }
 
     @Override
@@ -41,9 +61,11 @@ public class ReportingServiceImpl implements ReportingService {
     public List<DestinationInfo> getDestinations() {
         final List<DestinationInfo> newDestinations = new ArrayList<DestinationInfo>();
 
-        for (Map.Entry<String, DestinationInfo> entry : destinations.entrySet()) {
-            newDestinations.add(entry.getValue().copy());
-        }        
+        synchronized (destinations) {
+            for (Map.Entry<String, DestinationInfo> entry : destinations.entrySet()) {
+                newDestinations.add(entry.getValue().copy());
+            }
+        }
 
         return newDestinations;
     }
@@ -119,6 +141,7 @@ public class ReportingServiceImpl implements ReportingService {
         @Override
         public void run() {
             reset();
+            lastReset = new Date(System.currentTimeMillis());
         }
     }
 }
