@@ -72,22 +72,32 @@ public class ReportingServiceImpl implements ReportingService {
 
     @Override
     public synchronized void incrementRequestCount(String destinationId) {
-        destinations.get(destinationId).incrementRequestCount();
+        if (destinations.get(destinationId) != null) {
+            destinations.get(destinationId).incrementRequestCount();
+        }
     }
 
     @Override
     public synchronized void incrementResponseCount(String destinationId) {
-        destinations.get(destinationId).incrementResponseCount();
+        if (destinations.get(destinationId) != null) {
+            destinations.get(destinationId).incrementResponseCount();
+        }
     }
 
     @Override
     public synchronized void incrementDestinationStatusCodeCount(String destinationId, int statusCode) {
-        destinations.get(destinationId).incrementStatusCodeCount(statusCode);
+
+        if (destinations.get(destinationId) != null) {
+            destinations.get(destinationId).incrementStatusCodeCount(statusCode);
+        }
     }
 
     @Override
     public synchronized void accumulateResponseTime(String destinationId, long responseTime) {
-        destinations.get(destinationId).accumulateResponseTime(responseTime);
+        
+        if (destinations.get(destinationId) != null) {
+            destinations.get(destinationId).accumulateResponseTime(responseTime);
+        }
     }
 
     @Override

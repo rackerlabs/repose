@@ -2,9 +2,7 @@ package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.container.config.ContainerConfiguration;
-import com.rackspace.papi.model.DestinationEndpoint;
-import com.rackspace.papi.model.DestinationList;
-import com.rackspace.papi.model.SystemModel;
+import com.rackspace.papi.model.*;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
@@ -66,7 +64,7 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
     }
 
     @Override
-    public void contextDestroyed(ServletContextEvent servletContextEvent) {        
+    public void contextDestroyed(ServletContextEvent servletContextEvent) {
         configurationManager.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
         configurationManager.unsubscribeFrom("container.cfg.xml", containerConfigurationListener);
     }
@@ -81,7 +79,7 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
 
             if (configurationObject.getDeploymentConfig() != null) {
 
-                synchronized(jmxResetTimeKey) {
+                synchronized (jmxResetTimeKey) {
                     jmxResetTime = configurationObject.getDeploymentConfig().getJmxResetTime();
                 }
 
@@ -98,22 +96,27 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
         @Override
         public void configurationUpdated(SystemModel systemModel) {
 
-            if (systemModel.getReposeCluster() != null && systemModel.getReposeCluster().get(0) != null) {
+            final List<String> endpointIds = new ArrayList<String>();
+            
+            for (ReposeCluster reposeCluster : systemModel.getReposeCluster()) {
 
-                final DestinationList destinations = systemModel.getReposeCluster().get(0).getDestinations();
-                final List<String> endpointIds = new ArrayList<String>();
+                final DestinationList destinations = reposeCluster.getDestinations();
 
                 for (DestinationEndpoint endpoint : destinations.getEndpoint()) {
                     endpointIds.add(endpoint.getId());
                 }
 
-                synchronized(destinationIds) {
-                    destinationIds.clear();
-                    destinationIds.addAll(endpointIds);
-                }               
-
-                reportingService.updateConfiguration(destinationIds, jmxResetTime);
+                for (DestinationCluster destinationCluster : destinations.getTarget()) {
+                    endpointIds.add(destinationCluster.getId());
+                }
             }
+
+            synchronized (destinationIds) {
+                destinationIds.clear();
+                destinationIds.addAll(endpointIds);
+            }
+
+            reportingService.updateConfiguration(destinationIds, jmxResetTime);
         }
     }
 }
