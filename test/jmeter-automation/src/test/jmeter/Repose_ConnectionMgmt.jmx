@@ -86,7 +86,7 @@
                     <stringProp name="50548">301</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
-                  <boolProp name="Assertion.assume_success">false</boolProp>
+                  <boolProp name="Assertion.assume_success">true</boolProp>
                   <intProp name="Assertion.test_type">8</intProp>
                 </ResponseAssertion>
                 <hashTree/>
@@ -95,7 +95,7 @@
                     <stringProp name="604460110">Servlet version at statuscode/301</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-                  <boolProp name="Assertion.assume_success">false</boolProp>
+                  <boolProp name="Assertion.assume_success">true</boolProp>
                   <intProp name="Assertion.test_type">2</intProp>
                 </ResponseAssertion>
                 <hashTree/>
@@ -159,7 +159,7 @@
                     <stringProp name="-1833734465">You are not authorized... Did you drop your ID?</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-                  <boolProp name="Assertion.assume_success">false</boolProp>
+                  <boolProp name="Assertion.assume_success">true</boolProp>
                   <intProp name="Assertion.test_type">2</intProp>
                 </ResponseAssertion>
                 <hashTree/>
@@ -218,7 +218,7 @@
                     <stringProp name="50547">300</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
-                  <boolProp name="Assertion.assume_success">false</boolProp>
+                  <boolProp name="Assertion.assume_success">true</boolProp>
                   <intProp name="Assertion.test_type">8</intProp>
                 </ResponseAssertion>
                 <hashTree/>

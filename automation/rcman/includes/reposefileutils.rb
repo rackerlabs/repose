@@ -28,4 +28,13 @@ module ReposeFileUtils
           scp.upload!("#{File.expand_path(File.dirname(__FILE__))}/chef-solo", "/root/", :recursive => true)
         end
     end
+
+    def writeToFile(file, data)
+        File.open(file, 'a') { |f| f.write(data) }
+    end
+
+    def newFile(file)
+        File.new "/tmp/#{file}","w"
+    end
+
 end
