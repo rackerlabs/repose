@@ -24,7 +24,7 @@ module ReposeBuilder
         puts "Building #{serverName}..."
 
         cs = loginCs
-        server = buildServer(cs,serverName,112,3) 
+        server = buildServer(cs,serverName,104,3) 
 
         logger.info("Repose instance built: #{server.ip} : #{server.password} : #{server.getId}")
 
@@ -37,25 +37,18 @@ module ReposeBuilder
         uploadChefFiles(server)
         p "done!"
 
-        #executeCommand(server,"tar -C /root -xzvf /root/chef-solo.tar") 
-
-        puts "Installing ruby and chef..."
-        executeCommand(server,"/bin/bash /root/chef-solo/install.sh")
-
-        puts "Installing repose..."
-        executeCommand(server,"/usr/bin/chef-solo -c /root/chef-solo/solo.rb -j /root/chef-solo/papi_node.json")
-
-        executeCommand(server,"/usr/bin/chef-solo -c /root/chef-solo/solo.rb -j /root/chef-solo/papi_node.json")
+        installRepose(server,"papi_node")
 
         puts "Starting repose..."
-        executeCommand(server,"/usr/sbin/service repose-regression start")
-        executeCommand(server,"/usr/sbin/service tomcat7 restart")
+        valveNodes(server, "start")
+        tomcatNodes(server,"restart")
 
         logger.info("Repose instance built: #{server.ip} : #{server.password} : #{server.getId}")
 
         hostsCsv = buildHostsFile1 server.ip
-        File.open("/tmp/hosts.csv", 'w') { |f| f.write(hostsCsv) }
-        File.open("/tmp/rsInstances",'w'){|f| f.write(server.getId)}
+
+        writeToFile("/tmp/hosts.csv", hostsCsv)
+
         puts "Repose Regression Box built:\t#{server.ip}"
         return server
 
@@ -67,7 +60,7 @@ module ReposeBuilder
         puts "Building #{serverName}..."
 
         cs = loginCs
-        server = buildServer(cs,serverName,112,2) 
+        server = buildServer(cs,serverName,104,2) 
 
         logger.info("Repose instance built: #{server.ip} : #{server.password} : #{server.getId}")
 
@@ -82,24 +75,36 @@ module ReposeBuilder
 
         #executeCommand(server,"tar -C /root -xzvf /root/chef-solo.tar") 
 
-        puts "Installing ruby and chef..."
-        executeCommand(server,"/bin/bash /root/chef-solo/install.sh")
-
-        puts "Installing repose..."
-        executeCommand(server,"/usr/bin/chef-solo -c /root/chef-solo/solo.rb -j /root/chef-solo/papi_node2.json")
-
-        executeCommand(server,"/usr/bin/chef-solo -c /root/chef-solo/solo.rb -j /root/chef-solo/papi_node2.json")
+        installRepose(server,"papi_node2")
 
         puts "Starting repose..."
-        executeCommand(server,"/usr/sbin/service tomcat7 restart")
+        tomcatNodes(server,"restart")
 
         logger.info("Repose instance built: #{server.ip} : #{server.password} : #{server.getId}")
 
         hostsCsv = buildHostsFile2 server.ip
-        File.open("/tmp/hosts.csv", 'a') { |f| f.write(hostsCsv) }
-        File.open("/tmp/rsInstances",'a'){|f| f.write(",#{server.getId}")}
+        writeToFile("/tmp/hosts.csv", hostsCsv)
         puts "Repose Regression Box 2 built:\t#{server.ip}"
         return server
+    end
+
+    def installRepose(server,cookbook)
+
+        puts "Installing ruby and chef..."
+        executeCommand(server,"/bin/bash /root/chef-solo/install.sh")
+
+        puts "Installing repose..."
+        executeCommand(server,"/usr/bin/chef-solo -c /root/chef-solo/solo.rb -j /root/chef-solo/#{cookbook}.json")
+
+        executeCommand(server,"/usr/bin/chef-solo -c /root/chef-solo/solo.rb -j /root/chef-solo/#{cookbook}.json")
+    end
+
+    def valveNodes(server,command)
+        executeCommand(server,"/usr/sbin/service repose-regression #{command}")
+    end
+
+    def tomcatNodes(server,command)
+        executeCommand(server,"/usr/sbin/service tomcat7 #{command}")
     end
 
     def waitForRepose(node,portList)
