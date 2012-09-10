@@ -1,5 +1,8 @@
 package com.rackspace.papi.service.reporting.destinations;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableMap;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,7 +21,7 @@ public class DestinationInfoStore {
         this.startTime = System.currentTimeMillis();
     }
 
-    protected DestinationInfoStore(DestinationInfoStore destinationInfoStore) {
+    public DestinationInfoStore(DestinationInfoStore destinationInfoStore) {
         this(destinationInfoStore.destinationId, destinationInfoStore.startTime,
              destinationInfoStore.totalRequests, destinationInfoStore.totalResponses,
              destinationInfoStore.statusCodeCounts, destinationInfoStore.accumulatedResponseTime);
@@ -35,13 +38,7 @@ public class DestinationInfoStore {
     }
     
     private static Map<Integer, Long> deepCopyStatusCodeCounts(Map<Integer, Long> statusCodeCounts) {
-        final Map<Integer, Long> newStatusCodeCounts = new HashMap<Integer, Long>();
-
-        for (Map.Entry<Integer, Long> entry : statusCodeCounts.entrySet()) {
-            newStatusCodeCounts.put(entry.getKey(), entry.getValue());
-        }
-
-        return newStatusCodeCounts;
+        return ImmutableMap.copyOf(statusCodeCounts);
     }
 
     public String getDestinationId() {
@@ -83,53 +80,26 @@ public class DestinationInfoStore {
     @Override
     public boolean equals(Object o) {
 
-        if (this == o) {
+        if (o == this) {
             return true;
         }
 
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        
-        DestinationInfoStore that = (DestinationInfoStore) o;
+        if (o instanceof DestinationInfoStore) {
+            DestinationInfoStore other = (DestinationInfoStore) o;
 
-        if (accumulatedResponseTime != that.accumulatedResponseTime) {
-            return false;
-        }
-
-        if (startTime != that.startTime) {
-            return false;
+            return Objects.equal(this.destinationId, other.destinationId) &&
+                   Objects.equal(this.accumulatedResponseTime, other.accumulatedResponseTime) &&
+                   Objects.equal(this.startTime, other.startTime) &&
+                   Objects.equal(this.totalRequests, other.totalRequests) &&
+                   Objects.equal(this.totalResponses, other.totalResponses) &&
+                   Objects.equal(this.statusCodeCounts, other.statusCodeCounts);
         }
 
-        if (totalRequests != that.totalRequests) {
-            return false;
-        }
-
-        if (totalResponses != that.totalResponses) {
-            return false;
-        }
-
-        if (!destinationId.equals(that.destinationId)) {
-            return false;
-        }
-
-        if (!statusCodeCounts.equals(that.statusCodeCounts)) {
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
     @Override
     public int hashCode() {
-        int result = destinationId.hashCode();
-
-        result = 31 * result + (int) (startTime ^ (startTime >>> 32));
-        result = 31 * result + (int) (totalRequests ^ (totalRequests >>> 32));
-        result = 31 * result + (int) (totalResponses ^ (totalResponses >>> 32));
-        result = 31 * result + statusCodeCounts.hashCode();
-        result = 31 * result + (int) (accumulatedResponseTime ^ (accumulatedResponseTime >>> 32));
-
-        return result;
+        return Objects.hashCode(destinationId, accumulatedResponseTime, startTime, totalRequests, totalResponses, statusCodeCounts);
     }
 }

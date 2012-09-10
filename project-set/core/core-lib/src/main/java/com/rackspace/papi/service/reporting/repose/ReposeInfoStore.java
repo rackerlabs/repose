@@ -1,5 +1,8 @@
 package com.rackspace.papi.service.reporting.repose;
 
+import com.google.common.base.Objects;
+import com.google.common.collect.ImmutableMap;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,13 +28,7 @@ public class ReposeInfoStore {
     }
 
     private Map<Integer, Long> deepCopyStatusCodeCounts(Map<Integer, Long> statusCodeCounts) {
-        Map<Integer, Long> newStatusCodeCounts = new HashMap<Integer, Long>();
-
-        for (Map.Entry<Integer, Long> entry : statusCodeCounts.entrySet()) {
-            newStatusCodeCounts.put(entry.getKey(), entry.getValue());
-        }
-
-        return newStatusCodeCounts;
+        return ImmutableMap.copyOf(statusCodeCounts);
     }
 
     public Map<Integer, Long> getStatusCodeCounts() {
@@ -108,64 +105,28 @@ public class ReposeInfoStore {
             return true;
         }
 
-        if (!(o instanceof ReposeInfoStore)) {
-            return false;
+        if (o instanceof ReposeInfoStore) {
+            ReposeInfoStore other = (ReposeInfoStore) o;
+
+            return Objects.equal(this.maxRequestSize, other.maxRequestSize) &&
+                   Objects.equal(this.maxResponseSize, other.maxResponseSize) &&
+                   Objects.equal(this.minRequestSize, other.minRequestSize) &&
+                   Objects.equal(this.minResponseSize, other.minResponseSize) &&
+                   Objects.equal(this.accumulatedRequestSize, other.accumulatedRequestSize) &&
+                   Objects.equal(this.accumulatedResponseSize, other.accumulatedResponseSize) &&
+                   Objects.equal(this.totalRequests, other.totalRequests) &&
+                   Objects.equal(this.totalResponses, other.totalResponses) &&
+                   Objects.equal(this.statusCodeCounts, other.statusCodeCounts);
         }
 
-        ReposeInfoStore that = (ReposeInfoStore) o;
-
-        if (maxRequestSize != that.maxRequestSize) {
-            return false;
-        }
-
-        if (maxResponseSize != that.maxResponseSize) {
-            return false;
-        }
-
-        if (minRequestSize != that.minRequestSize) {
-            return false;
-        }
-
-        if (minResponseSize != that.minResponseSize) {
-            return false;
-        }
-
-        if (accumulatedRequestSize != that.accumulatedRequestSize) {
-            return false;
-        }
-
-        if (totalRequests != that.totalRequests) {
-            return false;
-        }
-
-        if (accumulatedResponseSize != that.accumulatedResponseSize) {
-            return false;
-        }
-
-        if (totalResponses != that.totalResponses) {
-            return false;
-        }
-
-        if (!statusCodeCounts.equals(that.statusCodeCounts)) {
-            return false;
-        }
-
-        return true;
+        return false;
     }
 
     @Override
     public int hashCode() {
-        int result = statusCodeCounts.hashCode();
 
-        result = 31 * result + (int) (totalRequests ^ (totalRequests >>> 32));
-        result = 31 * result + (int) (totalResponses ^ (totalResponses >>> 32));
-        result = 31 * result + (int) (accumulatedRequestSize ^ (accumulatedRequestSize >>> 32));
-        result = 31 * result + (int) (accumulatedResponseSize ^ (accumulatedResponseSize >>> 32));
-        result = 31 * result + (int) (minRequestSize ^ (minRequestSize >>> 32));
-        result = 31 * result + (int) (maxRequestSize ^ (maxRequestSize >>> 32));
-        result = 31 * result + (int) (minResponseSize ^ (minResponseSize >>> 32));
-        result = 31 * result + (int) (maxResponseSize ^ (maxResponseSize >>> 32));
-
-        return result;
+        return Objects.hashCode(maxRequestSize, maxResponseSize, minRequestSize, minResponseSize,
+                                accumulatedRequestSize, accumulatedResponseSize, totalRequests,
+                                totalResponses, statusCodeCounts);        
     }
 }
