@@ -110,18 +110,20 @@ module ReposeBuilder
     def waitForRepose(node,portList)
         portList.each do |i|
             uri = URI("http://#{node}:#{i}/v1/usertest1")
+            print "Waiting for repose to start on port #{i} "
             count=0
             begin
                 if count>60
                     raise "An error occured while starting repose..."
                 end
-                sleep 3
-                puts "Waiting for repose to start on port #{i}"
+                sleep 5
                 resp = Net::HTTP.get_response(uri)
                 code = resp.code
                 body = resp.body
+                print "."
                 count+=1
-            end while(resp=="200"&&body.size<1)
+            end while(code=="500"&&body.include?("initialized"))
+            puts
         end
     end
 
@@ -140,9 +142,10 @@ module ReposeBuilder
                     puts e
                 end
             end
-            FileUtils.rm("/tmp/rsInstances",:force=>true)
         rescue => e
             puts "Error reading /tmp/rsInstances:\t #{e}"
+        ensure
+            FileUtils.rm("/tmp/rsInstances",:force=>true)
         end
 
     end
