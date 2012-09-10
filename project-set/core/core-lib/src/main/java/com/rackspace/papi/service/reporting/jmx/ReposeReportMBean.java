@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 public interface ReposeReportMBean {
-    final String OBJECT_NAME = "com.rackspace.papi.service.reporting:type=ReposeReport";
+    String OBJECT_NAME = "com.rackspace.papi.service.reporting:type=ReposeReport";
 
     Date getLastReset();
 

@@ -12,13 +12,12 @@ public class ReposeInfoStore {
     private Map<Integer, Long> statusCodeCounts = new HashMap<Integer, Long>();
     private long totalRequests = LONG_ZERO;
     private long totalResponses = LONG_ZERO;
-    long accumulatedRequestSize = LONG_ZERO;
-    long accumulatedResponseSize = LONG_ZERO;
+    private long accumulatedRequestSize = LONG_ZERO;
+    private long accumulatedResponseSize = LONG_ZERO;
     private long minRequestSize = LONG_ZERO;
     private long maxRequestSize = LONG_ZERO;
     private long minResponseSize = LONG_ZERO;
     private long maxResponseSize = LONG_ZERO;
-
 
     public ReposeInfoStore() {
     }

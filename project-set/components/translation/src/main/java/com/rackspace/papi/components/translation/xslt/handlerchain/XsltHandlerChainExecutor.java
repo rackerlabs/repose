@@ -3,7 +3,6 @@ package com.rackspace.papi.components.translation.xslt.handlerchain;
 import com.rackspace.papi.components.translation.resolvers.ClassPathUriResolver;
 import com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver;
 import com.rackspace.papi.components.translation.resolvers.OutputStreamUriParameterResolver;
-import com.rackspace.papi.components.translation.resolvers.SourceUriResolver;
 import com.rackspace.papi.components.translation.resolvers.SourceUriResolverChain;
 import java.io.*;
 import java.util.List;
