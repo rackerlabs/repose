@@ -15,6 +15,7 @@ import javax.xml.transform.URIResolver;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 import net.sf.saxon.Controller;
+import net.sf.saxon.lib.OutputURIResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
@@ -27,7 +28,7 @@ public class XsltHandlerChainExecutor {
     public XsltHandlerChainExecutor(XsltHandlerChain chain) {
         this.chain = chain;
     }
-    
+
     private InputStreamUriParameterResolver getResolver(Transformer transformer) {
         URIResolver resolver = transformer.getURIResolver();
         SourceUriResolverChain resolverChain;
@@ -39,7 +40,7 @@ public class XsltHandlerChainExecutor {
         } else {
             resolverChain = (SourceUriResolverChain) resolver;
         }
-        
+
         return resolverChain.getResolverOfType(InputStreamUriParameterResolver.class);
 
     }
@@ -61,16 +62,30 @@ public class XsltHandlerChainExecutor {
 
     }
 
+    private OutputStreamUriParameterResolver getOutputResolver(Controller controller) {
+        OutputURIResolver currentResolver = controller.getOutputURIResolver();
+        OutputStreamUriParameterResolver outputResolver;
+
+        if (currentResolver instanceof OutputStreamUriParameterResolver) {
+            outputResolver = (OutputStreamUriParameterResolver) currentResolver;
+            outputResolver.clearStreams();
+        } else {
+            outputResolver = new OutputStreamUriParameterResolver(currentResolver);
+        }
+
+        controller.setOutputURIResolver(outputResolver);
+        
+        return outputResolver;
+    }
+
     private void setAlternateOutputs(Transformer transformer, List<Parameter<? extends OutputStream>> outputs) {
         if (outputs.size() > 0) {
             if (transformer instanceof Controller) {
-                Controller controller = (Controller) transformer;
-                OutputStreamUriParameterResolver outputResolver = new OutputStreamUriParameterResolver(controller.getOutputURIResolver());
+                OutputStreamUriParameterResolver outputResolver = getOutputResolver((Controller) transformer);
 
                 for (Parameter<? extends OutputStream> output : outputs) {
                     outputResolver.addStream(output.getValue(), output.getName());
                 }
-                controller.setOutputURIResolver(outputResolver);
             }
         }
     }
@@ -89,6 +104,8 @@ public class XsltHandlerChainExecutor {
 
                 for (TransformerHandler handler : chain.getHandlers()) {
                     Transformer transformer = handler.getTransformer();
+                    transformer.clearParameters();
+
                     //transformer.setURIResolver(new ClassPathUriResolver(transformer.getURIResolver()));
                     setInputParameters(transformer, inputs);
                     setAlternateOutputs(transformer, outputs);
