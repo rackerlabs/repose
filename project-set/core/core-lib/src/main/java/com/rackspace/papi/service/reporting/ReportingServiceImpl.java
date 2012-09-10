@@ -12,6 +12,7 @@ import java.util.*;
 public class ReportingServiceImpl implements ReportingService {
 
     private static final String TIMER_THREAD_NAME = "Repose JMX Reset Timer Thread";
+    private static final int ONE_THOUSAND = 1000;
     private Map<String, DestinationInfo> destinations = new HashMap<String, DestinationInfo>();
     private ReposeInfo reposeInfo;
     private Date lastReset;
@@ -47,9 +48,9 @@ public class ReportingServiceImpl implements ReportingService {
         timer.purge();
 
         reportingTimerTask = new ReportingTimerTask();
-        long initialDelayInMilliseconds = seconds * 1000;
+        long initialDelayInMilliseconds = seconds * ONE_THOUSAND;
         lastReset = new Date(System.currentTimeMillis());
-        timer.scheduleAtFixedRate(reportingTimerTask, initialDelayInMilliseconds, seconds * 1000);
+        timer.scheduleAtFixedRate(reportingTimerTask, initialDelayInMilliseconds, seconds * ONE_THOUSAND);
     }
 
     @Override
