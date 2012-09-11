@@ -6,6 +6,7 @@ import com.rackspace.papi.commons.util.plugin.archive.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.Stack;
 import java.util.UUID;
 import java.util.jar.JarEntry;
@@ -25,7 +26,11 @@ public class EarUnpacker {
    }
 
    public EarClassLoaderContext read(EarArchiveEntryListener entryListener, File earFile) throws IOException {
-      JarInputStream jarInputStream = new JarInputStream(new FileInputStream(earFile));
+      return read(entryListener, new FileInputStream(earFile));
+   }
+
+   public EarClassLoaderContext read(EarArchiveEntryListener entryListener, InputStream inputStream) throws IOException {
+      final JarInputStream jarInputStream = new JarInputStream(inputStream);
       final Stack<ArchiveStackElement> archiveStack = new Stack<ArchiveStackElement>();
       archiveStack.push(new ArchiveStackElement(jarInputStream, ArchiveEntryDescriptor.ROOT_ARCHIVE));
 
