@@ -124,7 +124,8 @@ public class DestinationInfoLogicTest {
             destinationInfoLogic.getStatusCodeCounts().put(200, 7l);
 
             DestinationInfo copy = destinationInfoLogic.copy();
-            copy.incrementStatusCodeCount(200);
+
+            destinationInfoLogic.incrementStatusCodeCount(200);
 
             assertNotSame(copy.getTotalStatusCode(200), destinationInfoLogic.getTotalStatusCode(200));
         }
@@ -154,7 +155,7 @@ public class DestinationInfoLogicTest {
             destinationInfoLogic.getStatusCodeCounts().put(400, 5l);
 
             DestinationInfo copy = destinationInfoLogic.copy();
-            copy.incrementStatusCodeCount(500);
+            destinationInfoLogic.getStatusCodeCounts().put(500, 5l);
 
             assertTrue(copy.hashCode() != destinationInfoLogic.hashCode());
         }

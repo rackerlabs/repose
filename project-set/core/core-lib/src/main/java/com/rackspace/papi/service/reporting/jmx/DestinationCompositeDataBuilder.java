@@ -4,6 +4,8 @@ import com.rackspace.papi.service.reporting.destinations.DestinationInfo;
 
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DestinationCompositeDataBuilder extends CompositeDataBuilder {
 
@@ -47,15 +49,15 @@ public class DestinationCompositeDataBuilder extends CompositeDataBuilder {
 
     @Override
     public Object[] getItems() {
-        final Object[] items = new Object[6];
+        final List<Object> itemsB = new ArrayList<Object>();
 
-        items[0] = destinationInfo.getDestinationId();
-        items[1] = destinationInfo.getTotalRequests();
-        items[2] = destinationInfo.getTotalStatusCode(STATUS_CODE_400);
-        items[3] = destinationInfo.getTotalStatusCode(STATUS_CODE_500);
-        items[4] = destinationInfo.getAverageResponseTime();
-        items[5] = destinationInfo.getThroughput();
+        itemsB.add(destinationInfo.getDestinationId());
+        itemsB.add(destinationInfo.getTotalRequests());
+        itemsB.add(destinationInfo.getTotalStatusCode(STATUS_CODE_400));
+        itemsB.add(destinationInfo.getTotalStatusCode(STATUS_CODE_500));
+        itemsB.add(destinationInfo.getAverageResponseTime());
+        itemsB.add(destinationInfo.getThroughput());
 
-        return items;
+        return itemsB.toArray();
     }
 }

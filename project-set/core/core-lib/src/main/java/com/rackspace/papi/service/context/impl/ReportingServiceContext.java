@@ -19,6 +19,7 @@ import java.util.List;
 public class ReportingServiceContext implements ServiceContext<ReportingService> {
 
     public static final String SERVICE_NAME = "powerapi:/services/reporting";
+    private static final int DEFAULT_JMX_RESET_TIME_SECONDS = 15;
     private final ContainerConfigurationListener containerConfigurationListener;
     private final SystemModelListener systemModelListener;
     private final ConfigurationService configurationManager;
@@ -27,7 +28,7 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
 
     private final Object jmxResetTimeKey = new Object();
     private final List<String> destinationIds = new ArrayList<String>();
-    public int jmxResetTime = 15;
+    private int jmxResetTime = DEFAULT_JMX_RESET_TIME_SECONDS;
 
     @Autowired
     public ReportingServiceContext(@Qualifier("serviceRegistry") ServiceRegistry registry,

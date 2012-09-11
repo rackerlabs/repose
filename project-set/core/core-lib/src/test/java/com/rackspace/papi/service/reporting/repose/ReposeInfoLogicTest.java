@@ -132,11 +132,10 @@ public class ReposeInfoLogicTest {
         @Test
         public void shouldCopy(){
             reposeInfoLogic.incrementStatusCodeCount(200);
+
             ReposeInfo copy = reposeInfoLogic.copy();
 
-            for (int i = 0; i < 5; i++) {
-                copy.incrementStatusCodeCount(200);
-            }
+            reposeInfoLogic.incrementStatusCodeCount(200);
             
             assertNotSame(copy.getTotalStatusCode(200), reposeInfoLogic.getTotalStatusCode(200));
         }
@@ -164,7 +163,7 @@ public class ReposeInfoLogicTest {
             reposeInfoLogic.getStatusCodeCounts().put(400, 5l);
 
             ReposeInfo copy = reposeInfoLogic.copy();
-            copy.incrementStatusCodeCount(500);
+            reposeInfoLogic.getStatusCodeCounts().put(500, 5l);
 
             assertTrue(copy.hashCode() != reposeInfoLogic.hashCode());
         }

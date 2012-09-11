@@ -1,61 +1,82 @@
 package com.rackspace.papi.service.reporting.destinations;
 
+import com.google.common.base.Objects;
 
-public class DestinationInfoLogic extends DestinationInfoStore implements DestinationInfo {
+import java.util.Map;
+
+
+public class DestinationInfoLogic implements DestinationInfo {
 
     private static final int INT_ONE = 1;
     private static final long LONG_ZERO = 0l;
     private static final long LONG_ONE = 1l;
     private static final double DOUBLE_ZERO = 0.0d;
     private static final double DOUBLE_THOUSAND = 1000d;
+    private DestinationInfoStore dataStore;
 
     public DestinationInfoLogic(String destinationAuthority) {
-        super(destinationAuthority);
+        dataStore = new DestinationInfoStore(destinationAuthority);
     }
 
     private DestinationInfoLogic(DestinationInfoLogic destinationInfoLogic) {
-        super(destinationInfoLogic);    
+        dataStore = new DestinationInfoStore(destinationInfoLogic.dataStore);
+    }
+
+    public double elapsedTimeInSeconds() {
+        return (System.currentTimeMillis() - dataStore.getStartTime())/DOUBLE_THOUSAND;
+    }
+
+    public Map<Integer, Long> getStatusCodeCounts() {
+        return dataStore.getStatusCodeCounts();
+    }
+
+    public long getAccumulatedResponseTime() {
+        return dataStore.getAccumulatedResponseTime();
+    }
+
+    public long getTotalResponses() {
+        return dataStore.getTotalResponses();
     }
 
     @Override
     public void incrementRequestCount() {
-        super.setTotalRequests(super.getTotalRequests() + INT_ONE);
+        dataStore.setTotalRequests(dataStore.getTotalRequests() + INT_ONE);
     }
 
     @Override
     public void incrementResponseCount() {
-        super.setTotalResponses(super.getTotalResponses() + INT_ONE);
+        dataStore.setTotalResponses(dataStore.getTotalResponses() + INT_ONE);
     }
 
     @Override
     public void incrementStatusCodeCount(int statusCode) {
-        Long value = super.getStatusCodeCounts().get(statusCode);
+        Long value = dataStore.getStatusCodeCounts().get(statusCode);
 
         if (value != null) {
-            super.getStatusCodeCounts().put(statusCode, ++value);
+            dataStore.getStatusCodeCounts().put(statusCode, ++value);
         } else {
-            super.getStatusCodeCounts().put(statusCode, LONG_ONE);
+            dataStore.getStatusCodeCounts().put(statusCode, LONG_ONE);
         }
     }
 
     @Override
     public void accumulateResponseTime(long responseTime) {
-        super.setAccumulatedResponseTime(super.getAccumulatedResponseTime() + responseTime);
+        dataStore.setAccumulatedResponseTime(dataStore.getAccumulatedResponseTime() + responseTime);
     }
 
     @Override
     public String getDestinationId(){
-        return super.getDestinationId();
+        return dataStore.getDestinationId();
     }
 
     @Override
     public long getTotalRequests() {
-        return super.getTotalRequests();
+        return dataStore.getTotalRequests();
     }
 
     @Override
     public long getTotalStatusCode(int statusCode) {
-        Long count = super.getStatusCodeCounts().get(statusCode);
+        Long count = dataStore.getStatusCodeCounts().get(statusCode);
 
         if (count != null) {
             return count;
@@ -66,7 +87,7 @@ public class DestinationInfoLogic extends DestinationInfoStore implements Destin
 
     @Override
     public double getAverageResponseTime() {
-        double averageResponseTime = (double)super.getTotalResponses()/super.getAccumulatedResponseTime();
+        double averageResponseTime = (double)dataStore.getTotalResponses()/dataStore.getAccumulatedResponseTime();
 
         if (Double.isNaN(averageResponseTime)) {
             return DOUBLE_ZERO;
@@ -77,7 +98,7 @@ public class DestinationInfoLogic extends DestinationInfoStore implements Destin
 
     @Override
     public double getThroughput() {
-        double throughput = (double)super.getTotalResponses()/elapsedTimeInSeconds();
+        double throughput = (double)dataStore.getTotalResponses()/elapsedTimeInSeconds();
 
         if (Double.isNaN(throughput)) {
             return DOUBLE_ZERO;
@@ -86,12 +107,29 @@ public class DestinationInfoLogic extends DestinationInfoStore implements Destin
         }        
     }
 
-    public double elapsedTimeInSeconds() {
-        return (System.currentTimeMillis() - super.getStartTime())/DOUBLE_THOUSAND;
-    }
-
     @Override
     public DestinationInfo copy() {
         return new DestinationInfoLogic(this);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+
+        if (this == o) {
+            return true;
+        }
+
+        if (o instanceof DestinationInfoLogic) {
+            DestinationInfoLogic other = (DestinationInfoLogic) o;
+
+            return Objects.equal(this.dataStore, other.dataStore);
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(dataStore);
     }
 }

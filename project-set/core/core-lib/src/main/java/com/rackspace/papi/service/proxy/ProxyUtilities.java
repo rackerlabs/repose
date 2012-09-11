@@ -8,7 +8,7 @@ import javax.net.ssl.X509TrustManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ProxyUtilities {
+public final class ProxyUtilities {
     private static final Logger LOG = LoggerFactory.getLogger(ProxyUtilities.class);
     
     private ProxyUtilities(){

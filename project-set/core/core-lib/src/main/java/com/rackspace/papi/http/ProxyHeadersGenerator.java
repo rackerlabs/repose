@@ -46,13 +46,10 @@ public class ProxyHeadersGenerator {
    }
    
    private String getViaValue(HttpServletRequest request){
-      String via = viaValue;
       
       StringBuilder builder = new StringBuilder(" ");
       
       if (StringUtilities.isBlank(viaValue)) {
-         
-         String server = request.getServletContext().getServerInfo();
          
          builder.append("Repose (").append(reposeVersion).append(")");
       }else{
