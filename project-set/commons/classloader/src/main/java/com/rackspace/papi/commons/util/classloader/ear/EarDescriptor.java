@@ -11,16 +11,16 @@ public class EarDescriptor {
    private final Map<String, FilterType> registeredFilters;
    private String applicationName;
 
-   EarDescriptor() {
+   public EarDescriptor() {
       applicationName = "";
       registeredFilters = new HashMap<String, FilterType>();
    }
 
-   void setApplicationName(String applicationName) {
+   public void setApplicationName(String applicationName) {
       this.applicationName = applicationName;
    }
 
-   Map<String, FilterType> getRegisteredFiltersMap() {
+   public Map<String, FilterType> getRegisteredFiltersMap() {
       return registeredFilters;
    }
 
