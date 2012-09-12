@@ -79,6 +79,7 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
             InputStream input = getInputStreamAttribute();
             if (input != null) {
                 setInputStream(null);
+                input.close();
             }
             
             if (internalBuffer != null) {
@@ -150,12 +151,10 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
         super.flushBuffer();
     }
 
-    public void setInputStream(InputStream input) throws IOException {
+    public InputStream setInputStream(InputStream input) throws IOException {
         InputStream currentInputStream = getInputStreamAttribute();
-        if (currentInputStream != null) {
-            currentInputStream.close();
-        }
         request.setAttribute(INPUT_STREAM_ATTRIBUTE, input);
+        return currentInputStream;
     }
 
     public void commitBufferToServletOutputStream() throws IOException {
@@ -182,7 +181,10 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
             out.flush();
             if (inputStream != null) {
                 inputStream.close();
-                setInputStream(null);
+                InputStream is = setInputStream(null);
+                if (is != null && is != inputStream) {
+                    is.close();
+                }
             }
         }
     }

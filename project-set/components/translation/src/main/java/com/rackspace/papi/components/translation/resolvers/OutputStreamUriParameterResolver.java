@@ -22,6 +22,10 @@ public class OutputStreamUriParameterResolver implements OutputURIResolver {
     public OutputStreamUriParameterResolver(OutputURIResolver parent) {
         this.parent = parent;
     }
+    
+    public void clearStreams() {
+        streams.clear();
+    }
 
     public String addStream(OutputStream outputStreamReference, String name) {
         String key = getHref(name);
