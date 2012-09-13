@@ -9,13 +9,13 @@ import javax.xml.transform.sax.TransformerHandler;
 
 public class XsltHandlerChain {
    private final SAXTransformerFactory factory;
-   private final List<TransformerHandler> handlers ;
+   private final List<XslTransformer> handlers ;
    
    public XsltHandlerChain(SAXTransformerFactory factory) {
-      this(factory, new ArrayList<TransformerHandler>());
+      this(factory, new ArrayList<XslTransformer>());
    }
    
-   public XsltHandlerChain(SAXTransformerFactory factory, List<TransformerHandler> handlers) {
+   public XsltHandlerChain(SAXTransformerFactory factory, List<XslTransformer> handlers) {
       this.factory = factory;
       this.handlers = handlers;
    }
@@ -24,7 +24,7 @@ public class XsltHandlerChain {
       return factory;
    }
    
-   public List<TransformerHandler> getHandlers() {
+   public List<XslTransformer> getHandlers() {
       return handlers;
    }
    
