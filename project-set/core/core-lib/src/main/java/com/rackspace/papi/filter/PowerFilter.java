@@ -151,7 +151,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
 
-        proxyHeadersGenerator.setProxyHeaders(mutableHttpRequest, mutableHttpResponse);
+        proxyHeadersGenerator.setResponseProxyHeaders(mutableHttpRequest, mutableHttpResponse);
 
         if (powerFilterChainBuilder == null) {
             throw new ServletException("Filter chain has not been initialized");

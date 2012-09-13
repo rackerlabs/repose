@@ -20,23 +20,18 @@ public class ProxyHeadersGenerator {
         this.reposeVersion = reposeVersion;
     }
 
-    private void setVia(MutableHttpServletRequest request) {
+    private String buildVia(MutableHttpServletRequest request) {
 
         StringBuilder builder = new StringBuilder();
 
         String requestProtocol = request.getProtocol();
-        LOG.debug("Request Protocol Received: " + requestProtocol);
+        LOG.info("Request Protocol Received: " + requestProtocol);
 
         if (!StringUtilities.isBlank(requestProtocol)) {
             builder.append(getProtocolVersion(requestProtocol)).append(getViaValue());
         }
 
-        request.addHeader(CommonHttpHeader.VIA.toString(), builder.toString());
-    }
-
-    private void setViaResponse(MutableHttpServletRequest request, MutableHttpServletResponse response) {
-        final String via = request.getHeader(CommonHttpHeader.VIA.toString());
-        response.addHeader(CommonHttpHeader.VIA.toString(), via);
+        return builder.toString();
     }
 
     private String getProtocolVersion(String protocol) {
@@ -73,10 +68,15 @@ public class ProxyHeadersGenerator {
         request.addHeader(CommonHttpHeader.X_FORWARDED_FOR.toString(), NetUtilities.getLocalAddress());
     }
 
-    public void setProxyHeaders(MutableHttpServletRequest request, MutableHttpServletResponse response) {
+    public void setRequestProxyHeaders(MutableHttpServletRequest request) {
 
-        setVia(request);
+        final String via = buildVia(request);
+        request.addHeader(CommonHttpHeader.VIA.toString(), via);
         setXForwardedFor(request);
-        setViaResponse(request, response);
-    }    
+    }
+
+    public void setResponseProxyHeaders(MutableHttpServletRequest request, MutableHttpServletResponse response) {
+        final String via = buildVia(request);
+        response.addHeader(CommonHttpHeader.VIA.toString(), via);
+    }
 }
