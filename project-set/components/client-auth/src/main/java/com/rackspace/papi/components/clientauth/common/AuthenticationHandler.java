@@ -3,6 +3,7 @@ package com.rackspace.papi.components.clientauth.common;
 import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthGroups;
 import com.rackspace.auth.AuthToken;
+import com.rackspace.auth.FullAuthInfo;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
@@ -26,217 +27,221 @@ import java.util.List;
  */
 public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationHandler.class);
+   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(AuthenticationHandler.class);
 
-    protected abstract AuthToken validateToken(ExtractorResult<String> account, String token);
+   protected abstract FullAuthInfo validateToken(ExtractorResult<String> account, String token);
 
-    protected abstract AuthGroups getGroups(String group);
+   protected abstract AuthGroups getGroups(String group);
 
-    protected abstract FilterDirector processResponse(ReadableHttpServletResponse response);
+   protected abstract FilterDirector processResponse(ReadableHttpServletResponse response);
 
-    protected abstract void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable, FilterDirector filterDirector, String extractedResult, List<AuthGroup> groups);
-    private final boolean delegable;
-    private final KeyedRegexExtractor<String> keyedRegexExtractor;
-    private final AuthTokenCache cache;
-    private final AuthGroupCache grpCache;
-    private final UriMatcher uriMatcher;
-    private final boolean includeQueryParams, tenanted;
-    private final long groupCacheTtl;
-    private final long userCacheTtl;
+   protected abstract void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable, FilterDirector filterDirector, String extractedResult, List<AuthGroup> groups);
+   private final boolean delegable;
+   private final KeyedRegexExtractor<String> keyedRegexExtractor;
+   private final AuthTokenCache cache;
+   private final AuthGroupCache grpCache;
+   private final UriMatcher uriMatcher;
+   private final boolean includeQueryParams, tenanted;
+   private final long groupCacheTtl;
+   private final long userCacheTtl;
 
-    protected AuthenticationHandler(Configurables configurables, AuthTokenCache cache, AuthGroupCache grpCache, UriMatcher uriMatcher) {
-        this.delegable = configurables.isDelegable();
-        this.keyedRegexExtractor = configurables.getKeyedRegexExtractor();
-        this.cache = cache;
-        this.grpCache = grpCache;
-        this.uriMatcher = uriMatcher;
-        this.includeQueryParams = configurables.isIncludeQueryParams();
-        this.tenanted = configurables.isTenanted();
-        this.groupCacheTtl = configurables.getGroupCacheTtl();
-        this.userCacheTtl = configurables.getUserCacheTtl();
-    }
+   protected AuthenticationHandler(Configurables configurables, AuthTokenCache cache, AuthGroupCache grpCache, UriMatcher uriMatcher) {
+      this.delegable = configurables.isDelegable();
+      this.keyedRegexExtractor = configurables.getKeyedRegexExtractor();
+      this.cache = cache;
+      this.grpCache = grpCache;
+      this.uriMatcher = uriMatcher;
+      this.includeQueryParams = configurables.isIncludeQueryParams();
+      this.tenanted = configurables.isTenanted();
+      this.groupCacheTtl = configurables.getGroupCacheTtl();
+      this.userCacheTtl = configurables.getUserCacheTtl();
+   }
 
-    @Override
-    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
-        FilterDirector filterDirector = new FilterDirectorImpl();
-        filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
-        filterDirector.setFilterAction(FilterAction.RETURN);
+   @Override
+   public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
+      FilterDirector filterDirector = new FilterDirectorImpl();
+      filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
+      filterDirector.setFilterAction(FilterAction.RETURN);
 
-        final String uri = request.getRequestURI();
-        LOG.debug("Uri is " + uri);
-        if (uriMatcher.isUriOnWhiteList(uri)) {
-            filterDirector.setFilterAction(FilterAction.PASS);
-            LOG.debug("Uri is on whitelist!  Letting request pass through.");
-        } else {
-            filterDirector = this.authenticate(request);
-        }
+      final String uri = request.getRequestURI();
+      LOG.debug("Uri is " + uri);
+      if (uriMatcher.isUriOnWhiteList(uri)) {
+         filterDirector.setFilterAction(FilterAction.PASS);
+         LOG.debug("Uri is on whitelist!  Letting request pass through.");
+      } else {
+         filterDirector = this.authenticate(request);
+      }
 
-        return filterDirector;
-    }
+      return filterDirector;
+   }
 
-    @Override
-    public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
-        return processResponse(response);
-    }
+   @Override
+   public FilterDirector handleResponse(HttpServletRequest request, ReadableHttpServletResponse response) {
+      return processResponse(response);
+   }
 
-    private FilterDirector authenticate(HttpServletRequest request) {
-        final FilterDirector filterDirector = new FilterDirectorImpl();
-        filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
-        filterDirector.setFilterAction(FilterAction.RETURN);
+   private FilterDirector authenticate(HttpServletRequest request) {
+      final FilterDirector filterDirector = new FilterDirectorImpl();
+      filterDirector.setResponseStatus(HttpStatusCode.UNAUTHORIZED);
+      filterDirector.setFilterAction(FilterAction.RETURN);
 
-        final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
-        ExtractorResult<String> account = null;
-        AuthToken token = null;
+      final String authToken = request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString());
+      ExtractorResult<String> account = null;
+      AuthToken token = null;
+      FullAuthInfo fullAuthInfo = null;
 
 
-        if (tenanted) {
-            account = extractAccountIdentification(request);
-        }
+      if (tenanted) {
+         account = extractAccountIdentification(request);
+      }
 
-        final boolean allow = allowAccount(account);
+      final boolean allow = allowAccount(account);
 
-        if ((!StringUtilities.isBlank(authToken) && allow)) {
-            token = checkToken(account, authToken);
+      if ((!StringUtilities.isBlank(authToken) && allow)) {
+         token = checkToken(account, authToken);
 
-            if (token == null) {
-                try {
-                    token = validateToken(account, authToken);
-                    cacheUserInfo(token);
-                } catch (ClientHandlerException ex) {
-                    LOG.error("Failure communicating with the auth service: " + ex.getMessage(), ex);
-                    filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                } catch (Exception ex) {
-                    LOG.error("Failure in auth: " + ex.getMessage(), ex);
-                    filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                }
+         if (token == null) {
+            try {
+               fullAuthInfo = validateToken(account, authToken);
+               if (fullAuthInfo != null) {
+                  token = fullAuthInfo.getToken();
+                  cacheUserInfo(token);
+               }
+            } catch (ClientHandlerException ex) {
+               LOG.error("Failure communicating with the auth service: " + ex.getMessage(), ex);
+               filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+            } catch (Exception ex) {
+               LOG.error("Failure in auth: " + ex.getMessage(), ex);
+               filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
             }
-        }
+         }
+      }
 
-        List<AuthGroup> groups = getAuthGroups(token);
+      List<AuthGroup> groups = getAuthGroups(token);
 
-        setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(), groups);
+      setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(), groups);
 
-        return filterDirector;
-    }
+      return filterDirector;
+   }
 
-    private List<AuthGroup> getAuthGroups(AuthToken token) {
-        if (token != null) {
+   private List<AuthGroup> getAuthGroups(AuthToken token) {
+      if (token != null) {
 
-            AuthGroups authGroups = checkGroupCache(token);
+         AuthGroups authGroups = checkGroupCache(token);
 
-            if (authGroups == null) {
-                try {
-                    authGroups = getGroups(token.getUserId());
-                    cacheGroupInfo(token, authGroups);
-                } catch (ClientHandlerException ex) {
-                    LOG.error("Failure communicating with the auth service when retrieving groups: " + ex.getMessage(), ex);
-                    LOG.error("X-PP-Groups will not be set.");
-                } catch (Exception ex) {
-                    LOG.error("Failure in auth when retrieving groups: " + ex.getMessage(), ex);
-                    LOG.error("X-PP-Groups will not be set.");
-                }
+         if (authGroups == null) {
+            try {
+               authGroups = getGroups(token.getUserId());
+               cacheGroupInfo(token, authGroups);
+            } catch (ClientHandlerException ex) {
+               LOG.error("Failure communicating with the auth service when retrieving groups: " + ex.getMessage(), ex);
+               LOG.error("X-PP-Groups will not be set.");
+            } catch (Exception ex) {
+               LOG.error("Failure in auth when retrieving groups: " + ex.getMessage(), ex);
+               LOG.error("X-PP-Groups will not be set.");
             }
+         }
 
-            if (authGroups != null && authGroups.getGroups() != null) {
-                return authGroups.getGroups();
-            }
-        }
-        return new ArrayList<AuthGroup>();
+         if (authGroups != null && authGroups.getGroups() != null) {
+            return authGroups.getGroups();
+         }
+      }
+      return new ArrayList<AuthGroup>();
 
-    }
+   }
 
-    private ExtractorResult<String> extractAccountIdentification(HttpServletRequest request) {
-        StringBuilder accountString = new StringBuilder(request.getRequestURI());
-        if (includeQueryParams && request.getQueryString() != null) {
-            accountString.append("?").append(request.getQueryString());
+   private ExtractorResult<String> extractAccountIdentification(HttpServletRequest request) {
+      StringBuilder accountString = new StringBuilder(request.getRequestURI());
+      if (includeQueryParams && request.getQueryString() != null) {
+         accountString.append("?").append(request.getQueryString());
 
-        }
+      }
 
-        return keyedRegexExtractor.extract(accountString.toString());
-    }
+      return keyedRegexExtractor.extract(accountString.toString());
+   }
 
-    private boolean allowAccount(ExtractorResult<String> account) {
+   private boolean allowAccount(ExtractorResult<String> account) {
 
-        if (tenanted) {
-            return account != null;
-        } else {
-            return true;
-        }
-    }
-    
-    private AuthToken checkToken(ExtractorResult<String> account, String authToken) {
-        if (tenanted) {
-            return checkUserCache(account.getResult(), authToken);
-        } else {
-            return checkUserCache("", authToken);
-        }
-    }
+      if (tenanted) {
+         return account != null;
+      } else {
+         return true;
+      }
+   }
 
-    private AuthToken checkUserCache(String tenantId, String token) {
-        if (cache == null) {
-            return null;
-        }
-        
-        String key;
-        if (StringUtilities.isNotBlank(tenantId)) {
-            key = tenantId + ":" + token;
-        } else {
-            key = token;
-        }
+   private AuthToken checkToken(ExtractorResult<String> account, String authToken) {
+      if (tenanted) {
+         return checkUserCache(account.getResult(), authToken);
+      } else {
+         return checkUserCache("", authToken);
+      }
+   }
 
-        return cache.getUserToken(key, token);
-    }
+   private AuthToken checkUserCache(String tenantId, String token) {
+      if (cache == null) {
+         return null;
+      }
 
-    private void cacheUserInfo(AuthToken user) {
-        if (user == null || cache == null) {
-            return;
-        }
-        String key;
-        if (tenanted) {
-            key = user.getTenantId() + ":" + user.getTokenId();
-        } else {
-            key = user.getTokenId();
-        }
+      String key;
+      if (StringUtilities.isNotBlank(tenantId)) {
+         key = tenantId + ":" + token;
+      } else {
+         key = token;
+      }
 
-        try {
-            long ttl = userCacheTtl > 0? Math.min(userCacheTtl, user.tokenTtl().intValue()): user.tokenTtl().intValue();
-            cache.storeToken(key, user, new Long(ttl).intValue());
-        } catch (IOException ex) {
-            LOG.warn("Unable to cache user token information: " + user.getUserId() + " Reason: " + ex.getMessage(), ex);
-        }
-    }
-    
-    private String getGroupCacheKey(AuthToken token) {
-        return token.getTenantId() + ":" + token.getTokenId();
-    }
+      return cache.getUserToken(key, token);
+   }
 
-    private AuthGroups checkGroupCache(AuthToken token) {
-        if (grpCache == null) {
-            return null;
-        }
+   private void cacheUserInfo(AuthToken user) {
+      if (user == null || cache == null) {
+         return;
+      }
+      String key;
+      if (tenanted) {
+         key = user.getTenantId() + ":" + user.getTokenId();
+      } else {
+         key = user.getTokenId();
+      }
 
-        return grpCache.getUserGroup(getGroupCacheKey(token));
-    }
+      try {
+         long ttl = userCacheTtl > 0 ? Math.min(userCacheTtl, user.tokenTtl().intValue()) : user.tokenTtl().intValue();
+         cache.storeToken(key, user, new Long(ttl).intValue());
+      } catch (IOException ex) {
+         LOG.warn("Unable to cache user token information: " + user.getUserId() + " Reason: " + ex.getMessage(), ex);
+      }
+   }
 
-    private void cacheGroupInfo(AuthToken token, AuthGroups groups) {
-        if (groups == null || grpCache == null) {
-            return;
-        }
+   private String getGroupCacheKey(AuthToken token) {
+      return token.getTenantId() + ":" + token.getTokenId();
+   }
 
-        try {
-            grpCache.storeGroups(getGroupCacheKey(token), groups, safeGroupTtl());
-        } catch (IOException ex) {
-            LOG.warn("Unable to cache user group information: " + token + " Reason: " + ex.getMessage(), ex);
-        }
-    }
+   private AuthGroups checkGroupCache(AuthToken token) {
+      if (grpCache == null) {
+         return null;
+      }
 
-    private int safeGroupTtl() {
-        final Long grpTtl = this.groupCacheTtl;
+      return grpCache.getUserGroup(getGroupCacheKey(token));
+   }
 
-        if (grpTtl >= Integer.MAX_VALUE) {
-            return Integer.MAX_VALUE;
-        }
+   private void cacheGroupInfo(AuthToken token, AuthGroups groups) {
+      if (groups == null || grpCache == null) {
+         return;
+      }
 
-        return grpTtl.intValue();
-    }
+      try {
+         grpCache.storeGroups(getGroupCacheKey(token), groups, safeGroupTtl());
+      } catch (IOException ex) {
+         LOG.warn("Unable to cache user group information: " + token + " Reason: " + ex.getMessage(), ex);
+      }
+   }
+
+   private int safeGroupTtl() {
+      final Long grpTtl = this.groupCacheTtl;
+
+      if (grpTtl >= Integer.MAX_VALUE) {
+         return Integer.MAX_VALUE;
+      }
+
+      return grpTtl.intValue();
+   }
 }

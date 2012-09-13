@@ -3,6 +3,7 @@ package com.rackspace.auth.rackspace;
 import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthGroups;
 import com.rackspace.auth.AuthToken;
+import com.rackspace.auth.FullAuthInfo;
 import com.rackspace.auth.ResponseUnmarshaller;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClient;
@@ -41,8 +42,8 @@ public class AuthenticationServiceClient implements AuthenticationService {
     }
 
     @Override
-    public AuthToken validateToken(ExtractorResult<String> account, String token) {
-        AuthToken authToken = null;
+    public FullAuthInfo validateToken(ExtractorResult<String> account, String token) {
+        FullAuthInfo fullAuthInfo = null;
 
         final ServiceClientResponse<FullToken> serviceResponse = serviceClient.get(targetHostUri + "/token/" + token, headers,
                 "belongsTo", account.getResult(),
@@ -53,7 +54,8 @@ public class AuthenticationServiceClient implements AuthenticationService {
             case OK:
                 final FullToken tokenResponse = responseUnmarshaller.unmarshall(serviceResponse.getData(), FullToken.class);
 
-                authToken = new RackspaceToken(account.getResult(), tokenResponse);
+                //authToken = new RackspaceToken(account.getResult(), tokenResponse);
+                fullAuthInfo = new FullAuthInfo(new RackspaceToken(account.getResult(), tokenResponse), null);
                 break;
 
             case NOT_FOUND: // User's token is bad
@@ -64,7 +66,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
                 break;
         }
 
-        return authToken;
+        return fullAuthInfo;
     }
 
     @Override
