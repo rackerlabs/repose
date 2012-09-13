@@ -52,13 +52,13 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         this.context = context;
         destinations = new HashMap<String, Destination>();
 
-        if (domain != null && domain.getDestinations() != null) {
+        if (domain.getDestinations() != null) {
             addDestinations(domain.getDestinations().getEndpoint());
             addDestinations(domain.getDestinations().getTarget());
         }
 
     }
-    
+
     private String getReposeVersion(ServletContext servletContext) {
         return ServletContextHelper.getInstance().getPowerApiContext(servletContext).getReposeVersion();
     }
@@ -70,7 +70,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     private RoutingService getRoutingService(ServletContext servletContext) {
         return ServletContextHelper.getInstance().getPowerApiContext(servletContext).routingService();
     }
-    
+
     private ContainerConfigurationService getContainerConfigurationService(ServletContext servletContext) {
         return ServletContextHelper.getInstance().getPowerApiContext(servletContext).containerConfigurationService();
     }
@@ -113,7 +113,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
 
                 servletRequest.setRequestUrl(new StringBuffer(location.getUrl().toExternalForm()));
                 servletRequest.setRequestUri(location.getUri().getPath());
-                proxyHeadersGenerator.setProxyHeaders(servletRequest);
+                proxyHeadersGenerator.setRequestProxyHeaders(servletRequest);
                 if (dispatcher != null) {
                     LOG.debug("Attempting to route to " + location.getUri());
                     LOG.debug("Request URL: " + ((HttpServletRequest) servletRequest).getRequestURL());

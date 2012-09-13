@@ -7,6 +7,7 @@ import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.domain.ServicePorts;
+import com.rackspace.papi.http.ProxyHeadersGenerator;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
@@ -40,6 +41,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     private Node localHost;
     private FilterConfig filterConfig;
     private ReportingService reportingService;
+    private ProxyHeadersGenerator proxyHeadersGenerator;
 
     public PowerFilter() {
         firstInitialization = true;
@@ -132,6 +134,10 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         filterConfig.getServletContext().setAttribute("powerFilter", this);
 
         reportingService = papiContext.reportingService();
+
+        final String via = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).containerConfigurationService().getVia();
+        final String reposeVersion = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).getReposeVersion();
+        proxyHeadersGenerator = new ProxyHeadersGenerator(via, reposeVersion);
     }
 
     @Override
@@ -141,13 +147,15 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
-        
-        if (powerFilterChainBuilder == null) {
-            throw new ServletException("Filter chain has not been initialized");
-        }
 
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
+
+        proxyHeadersGenerator.setResponseProxyHeaders(mutableHttpRequest, mutableHttpResponse);
+
+        if (powerFilterChainBuilder == null) {
+            throw new ServletException("Filter chain has not been initialized");
+        }
 
         try {
             final PowerFilterChain requestFilterChainState = powerFilterChainBuilder.newPowerFilterChain(chain);

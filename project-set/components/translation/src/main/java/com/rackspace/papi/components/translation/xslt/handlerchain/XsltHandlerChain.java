@@ -9,7 +9,6 @@ import javax.xml.transform.sax.TransformerHandler;
 
 public class XsltHandlerChain {
    private final SAXTransformerFactory factory;
-
    private final List<TransformerHandler> handlers ;
    
    public XsltHandlerChain(SAXTransformerFactory factory) {
@@ -29,7 +28,7 @@ public class XsltHandlerChain {
       return handlers;
    }
    
-   public void executeChain(InputStream in, OutputStream output, List<Parameter> inputs, List<Parameter<? extends OutputStream>> outputs) throws XsltHandlerException  {
+   public synchronized void executeChain(InputStream in, OutputStream output, List<Parameter> inputs, List<Parameter<? extends OutputStream>> outputs) throws XsltHandlerException  {
       new XsltHandlerChainExecutor(this).executeChain(in, output, inputs, outputs);
    }
    
