@@ -40,6 +40,14 @@ public class MockServiceResource {
    }
 
    @GET
+   @Path("/rawstatuscode/{statusCode}")
+   public Response getRawStatusCode(@PathParam("statusCode") String statusCode, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
+      URI uri = uriInfo.getAbsolutePath();
+
+      return provider.getRawStatusCode(statusCode, uri.toURL().toExternalForm().replaceAll("/statuscode/", "/"), headers, uriInfo);
+   }
+
+   @GET
    @Path("/echoheaders")
    public Response getEchoHeaders(@Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
       return provider.getEndServiceWithEchoHeaders("", headers, uriInfo);

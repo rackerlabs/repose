@@ -25,7 +25,7 @@ public class ProxyHeadersGenerator {
         StringBuilder builder = new StringBuilder();
 
         String requestProtocol = request.getProtocol();
-        LOG.info("Request Protocol Received: " + requestProtocol);
+        LOG.debug("Request Protocol Received: " + requestProtocol);
 
         if (!StringUtilities.isBlank(requestProtocol)) {
             builder.append(getProtocolVersion(requestProtocol)).append(getViaValue());
