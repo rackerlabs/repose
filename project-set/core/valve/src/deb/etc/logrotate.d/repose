@@ -1,4 +1,4 @@
-/var/log/respose/*.log {
+/var/log/repose/*.log {
     daily
     rotate 31
     missingok
