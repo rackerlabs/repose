@@ -47,7 +47,7 @@ public class XsltHandlerChainBuilderTest {
 
         @Test
         public void shouldHandleStyleSheetList() {
-            XsltHandlerChain chain = builder.build("classpath:/style.xsl");
+            XsltHandlerChain chain = builder.build(new StyleSheetInfo("", "classpath:/style.xsl"));
 
             assertNotNull("Should build a filter chain", chain);
             assertEquals("Should have 1 handler", 1, chain.getHandlers().size());
@@ -95,7 +95,7 @@ public class XsltHandlerChainBuilderTest {
             outputs.add(new Parameter<OutputStream>("headers.html", headersOutput));
             outputs.add(new Parameter<OutputStream>("query.html", queryOutput));
             
-            XsltHandlerChain chain = builder.build("classpath:/style.xsl");
+            XsltHandlerChain chain = builder.build(new StyleSheetInfo("", "classpath:/style.xsl"));
             chain.executeChain(body, output, inputs, outputs);
             
             String headersResult = headersOutput.toString();

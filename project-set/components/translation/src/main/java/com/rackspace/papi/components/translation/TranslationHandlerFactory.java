@@ -1,72 +1,80 @@
 package com.rackspace.papi.components.translation;
 
-
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.pooling.ConstructionStrategy;
 import com.rackspace.papi.commons.util.pooling.GenericBlockingResourcePool;
 import com.rackspace.papi.commons.util.pooling.Pool;
 import com.rackspace.papi.commons.util.pooling.ResourceConstructionException;
+import com.rackspace.papi.components.translation.config.ResponseTranslation;
+import com.rackspace.papi.components.translation.config.StyleSheet;
 import com.rackspace.papi.components.translation.config.TranslationConfig;
-import com.rackspace.papi.components.translation.xproc.Pipeline;
-import com.rackspace.papi.components.translation.xproc.PipelineException;
-import com.rackspace.papi.components.translation.xproc.calabash.CalabashPipelineBuilder;
+import com.rackspace.papi.components.translation.xslt.handlerchain.StyleSheetInfo;
+import com.rackspace.papi.components.translation.xslt.handlerchain.XsltHandlerChain;
+import com.rackspace.papi.components.translation.xslt.handlerchain.XsltHandlerChainBuilder;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import java.util.ArrayList;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXTransformerFactory;
 
+public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<TranslationHandler> {
 
-public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<TranslationHandler>  {
     private TranslationConfig config;
-    private Pool<Pipeline> requestPipelinePool;
-    private Pool<Pipeline> responsePipelinePool;
-   
+    private final SAXTransformerFactory transformerFactory;
+    private final XsltHandlerChainBuilder xsltChainBuilder;
+    private final ArrayList<XsltHandlerChainPool> responseProcessors;
+    private final ArrayList<XsltHandlerChainPool> requestProcessors;
+
     public TranslationHandlerFactory() {
+        transformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance();
+        xsltChainBuilder = new XsltHandlerChainBuilder(transformerFactory);
+        requestProcessors = new ArrayList<XsltHandlerChainPool>();
+        responseProcessors = new ArrayList<XsltHandlerChainPool>();
+        
     }
 
-   @Override
-   protected Map<Class, UpdateListener<?>> getListeners() {
-      return new HashMap<Class, UpdateListener<?>>() {
-         {
-            put(TranslationConfig.class, new TranslationConfigurationListener());
-         }
-      };
-   }
+    @Override
+    protected Map<Class, UpdateListener<?>> getListeners() {
+        return new HashMap<Class, UpdateListener<?>>() {
+            {
+                put(TranslationConfig.class, new TranslationConfigurationListener());
+            }
+        };
+    }
 
-   @Override
-   protected TranslationHandler buildHandler() {
-      return new TranslationHandler(config, requestPipelinePool, responsePipelinePool);
-   }
+    @Override
+    protected TranslationHandler buildHandler() {
+        return new TranslationHandler(config, requestProcessors, responseProcessors);
+    }
     
     private class TranslationConfigurationListener implements UpdateListener<TranslationConfig> {
-       @Override
-       public void configurationUpdated(TranslationConfig configurationObject) {
-           config = configurationObject;
-            requestPipelinePool = new GenericBlockingResourcePool<Pipeline>(new ConstructionStrategy<Pipeline>() {
 
-               @Override
-               public Pipeline construct() throws ResourceConstructionException {
-                  try {
-                   return new CalabashPipelineBuilder(false).build(config.getRequestTranslationProcess().getHref());
+        @Override
+        public void configurationUpdated(TranslationConfig config) {
+            requestProcessors.clear();
+            responseProcessors.clear();
 
-                  } catch (PipelineException ex) {
-                     throw new ResourceConstructionException("Unable to build request pipeline.  Reason: " + ex.getMessage(), ex);
-                  }
-               }
-            });
-            responsePipelinePool = new GenericBlockingResourcePool<Pipeline>(new ConstructionStrategy<Pipeline>() {
+            for (final ResponseTranslation translation : config.getResponseTranslations().getResponseTranslation()) {
 
-               @Override
-               public Pipeline construct() throws ResourceConstructionException {
-                  try {
-                   return new CalabashPipelineBuilder(false).build(config.getResponseTranslationProcess().getHref());
+                Pool<XsltHandlerChain> pool = new GenericBlockingResourcePool<XsltHandlerChain>(
+                        new ConstructionStrategy<XsltHandlerChain>() {
+                            @Override
+                            public XsltHandlerChain construct() throws ResourceConstructionException {
+                                List<StyleSheetInfo> stylesheets = new ArrayList<StyleSheetInfo>();
+                                for (StyleSheet sheet : translation.getStyleSheets().getStyle()) {
+                                    stylesheets.add(new StyleSheetInfo(sheet.getId(), sheet.getHref()));
+                                }
 
-                  } catch (PipelineException ex) {
-                     throw new ResourceConstructionException("Unable to build request pipeline. Reason: " + ex.getMessage(), ex);
-                  }
-               }
-            });
-       }
+                                return xsltChainBuilder.build(stylesheets.toArray(new StyleSheetInfo[0]));
+                            }
+                        });
+                
+                responseProcessors.add(new XsltHandlerChainPool(translation.getContentType(), translation.getAccept(), translation.getTranslatedContentType(), pool));
+            }
+
+        }
     }
-
 }

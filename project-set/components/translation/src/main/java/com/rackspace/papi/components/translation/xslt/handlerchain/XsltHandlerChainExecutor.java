@@ -44,11 +44,15 @@ public class XsltHandlerChainExecutor {
 
     }
 
-    private void setInputParameters(Transformer transformer, List<Parameter> inputs) {
+    private void setInputParameters(String id, Transformer transformer, List<Parameter> inputs) {
 
-        if (inputs.size() > 0) {
+        if (inputs != null && inputs.size() > 0) {
             InputStreamUriParameterResolver resolver = getResolver(transformer);
             for (Parameter input : inputs) {
+                if (!"*".equals(input.getStyleId()) && !id.equals(input.getStyleId())) {
+                    continue;
+                }
+                
                 String param;
                 if (input.getValue() instanceof InputStream) {
                     param = resolver.addStream((InputStream) input.getValue());
@@ -77,8 +81,8 @@ public class XsltHandlerChainExecutor {
         return outputResolver;
     }
 
-    private void setAlternateOutputs(Transformer transformer, List<Parameter<? extends OutputStream>> outputs) {
-        if (outputs.size() > 0) {
+    private void setAlternateOutputs(String id, Transformer transformer, List<Parameter<? extends OutputStream>> outputs) {
+        if (outputs != null && outputs.size() > 0) {
             if (transformer instanceof Controller) {
                 OutputStreamUriParameterResolver outputResolver = getOutputResolver((Controller) transformer);
 
@@ -98,24 +102,24 @@ public class XsltHandlerChainExecutor {
             if (!chain.getHandlers().isEmpty()) {
 
                 // Set the content handler of the reader to be the first handler
-                TransformerHandler firstHandler = chain.getHandlers().get(0);
-                reader.setContentHandler(firstHandler);
+                XslTransformer firstHandler = chain.getHandlers().get(0);
+                reader.setContentHandler(firstHandler.getHandler());
 
-                for (TransformerHandler handler : chain.getHandlers()) {
-                    Transformer transformer = handler.getTransformer();
+                for (XslTransformer handler : chain.getHandlers()) {
+                    Transformer transformer = handler.getHandler().getTransformer();
                     transformer.clearParameters();
 
                     //transformer.setURIResolver(new ClassPathUriResolver(transformer.getURIResolver()));
-                    setInputParameters(transformer, inputs);
-                    setAlternateOutputs(transformer, outputs);
+                    setInputParameters(handler.getId(), transformer, inputs);
+                    setAlternateOutputs(handler.getId(), transformer, outputs);
                 }
 
                 // Set the result of the last handler to be the output stream
-                chain.getHandlers().get(chain.getHandlers().size() - 1).setResult(new StreamResult(out));
+                chain.getHandlers().get(chain.getHandlers().size() - 1).getHandler().setResult(new StreamResult(out));
             }
 
             reader.parse(new InputSource(in));
-            in.close();
+            //in.close();
         } catch (IOException ex) {
             throw new XsltHandlerException(ex);
         } catch (ParserConfigurationException ex) {

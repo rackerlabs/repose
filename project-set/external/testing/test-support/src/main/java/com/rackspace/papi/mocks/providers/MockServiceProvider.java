@@ -173,6 +173,20 @@ public class MockServiceProvider {
 
    }
 
+   public Response getRawStatusCode(String statusCode, String location, HttpHeaders headers, UriInfo uri) throws URISyntaxException {
+
+      int status;
+      try {
+         status = Integer.parseInt(statusCode);
+      } catch (NumberFormatException e) {
+         status = Response.Status.NOT_FOUND.getStatusCode();
+      }
+
+      String resp = getEchoBody("", headers, uri);
+
+      return Response.status(status).entity(resp).build();
+   }
+
    public Response postStatusCode(String body, String statusCode, String location, HttpHeaders headers, UriInfo uri) throws URISyntaxException {
 
       int status;

@@ -3,11 +3,8 @@
 <xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
            targetNamespace="http://docs.rackspacecloud.com/repose/translation/v1.0"
            xmlns:trans-config="http://docs.rackspacecloud.com/repose/translation/v1.0"
-           xmlns:httpx="http://docs.rackspace.com/httpx/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
-
-    <xs:import namespace="http://docs.rackspace.com/httpx/v1.0" schemaLocation="../../../../../../../../core/core-lib/src/main/resources/META-INF/schema/httpx/httpx-common.xsd" />
 
     <!-- Configuration -->
     <xs:element name="translation" type="trans-config:TranslationConfig" />
@@ -20,12 +17,12 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="request-translation-process" type="trans-config:RequestTranslationProcess" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="response-translation-process" type="trans-config:ResponseTranslationProcess" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="request-translations" type="trans-config:RequestTranslations" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="response-translations" type="trans-config:ResponseTranslations" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
     </xs:complexType>
 
-    <xs:complexType name="RequestTranslationProcess">
+    <xs:complexType name="RequestTranslations">
         <xs:annotation>
             <xs:documentation>
                 <html:p>The translation process for the request.</html:p>
@@ -33,21 +30,49 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="message" type="httpx:MessageFidelity" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="head" type="httpx:RequestHeadFidelity" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="headers" type="httpx:RequestHeaderFidelity" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="request-translation" type="trans-config:RequestTranslation" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
 
-        <xs:attribute name="href" type="xs:anyURI">
+    </xs:complexType>
+
+    <xs:complexType name="RequestTranslation">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="style-sheets" type="trans-config:StyleSheets" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+
+        <xs:attribute name="content-type" type="xs:string">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>The href references a file with an XPROC (http://www.w3.org/TR/xproc/) pipeline containing the translations needed for the request.</html:p>
+                    <html:p>The content type of the response body</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        <xs:attribute name="accept" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The matching accept type to be matched for these style sheets to apply.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="translated-content-type" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The resulting content type after style sheets have been applied</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
     </xs:complexType>
 
-    <xs:complexType name="ResponseTranslationProcess">
+    <xs:complexType name="ResponseTranslations">
         <xs:annotation>
             <xs:documentation>
                 <html:p>The translation process for the response.</html:p>
@@ -55,82 +80,105 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="message" type="httpx:MessageFidelity" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="head" type="httpx:ResponseHeadFidelity" minOccurs="1" maxOccurs="1"/>
-            <xs:element name="headers" type="httpx:ResponseHeaderFidelity" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="response-translation" type="trans-config:ResponseTranslation" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
 
+    </xs:complexType>
+
+    <xs:complexType name="ResponseTranslation">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="style-sheets" type="trans-config:StyleSheets" minOccurs="1" maxOccurs="1"/>
+        </xs:sequence>
+
+        <xs:attribute name="content-type" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The content type of the response body</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="accept" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The matching accept type to be matched for these style sheets to apply.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="translated-content-type" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The resulting content type after style sheets have been applied</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+    </xs:complexType>
+
+    <xs:complexType name="StyleSheets">
+        <xs:sequence>
+            <xs:element name="style" type="trans-config:StyleSheet" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:attribute name="headers" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Pass header values as name value pairs in xml into style sheets as a parameter</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="query-params" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Pass query parameters as name value pairs in xml into style sheets as a parameter</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+    </xs:complexType>
+
+    <xs:complexType name="StyleSheet">
+        <xs:sequence>
+            <xs:element name="param" type="trans-config:StyleParam" minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+
+        <xs:attribute name="id" type="xs:ID">
+            
+        </xs:attribute>
         <xs:attribute name="href" type="xs:anyURI">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>The href references a file with an XPROC (http://www.w3.org/TR/xproc/) pipeline containing the translations needed for the request.</html:p>
+                    <html:p>The href references an external style sheet to be used in processing a translation.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        
     </xs:complexType>
 
-    <xs:complexType name="RequestFidelity">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>The fidelity describes the level of parsing required to translate the request.  For example, if the message fidelity is HEAD, the body will not be parsed for translation.</html:p>
-            </xs:documentation>
-        </xs:annotation>
-
-        <xs:attribute name="message" type="xs:string">
+    <xs:complexType name="StyleParam">
+        <xs:attribute name="name" type="xs:string">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>The level of fidelity to be used when parsing the message.</html:p>
+                    <html:p>The name of the parameter to be passed into the transformer for the style sheet.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
-        <xs:attribute name="head" type="xs:string">
+        <xs:attribute name="value" type="xs:string">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>The level of fidelity to be used when parsing the head.</html:p>
+                    <html:p>The value of the parameter to be passed into the transformer for the style sheet.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
-        <xs:attribute name="headers" type="xs:string">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>The level of fidelity to be used when parsing the headers.</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-    </xs:complexType>
-
-    <xs:complexType name="ResponseFidelity">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>The fidelity describes the level of parsing required to translate the response.  For example, if the message fidelity is HEAD, the body will not be parsed for translation.</html:p>
-            </xs:documentation>
-        </xs:annotation>
-
-        <xs:attribute name="message" type="xs:string">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>The level of fidelity to be used when parsing the message.</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="head" type="xs:string">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>The level of fidelity to be used when parsing the head.</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="headers" type="xs:string">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>The level of fidelity to be used when parsing the headers.</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
+        
     </xs:complexType>
 
 </xs:schema>
