@@ -167,7 +167,11 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                 papiContext.responseMessageService().handle(mutableHttpRequest, mutableHttpResponse);
             }
 
-            mutableHttpResponse.commitBufferToServletOutputStream();
+            try {
+                mutableHttpResponse.commitBufferToServletOutputStream();
+            } catch(IOException ex) {
+                LOG.error("Error committing output stream", ex);
+            }
             reportingService.incrementReposeStatusCodeCount(((HttpServletResponse) response).getStatus());
         }
     }
