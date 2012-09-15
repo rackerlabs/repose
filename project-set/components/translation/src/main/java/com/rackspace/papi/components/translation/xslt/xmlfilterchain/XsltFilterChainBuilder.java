@@ -1,10 +1,11 @@
-package com.rackspace.papi.components.translation.xslt.handlerchain;
+package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
-import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;
 import com.rackspace.papi.components.translation.resolvers.ClassPathUriResolver;
 import com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver;
 import com.rackspace.papi.components.translation.resolvers.SourceUriResolver;
 import com.rackspace.papi.components.translation.resolvers.SourceUriResolverChain;
+import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;
+import com.rackspace.papi.components.translation.xslt.handlerchain.XsltHandlerChainBuilder;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -12,18 +13,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.URIResolver;
-import javax.xml.transform.sax.SAXResult;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.XMLFilter;
+import org.xml.sax.XMLReader;
 
-public class XsltHandlerChainBuilder {
+public class XsltFilterChainBuilder {
 
     private static final String CLASSPATH_PREFIX = "classpath:";
     private final SAXTransformerFactory factory;
 
-    public XsltHandlerChainBuilder(SAXTransformerFactory factory) {
+    public XsltFilterChainBuilder(SAXTransformerFactory factory) {
         this.factory = factory;
         addUriResolvers();
     }
@@ -38,30 +44,30 @@ public class XsltHandlerChainBuilder {
         }
     }
 
-    public XsltHandlerChain build(StyleSheetInfo... stylesheets) throws XsltHandlerException {
-        List<XslTransformer> handlers = new ArrayList<XslTransformer>();
-        XslTransformer lastHandler = null;
-
+    public XsltFilterChain build(StyleSheetInfo... stylesheets) throws XsltFilterException {
         try {
+            List<XmlFilterReference> filters = new ArrayList<XmlFilterReference>();
+            XMLReader lastReader = getSaxReader();
+
             for (StyleSheetInfo resource : stylesheets) {
                 StreamSource source = getStylesheetSource(resource);
-                XslTransformer handler = new XslTransformer(resource.getId(), factory.newTransformerHandler(source));
-                if (lastHandler != null) {
-                    lastHandler.getHandler().setResult(new SAXResult(handler.getHandler()));
-                }
-                handlers.add(handler);
-                lastHandler = handler;
+                // Wire the output of the reader to filter1 (see Note #3)
+                // and the output of filter1 to filter2
+                XMLFilter filter = factory.newXMLFilter(source);
+                filter.setParent(lastReader);
+                filters.add(new XmlFilterReference(resource.getId(), filter));
+                lastReader = filter;
             }
 
-            if (handlers.isEmpty()) {
-                lastHandler = new XslTransformer("", factory.newTransformerHandler());
-                handlers.add(lastHandler);
-            }
+            return new XsltFilterChain(factory, filters);
         } catch (TransformerConfigurationException ex) {
-            throw new XsltHandlerException(ex);
+            throw new XsltFilterException(ex);
+        } catch (ParserConfigurationException ex) {
+            throw new XsltFilterException(ex);
+        } catch (SAXException ex) {
+            throw new XsltFilterException(ex);
         }
 
-        return new XsltHandlerChain(factory, handlers);
     }
 
     protected StreamSource getClassPathResource(String path) {
@@ -89,5 +95,15 @@ public class XsltHandlerChainBuilder {
             }
 
         return source;
+    }
+
+    protected XMLReader getSaxReader() throws ParserConfigurationException, SAXException {
+        SAXParserFactory spf = SAXParserFactory.newInstance();
+        spf.setValidating(true);
+        spf.setNamespaceAware(true);
+        SAXParser parser = spf.newSAXParser();
+        XMLReader reader = parser.getXMLReader();
+
+        return reader;
     }
 }

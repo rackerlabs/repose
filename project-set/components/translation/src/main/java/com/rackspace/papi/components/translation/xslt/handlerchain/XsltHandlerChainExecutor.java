@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.translation.xslt.handlerchain;
 
+import com.rackspace.papi.components.translation.xslt.Parameter;
 import com.rackspace.papi.components.translation.resolvers.ClassPathUriResolver;
 import com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver;
 import com.rackspace.papi.components.translation.resolvers.OutputStreamUriParameterResolver;

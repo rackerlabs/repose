@@ -70,6 +70,13 @@
             </xs:annotation>
         </xs:attribute>
 
+        <xs:attribute name="http-methods" type="trans-config:HttpMethodList" use="optional" default="ALL">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>List of HTTP Methods this rate limit will match on</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="ResponseTranslations">
@@ -120,6 +127,13 @@
             </xs:annotation>
         </xs:attribute>
 
+        <xs:attribute name="code-regex" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines a regular expression that will be used to match status codes against this declaration</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="StyleSheets">
@@ -180,5 +194,38 @@
         </xs:attribute>
         
     </xs:complexType>
+
+    <!-- HttpMethod types are borrowed from rate limiting. -->
+    <xs:simpleType name="HttpMethodList">
+        <xs:list itemType="trans-config:HttpMethod" />
+    </xs:simpleType>
+
+    <xs:simpleType name="HttpMethod">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    The HttpMethod simple type defines a string
+                    enumeration of HTTP method verbs as outlined in 
+                    <a
+                        href="http://www.ietf.org/rfc/rfc2616.txt">RFC2616
+                    </a>
+                    section 9.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="GET" />
+            <xs:enumeration value="DELETE" />
+            <xs:enumeration value="POST" />
+            <xs:enumeration value="PUT" />
+            <xs:enumeration value="HEAD" />
+            <xs:enumeration value="OPTIONS" />
+            <xs:enumeration value="CONNECT" />
+            <xs:enumeration value="TRACE" />
+            
+            <xs:enumeration value="ALL" />
+        </xs:restriction>
+    </xs:simpleType>
 
 </xs:schema>

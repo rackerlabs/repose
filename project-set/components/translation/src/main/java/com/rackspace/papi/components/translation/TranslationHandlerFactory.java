@@ -5,12 +5,16 @@ import com.rackspace.papi.commons.util.pooling.ConstructionStrategy;
 import com.rackspace.papi.commons.util.pooling.GenericBlockingResourcePool;
 import com.rackspace.papi.commons.util.pooling.Pool;
 import com.rackspace.papi.commons.util.pooling.ResourceConstructionException;
+import com.rackspace.papi.components.translation.config.RequestTranslation;
 import com.rackspace.papi.components.translation.config.ResponseTranslation;
+import com.rackspace.papi.components.translation.config.StyleParam;
 import com.rackspace.papi.components.translation.config.StyleSheet;
 import com.rackspace.papi.components.translation.config.TranslationConfig;
-import com.rackspace.papi.components.translation.xslt.handlerchain.StyleSheetInfo;
-import com.rackspace.papi.components.translation.xslt.handlerchain.XsltHandlerChain;
-import com.rackspace.papi.components.translation.xslt.handlerchain.XsltHandlerChainBuilder;
+import com.rackspace.papi.components.translation.xslt.Parameter;
+import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;
+import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlFilterChainPool;
+import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XsltFilterChain;
+import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XsltFilterChainBuilder;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import java.util.ArrayList;
 
@@ -24,16 +28,16 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
     private TranslationConfig config;
     private final SAXTransformerFactory transformerFactory;
-    private final XsltHandlerChainBuilder xsltChainBuilder;
-    private final ArrayList<XsltHandlerChainPool> responseProcessors;
-    private final ArrayList<XsltHandlerChainPool> requestProcessors;
+    private final XsltFilterChainBuilder xsltChainBuilder;
+    private final ArrayList<XmlFilterChainPool> responseProcessors;
+    private final ArrayList<XmlFilterChainPool> requestProcessors;
 
     public TranslationHandlerFactory() {
         transformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance();
-        xsltChainBuilder = new XsltHandlerChainBuilder(transformerFactory);
-        requestProcessors = new ArrayList<XsltHandlerChainPool>();
-        responseProcessors = new ArrayList<XsltHandlerChainPool>();
-        
+        xsltChainBuilder = new XsltFilterChainBuilder(transformerFactory);
+        requestProcessors = new ArrayList<XmlFilterChainPool>();
+        responseProcessors = new ArrayList<XmlFilterChainPool>();
+
     }
 
     @Override
@@ -49,32 +53,73 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
     protected TranslationHandler buildHandler() {
         return new TranslationHandler(config, requestProcessors, responseProcessors);
     }
-    
-    private class TranslationConfigurationListener implements UpdateListener<TranslationConfig> {
+
+    class TranslationConfigurationListener implements UpdateListener<TranslationConfig> {
 
         @Override
         public void configurationUpdated(TranslationConfig config) {
             requestProcessors.clear();
             responseProcessors.clear();
 
-            for (final ResponseTranslation translation : config.getResponseTranslations().getResponseTranslation()) {
+            if (config.getResponseTranslations() != null) {
+                for (final ResponseTranslation translation : config.getResponseTranslations().getResponseTranslation()) {
 
-                Pool<XsltHandlerChain> pool = new GenericBlockingResourcePool<XsltHandlerChain>(
-                        new ConstructionStrategy<XsltHandlerChain>() {
-                            @Override
-                            public XsltHandlerChain construct() throws ResourceConstructionException {
-                                List<StyleSheetInfo> stylesheets = new ArrayList<StyleSheetInfo>();
-                                for (StyleSheet sheet : translation.getStyleSheets().getStyle()) {
-                                    stylesheets.add(new StyleSheetInfo(sheet.getId(), sheet.getHref()));
+                    final List<Parameter> params = new ArrayList<Parameter>();
+                    Pool<XsltFilterChain> pool = new GenericBlockingResourcePool<XsltFilterChain>(
+                            new ConstructionStrategy<XsltFilterChain>() {
+                                @Override
+                                public XsltFilterChain construct() throws ResourceConstructionException {
+                                    List<StyleSheetInfo> stylesheets = new ArrayList<StyleSheetInfo>();
+                                    for (StyleSheet sheet : translation.getStyleSheets().getStyle()) {
+                                        stylesheets.add(new StyleSheetInfo(sheet.getId(), sheet.getHref()));
+                                        for (StyleParam param: sheet.getParam()) {
+                                            params.add(new Parameter<String>(sheet.getId(), param.getName(), param.getValue()));
+                                        }
+                                    }
+
+                                    return xsltChainBuilder.build(stylesheets.toArray(new StyleSheetInfo[0]));
                                 }
+                            });
 
-                                return xsltChainBuilder.build(stylesheets.toArray(new StyleSheetInfo[0]));
-                            }
-                        });
-                
-                responseProcessors.add(new XsltHandlerChainPool(translation.getContentType(), translation.getAccept(), translation.getTranslatedContentType(), pool));
+                    responseProcessors.add(new XmlFilterChainPool(
+                            translation.getContentType(),
+                            translation.getAccept(),
+                            translation.getCodeRegex(),
+                            translation.getTranslatedContentType(),
+                            params,
+                            pool));
+                }
             }
 
+            if (config.getRequestTranslations() != null) {
+                for (final RequestTranslation translation : config.getRequestTranslations().getRequestTranslation()) {
+
+                    final List<Parameter> params = new ArrayList<Parameter>();
+                    Pool<XsltFilterChain> pool = new GenericBlockingResourcePool<XsltFilterChain>(
+                            new ConstructionStrategy<XsltFilterChain>() {
+                                @Override
+                                public XsltFilterChain construct() throws ResourceConstructionException {
+                                    List<StyleSheetInfo> stylesheets = new ArrayList<StyleSheetInfo>();
+                                    for (StyleSheet sheet : translation.getStyleSheets().getStyle()) {
+                                        stylesheets.add(new StyleSheetInfo(sheet.getId(), sheet.getHref()));
+                                        for (StyleParam param: sheet.getParam()) {
+                                            params.add(new Parameter<String>(sheet.getId(), param.getName(), param.getValue()));
+                                        }
+                                    }
+
+                                    return xsltChainBuilder.build(stylesheets.toArray(new StyleSheetInfo[0]));
+                                }
+                            });
+
+                    requestProcessors.add(new XmlFilterChainPool(
+                            translation.getContentType(),
+                            translation.getAccept(),
+                            translation.getHttpMethods(),
+                            translation.getTranslatedContentType(),
+                            params,
+                            pool));
+                }
+            }
         }
     }
 }

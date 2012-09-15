@@ -16,13 +16,6 @@ public class InputStreamUriParameterResolver extends SourceUriResolver {
     private final Map<String, InputStream> streams = new HashMap<String, InputStream>();
     private final List<URIResolver> resolvers = new ArrayList<URIResolver>();
 
-    public static class UriParameterException extends RuntimeException {
-
-        public UriParameterException(String message) {
-            super(message);
-        }
-    }
-
     public InputStreamUriParameterResolver() {
         super();
     }
@@ -49,7 +42,11 @@ public class InputStreamUriParameterResolver extends SourceUriResolver {
 
     public void removeStream(InputStream inputStreamReference) {
         String key = getHref(inputStreamReference);
-        streams.remove(key);
+        removeStream(key);
+    }
+
+    public void removeStream(String name) {
+        streams.remove(name);
     }
 
     public String getHref(InputStream inputStreamReference) {
@@ -75,7 +72,6 @@ public class InputStreamUriParameterResolver extends SourceUriResolver {
                 }
             }
 
-            return null;
         }
         
         return super.resolve(href, base);

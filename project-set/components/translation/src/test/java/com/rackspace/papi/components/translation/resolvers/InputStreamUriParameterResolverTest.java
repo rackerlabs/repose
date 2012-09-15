@@ -1,15 +1,11 @@
 package com.rackspace.papi.components.translation.resolvers;
 
-import com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver;
 import java.io.InputStream;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamSource;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.experimental.runners.Enclosed;
@@ -44,11 +40,66 @@ public class InputStreamUriParameterResolverTest {
         }
         
         @Test
+        public void shouldRemoveStreamByName() throws TransformerException {
+            String name = "data";
+            String href = resolver.getHref(name);
+            String actualHref = resolver.addStream(input, name);
+            
+            assertEquals("HREFs should be equal", href, actualHref);
+            StreamSource source = (StreamSource) resolver.resolve(href, "base");
+            assertNotNull("Shoudl find source stream", source);
+            assertTrue("Streams should be the same", input == source.getInputStream());
+            resolver.removeStream(href);
+            source = (StreamSource) resolver.resolve(href, "base");
+            
+            assertNull(source);
+        }
+        
+        @Test
+        public void shouldRemoveStream() throws TransformerException {
+            String href = resolver.getHref(input);
+            String actualHref = resolver.addStream(input);
+            
+            StreamSource source = (StreamSource) resolver.resolve(href, "base");
+            assertNotNull("Shoudl find source stream", source);
+            assertTrue("Streams should be the same", input == source.getInputStream());
+            resolver.removeStream(input);
+            source = (StreamSource) resolver.resolve(href, "base");
+            
+            assertNull(source);
+        }
+        
+        @Test
         public void shouldCallParentResolver() throws TransformerException {
             String href = "otherdata";
             String base = "base";
             resolver.resolve(href, base);
             verify(parent).resolve(href, base);
+        }
+
+        @Test
+        public void shouldCallAdditionalResolver() throws TransformerException {
+            String href = "otherdata";
+            String base = "base";
+            URIResolver additional = mock(URIResolver.class);
+            resolver.addResolver(additional);
+            
+            resolver.resolve(href, base);
+            verify(parent).resolve(href, base);
+            verify(additional).resolve(href, base);
+        }
+
+        @Test
+        public void shouldReturnSourceOfAdditionalResolver() throws TransformerException {
+            String href = "otherdata";
+            String base = "base";
+            URIResolver additional = mock(URIResolver.class);
+            Source source = mock(Source.class);
+            when(additional.resolve(anyString(), anyString())).thenReturn(source);
+            resolver.addResolver(additional);
+            
+            Source actual = resolver.resolve(href, base);
+            assertTrue("Should return our additional source", actual == source);
         }
     }
 }

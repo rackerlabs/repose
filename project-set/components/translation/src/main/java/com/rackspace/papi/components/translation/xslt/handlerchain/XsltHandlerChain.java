@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.translation.xslt.handlerchain;
 
+import com.rackspace.papi.components.translation.xslt.Parameter;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;

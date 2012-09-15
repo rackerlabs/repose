@@ -1,4 +1,4 @@
-package com.rackspace.papi.components.translation.xslt.handlerchain;
+package com.rackspace.papi.components.translation.xslt;
 
 public class StyleSheetInfo {
     private final String id;
