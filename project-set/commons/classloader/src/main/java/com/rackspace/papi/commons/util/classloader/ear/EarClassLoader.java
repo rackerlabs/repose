@@ -67,10 +67,6 @@ public class EarClassLoader extends ClassLoader {
             // If still not found, then invoke findClass in order to find the class.
             c = findClass(name);
          }
-         
-         if (c == null) {
-            LOG.debug("Unable to load class: " + name);
-         }
       }
 
       if (resolve) {
@@ -158,7 +154,7 @@ public class EarClassLoader extends ClassLoader {
          return new URL(!descriptor.archiveEntry().isRootArchiveEntry()
                  ? buildJarResourceUrl(descriptor)
                  : buildFileResourceUrl(descriptor));
-         
+
       } catch (MalformedURLException murle) {
          return null;
       }
