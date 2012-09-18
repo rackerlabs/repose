@@ -3,8 +3,10 @@ package com.rackspace.papi.components.translation.xslt.handlerchain;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.components.translation.config.HttpMethod;
+import com.rackspace.papi.components.translation.xslt.XsltChainPool;
 import java.util.List;
 import java.util.ArrayList;
+import javax.xml.transform.sax.TransformerHandler;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -16,8 +18,8 @@ public class XsltHandlerChainPoolTest {
 
     public static class WhenMatchingPoolCriteria {
 
-        private XsltHandlerChainPool responsePoolForXml;
-        private XsltHandlerChainPool requestPoolForXml;
+        private XsltChainPool<TransformerHandler> responsePoolForXml;
+        private XsltChainPool<TransformerHandler> requestPoolForXml;
         private MediaType json = new MediaType(MimeType.getMatchingMimeType("application/json"));
         private MediaType xml = new MediaType(MimeType.getMatchingMimeType("application/xml"));
 
@@ -25,8 +27,8 @@ public class XsltHandlerChainPoolTest {
         public void setUp() {
             List<HttpMethod> httpMethods = new ArrayList<HttpMethod>();
             httpMethods.add(HttpMethod.POST);
-            responsePoolForXml = new XsltHandlerChainPool("application/xml", "application/xml", "4[\\d]{2}", "blah", null, null);
-            requestPoolForXml = new XsltHandlerChainPool("application/xml", "application/xml", httpMethods, "blah", null, null);
+            responsePoolForXml = new XsltChainPool<TransformerHandler>("application/xml", "application/xml", "4[\\d]{2}", "blah", null, null);
+            requestPoolForXml = new XsltChainPool<TransformerHandler>("application/xml", "application/xml", httpMethods, "blah", null, null);
         }
 
         @Test

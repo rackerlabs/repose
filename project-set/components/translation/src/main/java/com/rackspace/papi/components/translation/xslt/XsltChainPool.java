@@ -1,6 +1,5 @@
-package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
+package com.rackspace.papi.components.translation.xslt;
 
-import com.rackspace.papi.components.translation.xslt.Parameter;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MimeType;
@@ -10,13 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class XmlFilterChainPool {
+public class XsltChainPool<T> {
 
     private final String contentType;
     private final boolean acceptAllContentTypes;
     private final String accept;
     private final boolean acceptAll;
-    private final Pool<XsltFilterChain> pool;
+    private final Pool<T> pool;
     private final String resultContentType;
     private final Pattern statusRegex;
     private boolean allMethods;
@@ -33,7 +32,7 @@ public class XmlFilterChainPool {
      * @param params
      * @param pool 
      */
-    public XmlFilterChainPool(String contentType, String accept, String statusRegex, String resultContentType, List<Parameter> params, Pool<XsltFilterChain> pool) {
+    public XsltChainPool(String contentType, String accept, String statusRegex, String resultContentType, List<Parameter> params, Pool<T> pool) {
         this.contentType = contentType;
         this.acceptAllContentTypes = StringUtilities.nullSafeEqualsIgnoreCase(this.contentType, MimeType.WILDCARD.getMimeType());
         this.accept = accept;
@@ -56,7 +55,7 @@ public class XmlFilterChainPool {
      * @param params
      * @param pool 
      */
-    public XmlFilterChainPool(String contentType, String accept, List<HttpMethod> httpMethods, String resultContentType, List<Parameter> params, Pool<XsltFilterChain> pool) {
+    public XsltChainPool(String contentType, String accept, List<HttpMethod> httpMethods, String resultContentType, List<Parameter> params, Pool<T> pool) {
         this.contentType = contentType;
         this.acceptAllContentTypes = StringUtilities.nullSafeEqualsIgnoreCase(this.contentType, MimeType.WILDCARD.getMimeType());
         this.accept = accept;
@@ -97,7 +96,7 @@ public class XmlFilterChainPool {
         return accept;
     }
 
-    public Pool<XsltFilterChain> getPool() {
+    public Pool<T> getPool() {
         return pool;
     }
 

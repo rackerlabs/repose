@@ -12,32 +12,26 @@ import com.rackspace.papi.components.translation.config.StyleSheet;
 import com.rackspace.papi.components.translation.config.TranslationConfig;
 import com.rackspace.papi.components.translation.xslt.Parameter;
 import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;
-import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlFilterChainPool;
-import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XsltFilterChain;
-import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XsltFilterChainBuilder;
+import com.rackspace.papi.components.translation.xslt.XsltChain;
+import com.rackspace.papi.components.translation.xslt.XsltChainBuilder;
+import com.rackspace.papi.components.translation.xslt.XsltChainPool;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import java.util.ArrayList;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXTransformerFactory;
 
-public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<TranslationHandler> {
+public class TranslationHandlerFactory<T> extends AbstractConfiguredFilterHandlerFactory<TranslationHandler> {
 
     private TranslationConfig config;
-    private final SAXTransformerFactory transformerFactory;
-    private final XsltFilterChainBuilder xsltChainBuilder;
-    private final ArrayList<XmlFilterChainPool> responseProcessors;
-    private final ArrayList<XmlFilterChainPool> requestProcessors;
+    private final XsltChainBuilder<T> xsltChainBuilder;
+    private final ArrayList<XsltChainPool<T>> responseProcessors;
+    private final ArrayList<XsltChainPool<T>> requestProcessors;
 
-    public TranslationHandlerFactory() {
-        transformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance();
-        xsltChainBuilder = new XsltFilterChainBuilder(transformerFactory);
-        requestProcessors = new ArrayList<XmlFilterChainPool>();
-        responseProcessors = new ArrayList<XmlFilterChainPool>();
-
+    public TranslationHandlerFactory(XsltChainBuilder<T> builder) {
+        xsltChainBuilder = builder;
+        requestProcessors = new ArrayList<XsltChainPool<T>>();
+        responseProcessors = new ArrayList<XsltChainPool<T>>();
     }
 
     @Override
@@ -51,7 +45,7 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
     @Override
     protected TranslationHandler buildHandler() {
-        return new TranslationHandler(config, requestProcessors, responseProcessors);
+        return new TranslationHandler<T>(config, requestProcessors, responseProcessors);
     }
 
     class TranslationConfigurationListener implements UpdateListener<TranslationConfig> {
@@ -65,10 +59,10 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
                 for (final ResponseTranslation translation : config.getResponseTranslations().getResponseTranslation()) {
 
                     final List<Parameter> params = new ArrayList<Parameter>();
-                    Pool<XsltFilterChain> pool = new GenericBlockingResourcePool<XsltFilterChain>(
-                            new ConstructionStrategy<XsltFilterChain>() {
+                    Pool<XsltChain<T>> pool = new GenericBlockingResourcePool<XsltChain<T>>(
+                            new ConstructionStrategy<XsltChain<T>>() {
                                 @Override
-                                public XsltFilterChain construct() throws ResourceConstructionException {
+                                public XsltChain<T> construct() throws ResourceConstructionException {
                                     List<StyleSheetInfo> stylesheets = new ArrayList<StyleSheetInfo>();
                                     for (StyleSheet sheet : translation.getStyleSheets().getStyle()) {
                                         stylesheets.add(new StyleSheetInfo(sheet.getId(), sheet.getHref()));
@@ -81,7 +75,7 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
                                 }
                             });
 
-                    responseProcessors.add(new XmlFilterChainPool(
+                    responseProcessors.add(new XsltChainPool(
                             translation.getContentType(),
                             translation.getAccept(),
                             translation.getCodeRegex(),
@@ -95,10 +89,10 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
                 for (final RequestTranslation translation : config.getRequestTranslations().getRequestTranslation()) {
 
                     final List<Parameter> params = new ArrayList<Parameter>();
-                    Pool<XsltFilterChain> pool = new GenericBlockingResourcePool<XsltFilterChain>(
-                            new ConstructionStrategy<XsltFilterChain>() {
+                    Pool<XsltChain<T>> pool = new GenericBlockingResourcePool<XsltChain<T>>(
+                            new ConstructionStrategy<XsltChain<T>>() {
                                 @Override
-                                public XsltFilterChain construct() throws ResourceConstructionException {
+                                public XsltChain<T> construct() throws ResourceConstructionException {
                                     List<StyleSheetInfo> stylesheets = new ArrayList<StyleSheetInfo>();
                                     for (StyleSheet sheet : translation.getStyleSheets().getStyle()) {
                                         stylesheets.add(new StyleSheetInfo(sheet.getId(), sheet.getHref()));
@@ -111,7 +105,7 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
                                 }
                             });
 
-                    requestProcessors.add(new XmlFilterChainPool(
+                    requestProcessors.add(new XsltChainPool(
                             translation.getContentType(),
                             translation.getAccept(),
                             translation.getHttpMethods(),

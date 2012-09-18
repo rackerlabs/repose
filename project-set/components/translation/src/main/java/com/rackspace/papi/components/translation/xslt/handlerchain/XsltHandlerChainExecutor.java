@@ -1,17 +1,23 @@
 package com.rackspace.papi.components.translation.xslt.handlerchain;
 
-import com.rackspace.papi.components.translation.xslt.Parameter;
 import com.rackspace.papi.components.translation.resolvers.ClassPathUriResolver;
 import com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver;
 import com.rackspace.papi.components.translation.resolvers.OutputStreamUriParameterResolver;
 import com.rackspace.papi.components.translation.resolvers.SourceUriResolverChain;
+import com.rackspace.papi.components.translation.xslt.Parameter;
+import com.rackspace.papi.components.translation.xslt.TransformReference;
+import com.rackspace.papi.components.translation.xslt.XsltException;
 import java.io.*;
 import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Templates;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.URIResolver;
+import javax.xml.transform.sax.SAXResult;
+import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamResult;
 import net.sf.saxon.Controller;
@@ -24,8 +30,10 @@ import org.xml.sax.helpers.XMLReaderFactory;
 public class XsltHandlerChainExecutor {
 
     private final XsltHandlerChain chain;
+    private final SAXTransformerFactory factory;
 
-    public XsltHandlerChainExecutor(XsltHandlerChain chain) {
+    public XsltHandlerChainExecutor(SAXTransformerFactory factory, XsltHandlerChain chain) {
+        this.factory = factory;
         this.chain = chain;
     }
 
@@ -94,39 +102,51 @@ public class XsltHandlerChainExecutor {
         }
     }
 
-    public void executeChain(InputStream in, OutputStream out, List<Parameter> inputs, List<Parameter<? extends OutputStream>> outputs) throws XsltHandlerException {
+    public void executeChain(InputStream in, OutputStream out, List<Parameter> inputs, List<Parameter<? extends OutputStream>> outputs) throws XsltException {
         try {
             XMLReader reader = getSaxReader();
             // TODO: Make validation optional
             reader.setFeature("http://xml.org/sax/features/validation", false);
 
-            if (!chain.getHandlers().isEmpty()) {
+            if (!chain.getFilters().isEmpty()) {
 
-                // Set the content handler of the reader to be the first handler
-                XslTransformer firstHandler = chain.getHandlers().get(0);
-                reader.setContentHandler(firstHandler.getHandler());
-
-                for (XslTransformer handler : chain.getHandlers()) {
-                    Transformer transformer = handler.getHandler().getTransformer();
+                TransformerHandler lastHandler = null;
+                
+                for (TransformReference<Templates> template : chain.getFilters()) {
+                    TransformerHandler handler = factory.newTransformerHandler(template.getFilter());
+                    Transformer transformer = handler.getTransformer();
                     transformer.clearParameters();
+                    
+                    if (lastHandler == null) {
+                        reader.setContentHandler(handler);
+                    } else {
+                        lastHandler.setResult(new SAXResult(handler));
+                    }
 
                     //transformer.setURIResolver(new ClassPathUriResolver(transformer.getURIResolver()));
-                    setInputParameters(handler.getId(), transformer, inputs);
-                    setAlternateOutputs(handler.getId(), transformer, outputs);
+                    setInputParameters(template.getId(), transformer, inputs);
+                    setAlternateOutputs(template.getId(), transformer, outputs);
+                    lastHandler = handler;
                 }
 
                 // Set the result of the last handler to be the output stream
-                chain.getHandlers().get(chain.getHandlers().size() - 1).getHandler().setResult(new StreamResult(out));
+                lastHandler.setResult(new StreamResult(out));
+            } else {
+                TransformerHandler handler = factory.newTransformerHandler();
+                reader.setContentHandler(handler);
+                handler.setResult(new StreamResult(out));
             }
 
             reader.parse(new InputSource(in));
             //in.close();
+        } catch (TransformerConfigurationException ex) {
+            throw new XsltException(ex);
         } catch (IOException ex) {
-            throw new XsltHandlerException(ex);
+            throw new XsltException(ex);
         } catch (ParserConfigurationException ex) {
-            throw new XsltHandlerException(ex);
+            throw new XsltException(ex);
         } catch (SAXException ex) {
-            throw new XsltHandlerException(ex);
+            throw new XsltException(ex);
         }
     }
 

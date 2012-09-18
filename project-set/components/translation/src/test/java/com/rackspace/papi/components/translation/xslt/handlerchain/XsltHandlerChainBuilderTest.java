@@ -2,14 +2,17 @@ package com.rackspace.papi.components.translation.xslt.handlerchain;
 
 import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;
 import com.rackspace.papi.components.translation.xslt.Parameter;
+import com.rackspace.papi.components.translation.xslt.XsltChain;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.transform.Templates;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.sax.TransformerHandler;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -38,18 +41,18 @@ public class XsltHandlerChainBuilderTest {
 
         @Test
         public void shouldHandleEmptySetOfStyles() {
-            XsltHandlerChain chain = builder.build();
+            XsltChain<Templates> chain = builder.build();
 
             assertNotNull("Should build an empty filter chain", chain);
-            assertEquals("Should have 1 handler", 1, chain.getHandlers().size());
+            assertEquals("Should have no handlers", 0, chain.getFilters().size());
         }
 
         @Test
         public void shouldHandleStyleSheetList() {
-            XsltHandlerChain chain = builder.build(new StyleSheetInfo("", "classpath:/style.xsl"));
+            XsltChain<Templates> chain = builder.build(new StyleSheetInfo("", "classpath:/style.xsl"));
 
             assertNotNull("Should build a filter chain", chain);
-            assertEquals("Should have 1 handler", 1, chain.getHandlers().size());
+            assertEquals("Should have 1 handler", 1, chain.getFilters().size());
         }
 
     }
@@ -94,7 +97,7 @@ public class XsltHandlerChainBuilderTest {
             outputs.add(new Parameter<OutputStream>("headers.html", headersOutput));
             outputs.add(new Parameter<OutputStream>("query.html", queryOutput));
             
-            XsltHandlerChain chain = builder.build(new StyleSheetInfo("", "classpath:/style.xsl"));
+            XsltChain<Templates> chain = builder.build(new StyleSheetInfo("", "classpath:/style.xsl"));
             chain.executeChain(body, output, inputs, outputs);
             
             String headersResult = headersOutput.toString();

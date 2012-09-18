@@ -4,6 +4,8 @@ import com.rackspace.papi.components.translation.resolvers.ClassPathUriResolver;
 import com.rackspace.papi.components.translation.resolvers.OutputStreamUriParameterResolver;
 import com.rackspace.papi.components.translation.resolvers.SourceUriResolverChain;
 import com.rackspace.papi.components.translation.xslt.Parameter;
+import com.rackspace.papi.components.translation.xslt.TransformReference;
+import com.rackspace.papi.components.translation.xslt.XsltException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
@@ -98,9 +100,9 @@ public class XsltFilterChainExecutor {
         }
     }
 
-   public void executeChain(InputStream in, OutputStream output, List<Parameter> inputs, List<Parameter<? extends OutputStream>> outputs) throws XsltFilterException {
+   public void executeChain(InputStream in, OutputStream output, List<Parameter> inputs, List<Parameter<? extends OutputStream>> outputs) throws XsltException {
       try {
-         for (XmlFilterReference filter : chain.getFilters()) {
+         for (TransformReference filter : chain.getFilters()) {
             // pass the input stream to all transforms as a param inputstream
             net.sf.saxon.Filter saxonFilter = (net.sf.saxon.Filter) filter.getFilter();
             Transformer transformer = saxonFilter.getTransformer();
@@ -112,7 +114,7 @@ public class XsltFilterChainExecutor {
          transformer.setOutputProperties(format);
          transformer.transform(getSAXSource(new InputSource(in)), new StreamResult(output));
       } catch (TransformerException ex) {
-         throw new XsltFilterException(ex);
+         throw new XsltException(ex);
       }
    }
 

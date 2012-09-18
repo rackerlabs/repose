@@ -15,9 +15,9 @@ import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.translation.config.TranslationConfig;
 import com.rackspace.papi.components.translation.xslt.Parameter;
-import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlFilterChainPool;
-import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XsltFilterChain;
-import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XsltFilterException;
+import com.rackspace.papi.components.translation.xslt.XsltChain;
+import com.rackspace.papi.components.translation.xslt.XsltChainPool;
+import com.rackspace.papi.components.translation.xslt.XsltException;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
@@ -29,32 +29,32 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
-public class TranslationHandler extends AbstractFilterLogicHandler {
+public class TranslationHandler<T> extends AbstractFilterLogicHandler {
 
     private static final int DEFAULT_BUFFER_SIZE = 2048;
     private static final MediaType DEFAULT_TYPE = new MediaType(MimeType.WILDCARD);
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TranslationHandler.class);
     private final TranslationConfig config;
-    private final ArrayList<XmlFilterChainPool> requestProcessors;
-    private final ArrayList<XmlFilterChainPool> responseProcessors;
+    private final ArrayList<XsltChainPool<T>> requestProcessors;
+    private final ArrayList<XsltChainPool<T>> responseProcessors;
 
-    public TranslationHandler(TranslationConfig translationConfig, ArrayList<XmlFilterChainPool> requestProcessors, ArrayList<XmlFilterChainPool> responseProcessors) {
+    public TranslationHandler(TranslationConfig translationConfig, ArrayList<XsltChainPool<T>> requestProcessors, ArrayList<XsltChainPool<T>> responseProcessors) {
         this.config = translationConfig;
         this.requestProcessors = requestProcessors;
         this.responseProcessors = responseProcessors;
     }
     
-    ArrayList<XmlFilterChainPool> getRequestProcessors() {
+    ArrayList<XsltChainPool<T>> getRequestProcessors() {
         return requestProcessors;
     }
     
-    ArrayList<XmlFilterChainPool> getResponseProcessors() {
+    ArrayList<XsltChainPool<T>> getResponseProcessors() {
         return responseProcessors;
     }
 
-    private XmlFilterChainPool getHandlerChainPool(String method, MediaType contentType, List<MediaType> accept, String status, ArrayList<XmlFilterChainPool> pools) {
+    private XsltChainPool<T> getHandlerChainPool(String method, MediaType contentType, List<MediaType> accept, String status, ArrayList<XsltChainPool<T>> pools) {
         for (MediaType value : accept) {
-            for (XmlFilterChainPool pool : pools) {
+            for (XsltChainPool pool : pools) {
                 if (pool.accepts(method, contentType, value, status)) {
                     return pool;
                 }
@@ -64,10 +64,10 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
         return null;
     }
 
-    private void executePool(final MutableHttpServletRequest request, final MutableHttpServletResponse response, final XmlFilterChainPool pool, final InputStream in, final OutputStream out) {
-        pool.getPool().use(new SimpleResourceContext<XsltFilterChain>() {
+    private void executePool(final MutableHttpServletRequest request, final MutableHttpServletResponse response, final XsltChainPool pool, final InputStream in, final OutputStream out) {
+        pool.getPool().use(new SimpleResourceContext<XsltChain>() {
             @Override
-            public void perform(XsltFilterChain chain) throws ResourceContextException {
+            public void perform(XsltChain chain) throws ResourceContextException {
                 List<Parameter> params = new ArrayList<Parameter>(pool.getParams());
                 chain.executeChain(in, out, params, null);
             }
@@ -87,14 +87,14 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
         MediaType contentType = new MediaType(contentMimeType);
         List<MediaType> acceptValues = processor.process();
 
-        XmlFilterChainPool pool = getHandlerChainPool("", contentType, acceptValues, String.valueOf(response.getStatus()), responseProcessors);
+        XsltChainPool<T> pool = getHandlerChainPool("", contentType, acceptValues, String.valueOf(response.getStatus()), responseProcessors);
 
         if (pool != null) {
             try {
                 executePool(request, response, pool, response.getBufferedOutputAsInputStream(), filterDirector.getResponseOutputStream());
                 response.setContentType(pool.getResultContentType());
                 filterDirector.setResponseStatusCode(response.getStatus());
-            } catch (XsltFilterException ex) {
+            } catch (XsltException ex) {
                 LOG.error("Error executing response transformer chain", ex);
                 filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
                 response.setContentLength(0);
@@ -120,7 +120,7 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
         MimeType contentMimeType = MimeType.getMatchingMimeType(request.getHeader("content-type"));
         MediaType contentType = new MediaType(contentMimeType);
         List<MediaType> acceptValues = processor.process();
-        XmlFilterChainPool pool = getHandlerChainPool(request.getMethod(), contentType, acceptValues, "", requestProcessors);
+        XsltChainPool<T> pool = getHandlerChainPool(request.getMethod(), contentType, acceptValues, "", requestProcessors);
 
         if (pool != null) {
             try {
@@ -129,7 +129,7 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
                 request.setInputStream(new ByteBufferServletInputStream(internalBuffer));
                 filterDirector.requestHeaderManager().putHeader("content-type", pool.getResultContentType());
                 filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
-            } catch (XsltFilterException ex) {
+            } catch (XsltException ex) {
                 LOG.error("Error executing request transformer chain", ex);
                 filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
                 filterDirector.setFilterAction(FilterAction.RETURN);

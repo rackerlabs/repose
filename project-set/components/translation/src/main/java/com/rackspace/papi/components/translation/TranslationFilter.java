@@ -1,13 +1,19 @@
 package com.rackspace.papi.components.translation;
 
 import com.rackspace.papi.components.translation.config.TranslationConfig;
+import com.rackspace.papi.components.translation.xslt.handlerchain.XsltHandlerChainBuilder;
+import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XsltFilterChainBuilder;
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import java.io.IOException;
 import javax.servlet.*;
+import javax.xml.transform.Templates;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXTransformerFactory;
 import org.slf4j.Logger;
+import org.xml.sax.XMLFilter;
 
 public class TranslationFilter implements Filter {
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(TranslationFilter.class);
@@ -31,7 +37,8 @@ public class TranslationFilter implements Filter {
         ServletContext servletContext = filterConfig.getServletContext();
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
-        handlerFactory = new TranslationHandlerFactory();
+        //handlerFactory = new TranslationHandlerFactory<Templates>(new XsltHandlerChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()));
+        handlerFactory = new TranslationHandlerFactory<XMLFilter>(new XsltFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()));
         configurationManager = ServletContextHelper.getInstance().getPowerApiContext(servletContext).configurationService();
         configurationManager.subscribeTo(config, handlerFactory, TranslationConfig.class);
     }

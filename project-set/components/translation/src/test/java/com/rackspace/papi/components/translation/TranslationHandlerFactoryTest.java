@@ -8,9 +8,12 @@ import com.rackspace.papi.components.translation.config.ResponseTranslations;
 import com.rackspace.papi.components.translation.config.StyleSheet;
 import com.rackspace.papi.components.translation.config.StyleSheets;
 import com.rackspace.papi.components.translation.config.TranslationConfig;
+import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XsltFilterChainBuilder;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXTransformerFactory;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -27,7 +30,7 @@ public class TranslationHandlerFactoryTest {
 
         @Before
         public void setUp() {
-            factory = new TranslationHandlerFactory();
+            factory = new TranslationHandlerFactory(new XsltFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()));
         }
         
         @Test

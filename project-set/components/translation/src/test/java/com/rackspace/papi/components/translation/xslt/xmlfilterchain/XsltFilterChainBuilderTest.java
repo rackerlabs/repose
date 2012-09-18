@@ -2,6 +2,7 @@ package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
 import com.rackspace.papi.components.translation.xslt.Parameter;
 import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;
+import com.rackspace.papi.components.translation.xslt.XsltChain;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -16,6 +17,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.xml.sax.XMLFilter;
 
 @RunWith(Enclosed.class)
 public class XsltFilterChainBuilderTest {
@@ -37,7 +39,7 @@ public class XsltFilterChainBuilderTest {
 
         @Test
         public void shouldHandleEmptySetOfStyles() {
-            XsltFilterChain chain = builder.build();
+            XsltChain<XMLFilter> chain = builder.build();
 
             assertNotNull("Should build an empty filter chain", chain);
             assertEquals("Should have 0 filter", 0, chain.getFilters().size());
@@ -45,7 +47,7 @@ public class XsltFilterChainBuilderTest {
 
         @Test
         public void shouldHandleStyleSheetList() {
-            XsltFilterChain chain = builder.build(new StyleSheetInfo("", "classpath:/style.xsl"));
+            XsltChain<XMLFilter> chain = builder.build(new StyleSheetInfo("", "classpath:/style.xsl"));
 
             assertNotNull("Should build a filter chain", chain);
             assertEquals("Should have 1 filter", 1, chain.getFilters().size());
@@ -93,7 +95,7 @@ public class XsltFilterChainBuilderTest {
             outputs.add(new Parameter<OutputStream>("headers.html", headersOutput));
             outputs.add(new Parameter<OutputStream>("query.html", queryOutput));
             
-            XsltFilterChain chain = builder.build(new StyleSheetInfo("", "classpath:/style.xsl"));
+            XsltChain<XMLFilter> chain = builder.build(new StyleSheetInfo("", "classpath:/style.xsl"));
             chain.executeChain(body, output, inputs, outputs);
             
             String headersResult = headersOutput.toString();
