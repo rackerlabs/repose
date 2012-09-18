@@ -30,7 +30,7 @@ public class TranslationHandlerFactoryTest {
 
         @Before
         public void setUp() {
-            factory = new TranslationHandlerFactory(new XsltFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()));
+            factory = new TranslationHandlerFactory(new XsltFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), "");
         }
         
         @Test
@@ -61,7 +61,7 @@ public class TranslationHandlerFactoryTest {
             StyleSheets sheets = new StyleSheets();
             StyleSheet sheet = new StyleSheet();
             sheet.setId("sheet1");
-            sheet.setHref("classpath:/style.xsl");
+            sheet.setHref("classpath:///style.xsl");
             sheets.getStyle().add(sheet);
             trans1.setAccept(xml);
             trans1.setContentType(xml);

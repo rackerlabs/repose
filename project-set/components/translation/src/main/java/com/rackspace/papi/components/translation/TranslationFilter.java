@@ -7,6 +7,7 @@ import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
+import com.rackspace.papi.servlet.InitParameter;
 import java.io.IOException;
 import javax.servlet.*;
 import javax.xml.transform.Templates;
@@ -37,8 +38,11 @@ public class TranslationFilter implements Filter {
         ServletContext servletContext = filterConfig.getServletContext();
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
+        final String configProp = InitParameter.POWER_API_CONFIG_DIR.getParameterName();
+        final ServletContext ctx = filterConfig.getServletContext();
+        final String configurationRoot = System.getProperty(configProp, ctx.getInitParameter(configProp));
         //handlerFactory = new TranslationHandlerFactory<Templates>(new XsltHandlerChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()));
-        handlerFactory = new TranslationHandlerFactory<XMLFilter>(new XsltFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()));
+        handlerFactory = new TranslationHandlerFactory<XMLFilter>(new XsltFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), configurationRoot);
         configurationManager = ServletContextHelper.getInstance().getPowerApiContext(servletContext).configurationService();
         configurationManager.subscribeTo(config, handlerFactory, TranslationConfig.class);
     }

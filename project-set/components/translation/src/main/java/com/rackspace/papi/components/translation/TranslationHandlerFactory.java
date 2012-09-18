@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.translation;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.pooling.ConstructionStrategy;
 import com.rackspace.papi.commons.util.pooling.GenericBlockingResourcePool;
 import com.rackspace.papi.commons.util.pooling.Pool;
@@ -27,11 +28,13 @@ public class TranslationHandlerFactory<T> extends AbstractConfiguredFilterHandle
     private final XsltChainBuilder<T> xsltChainBuilder;
     private final ArrayList<XsltChainPool<T>> responseProcessors;
     private final ArrayList<XsltChainPool<T>> requestProcessors;
+    private final String configRoot;
 
-    public TranslationHandlerFactory(XsltChainBuilder<T> builder) {
+    public TranslationHandlerFactory(XsltChainBuilder<T> builder, String configRoot) {
         xsltChainBuilder = builder;
         requestProcessors = new ArrayList<XsltChainPool<T>>();
         responseProcessors = new ArrayList<XsltChainPool<T>>();
+        this.configRoot = configRoot;
     }
 
     @Override
@@ -48,6 +51,11 @@ public class TranslationHandlerFactory<T> extends AbstractConfiguredFilterHandle
         return new TranslationHandler<T>(config, requestProcessors, responseProcessors);
     }
 
+    String getXslPath(String xslPath) {
+        String path = !xslPath.contains("://") ? StringUtilities.join("file://", configRoot, "/", xslPath) : xslPath;
+        return path;
+    }
+    
     class TranslationConfigurationListener implements UpdateListener<TranslationConfig> {
 
         @Override
@@ -65,7 +73,7 @@ public class TranslationHandlerFactory<T> extends AbstractConfiguredFilterHandle
                                 public XsltChain<T> construct() throws ResourceConstructionException {
                                     List<StyleSheetInfo> stylesheets = new ArrayList<StyleSheetInfo>();
                                     for (StyleSheet sheet : translation.getStyleSheets().getStyle()) {
-                                        stylesheets.add(new StyleSheetInfo(sheet.getId(), sheet.getHref()));
+                                        stylesheets.add(new StyleSheetInfo(sheet.getId(), getXslPath(sheet.getHref())));
                                         for (StyleParam param: sheet.getParam()) {
                                             params.add(new Parameter<String>(sheet.getId(), param.getName(), param.getValue()));
                                         }
@@ -95,7 +103,7 @@ public class TranslationHandlerFactory<T> extends AbstractConfiguredFilterHandle
                                 public XsltChain<T> construct() throws ResourceConstructionException {
                                     List<StyleSheetInfo> stylesheets = new ArrayList<StyleSheetInfo>();
                                     for (StyleSheet sheet : translation.getStyleSheets().getStyle()) {
-                                        stylesheets.add(new StyleSheetInfo(sheet.getId(), sheet.getHref()));
+                                        stylesheets.add(new StyleSheetInfo(sheet.getId(), getXslPath(sheet.getHref())));
                                         for (StyleParam param: sheet.getParam()) {
                                             params.add(new Parameter<String>(sheet.getId(), param.getName(), param.getValue()));
                                         }

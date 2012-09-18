@@ -14,7 +14,7 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamSource;
 
 public abstract class AbstractXsltChainBuilder<T> implements XsltChainBuilder<T> {
-    private static final String CLASSPATH_PREFIX = "classpath:";
+    private static final String CLASSPATH_PREFIX = "classpath://";
     private final SAXTransformerFactory factory;
     public AbstractXsltChainBuilder(SAXTransformerFactory factory) {
         this.factory = factory;

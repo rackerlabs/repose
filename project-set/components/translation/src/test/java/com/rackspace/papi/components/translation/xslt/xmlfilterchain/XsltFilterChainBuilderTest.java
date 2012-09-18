@@ -47,7 +47,7 @@ public class XsltFilterChainBuilderTest {
 
         @Test
         public void shouldHandleStyleSheetList() {
-            XsltChain<XMLFilter> chain = builder.build(new StyleSheetInfo("", "classpath:/style.xsl"));
+            XsltChain<XMLFilter> chain = builder.build(new StyleSheetInfo("", "classpath:///style.xsl"));
 
             assertNotNull("Should build a filter chain", chain);
             assertEquals("Should have 1 filter", 1, chain.getFilters().size());
@@ -95,7 +95,7 @@ public class XsltFilterChainBuilderTest {
             outputs.add(new Parameter<OutputStream>("headers.html", headersOutput));
             outputs.add(new Parameter<OutputStream>("query.html", queryOutput));
             
-            XsltChain<XMLFilter> chain = builder.build(new StyleSheetInfo("", "classpath:/style.xsl"));
+            XsltChain<XMLFilter> chain = builder.build(new StyleSheetInfo("", "classpath:///style.xsl"));
             chain.executeChain(body, output, inputs, outputs);
             
             String headersResult = headersOutput.toString();

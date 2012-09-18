@@ -8,7 +8,7 @@ import javax.xml.transform.stream.StreamSource;
 
 public class ClassPathUriResolver extends SourceUriResolver {
 
-    public static final String CLASSPATH_PREFIX = "classpath:";
+    public static final String CLASSPATH_PREFIX = "classpath://";
 
     public ClassPathUriResolver() {
         super();
