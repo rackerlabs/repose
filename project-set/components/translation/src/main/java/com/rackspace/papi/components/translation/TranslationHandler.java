@@ -43,11 +43,11 @@ public class TranslationHandler<T> extends AbstractFilterLogicHandler {
         this.requestProcessors = requestProcessors;
         this.responseProcessors = responseProcessors;
     }
-    
+
     ArrayList<XsltChainPool<T>> getRequestProcessors() {
         return requestProcessors;
     }
-    
+
     ArrayList<XsltChainPool<T>> getResponseProcessors() {
         return responseProcessors;
     }
@@ -91,8 +91,13 @@ public class TranslationHandler<T> extends AbstractFilterLogicHandler {
 
         if (pool != null) {
             try {
-                executePool(request, response, pool, response.getBufferedOutputAsInputStream(), filterDirector.getResponseOutputStream());
-                response.setContentType(pool.getResultContentType());
+                if (response.hasBody()) {
+                    InputStream in = response.getBufferedOutputAsInputStream();
+                    if (in.available() > 0) {
+                        executePool(request, response, pool, in, filterDirector.getResponseOutputStream());
+                        response.setContentType(pool.getResultContentType());
+                    }
+                }
                 filterDirector.setResponseStatusCode(response.getStatus());
             } catch (XsltException ex) {
                 LOG.error("Error executing response transformer chain", ex);
@@ -124,8 +129,9 @@ public class TranslationHandler<T> extends AbstractFilterLogicHandler {
 
         if (pool != null) {
             try {
+                InputStream in = request.getInputStream();
                 final ByteBuffer internalBuffer = new CyclicByteBuffer(DEFAULT_BUFFER_SIZE, true);
-                executePool(request, response, pool, request.getInputStream(), new ByteBufferServletOutputStream(internalBuffer));
+                executePool(request, response, pool, in, new ByteBufferServletOutputStream(internalBuffer));
                 request.setInputStream(new ByteBufferServletInputStream(internalBuffer));
                 filterDirector.requestHeaderManager().putHeader("content-type", pool.getResultContentType());
                 filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);

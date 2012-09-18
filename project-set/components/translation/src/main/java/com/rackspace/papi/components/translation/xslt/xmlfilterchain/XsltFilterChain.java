@@ -23,6 +23,9 @@ public class XsltFilterChain extends AbstractXsltChain<XMLFilter> {
    
     @Override
    public void executeChain(InputStream in, OutputStream output, List<Parameter> inputs, List<Parameter<? extends OutputStream>> outputs) throws XsltException {
+        if (in == null || output == null) {
+            return;
+        }
       new XsltFilterChainExecutor(this).executeChain(in, output, inputs, outputs);
    }
    
