@@ -63,7 +63,7 @@ public class EarClassLoader extends ClassLoader {
             // from the non-null parent class loader
          }
 
-         if (c == null) {
+         if (c == null) {                                                    
             // If still not found, then invoke findClass in order to find the class.
             c = findClass(name);
          }

@@ -18,7 +18,7 @@ public class DefaultEarArchiveEntryListenerTest {
     public static class WhenHandlingNewJarManifest {
         @Test
         public void shouldParseClassPathAttribute() throws MalformedURLException {
-            DefaultEarArchiveEntryListener entryListener = new DefaultEarArchiveEntryListener(new File("tmp"));
+            DefaultEarArchiveEntryHelper entryListener = new DefaultEarArchiveEntryHelper(new File("tmp"));
 
             String archiveName = "tmpName";
             String entryName = "tmpEntryName";

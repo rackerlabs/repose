@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.deploy;
 
-import com.rackspace.papi.commons.util.classloader.ear.EarArchiveEntryListener;
+import com.rackspace.papi.commons.util.classloader.ear.EarArchiveEntryHelper;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.common.EventListener;
@@ -79,7 +79,7 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
         final File archive = new File(archivePath);
 
         try {
-            final EarArchiveEntryListener listener = containerCfgListener.newEarArchiveEntryListener();
+            final EarArchiveEntryHelper listener = containerCfgListener.newEarArchiveEntryListener();
             final EarClassLoaderContext classLoaderContext = containerCfgListener.getUnpacker().read(listener, archive);
 
             // Associates this artifact with the application name for unlinking later
