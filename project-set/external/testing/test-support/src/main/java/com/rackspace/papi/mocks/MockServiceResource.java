@@ -25,6 +25,12 @@ public class MockServiceResource {
 
    @POST
    @Path("/echobody")
+   public Response echoBodyRoot(String body, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
+       return echoBody(body, headers, uriInfo);
+   }
+
+   @POST
+   @Path("{prefix: .*}/echobody")
    public Response echoBody(String body, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
       URI uri = uriInfo.getAbsolutePath();
       
