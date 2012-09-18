@@ -1,5 +1,8 @@
-package org.openrepose.components.rackspace.authz.cache;
-
+package com.rackspace.papi.components.clientauth.common;
+/*
+ * Copying this class for now until I can have a shared space for Auth-N and Auth-Z
+ * 
+ */
 import com.rackspace.auth.EndpointListCache;
 import com.rackspace.auth.CachedEndpoint;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
@@ -15,6 +18,7 @@ import java.util.concurrent.TimeUnit;
 /**
  *
  * @author zinic
+ * 
  */
 public class EndpointListCacheImpl implements EndpointListCache {
 

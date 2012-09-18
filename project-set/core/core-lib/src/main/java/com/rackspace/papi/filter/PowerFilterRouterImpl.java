@@ -7,10 +7,12 @@ import com.rackspace.papi.commons.util.servlet.http.RouteDestination;
 import com.rackspace.papi.filter.logic.DispatchPathBuilder;
 import com.rackspace.papi.filter.routing.DestinationLocation;
 import com.rackspace.papi.filter.routing.DestinationLocationBuilder;
+import com.rackspace.papi.http.ProxyHeadersGenerator;
 import com.rackspace.papi.model.Destination;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.service.context.ServletContextHelper;
+import com.rackspace.papi.service.context.container.ContainerConfigurationService;
 import com.rackspace.papi.service.reporting.ReportingService;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.sun.jersey.api.client.ClientHandlerException;
@@ -33,6 +35,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     private final Node localhost;
     private final RoutingService routingService;
     private final ReportingService reportingService;
+    private final ProxyHeadersGenerator proxyHeadersGenerator;
     private final ServletContext context;
     private final ReposeCluster domain;
 
@@ -45,6 +48,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         this.localhost = localhost;
         this.routingService = getRoutingService(context);
         this.reportingService = getReportingService(context);
+        this.proxyHeadersGenerator = new ProxyHeadersGenerator(getContainerConfigurationService(context).getVia(), getReposeVersion(context));
         this.context = context;
         destinations = new HashMap<String, Destination>();
 
@@ -55,12 +59,20 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
 
     }
 
+    private String getReposeVersion(ServletContext servletContext) {
+        return ServletContextHelper.getInstance().getPowerApiContext(servletContext).getReposeVersion();
+    }
+
     private ReportingService getReportingService(ServletContext servletContext) {
         return ServletContextHelper.getInstance().getPowerApiContext(servletContext).reportingService();
     }
 
     private RoutingService getRoutingService(ServletContext servletContext) {
         return ServletContextHelper.getInstance().getPowerApiContext(servletContext).routingService();
+    }
+
+    private ContainerConfigurationService getContainerConfigurationService(ServletContext servletContext) {
+        return ServletContextHelper.getInstance().getPowerApiContext(servletContext).containerConfigurationService();
     }
 
     private void addDestinations(List<? extends Destination> destList) {
@@ -101,6 +113,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
 
                 servletRequest.setRequestUrl(new StringBuffer(location.getUrl().toExternalForm()));
                 servletRequest.setRequestUri(location.getUri().getPath());
+                proxyHeadersGenerator.setRequestProxyHeaders(servletRequest);
                 if (dispatcher != null) {
                     LOG.debug("Attempting to route to " + location.getUri());
                     LOG.debug("Request URL: " + ((HttpServletRequest) servletRequest).getRequestURL());
