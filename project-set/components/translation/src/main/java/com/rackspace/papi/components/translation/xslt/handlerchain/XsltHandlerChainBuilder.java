@@ -22,7 +22,7 @@ public class XsltHandlerChainBuilder extends AbstractXsltChainBuilder<Templates>
 
     public XsltChain<Templates> build(StyleSheetInfo... stylesheets) throws XsltException {
         List<TransformReference<Templates>> handlers = new ArrayList<TransformReference<Templates>>();
-        TransformReference<TransformerHandler> lastHandler = null;
+        
 
         try {
             for (StyleSheetInfo resource : stylesheets) {
