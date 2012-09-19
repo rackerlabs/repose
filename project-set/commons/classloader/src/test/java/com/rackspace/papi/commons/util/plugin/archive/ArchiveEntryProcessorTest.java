@@ -24,9 +24,9 @@ public class ArchiveEntryProcessorTest {
       public void shouldInstantiate() {
          ArchiveEntryDescriptor mockedArchiveEntryDescriptor = mock(ArchiveEntryDescriptor.class);
          File mockedFile = mock(File.class);
-         ArchiveEntryListener mockedListener = mock(ArchiveEntryListener.class);
+         ArchiveEntryHelper mockedHelper = mock(ArchiveEntryHelper.class);
 
-         ArchiveEntryProcessor archiveEntryProcessor = new ArchiveEntryProcessor(mockedArchiveEntryDescriptor, mockedFile, mockedListener);
+         ArchiveEntryProcessor archiveEntryProcessor = new ArchiveEntryProcessor(mockedArchiveEntryDescriptor, mockedFile, mockedHelper);
 
          assertNotNull(archiveEntryProcessor);
       }
@@ -35,11 +35,11 @@ public class ArchiveEntryProcessorTest {
       public void shouldNotUnpackOnLoadNextEntry() throws IOException {
          ArchiveEntryDescriptor mockedArchiveEntryDescriptor = mock(ArchiveEntryDescriptor.class);
          File mockedFile = mock(File.class);
-         ArchiveEntryListener mockedListener = mock(ArchiveEntryListener.class);
+         ArchiveEntryHelper mockedHelper = mock(ArchiveEntryHelper.class);
          JarInputStream mockedInputStream = mock(JarInputStream.class);
          when(mockedInputStream.read(any(byte[].class))).thenReturn(-1);
 
-         ArchiveEntryProcessor archiveEntryProcessor = new ArchiveEntryProcessor(mockedArchiveEntryDescriptor, mockedFile, mockedListener);
+         ArchiveEntryProcessor archiveEntryProcessor = new ArchiveEntryProcessor(mockedArchiveEntryDescriptor, mockedFile, mockedHelper);
 
          byte[] bytes = archiveEntryProcessor.loadNextEntry(mockedInputStream, DeploymentAction.DO_NOT_UNPACK_ENTRY);
 
