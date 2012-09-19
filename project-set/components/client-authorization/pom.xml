@@ -6,7 +6,7 @@
     <parent>
         <groupId>com.rackspace.papi.components</groupId>
         <artifactId>components-support</artifactId>
-        <version>1.4.5-SNAPSHOT</version>
+        <version>1.4.5</version>
     </parent>
 
     <groupId>com.rackspace.papi.components</groupId>
