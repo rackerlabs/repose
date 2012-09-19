@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
@@ -31,7 +32,7 @@ import org.slf4j.LoggerFactory;
 public class PowerFilterRouterImpl implements PowerFilterRouter {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilterRouterImpl.class);
-    private final HashMap<String, Destination> destinations;
+    private final Map<String, Destination> destinations;
     private final Node localhost;
     private final RoutingService routingService;
     private final ReportingService reportingService;
