@@ -32,8 +32,8 @@ public class TranslationHandlerFactory<T> extends AbstractConfiguredFilterHandle
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TranslationHandlerFactory.class);
     private TranslationConfig configuration;
     private final XsltChainBuilder<T> xsltChainBuilder;
-    private final ArrayList<XsltChainPool<T>> responseProcessorPools;
-    private final ArrayList<XsltChainPool<T>> requestProcessorPools;
+    private final List<XsltChainPool<T>> responseProcessorPools;
+    private final List<XsltChainPool<T>> requestProcessorPools;
     private final String configurationRoot;
     private final Object lock = new Object();
     private final XslListener xslListener;

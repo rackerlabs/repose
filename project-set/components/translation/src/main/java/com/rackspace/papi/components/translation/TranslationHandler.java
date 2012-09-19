@@ -37,24 +37,24 @@ public class TranslationHandler<T> extends AbstractFilterLogicHandler {
     private static final MediaType DEFAULT_TYPE = new MediaType(MimeType.WILDCARD);
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TranslationHandler.class);
     private final TranslationConfig config;
-    private final ArrayList<XsltChainPool<T>> requestProcessors;
-    private final ArrayList<XsltChainPool<T>> responseProcessors;
+    private final List<XsltChainPool<T>> requestProcessors;
+    private final List<XsltChainPool<T>> responseProcessors;
 
-    public TranslationHandler(TranslationConfig translationConfig, ArrayList<XsltChainPool<T>> requestProcessors, ArrayList<XsltChainPool<T>> responseProcessors) {
+    public TranslationHandler(TranslationConfig translationConfig, List<XsltChainPool<T>> requestProcessors, List<XsltChainPool<T>> responseProcessors) {
         this.config = translationConfig;
         this.requestProcessors = requestProcessors;
         this.responseProcessors = responseProcessors;
     }
 
-    ArrayList<XsltChainPool<T>> getRequestProcessors() {
+    List<XsltChainPool<T>> getRequestProcessors() {
         return requestProcessors;
     }
 
-    ArrayList<XsltChainPool<T>> getResponseProcessors() {
+    List<XsltChainPool<T>> getResponseProcessors() {
         return responseProcessors;
     }
 
-    private XsltChainPool<T> getHandlerChainPool(String method, MediaType contentType, List<MediaType> accept, String status, ArrayList<XsltChainPool<T>> pools) {
+    private XsltChainPool<T> getHandlerChainPool(String method, MediaType contentType, List<MediaType> accept, String status, List<XsltChainPool<T>> pools) {
         for (MediaType value : accept) {
             for (XsltChainPool pool : pools) {
                 if (pool.accepts(method, contentType, value, status)) {
@@ -66,7 +66,7 @@ public class TranslationHandler<T> extends AbstractFilterLogicHandler {
         return null;
     }
 
-    private boolean executePool(final MutableHttpServletRequest request, final MutableHttpServletResponse response, final XsltChainPool pool, final InputStream in, final OutputStream out) {
+    private boolean executePool(final XsltChainPool pool, final InputStream in, final OutputStream out) {
         Boolean result = (Boolean) pool.getPool().use(new ResourceContext<XsltChain, Boolean>() {
             @Override
             public Boolean perform(XsltChain chain) throws ResourceContextException {
@@ -111,7 +111,7 @@ public class TranslationHandler<T> extends AbstractFilterLogicHandler {
                 if (response.hasBody()) {
                     InputStream in = response.getBufferedOutputAsInputStream();
                     if (in.available() > 0) {
-                        boolean success = executePool(request, response, pool, new TranslationPreProcessor(response.getInputStream(), contentType, true).getBodyStream(), filterDirector.getResponseOutputStream());
+                        boolean success = executePool(pool, new TranslationPreProcessor(response.getInputStream(), contentType, true).getBodyStream(), filterDirector.getResponseOutputStream());
                         
                         if (success) {
                             response.setContentType(pool.getResultContentType());
@@ -145,7 +145,7 @@ public class TranslationHandler<T> extends AbstractFilterLogicHandler {
         if (pool != null) {
             try {
                 final ByteBuffer internalBuffer = new CyclicByteBuffer(DEFAULT_BUFFER_SIZE, true);
-                boolean success = executePool(request, response, pool, new TranslationPreProcessor(request.getInputStream(), contentType, true).getBodyStream(), new ByteBufferServletOutputStream(internalBuffer));
+                boolean success = executePool(pool, new TranslationPreProcessor(request.getInputStream(), contentType, true).getBodyStream(), new ByteBufferServletOutputStream(internalBuffer));
                 
                 if (success) {
                     request.setInputStream(new ByteBufferServletInputStream(internalBuffer));
