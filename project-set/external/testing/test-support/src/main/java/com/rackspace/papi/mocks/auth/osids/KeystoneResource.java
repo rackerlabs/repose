@@ -40,29 +40,17 @@ public class KeystoneResource extends BaseResource {
    public Response getToken(AuthenticationRequest authRequest, @Context UriInfo context) throws DatatypeConfigurationException {
       KeystoneProvider p = getProvider();
       ResponseWrapper wrapper = new JaxbElementWrapper();
-
       Token token;
       PasswordCredentialsRequiredUsername credentials;
       if (authRequest.getCredential() != null) {
+
          CredentialType credentialType = authRequest.getCredential().getValue();
          credentials = (PasswordCredentialsRequiredUsername) credentialType;
 
       } else {
          credentials = new PasswordCredentialsRequiredUsername();
          credentials.setUsername(authRequest.getTenantId());
-         credentials.setPassword(authRequest.getToken().getId());
-
-         if (!p.isValidToken(credentials.getPassword())) {
-
-            return Response.status(Response.Status.NOT_FOUND).entity(wrapper.wrapElement(p.createItemNotFound())).build();
-         }
-
-         String userName = p.getUsernameFromToken(credentials.getPassword());
-
-         if (!StringUtilities.nullSafeEqualsIgnoreCase(userName, credentials.getUsername())) {
-            return Response.status(Response.Status.NOT_FOUND).entity(wrapper.wrapElement(p.createItemNotFound())).build();
-         }
-
+         credentials.setPassword("someKey");
 
       }
       if (!validateCredentials(credentials)) {

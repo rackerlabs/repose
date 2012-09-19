@@ -43,7 +43,7 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
       } else {
          accountInfo = authenticationService.validateToken(null, token);
       }
-      if (accountInfo != null && accountInfo.getEndpoints() != null) {
+      if (accountInfo.getEndpoints() != null) {
          try {
             endpointListCache.cacheEndpointsForToken(token, accountInfo.getEndpoints());
          } catch (IOException io) {
