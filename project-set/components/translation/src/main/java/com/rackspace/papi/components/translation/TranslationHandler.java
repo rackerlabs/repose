@@ -9,8 +9,8 @@ import com.rackspace.papi.commons.util.io.ByteBufferServletInputStream;
 import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
+import com.rackspace.papi.commons.util.pooling.ResourceContext;
 import com.rackspace.papi.commons.util.pooling.ResourceContextException;
-import com.rackspace.papi.commons.util.pooling.SimpleResourceContext;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
@@ -66,22 +66,30 @@ public class TranslationHandler<T> extends AbstractFilterLogicHandler {
         return null;
     }
 
-    private void executePool(final MutableHttpServletRequest request, final MutableHttpServletResponse response, final XsltChainPool pool, final InputStream in, final OutputStream out) {
-        pool.getPool().use(new SimpleResourceContext<XsltChain>() {
+    private boolean executePool(final MutableHttpServletRequest request, final MutableHttpServletResponse response, final XsltChainPool pool, final InputStream in, final OutputStream out) {
+        Boolean result = (Boolean) pool.getPool().use(new ResourceContext<XsltChain, Boolean>() {
             @Override
-            public void perform(XsltChain chain) throws ResourceContextException {
+            public Boolean perform(XsltChain chain) throws ResourceContextException {
                 List<Parameter> params = new ArrayList<Parameter>(pool.getParams());
-                chain.executeChain(in, out, params, null);
+                try {
+                    chain.executeChain(in, out, params, null);
+                } catch (XsltException ex) {
+                    LOG.error("Error processing transforms", ex);
+                    return false;
+                }
+                return true;
             }
         });
 
+        return result;
+
     }
-    
+
     private List<MediaType> getAcceptValues(List<HeaderValue> values) {
         MediaRangeProcessor processor = new MediaRangeProcessor(values);
         return processor.process();
     }
-    
+
     private MediaType getContentType(String contentType) {
         MimeType contentMimeType = MimeType.getMatchingMimeType(contentType);
         return new MediaType(contentMimeType);
@@ -99,18 +107,20 @@ public class TranslationHandler<T> extends AbstractFilterLogicHandler {
 
         if (pool != null) {
             try {
+                filterDirector.setResponseStatusCode(response.getStatus());
                 if (response.hasBody()) {
                     InputStream in = response.getBufferedOutputAsInputStream();
                     if (in.available() > 0) {
-                        executePool(request, response, pool, new TranslationPreProcessor(response.getInputStream(), contentType, true).getBodyStream(), filterDirector.getResponseOutputStream());
-                        response.setContentType(pool.getResultContentType());
+                        boolean success = executePool(request, response, pool, new TranslationPreProcessor(response.getInputStream(), contentType, true).getBodyStream(), filterDirector.getResponseOutputStream());
+                        
+                        if (success) {
+                            response.setContentType(pool.getResultContentType());
+                        } else {
+                            filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                            response.setContentLength(0);
+                        }
                     }
                 }
-                filterDirector.setResponseStatusCode(response.getStatus());
-            } catch (XsltException ex) {
-                LOG.error("Error executing response transformer chain", ex);
-                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                response.setContentLength(0);
             } catch (IOException ex) {
                 LOG.error("Error executing response transformer chain", ex);
                 filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -134,16 +144,17 @@ public class TranslationHandler<T> extends AbstractFilterLogicHandler {
 
         if (pool != null) {
             try {
-                InputStream in = request.getInputStream();
                 final ByteBuffer internalBuffer = new CyclicByteBuffer(DEFAULT_BUFFER_SIZE, true);
-                executePool(request, response, pool, new TranslationPreProcessor(request.getInputStream(), contentType, true).getBodyStream(), new ByteBufferServletOutputStream(internalBuffer));
-                request.setInputStream(new ByteBufferServletInputStream(internalBuffer));
-                filterDirector.requestHeaderManager().putHeader("content-type", pool.getResultContentType());
-                filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
-            } catch (XsltException ex) {
-                LOG.error("Error executing request transformer chain", ex);
-                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-                filterDirector.setFilterAction(FilterAction.RETURN);
+                boolean success = executePool(request, response, pool, new TranslationPreProcessor(request.getInputStream(), contentType, true).getBodyStream(), new ByteBufferServletOutputStream(internalBuffer));
+                
+                if (success) {
+                    request.setInputStream(new ByteBufferServletInputStream(internalBuffer));
+                    filterDirector.requestHeaderManager().putHeader("content-type", pool.getResultContentType());
+                    filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
+                } else {
+                    filterDirector.setResponseStatus(HttpStatusCode.BAD_REQUEST);
+                    filterDirector.setFilterAction(FilterAction.RETURN);
+                }
             } catch (IOException ex) {
                 LOG.error("Error executing request transformer chain", ex);
                 filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
