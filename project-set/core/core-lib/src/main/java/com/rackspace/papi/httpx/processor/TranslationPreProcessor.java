@@ -1,45 +1,45 @@
 package com.rackspace.papi.httpx.processor;
 
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
+import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.httpx.processor.cdata.UnknownContentStreamProcessor;
 import com.rackspace.papi.httpx.processor.common.InputStreamProcessor;
 import com.rackspace.papi.httpx.processor.json.JsonxStreamProcessor;
 import com.rackspace.papi.httpx.processor.util.BodyContentMediaType;
 import org.codehaus.jackson.JsonFactory;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class TranslationRequestPreProcessor {
+public class TranslationPreProcessor {
 
    private static final SAXTransformerFactory handlerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
-   private final HttpServletRequest request;
    private final boolean jsonPreprocessing;
+    private final MediaType contentType;
+    private final InputStream input;
 
-   public TranslationRequestPreProcessor(HttpServletRequest request, boolean jsonPreprocessing) {
-      this.request = request;
+   public TranslationPreProcessor(InputStream input, MediaType contentType, boolean jsonPreprocessing) {
+      this.input = input;
       this.jsonPreprocessing = jsonPreprocessing;
+      this.contentType = contentType;
    }
 
    public InputStream getBodyStream() throws IOException {
-      final String contentType = request.getContentType();
       final InputStream result;
 
-      switch (BodyContentMediaType.getMediaType(contentType)) {
+      switch (BodyContentMediaType.getMediaType(contentType.getMimeType().getMimeType())) {
          case XML:
-            result = request.getInputStream();
+            result = input;
             break;
          case JSON:
             if (jsonPreprocessing) {
-                result = getJsonProcessor().process(request.getInputStream());
+                result = getJsonProcessor().process(input);
             } else {
-                result = request.getInputStream();
+                result = input;
             }
             break;
          default:
-            result = getUnknownContentProcessor().process(request.getInputStream());
+            result = getUnknownContentProcessor().process(input);
       }
 
       return result;

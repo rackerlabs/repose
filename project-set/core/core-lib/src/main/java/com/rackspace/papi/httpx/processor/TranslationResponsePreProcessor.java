@@ -1,5 +1,6 @@
 package com.rackspace.papi.httpx.processor;
 
+import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.httpx.processor.cdata.UnknownContentStreamProcessor;
 import com.rackspace.papi.httpx.processor.common.InputStreamProcessor;
@@ -16,17 +17,18 @@ public class TranslationResponsePreProcessor {
    private static final SAXTransformerFactory handlerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
    private final MutableHttpServletResponse response;
    private final boolean jsonPreprocessing;
+    private final MediaType contentType;
 
-   public TranslationResponsePreProcessor(MutableHttpServletResponse response, boolean jsonPreprocessing) {
+   public TranslationResponsePreProcessor(MutableHttpServletResponse response, MediaType contentType, boolean jsonPreprocessing) {
       this.response = response;
       this.jsonPreprocessing = jsonPreprocessing;
+      this.contentType = contentType;
    }
 
    public InputStream getBodyStream() throws IOException {
-      final String contentType = response.getContentType();
       final InputStream result;
 
-      switch (BodyContentMediaType.getMediaType(contentType)) {
+      switch (BodyContentMediaType.getMediaType(contentType.getMimeType().getSubType())) {
          case XML:
             result = response.getInputStream();
             break;
