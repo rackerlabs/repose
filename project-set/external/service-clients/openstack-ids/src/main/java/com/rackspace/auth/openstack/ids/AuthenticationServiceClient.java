@@ -4,8 +4,7 @@ import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import org.openstack.docs.identity.api.v2.AuthenticateResponse;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import org.openstack.docs.identity.api.v2.Endpoint;
 import org.openstack.docs.identity.api.v2.EndpointList;
@@ -38,22 +37,26 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
     public CachableUserInfo validateToken(String tenant, String userToken) {
         CachableUserInfo token = null;
 
-        final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, getAdminToken(), "belongsTo", tenant);
+        ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, getAdminToken(), "belongsTo", tenant);
 
         switch (serviceResponse.getStatusCode()) {
             case 200:
-                final AuthenticateResponse authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
-                token = new CachableUserInfo(tenant, authenticateResponse);
+                token = getUserInfo(tenant, serviceResponse);
                 break;
+            case 401: // Admin token is bad
+                LOG.warn("Unable to validate token for tenant: " + serviceResponse.getStatusCode() + " :admin token expired.  Retrieving new admin token and retrying token validation...");
+                currentAdminToken = null;
+                serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, getAdminToken(), "belongsTo", tenant);
 
+                if (serviceResponse.getStatusCode() == 200) {
+                    token = getUserInfo(tenant, serviceResponse);
+                } else {
+                    LOG.warn("Still unable to validate token for tenant: " + serviceResponse.getStatusCode());
+                }
+                break;
             case 404: // User's token is bad
                 LOG.warn("Unable to validate token for tenant.  Invalid token. " + serviceResponse.getStatusCode());
                 break;
-
-            case 401: // Admin token is bad most likely
-                LOG.warn("Unable to validate token for tenant.  Has the admin token expired? " + serviceResponse.getStatusCode());
-                break;
-
             case 500: // Internal server error from auth
                 LOG.warn("Internal server error from auth. " + serviceResponse.getStatusCode());
                 break;
@@ -62,24 +65,46 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
         return token;
     }
 
+    private CachableUserInfo getUserInfo(String tenant, ServiceClientResponse<AuthenticateResponse> serviceResponse) {
+        final AuthenticateResponse authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
+        return new CachableUserInfo(tenant, authenticateResponse);
+    }
+
     @Override
     public List<Endpoint> getEndpointsForToken(String userToken) {
-        final ServiceClientResponse<EndpointList> endpointListResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken + "/endpoints", getAdminToken());
+        ServiceClientResponse<EndpointList> endpointListResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken + "/endpoints", getAdminToken());
         List<Endpoint> endpointList = new ArrayList<Endpoint>();
 
         switch (endpointListResponse.getStatusCode()) {
             case 200:
-                final EndpointList unmarshalledEndpoints = openStackCoreResponseUnmarshaller.unmarshall(endpointListResponse.getData(), EndpointList.class);
-
-                if (unmarshalledEndpoints != null) {
-                    endpointList = unmarshalledEndpoints.getEndpoint();
-                }
-
+                endpointList = getEndpointList(endpointListResponse);
                 break;
+            case 401:
+                LOG.warn("Unable to get endpoints for user: " + endpointListResponse.getStatusCode() + " :admin token expired.  Retrieving new admin token and retrying endpoints retrieval...");
+                currentAdminToken = null;
+                endpointListResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken + "/endpoints", getAdminToken());
 
+                if (endpointListResponse.getStatusCode() == 200) {
+                    endpointList = getEndpointList(endpointListResponse);
+                } else {
+                    LOG.warn("Still unable to get endpoints: " + endpointListResponse.getStatusCode());
+                }
+                break;
             default:
                 LOG.warn("Unable to get endpoints for token: " + endpointListResponse.getStatusCode());
                 break;
+        }
+
+        return endpointList;
+    }
+
+    private List<Endpoint> getEndpointList(ServiceClientResponse<EndpointList> endpointListResponse) {
+        List<Endpoint> endpointList = new ArrayList<Endpoint>();
+
+        final EndpointList unmarshalledEndpoints = openStackCoreResponseUnmarshaller.unmarshall(endpointListResponse.getData(), EndpointList.class);
+
+        if (unmarshalledEndpoints != null) {
+            endpointList = unmarshalledEndpoints.getEndpoint();
         }
 
         return endpointList;
@@ -89,21 +114,36 @@ public class AuthenticationServiceClient implements OpenStackAuthenticationServi
     public CachableGroupInfo getGroups(String userId) {
         CachableGroupInfo cachableGroupInfo = null;
 
-        final ServiceClientResponse<Groups> serviceResponse = serviceClient.get(targetHostUri + "/users/" + userId + "/RAX-KSGRP", getAdminToken());
+        ServiceClientResponse<Groups> serviceResponse = serviceClient.get(targetHostUri + "/users/" + userId + "/RAX-KSGRP", getAdminToken());
 
 
         switch (serviceResponse.getStatusCode()) {
             case 200:
-                final Groups groups = openStackGroupsResponseUnmarshaller.unmarshall(serviceResponse.getData(), Groups.class);
-                cachableGroupInfo = new CachableGroupInfo(userId, groups, groupsTtl);
+                cachableGroupInfo = getCachableGroupInfo(userId, serviceResponse);
+                break;
+            case 401:
+                LOG.warn("Unable to get groups for user: " + serviceResponse.getStatusCode() + " :admin token expired.  Retrieving new admin token and retrying groups retrieval...");
+                currentAdminToken = null;
+                serviceResponse = serviceClient.get(targetHostUri + "/users/" + userId + "/RAX-KSGRP", getAdminToken());
+
+                if (serviceResponse.getStatusCode() == 200) {
+                    cachableGroupInfo = getCachableGroupInfo(userId, serviceResponse);
+                } else {
+                    LOG.warn("Still unable to get groups: " + serviceResponse.getStatusCode());
+                }
                 break;
             default:
                 LOG.warn("Unable to get groups for user id: " + userId + ".  Received Status Code: " + serviceResponse.getStatusCode());
                 break;
-
         }
 
         return cachableGroupInfo;
+    }
+
+    private CachableGroupInfo getCachableGroupInfo(String userId, ServiceClientResponse<Groups> serviceResponse) {
+        final Groups groups = openStackGroupsResponseUnmarshaller.unmarshall(serviceResponse.getData(), Groups.class);
+
+        return new CachableGroupInfo(userId, groups, groupsTtl);
     }
 
     private synchronized String getAdminToken() {
