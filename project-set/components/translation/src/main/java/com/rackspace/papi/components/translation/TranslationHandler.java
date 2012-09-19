@@ -22,6 +22,8 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import com.rackspace.papi.httpx.processor.TranslationRequestPreProcessor;
+import com.rackspace.papi.httpx.processor.TranslationResponsePreProcessor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -94,7 +96,7 @@ public class TranslationHandler<T> extends AbstractFilterLogicHandler {
                 if (response.hasBody()) {
                     InputStream in = response.getBufferedOutputAsInputStream();
                     if (in.available() > 0) {
-                        executePool(request, response, pool, in, filterDirector.getResponseOutputStream());
+                        executePool(request, response, pool, new TranslationResponsePreProcessor(response, true).getBodyStream(), filterDirector.getResponseOutputStream());
                         response.setContentType(pool.getResultContentType());
                     }
                 }
@@ -131,7 +133,7 @@ public class TranslationHandler<T> extends AbstractFilterLogicHandler {
             try {
                 InputStream in = request.getInputStream();
                 final ByteBuffer internalBuffer = new CyclicByteBuffer(DEFAULT_BUFFER_SIZE, true);
-                executePool(request, response, pool, in, new ByteBufferServletOutputStream(internalBuffer));
+                executePool(request, response, pool, new TranslationRequestPreProcessor(request, true).getBodyStream(), new ByteBufferServletOutputStream(internalBuffer));
                 request.setInputStream(new ByteBufferServletInputStream(internalBuffer));
                 filterDirector.requestHeaderManager().putHeader("content-type", pool.getResultContentType());
                 filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
