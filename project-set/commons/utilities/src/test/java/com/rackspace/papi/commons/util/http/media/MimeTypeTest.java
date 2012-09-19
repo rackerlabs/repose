@@ -22,7 +22,6 @@ public class MimeTypeTest {
             assertEquals(MimeType.UNKNOWN, returnedMediaType);
         }
         
-        @Ignore
         @Test
         public void shouldReturnGuessedMediaType() {
            
