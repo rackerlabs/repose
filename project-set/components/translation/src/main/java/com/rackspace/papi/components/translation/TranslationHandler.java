@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.translation;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.media.MediaRangeProcessor;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MimeType;
@@ -22,8 +23,7 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import com.rackspace.papi.httpx.processor.TranslationRequestPreProcessor;
-import com.rackspace.papi.httpx.processor.TranslationResponsePreProcessor;
+import com.rackspace.papi.httpx.processor.TranslationPreProcessor;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -76,6 +76,16 @@ public class TranslationHandler<T> extends AbstractFilterLogicHandler {
         });
 
     }
+    
+    private List<MediaType> getAcceptValues(List<HeaderValue> values) {
+        MediaRangeProcessor processor = new MediaRangeProcessor(values);
+        return processor.process();
+    }
+    
+    private MediaType getContentType(String contentType) {
+        MimeType contentMimeType = MimeType.getMatchingMimeType(contentType);
+        return new MediaType(contentMimeType);
+    }
 
     @Override
     public FilterDirector handleResponse(HttpServletRequest httpRequest, ReadableHttpServletResponse httpResponse) {
@@ -83,12 +93,8 @@ public class TranslationHandler<T> extends AbstractFilterLogicHandler {
         MutableHttpServletResponse response = MutableHttpServletResponse.wrap(httpRequest, httpResponse);
         final FilterDirector filterDirector = new FilterDirectorImpl();
         filterDirector.setFilterAction(FilterAction.PASS);
-
-        MediaRangeProcessor processor = new MediaRangeProcessor(request.getPreferredHeaderValues("Accept", DEFAULT_TYPE));
-        MimeType contentMimeType = MimeType.getMatchingMimeType(response.getHeader("content-type"));
-        MediaType contentType = new MediaType(contentMimeType);
-        List<MediaType> acceptValues = processor.process();
-
+        MediaType contentType = getContentType(response.getHeader("content-type"));
+        List<MediaType> acceptValues = getAcceptValues(request.getPreferredHeaderValues("Accept", DEFAULT_TYPE));
         XsltChainPool<T> pool = getHandlerChainPool("", contentType, acceptValues, String.valueOf(response.getStatus()), responseProcessors);
 
         if (pool != null) {
@@ -96,7 +102,7 @@ public class TranslationHandler<T> extends AbstractFilterLogicHandler {
                 if (response.hasBody()) {
                     InputStream in = response.getBufferedOutputAsInputStream();
                     if (in.available() > 0) {
-                        executePool(request, response, pool, new TranslationResponsePreProcessor(response, true).getBodyStream(), filterDirector.getResponseOutputStream());
+                        executePool(request, response, pool, new TranslationPreProcessor(response.getInputStream(), contentType, true).getBodyStream(), filterDirector.getResponseOutputStream());
                         response.setContentType(pool.getResultContentType());
                     }
                 }
@@ -122,18 +128,15 @@ public class TranslationHandler<T> extends AbstractFilterLogicHandler {
         MutableHttpServletRequest request = MutableHttpServletRequest.wrap(httpRequest);
         MutableHttpServletResponse response = MutableHttpServletResponse.wrap(httpRequest, httpResponse);
         FilterDirector filterDirector = new FilterDirectorImpl();
-
-        MediaRangeProcessor processor = new MediaRangeProcessor(request.getPreferredHeaderValues("Accept", DEFAULT_TYPE));
-        MimeType contentMimeType = MimeType.getMatchingMimeType(request.getHeader("content-type"));
-        MediaType contentType = new MediaType(contentMimeType);
-        List<MediaType> acceptValues = processor.process();
+        MediaType contentType = getContentType(request.getHeader("content-type"));
+        List<MediaType> acceptValues = getAcceptValues(request.getPreferredHeaderValues("Accept", DEFAULT_TYPE));
         XsltChainPool<T> pool = getHandlerChainPool(request.getMethod(), contentType, acceptValues, "", requestProcessors);
 
         if (pool != null) {
             try {
                 InputStream in = request.getInputStream();
                 final ByteBuffer internalBuffer = new CyclicByteBuffer(DEFAULT_BUFFER_SIZE, true);
-                executePool(request, response, pool, new TranslationRequestPreProcessor(request, true).getBodyStream(), new ByteBufferServletOutputStream(internalBuffer));
+                executePool(request, response, pool, new TranslationPreProcessor(request.getInputStream(), contentType, true).getBodyStream(), new ByteBufferServletOutputStream(internalBuffer));
                 request.setInputStream(new ByteBufferServletInputStream(internalBuffer));
                 filterDirector.requestHeaderManager().putHeader("content-type", pool.getResultContentType());
                 filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
