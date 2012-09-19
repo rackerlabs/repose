@@ -7,7 +7,7 @@ import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.datastore.Datastore;
 import org.openrepose.components.authz.rackspace.config.AuthenticationServer;
 import org.openrepose.components.authz.rackspace.config.RackspaceAuthorization;
-import com.rackspace.auth.EndpointListCache;
+import org.openrepose.components.rackspace.authz.cache.EndpointListCache;
 import org.openrepose.components.rackspace.authz.cache.EndpointListCacheImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

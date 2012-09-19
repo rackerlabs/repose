@@ -1,6 +1,9 @@
 package com.rackspace.auth.rackspace;
 
-import com.rackspace.auth.*;
+import com.rackspace.auth.AuthGroup;
+import com.rackspace.auth.AuthGroups;
+import com.rackspace.auth.AuthToken;
+import com.rackspace.auth.ResponseUnmarshaller;
 import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
@@ -63,7 +66,7 @@ public class AuthenticationServiceClientTest {
 
         @Test
         public void shouldReturnValidToken() {
-           
+
 
             String response = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?><token xmlns=\"http://docs.rackspacecloud.com/auth/api/v1.1\" "
                     + "created=\"2012-04-04T11:38:49.000-05:00\" userId=\"" + userId + "\" userURL=\"https://n01.endpoint.auth.rackspacecloud.com/v2.0/usertest1\" "
@@ -75,8 +78,8 @@ public class AuthenticationServiceClientTest {
             when(serviceClientResponse.getStatusCode()).thenReturn(200);
             when(serviceClient.get(authEndpoint + "/token/" + inputToken, headers, "belongsTo", inputUser, "type", inputType)).thenReturn(serviceClientResponse);
 
-            FullAuthInfo fullAuthInfo = authenticationServiceClient.validateToken(result, inputToken);
-            assertEquals(fullAuthInfo.getToken().getUserId(), userId);
+            AuthToken tokenInfo = authenticationServiceClient.validateToken(result, inputToken);
+            assertEquals(tokenInfo.getUserId(), userId);
         }
 
         @Test
@@ -84,8 +87,8 @@ public class AuthenticationServiceClientTest {
             when(serviceClientResponse.getStatusCode()).thenReturn(404);
             when(serviceClient.get(authEndpoint + "/token/" + inputToken, headers, "belongsTo", inputUser, "type", inputType)).thenReturn(serviceClientResponse);
 
-            FullAuthInfo fullAuthInfo = authenticationServiceClient.validateToken(result, inputToken);
-            assertNull("No token should be returned on a 404", fullAuthInfo);
+            AuthToken tokenInfo = authenticationServiceClient.validateToken(result, inputToken);
+            assertNull("No token should be returned on a 404", tokenInfo);
         }
 
         @Test
@@ -93,8 +96,8 @@ public class AuthenticationServiceClientTest {
             when(serviceClientResponse.getStatusCode()).thenReturn(401);
             when(serviceClient.get(authEndpoint + "/token/" + inputToken, headers, "belongsTo", inputUser, "type", inputType)).thenReturn(serviceClientResponse);
 
-            FullAuthInfo fullAuthInfo = authenticationServiceClient.validateToken(result, inputToken);
-            assertNull("No token should be returned on a 401", fullAuthInfo);
+            AuthToken tokenInfo = authenticationServiceClient.validateToken(result, inputToken);
+            assertNull("No token should be returned on a 401", tokenInfo);
         }
 
         @Test

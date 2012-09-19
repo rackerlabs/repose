@@ -12,8 +12,7 @@ import com.rackspace.papi.service.datastore.Datastore;
 public final class OpenStackAuthenticationHandlerFactory {
     private static final String AUTH_TOKEN_CACHE_PREFIX = "openstack.identity.token";
     private static final String AUTH_GROUP_CACHE_PREFIX = "openstack.identity.group";
-    private static final int DEFAULT_ENDPOINT_CACHE = 300;
-    
+
     private OpenStackAuthenticationHandlerFactory() {
     }
 
@@ -23,12 +22,11 @@ public final class OpenStackAuthenticationHandlerFactory {
         final OpenstackAuth authConfig = config.getOpenstackAuth();
         final OpenStackIdentityService ids = authConfig.getIdentityService();
         final AuthenticationService authService = new AuthenticationServiceFactory().build(ids.getUri(), ids.getUsername(), ids.getPassword());
-        final EndpointListCacheImpl endpointListCache = new EndpointListCacheImpl(datastore, DEFAULT_ENDPOINT_CACHE);
         final Configurables configurables = new Configurables(authConfig.isDelegable(),
                 ids.getUri(),
                 accountRegexExtractor,
                 authConfig.isIncludeQueryParams(), authConfig.isTenanted(), authConfig.getGroupCacheTimeout(), authConfig.getTokenCacheTimeout());
 
-        return new OpenStackAuthenticationHandler(configurables, authService, cache, grpCache, uriMatcher, endpointListCache);
+        return new OpenStackAuthenticationHandler(configurables, authService, cache, grpCache, uriMatcher);
     }
 }

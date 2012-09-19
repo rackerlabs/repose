@@ -7,276 +7,240 @@ import org.openstack.docs.identity.api.v2.*;
 
 import javax.xml.datatype.DatatypeConfigurationException;
 import java.util.Calendar;
-import java.util.LinkedList;
-import java.util.List;
 
 public class KeystonePropertiesProvider extends UserDataPropertiesProviderImpl implements KeystoneProvider {
 
-   private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(KeystonePropertiesProvider.class);
-   private final ObjectFactory objectFactory;
-   private final com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.ObjectFactory groupsObjectFactory;
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(KeystonePropertiesProvider.class);
+    private final ObjectFactory objectFactory;
+    private final com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.ObjectFactory groupsObjectFactory;
 
-   public KeystonePropertiesProvider(String propertiesFile) throws DatatypeConfigurationException {
-      super(propertiesFile);
-      objectFactory = new ObjectFactory();
-      groupsObjectFactory = new com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.ObjectFactory();
-   }
+    public KeystonePropertiesProvider(String propertiesFile) throws DatatypeConfigurationException {
+        super(propertiesFile);
+        objectFactory = new ObjectFactory();
+        groupsObjectFactory = new com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.ObjectFactory();
+    }
 
-   @Override
-   public String getUsernameFromToken(String token) {
-      String userHash = token.split(":")[0];
+    @Override
+    public String getUsernameFromToken(String token) {
+        String userHash = token.split(":")[0];
 
-      for (String user : getValidUsers()) {
-         if (String.valueOf(user.hashCode()).equals(userHash)) {
-            return user;
-         }
-      }
+        for (String user : getValidUsers()) {
+            if (String.valueOf(user.hashCode()).equals(userHash)) {
+                return user;
+            }
+        }
 
-      return "";
-   }
+        return "";
+    }
 
-   @Override
-   public boolean isValidToken(String token) {
-      String userHash = token != null ? token.split(":")[0] : "";
+    @Override
+    public boolean isValidToken(String token) {
+        String userHash = token != null ? token.split(":")[0] : "";
 
-      for (String user : getValidUsers()) {
-         if (String.valueOf(user.hashCode()).equals(userHash)) {
-            return true;
-         }
-      }
+        for (String user : getValidUsers()) {
+            if (String.valueOf(user.hashCode()).equals(userHash)) {
+                return true;
+            }
+        }
 
-      return false;
-   }
+        return false;
+    }
 
-   @Override
-   public UserForAuthenticateResponse getUser(String userName) {
-      UserForAuthenticateResponse user = objectFactory.createUserForAuthenticateResponse();
+    @Override
+    public UserForAuthenticateResponse getUser(String userName) {
+        UserForAuthenticateResponse user = objectFactory.createUserForAuthenticateResponse();
 
-      user.setId(String.valueOf(getUserId(userName)));
-      user.setName(userName);
-      user.setRoles(getRoles(userName));
+        user.setId(String.valueOf(getUserId(userName)));
+        user.setName(userName);
+        user.setRoles(getRoles(userName));
 
-      return user;
-   }
+        return user;
+    }
 
-   @Override
-   public ServiceCatalog getServiceCatalog(String userName) {
+    @Override
+    public ServiceCatalog getServiceCatalog(String userName) {
+        return objectFactory.createServiceCatalog();
+    }
 
-      ServiceCatalog serviceCatalog = new ServiceCatalog();
-      String[] endpointIds = getProperties().getProperty("endpoints." + userName).split(",");
+    @Override
+    public RoleList getRoles(String userName) {
+        RoleList roleList = objectFactory.createRoleList();
 
-      List<ServiceForCatalog> serviceCatalogList = new LinkedList<ServiceForCatalog>();
+        String roles = getProperties().getProperty("roles." + userName);
 
-      for (String eId : endpointIds) {
-         ServiceForCatalog serviceForCatalog = new ServiceForCatalog();
+        if (roles == null) {
+            LOG.warn("No roles defined for user: " + userName);
+            return roleList;
+        }
 
-         serviceForCatalog.setType(getProperties().getProperty("type." + eId));
-         serviceForCatalog.setName(getProperties().getProperty("name." + eId));
+        String[] roleNames = roles.split(",");
 
-         List<EndpointForService> endpointForServicesList = new LinkedList<EndpointForService>();
-         EndpointForService endpointForService = new EndpointForService();
-         endpointForService.setRegion(getProperties().getProperty("region." + eId));
-         endpointForService.setTenantId(userName);
-         endpointForService.setPublicURL(getProperties().getProperty("publicurl." + eId));
+        for (String roleId : roleNames) {
+            Role role = getRole(userName, roleId);
+            if (role != null) {
+                roleList.getRole().add(role);
+            }
+        }
 
+        return roleList;
+    }
 
-         String v = getProperties().getProperty("versions." + eId);
-         if (v != null) {
+    @Override
+    public Role getRole(String userName, String roleId) {
 
-            VersionForService versionForService = new VersionForService();
-            versionForService.setId(v);
-            versionForService.setInfo(getProperties().getProperty("version." + eId + "." + v + ".info"));
-            versionForService.setList(getProperties().getProperty("version." + eId + "." + v + ".list"));
-            endpointForService.setVersion(versionForService);
-         }
-         endpointForServicesList.add(endpointForService);
-         serviceForCatalog.getEndpoint().addAll(endpointForServicesList);
+        String baseRole = "role." + userName + "." + roleId;
 
-         serviceCatalogList.add(serviceForCatalog);
-      }
-      serviceCatalog.getService().addAll(serviceCatalogList);
-      return serviceCatalog;
-   }
+        String name = getProperties().getProperty(baseRole + ".name");
+        String desc = getProperties().getProperty(baseRole + ".desc", "");
 
-   @Override
-   public RoleList getRoles(String userName) {
-      RoleList roleList = objectFactory.createRoleList();
+        if (name == null) {
+            LOG.warn("Unable to find role details for role: " + baseRole);
+            name = roleId;
+        }
 
-      String roles = getProperties().getProperty("roles." + userName);
+        LOG.info("Adding role: " + roleId + " for user: " + userName);
+        Role role = objectFactory.createRole();
+        role.setId(roleId);
+        role.setName(name);
+        role.setDescription(desc);
+        //role.setServiceId("serviceId");
+        //role.setTenantId("tenantId");
 
-      if (roles == null) {
-         LOG.warn("No roles defined for user: " + userName);
-         return roleList;
-      }
+        return role;
+    }
 
-      String[] roleNames = roles.split(",");
+    @Override
+    public Groups getGroups(String userName) {
+        Groups groupList = groupsObjectFactory.createGroups();
 
-      for (String roleId : roleNames) {
-         Role role = getRole(userName, roleId);
-         if (role != null) {
-            roleList.getRole().add(role);
-         }
-      }
+        String groups = getProperties().getProperty("groups." + userName);
 
-      return roleList;
-   }
+        if (groups == null) {
+            LOG.warn("No groups defined for user: " + userName);
+            return groupList;
+        }
 
-   @Override
-   public Role getRole(String userName, String roleId) {
+        String[] groupNames = groups.split(",");
 
-      String baseRole = "role." + userName + "." + roleId;
+        for (String groupId : groupNames) {
+            Group group = getGroup(userName, groupId);
+            if (group != null) {
+                groupList.getGroup().add(group);
+            }
+        }
 
-      String name = getProperties().getProperty(baseRole + ".name");
-      String desc = getProperties().getProperty(baseRole + ".desc", "");
+        return groupList;
+    }
 
-      if (name == null) {
-         LOG.warn("Unable to find role details for role: " + baseRole);
-         name = roleId;
-      }
+    @Override
+    public Group getGroup(String userName, String groupId) {
 
-      LOG.info("Adding role: " + roleId + " for user: " + userName);
-      Role role = objectFactory.createRole();
-      role.setId(roleId);
-      role.setName(name);
-      role.setDescription(desc);
-      //role.setServiceId("serviceId");
-      //role.setTenantId("tenantId");
+        String baseGroup = "group." + userName + "." + groupId;
 
-      return role;
-   }
+        String name = getProperties().getProperty(baseGroup + ".name");
+        String desc = getProperties().getProperty(baseGroup + ".desc", "");
 
-   @Override
-   public Groups getGroups(String userName) {
-      Groups groupList = groupsObjectFactory.createGroups();
+        if (name == null) {
+            LOG.warn("Unable to find group details for group: " + baseGroup);
+            name = groupId;
+        }
 
-      String groups = getProperties().getProperty("groups." + userName);
+        LOG.info("Adding group: " + groupId + " for user: " + userName);
+        Group group = groupsObjectFactory.createGroup();
+        group.setId(groupId);
+        group.setName(name);
+        group.setDescription(desc);
 
-      if (groups == null) {
-         LOG.warn("No groups defined for user: " + userName);
-         return groupList;
-      }
+        return group;
+    }
 
-      String[] groupNames = groups.split(",");
+    @Override
+    public TenantForAuthenticateResponse createTenant() {
+        TenantForAuthenticateResponse tenant = objectFactory.createTenantForAuthenticateResponse();
+        tenant.setId("tenantId");
+        tenant.setName("tenantName");
 
-      for (String groupId : groupNames) {
-         Group group = getGroup(userName, groupId);
-         if (group != null) {
-            groupList.getGroup().add(group);
-         }
-      }
+        return tenant;
+    }
 
-      return groupList;
-   }
+    @Override
+    public Token createToken(String tokenId) {
+        Token token = objectFactory.createToken();
+        token.setId(tokenId);
+        token.setExpires(getCalendar(Calendar.DAY_OF_MONTH, 1));
+        //token.setTenant(createTenant());
 
-   @Override
-   public Group getGroup(String userName, String groupId) {
+        return token;
+    }
 
-      String baseGroup = "group." + userName + "." + groupId;
+    @Override
+    public Token createToken(CredentialType credentialType) {
+        PasswordCredentialsRequiredUsername credentials = (PasswordCredentialsRequiredUsername) credentialType;
 
-      String name = getProperties().getProperty(baseGroup + ".name");
-      String desc = getProperties().getProperty(baseGroup + ".desc", "");
+        return createToken(credentials.getUsername().hashCode() + ":" + credentials.getPassword().hashCode());
+    }
 
-      if (name == null) {
-         LOG.warn("Unable to find group details for group: " + baseGroup);
-         name = groupId;
-      }
+    @Override
+    public ItemNotFoundFault createItemNotFound() {
+        ItemNotFoundFault fault = objectFactory.createItemNotFoundFault();
+        fault.setCode(404);
+        fault.setMessage("Token not found.");
+        fault.setDetails("");
 
-      LOG.info("Adding group: " + groupId + " for user: " + userName);
-      Group group = groupsObjectFactory.createGroup();
-      group.setId(groupId);
-      group.setName(name);
-      group.setDescription(desc);
+        return fault;
+    }
 
-      return group;
-   }
+    @Override
+    public UnauthorizedFault createUnauthorized(String message) {
+        UnauthorizedFault fault = objectFactory.createUnauthorizedFault();
+        fault.setCode(401);
+        fault.setMessage(message);
+        fault.setDetails("");
+        //fault.setMessage("You are not authorized to access this resource.");
+        //fault.setDetails("AuthErrorHandler");
 
-   @Override
-   public TenantForAuthenticateResponse createTenant() {
-      TenantForAuthenticateResponse tenant = objectFactory.createTenantForAuthenticateResponse();
-      tenant.setId("tenantId");
-      tenant.setName("tenantName");
+        return fault;
 
-      return tenant;
-   }
+    }
 
-   @Override
-   public Token createToken(String tokenId) {
-      Token token = objectFactory.createToken();
-      token.setId(tokenId);
-      token.setExpires(getCalendar(Calendar.DAY_OF_MONTH, 1));
-      //token.setTenant(createTenant());
+    @Override
+    public AuthenticateResponse newAuthenticateResponse() {
+        return objectFactory.createAuthenticateResponse();
+    }
 
-      return token;
-   }
+    @Override
+    public EndpointList getEndpoints(String token) {
+        EndpointList el = new EndpointList();
+        String username = this.getUsernameFromToken(token);
+        Endpoint endpoint;
+        VersionForService version;
+        String[] endpointIds = getProperties().getProperty("endpoints." + username).split(",");
 
-   @Override
-   public Token createToken(CredentialType credentialType) {
-      PasswordCredentialsRequiredUsername credentials = (PasswordCredentialsRequiredUsername) credentialType;
+        for (String eId : endpointIds) {
+            endpoint = new Endpoint();
+            endpoint.setId(Integer.parseInt(eId));
+            endpoint.setType(getProperties().getProperty("type." + eId));
+            endpoint.setName(getProperties().getProperty("name." + eId));
+            endpoint.setPublicURL(getProperties().getProperty("publicurl." + eId) + "/" + username);
+            endpoint.setInternalURL(getProperties().getProperty("internalurl." + eId) + "/" + username);
+            endpoint.setAdminURL(getProperties().getProperty("adminurl." + eId));
+            endpoint.setTenantId(username);
+            endpoint.setRegion(getProperties().getProperty("region."+eId));
+            String v = getProperties().getProperty("versions." + eId);
+            if (v != null) {
+                version = new VersionForService();
+                version.setId(v);
+                version.setInfo(getProperties().getProperty("version." + eId + "." + v + ".info"));
+                version.setList(getProperties().getProperty("version." + eId + "." + v + ".list"));
+                endpoint.setVersion(version);
+            }
 
-      return createToken(credentials.getUsername().hashCode() + ":" + credentials.getPassword().hashCode());
-   }
+            el.getEndpoint().add(endpoint);
 
-   @Override
-   public ItemNotFoundFault createItemNotFound() {
-      ItemNotFoundFault fault = objectFactory.createItemNotFoundFault();
-      fault.setCode(404);
-      fault.setMessage("Token not found.");
-      fault.setDetails("");
-
-      return fault;
-   }
-
-   @Override
-   public UnauthorizedFault createUnauthorized(String message) {
-      UnauthorizedFault fault = objectFactory.createUnauthorizedFault();
-      fault.setCode(401);
-      fault.setMessage(message);
-      fault.setDetails("");
-      //fault.setMessage("You are not authorized to access this resource.");
-      //fault.setDetails("AuthErrorHandler");
-
-      return fault;
-
-   }
-
-   @Override
-   public AuthenticateResponse newAuthenticateResponse() {
-      return objectFactory.createAuthenticateResponse();
-   }
-
-   @Override
-   public EndpointList getEndpoints(String token) {
-      EndpointList el = new EndpointList();
-      String username = this.getUsernameFromToken(token);
-      Endpoint endpoint;
-      VersionForService version;
-      String[] endpointIds = getProperties().getProperty("endpoints." + username).split(",");
-
-      for (String eId : endpointIds) {
-         endpoint = new Endpoint();
-         endpoint.setId(Integer.parseInt(eId));
-         endpoint.setType(getProperties().getProperty("type." + eId));
-         endpoint.setName(getProperties().getProperty("name." + eId));
-         endpoint.setPublicURL(getProperties().getProperty("publicurl." + eId) + "/" + username);
-         endpoint.setInternalURL(getProperties().getProperty("internalurl." + eId) + "/" + username);
-         endpoint.setAdminURL(getProperties().getProperty("adminurl." + eId));
-         endpoint.setTenantId(username);
-         endpoint.setRegion(getProperties().getProperty("region." + eId));
-         String v = getProperties().getProperty("versions." + eId);
-         if (v != null) {
-            version = new VersionForService();
-            version.setId(v);
-            version.setInfo(getProperties().getProperty("version." + eId + "." + v + ".info"));
-            version.setList(getProperties().getProperty("version." + eId + "." + v + ".list"));
-            endpoint.setVersion(version);
-         }
-
-         el.getEndpoint().add(endpoint);
-
-      }
+        }
 
 
 
-      return el;
-   }
+        return el;
+    }
 }
