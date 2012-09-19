@@ -3,7 +3,6 @@ package com.rackspace.papi.components.clientauth.rackspace.v1_1;
 import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthGroups;
 import com.rackspace.auth.AuthToken;
-import com.rackspace.auth.FullAuthInfo;
 import com.rackspace.auth.rackspace.AuthenticationService;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
@@ -116,7 +115,6 @@ public class RackspaceAuthenticationHandlerTest {
         }
     }
 
-    
     public static class WhenAuthenticatingDelegableRequests extends TestParent {
 
         @Override
@@ -168,8 +166,7 @@ public class RackspaceAuthenticationHandlerTest {
 
             assertEquals("Auth component must reject invalid credentials with a 401 when in delegated mode", HttpStatusCode.UNAUTHORIZED, requestDirector.getResponseStatus());
         }
-        
-        @Ignore
+
         @Test
         public void shouldPassValidCredentials() {
             String tokenId = "some-random-auth-token";
@@ -178,11 +175,9 @@ public class RackspaceAuthenticationHandlerTest {
             fullToken.setId(tokenId);
             fullToken.setUserId(userName);
             AuthToken token = mock(AuthToken.class);
-            FullAuthInfo authInfo = mock(FullAuthInfo.class);
-            when(authInfo.getToken()).thenReturn(token);
             when(request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn("some-random-auth-token");
             when(request.getRequestURI()).thenReturn("/start/accountId/resource");
-            when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(authInfo);
+            when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(token);
             when(authServiceClient.getGroups(anyString())).thenReturn(authGroups);
 
             final FilterDirector requestDirector = handler.handleRequest(request, response);
@@ -258,8 +253,7 @@ public class RackspaceAuthenticationHandlerTest {
 
             assertEquals("Auth component must reject invalid credentials with a 401 when in not in delegated mode", HttpStatusCode.UNAUTHORIZED, requestDirector.getResponseStatus());
         }
-        
-        @Ignore
+
         @Test
         public void shouldPassValidCredentials() {
             String tokenId = "some-random-auth-token";
@@ -268,11 +262,9 @@ public class RackspaceAuthenticationHandlerTest {
             fullToken.setId(tokenId);
             fullToken.setUserId(userName);
             AuthToken token = mock(AuthToken.class);
-            FullAuthInfo authInfo = mock(FullAuthInfo.class);
-            when(authInfo.getToken()).thenReturn(token);
             when(request.getHeader(CommonHttpHeader.AUTH_TOKEN.toString())).thenReturn(tokenId);
             when(request.getRequestURI()).thenReturn("/start/accountId/resource");
-            when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(authInfo);
+            when(authServiceClient.validateToken(any(ExtractorResult.class), anyString())).thenReturn(token);
             when(authServiceClient.getGroups(anyString())).thenReturn(authGroups);
 
             final FilterDirector requestDirector = handler.handleRequest(request, response);

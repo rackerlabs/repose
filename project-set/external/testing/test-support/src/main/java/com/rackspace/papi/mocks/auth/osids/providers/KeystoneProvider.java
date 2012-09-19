@@ -16,7 +16,7 @@ public interface KeystoneProvider extends UserDataProvider {
    Token createToken(CredentialType credentialType);
 
    UnauthorizedFault createUnauthorized(String message);
-
+   
    Group getGroup(String userName, String groupId);
 
    Groups getGroups(String userName);
@@ -28,12 +28,13 @@ public interface KeystoneProvider extends UserDataProvider {
    UserForAuthenticateResponse getUser(String userName);
 
    ServiceCatalog getServiceCatalog(String userName);
-
+   
    String getUsernameFromToken(String token);
 
    boolean isValidToken(String token);
-
+   
    AuthenticateResponse newAuthenticateResponse();
-
+   
    EndpointList getEndpoints(String token);
+
 }

@@ -1,6 +1,5 @@
-package com.rackspace.auth;
+package org.openrepose.components.rackspace.authz.cache;
 
-import com.rackspace.auth.CachedEndpoint;
 import java.io.IOException;
 import java.util.List;
 

@@ -12,8 +12,8 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openrepose.components.authz.rackspace.config.ServiceEndpoint;
-import com.rackspace.auth.CachedEndpoint;
-import com.rackspace.auth.EndpointListCache;
+import org.openrepose.components.rackspace.authz.cache.CachedEndpoint;
+import org.openrepose.components.rackspace.authz.cache.EndpointListCache;
 import org.openstack.docs.identity.api.v2.Endpoint;
 
 import javax.servlet.http.HttpServletRequest;

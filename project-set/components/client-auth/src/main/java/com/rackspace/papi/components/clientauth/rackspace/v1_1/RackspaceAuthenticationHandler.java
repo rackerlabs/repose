@@ -3,7 +3,6 @@ package com.rackspace.papi.components.clientauth.rackspace.v1_1;
 import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthGroups;
 import com.rackspace.auth.AuthToken;
-import com.rackspace.auth.FullAuthInfo;
 import com.rackspace.auth.rackspace.AuthenticationService;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
@@ -26,7 +25,7 @@ public class RackspaceAuthenticationHandler extends AuthenticationHandler {
    }
 
    @Override
-   public FullAuthInfo validateToken(ExtractorResult<String> account, String token) {
+   public AuthToken validateToken(ExtractorResult<String> account, String token) {
       return authenticationService.validateToken(account, token);
    }
 

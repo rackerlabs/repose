@@ -5,6 +5,7 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
+import org.junit.Ignore;
 
 /**
  * @author fran
@@ -19,6 +20,17 @@ public class MimeTypeTest {
             MimeType returnedMediaType = MimeType.getMatchingMimeType(mediaTypeString);
 
             assertEquals(MimeType.UNKNOWN, returnedMediaType);
-        }        
+        }
+        
+        @Ignore
+        @Test
+        public void shouldReturnGuessedMediaType() {
+           
+           String mediaTypeString = "text/xml";
+           
+           MimeType returnedMediaType = MimeType.guessMediaTypeFromString(mediaTypeString);
+           
+           assertEquals(returnedMediaType.getMimeType(), mediaTypeString);
+        }
     }
 }

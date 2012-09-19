@@ -1,6 +1,5 @@
 package org.openrepose.components.rackspace.authz.cache;
 
-import com.rackspace.auth.CachedEndpoint;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.impl.StoredElementImpl;
