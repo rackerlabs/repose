@@ -37,6 +37,14 @@ public enum MimeType {
 
    public static MimeType guessMediaTypeFromString(String mimeType) {
       if (StringUtilities.isNotBlank(mimeType)) {
+         
+         for(MimeType ct : values()){
+            if(mimeType.contains(ct.getType()) && mimeType.contains(ct.getSubType())){
+               return ct;
+            }
+         }
+         
+         
          for (MimeType ct : values()) {
             if (mimeType.contains(ct.getSubType())) {
                
