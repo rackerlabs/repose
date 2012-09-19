@@ -40,7 +40,7 @@ public class XsltHandlerChainExecutor {
     private InputStreamUriParameterResolver getResolver(Transformer transformer) {
         URIResolver resolver = transformer.getURIResolver();
         SourceUriResolverChain resolverChain;
-        if (resolver == null || !(resolver instanceof SourceUriResolverChain)) {
+        if (!(resolver instanceof SourceUriResolverChain)) {
             resolverChain = new SourceUriResolverChain(resolver);
             resolverChain.addResolver(new InputStreamUriParameterResolver());
             resolverChain.addResolver(new ClassPathUriResolver());
