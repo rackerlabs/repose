@@ -55,7 +55,7 @@ public class TranslationHandlerFactory<T> extends AbstractConfiguredFilterHandle
         String path = !xslPath.contains("://") ? StringUtilities.join("file://", configRoot, "/", xslPath) : xslPath;
         return path;
     }
-    
+
     class TranslationConfigurationListener implements UpdateListener<TranslationConfig> {
 
         @Override
@@ -72,10 +72,12 @@ public class TranslationHandlerFactory<T> extends AbstractConfiguredFilterHandle
                                 @Override
                                 public XsltChain<T> construct() throws ResourceConstructionException {
                                     List<StyleSheetInfo> stylesheets = new ArrayList<StyleSheetInfo>();
-                                    for (StyleSheet sheet : translation.getStyleSheets().getStyle()) {
-                                        stylesheets.add(new StyleSheetInfo(sheet.getId(), getXslPath(sheet.getHref())));
-                                        for (StyleParam param: sheet.getParam()) {
-                                            params.add(new Parameter<String>(sheet.getId(), param.getName(), param.getValue()));
+                                    if (translation.getStyleSheets() != null) {
+                                        for (StyleSheet sheet : translation.getStyleSheets().getStyle()) {
+                                            stylesheets.add(new StyleSheetInfo(sheet.getId(), getXslPath(sheet.getHref())));
+                                            for (StyleParam param : sheet.getParam()) {
+                                                params.add(new Parameter<String>(sheet.getId(), param.getName(), param.getValue()));
+                                            }
                                         }
                                     }
 
@@ -102,10 +104,12 @@ public class TranslationHandlerFactory<T> extends AbstractConfiguredFilterHandle
                                 @Override
                                 public XsltChain<T> construct() throws ResourceConstructionException {
                                     List<StyleSheetInfo> stylesheets = new ArrayList<StyleSheetInfo>();
-                                    for (StyleSheet sheet : translation.getStyleSheets().getStyle()) {
-                                        stylesheets.add(new StyleSheetInfo(sheet.getId(), getXslPath(sheet.getHref())));
-                                        for (StyleParam param: sheet.getParam()) {
-                                            params.add(new Parameter<String>(sheet.getId(), param.getName(), param.getValue()));
+                                    if (translation.getStyleSheets() != null) {
+                                        for (StyleSheet sheet : translation.getStyleSheets().getStyle()) {
+                                            stylesheets.add(new StyleSheetInfo(sheet.getId(), getXslPath(sheet.getHref())));
+                                            for (StyleParam param : sheet.getParam()) {
+                                                params.add(new Parameter<String>(sheet.getId(), param.getName(), param.getValue()));
+                                            }
                                         }
                                     }
 

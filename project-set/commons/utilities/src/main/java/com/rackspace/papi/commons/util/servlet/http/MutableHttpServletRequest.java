@@ -13,7 +13,7 @@ import java.util.*;
  *
  * @author jhopper
  */
-public final class MutableHttpServletRequest extends HttpServletRequestWrapper {
+public class MutableHttpServletRequest extends HttpServletRequestWrapper {
 
     public static MutableHttpServletRequest wrap(HttpServletRequest request) {
         return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request);

@@ -29,24 +29,24 @@ public class ManifestProcessorTest {
         public void shouldDoNothingForNullManifest () {
             ArchiveEntryDescriptor mockedArchiveEntryDescriptor = mock(ArchiveEntryDescriptor.class);
             JarInputStream mockedInputStream = mock(JarInputStream.class);
-            ArchiveEntryListener mockedListener = mock(ArchiveEntryListener.class);
+            ArchiveEntryHelper mockedHelper = mock(ArchiveEntryHelper.class);
 
             when(mockedInputStream.getManifest()).thenReturn(null);
 
-            ManifestProcessor.processManifest(mockedArchiveEntryDescriptor, mockedInputStream, mockedListener);
+            ManifestProcessor.processManifest(mockedArchiveEntryDescriptor, mockedInputStream, mockedHelper);
         }
 
         @Test
         public void shouldCallListenerToProcessManifest() {
             ArchiveEntryDescriptor mockedArchiveEntryDescriptor = mock(ArchiveEntryDescriptor.class);
             JarInputStream mockedInputStream = mock(JarInputStream.class);
-            ArchiveEntryListener mockedListener = mock(ArchiveEntryListener.class);
+            ArchiveEntryHelper mockedHelper = mock(ArchiveEntryHelper.class);
             Manifest mockedManifest = mock(Manifest.class);
 
             when(mockedInputStream.getManifest()).thenReturn(mockedManifest);
-            doNothing().when(mockedListener).newJarManifest(any(ArchiveEntryDescriptor.class), any(Manifest.class));
+            doNothing().when(mockedHelper).newJarManifest(any(ArchiveEntryDescriptor.class), any(Manifest.class));
 
-            ManifestProcessor.processManifest(mockedArchiveEntryDescriptor, mockedInputStream, mockedListener);
+            ManifestProcessor.processManifest(mockedArchiveEntryDescriptor, mockedInputStream, mockedHelper);
         }
     }
 }

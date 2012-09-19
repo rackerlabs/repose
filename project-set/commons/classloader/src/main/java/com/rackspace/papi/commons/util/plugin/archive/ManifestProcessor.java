@@ -10,11 +10,11 @@ public final class ManifestProcessor {
    private ManifestProcessor() {
    }
 
-   public static void processManifest(ArchiveEntryDescriptor archiveEntryDescriptor, JarInputStream inputStream, ArchiveEntryListener listener) {
+   public static void processManifest(ArchiveEntryDescriptor archiveEntryDescriptor, JarInputStream inputStream, ArchiveEntryHelper helper) {
       final Manifest manifest = inputStream.getManifest();
 
       if (manifest != null) {
-         listener.newJarManifest(archiveEntryDescriptor, manifest);
+         helper.newJarManifest(archiveEntryDescriptor, manifest);
       }
    }
 }
