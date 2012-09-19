@@ -27,7 +27,7 @@ public abstract class AbstractXsltChainBuilder<T> implements XsltChainBuilder<T>
 
     private void addUriResolvers() {
         URIResolver resolver = factory.getURIResolver();
-        if (resolver == null || !(resolver instanceof SourceUriResolver)) {
+        if (!(resolver instanceof SourceUriResolver)) {
             SourceUriResolverChain chain = new SourceUriResolverChain(resolver);
             chain.addResolver(new InputStreamUriParameterResolver());
             chain.addResolver(new ClassPathUriResolver());

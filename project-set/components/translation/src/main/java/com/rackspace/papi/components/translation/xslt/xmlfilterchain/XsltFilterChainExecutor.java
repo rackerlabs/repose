@@ -36,7 +36,7 @@ public class XsltFilterChainExecutor {
     private com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver getResolver(Transformer transformer) {
         URIResolver resolver = transformer.getURIResolver();
         SourceUriResolverChain resolverChain;
-        if (resolver == null || !(resolver instanceof SourceUriResolverChain)) {
+        if (!(resolver instanceof SourceUriResolverChain)) {
             resolverChain = new SourceUriResolverChain(resolver);
             resolverChain.addResolver(new com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver());
             resolverChain.addResolver(new ClassPathUriResolver());
