@@ -41,8 +41,9 @@ public class TranslationFilter implements Filter {
         final String configProp = InitParameter.POWER_API_CONFIG_DIR.getParameterName();
         final ServletContext ctx = filterConfig.getServletContext();
         final String configurationRoot = System.getProperty(configProp, ctx.getInitParameter(configProp));
+        ConfigurationService manager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
         //handlerFactory = new TranslationHandlerFactory<Templates>(new XsltHandlerChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()));
-        handlerFactory = new TranslationHandlerFactory<XMLFilter>(new XsltFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), configurationRoot);
+        handlerFactory = new TranslationHandlerFactory<XMLFilter>(manager, new XsltFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), configurationRoot);
         configurationManager = ServletContextHelper.getInstance().getPowerApiContext(servletContext).configurationService();
         configurationManager.subscribeTo(config, handlerFactory, TranslationConfig.class);
     }

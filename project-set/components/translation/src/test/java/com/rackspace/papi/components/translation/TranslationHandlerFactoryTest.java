@@ -9,6 +9,7 @@ import com.rackspace.papi.components.translation.config.StyleSheet;
 import com.rackspace.papi.components.translation.config.StyleSheets;
 import com.rackspace.papi.components.translation.config.TranslationConfig;
 import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XsltFilterChainBuilder;
+import com.rackspace.papi.service.config.ConfigurationService;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -19,6 +20,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
 public class TranslationHandlerFactoryTest {
@@ -27,10 +29,12 @@ public class TranslationHandlerFactoryTest {
         
         private TranslationHandlerFactory factory;
         private String xml = "application/xml";
+        private ConfigurationService manager;
 
         @Before
         public void setUp() {
-            factory = new TranslationHandlerFactory(new XsltFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), "");
+            manager = mock(ConfigurationService.class);
+            factory = new TranslationHandlerFactory(manager, new XsltFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), "");
         }
         
         @Test

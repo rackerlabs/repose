@@ -22,76 +22,83 @@ import org.springframework.beans.factory.annotation.Qualifier;
 @Component("configurationManager")
 public class PowerApiConfigurationManager implements ConfigurationService {
 
-   private static final Logger LOG = LoggerFactory.getLogger(PowerApiConfigurationManager.class);
-   private final Map<Class, WeakReference<ConfigurationParser>> parserLookaside;
-   private ConfigurationUpdateManager updateManager;
-   private ConfigurationResourceResolver resourceResolver;
+    private static final Logger LOG = LoggerFactory.getLogger(PowerApiConfigurationManager.class);
+    private final Map<Class, WeakReference<ConfigurationParser>> parserLookaside;
+    private ConfigurationUpdateManager updateManager;
+    private ConfigurationResourceResolver resourceResolver;
 
-   @Autowired
-   public PowerApiConfigurationManager(@Qualifier("reposeVersion") String version) {
-      LOG.error("Repose Version: " + version);
-      parserLookaside = new HashMap<Class, WeakReference<ConfigurationParser>>();
-   }
-
-   @Override
-   public void destroy() {
-      parserLookaside.clear();
-      updateManager.destroy();
-   }
-
-   @Override
-   public void setResourceResolver(ConfigurationResourceResolver resourceResolver) {
-      this.resourceResolver = resourceResolver;
-   }
-
-   @Override
-   public void setUpdateManager(ConfigurationUpdateManager updateManager) {
-      this.updateManager = updateManager;
-   }
-
-   @Override
-   public <T> void subscribeTo(String configurationName, UpdateListener<T> listener, Class<T> configurationClass) {
-      subscribeTo(configurationName, listener, getPooledJaxbConfigurationParser(configurationClass));
-   }
+    @Autowired
+    public PowerApiConfigurationManager(@Qualifier("reposeVersion") String version) {
+        LOG.error("Repose Version: " + version);
+        parserLookaside = new HashMap<Class, WeakReference<ConfigurationParser>>();
+    }
 
     @Override
-   public <T> void subscribeTo(String configurationName, UpdateListener<T> listener, ConfigurationParser<T> customParser) {
-      final ConfigurationResource resource = resourceResolver.resolve(configurationName);
-      updateManager.registerListener(listener, resource, customParser);
+    public void destroy() {
+        parserLookaside.clear();
+        updateManager.destroy();
+    }
 
-      // Initial load of the cfg object
-      try {
-         listener.configurationUpdated(customParser.read(resource));
-      } catch (Exception ex) {
-         
-         // TODO:Refactor - Introduce a helper method so that this logic can be centralized and reused
-         if (ex.getCause() instanceof FileNotFoundException) {
-            LOG.error("An I/O error has occured while trying to read resource " + configurationName + " - Reason: file not found.");
-         } else {
-            LOG.error("Configuration update error. Reason: " + ex.getMessage(), ex);
-         }
-      }
-   }
+    @Override
+    public void setResourceResolver(ConfigurationResourceResolver resourceResolver) {
+        this.resourceResolver = resourceResolver;
+    }
 
-   @Override
-   public void unsubscribeFrom(String configurationName, UpdateListener listener) {
-      updateManager.unregisterListener(listener, resourceResolver.resolve(configurationName));
-   }
+    @Override
+    public void setUpdateManager(ConfigurationUpdateManager updateManager) {
+        this.updateManager = updateManager;
+    }
 
-   public <T> ConfigurationParser<T> getPooledJaxbConfigurationParser(Class<T> configurationClass) {
-      final WeakReference<ConfigurationParser> parserReference = parserLookaside.get(configurationClass);
-      ConfigurationParser<T> parser = parserReference != null ? parserReference.get() : null;
+    @Override
+    public <T> void subscribeTo(String configurationName, UpdateListener<T> listener, Class<T> configurationClass) {
+        subscribeTo(configurationName, listener, getPooledJaxbConfigurationParser(configurationClass));
+    }
 
-      if (parser == null) {
-         try {
-            parser = ConfigurationParserFactory.getXmlConfigurationParser(configurationClass);
-         } catch (ConfigurationResourceException cre) {
-            throw new ConfigurationServiceException("Failed to create a JAXB context for a configuration parser. Reason: " + cre.getMessage(), cre);
-         }
+    @Override
+    public <T> void subscribeTo(String configurationName, UpdateListener<T> listener, ConfigurationParser<T> customParser) {
+        subscribeTo(configurationName, listener, customParser, true);
+    }
 
-         parserLookaside.put(configurationClass, new WeakReference<ConfigurationParser>(parser));
-      }
+    @Override
+    public <T> void subscribeTo(String configurationName, UpdateListener<T> listener, ConfigurationParser<T> customParser, boolean sendNotificationNow) {
+        final ConfigurationResource resource = resourceResolver.resolve(configurationName);
+        updateManager.registerListener(listener, resource, customParser);
 
-      return parser;
-   }
+        if (sendNotificationNow) {
+            // Initial load of the cfg object
+            try {
+                listener.configurationUpdated(customParser.read(resource));
+            } catch (Exception ex) {
+
+                // TODO:Refactor - Introduce a helper method so that this logic can be centralized and reused
+                if (ex.getCause() instanceof FileNotFoundException) {
+                    LOG.error("An I/O error has occured while trying to read resource " + configurationName + " - Reason: file not found.");
+                } else {
+                    LOG.error("Configuration update error. Reason: " + ex.getMessage(), ex);
+                }
+            }
+        }
+    }
+
+    @Override
+    public void unsubscribeFrom(String configurationName, UpdateListener listener) {
+        updateManager.unregisterListener(listener, resourceResolver.resolve(configurationName));
+    }
+
+    public <T> ConfigurationParser<T> getPooledJaxbConfigurationParser(Class<T> configurationClass) {
+        final WeakReference<ConfigurationParser> parserReference = parserLookaside.get(configurationClass);
+        ConfigurationParser<T> parser = parserReference != null ? parserReference.get() : null;
+
+        if (parser == null) {
+            try {
+                parser = ConfigurationParserFactory.getXmlConfigurationParser(configurationClass);
+            } catch (ConfigurationResourceException cre) {
+                throw new ConfigurationServiceException("Failed to create a JAXB context for a configuration parser. Reason: " + cre.getMessage(), cre);
+            }
+
+            parserLookaside.put(configurationClass, new WeakReference<ConfigurationParser>(parser));
+        }
+
+        return parser;
+    }
 }

@@ -16,6 +16,7 @@ import com.rackspace.papi.components.translation.config.TranslationConfig;
 import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XsltFilterChainBuilder;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import com.rackspace.papi.service.config.ConfigurationService;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -48,10 +49,12 @@ public class TranslationHandlerTest {
         private HttpServletResponse mockedResponse;
         private MutableHttpServletRequest mutableHttpRequest;
         private MutableHttpServletResponse mutableHttpResponse;
+        private ConfigurationService manager;
 
         @Before
         public void setup() {
-            factory = new TranslationHandlerFactory(new XsltFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), "");
+            manager = mock(ConfigurationService.class);
+            factory = new TranslationHandlerFactory(manager, new XsltFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), "");
             TranslationConfig config = new TranslationConfig();
 
             RequestTranslations requestTranslations = new RequestTranslations();
@@ -194,10 +197,12 @@ public class TranslationHandlerTest {
         private HttpServletResponse mockedResponse;
         private MutableHttpServletRequest mutableHttpRequest;
         private MutableHttpServletResponse mutableHttpResponse;
+        private ConfigurationService manager;
 
         @Before
         public void setup() {
-            factory = new TranslationHandlerFactory(new XsltFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), "");
+            manager = mock(ConfigurationService.class);
+            factory = new TranslationHandlerFactory(manager, new XsltFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), "");
             TranslationConfig config = new TranslationConfig();
 
             RequestTranslations requestTranslations = new RequestTranslations();
