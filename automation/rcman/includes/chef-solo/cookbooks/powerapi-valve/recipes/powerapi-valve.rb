@@ -164,7 +164,7 @@ for nodeNumber in 1..6
 
    when 4..6
       #Distirubted Datastore
-      ["ip-identity.cfg.xml","ip-identity2.cfg.xml","client-auth-n.cfg.xml"].each do |config|
+      ["add-element.xsl", "identity.xsl", "remove-element.xsl", "translation.cfg.xml", "ip-identity.cfg.xml","ip-identity2.cfg.xml","client-auth-n.cfg.xml"].each do |config|
          cookbook_file "/etc/repose/node#{nodeNumber}/#{config}" do
             source "/dist-datastore/#{config}"
             mode 0644
