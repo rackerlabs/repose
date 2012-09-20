@@ -96,7 +96,7 @@ public class JsonxStreamProcessor implements InputStreamProcessor {
                 }
 
             } catch (Exception ex) {
-                LOG.error("Error processing JSON input stream. Reason: " + ex.getMessage(), ex);
+                LOG.error("Error processing JSON input stream. Reason: " + ex.getMessage());
             } finally {
                 try {
                     out.close();

@@ -74,7 +74,7 @@ public class TranslationHandler<T> extends AbstractFilterLogicHandler {
                 try {
                     chain.executeChain(in, out, params, null);
                 } catch (XsltException ex) {
-                    LOG.error("Error processing transforms", ex);
+                    LOG.warn("Error processing transforms", ex.getMessage());
                     return false;
                 }
                 return true;
