@@ -16,10 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBElement;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author fran
@@ -77,16 +74,29 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
         switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
             case OK:
-                final AuthenticateResponse authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
-                token = new OpenStackToken(tenant, authenticateResponse);
+                token = getOpenStackToken(tenant, serviceResponse);
                 break;
 
             case NOT_FOUND: // User's token is bad
                 LOG.warn("Unable to validate token for tenant.  Invalid token. " + serviceResponse.getStatusCode());
                 break;
 
-            case UNAUTHORIZED: // Admin token is bad most likely
-                LOG.warn("Unable to validate token for tenant.  Has the admin token expired? " + serviceResponse.getStatusCode());
+            case UNAUTHORIZED:
+                LOG.warn("Unable to validate token for tenant: " + serviceResponse.getStatusCode() + " :admin token expired. Retrieving new admin token and retrying token validation...");
+                currentAdminToken = null;
+                headers.put(AUTH_TOKEN_HEADER, getAdminToken());
+
+                if (!StringUtilities.isEmpty(tenant)) {
+                    serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, headers, "belongsTo", tenant);
+                } else {
+                    serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, headers);
+                }
+
+                if (serviceResponse.getStatusCode() == 200) {
+                    token = getOpenStackToken(tenant, serviceResponse);
+                } else {
+                    LOG.warn("Still unable to validate token for tenant: " + serviceResponse.getStatusCode());
+                }
                 break;
 
             case INTERNAL_SERVER_ERROR: // Internal server error from auth
@@ -97,6 +107,12 @@ public class AuthenticationServiceClient implements AuthenticationService {
         return token;
     }
 
+    private OpenStackToken getOpenStackToken(String tenant, ServiceClientResponse<AuthenticateResponse> serviceResponse) {
+        final AuthenticateResponse authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
+        return new OpenStackToken(tenant, authenticateResponse);
+    }
+
+
     @Override
     public List<Endpoint> getEndpointsForToken(String userToken) {
         final Map<String, String> headers = new HashMap<String, String>();
@@ -104,19 +120,26 @@ public class AuthenticationServiceClient implements AuthenticationService {
         headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
         headers.put(AUTH_TOKEN_HEADER, getAdminToken());
 
-        final ServiceClientResponse<EndpointList> endpointListResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken + "/endpoints", headers);
+        ServiceClientResponse<EndpointList> endpointListResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken + "/endpoints", headers);
         List<Endpoint> endpointList = new ArrayList<Endpoint>();
 
         switch (HttpStatusCode.fromInt(endpointListResponse.getStatusCode())) {
             case OK:
-                final EndpointList unmarshalledEndpoints = openStackCoreResponseUnmarshaller.unmarshall(endpointListResponse.getData(), EndpointList.class);
-
-                if (unmarshalledEndpoints != null) {
-                    endpointList = unmarshalledEndpoints.getEndpoint();
-                }
+                endpointList = getEndpointList(endpointListResponse);
 
                 break;
+            case UNAUTHORIZED:
+                LOG.warn("Unable to get endpoints for user: " + endpointListResponse.getStatusCode() + " :admin token expired. Retrieving new admin token and retrying endpoints retrieval...");
+                currentAdminToken = null;
 
+                endpointListResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken + "/endpoints", headers);
+
+                if (endpointListResponse.getStatusCode() == 200) {
+                    endpointList = getEndpointList(endpointListResponse);
+                } else {
+                    LOG.warn("Still unable to get endpoints: " + endpointListResponse.getStatusCode());
+                }
+                break;
             default:
                 LOG.warn("Unable to get endpoints for token. Status code: " + endpointListResponse.getStatusCode());
                 break;
@@ -125,6 +148,19 @@ public class AuthenticationServiceClient implements AuthenticationService {
         return endpointList;
     }
 
+    private List<Endpoint> getEndpointList(ServiceClientResponse<EndpointList> endpointListResponse) {
+        List<Endpoint> endpointList = new ArrayList<Endpoint>();
+
+        final EndpointList unmarshalledEndpoints = openStackCoreResponseUnmarshaller.unmarshall(endpointListResponse.getData(), EndpointList.class);
+
+        if (unmarshalledEndpoints != null) {
+            endpointList = unmarshalledEndpoints.getEndpoint();
+        }
+
+        return endpointList;
+    }
+
+
     @Override
     public AuthGroups getGroups(String userId) {
         final Map<String, String> headers = new HashMap<String, String>();
@@ -132,20 +168,26 @@ public class AuthenticationServiceClient implements AuthenticationService {
         headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
         headers.put(AUTH_TOKEN_HEADER, getAdminToken());
 
-        final ServiceClientResponse<Groups> serviceResponse = serviceClient.get(targetHostUri + "/users/" + userId + "/RAX-KSGRP", headers);
-        final List<AuthGroup> authGroupList = new ArrayList<AuthGroup>();
+        ServiceClientResponse<Groups> serviceResponse = serviceClient.get(targetHostUri + "/users/" + userId + "/RAX-KSGRP", headers);
         AuthGroups authGroups = null;
 
         switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
             case OK:
-                Groups groups = openStackGroupsResponseUnmarshaller.unmarshall(serviceResponse.getData(), Groups.class);
-                for (Group group : groups.getGroup()) {
-                    final AuthGroup authGroup = new OpenStackGroup(group);
-                    authGroupList.add(authGroup);
-                }
-                authGroups = new AuthGroups(authGroupList);
+                authGroups = getAuthGroups(serviceResponse);
                 break;
+            case UNAUTHORIZED:
+                LOG.warn("Unable to get groups for user: " + serviceResponse.getStatusCode() + " :admin token expired. Retrieving new admin token and retrying groups retrieval...");
+                currentAdminToken = null;
 
+                serviceResponse = serviceClient.get(targetHostUri + "/users/" + userId + "/RAX-KSGRP", headers);
+
+                if (serviceResponse.getStatusCode() == 200) {
+                    authGroups = getAuthGroups(serviceResponse);
+                } else {
+                    LOG.warn("Still unable to get groups: " + serviceResponse.getStatusCode());
+                }
+
+                break;
             default:
                 LOG.warn("Unable to get groups for user id: " + userId + " Status code: " + serviceResponse.getStatusCode());
                 break;
@@ -153,6 +195,24 @@ public class AuthenticationServiceClient implements AuthenticationService {
         }
 
         return authGroups;
+    }
+
+    private AuthGroups getAuthGroups(ServiceClientResponse<Groups> serviceResponse) {
+        final List<AuthGroup> authGroupList = new ArrayList<AuthGroup>();
+        final Groups groups = openStackGroupsResponseUnmarshaller.unmarshall(serviceResponse.getData(), Groups.class);
+
+        if (groups != null) {
+            for (Group group : groups.getGroup()) {
+                final AuthGroup authGroup = new OpenStackGroup(group);
+                authGroupList.add(authGroup);
+            }
+
+            return new AuthGroups(authGroupList);
+        } else {
+            LOG.warn("Response unmarshaller returned null groups.");
+
+            return null;
+        }
     }
 
     private synchronized String getAdminToken() {
