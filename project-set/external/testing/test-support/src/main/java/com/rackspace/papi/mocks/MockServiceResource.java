@@ -32,14 +32,8 @@ public class MockServiceResource {
    @POST
    @Path("{prefix: .*}/echobody")
    public Response echoBody(String body, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
-      URI uri = uriInfo.getAbsolutePath();
-      
       Response.ResponseBuilder response = Response.ok();
       String type = headers.getRequestHeader("content-type").isEmpty()? "": headers.getRequestHeader("content-type").get(0);
-      System.out.println("******************************");
-      System.out.println("Type: " + type);
-      System.out.println(body);
-      System.out.println("******************************");
       if (type.length() > 0) {
           response = response.type(type);
       }
