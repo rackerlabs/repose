@@ -19,8 +19,8 @@ class JerseyResponseProcessor extends AbstractResponseProcessor {
     private static final int READ_BUFFER_SIZE = 1024;
     private final ClientResponse clientResponse;
 
-    public JerseyResponseProcessor(ClientResponse clientResponse, HttpServletResponse response) {
-        super(response, clientResponse.getStatus());
+    public JerseyResponseProcessor(String proxiedHostUrl, String requestHostPath, ClientResponse clientResponse, HttpServletResponse response) {
+        super(proxiedHostUrl, requestHostPath, response, clientResponse.getStatus());
         this.clientResponse = clientResponse;
     }
 

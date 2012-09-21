@@ -55,7 +55,7 @@ public class HttpComponentResponseProcessorTest {
             when(response.getEntity()).thenReturn(entity);
             when(servletResponse.getOutputStream()).thenReturn(out);
 
-            processor = new HttpComponentResponseProcessor(response, servletResponse, new HttpComponentResponseCodeProcessor(200));
+            processor = new HttpComponentResponseProcessor("", "", response, servletResponse, new HttpComponentResponseCodeProcessor(200));
         }
 
         @Test
@@ -123,7 +123,7 @@ public class HttpComponentResponseProcessorTest {
             when(response.getEntity()).thenReturn(entity);
             when(servletResponse.getOutputStream()).thenReturn(out);
 
-            processor = new HttpComponentResponseProcessor(response, servletResponse, new HttpComponentResponseCodeProcessor(200));
+            processor = new HttpComponentResponseProcessor("", "", response, servletResponse, new HttpComponentResponseCodeProcessor(200));
         }
 
         @Test

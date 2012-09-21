@@ -12,8 +12,8 @@ public class NingResponseProcessor extends AbstractResponseProcessor {
 
     private Response clientResponse;
 
-    public NingResponseProcessor(Response clientResponse, HttpServletResponse response) {
-        super(response, clientResponse.getStatusCode());
+    public NingResponseProcessor(String proxiedHostUrl, String requestHostPath, Response clientResponse, HttpServletResponse response) {
+        super(proxiedHostUrl, requestHostPath, response, clientResponse.getStatusCode());
         this.clientResponse = clientResponse;
     }
 

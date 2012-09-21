@@ -17,9 +17,9 @@
         <stringProp name="variableNames">endpoint,port,type</stringProp>
         <stringProp name="delimiter">,</stringProp>
         <boolProp name="quotedData">true</boolProp>
-        <boolProp name="recycle">true</boolProp>
-        <boolProp name="stopThread">false</boolProp>
-        <stringProp name="shareMode">Current thread</stringProp>
+        <boolProp name="recycle">false</boolProp>
+        <boolProp name="stopThread">true</boolProp>
+        <stringProp name="shareMode">All threads</stringProp>
       </CSVDataSet>
       <hashTree/>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Translation" enabled="true">
@@ -43,7 +43,7 @@
           <stringProp name="TestPlan.comments">This controller determines what repose environment to hit when running these JMeter tests</stringProp>
         </IfController>
         <hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="XSD Validator" enabled="true"/>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Translation" enabled="true"/>
           <hashTree>
             <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
               <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
