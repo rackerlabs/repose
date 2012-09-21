@@ -51,13 +51,13 @@ public class AbstractChainExecutor {
 
     }
 
-    protected void setInputParameters(String id, Transformer transformer, List<Parameter> inputs) {
+    protected void setInputParameters(String id, Transformer transformer, List<XsltParameter> inputs) {
 
         transformer.clearParameters();
 
         if (inputs != null && inputs.size() > 0) {
             com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver resolver = getResolver(transformer);
-            for (Parameter input : inputs) {
+            for (XsltParameter input : inputs) {
                 if (!"*".equals(input.getStyleId()) && !id.equals(input.getStyleId())) {
                     continue;
                 }
@@ -90,12 +90,12 @@ public class AbstractChainExecutor {
         return outputResolver;
     }
 
-    protected void setAlternateOutputs(String id, Transformer transformer, List<Parameter<? extends OutputStream>> outputs) {
+    protected void setAlternateOutputs(String id, Transformer transformer, List<XsltParameter<? extends OutputStream>> outputs) {
         if (outputs != null && outputs.size() > 0) {
             if (transformer instanceof Controller) {
                 OutputStreamUriParameterResolver outputResolver = getOutputResolver((Controller) transformer);
 
-                for (Parameter<? extends OutputStream> output : outputs) {
+                for (XsltParameter<? extends OutputStream> output : outputs) {
                     outputResolver.addStream(output.getValue(), output.getName());
                 }
             }

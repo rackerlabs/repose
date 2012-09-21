@@ -20,54 +20,21 @@ public class XsltChainPool<T> {
     private final Pattern statusRegex;
     private boolean allMethods;
     private final List<HttpMethod> httpMethods;
-    private final List<Parameter> params;
+    private final List<XsltParameter> params;
 
-    /**
-     * Response XSLT Handler Chain Pools
-     * 
-     * @param contentType
-     * @param accept
-     * @param statusRegex
-     * @param resultContentType
-     * @param params
-     * @param pool 
-     */
-    public XsltChainPool(String contentType, String accept, String statusRegex, String resultContentType, List<Parameter> params, Pool<T> pool) {
+    public XsltChainPool(String contentType, String accept, List<HttpMethod> httpMethods, String statusRegex, String resultContentType, List<XsltParameter> params, Pool<T> pool) {
         this.contentType = contentType;
         this.acceptAllContentTypes = StringUtilities.nullSafeEqualsIgnoreCase(this.contentType, MimeType.WILDCARD.getMimeType());
         this.accept = accept;
         this.acceptAll = StringUtilities.nullSafeEqualsIgnoreCase(this.accept, MimeType.WILDCARD.getMimeType());
         this.resultContentType = resultContentType;
         this.pool = pool;
-        this.httpMethods = new ArrayList<HttpMethod>();
+        this.httpMethods = httpMethods != null? httpMethods: new ArrayList<HttpMethod>();
         this.statusRegex = StringUtilities.isNotBlank(statusRegex) ? Pattern.compile(statusRegex) : null;
-        this.allMethods = true;
         this.params = params;
-    }
-    
-    /**
-     * Request XSLT Handler Chain Pools
-     * 
-     * @param contentType
-     * @param accept
-     * @param httpMethods
-     * @param resultContentType
-     * @param params
-     * @param pool 
-     */
-    public XsltChainPool(String contentType, String accept, List<HttpMethod> httpMethods, String resultContentType, List<Parameter> params, Pool<T> pool) {
-        this.contentType = contentType;
-        this.acceptAllContentTypes = StringUtilities.nullSafeEqualsIgnoreCase(this.contentType, MimeType.WILDCARD.getMimeType());
-        this.accept = accept;
-        this.acceptAll = StringUtilities.nullSafeEqualsIgnoreCase(this.accept, MimeType.WILDCARD.getMimeType());
-        this.resultContentType = resultContentType;
-        this.pool = pool;
-        this.httpMethods = httpMethods;
-        this.statusRegex = null;
-        for (HttpMethod method : httpMethods) {
+        for (HttpMethod method : this.httpMethods) {
             this.allMethods |= "ALL".equalsIgnoreCase(method.name());
         }
-        this.params = params;
     }
     
     private boolean matchesMethod(String requestMethod) {
@@ -108,7 +75,7 @@ public class XsltChainPool<T> {
         return statusRegex;
     }
 
-    public List<Parameter> getParams() {
+    public List<XsltParameter> getParams() {
         return params;
     }
 }

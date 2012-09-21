@@ -13,10 +13,10 @@ import javax.xml.transform.URIResolver;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamSource;
 
-public abstract class AbstractXsltChainBuilder<T> implements XsltChainBuilder<T> {
+public abstract class AbstractChainBuilder<T> implements XsltChainBuilder<T> {
     private static final String CLASSPATH_PREFIX = "classpath://";
     private final SAXTransformerFactory factory;
-    public AbstractXsltChainBuilder(SAXTransformerFactory factory) {
+    public AbstractChainBuilder(SAXTransformerFactory factory) {
         this.factory = factory;
         addUriResolvers();
     }
@@ -58,7 +58,7 @@ public abstract class AbstractXsltChainBuilder<T> implements XsltChainBuilder<T>
                     source = new StreamSource(new URL(stylesheet.getUri()).openStream());
                 } catch (IOException ex) {
                     source = null;
-                    Logger.getLogger(AbstractXsltChainBuilder.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger(AbstractChainBuilder.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
 

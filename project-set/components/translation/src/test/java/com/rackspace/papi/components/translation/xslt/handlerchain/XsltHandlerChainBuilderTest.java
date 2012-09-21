@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.translation.xslt.handlerchain;
 
 import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;
-import com.rackspace.papi.components.translation.xslt.Parameter;
+import com.rackspace.papi.components.translation.xslt.XsltParameter;
 import com.rackspace.papi.components.translation.xslt.XsltChain;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -88,14 +88,14 @@ public class XsltHandlerChainBuilderTest {
 
         @Test
         public void shouldUseInputOutputStreams() {
-            List<Parameter> inputs = new ArrayList<Parameter>();
+            List<XsltParameter> inputs = new ArrayList<XsltParameter>();
 
-            inputs.add(new Parameter("headers", headersInput));
-            inputs.add(new Parameter("query", queryInput));
+            inputs.add(new XsltParameter("headers", headersInput));
+            inputs.add(new XsltParameter("query", queryInput));
 
-            List<Parameter<? extends OutputStream>> outputs = new ArrayList<Parameter<? extends OutputStream>>();
-            outputs.add(new Parameter<OutputStream>("headers.html", headersOutput));
-            outputs.add(new Parameter<OutputStream>("query.html", queryOutput));
+            List<XsltParameter<? extends OutputStream>> outputs = new ArrayList<XsltParameter<? extends OutputStream>>();
+            outputs.add(new XsltParameter<OutputStream>("headers.html", headersOutput));
+            outputs.add(new XsltParameter<OutputStream>("query.html", queryOutput));
             
             XsltChain<Templates> chain = builder.build(new StyleSheetInfo("", "classpath:///style.xsl"));
             chain.executeChain(body, output, inputs, outputs);

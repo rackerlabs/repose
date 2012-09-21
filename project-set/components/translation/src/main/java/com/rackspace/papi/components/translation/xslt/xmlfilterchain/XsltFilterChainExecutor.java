@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
 import com.rackspace.papi.components.translation.xslt.AbstractChainExecutor;
-import com.rackspace.papi.components.translation.xslt.Parameter;
+import com.rackspace.papi.components.translation.xslt.XsltParameter;
 import com.rackspace.papi.components.translation.xslt.TransformReference;
 import com.rackspace.papi.components.translation.xslt.XsltException;
 import java.io.InputStream;
@@ -29,7 +29,7 @@ public class XsltFilterChainExecutor extends AbstractChainExecutor {
       format.put(OutputKeys.INDENT, "yes");
    }
 
-   public void executeChain(InputStream in, OutputStream output, List<Parameter> inputs, List<Parameter<? extends OutputStream>> outputs) throws XsltException {
+   public void executeChain(InputStream in, OutputStream output, List<XsltParameter> inputs, List<XsltParameter<? extends OutputStream>> outputs) throws XsltException {
       try {
          for (TransformReference filter : chain.getFilters()) {
             // pass the input stream to all transforms as a param inputstream

@@ -1,16 +1,16 @@
 package com.rackspace.papi.components.translation.xslt;
 
-public class Parameter<T> {
+public class XsltParameter<T> {
 
     private final String name;
     private final T value;
     private final String styleId;
 
-    public Parameter(String name, T value) {
+    public XsltParameter(String name, T value) {
         this("*", name, value);
     }
     
-    public Parameter(String style, String name, T value) {
+    public XsltParameter(String style, String name, T value) {
         this.styleId = style;
         this.name = name;
         this.value = value;

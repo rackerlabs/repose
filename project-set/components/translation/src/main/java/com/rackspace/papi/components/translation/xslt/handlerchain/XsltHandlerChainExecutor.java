@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.translation.xslt.handlerchain;
 
 import com.rackspace.papi.components.translation.xslt.AbstractChainExecutor;
-import com.rackspace.papi.components.translation.xslt.Parameter;
+import com.rackspace.papi.components.translation.xslt.XsltParameter;
 import com.rackspace.papi.components.translation.xslt.TransformReference;
 import com.rackspace.papi.components.translation.xslt.XsltException;
 import java.io.*;
@@ -27,7 +27,7 @@ public class XsltHandlerChainExecutor extends AbstractChainExecutor {
         this.chain = chain;
     }
 
-    public void executeChain(InputStream in, OutputStream out, List<Parameter> inputs, List<Parameter<? extends OutputStream>> outputs) throws XsltException {
+    public void executeChain(InputStream in, OutputStream out, List<XsltParameter> inputs, List<XsltParameter<? extends OutputStream>> outputs) throws XsltException {
         try {
             XMLReader reader = getSaxReader();
             // TODO: Make validation optional

@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.translation.xslt.handlerchain;
 
-import com.rackspace.papi.components.translation.xslt.AbstractXsltChainBuilder;
+import com.rackspace.papi.components.translation.xslt.AbstractChainBuilder;
 import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;
 import com.rackspace.papi.components.translation.xslt.TransformReference;
 import com.rackspace.papi.components.translation.xslt.XsltChain;
@@ -14,7 +14,7 @@ import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.sax.TransformerHandler;
 import javax.xml.transform.stream.StreamSource;
 
-public class XsltHandlerChainBuilder extends AbstractXsltChainBuilder<Templates> {
+public class XsltHandlerChainBuilder extends AbstractChainBuilder<Templates> {
 
     public XsltHandlerChainBuilder(SAXTransformerFactory factory) {
         super(factory);

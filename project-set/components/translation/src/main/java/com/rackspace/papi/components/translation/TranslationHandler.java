@@ -15,10 +15,10 @@ import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.translation.config.TranslationConfig;
-import com.rackspace.papi.components.translation.xslt.Parameter;
 import com.rackspace.papi.components.translation.xslt.XsltChain;
 import com.rackspace.papi.components.translation.xslt.XsltChainPool;
 import com.rackspace.papi.components.translation.xslt.XsltException;
+import com.rackspace.papi.components.translation.xslt.XsltParameter;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
@@ -70,7 +70,7 @@ public class TranslationHandler<T> extends AbstractFilterLogicHandler {
         Boolean result = (Boolean) pool.getPool().use(new ResourceContext<XsltChain, Boolean>() {
             @Override
             public Boolean perform(XsltChain chain) throws ResourceContextException {
-                List<Parameter> params = new ArrayList<Parameter>(pool.getParams());
+                List<XsltParameter> params = new ArrayList<XsltParameter>(pool.getParams());
                 try {
                     chain.executeChain(in, out, params, null);
                 } catch (XsltException ex) {

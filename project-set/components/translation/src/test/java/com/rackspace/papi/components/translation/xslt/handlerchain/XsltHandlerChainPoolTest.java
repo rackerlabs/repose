@@ -27,8 +27,8 @@ public class XsltHandlerChainPoolTest {
         public void setUp() {
             List<HttpMethod> httpMethods = new ArrayList<HttpMethod>();
             httpMethods.add(HttpMethod.POST);
-            responsePoolForXml = new XsltChainPool<TransformerHandler>("application/xml", "application/xml", "4[\\d]{2}", "blah", null, null);
-            requestPoolForXml = new XsltChainPool<TransformerHandler>("application/xml", "application/xml", httpMethods, "blah", null, null);
+            responsePoolForXml = new XsltChainPool<TransformerHandler>("application/xml", "application/xml", null, "4[\\d]{2}", "blah", null, null);
+            requestPoolForXml = new XsltChainPool<TransformerHandler>("application/xml", "application/xml", httpMethods, null, "blah", null, null);
         }
 
         @Test

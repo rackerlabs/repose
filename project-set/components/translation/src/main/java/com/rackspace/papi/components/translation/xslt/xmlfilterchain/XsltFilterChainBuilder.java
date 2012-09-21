@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
-import com.rackspace.papi.components.translation.xslt.AbstractXsltChainBuilder;
+import com.rackspace.papi.components.translation.xslt.AbstractChainBuilder;
 import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;
 import com.rackspace.papi.components.translation.xslt.TransformReference;
 import com.rackspace.papi.components.translation.xslt.XsltChain;
@@ -17,7 +17,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
 
-public class XsltFilterChainBuilder extends AbstractXsltChainBuilder<XMLFilter>  {
+public class XsltFilterChainBuilder extends AbstractChainBuilder<XMLFilter>  {
 
     public XsltFilterChainBuilder(SAXTransformerFactory factory) {
         super(factory);
