@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="2.1">
+<jmeterTestPlan version="1.2" properties="2.2">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -17,9 +17,9 @@
         <stringProp name="variableNames">endpoint,port,type</stringProp>
         <stringProp name="delimiter">,</stringProp>
         <boolProp name="quotedData">true</boolProp>
-        <boolProp name="recycle">false</boolProp>
-        <boolProp name="stopThread">true</boolProp>
-        <stringProp name="shareMode">All threads</stringProp>
+        <boolProp name="recycle">true</boolProp>
+        <boolProp name="stopThread">false</boolProp>
+        <stringProp name="shareMode">Current thread</stringProp>
       </CSVDataSet>
       <hashTree/>
       <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="Identity" enabled="true">
@@ -28,12 +28,12 @@
           <boolProp name="LoopController.continue_forever">false</boolProp>
           <intProp name="LoopController.loops">-1</intProp>
         </elementProp>
-        <stringProp name="ThreadGroup.num_threads">1</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">2</stringProp>
+        <stringProp name="ThreadGroup.num_threads">20</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
         <longProp name="ThreadGroup.start_time">1300822554000</longProp>
         <longProp name="ThreadGroup.end_time">1300822554000</longProp>
-        <boolProp name="ThreadGroup.scheduler">false</boolProp>
-        <stringProp name="ThreadGroup.duration">300</stringProp>
+        <boolProp name="ThreadGroup.scheduler">true</boolProp>
+        <stringProp name="ThreadGroup.duration">60</stringProp>
         <stringProp name="ThreadGroup.delay"></stringProp>
       </ThreadGroup>
       <hashTree>
@@ -112,7 +112,6 @@
                   <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
                   <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                   <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
-                  <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
                   <boolProp name="HTTPSampler.monitor">false</boolProp>
                   <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
                 </HTTPSamplerProxy>
@@ -172,7 +171,6 @@
                   <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
                   <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                   <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
-                  <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
                   <boolProp name="HTTPSampler.monitor">false</boolProp>
                   <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
                 </HTTPSamplerProxy>
@@ -232,7 +230,6 @@
                   <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
                   <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                   <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
-                  <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
                   <boolProp name="HTTPSampler.monitor">false</boolProp>
                   <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
                 </HTTPSamplerProxy>
@@ -302,7 +299,6 @@
                   <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
                   <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                   <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
-                  <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
                   <boolProp name="HTTPSampler.monitor">false</boolProp>
                   <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
                 </HTTPSamplerProxy>
@@ -337,7 +333,7 @@
                 </hashTree>
               </hashTree>
             </hashTree>
-            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Unhappy Path" enabled="true"/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Unhappy Path" enabled="false"/>
             <hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Translating invalid application/xml Requests" enabled="true"/>
               <hashTree>
@@ -365,7 +361,6 @@
                   <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
                   <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                   <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
-                  <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
                   <boolProp name="HTTPSampler.monitor">false</boolProp>
                   <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
                 </HTTPSamplerProxy>
@@ -416,7 +411,6 @@
                   <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
                   <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                   <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
-                  <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
                   <boolProp name="HTTPSampler.monitor">false</boolProp>
                   <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
                 </HTTPSamplerProxy>
@@ -437,7 +431,7 @@
         </hashTree>
       </hashTree>
       <ResultCollector guiclass="ViewResultsFullVisualizer" testclass="ResultCollector" testname="View Results Tree" enabled="true">
-        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <boolProp name="ResultCollector.error_logging">true</boolProp>
         <objProp>
           <name>saveConfig</name>
           <value class="SampleSaveConfiguration">
@@ -469,7 +463,7 @@
       </ResultCollector>
       <hashTree/>
       <ResultCollector guiclass="TableVisualizer" testclass="ResultCollector" testname="View Results in Table" enabled="true">
-        <boolProp name="ResultCollector.error_logging">false</boolProp>
+        <boolProp name="ResultCollector.error_logging">true</boolProp>
         <objProp>
           <name>saveConfig</name>
           <value class="SampleSaveConfiguration">
