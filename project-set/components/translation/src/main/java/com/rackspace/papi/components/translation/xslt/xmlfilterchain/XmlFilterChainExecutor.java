@@ -1,38 +1,43 @@
-package com.rackspace.papi.components.translation.xslt;
+package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
 import com.rackspace.papi.components.translation.resolvers.ClassPathUriResolver;
 import com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver;
 import com.rackspace.papi.components.translation.resolvers.OutputStreamUriParameterResolver;
 import com.rackspace.papi.components.translation.resolvers.SourceUriResolverChain;
+import com.rackspace.papi.components.translation.xslt.XsltParameter;
+import com.rackspace.papi.components.translation.xslt.XsltException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Properties;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
-import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamResult;
 import net.sf.saxon.Controller;
 import net.sf.saxon.lib.OutputURIResolver;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-public class AbstractChainExecutor {
+public class XmlFilterChainExecutor {
 
-    private final SAXTransformerFactory factory;
+    private final XmlFilterChain chain;
+    private final Properties format = new Properties();
 
-    public AbstractChainExecutor() {
-        this.factory = null;
-    }
-
-    public AbstractChainExecutor(SAXTransformerFactory factory) {
-        this.factory = factory;
-    }
-
-    public SAXTransformerFactory getFactory() {
-        return factory;
+    public XmlFilterChainExecutor(XmlFilterChain chain) {
+        this.chain = chain;
+        format.put(OutputKeys.METHOD, "xml");
+        format.put(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        format.put(OutputKeys.ENCODING, "UTF-8");
+        format.put(OutputKeys.INDENT, "yes");
     }
 
     protected InputStreamUriParameterResolver getResolver(Transformer transformer) {
@@ -100,6 +105,34 @@ public class AbstractChainExecutor {
                 }
             }
         }
+    }
+
+    public void executeChain(InputStream in, OutputStream output, List<XsltParameter> inputs, List<XsltParameter<? extends OutputStream>> outputs) throws XsltException {
+        try {
+            for (XmlFilterReference filter : chain.getFilters()) {
+                // pass the input stream to all transforms as a param inputstream
+                net.sf.saxon.Filter saxonFilter = (net.sf.saxon.Filter) filter.getFilter();
+                Transformer transformer = saxonFilter.getTransformer();
+                setInputParameters(filter.getId(), transformer, inputs);
+                setAlternateOutputs(filter.getId(), transformer, outputs);
+            }
+
+            Transformer transformer = chain.getFactory().newTransformer();
+            transformer.setOutputProperties(format);
+            transformer.transform(getSAXSource(new InputSource(in)), new StreamResult(output));
+        } catch (TransformerException ex) {
+            throw new XsltException(ex);
+        }
+    }
+
+    protected SAXSource getSAXSource(InputSource source) {
+        if (chain.getFilters().isEmpty()) {
+            return new SAXSource(source);
+        }
+
+        XMLFilter lastFilter = chain.getFilters().get(chain.getFilters().size() - 1).getFilter();
+
+        return new SAXSource(lastFilter, source);
     }
 
     protected XMLReader getSaxReader() throws ParserConfigurationException, SAXException {

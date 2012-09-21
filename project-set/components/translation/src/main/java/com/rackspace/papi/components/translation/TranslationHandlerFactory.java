@@ -9,11 +9,11 @@ import com.rackspace.papi.components.translation.config.StyleParam;
 import com.rackspace.papi.components.translation.config.StyleSheet;
 import com.rackspace.papi.components.translation.config.TranslationBase;
 import com.rackspace.papi.components.translation.config.TranslationConfig;
-import com.rackspace.papi.components.translation.xslt.XsltChain;
-import com.rackspace.papi.components.translation.xslt.XsltChainBuilder;
-import com.rackspace.papi.components.translation.xslt.XsltChainFactory;
-import com.rackspace.papi.components.translation.xslt.XsltChainPool;
 import com.rackspace.papi.components.translation.xslt.XsltParameter;
+import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlChainPool;
+import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlFilterChain;
+import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlFilterChainBuilder;
+import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlFilterChainFactory;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.config.ConfigurationService;
 import java.util.ArrayList;
@@ -21,20 +21,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class TranslationHandlerFactory<T> extends AbstractConfiguredFilterHandlerFactory<TranslationHandler> {
+public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<TranslationHandler> {
 
     private TranslationConfig configuration;
-    private final XsltChainBuilder<T> xsltChainBuilder;
-    private final List<XsltChainPool<T>> responseProcessorPools;
-    private final List<XsltChainPool<T>> requestProcessorPools;
+    private final XmlFilterChainBuilder xsltChainBuilder;
+    private final List<XmlChainPool> responseProcessorPools;
+    private final List<XmlChainPool> requestProcessorPools;
     private final String configurationRoot;
     private final Object lock = new Object();
     private final XslUpdateListener xslListener;
 
-    public TranslationHandlerFactory(ConfigurationService configService, XsltChainBuilder<T> builder, String configurationRoot) {
+    public TranslationHandlerFactory(ConfigurationService configService, XmlFilterChainBuilder builder, String configurationRoot) {
         xsltChainBuilder = builder;
-        requestProcessorPools = new ArrayList<XsltChainPool<T>>();
-        responseProcessorPools = new ArrayList<XsltChainPool<T>>();
+        requestProcessorPools = new ArrayList<XmlChainPool>();
+        responseProcessorPools = new ArrayList<XmlChainPool>();
         this.configurationRoot = configurationRoot;
         xslListener = new XslUpdateListener(this, configService, configurationRoot);
     }
@@ -51,7 +51,7 @@ public class TranslationHandlerFactory<T> extends AbstractConfiguredFilterHandle
     @Override
     protected TranslationHandler buildHandler() {
         synchronized (lock) {
-            return new TranslationHandler<T>(configuration, new ArrayList<XsltChainPool<T>>(requestProcessorPools), new ArrayList<XsltChainPool<T>>(responseProcessorPools));
+            return new TranslationHandler(configuration, new ArrayList<XmlChainPool>(requestProcessorPools), new ArrayList<XmlChainPool>(responseProcessorPools));
         }
     }
 
@@ -67,8 +67,8 @@ public class TranslationHandlerFactory<T> extends AbstractConfiguredFilterHandle
         return params;
     }
 
-    private Pool<XsltChain<T>> buildChainPool(final TranslationBase translation) {
-        return new GenericBlockingResourcePool<XsltChain<T>>(new XsltChainFactory<T>(xsltChainBuilder, translation, configurationRoot));
+    private Pool<XmlFilterChain> buildChainPool(final TranslationBase translation) {
+        return new GenericBlockingResourcePool<XmlFilterChain>(new XmlFilterChainFactory(xsltChainBuilder, translation, configurationRoot));
     }
 
     private void addStyleSheetsToWatchList(final TranslationBase translation) {
@@ -88,10 +88,10 @@ public class TranslationHandlerFactory<T> extends AbstractConfiguredFilterHandle
                 for (final ResponseTranslation translation : configuration.getResponseTranslations().getResponseTranslation()) {
 
                     List<XsltParameter> params = buildXslParamList(translation);
-                    Pool<XsltChain<T>> pool = buildChainPool(translation);
+                    Pool<XmlFilterChain> pool = buildChainPool(translation);
                     addStyleSheetsToWatchList(translation);
 
-                    responseProcessorPools.add(new XsltChainPool(
+                    responseProcessorPools.add(new XmlChainPool(
                             translation.getContentType(),
                             translation.getAccept(),
                             null,
@@ -106,10 +106,10 @@ public class TranslationHandlerFactory<T> extends AbstractConfiguredFilterHandle
                 for (final RequestTranslation translation : configuration.getRequestTranslations().getRequestTranslation()) {
 
                     List<XsltParameter> params = buildXslParamList(translation);
-                    Pool<XsltChain<T>> pool = buildChainPool(translation);
+                    Pool<XmlFilterChain> pool = buildChainPool(translation);
                     addStyleSheetsToWatchList(translation);
 
-                    requestProcessorPools.add(new XsltChainPool(
+                    requestProcessorPools.add(new XmlChainPool(
                             translation.getContentType(),
                             translation.getAccept(),
                             translation.getHttpMethods(),

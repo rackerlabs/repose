@@ -1,28 +1,30 @@
-package com.rackspace.papi.components.translation.xslt;
+package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.pooling.Pool;
 import com.rackspace.papi.components.translation.config.HttpMethod;
+import com.rackspace.papi.components.translation.xslt.XsltParameter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import org.xml.sax.XMLFilter;
 
-public class XsltChainPool<T> {
+public class XmlChainPool {
 
     private final String contentType;
     private final boolean acceptAllContentTypes;
     private final String accept;
     private final boolean acceptAll;
-    private final Pool<T> pool;
+    private final Pool<XmlFilterChain> pool;
     private final String resultContentType;
     private final Pattern statusRegex;
     private boolean allMethods;
     private final List<HttpMethod> httpMethods;
     private final List<XsltParameter> params;
 
-    public XsltChainPool(String contentType, String accept, List<HttpMethod> httpMethods, String statusRegex, String resultContentType, List<XsltParameter> params, Pool<T> pool) {
+    public XmlChainPool(String contentType, String accept, List<HttpMethod> httpMethods, String statusRegex, String resultContentType, List<XsltParameter> params, Pool<XmlFilterChain> pool) {
         this.contentType = contentType;
         this.acceptAllContentTypes = StringUtilities.nullSafeEqualsIgnoreCase(this.contentType, MimeType.WILDCARD.getMimeType());
         this.accept = accept;
@@ -63,7 +65,7 @@ public class XsltChainPool<T> {
         return accept;
     }
 
-    public Pool<T> getPool() {
+    public Pool<XmlFilterChain> getPool() {
         return pool;
     }
 

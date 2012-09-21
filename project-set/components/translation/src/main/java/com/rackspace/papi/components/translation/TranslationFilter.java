@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.translation;
 
 import com.rackspace.papi.components.translation.config.TranslationConfig;
-import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XsltFilterChainBuilder;
+import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlFilterChainBuilder;
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
@@ -42,8 +42,7 @@ public class TranslationFilter implements Filter {
         final ConfigurationService configurationService = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
 
 
-        //handlerFactory = new TranslationHandlerFactory<Templates>(manager, new XsltHandlerChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), configurationRoot);
-        handlerFactory = new TranslationHandlerFactory<XMLFilter>(configurationService, new XsltFilterChainBuilder((SAXTransformerFactory) net.sf.saxon.TransformerFactoryImpl.newInstance()), configurationRoot);
+        handlerFactory = new TranslationHandlerFactory(configurationService, new XmlFilterChainBuilder((SAXTransformerFactory) net.sf.saxon.TransformerFactoryImpl.newInstance()), configurationRoot);
         configurationManager = ServletContextHelper.getInstance().getPowerApiContext(servletContext).configurationService();
         configurationManager.subscribeTo(config, handlerFactory, TranslationConfig.class);
     }

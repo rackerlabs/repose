@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
-import com.rackspace.papi.components.translation.xslt.XsltChainPool;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.components.translation.config.HttpMethod;
@@ -17,8 +16,8 @@ public class XmlFilterChainPoolTest {
 
     public static class WhenMatchingPoolCriteria {
 
-        private XsltChainPool responsePoolForXml;
-        private XsltChainPool requestPoolForXml;
+        private XmlChainPool responsePoolForXml;
+        private XmlChainPool requestPoolForXml;
         private MediaType json = new MediaType(MimeType.getMatchingMimeType("application/json"));
         private MediaType xml = new MediaType(MimeType.getMatchingMimeType("application/xml"));
 
@@ -26,8 +25,8 @@ public class XmlFilterChainPoolTest {
         public void setUp() {
             List<HttpMethod> httpMethods = new ArrayList<HttpMethod>();
             httpMethods.add(HttpMethod.POST);
-            responsePoolForXml = new XsltChainPool("application/xml", "application/xml", null, "4[\\d]{2}", "blah", null, null);
-            requestPoolForXml = new XsltChainPool("application/xml", "application/xml", httpMethods, null, "blah", null, null);
+            responsePoolForXml = new XmlChainPool("application/xml", "application/xml", null, "4[\\d]{2}", "blah", null, null);
+            requestPoolForXml = new XmlChainPool("application/xml", "application/xml", httpMethods, null, "blah", null, null);
         }
 
         @Test

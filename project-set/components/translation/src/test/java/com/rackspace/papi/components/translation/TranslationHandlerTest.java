@@ -13,7 +13,7 @@ import com.rackspace.papi.components.translation.config.ResponseTranslations;
 import com.rackspace.papi.components.translation.config.StyleSheet;
 import com.rackspace.papi.components.translation.config.StyleSheets;
 import com.rackspace.papi.components.translation.config.TranslationConfig;
-import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XsltFilterChainBuilder;
+import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlFilterChainBuilder;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.service.config.ConfigurationService;
@@ -54,7 +54,7 @@ public class TranslationHandlerTest {
         @Before
         public void setup() {
             manager = mock(ConfigurationService.class);
-            factory = new TranslationHandlerFactory(manager, new XsltFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), "");
+            factory = new TranslationHandlerFactory(manager, new XmlFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), "");
             TranslationConfig config = new TranslationConfig();
 
             RequestTranslations requestTranslations = new RequestTranslations();
@@ -202,7 +202,7 @@ public class TranslationHandlerTest {
         @Before
         public void setup() {
             manager = mock(ConfigurationService.class);
-            factory = new TranslationHandlerFactory(manager, new XsltFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), "");
+            factory = new TranslationHandlerFactory(manager, new XmlFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), "");
             TranslationConfig config = new TranslationConfig();
 
             RequestTranslations requestTranslations = new RequestTranslations();

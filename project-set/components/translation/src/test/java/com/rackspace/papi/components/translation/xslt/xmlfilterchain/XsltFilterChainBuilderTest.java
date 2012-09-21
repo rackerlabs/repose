@@ -1,8 +1,7 @@
 package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
-import com.rackspace.papi.components.translation.xslt.XsltParameter;
 import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;
-import com.rackspace.papi.components.translation.xslt.XsltChain;
+import com.rackspace.papi.components.translation.xslt.XsltParameter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -11,20 +10,19 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXTransformerFactory;
+import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import org.xml.sax.XMLFilter;
 
 @RunWith(Enclosed.class)
 public class XsltFilterChainBuilderTest {
     public static class WhenBuildingChains {
 
         private static SAXTransformerFactory factory;
-        private XsltFilterChainBuilder builder;
+        private XmlFilterChainBuilder builder;
 
         @BeforeClass
         public static void before() {
@@ -34,12 +32,12 @@ public class XsltFilterChainBuilderTest {
 
         @Before
         public void setUp() {
-            builder = new XsltFilterChainBuilder(factory);
+            builder = new XmlFilterChainBuilder(factory);
         }
 
         @Test
         public void shouldHandleEmptySetOfStyles() {
-            XsltChain<XMLFilter> chain = builder.build();
+            XmlFilterChain chain = builder.build();
 
             assertNotNull("Should build an empty filter chain", chain);
             assertEquals("Should have 0 filter", 0, chain.getFilters().size());
@@ -47,7 +45,7 @@ public class XsltFilterChainBuilderTest {
 
         @Test
         public void shouldHandleStyleSheetList() {
-            XsltChain<XMLFilter> chain = builder.build(new StyleSheetInfo("", "classpath:///style.xsl"));
+            XmlFilterChain chain = builder.build(new StyleSheetInfo("", "classpath:///style.xsl"));
 
             assertNotNull("Should build a filter chain", chain);
             assertEquals("Should have 1 filter", 1, chain.getFilters().size());
@@ -57,7 +55,7 @@ public class XsltFilterChainBuilderTest {
     
     public static class WhenExecutingChains {
         private static SAXTransformerFactory factory;
-        private XsltFilterChainBuilder builder;
+        private XmlFilterChainBuilder builder;
         private static final String params = "<params><param name='p1' value='pv1'/><param name='p2' value='pv2'/></params>";
         private static final String headers = "<headers><header name='h1' value='hv1'/><header name='h2' value='hv2'/></headers>";
         private ByteArrayOutputStream headersOutput;
@@ -75,7 +73,7 @@ public class XsltFilterChainBuilderTest {
 
         @Before
         public void setUp() {
-            builder = new XsltFilterChainBuilder(factory);
+            builder = new XmlFilterChainBuilder(factory);
             headersOutput = new ByteArrayOutputStream();
             queryOutput = new ByteArrayOutputStream();
             output = new ByteArrayOutputStream();
@@ -95,7 +93,7 @@ public class XsltFilterChainBuilderTest {
             outputs.add(new XsltParameter<OutputStream>("headers.html", headersOutput));
             outputs.add(new XsltParameter<OutputStream>("query.html", queryOutput));
             
-            XsltChain<XMLFilter> chain = builder.build(new StyleSheetInfo("", "classpath:///style.xsl"));
+            XmlFilterChain chain = builder.build(new StyleSheetInfo("", "classpath:///style.xsl"));
             chain.executeChain(body, output, inputs, outputs);
             
             String headersResult = headersOutput.toString();

@@ -1,20 +1,21 @@
-package com.rackspace.papi.components.translation.xslt;
+package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.pooling.ConstructionStrategy;
 import com.rackspace.papi.commons.util.pooling.ResourceConstructionException;
 import com.rackspace.papi.components.translation.config.StyleSheet;
 import com.rackspace.papi.components.translation.config.TranslationBase;
+import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;
 import java.util.ArrayList;
 import java.util.List;
 
-public class XsltChainFactory<X> implements ConstructionStrategy<XsltChain<X>> {
+public class XmlFilterChainFactory implements ConstructionStrategy<XmlFilterChain> {
 
-    private final XsltChainBuilder<X> builder;
+    private final XmlFilterChainBuilder builder;
     private final TranslationBase translation;
     private final String configRoot;
 
-    public XsltChainFactory(final XsltChainBuilder<X> xsltChainBuilder, final TranslationBase translation, final String configRoot) {
+    public XmlFilterChainFactory(final XmlFilterChainBuilder xsltChainBuilder, final TranslationBase translation, final String configRoot) {
         this.builder = xsltChainBuilder;
         this.translation = translation;
         this.configRoot = configRoot;
@@ -25,7 +26,7 @@ public class XsltChainFactory<X> implements ConstructionStrategy<XsltChain<X>> {
     }
 
     @Override
-    public XsltChain<X> construct() throws ResourceConstructionException {
+    public XmlFilterChain construct() throws ResourceConstructionException {
         List<StyleSheetInfo> stylesheets = new ArrayList<StyleSheetInfo>();
         if (translation.getStyleSheets() != null) {
             for (StyleSheet sheet : translation.getStyleSheets().getStyle()) {
