@@ -14,8 +14,8 @@ public class HttpComponentResponseProcessor extends AbstractResponseProcessor {
 
     private final HttpResponse httpResponse;
 
-    public HttpComponentResponseProcessor(HttpResponse httpResponse, HttpServletResponse response, HttpComponentResponseCodeProcessor responseCode) {
-        super(response, responseCode.getCode());
+    public HttpComponentResponseProcessor(String proxiedHostUrl, String requestHostPath, HttpResponse httpResponse, HttpServletResponse response, HttpComponentResponseCodeProcessor responseCode) {
+        super(proxiedHostUrl, requestHostPath, response, responseCode.getCode());
         this.httpResponse = httpResponse;
     }
 

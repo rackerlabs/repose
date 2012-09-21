@@ -51,11 +51,11 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         Request build = process.build();
         ListenableFuture<Response> execute = getClient().prepareRequest(build).execute(new ResponseHandler(response));
         try {
-            NingResponseProcessor responseProcessor = new NingResponseProcessor(execute.get(), response);
+            NingResponseProcessor responseProcessor = new NingResponseProcessor(host.getProxiedHostUrl().toExternalForm(), extractHostPath(request), execute.get(), response);
             HttpResponseCodeProcessor responseCode = new HttpResponseCodeProcessor(response.getStatus());
 
             if (responseCode.isRedirect()) {
-                responseProcessor.sendTranslatedRedirect(host.getProxiedHostUrl().toExternalForm(), extractHostPath(request), response.getStatus());
+                responseProcessor.sendTranslatedRedirect(response.getStatus());
             } else {
                 responseProcessor.process();
             }

@@ -38,7 +38,7 @@ public class NingResponseProcessorTest {
             when(response.getHeaders()).thenReturn(headers);
             when(servletResponse.getOutputStream()).thenReturn(out);
             
-            processor = new NingResponseProcessor(response, servletResponse);
+            processor = new NingResponseProcessor("", "", response, servletResponse);
 
         }
 

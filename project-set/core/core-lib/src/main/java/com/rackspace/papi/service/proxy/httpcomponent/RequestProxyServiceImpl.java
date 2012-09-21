@@ -124,10 +124,10 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
       HttpResponse httpResponse = getClient().execute(httpMethodProxyRequest);
       HttpComponentResponseCodeProcessor responseCode = new HttpComponentResponseCodeProcessor(httpResponse.getStatusLine().getStatusCode());
-      HttpComponentResponseProcessor responseProcessor = new HttpComponentResponseProcessor(httpResponse, response, responseCode);
+      HttpComponentResponseProcessor responseProcessor = new HttpComponentResponseProcessor(proxiedHost.toURI(), extractHostPath(sourceRequest), httpResponse, response, responseCode);
 
       if (responseCode.isRedirect()) {
-         responseProcessor.sendTranslatedRedirect(proxiedHost.toURI(), extractHostPath(sourceRequest), responseCode.getCode());
+         responseProcessor.sendTranslatedRedirect(responseCode.getCode());
       } else {
          responseProcessor.process();
       }
