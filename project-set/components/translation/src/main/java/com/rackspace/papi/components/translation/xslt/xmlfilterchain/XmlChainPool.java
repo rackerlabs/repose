@@ -31,20 +31,24 @@ public class XmlChainPool {
         this.acceptAll = StringUtilities.nullSafeEqualsIgnoreCase(this.accept, MimeType.WILDCARD.getMimeType());
         this.resultContentType = resultContentType;
         this.pool = pool;
-        this.httpMethods = httpMethods != null? httpMethods: new ArrayList<HttpMethod>();
+        this.httpMethods = httpMethods != null ? httpMethods : new ArrayList<HttpMethod>();
         this.statusRegex = StringUtilities.isNotBlank(statusRegex) ? Pattern.compile(statusRegex) : null;
         this.params = params;
-        for (HttpMethod method : this.httpMethods) {
-            this.allMethods |= "ALL".equalsIgnoreCase(method.name());
+        if (this.httpMethods.isEmpty()) {
+            this.allMethods = true;
+        } else {
+            for (HttpMethod method : this.httpMethods) {
+                this.allMethods |= "ALL".equalsIgnoreCase(method.name());
+            }
         }
     }
-    
+
     private boolean matchesMethod(String requestMethod) {
         boolean result = false;
         for (HttpMethod method : httpMethods) {
             result |= method.name().equalsIgnoreCase(requestMethod);
         }
-        
+
         return result;
     }
 
