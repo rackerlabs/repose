@@ -10,6 +10,8 @@ import com.rackspace.papi.service.context.impl.*;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.filterchain.GarbageCollectionService;
+import com.rackspace.papi.service.headers.request.RequestHeaderService;
+import com.rackspace.papi.service.headers.response.ResponseHeaderService;
 import com.rackspace.papi.service.logging.LoggingService;
 import com.rackspace.papi.service.proxy.RequestProxyService;
 import com.rackspace.papi.service.reporting.ReportingService;
@@ -108,4 +110,13 @@ public class JndiContextAdapter implements ContextAdapter {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
+    public RequestHeaderService requestHeaderService() {
+        return lookup(RequestHeaderServiceContext.SERVICE_NAME);
+    }
+
+    @Override
+    public ResponseHeaderService responseHeaderService() {
+        return lookup(ResponseHeaderServiceContext.SERVICE_NAME);
+    }
 }

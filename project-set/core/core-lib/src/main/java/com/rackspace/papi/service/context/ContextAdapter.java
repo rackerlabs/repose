@@ -6,6 +6,8 @@ import com.rackspace.papi.service.context.container.ContainerConfigurationServic
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.filterchain.GarbageCollectionService;
+import com.rackspace.papi.service.headers.request.RequestHeaderService;
+import com.rackspace.papi.service.headers.response.ResponseHeaderService;
 import com.rackspace.papi.service.logging.LoggingService;
 import com.rackspace.papi.service.proxy.RequestProxyService;
 import com.rackspace.papi.service.reporting.ReportingService;
@@ -28,6 +30,8 @@ public interface ContextAdapter {
     RequestProxyService requestProxyService();
     ReportingService reportingService();
     String getReposeVersion();
+    RequestHeaderService requestHeaderService();
+    ResponseHeaderService responseHeaderService();
     
    <T extends ServiceContext<?>> T getContext(Class<T> clazz);
 
