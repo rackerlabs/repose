@@ -6,4 +6,8 @@ import java.util.List;
 
 public interface ContainerConfigurationService {
    List<Port> getPorts();
+   
+   String getVia();
+   
+   void setVia(String via);
 }

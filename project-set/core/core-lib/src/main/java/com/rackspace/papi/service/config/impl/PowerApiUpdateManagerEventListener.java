@@ -14,6 +14,7 @@ import java.util.Map;
  * @author fran
  */
 public class PowerApiUpdateManagerEventListener implements EventListener<ConfigurationEvent, ConfigurationResource> {
+
     private final Map<String, Map<Integer, ParserListenerPair>> listenerMap;
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(PowerApiUpdateManagerEventListener.class);
 
@@ -23,12 +24,19 @@ public class PowerApiUpdateManagerEventListener implements EventListener<Configu
 
     @Override
     public void onEvent(Event<ConfigurationEvent, ConfigurationResource> e) {
+        final Thread currentThread = Thread.currentThread();
+        final ClassLoader previousClassLoader = currentThread.getContextClassLoader();
+
         for (ParserListenerPair parserListener : getListenerMap(e.payload().name()).values()) {
             UpdateListener updateListener = parserListener.getListener();
 
             if (updateListener != null) {
-               
-                configUpdate(updateListener,parserListener.getParser().read(e.payload()));
+                currentThread.setContextClassLoader(parserListener.getClassLoader());
+                try {
+                    configUpdate(updateListener, parserListener.getParser().read(e.payload()));
+                } finally {
+                    currentThread.setContextClassLoader(previousClassLoader);
+                }
             }
         }
     }
@@ -38,12 +46,10 @@ public class PowerApiUpdateManagerEventListener implements EventListener<Configu
 
         return Collections.unmodifiableMap(mapReference != null ? mapReference : Collections.EMPTY_MAP);
     }
-    
-    
-    private void configUpdate(UpdateListener upd, Object cfg){
-        
+
+    private void configUpdate(UpdateListener upd, Object cfg) {
         upd.configurationUpdated(cfg);
         LOG.debug("Configuration Updated:\n" + cfg.toString());
-        
+
     }
 }

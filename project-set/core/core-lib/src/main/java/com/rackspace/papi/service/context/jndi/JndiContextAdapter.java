@@ -10,8 +10,11 @@ import com.rackspace.papi.service.context.impl.*;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.filterchain.GarbageCollectionService;
+import com.rackspace.papi.service.headers.request.RequestHeaderService;
+import com.rackspace.papi.service.headers.response.ResponseHeaderService;
 import com.rackspace.papi.service.logging.LoggingService;
 import com.rackspace.papi.service.proxy.RequestProxyService;
+import com.rackspace.papi.service.reporting.ReportingService;
 import com.rackspace.papi.service.rms.ResponseMessageService;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.service.threading.ThreadingService;
@@ -42,10 +45,10 @@ public class JndiContextAdapter implements ContextAdapter {
         return lookup(ConfigurationServiceContext.SERVICE_NAME);
     }
 
-   @Override
-   public ClassLoaderManagerService classLoader() {
-      return lookup(ClassLoaderServiceContext.SERVICE_NAME);
-   }
+    @Override
+    public ClassLoaderManagerService classLoader() {
+        return lookup(ClassLoaderServiceContext.SERVICE_NAME);
+    }
 
     @Override
     public DatastoreService datastoreService() {
@@ -66,10 +69,10 @@ public class JndiContextAdapter implements ContextAdapter {
     public ThreadingService threadingService() {
         return lookup(ThreadingServiceContext.SERVICE_NAME);
     }
-    
+
     @Override
     public RoutingService routingService() {
-       return lookup(RoutingServiceContext.SERVICE_NAME);
+        return lookup(RoutingServiceContext.SERVICE_NAME);
     }
 
     @Override
@@ -82,19 +85,38 @@ public class JndiContextAdapter implements ContextAdapter {
         return lookup(LoggingServiceContext.SERVICE_NAME);
     }
 
-   @Override
-   public ContainerConfigurationService containerConfigurationService() {
+    @Override
+    public ContainerConfigurationService containerConfigurationService() {
         return lookup(ContainerServiceContext.SERVICE_NAME);
-   }
+    }
 
-   @Override
-   public <T extends ServiceContext<?>> T getContext(Class<T> clazz) {
-      throw new UnsupportedOperationException("Not supported yet.");
-   }
+    @Override
+    public ReportingService reportingService() {
+        return lookup(ReportingServiceContext.SERVICE_NAME);
+    }
+
+    @Override
+    public <T extends ServiceContext<?>> T getContext(Class<T> clazz) {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 
     @Override
     public RequestProxyService requestProxyService() {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
+    @Override
+    public String getReposeVersion() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public RequestHeaderService requestHeaderService() {
+        return lookup(RequestHeaderServiceContext.SERVICE_NAME);
+    }
+
+    @Override
+    public ResponseHeaderService responseHeaderService() {
+        return lookup(ResponseHeaderServiceContext.SERVICE_NAME);
+    }
 }

@@ -39,7 +39,10 @@ public enum OpenStackServiceHeader implements HeaderConstant {
     /**
      * Comma delimited list of case-sensitive Roles
      */
-    ROLES("X-Roles");
+    ROLES("X-Roles"),
+    
+    IMPERSONATOR_ID("X-Impersonator-Id"),
+    IMPERSONATOR_NAME("X-Impersonator-Name");
 
     
     private final String headerKey;

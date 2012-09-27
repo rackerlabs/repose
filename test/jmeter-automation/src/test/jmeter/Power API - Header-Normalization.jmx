@@ -213,6 +213,25 @@
                 <intProp name="Assertion.test_type">2</intProp>
               </ResponseAssertion>
               <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="409677333">&lt;h3&gt; via : 1.1 Repose (Cloud Integration) (Repose/2.3.4-SNAPSHOT)&lt;/h3&gt;</stringProp>
+                </collectionProp>
+                <stringProp name="TestPlan.comments">Header normalizer should not affect via header</stringProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">16</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="85998">Via</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
             </hashTree>
           </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Filtering Based on URI" enabled="true">
@@ -255,6 +274,25 @@
                   <stringProp name="-2038069421">&lt;h3&gt; x-second-filter</stringProp>
                 </collectionProp>
                 <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="409677333">&lt;h3&gt; via : 1.1 Repose (Cloud Integration) (Repose/2.3.4-SNAPSHOT)&lt;/h3&gt;</stringProp>
+                </collectionProp>
+                <stringProp name="TestPlan.comments">Header normalizer should not affect via header</stringProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">16</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="85998">Via</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
                 <boolProp name="Assertion.assume_success">false</boolProp>
                 <intProp name="Assertion.test_type">2</intProp>
               </ResponseAssertion>
@@ -305,6 +343,25 @@
                 <intProp name="Assertion.test_type">2</intProp>
               </ResponseAssertion>
               <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="409677333">&lt;h3&gt; via : 1.1 Repose (Cloud Integration) (Repose/2.3.4-SNAPSHOT)&lt;/h3&gt;</stringProp>
+                </collectionProp>
+                <stringProp name="TestPlan.comments">Header normalizer should not affect via header</stringProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">16</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="85998">Via</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
             </hashTree>
           </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Filtering using catch all" enabled="true">
@@ -349,6 +406,25 @@
                 <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                 <boolProp name="Assertion.assume_success">false</boolProp>
                 <intProp name="Assertion.test_type">6</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="409677333">&lt;h3&gt; via : 1.1 Repose (Cloud Integration) (Repose/2.3.4-SNAPSHOT)&lt;/h3&gt;</stringProp>
+                </collectionProp>
+                <stringProp name="TestPlan.comments">Header normalizer should not affect via header</stringProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">16</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="85998">Via</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
               </ResponseAssertion>
               <hashTree/>
             </hashTree>
@@ -462,6 +538,25 @@
                 <intProp name="Assertion.test_type">2</intProp>
               </ResponseAssertion>
               <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="164073172">:8888 (Repose/2.3.4-SNAPSHOT)&lt;/h3&gt;</stringProp>
+                </collectionProp>
+                <stringProp name="TestPlan.comments">Header normalizer should not affect via header</stringProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">16</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="85998">Via</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
             </hashTree>
           </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Filtering Based on URI" enabled="true">
@@ -504,6 +599,25 @@
                   <stringProp name="-2038069421">&lt;h3&gt; x-second-filter</stringProp>
                 </collectionProp>
                 <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="164073172">:8888 (Repose/2.3.4-SNAPSHOT)&lt;/h3&gt;</stringProp>
+                </collectionProp>
+                <stringProp name="TestPlan.comments">Header normalizer should not affect via header</stringProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">16</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="85998">Via</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
                 <boolProp name="Assertion.assume_success">false</boolProp>
                 <intProp name="Assertion.test_type">2</intProp>
               </ResponseAssertion>
@@ -554,6 +668,25 @@
                 <intProp name="Assertion.test_type">2</intProp>
               </ResponseAssertion>
               <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="164073172">:8888 (Repose/2.3.4-SNAPSHOT)&lt;/h3&gt;</stringProp>
+                </collectionProp>
+                <stringProp name="TestPlan.comments">Header normalizer should not affect via header</stringProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">16</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="85998">Via</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
+              </ResponseAssertion>
+              <hashTree/>
             </hashTree>
           </hashTree>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Filtering using catch all" enabled="true">
@@ -598,6 +731,25 @@
                 <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                 <boolProp name="Assertion.assume_success">false</boolProp>
                 <intProp name="Assertion.test_type">6</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="164073172">:8888 (Repose/2.3.4-SNAPSHOT)&lt;/h3&gt;</stringProp>
+                </collectionProp>
+                <stringProp name="TestPlan.comments">Header normalizer should not affect via header</stringProp>
+                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">16</intProp>
+              </ResponseAssertion>
+              <hashTree/>
+              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Response Assertion" enabled="true">
+                <collectionProp name="Asserion.test_strings">
+                  <stringProp name="85998">Via</stringProp>
+                </collectionProp>
+                <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
+                <boolProp name="Assertion.assume_success">false</boolProp>
+                <intProp name="Assertion.test_type">2</intProp>
               </ResponseAssertion>
               <hashTree/>
             </hashTree>

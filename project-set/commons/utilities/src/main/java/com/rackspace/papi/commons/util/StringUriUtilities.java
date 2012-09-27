@@ -32,11 +32,14 @@ public final class StringUriUtilities {
           return baseUrl;
        }
        
+       StringBuilder url;
        if (baseUrl.endsWith("/")) {
-          baseUrl = baseUrl.substring(0, baseUrl.length() - 1);
+          url = new StringBuilder(baseUrl.substring(0, baseUrl.length() - 1));
+       } else {
+           url = new StringBuilder(baseUrl);
        }
        
-       return baseUrl + path;
+       return url.append(path).toString();
     }
     
     public static String concatUris(String... uris) {

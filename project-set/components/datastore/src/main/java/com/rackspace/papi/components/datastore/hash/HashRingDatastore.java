@@ -19,7 +19,6 @@ import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

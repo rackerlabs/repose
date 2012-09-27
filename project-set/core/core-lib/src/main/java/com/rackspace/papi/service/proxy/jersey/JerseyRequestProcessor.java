@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.proxy.jersey;
 
-import static com.rackspace.papi.http.Headers.HOST;
+import static com.rackspace.papi.commons.util.http.CommonHttpHeader.HOST;
 import com.rackspace.papi.http.proxy.common.AbstractRequestProcessor;
 import com.sun.jersey.api.client.PartialRequestBuilder;
 import com.sun.jersey.api.client.WebResource;
@@ -40,7 +40,7 @@ class JerseyRequestProcessor extends AbstractRequestProcessor {
          String[] params = delimiter.split(queryString);
 
          for (String param : params) {
-            String[] paramPair = pair.split(param);
+            String[] paramPair = pair.split(param, 2);
             if (paramPair.length == 2) {
                String paramValue = paramPair[1];
                try {

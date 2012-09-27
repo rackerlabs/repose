@@ -36,8 +36,8 @@ public class FilterLogicHandlerDelegate {
    public void doFilter(FilterLogicHandler handler) throws IOException, ServletException {
       HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
 
-      final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
       final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
+      final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
       final FilterDirector requestFilterDirector = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
 
       switch (requestFilterDirector.getFilterAction()) {

@@ -48,6 +48,14 @@
             </xs:annotation>
         </xs:attribute>
 
+        <xs:attribute name="via" type="xs:Name" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Via header value</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
         <xs:attribute name="connection-timeout" type="xs:int" use="optional" default="30000">
             <xs:annotation>
                 <xs:documentation>
@@ -76,6 +84,14 @@
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Log client requests</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="jmx-reset-time" type="xs:int" use="optional" default="15">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The number of seconds the JMX reporting service keeps data.  The data will be reset after this amount of time.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>

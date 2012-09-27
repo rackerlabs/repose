@@ -1,0 +1,67 @@
+{
+    "name": "Repose",
+    "description": "An open source RESTful HTTP proxy",
+    "tags": [
+    "java",
+    "intermediary",
+    "proxy",
+    "REST",
+    "API",
+    "HTTP",
+    "rate limit",
+    "auth",
+    "versioning",
+    "wadl",
+    "open source"
+    ],
+    "contacts": [
+    {
+        "team_name": "Cloud Integration",
+        "members": [
+        {
+            "name": "Theresa Huth",
+            "sso":"theresa.huth",
+            "github": "https://github.com/theresaHuth",
+            "mailto": "theresa.huth@rackspace.com"
+        },
+        {
+            "name": "Meynard Alconis",
+            "sso":"meynard.alconis",
+            "github": "https://github.com/malconis",
+            "mailto": "meynard.alconis@rackspace.com"
+        },
+        {
+            "name": "Dan Daley",
+            "sso":"danial.daley",
+            "github": "https://github.com/dddaley",
+            "mailto": "danial.daley@rackspace.com"
+        },
+        {
+            "name": "Richard Sartor",
+            "sso":"richard.sartor",
+            "github": "https://github.com/rich4632",
+            "mailto": "richard.sartor@rackspace.com"
+        },
+        {
+            "name": "Fran Torres-Lopez",
+            "sso":"fran.torreslopez",
+            "github": "https://github.com/forcewhisperer",
+            "mailto": "fran.torreslopez@rackspace.com"
+        }
+        ]
+    }
+    ],
+    "links": {
+        "Email List": "repose@lists.rackspace.com",
+        "Code": "https://github.com/rackspace/repose",
+        "Wiki":"http://wiki.openrepose.org/display/REPOSE/Home",
+        "Website" : "http://www.openrepose.org"
+    },
+    "dependent_services": [
+    "Nova (Cloud Servers)",
+    "ATOM Hopper",
+    "Identity/Auth",
+    "Cloud DNS",
+    "LBaaS"
+    ]
+}

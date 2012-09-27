@@ -1,10 +1,3 @@
-if node["powerapi-valve"]["image"] == "deb"
-   package "rpm" do
-      action :install
-      provider Chef::Provider::Package::Apt 
-   end
-end
-
 directory "/usr/share/lib" do
    owner "root"
    group "root"
@@ -19,21 +12,26 @@ end
 script "getVersionAndBuildNumbers" do
    interpreter "ruby"
 
-   latestUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/valve/repose-valve/maven-metadata.xml"
-   latest = `wget -qO- '#{latestUrl}'`.split(/<\/?version>/).select{|v| v=~ /SNAPSHOT/}.pop
+    latestUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/valve/repose-valve/maven-metadata.xml"
+    latest = `wget -qO- '#{latestUrl}'`.split(/<\/?version>/).select{|v| v=~ /SNAPSHOT/}.pop
 
 
-   valveUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/valve/repose-valve/#{latest}"
-   filterBundleUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/filters/repose-filter-bundle/#{latest}"
+    valveUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/valve/repose-valve/#{latest}"
+    filterBundleUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/filters/repose-filter-bundle/#{latest}"
+    eFilterBundleUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/papi/components/extensions/extensions-filter-bundle/#{latest}"
 
-   vTimeStamp= `wget -qO- "#{valveUrl}/maven-metadata.xml"`.split(/<\/?value>/)
-   fTimeStamp= `wget -qO- "#{filterBundleUrl}/maven-metadata.xml"`.split(/<\/?value>/)
+    vTimeStamp= `wget -qO- "#{valveUrl}/maven-metadata.xml"`.split(/<\/?value>/)
+    fTimeStamp= `wget -qO- "#{filterBundleUrl}/maven-metadata.xml"`.split(/<\/?value>/)
+    eTimeStamp= `wget -qO- "#{eFilterBundleUrl}/maven-metadata.xml"`.split(/<\/?value>/)
 
-   vValue= vTimeStamp[vTimeStamp.size-2]
-   fValue= fTimeStamp[fTimeStamp.size-2]
+    vValue= vTimeStamp[vTimeStamp.size-2]
+    fValue= fTimeStamp[fTimeStamp.size-2]
+    eValue= eTimeStamp[eTimeStamp.size-2]
 
-   `wget #{valveUrl}/repose-valve-#{vValue}.deb -O /root/repose-valve.deb`
-   `wget #{filterBundleUrl}/repose-filter-bundle-#{fValue}.deb -O /root/filterBundle.deb`
+    `wget #{valveUrl}/repose-valve-#{vValue}.deb -O /root/repose-valve.deb`
+    `wget #{filterBundleUrl}/repose-filter-bundle-#{fValue}.deb -O /root/filterBundle.deb`
+    `wget #{eFilterBundleUrl}/extensions-filter-bundle-#{eValue}.ear -O /root/extensions-filter-bundle.ear`
+
 end
 
 package "papiCore" do
@@ -48,6 +46,13 @@ package "filterBundle" do
    source "/root/filterBundle.deb"
    provider Chef::Provider::Package::Dpkg
    options "--force-all"
+end
+
+script "placeExtensionsFb" do
+   interpreter "bash"
+   code <<-EOH
+   mv /root/extensions-filter-bundle.ear /usr/share/repose/filters/
+   EOH
 end
 
 directory "/var/powerapi" do
@@ -70,15 +75,6 @@ for nodeNumber in 1..6
       recursive true
    end
 
-   ["container.cfg.xml"].each do |config|
-      template "/etc/repose/node#{nodeNumber}/#{config}" do
-         source "#{config}.erb"
-         mode 0644
-         variables(
-            :port => 8886 + nodeNumber
-         )
-      end
-   end
 
    ["rate-limiting.cfg.xml", "content-normalization.cfg.xml"].each do |config|
       cookbook_file "/etc/repose/node#{nodeNumber}/#{config}" do
@@ -86,6 +82,8 @@ for nodeNumber in 1..6
          mode 0644
       end
    end
+
+   via=""
 
    case nodeNumber
    when 1
@@ -114,6 +112,7 @@ for nodeNumber in 1..6
          source "/uri-normalization.cfg.xml"
          mode 0644
       end
+      via="via=\"Repose (Cloud Integration)\""
 
    when 2
       #Client Auth for OpenStack Identity
@@ -146,10 +145,11 @@ for nodeNumber in 1..6
          source "/uri-normalization.cfg.xml"
          mode 0644
       end
+      via="via=\"\""
 
    when 3
       #Client IP Identity Node
-      ["uri-identity.cfg.xml", "content-normalization.cfg.xml", "response-messaging.cfg.xml", "ip-identity.cfg.xml", "header-identity.cfg.xml", "rate-limiting.cfg.xml", "dist-datastore.cfg.xml", "responsefor5xx", "content-identity-auth-1-1.cfg.xml", "header-id-mapping.cfg.xml"].each do |config|
+      ["uri-identity.cfg.xml", "content-normalization.cfg.xml", "response-messaging.cfg.xml", "ip-identity.cfg.xml", "header-identity.cfg.xml", "rate-limiting.cfg.xml", "dist-datastore.cfg.xml", "responsefor5xx", "content-identity-auth-1-1.cfg.xml", "header-id-mapping.cfg.xml", "default.wadl", "group1.wadl", "group2.wadl", "test.xsd", "validator.cfg.xml"].each do |config|
          cookbook_file "/etc/repose/node3/#{config}" do
             source "/client-ip/#{config}"
             mode 0644
@@ -160,10 +160,11 @@ for nodeNumber in 1..6
          source "client-ip/system-model.cfg.xml.erb"
          mode 0644
       end
+      via=""
 
    when 4..6
       #Distirubted Datastore
-      ["ip-identity.cfg.xml","ip-identity2.cfg.xml","client-auth-n.cfg.xml"].each do |config|
+      ["add-element.xsl", "identity.xsl", "remove-element.xsl", "translation.cfg.xml", "ip-identity.cfg.xml","ip-identity2.cfg.xml","client-auth-n.cfg.xml"].each do |config|
          cookbook_file "/etc/repose/node#{nodeNumber}/#{config}" do
             source "/dist-datastore/#{config}"
             mode 0644
@@ -173,6 +174,18 @@ for nodeNumber in 1..6
       template "/etc/repose/node#{nodeNumber}/system-model.cfg.xml" do
          source "dist-datastore/system-model.cfg.xml.erb"
          mode 0644
+      end
+      via=""
+   end
+
+   ["container.cfg.xml"].each do |config|
+      template "/etc/repose/node#{nodeNumber}/#{config}" do
+         source "#{config}.erb"
+         mode 0644
+         variables({
+            :port => 8886 + nodeNumber,
+            :via => via
+         })
       end
    end
 end

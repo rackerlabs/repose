@@ -1,13 +1,19 @@
 package com.rackspace.papi.components.clientauth.openstack.v1_0;
 
+import com.rackspace.auth.AuthGroup;
+import com.rackspace.auth.AuthGroups;
 import com.rackspace.auth.AuthToken;
 import com.rackspace.auth.openstack.AuthenticationService;
+import com.rackspace.auth.openstack.OpenStackGroup;
 import com.rackspace.auth.openstack.OpenStackToken;
+import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
+import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
+import com.rackspace.papi.components.clientauth.common.AuthGroupCache;
 import com.rackspace.papi.components.clientauth.common.AuthTokenCache;
 import com.rackspace.papi.components.clientauth.common.Configurables;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
@@ -46,430 +52,527 @@ import static org.mockito.Mockito.*;
 @RunWith(Enclosed.class)
 public class OpenStackAuthenticationHandlerTest {
 
-   @Ignore
-   public static abstract class TestParent {
-      protected static final String AUTH_TOKEN_CACHE_PREFIX = "openstack.identity.token";
+    @Ignore
+    public static abstract class TestParent {
+        protected static final String AUTH_TOKEN_CACHE_PREFIX = "openstack.identity.token";
+        protected static final String AUTH_GROUP_CACHE_PREFIX = "openstack.identity.group";        
+        protected static final long AUTH_GROUP_CACHE_TTL = 600000;
+        protected static final long AUTH_TOKEN_CACHE_TTL = 5000;
 
-      protected HttpServletRequest request;
-      protected ReadableHttpServletResponse response;
-      protected AuthenticationService authService;
-      protected OpenStackAuthenticationHandler handler;
-      protected OpenStackAuthenticationHandler handlerWithCache;
-      protected OpenstackAuth osauthConfig;
-      protected KeyedRegexExtractor keyedRegexExtractor;
-      protected Datastore store;
-      protected List<Pattern> whiteListRegexPatterns;
+        protected HttpServletRequest request;
+        protected ReadableHttpServletResponse response;
+        protected AuthenticationService authService;
+        protected OpenStackAuthenticationHandler handler;
+        protected OpenStackAuthenticationHandler handlerWithCache;
+        protected OpenstackAuth osauthConfig;
+        protected KeyedRegexExtractor keyedRegexExtractor;
+        protected Datastore store;
+        protected List<Pattern> whiteListRegexPatterns;
 
-      @Before
-      public void beforeAny() {
-         request = mock(HttpServletRequest.class);
-         response = mock(ReadableHttpServletResponse.class);
+        @Before
+        public void beforeAny() {
+            request = mock(HttpServletRequest.class);
+            response = mock(ReadableHttpServletResponse.class);
 
-         osauthConfig = new OpenstackAuth();
-         osauthConfig.setDelegable(delegable());
-         osauthConfig.setIncludeQueryParams(includeQueryParams());
-         osauthConfig.setTenanted(isTenanted());
+            osauthConfig = new OpenstackAuth();
+            osauthConfig.setDelegable(delegable());
+            osauthConfig.setIncludeQueryParams(includeQueryParams());
+            osauthConfig.setTenanted(isTenanted());
 
-         keyedRegexExtractor = new KeyedRegexExtractor();
+            keyedRegexExtractor = new KeyedRegexExtractor();
 
-         final ClientMapping mapping = new ClientMapping();
-         mapping.setIdRegex("/start/(.*)/");
+            final ClientMapping mapping = new ClientMapping();
+            mapping.setIdRegex("/start/(.*)/");
 
-         final ClientMapping mapping2 = new ClientMapping();
-         mapping2.setIdRegex(".*\\?.*username=(.+)");
+            final ClientMapping mapping2 = new ClientMapping();
+            mapping2.setIdRegex(".*\\?.*username=(.+)");
 
-         osauthConfig.getClientMapping().add(mapping);
-         osauthConfig.getClientMapping().add(mapping2);
-         keyedRegexExtractor.addPattern(mapping.getIdRegex());
-         keyedRegexExtractor.addPattern(mapping2.getIdRegex());
+            osauthConfig.getClientMapping().add(mapping);
+            osauthConfig.getClientMapping().add(mapping2);
+            keyedRegexExtractor.addPattern(mapping.getIdRegex());
+            keyedRegexExtractor.addPattern(mapping2.getIdRegex());
 
-         final OpenStackIdentityService openStackIdentityService = new OpenStackIdentityService();
-         openStackIdentityService.setUri("http://some.auth.endpoint");
-         osauthConfig.setIdentityService(openStackIdentityService);
+            final OpenStackIdentityService openStackIdentityService = new OpenStackIdentityService();
+            openStackIdentityService.setUri("http://some.auth.endpoint");
+            osauthConfig.setIdentityService(openStackIdentityService);
 
-         authService = mock(AuthenticationService.class);
+            authService = mock(AuthenticationService.class);
 
-         whiteListRegexPatterns = new ArrayList<Pattern>();
-         whiteListRegexPatterns.add(Pattern.compile("/v1.0/application\\.wadl"));
+            whiteListRegexPatterns = new ArrayList<Pattern>();
+            whiteListRegexPatterns.add(Pattern.compile("/v1.0/application\\.wadl"));
 
-         Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, includeQueryParams(),isTenanted());
-         handler = new OpenStackAuthenticationHandler(configurables, authService, null, new UriMatcher(whiteListRegexPatterns));
+            Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, includeQueryParams(), isTenanted(), AUTH_GROUP_CACHE_TTL, AUTH_TOKEN_CACHE_TTL);
+            handler = new OpenStackAuthenticationHandler(configurables, authService, null, null, new UriMatcher(whiteListRegexPatterns));
 
 
-         // Handler with cache
-         store = mock(Datastore.class);
-         AuthTokenCache cache = new AuthTokenCache(store, AUTH_TOKEN_CACHE_PREFIX);
+            // Handler with cache
+            store = mock(Datastore.class);
+            AuthTokenCache cache = new AuthTokenCache(store, AUTH_TOKEN_CACHE_PREFIX);
+            AuthGroupCache grpCache = new AuthGroupCache(store, AUTH_GROUP_CACHE_PREFIX);
 
-         handlerWithCache = new OpenStackAuthenticationHandler(configurables, authService, cache, new UriMatcher(whiteListRegexPatterns));
-      }
+            handlerWithCache = new OpenStackAuthenticationHandler(configurables, authService, cache, grpCache, new UriMatcher(whiteListRegexPatterns));
+        }
 
-      protected abstract boolean delegable();
+        protected abstract boolean delegable();
 
-      protected boolean includeQueryParams() {
-         return false;
-      }
-      
-      protected  boolean isTenanted(){
-          return true;
-      }
+        protected boolean includeQueryParams() {
+            return false;
+        }
 
-      public AuthToken generateCachableTokenInfo(String roles, String tokenId, String username) {
-         return generateCachableTokenInfo(roles, tokenId, username, 10000);
-      }
+        protected boolean isTenanted() {
+            return true;
+        }
 
-      protected Calendar getCalendarWithOffset(int millis) {
-         return getCalendarWithOffset(Calendar.MILLISECOND, millis);
-      }
+        public AuthToken generateCachableTokenInfo(String roles, String tokenId, String username) {
+            return generateCachableTokenInfo(roles, tokenId, username, 10000);
+        }
 
-      protected Calendar getCalendarWithOffset(int field, int millis) {
-         Calendar cal = GregorianCalendar.getInstance();
+        protected Calendar getCalendarWithOffset(int millis) {
+            return getCalendarWithOffset(Calendar.MILLISECOND, millis);
+        }
 
-         cal.add(field, millis);
+        protected Calendar getCalendarWithOffset(int field, int millis) {
+            Calendar cal = GregorianCalendar.getInstance();
 
-         return cal;
-      }
-
-      public AuthToken generateCachableTokenInfo(String roles, String tokenId, String username, int ttl) {
-         Long expires = getCalendarWithOffset(ttl).getTimeInMillis();
-
-         final AuthToken cti = mock(AuthToken.class);
-         when(cti.getRoles()).thenReturn(roles);
-         when(cti.getTokenId()).thenReturn(tokenId);
-         when(cti.getUsername()).thenReturn(username);
-         when(cti.getExpires()).thenReturn(expires);
+            cal.add(field, millis);
 
-         return cti;
-      }
-   }
+            return cal;
+        }
+
+        public AuthToken generateCachableTokenInfo(String roles, String tokenId, String username, int ttl) {
+            Long expires = getCalendarWithOffset(ttl).getTimeInMillis();
+
+            final AuthToken cti = mock(AuthToken.class);
+            when(cti.getRoles()).thenReturn(roles);
+            when(cti.getTokenId()).thenReturn(tokenId);
+            when(cti.getUsername()).thenReturn(username);
+            when(cti.getExpires()).thenReturn(expires);
 
-   public static class WhenCachingUserInfo extends TestParent {
+            return cti;
+        }
+    }
 
-      private DatatypeFactory dataTypeFactory;
-      AuthenticateResponse authResponse;
+    public static class WhenCachingUserInfo extends TestParent {
+
+        private DatatypeFactory dataTypeFactory;
+        AuthenticateResponse authResponse;
+
+        @Override
+        protected boolean delegable() {
+            return false;
+        }
+
+        @Before
+        public void standUp() throws DatatypeConfigurationException {
+            dataTypeFactory = DatatypeFactory.newInstance();
+            when(request.getRequestURI()).thenReturn("/start/104772/resource");
+            when(request.getHeader(anyString())).thenReturn("tokenId");
+
+            Calendar expires = getCalendarWithOffset(1000);
+
+            authResponse = new AuthenticateResponse();
+            UserForAuthenticateResponse userForAuthenticateResponse = new UserForAuthenticateResponse();
+            userForAuthenticateResponse.setId("104772");
+            userForAuthenticateResponse.setName("user2");
+
+            Token token = new Token();
+            token.setId("tokenId");
+            token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
+
+            authResponse.setToken(token);
+            authResponse.setUser(userForAuthenticateResponse);
+        }
+
+        @Test
+        public void shouldCheckCacheForCredentials() throws IOException {
+            final AuthToken user = new OpenStackToken(null, authResponse);
+            byte[] userInfoBytes = ObjectSerializer.instance().writeObject(user);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
+
+
+            final FilterDirector director = handlerWithCache.handleRequest(request, response);
+
+            verify(store).get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772" + ":" + user.getTokenId()));
+            assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
+        }
+
+        @Test
+        public void shouldUseCachedUserInfo() {
+            final AuthToken user = new OpenStackToken(null, authResponse);
+            StoredElement element = mock(StoredElement.class);
+            when(element.elementIsNull()).thenReturn(false);
+            when(element.elementAs(AuthToken.class)).thenReturn(user);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
+
+            when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772" + ":" + user.getTokenId()))).thenReturn(element);
+
+            final FilterDirector director = handlerWithCache.handleRequest(request, response);
+
+            // Service should not be called if we found the token in the cache
+            verify(authService, times(0)).validateToken(anyString(), anyString());
+            assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
+        }
+
+        @Test
+        public void shouldNotUseCachedUserInfoForExpired() throws InterruptedException {
+            final AuthToken user = new OpenStackToken(null, authResponse);
+            StoredElement element = mock(StoredElement.class);
+            when(element.elementIsNull()).thenReturn(false);
+            when(element.elementAs(AuthToken.class)).thenReturn(user);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
+            when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(element);
+
+            // Wait until token expires
+            Thread.sleep(1000);
+
+            final FilterDirector director = handlerWithCache.handleRequest(request, response);
+
+            // Service should be called since token has expired
+            verify(authService, times(1)).validateToken(anyString(), anyString());
+            assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
+        }
+
+        @Test
+        public void shouldNotUseCachedUserInfoForBadTokenId() {
+            authResponse.getToken().setId("differentId");
+            final AuthToken user = new OpenStackToken(null, authResponse);
+            StoredElement element = mock(StoredElement.class);
+            when(element.elementIsNull()).thenReturn(false);
+            when(element.elementAs(AuthToken.class)).thenReturn(user);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
+
+            when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(element);
+
+            final FilterDirector director = handlerWithCache.handleRequest(request, response);
+
+            verify(authService, times(1)).validateToken(anyString(), anyString());
+            assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
+        }
+    }
+
+    public static class WhenCachingGroupInfo extends TestParent {
+        private DatatypeFactory dataTypeFactory;
+        AuthenticateResponse authResponse;
+        Groups groups;
+        Group group;
+
+        @Override
+        protected boolean delegable() {
+            return false;
+        }
+
+        @Before
+        public void standUp() throws DatatypeConfigurationException {
+            dataTypeFactory = DatatypeFactory.newInstance();
+            when(request.getRequestURI()).thenReturn("/start/104772/resource");
+            when(request.getHeader(anyString())).thenReturn("tokenId");
+
+            Calendar expires = getCalendarWithOffset(1000);
+
+            groups = new Groups();
+            group = new Group();
+            group.setId("groupId");
+            group.setDescription("Group Description");
+            group.setName("Group Name");
+            groups.getGroup().add(group);
+
+            authResponse = new AuthenticateResponse();
+            UserForAuthenticateResponse userForAuthenticateResponse = new UserForAuthenticateResponse();
+            userForAuthenticateResponse.setId("104772");
+            userForAuthenticateResponse.setName("user2");
+
+            Token token = new Token();
+            token.setId("tokenId");
+            token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
+
+            authResponse.setToken(token);
+            authResponse.setUser(userForAuthenticateResponse);
+        }
+
+        @Test
+        public void shouldCheckCacheForGroup() throws IOException {
+            final AuthToken user = new OpenStackToken("tenantId", authResponse);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
+
+            final FilterDirector director = handlerWithCache.handleRequest(request, response);
+
+            verify(store, times(1)).get(eq(AUTH_GROUP_CACHE_PREFIX + "." + "tenantId" + ":" + user.getTokenId()));
+            assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
+        }
+
+        @Test
+        public void shouldUseCachedGroupInfo() {
+            final AuthToken user = new OpenStackToken("tenantId", authResponse);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
+
+            final AuthGroup authGroup = new OpenStackGroup(group);
+            final List<AuthGroup> authGroupList = new ArrayList<AuthGroup>();
+            authGroupList.add(authGroup);
+            final AuthGroups groups = new AuthGroups(authGroupList);
+
+            StoredElement element = mock(StoredElement.class);
+            when(element.elementIsNull()).thenReturn(false);
+            when(element.elementAs(AuthGroups.class)).thenReturn(groups);
+
+            when(store.get(eq(AUTH_GROUP_CACHE_PREFIX + "." + "tenantId" + ":" + user.getTokenId()))).thenReturn(element);
+
+            final FilterDirector director = handlerWithCache.handleRequest(request, response);
+
+            // Service should not be called if we found the token in the cache
+            verify(authService, times(0)).getGroups(anyString());
+            assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
+        }
+
+        @Test
+        public void shouldNotUseCachedGroupInfoForExpired() throws InterruptedException {
+            final AuthToken user = new OpenStackToken("tenantId", authResponse);
+            when(authService.validateToken(anyString(), anyString())).thenReturn(user);
+
+            StoredElement element = mock(StoredElement.class);
+            when(element.elementIsNull()).thenReturn(false);
+            when(element.elementAs(AuthGroups.class)).thenReturn(null);
+
+            when(store.get(eq(AUTH_GROUP_CACHE_PREFIX + ".tenantId"))).thenReturn(null);
+
+            final FilterDirector director = handlerWithCache.handleRequest(request, response);
+
+            verify(store, times(1)).get(eq(AUTH_GROUP_CACHE_PREFIX + "." + "tenantId" + ":" + user.getTokenId()));
+            // Service should be called since token has expired
+            verify(authService, times(1)).getGroups(anyString());
+            assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
+        }
+    }
+
+    public static class WhenAuthenticatingDelegatableRequests extends TestParent {
+
+        @Override
+        protected boolean delegable() {
+            return true;
+        }
+
+        @Before
+        public void standUp() {
+            when(request.getHeader(anyString())).thenReturn("some-random-auth-token");
+        }
+
+        @Test
+        public void shouldPassNullOrBlankCredentials() {
+            when(request.getRequestURI()).thenReturn("/start/");
+            final FilterDirector requestDirector = handler.handleRequest(request, response);
+            assertEquals("Auth component must pass requests with invalid credentials", FilterAction.PROCESS_RESPONSE, requestDirector.getFilterAction());
+        }
+
+        @Test
+        public void shouldRejectInvalidCredentials() {
+            when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
+            final FilterDirector requestDirector = handler.handleRequest(request, response);
+            assertEquals("Auth component must reject requests with invalid credentials", FilterAction.RETURN, requestDirector.getFilterAction());
+        }
+    }
+
+    public static class WhenAuthenticatingNonDelegatableRequests extends TestParent {
 
-      @Override
-      protected boolean delegable() {
-         return false;
-      }
-
-      @Before
-      public void standUp() throws DatatypeConfigurationException {
-         dataTypeFactory = DatatypeFactory.newInstance();
-         when(request.getRequestURI()).thenReturn("/start/104772/resource");
-         when(request.getHeader(anyString())).thenReturn("tokenId");
-
-         Calendar expires = getCalendarWithOffset(1000);
-
-         authResponse = new AuthenticateResponse();
-         UserForAuthenticateResponse userForAuthenticateResponse = new UserForAuthenticateResponse();
-         userForAuthenticateResponse.setId("104772");
-         userForAuthenticateResponse.setName("user2");
-
-         Token token = new Token();
-         token.setId("tokenId");
-         token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
-
-         authResponse.setToken(token);
-         authResponse.setUser(userForAuthenticateResponse);
-      }
-
-      @Test
-      public void shouldCheckCacheForCredentials() throws IOException {
-         final AuthToken user = new OpenStackToken(null, authResponse);
-         byte[] userInfoBytes = ObjectSerializer.instance().writeObject(user);
-         when(authService.validateToken(anyString(), anyString())).thenReturn(user);
-
-
-         final FilterDirector director = handlerWithCache.handleRequest(request, response);
-
-         verify(store).get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"));
-         assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
-      }
-
-      @Test
-      public void shouldUseCachedUserInfo() {
-         final AuthToken user = new OpenStackToken(null, authResponse);
-         StoredElement element = mock(StoredElement.class);
-         when(element.elementIsNull()).thenReturn(false);
-         when(element.elementAs(AuthToken.class)).thenReturn(user);
-         when(authService.validateToken(anyString(), anyString())).thenReturn(user);
-
-         when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(element);
-
-         final FilterDirector director = handlerWithCache.handleRequest(request, response);
-
-         // Service should not be called if we found the token in the cache
-         verify(authService, times(0)).validateToken(anyString(), anyString());
-         assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
-      }
-
-      @Test
-      public void shouldNotUseCachedUserInfoForExpired() throws InterruptedException {
-         final AuthToken user = new OpenStackToken(null, authResponse);
-         StoredElement element = mock(StoredElement.class);
-         when(element.elementIsNull()).thenReturn(false);
-         when(element.elementAs(AuthToken.class)).thenReturn(user);
-         when(authService.validateToken(anyString(), anyString())).thenReturn(user);
-         when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(element);
-
-         // Wait until token expires
-         Thread.sleep(1000);
-
-         final FilterDirector director = handlerWithCache.handleRequest(request, response);
-
-         // Service should be called since token has expired
-         verify(authService, times(1)).validateToken(anyString(), anyString());
-         assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
-      }
-
-      @Test
-      public void shouldNotUseCachedUserInfoForBadTokenId() {
-         authResponse.getToken().setId("differentId");
-         final AuthToken user = new OpenStackToken(null, authResponse);
-         StoredElement element = mock(StoredElement.class);
-         when(element.elementIsNull()).thenReturn(false);
-         when(element.elementAs(AuthToken.class)).thenReturn(user);
-         when(authService.validateToken(anyString(), anyString())).thenReturn(user);
-
-         when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772"))).thenReturn(element);
-
-         final FilterDirector director = handlerWithCache.handleRequest(request, response);
-
-         verify(authService, times(1)).validateToken(anyString(), anyString());
-         assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
-      }
-   }
-
-   public static class WhenAuthenticatingDelegatableRequests extends TestParent {
+        @Override
+        protected boolean delegable() {
+            return false;
+        }
 
-      @Override
-      protected boolean delegable() {
-         return true;
-      }
+        @Before
+        public void standUp() {
+            when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
+            when(request.getHeader(anyString())).thenReturn("some-random-auth-token");
+        }
 
-      @Before
-      public void standUp() {
-         when(request.getHeader(anyString())).thenReturn("some-random-auth-token");
-      }
+        @Test
+        public void shouldPassValidCredentials() {
+            final AuthToken token = generateCachableTokenInfo("", "", "");
+            when(authService.validateToken(anyString(), anyString())).thenReturn(token);
 
-      @Test
-      public void shouldPassNullOrBlankCredentials() {
-         when(request.getRequestURI()).thenReturn("/start/");
-         final FilterDirector requestDirector = handler.handleRequest(request, response);
-         assertEquals("Auth component must pass requests with invalid credentials", FilterAction.PROCESS_RESPONSE, requestDirector.getFilterAction());
-      }
+            final FilterDirector director = handler.handleRequest(request, response);
 
-      @Test
-      public void shouldRejectInvalidCredentials() {
-         when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
-         final FilterDirector requestDirector = handler.handleRequest(request, response);
-         assertEquals("Auth component must reject requests with invalid credentials", FilterAction.RETURN, requestDirector.getFilterAction());
-      }
-   }
+            assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
+        }
 
-   public static class WhenAuthenticatingNonDelegatableRequests extends TestParent {
+        @Test
+        public void shouldRejectInvalidCredentials() {
+            final FilterDirector director = handler.handleRequest(request, response);
 
-      @Override
-      protected boolean delegable() {
-         return false;
-      }
+            assertEquals("Auth component must reject invalid requests", FilterAction.RETURN, director.getFilterAction());
+        }
+    }
 
-      @Before
-      public void standUp() {
-         when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
-         when(request.getHeader(anyString())).thenReturn("some-random-auth-token");
-      }
+    public static class WhenHandlingResponseFromServiceInDelegatedMode extends TestParent {
 
-      @Test
-      public void shouldPassValidCredentials() {
-         final AuthToken token = generateCachableTokenInfo("", "", "");
-         when(authService.validateToken(anyString(), anyString())).thenReturn(token);
+        @Override
+        protected boolean delegable() {
+            return true;
+        }
 
-         final FilterDirector director = handler.handleRequest(request, response);
+        @Test
+        public void shouldNotModifyResponseOnResponseStatusCodeNotEqualTo401or403() {
+            when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
+            when(response.getStatus()).thenReturn(200);
 
-         assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
-      }
+            final FilterDirector responseDirector = handler.handleResponse(request, response);
 
-      @Test
-      public void shouldRejectInvalidCredentials() {
-         final FilterDirector director = handler.handleRequest(request, response);
-
-         assertEquals("Auth component must reject invalid requests", FilterAction.RETURN, director.getFilterAction());
-      }
-   }
-
-   public static class WhenHandlingResponseFromServiceInDelegatedMode extends TestParent {
-
-      @Override
-      protected boolean delegable() {
-         return true;
-      }
-
-      @Test
-      public void shouldNotModifyResponseOnResponseStatusCodeNotEqualTo401or403() {
-         when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
-         when(response.getStatus()).thenReturn(200);
-
-         final FilterDirector responseDirector = handler.handleResponse(request, response);
-
-         assertEquals("Auth component must pass valid, delegated responses", FilterAction.NOT_SET, responseDirector.getFilterAction());
-      }
-
-      @Test
-      public void shouldModifyDelegatedWwwAuthenticateHeaderOn401() {
-         when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
-         when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString())).thenReturn("Delegated");
-         when(response.getStatus()).thenReturn(401);
-
-         final FilterDirector responseDirector = handler.handleResponse(request, response);
-
-         final String expected = "Keystone uri=" + osauthConfig.getIdentityService().getUri();
-
-         assertEquals("Auth component must pass invalid requests but process their responses", expected, responseDirector.responseHeaderManager().headersToAdd().get(CommonHttpHeader.WWW_AUTHENTICATE.toString()).iterator().next());
-      }
-
-      @Test
-      public void shouldModifyDelegatedWwwAuthenticateHeaderOn403() {
-         when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString())).thenReturn("Delegated");
-         when(response.getStatus()).thenReturn(403);
-
-         final FilterDirector responseDirector = handler.handleResponse(request, response);
-
-         final String expected = "Keystone uri=" + osauthConfig.getIdentityService().getUri();
-
-         assertEquals("Auth component must pass invalid requests but process their responses", expected, responseDirector.responseHeaderManager().headersToAdd().get(CommonHttpHeader.WWW_AUTHENTICATE.toString()).iterator().next());
-      }
-
-      @Test
-      public void shouldReturn500OnAuth501FailureWithDelegatedWwwAuthenticateHeaderSet() {
-         when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString())).thenReturn("Delegated");
-         when(response.getStatus()).thenReturn(501);
-
-         final FilterDirector responseDirector = handler.handleResponse(request, response);
-
-         assertEquals("Auth component must identify proxy auth failures", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
-      }
-   }
-
-   public static class WhenHandlingResponseFromServiceNotInDelegatedMode extends TestParent {
-
-      @Override
-      protected boolean delegable() {
-         return false;
-      }
-
-      @Test
-      public void shouldReturn501OnAuthFailureWithNonDelegatedWwwAuthenticateHeaderSet() {
-         when(response.getStatus()).thenReturn(401);
-
-         final FilterDirector responseDirector = handler.handleResponse(request, response);
-
-         assertEquals("Auth component must identify proxy auth failures", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
-      }
-
-      @Test
-      public void shouldReturn501OnAuthFailureWithNoWwwAuthenticateHeaderSet() {
-         when(response.getStatus()).thenReturn(401);
-
-         final FilterDirector responseDirector = handler.handleResponse(request, response);
-
-         assertEquals("Auth component must identify proxy auth failures", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
-      }
-
-      @Test
-      public void shouldReturn501OnAuth501FailureWithDelegatedWwwAuthenticateHeaderNotSet() {
-         when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString())).thenReturn("Not-Delegate");
-         when(response.getStatus()).thenReturn(501);
-
-         final FilterDirector responseDirector = handler.handleResponse(request, response);
-
-         assertEquals("Auth component must identify proxy auth failures", HttpStatusCode.NOT_IMPLEMENTED, responseDirector.getResponseStatus());
-      }
-   }
-
-   public static class WhenHandlingWhiteListNotInDelegatedMode extends TestParent {
-
-      @Override
-      protected boolean delegable() {
-         return false;
-      }
-
-      @Test
-      public void shouldPassUriOnWhiteList() {
-         when(request.getRequestURI()).thenReturn("/v1.0/application.wadl");
-         final FilterDirector requestDirector = handler.handleRequest(request, response);
-         assertEquals("Auth component must pass requests with uri on white list", FilterAction.PASS, requestDirector.getFilterAction());
-      }
-
-      @Test
-      public void shouldReturnForUriNotOnWhiteList() {
-         when(request.getRequestURI()).thenReturn("?param=/v1.0/application.wadl");
-         final FilterDirector requestDirector = handler.handleRequest(request, response);
-         assertEquals("Auth component must return requests with uri not on white list", FilterAction.RETURN, requestDirector.getFilterAction());
-      }
-   }
-
-   public static class WhenHandlingWhiteListInDelegatedMode extends TestParent {
-
-      @Override
-      protected boolean delegable() {
-         return true;
-      }
-
-      @Test
-      public void shouldPassUriOnWhiteList() {
-         when(request.getRequestURI()).thenReturn("/v1.0/application.wadl");
-         final FilterDirector requestDirector = handler.handleRequest(request, response);
-         assertEquals("Auth component must pass requests with uri on white list", FilterAction.PASS, requestDirector.getFilterAction());
-      }
-
-      @Test
-      public void shouldProcessUriNotOnWhiteListAsNonAuthedRequest() {
-         when(request.getRequestURI()).thenReturn("?param=/v1.0/application.wadl");
-         final FilterDirector requestDirector = handler.handleRequest(request, response);
-         assertEquals("Auth component must process requests with uri not on white list when in delegated mode", FilterAction.PROCESS_RESPONSE, requestDirector.getFilterAction());
-      }
-   }
-
-   public static class WhenPassingRequestWithUserInQueryParam extends TestParent {
-
-      @Override
-      protected boolean delegable() {
-         return true;
-      }
-
-      @Override
-      protected boolean includeQueryParams() {
-         return true;
-      }
-
-      @Test
-      public void shouldCatchUserNameInQueryParam() {
-         when(request.getRequestURI()).thenReturn("/v1.0/servers/service");
-         when(request.getQueryString()).thenReturn("crowd=huge&username=usertest1");
-         final FilterDirector requestDirector = handler.handleRequest(request, response);
-         assertTrue(requestDirector.requestHeaderManager().headersToAdd().get("x-authorization").toString().equalsIgnoreCase("[Proxy usertest1]"));
-      }
-   }
-
-   public static class WhenPassingRequestWithOutUserInQueryParam extends TestParent {
-
-      @Override
-      protected boolean delegable() {
-         return true;
-      }
-
-      @Override
-      protected boolean includeQueryParams() {
-         return false;
-      }
-
-      @Test
-      public void shouldNotCatchUserInQueryParam() {
-         when(request.getRequestURI()).thenReturn("/v1.0/servers/service");
-         when(request.getQueryString()).thenReturn("crowd=huge&username=usertest1");
-         final FilterDirector requestDirector = handler.handleRequest(request, response);
-         assertFalse(requestDirector.requestHeaderManager().headersToAdd().get("x-authorization").toString().equalsIgnoreCase("[Proxy usertest1]"));
-      }
-   }
+            assertEquals("Auth component must pass valid, delegated responses", FilterAction.NOT_SET, responseDirector.getFilterAction());
+        }
+
+        @Test
+        public void shouldModifyDelegatedWwwAuthenticateHeaderOn401() {
+            when(request.getRequestURI()).thenReturn("/start/12345/a/resource");
+            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString())).thenReturn("Delegated");
+            when(response.getStatus()).thenReturn(401);
+
+            final FilterDirector responseDirector = handler.handleResponse(request, response);
+
+            final String expected = "Keystone uri=" + osauthConfig.getIdentityService().getUri();
+
+            assertEquals("Auth component must pass invalid requests but process their responses", expected, responseDirector.responseHeaderManager().headersToAdd().get(CommonHttpHeader.WWW_AUTHENTICATE.toString()).iterator().next());
+        }
+
+        @Test
+        public void shouldModifyDelegatedWwwAuthenticateHeaderOn403() {
+            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString())).thenReturn("Delegated");
+            when(response.getStatus()).thenReturn(403);
+
+            final FilterDirector responseDirector = handler.handleResponse(request, response);
+
+            final String expected = "Keystone uri=" + osauthConfig.getIdentityService().getUri();
+
+            assertEquals("Auth component must pass invalid requests but process their responses", expected, responseDirector.responseHeaderManager().headersToAdd().get(CommonHttpHeader.WWW_AUTHENTICATE.toString()).iterator().next());
+        }
+
+        @Test
+        public void shouldReturn500OnAuth501FailureWithDelegatedWwwAuthenticateHeaderSet() {
+            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString())).thenReturn("Delegated");
+            when(response.getStatus()).thenReturn(501);
+
+            final FilterDirector responseDirector = handler.handleResponse(request, response);
+
+            assertEquals("Auth component must identify proxy auth failures", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
+        }
+    }
+
+    public static class WhenHandlingResponseFromServiceNotInDelegatedMode extends TestParent {
+
+        @Override
+        protected boolean delegable() {
+            return false;
+        }
+
+        @Test
+        public void shouldReturn501OnAuthFailureWithNonDelegatedWwwAuthenticateHeaderSet() {
+            when(response.getStatus()).thenReturn(401);
+
+            final FilterDirector responseDirector = handler.handleResponse(request, response);
+
+            assertEquals("Auth component must identify proxy auth failures", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
+        }
+
+        @Test
+        public void shouldReturn501OnAuthFailureWithNoWwwAuthenticateHeaderSet() {
+            when(response.getStatus()).thenReturn(401);
+
+            final FilterDirector responseDirector = handler.handleResponse(request, response);
+
+            assertEquals("Auth component must identify proxy auth failures", HttpStatusCode.INTERNAL_SERVER_ERROR, responseDirector.getResponseStatus());
+        }
+
+        @Test
+        public void shouldReturn501OnAuth501FailureWithDelegatedWwwAuthenticateHeaderNotSet() {
+            when(response.getHeader(CommonHttpHeader.WWW_AUTHENTICATE.toString())).thenReturn("Not-Delegate");
+            when(response.getStatus()).thenReturn(501);
+
+            final FilterDirector responseDirector = handler.handleResponse(request, response);
+
+            assertEquals("Auth component must identify proxy auth failures", HttpStatusCode.NOT_IMPLEMENTED, responseDirector.getResponseStatus());
+        }
+    }
+
+    public static class WhenHandlingWhiteListNotInDelegatedMode extends TestParent {
+
+        @Override
+        protected boolean delegable() {
+            return false;
+        }
+
+        @Test
+        public void shouldPassUriOnWhiteList() {
+            when(request.getRequestURI()).thenReturn("/v1.0/application.wadl");
+            final FilterDirector requestDirector = handler.handleRequest(request, response);
+            assertEquals("Auth component must pass requests with uri on white list", FilterAction.PASS, requestDirector.getFilterAction());
+        }
+
+        @Test
+        public void shouldReturnForUriNotOnWhiteList() {
+            when(request.getRequestURI()).thenReturn("?param=/v1.0/application.wadl");
+            final FilterDirector requestDirector = handler.handleRequest(request, response);
+            assertEquals("Auth component must return requests with uri not on white list", FilterAction.RETURN, requestDirector.getFilterAction());
+        }
+    }
+
+    public static class WhenHandlingWhiteListInDelegatedMode extends TestParent {
+
+        @Override
+        protected boolean delegable() {
+            return true;
+        }
+
+        @Test
+        public void shouldPassUriOnWhiteList() {
+            when(request.getRequestURI()).thenReturn("/v1.0/application.wadl");
+            final FilterDirector requestDirector = handler.handleRequest(request, response);
+            assertEquals("Auth component must pass requests with uri on white list", FilterAction.PASS, requestDirector.getFilterAction());
+        }
+
+        @Test
+        public void shouldProcessUriNotOnWhiteListAsNonAuthedRequest() {
+            when(request.getRequestURI()).thenReturn("?param=/v1.0/application.wadl");
+            final FilterDirector requestDirector = handler.handleRequest(request, response);
+            assertEquals("Auth component must process requests with uri not on white list when in delegated mode", FilterAction.PROCESS_RESPONSE, requestDirector.getFilterAction());
+        }
+    }
+
+    public static class WhenPassingRequestWithUserInQueryParam extends TestParent {
+
+        @Override
+        protected boolean delegable() {
+            return true;
+        }
+
+        @Override
+        protected boolean includeQueryParams() {
+            return true;
+        }
+
+        @Test
+        public void shouldCatchUserNameInQueryParam() {
+            when(request.getRequestURI()).thenReturn("/v1.0/servers/service");
+            when(request.getQueryString()).thenReturn("crowd=huge&username=usertest1");
+            final FilterDirector requestDirector = handler.handleRequest(request, response);
+            assertTrue(requestDirector.requestHeaderManager().headersToAdd().get("x-authorization").toString().equalsIgnoreCase("[Proxy usertest1]"));
+        }
+    }
+
+    public static class WhenPassingRequestWithOutUserInQueryParam extends TestParent {
+
+        @Override
+        protected boolean delegable() {
+            return true;
+        }
+
+        @Override
+        protected boolean includeQueryParams() {
+            return false;
+        }
+
+        @Test
+        public void shouldNotCatchUserInQueryParam() {
+            when(request.getRequestURI()).thenReturn("/v1.0/servers/service");
+            when(request.getQueryString()).thenReturn("crowd=huge&username=usertest1");
+            final FilterDirector requestDirector = handler.handleRequest(request, response);
+            assertFalse(requestDirector.requestHeaderManager().headersToAdd().get("x-authorization").toString().equalsIgnoreCase("[Proxy usertest1]"));
+        }
+    }
 }

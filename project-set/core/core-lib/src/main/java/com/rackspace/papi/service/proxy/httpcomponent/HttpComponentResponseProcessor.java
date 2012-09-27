@@ -12,49 +12,44 @@ import org.apache.http.util.EntityUtils;
 
 public class HttpComponentResponseProcessor extends AbstractResponseProcessor {
 
-   private final HttpResponse httpResponse;
+    private final HttpResponse httpResponse;
 
-   public HttpComponentResponseProcessor(HttpResponse httpResponse, HttpServletResponse response, HttpComponentResponseCodeProcessor responseCode) {
-      super(response, responseCode.getCode());
-      this.httpResponse = httpResponse;
-   }
+    public HttpComponentResponseProcessor(String proxiedHostUrl, String requestHostPath, HttpResponse httpResponse, HttpServletResponse response, HttpComponentResponseCodeProcessor responseCode) {
+        super(proxiedHostUrl, requestHostPath, response, responseCode.getCode());
+        this.httpResponse = httpResponse;
+    }
 
-   @Override
-   protected void setResponseHeaders() throws IOException {
-      for (Header header : httpResponse.getAllHeaders()) {
-         addHeader(header.getName(), header.getValue());
-      }
-   }
+    @Override
+    protected void setResponseHeaders() throws IOException {
+        for (Header header : httpResponse.getAllHeaders()) {
+            addHeader(header.getName(), header.getValue());
+        }
+    }
 
-   @Override
-   protected void setResponseBody() throws IOException {
-      HttpEntity entity = httpResponse.getEntity();
-      if (entity != null) {
-         if (getResponse() instanceof MutableHttpServletResponse) {
-            MutableHttpServletResponse mutableResponse = MutableHttpServletResponse.wrap(getResponse());
-            mutableResponse.setInputStream(new HttpComponentInputStream(entity));
-         } else {
-            final OutputStream clientOut = getResponse().getOutputStream();
-            entity.writeTo(clientOut);
-            clientOut.flush();
-            EntityUtils.consume(entity);
-         }
-      }
+    @Override
+    protected void setResponseBody() throws IOException {
+        HttpEntity entity = httpResponse.getEntity();
+        if (entity != null) {
+            if (getResponse() instanceof MutableHttpServletResponse) {
+                MutableHttpServletResponse mutableResponse = (MutableHttpServletResponse) getResponse();
+                mutableResponse.setInputStream(new HttpComponentInputStream(entity));
+            } else {
+                final OutputStream clientOut = getResponse().getOutputStream();
+                entity.writeTo(clientOut);
+                clientOut.flush();
+                EntityUtils.consume(entity);
+            }
+        }
 
-   }
+    }
 
-   @Override
-   protected String getResponseHeaderValue(String headerName) throws com.rackspace.papi.http.proxy.HttpException {
-      final Header[] locationHeader = httpResponse.getHeaders(headerName);
-      if (locationHeader == null || locationHeader.length == 0) {
-         throw new com.rackspace.papi.http.proxy.HttpException("Expected header was not found in response: " + headerName + " (Response Code: " + getResponseCode() + ")");
-      }
+    @Override
+    protected String getResponseHeaderValue(String headerName) throws com.rackspace.papi.http.proxy.HttpException {
+        final Header[] headerValues = httpResponse.getHeaders(headerName);
+        if (headerValues == null || headerValues.length == 0) {
+            return null;
+        }
 
-      final String locationValue = locationHeader[0].getValue();
-      if (locationValue == null) {
-         throw new com.rackspace.papi.http.proxy.HttpException("Expected header was not found in response: " + headerName + " (Response Code: " + getResponseCode() + ")");
-      }
-
-      return locationValue;
-   }
+        return headerValues[0].getValue();
+    }
 }

@@ -4,8 +4,6 @@ import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
 import com.rackspace.papi.commons.util.http.media.MimeType;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.ratelimit.cache.RateLimitCache;
-import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.service.datastore.Datastore;
@@ -50,19 +48,27 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
 
       @Before
       public void standUp() {
-         List<String> headerValues = new LinkedList<String>();
-         headerValues.add("group-4");
-         headerValues.add("group-2");
-         headerValues.add("group-1");
-         headerValues.add("group-3");
+         when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenAnswer(new Answer<Object>() {
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+               List<String> headerValues = new LinkedList<String>();
+               headerValues.add("group-4");
+               headerValues.add("group-2");
+               headerValues.add("group-1");
+               headerValues.add("group-3");
 
-         when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenReturn(Collections.enumeration(headerValues));
+               return Collections.enumeration(headerValues);
+            }
+         });
 
-         headerValues = new LinkedList<String>();
-         headerValues.add("that other user;q=0.5");
-         headerValues.add("127.0.0.1;q=0.1");
+         when(mockedRequest.getHeaders(PowerApiHeader.USER.toString())).thenAnswer(new Answer<Object>() {
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+               List<String> headerValues = new LinkedList<String>();
+               headerValues.add("that other user;q=0.5");
+               headerValues.add("127.0.0.1;q=0.1");
 
-         when(mockedRequest.getHeaders(PowerApiHeader.USER.toString())).thenReturn(Collections.enumeration(headerValues));
+               return Collections.enumeration(headerValues);
+            }
+         });
 
          when(mockedRequest.getHeader(PowerApiHeader.USER.toString())).thenReturn("127.0.0.1;q=0.1");
          when(mockedRequest.getHeader(PowerApiHeader.GROUPS.toString())).thenReturn("group-1");
@@ -70,12 +76,18 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
 
       @Test
       public void shouldPassValidRequests() {
-         when(mockedRequest.getHeaderNames()).thenReturn(createStringEnumeration("Accept"));
+         when(mockedRequest.getHeaderNames()).thenAnswer(new Answer<Object>() {
+            public Object answer(InvocationOnMock invocation) throws Throwable {
+               return createStringEnumeration("Accept", PowerApiHeader.USER.toString(), PowerApiHeader.GROUPS.toString());
+            }
+         });
+
          when(mockedRequest.getMethod()).thenReturn("GET");
          when(mockedRequest.getRequestURI()).thenReturn("/v1.0/12345/resource");
          when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/12345/resource"));
          when(mockedRequest.getHeader("Accept")).thenReturn(MimeType.APPLICATION_JSON.toString());
          when(mockedRequest.getHeaders("accept")).thenReturn(createStringEnumeration(MimeType.APPLICATION_JSON.toString()));
+
          final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
 
          assertEquals("Filter must pass valid, non-limited requests", FilterAction.PASS, director.getFilterAction());
@@ -143,23 +155,13 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
       protected RateLimitingHandlerFactory handlerFactory;
       protected HttpServletRequest mockedRequest;
       protected ReadableHttpServletResponse mockedResponse;
-      protected RateLimiterBuilder rlBuilder;
 
       @Before
       public void beforeAny() {
          final Datastore datastoreMock = mock(Datastore.class);
          when(datastoreMock.get(anyString())).thenReturn(new StoredElementImpl("key", null));
 
-         rlBuilder = mock(RateLimiterBuilder.class);
-         when(rlBuilder.buildRateLimiter(any(RateLimitCache.class), any(Map.class), any(RateLimitingConfiguration.class))).thenAnswer(new Answer<RateLimiter>() {
-
-            @Override
-            public RateLimiter answer(InvocationOnMock invocation) throws Throwable {
-               return mock(RateLimiter.class);
-            }
-         });
-
-         handlerFactory = new RateLimitingHandlerFactory(datastoreMock, rlBuilder);
+         handlerFactory = new RateLimitingHandlerFactory(datastoreMock);
          handlerFactory.configurationUpdated(defaultRateLimitingConfiguration());
 
          mockedRequest = mock(HttpServletRequest.class);

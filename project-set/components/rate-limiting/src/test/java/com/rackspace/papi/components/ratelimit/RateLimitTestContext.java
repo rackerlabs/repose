@@ -1,10 +1,10 @@
 package com.rackspace.papi.components.ratelimit;
 
-import com.rackspace.papi.components.limits.schema.HttpMethod;
-import com.rackspace.papi.components.limits.schema.TimeUnit;
-import com.rackspace.papi.components.ratelimit.cache.CachedRateLimit;
-import com.rackspace.papi.components.ratelimit.config.ConfiguredRatelimit;
 import com.rackspace.papi.components.ratelimit.util.LimitsEntityTransformer;
+import com.rackspace.repose.service.limits.schema.HttpMethod;
+import com.rackspace.repose.service.limits.schema.TimeUnit;
+import com.rackspace.repose.service.ratelimit.cache.CachedRateLimit;
+import com.rackspace.repose.service.ratelimit.config.ConfiguredRatelimit;
 
 /**
  *
@@ -36,5 +36,5 @@ public class RateLimitTestContext {
         }
 
         return cachedLimit;
-    }    
+    }
 }

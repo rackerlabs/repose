@@ -1,7 +1,7 @@
 package com.rackspace.papi.components.translation.xproc.calabash;
 
-import com.rackspace.papi.components.translation.util.ClassPathUriResolver;
-import com.rackspace.papi.components.translation.util.InputStreamUriParameterResolver;
+import com.rackspace.papi.components.translation.resolvers.ClassPathUriResolver;
+import com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver;
 import com.rackspace.papi.components.translation.xproc.Pipeline;
 import com.rackspace.papi.components.translation.xproc.PipelineBuilder;
 import com.rackspace.papi.components.translation.xproc.PipelineException;

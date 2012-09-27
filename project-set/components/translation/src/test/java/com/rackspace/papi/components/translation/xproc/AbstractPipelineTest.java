@@ -1,6 +1,6 @@
 package com.rackspace.papi.components.translation.xproc;
 
-import com.rackspace.papi.components.translation.util.InputStreamUriParameterResolver;
+import com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;

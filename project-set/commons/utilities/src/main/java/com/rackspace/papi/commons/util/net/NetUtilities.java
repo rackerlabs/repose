@@ -22,4 +22,14 @@ public final class NetUtilities {
          throw new NetUtilitiesException("Failed to get hostname. Something weird is going on.", e);
       }
    }
+   
+   public static String getLocalAddress() {
+      try{
+         final InetAddress addr = InetAddress.getLocalHost();
+         return addr.getHostAddress();
+      } catch(UnknownHostException e){
+         throw new NetUtilitiesException("Failed to get container address", e);
+      
+      }
+   }
 }

@@ -16,7 +16,7 @@ public interface DatastoreService {
 
    Collection<DatastoreManager> availableLocalDatastores();
 
-   Collection<DatastoreManager> availableDistirbutedDatastores();
+   Collection<DatastoreManager> availableDistributedDatastores();
 
    // TODO:Enhancement - Use a future object here to communicate committal of the datastore being unregistered
    void unregisterDatastoreManager(String datastoreManagerName);

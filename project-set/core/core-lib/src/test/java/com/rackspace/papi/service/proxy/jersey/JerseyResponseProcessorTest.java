@@ -55,7 +55,7 @@ public class JerseyResponseProcessorTest {
             when(response.getStatus()).thenReturn(200);
             when(response.getEntityInputStream()).thenReturn(in);
             when(servletResponse.getOutputStream()).thenReturn(out);
-            processor = new JerseyResponseProcessor(response, servletResponse);
+            processor = new JerseyResponseProcessor("", "", response, servletResponse);
         }
 
         @Test
@@ -72,7 +72,7 @@ public class JerseyResponseProcessorTest {
             for (String header: headers.keySet()) {
                 List<String> values = headers.get(header, String.class);
                 for (String value: values) {
-                    verify(servletResponse).setHeader(header, value);
+                    verify(servletResponse).addHeader(header, value);
                 }
             }
         }
@@ -110,7 +110,7 @@ public class JerseyResponseProcessorTest {
             when(response.getStatus()).thenReturn(200);
             when(response.getEntityInputStream()).thenReturn(in);
             when(servletResponse.getOutputStream()).thenReturn(out);
-            processor = new JerseyResponseProcessor(response, servletResponse);
+            processor = new JerseyResponseProcessor("", "", response, servletResponse);
         }
 
         @Test
@@ -127,7 +127,7 @@ public class JerseyResponseProcessorTest {
             for (String header: headers.keySet()) {
                 List<String> values = headers.get(header, String.class);
                 for (String value: values) {
-                    verify(servletResponse).setHeader(header, value);
+                    verify(servletResponse).addHeader(header, value);
                 }
             }
         }

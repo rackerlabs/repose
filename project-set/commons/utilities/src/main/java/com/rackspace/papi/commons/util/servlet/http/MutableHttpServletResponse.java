@@ -1,5 +1,7 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
+import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.io.ByteBufferInputStream;
 import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
@@ -9,223 +11,270 @@ import java.io.*;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
+import org.slf4j.LoggerFactory;
 
 public class MutableHttpServletResponse extends HttpServletResponseWrapper implements ReadableHttpServletResponse {
 
-   public static MutableHttpServletResponse wrap(HttpServletResponse response) {
-      return response instanceof MutableHttpServletResponse
-              ? (MutableHttpServletResponse) response
-              : new MutableHttpServletResponse(response);
-   }
-   private static final int DEFAULT_BUFFER_SIZE = 1024;
-   private ByteBuffer internalBuffer;
-   private ServletOutputStream outputStream;
-   private PrintWriter outputStreamWriter;
+    public static MutableHttpServletResponse wrap(HttpServletRequest request, HttpServletResponse response) {
+        return response instanceof MutableHttpServletResponse
+                ? (MutableHttpServletResponse) response
+                : new MutableHttpServletResponse(request, response);
+    }
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(MutableHttpServletResponse.class);
+    private static final int DEFAULT_BUFFER_SIZE = 1024;
+    private ByteBuffer internalBuffer;
+    private ServletOutputStream outputStream;
+    private PrintWriter outputStreamWriter;
+    private final HttpServletRequest request;
 
-   private static class OutputStreamItem {
+    private static class OutputStreamItem {
 
-      private final ByteBuffer internalBuffer;
-      private final ServletOutputStream outputStream;
-      private final PrintWriter outputStreamWriter;
+        private final ByteBuffer internalBuffer;
+        private final ServletOutputStream outputStream;
+        private final PrintWriter outputStreamWriter;
 
-      public OutputStreamItem(ByteBuffer internalBuffer, ServletOutputStream outputStream, PrintWriter outputStreamWriter) {
-         this.internalBuffer = internalBuffer;
-         this.outputStream = outputStream;
-         this.outputStreamWriter = outputStreamWriter;
-      }
-   }
-   private final Deque<OutputStreamItem> outputs = new ArrayDeque<OutputStreamItem>();
-   private InputStream input;
-   private boolean error = false;
-   private Throwable exception;
-   private String message;
+        public OutputStreamItem(ByteBuffer internalBuffer, ServletOutputStream outputStream, PrintWriter outputStreamWriter) {
+            this.internalBuffer = internalBuffer;
+            this.outputStream = outputStream;
+            this.outputStreamWriter = outputStreamWriter;
+        }
+    }
+    private static final String OUTPUT_STREAM_QUEUE_ATTRIBUTE = "repose.response.output.queue";
+    private static final String INPUT_STREAM_ATTRIBUTE = "repose.response.input.stream";
+    private final Deque<OutputStreamItem> outputQueue;
+    private boolean error = false;
+    private Throwable exception;
+    private String message;
 
-   private MutableHttpServletResponse(HttpServletResponse response) {
-      super(response);
-   }
+    private MutableHttpServletResponse(HttpServletRequest request, HttpServletResponse response) {
+        super(response);
+        this.request = request;
+        this.outputQueue = getOutputQueue();
+    }
 
-   public void pushOutputStream() {
-      outputs.addFirst(new OutputStreamItem(internalBuffer, outputStream, outputStreamWriter));
-      this.internalBuffer = null;
-      this.outputStream = null;
-      this.outputStreamWriter = null;
-   }
+    private Deque<OutputStreamItem> getOutputQueue() {
+        Deque<OutputStreamItem> result = (Deque<OutputStreamItem>) request.getAttribute(OUTPUT_STREAM_QUEUE_ATTRIBUTE);
 
-   public void popOutputStream() throws IOException {
+        if (result == null) {
+            result = new ArrayDeque<OutputStreamItem>();
+            request.setAttribute(OUTPUT_STREAM_QUEUE_ATTRIBUTE, result);
+        }
 
-      if (bufferedOutput()) {
-         if (input != null) {
-            input.close();
-         }
-         input = new ByteBufferInputStream(internalBuffer);
-      }
+        return result;
+    }
 
-      OutputStreamItem item = outputs.removeFirst();
-      this.internalBuffer = item.internalBuffer;
-      this.outputStream = item.outputStream;
-      this.outputStreamWriter = item.outputStreamWriter;
-   }
+    public void pushOutputStream() {
+        outputQueue.addFirst(new OutputStreamItem(internalBuffer, outputStream, outputStreamWriter));
+        this.internalBuffer = null;
+        this.outputStream = null;
+        this.outputStreamWriter = null;
+    }
 
-   private void createInternalBuffer() {
-      if (internalBuffer == null) {
-         internalBuffer = new CyclicByteBuffer(DEFAULT_BUFFER_SIZE, true);
-         outputStream = new ByteBufferServletOutputStream(internalBuffer);
-         outputStreamWriter = new PrintWriter(outputStream);
-      }
-   }
+    public void popOutputStream() throws IOException {
 
-   private boolean bufferedOutput() {
-      if (outputStreamWriter != null) {
-         outputStreamWriter.flush();
-      }
+        if (bufferedOutput()) {
+            InputStream input = getInputStreamAttribute();
+            if (input != null) {
+                setInputStream(null);
+                input.close();
+            }
+            
+            if (internalBuffer != null) {
+                setInputStream(new ByteBufferInputStream(internalBuffer));
+            }
+        }
 
-      return internalBuffer != null && internalBuffer.available() > 0;
-   }
+        OutputStreamItem item = outputQueue.removeFirst();
+        this.internalBuffer = item.internalBuffer;
+        this.outputStream = item.outputStream;
+        this.outputStreamWriter = item.outputStreamWriter;
+    }
 
-   @Override
-   public InputStream getInputStream() throws IOException {
+    private void createInternalBuffer() {
+        if (internalBuffer == null) {
+            internalBuffer = new CyclicByteBuffer(DEFAULT_BUFFER_SIZE, true);
+            outputStream = new ByteBufferServletOutputStream(internalBuffer);
+            outputStreamWriter = new PrintWriter(outputStream);
+        }
+    }
 
-      if (bufferedOutput()) {
-         // We have written to the output stream... use that as the input stream now.
-         return new ByteBufferInputStream(internalBuffer);
-      }
+    private boolean bufferedOutput() {
+        if (outputStreamWriter != null) {
+            outputStreamWriter.flush();
+        }
 
-      return input;
-   }
+        return internalBuffer != null && internalBuffer.available() > 0;
+    }
 
-   private void bufferInput() throws IOException {
-      createInternalBuffer();
-      if (input != null) {
-         RawInputStreamReader.instance().copyTo(input, outputStream);
-      }
-   }
+    @Override
+    public InputStream getInputStream() throws IOException {
 
-   @Override
-   public InputStream getBufferedOutputAsInputStream() throws IOException {
-      if (outputStreamWriter != null) {
-         outputStreamWriter.flush();
-      } else {
-         bufferInput();
-      }
-      return new ByteBufferInputStream(internalBuffer);
-   }
+        if (bufferedOutput()) {
+            // We have written to the output stream... use that as the input stream now.
+            return new ByteBufferInputStream(internalBuffer);
+        }
 
-   @Override
-   public void flushBuffer() throws IOException {
-      commitBufferToServletOutputStream();
+        return getInputStreamAttribute();
+    }
 
-      super.flushBuffer();
-   }
+    private InputStream getInputStreamAttribute() {
+        return (InputStream) request.getAttribute(INPUT_STREAM_ATTRIBUTE);
+    }
 
-   public void setInputStream(InputStream input) throws IOException {
-      if (this.input != null) {
-         this.input.close();
-      }
-      this.input = input;
-   }
+    public long bufferInput() throws IOException {
+        createInternalBuffer();
+        InputStream input = getInputStreamAttribute();
+        if (input != null) {
+            return RawInputStreamReader.instance().copyTo(input, outputStream);
+        }
+        
+        return 0;
+    }
 
-   public void commitBufferToServletOutputStream() throws IOException {
+    @Override
+    public InputStream getBufferedOutputAsInputStream() throws IOException {
+        if (outputStreamWriter != null) {
+            outputStreamWriter.flush();
+        } else {
+            bufferInput();
+        }
+        return new ByteBufferInputStream(internalBuffer);
+    }
 
-      if (outputStreamWriter != null) {
-         outputStreamWriter.flush();
-      }
+    @Override
+    public void flushBuffer() throws IOException {
+        commitBufferToServletOutputStream();
 
-      //final OutputStream out = new BufferedOutputStream(super.getOutputStream());
+        super.flushBuffer();
+    }
 
-      if (bufferedOutput()) {
-         setContentLength(internalBuffer.available());
-      }
-      
-      final OutputStream out = super.getOutputStream();
-      final InputStream inputStream = getInputStream();
-      try {
-         if (inputStream != null) {
-            RawInputStreamReader.instance().copyTo(inputStream, out);
-         } else {
-            setContentLength(0);
-         }
-      } finally {
-         out.flush();
-         if (inputStream != null) {
-            inputStream.close();
-         }
-      }
-   }
+    public InputStream setInputStream(InputStream input) throws IOException {
+        InputStream currentInputStream = getInputStreamAttribute();
+        request.setAttribute(INPUT_STREAM_ATTRIBUTE, input);
+        return currentInputStream;
+    }
 
-   public boolean hasBody() {
-      boolean hasBody = false;
+    public void commitBufferToServletOutputStream() throws IOException {
 
-      try {
-         InputStream body = getInputStream();
-         if (body != null && body.available() > 0) {
-            hasBody = true;
-         }
-      } catch (IOException e) {
-         hasBody = false;
-      }
+        if (outputStreamWriter != null) {
+            outputStreamWriter.flush();
+        }
 
-      return hasBody;
-   }
+        //final OutputStream out = new BufferedOutputStream(super.getOutputStream());
 
-   @Override
-   public void resetBuffer() {
-      if (internalBuffer != null) {
-         internalBuffer.clear();
-      }
+        if (bufferedOutput()) {
+            setContentLength(internalBuffer.available());
+        }
 
-      super.resetBuffer();
-   }
+        final OutputStream out = super.getOutputStream();
+        final InputStream inputStream = getInputStream();
+        try {
+            if (inputStream != null) {
+                RawInputStreamReader.instance().copyTo(inputStream, out);
+            } else {
+                setContentLength(0);
+            }
+        } finally {
+            out.flush();
+            if (inputStream != null) {
+                inputStream.close();
+                InputStream is = setInputStream(null);
+                if (is != null && is != inputStream) {
+                    is.close();
+                }
+            }
+        }
+    }
 
-   public int getResponseSize() {
-      return internalBuffer != null ? internalBuffer.available() : -1;
-   }
+    public boolean hasBody() {
+        boolean hasBody = false;
 
-   @Override
-   public int getBufferSize() {
-      return internalBuffer != null ? internalBuffer.available() + internalBuffer.remaining() : 0;
-   }
+        try {
+            InputStream body = getInputStream();
+            if (body != null && body.available() > 0) {
+                hasBody = true;
+            }
+        } catch (IOException e) {
+            hasBody = false;
+        }
 
-   @Override
-   public ServletOutputStream getOutputStream() throws IOException {
-      createInternalBuffer();
-      return outputStream;
-   }
+        return hasBody;
+    }
 
-   @Override
-   public PrintWriter getWriter() throws IOException {
-      createInternalBuffer();
-      return outputStreamWriter;
-   }
+    @Override
+    public void resetBuffer() {
+        if (internalBuffer != null) {
+            internalBuffer.clear();
+        }
 
-   @Override
-   public void sendError(int code) throws IOException {
-      super.setStatus(code);
-      error = true;
-   }
+        super.resetBuffer();
+    }
 
-   @Override
-   public void sendError(int code, String message) {
-      super.setStatus(code);
-      this.message = message;
-      error = true;
-   }
+    public long getResponseSize() {
+        if (bufferedOutput()) {
+            return internalBuffer.available();
+        }
+        
+        String contentLength = getHeader(CommonHttpHeader.CONTENT_LENGTH.name());
+        if (StringUtilities.isNotBlank(contentLength)) {
+            return Integer.parseInt(contentLength);
+        }
+        try {
+            return bufferInput();
+        } catch (IOException ex) {
+            LOG.error("Unable to buffer input", ex);
+        }
 
-   public boolean isError() {
-      return error;
-   }
+        return -1;
+    }
 
-   public String getMessage() {
-      return message;
-   }
+    @Override
+    public int getBufferSize() {
+        return internalBuffer != null ? internalBuffer.available() + internalBuffer.remaining() : 0;
+    }
 
-   public void setLastException(Throwable exception) {
-      this.error = true;
-      this.exception = exception;
-   }
+    @Override
+    public ServletOutputStream getOutputStream() throws IOException {
+        createInternalBuffer();
+        return outputStream;
+    }
 
-   public Throwable getLastException() {
-      return exception;
-   }
+    @Override
+    public PrintWriter getWriter() throws IOException {
+        createInternalBuffer();
+        return outputStreamWriter;
+    }
+
+    @Override
+    public void sendError(int code) throws IOException {
+        super.setStatus(code);
+        error = true;
+    }
+
+    @Override
+    public void sendError(int code, String message) {
+        super.setStatus(code);
+        this.message = message;
+        error = true;
+    }
+
+    public boolean isError() {
+        return error;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setLastException(Throwable exception) {
+        this.error = true;
+        this.exception = exception;
+    }
+
+    public Throwable getLastException() {
+        return exception;
+    }
 }

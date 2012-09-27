@@ -4,10 +4,12 @@ import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.impl.ehcache.EHCacheDatastoreManager;
+
 import javax.servlet.ServletContextEvent;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -22,7 +24,7 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
 
     @Autowired
     public DatastoreServiceContext(
-            @Qualifier("datastoreSerivce") DatastoreService datastoreService,
+            @Qualifier("datastoreService") DatastoreService datastoreService,
             @Qualifier("serviceRegistry") ServiceRegistry registry) {
         this.datastoreService = datastoreService;
         this.registry = registry;
@@ -65,6 +67,7 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
         final CacheManager ehCacheManager = new CacheManager(defaultConfiguration);
 
         datastoreService.registerDatastoreManager(DatastoreService.DEFAULT_LOCAL, new EHCacheDatastoreManager(ehCacheManager));
+
         register();
     }
 }

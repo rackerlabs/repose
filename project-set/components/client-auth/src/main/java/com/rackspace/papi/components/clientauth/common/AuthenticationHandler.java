@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.clientauth.common;
 
 import com.rackspace.auth.AuthGroup;
+import com.rackspace.auth.AuthGroups;
 import com.rackspace.auth.AuthToken;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
@@ -29,7 +30,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
     protected abstract AuthToken validateToken(ExtractorResult<String> account, String token);
 
-    protected abstract List<AuthGroup> getGroups(String group);
+    protected abstract AuthGroups getGroups(String group);
 
     protected abstract FilterDirector processResponse(ReadableHttpServletResponse response);
 
@@ -37,16 +38,22 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
     private final boolean delegable;
     private final KeyedRegexExtractor<String> keyedRegexExtractor;
     private final AuthTokenCache cache;
+    private final AuthGroupCache grpCache;
     private final UriMatcher uriMatcher;
     private final boolean includeQueryParams, tenanted;
+    private final long groupCacheTtl;
+    private final long userCacheTtl;
 
-    protected AuthenticationHandler(Configurables configurables, AuthTokenCache cache, UriMatcher uriMatcher) {
+    protected AuthenticationHandler(Configurables configurables, AuthTokenCache cache, AuthGroupCache grpCache, UriMatcher uriMatcher) {
         this.delegable = configurables.isDelegable();
         this.keyedRegexExtractor = configurables.getKeyedRegexExtractor();
         this.cache = cache;
+        this.grpCache = grpCache;
         this.uriMatcher = uriMatcher;
         this.includeQueryParams = configurables.isIncludeQueryParams();
         this.tenanted = configurables.isTenanted();
+        this.groupCacheTtl = configurables.getGroupCacheTtl();
+        this.userCacheTtl = configurables.getUserCacheTtl();
     }
 
     @Override
@@ -105,14 +112,37 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
             }
         }
 
-        List<AuthGroup> groups = new ArrayList<AuthGroup>();
-        if (token != null) {
-            groups = getGroups(token.getUserId());
-        }
+        List<AuthGroup> groups = getAuthGroups(token);
 
         setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(), groups);
 
         return filterDirector;
+    }
+
+    private List<AuthGroup> getAuthGroups(AuthToken token) {
+        if (token != null) {
+
+            AuthGroups authGroups = checkGroupCache(token);
+
+            if (authGroups == null) {
+                try {
+                    authGroups = getGroups(token.getUserId());
+                    cacheGroupInfo(token, authGroups);
+                } catch (ClientHandlerException ex) {
+                    LOG.error("Failure communicating with the auth service when retrieving groups: " + ex.getMessage(), ex);
+                    LOG.error("X-PP-Groups will not be set.");
+                } catch (Exception ex) {
+                    LOG.error("Failure in auth when retrieving groups: " + ex.getMessage(), ex);
+                    LOG.error("X-PP-Groups will not be set.");
+                }
+            }
+
+            if (authGroups != null && authGroups.getGroups() != null) {
+                return authGroups.getGroups();
+            }
+        }
+        return new ArrayList<AuthGroup>();
+
     }
 
     private ExtractorResult<String> extractAccountIdentification(HttpServletRequest request) {
@@ -133,21 +163,28 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
             return true;
         }
     }
-
+    
     private AuthToken checkToken(ExtractorResult<String> account, String authToken) {
         if (tenanted) {
             return checkUserCache(account.getResult(), authToken);
         } else {
-            return checkUserCache(authToken, authToken);
+            return checkUserCache("", authToken);
         }
     }
 
-    private AuthToken checkUserCache(String userId, String token) {
+    private AuthToken checkUserCache(String tenantId, String token) {
         if (cache == null) {
             return null;
         }
+        
+        String key;
+        if (StringUtilities.isNotBlank(tenantId)) {
+            key = tenantId + ":" + token;
+        } else {
+            key = token;
+        }
 
-        return cache.getUserToken(userId, token);
+        return cache.getUserToken(key, token);
     }
 
     private void cacheUserInfo(AuthToken user) {
@@ -155,16 +192,51 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
             return;
         }
         String key;
-        if(tenanted){
-            key = user.getTenantId();
-        }else{
+        if (tenanted) {
+            key = user.getTenantId() + ":" + user.getTokenId();
+        } else {
             key = user.getTokenId();
         }
 
         try {
-            cache.storeToken(key, user, user.tokenTtl().intValue());
+            long ttl = userCacheTtl > 0? Math.min(userCacheTtl, user.tokenTtl().intValue()): user.tokenTtl().intValue();
+            cache.storeToken(key, user, new Long(ttl).intValue());
         } catch (IOException ex) {
             LOG.warn("Unable to cache user token information: " + user.getUserId() + " Reason: " + ex.getMessage(), ex);
         }
+    }
+    
+    private String getGroupCacheKey(AuthToken token) {
+        return token.getTenantId() + ":" + token.getTokenId();
+    }
+
+    private AuthGroups checkGroupCache(AuthToken token) {
+        if (grpCache == null) {
+            return null;
+        }
+
+        return grpCache.getUserGroup(getGroupCacheKey(token));
+    }
+
+    private void cacheGroupInfo(AuthToken token, AuthGroups groups) {
+        if (groups == null || grpCache == null) {
+            return;
+        }
+
+        try {
+            grpCache.storeGroups(getGroupCacheKey(token), groups, safeGroupTtl());
+        } catch (IOException ex) {
+            LOG.warn("Unable to cache user group information: " + token + " Reason: " + ex.getMessage(), ex);
+        }
+    }
+
+    private int safeGroupTtl() {
+        final Long grpTtl = this.groupCacheTtl;
+
+        if (grpTtl >= Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+
+        return grpTtl.intValue();
     }
 }

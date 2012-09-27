@@ -15,13 +15,13 @@ public class ArchiveEntryProcessor {
    private static final Logger LOG = LoggerFactory.getLogger(ArchiveEntryProcessor.class);
    private final ArchiveEntryDescriptor archiveEntryDescriptor;
    private final File unpackRootDirectory;
-   private final ArchiveEntryListener listener;
+   private final ArchiveEntryHelper helper;
    static final int BUFFER_READ_LENGTH_IN_BYTES = 1024;
 
-   public ArchiveEntryProcessor(ArchiveEntryDescriptor archiveEntryDescriptor, File unpackRootDirectory, ArchiveEntryListener listener) {
+   public ArchiveEntryProcessor(ArchiveEntryDescriptor archiveEntryDescriptor, File unpackRootDirectory, ArchiveEntryHelper helper) {
       this.archiveEntryDescriptor = archiveEntryDescriptor;
       this.unpackRootDirectory = unpackRootDirectory;
-      this.listener = listener;
+      this.helper = helper;
    }
 
    public ArchiveStackElement processEntry(EntryAction actionToTake, ArchiveStackElement entry) throws IOException {
@@ -30,10 +30,10 @@ public class ArchiveEntryProcessor {
 
       switch (actionToTake.processingAction()) {
          case PROCESS_AS_CLASS:
-            listener.newClass(archiveEntryDescriptor, entryBytes);
+            helper.newClass(archiveEntryDescriptor, entryBytes);
             break;
          case PROCESS_AS_RESOURCE:
-            listener.newResource(archiveEntryDescriptor, entryBytes);
+            helper.newResource(archiveEntryDescriptor, entryBytes);
             break;
          case DESCEND_INTO_JAR_FORMAT_ARCHIVE:
             currentStackElement = descendIntoEntry(entryBytes);
@@ -75,7 +75,7 @@ public class ArchiveEntryProcessor {
       final JarInputStream embeddedJarInputStream = new JarInputStream(new ByteArrayInputStream(entryBytes));
       final ArchiveStackElement newArchiveStackElement = new ArchiveStackElement(embeddedJarInputStream, archiveEntryDescriptor.fullName());
 
-      ManifestProcessor.processManifest(ArchiveEntryDescriptorBuilder.build(ArchiveEntryDescriptor.ROOT_ARCHIVE, ManifestProcessor.MANIFEST_PATH), embeddedJarInputStream, listener);
+      ManifestProcessor.processManifest(ArchiveEntryDescriptorBuilder.build(ArchiveEntryDescriptor.ROOT_ARCHIVE, ManifestProcessor.MANIFEST_PATH), embeddedJarInputStream, helper);
 
       return newArchiveStackElement;
    }

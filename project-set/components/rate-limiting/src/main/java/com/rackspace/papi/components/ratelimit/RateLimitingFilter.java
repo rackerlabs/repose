@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.ratelimit;
 
-import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
+import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
+
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
@@ -40,7 +41,7 @@ public class RateLimitingFilter implements Filter {
     private Datastore getDatastore(DatastoreService datastoreService) {
         Datastore targetDatastore;
 
-        final Collection<DatastoreManager> distributedDatastores = datastoreService.availableDistirbutedDatastores();
+        final Collection<DatastoreManager> distributedDatastores = datastoreService.availableDistributedDatastores();
 
         if (!distributedDatastores.isEmpty()) {
             targetDatastore = distributedDatastores.iterator().next().getDatastore();
@@ -57,6 +58,7 @@ public class RateLimitingFilter implements Filter {
         final ContextAdapter ctx = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext());
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
+
         handlerFactory = new RateLimitingHandlerFactory(getDatastore(ctx.datastoreService()));
         configurationManager = ctx.configurationService();
         configurationManager.subscribeTo(config, handlerFactory, RateLimitingConfiguration.class);

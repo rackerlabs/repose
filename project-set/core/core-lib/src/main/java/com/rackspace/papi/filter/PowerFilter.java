@@ -16,148 +16,168 @@ import com.rackspace.papi.service.deploy.ApplicationDeploymentEvent;
 import com.rackspace.papi.service.event.PowerFilterEvent;
 import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.common.EventListener;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.io.IOException;
+import java.util.List;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
+
+import com.rackspace.papi.service.headers.response.ResponseHeaderService;
+import com.rackspace.papi.service.reporting.ReportingService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PowerFilter extends ApplicationContextAwareFilter {
 
-   private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
-   private final EventListener<ApplicationDeploymentEvent, String> applicationDeploymentListener;
-   private final UpdateListener<SystemModel> systemModelConfigurationListener;
-   private ServicePorts ports;
-   private boolean firstInitialization;
-   private PowerFilterChainBuilder powerFilterChainBuilder;
-   private ContextAdapter papiContext;
-   private SystemModel currentSystemModel;
-   private ReposeCluster serviceDomain;
-   private Node localHost;
-   private FilterConfig filterConfig;
+    private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
+    private final EventListener<ApplicationDeploymentEvent, List<String>> applicationDeploymentListener;
+    private final UpdateListener<SystemModel> systemModelConfigurationListener;
+    private ServicePorts ports;
+    private boolean firstInitialization;
+    private PowerFilterChainBuilder powerFilterChainBuilder;
+    private ContextAdapter papiContext;
+    private SystemModel currentSystemModel;
+    private ReposeCluster serviceDomain;
+    private Node localHost;
+    private FilterConfig filterConfig;
+    private ReportingService reportingService;
+    private ResponseHeaderService responseHeaderService;
 
-   public PowerFilter() {
-      firstInitialization = true;
+    public PowerFilter() {
+        firstInitialization = true;
 
-      // Default to an empty filter chain so that artifact deployment doesn't gum up the works with a null pointer
-      powerFilterChainBuilder = new PowerFilterChainBuilder(null, null, Collections.EMPTY_LIST);
-      systemModelConfigurationListener = new SystemModelConfigListener();
-      applicationDeploymentListener = new ApplicationDeploymentEventListener();
-   }
+        // Default to an empty filter chain so that artifact deployment doesn't gum up the works with a null pointer
+        powerFilterChainBuilder = null;
+        systemModelConfigurationListener = new SystemModelConfigListener();
+        applicationDeploymentListener = new ApplicationDeploymentEventListener();
+    }
 
-   private class ApplicationDeploymentEventListener implements EventListener<ApplicationDeploymentEvent, String> {
+    private class ApplicationDeploymentEventListener implements EventListener<ApplicationDeploymentEvent, List<String>> {
 
-      @Override
-      public void onEvent(Event<ApplicationDeploymentEvent, String> e) {
-         LOG.info("Application collection has been modified. Application that changed: " + e.payload());
+        @Override
+        public void onEvent(Event<ApplicationDeploymentEvent, List<String>> e) {
+            LOG.info("Application collection has been modified. Application that changed: " + e.payload());
 
-         if (currentSystemModel != null) {
-            SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
-            localHost = interrogator.getLocalHost(currentSystemModel);
-            serviceDomain = interrogator.getLocalServiceDomain(currentSystemModel);
-            final List<FilterContext> newFilterChain = new FilterContextInitializer(
-                    filterConfig,
-                    ServletContextHelper.getInstance().getApplicationContext(filterConfig.getServletContext())).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
+            if (currentSystemModel != null) {
+                SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
+                localHost = interrogator.getLocalHost(currentSystemModel);
+                serviceDomain = interrogator.getLocalServiceDomain(currentSystemModel);
+                final List<FilterContext> newFilterChain = new FilterContextInitializer(
+                        filterConfig,
+                        ServletContextHelper.getInstance().getApplicationContext(filterConfig.getServletContext())).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
 
-            updateFilterChainBuilder(newFilterChain);
-         }
-      }
-   }
-
-   private class SystemModelConfigListener implements UpdateListener<SystemModel> {
-
-      private final Object internalLock = new Object();
-
-      // TODO:Review - There's got to be a better way of initializing PowerFilter. Maybe the app management service could be queryable.
-      @Override
-      public void configurationUpdated(SystemModel configurationObject) {
-         currentSystemModel = configurationObject;
-
-         // This event must be fired only after we have finished configuring the system.
-         // This prevents a race condition illustrated below where the application
-         // deployment event is caught but does nothing due to a null configuration
-         synchronized (internalLock) {
-            if (firstInitialization) {
-               firstInitialization = false;
-
-               papiContext.eventService().newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
-            } else {
-               SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
-               localHost = interrogator.getLocalHost(currentSystemModel);
-               serviceDomain = interrogator.getLocalServiceDomain(currentSystemModel);
-               final List<FilterContext> newFilterChain = new FilterContextInitializer(
-                       filterConfig,
-                       ServletContextHelper.getInstance().getApplicationContext(filterConfig.getServletContext())).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
-               updateFilterChainBuilder(newFilterChain);
+                updateFilterChainBuilder(newFilterChain);
             }
-         }
-      }
-   }
+        }
+    }
 
-   // This is written like this in case requests are already processing against the
-   // existing filterChain.  If that is the case we create a new one for the deployment
-   // update but the old list stays in memory as the garbage collector won't clean
-   // it up until all RequestFilterChainState objects are no longer referencing it.
-   private synchronized void updateFilterChainBuilder(List<FilterContext> newFilterChain) {
-      if (powerFilterChainBuilder != null) {
-         papiContext.filterChainGarbageCollectorService().reclaimDestroyable(powerFilterChainBuilder, powerFilterChainBuilder.getResourceConsumerMonitor());
-      }
+    private class SystemModelConfigListener implements UpdateListener<SystemModel> {
 
-      powerFilterChainBuilder = new PowerFilterChainBuilder(serviceDomain, localHost, newFilterChain);
-   }
+        private final Object internalLock = new Object();
 
-   protected SystemModel getCurrentSystemModel() {
-      return currentSystemModel;
-   }
+        // TODO:Review - There's got to be a better way of initializing PowerFilter. Maybe the app management service could be queryable.
+        @Override
+        public void configurationUpdated(SystemModel configurationObject) {
+            currentSystemModel = configurationObject;
 
-   @Override
-   public void init(FilterConfig filterConfig) throws ServletException {
-      super.init(filterConfig);
-      this.filterConfig = filterConfig;
+            // This event must be fired only after we have finished configuring the system.
+            // This prevents a race condition illustrated below where the application
+            // deployment event is caught but does nothing due to a null configuration
+            synchronized (internalLock) {
+                if (firstInitialization) {
+                    firstInitialization = false;
 
-      ports = ServletContextHelper.getInstance().getServerPorts(filterConfig.getServletContext());
-      papiContext = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext());
+                    papiContext.eventService().newEvent(PowerFilterEvent.POWER_FILTER_CONFIGURED, System.currentTimeMillis());
+                } else {
+                    SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
+                    localHost = interrogator.getLocalHost(currentSystemModel);
+                    serviceDomain = interrogator.getLocalServiceDomain(currentSystemModel);
+                    final List<FilterContext> newFilterChain = new FilterContextInitializer(
+                            filterConfig,
+                            ServletContextHelper.getInstance().getApplicationContext(filterConfig.getServletContext())).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
+                    updateFilterChainBuilder(newFilterChain);
+                }
+            }
+        }
+    }
 
-      papiContext.eventService().listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
-      papiContext.configurationService().subscribeTo("system-model.cfg.xml", systemModelConfigurationListener, SystemModel.class);
+    // This is written like this in case requests are already processing against the
+    // existing filterChain.  If that is the case we create a new one for the deployment
+    // update but the old list stays in memory as the garbage collector won't clean
+    // it up until all RequestFilterChainState objects are no longer referencing it.
+    private synchronized void updateFilterChainBuilder(List<FilterContext> newFilterChain) {
+        if (powerFilterChainBuilder != null) {
+            papiContext.filterChainGarbageCollectorService().reclaimDestroyable(powerFilterChainBuilder, powerFilterChainBuilder.getResourceConsumerMonitor());
+        }
+        try {
+            powerFilterChainBuilder = new PowerFilterChainBuilder(serviceDomain, localHost, newFilterChain, filterConfig.getServletContext());
+        } catch (PowerFilterChainException ex) {
+            LOG.error("Unable to initialize filter chain builder", ex);
+        }
+    }
 
-      filterConfig.getServletContext().setAttribute("powerFilter", this);
-   }
+    protected SystemModel getCurrentSystemModel() {
+        return currentSystemModel;
+    }
 
-   @Override
-   public void destroy() {
-   }
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        super.init(filterConfig);
+        this.filterConfig = filterConfig;
 
-   @Override
-   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-      HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
+        ports = ServletContextHelper.getInstance().getServerPorts(filterConfig.getServletContext());
+        papiContext = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext());
 
-      final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
-      final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
+        papiContext.eventService().listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
+        papiContext.configurationService().subscribeTo("system-model.cfg.xml", systemModelConfigurationListener, SystemModel.class);
 
-      try {
-         final PowerFilterChain requestFilterChainState = powerFilterChainBuilder.newPowerFilterChain(chain, filterConfig.getServletContext());
-         requestFilterChainState.startFilterChain(mutableHttpRequest, mutableHttpResponse);
-      } catch (PowerFilterChainException ex) {
-         LOG.warn("Error creating filter chain", ex);
-         mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Error creating filter chain");
-         mutableHttpResponse.setLastException(ex);
-      } catch (Exception ex) {
-         LOG.error("Exception encountered while processing filter chain. Reason: " + ex.getMessage(), ex);
-         mutableHttpResponse.sendError(HttpStatusCode.BAD_GATEWAY.intValue(), "Error processing request");
-         mutableHttpResponse.setLastException(ex);
-      } finally {
-         // In the case where we pass/route the request, there is a chance that
-         // the response will be committed by an underlying service, outside of repose
-         if (!mutableHttpResponse.isCommitted()) {
-            papiContext.responseMessageService().handle(mutableHttpRequest, mutableHttpResponse);
-         }
+        filterConfig.getServletContext().setAttribute("powerFilter", this);
 
-         mutableHttpResponse.commitBufferToServletOutputStream();
-      }
-   }
+        reportingService = papiContext.reportingService();
+        responseHeaderService = papiContext.responseHeaderService();
+    }
+
+    @Override
+    public void destroy() {
+    }
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
+
+        final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
+        final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
+
+        if (powerFilterChainBuilder == null) {
+            responseHeaderService.setVia(mutableHttpRequest, mutableHttpResponse);
+            throw new ServletException("Filter chain has not been initialized");
+        }
+
+        try {
+            final PowerFilterChain requestFilterChainState = powerFilterChainBuilder.newPowerFilterChain(chain);
+            requestFilterChainState.startFilterChain(mutableHttpRequest, mutableHttpResponse);
+        } catch (PowerFilterChainException ex) {
+            LOG.warn("Error creating filter chain", ex);
+            mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Error creating filter chain");
+            mutableHttpResponse.setLastException(ex);
+        } catch (Exception ex) {
+            LOG.error("Exception encountered while processing filter chain. Reason: " + ex.getMessage(), ex);
+            mutableHttpResponse.sendError(HttpStatusCode.BAD_GATEWAY.intValue(), "Error processing request");
+            mutableHttpResponse.setLastException(ex);
+        } finally {
+            // In the case where we pass/route the request, there is a chance that
+            // the response will be committed by an underlying service, outside of repose
+            if (!mutableHttpResponse.isCommitted()) {
+                papiContext.responseMessageService().handle(mutableHttpRequest, mutableHttpResponse);
+                responseHeaderService.setVia(mutableHttpRequest, mutableHttpResponse);
+            }
+
+            try {
+                mutableHttpResponse.commitBufferToServletOutputStream();
+            } catch(IOException ex) {
+                LOG.error("Error committing output stream", ex);
+            }
+            reportingService.incrementReposeStatusCodeCount(((HttpServletResponse) response).getStatus());            
+        }
+    }
 }

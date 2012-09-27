@@ -72,7 +72,6 @@ public class FilterDirectorImpl implements FilterDirector {
 
       if (requestUriQuery != null) {
          request.setQueryString(requestUriQuery);
-         request.setParameterMap(requestUriQuery);
       }
 
       if (requestUri != null && StringUtilities.isNotBlank(requestUri)) {

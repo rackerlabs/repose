@@ -416,7 +416,7 @@
               <hashTree/>
               <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Contains retryAfter in correct format" enabled="true">
                 <collectionProp name="Asserion.test_strings">
-                  <stringProp name="572387573">retryAfter=&quot;\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}UTC&quot;</stringProp>
+                  <stringProp name="-1563648353">retryAfter=&quot;\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z&quot;</stringProp>
                 </collectionProp>
                 <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                 <boolProp name="Assertion.assume_success">true</boolProp>

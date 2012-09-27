@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<schema
+    elementFormDefault="qualified"
+    attributeFormDefault="unqualified"
+    xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    targetNamespace="http://test.openrespose/test/v1.1"
+>
+
+  <simpleType name="UUID">
+      <annotation>
+          <xsd:documentation
+              xml:lang="EN"
+              xmlns="http://www.w3.org/1999/xhtml">
+              <p>
+                  A universally unique identifier.
+              </p>
+          </xsd:documentation>
+      </annotation>
+      <restriction base="xsd:string">
+          <length value="36" fixed="true"/>
+          <pattern value="[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}"/>
+      </restriction>
+  </simpleType>
+  <element name="test" type="xsd:string">
+  </element>
+
+</schema>
+

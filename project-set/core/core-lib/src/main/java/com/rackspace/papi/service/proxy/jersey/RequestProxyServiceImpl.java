@@ -54,7 +54,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         synchronized (clientLock) {
             if (client == null) {
                 LOG.info("Building Jersey Http Client");
-                JerseyPropertiesConfigurator jerseyPropertiesConfigurator = new JerseyPropertiesConfigurator(connectionTimeout, readTimeout, proxyThreadPool, true);
+                JerseyPropertiesConfigurator jerseyPropertiesConfigurator = new JerseyPropertiesConfigurator(connectionTimeout, readTimeout, proxyThreadPool);
                 URLConnectionClientHandler urlConnectionClientHandler = new URLConnectionClientHandler(new ReposeHttpUrlConnectionFactory());
                 client = new ClientWrapper(new Client(urlConnectionClientHandler, jerseyPropertiesConfigurator.configure()), requestLogging);
             }
@@ -83,7 +83,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     }
 
     private String extractHostPath(HttpServletRequest request) {
-        final StringBuilder myHostName = new StringBuilder(request.getServerName());
+        final StringBuilder myHostName = new StringBuilder(request.getScheme()).append("://").append(request.getServerName());
 
         if (request.getServerPort() != DEFAULT_HTTP_PORT) {
             myHostName.append(":").append(request.getServerPort());
@@ -97,10 +97,10 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         ClientResponse response = builder.method(sourceRequest.getMethod(), ClientResponse.class);
 
         HttpResponseCodeProcessor responseCode = new HttpResponseCodeProcessor(response.getStatus());
-        JerseyResponseProcessor responseProcessor = new JerseyResponseProcessor(response, sourceResponse);
+        JerseyResponseProcessor responseProcessor = new JerseyResponseProcessor(host.getProxiedHostUrl().toExternalForm(), extractHostPath(sourceRequest), response, sourceResponse);
 
         if (responseCode.isRedirect()) {
-            responseProcessor.sendTranslatedRedirect(host.getProxiedHostUrl().toExternalForm(), extractHostPath(sourceRequest), response.getStatus());
+            responseProcessor.sendTranslatedRedirect(response.getStatus());
         } else {
             responseProcessor.process();
         }

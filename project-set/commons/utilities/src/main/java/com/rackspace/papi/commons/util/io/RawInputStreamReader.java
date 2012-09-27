@@ -53,12 +53,13 @@ public final class RawInputStreamReader {
       final byte[] internalBuffer = new byte[DEFAULT_INTERNAL_BUFFER_SIZE];
       
       int read;
+      long limit = byteLimit;
       
       while ((read = is.read(internalBuffer)) != -1) {
-         byteLimit -= read;
+         limit -= read;
          
-         if (byteLimit < 0) {
-            throw new BufferCapacityException("Read limit reached. Max buffer size: " + byteLimit + " bytes");
+         if (limit < 0) {
+            throw new BufferCapacityException("Read limit reached. Max buffer size: " + limit + " bytes");
          }
          
          baos.write(internalBuffer, 0, read);

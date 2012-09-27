@@ -582,7 +582,7 @@
                 <hashTree/>
                 <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Contains somedate element" enabled="true">
                   <collectionProp name="Asserion.test_strings">
-                    <stringProp name="272601781">&lt;somedate&gt;2012-03-09T14:56:32UTC&lt;/somedate&gt;</stringProp>
+                    <stringProp name="-1997056481">&lt;somedate&gt;2012-03-09T14:56:32Z&lt;/somedate&gt;</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                   <boolProp name="Assertion.assume_success">true</boolProp>
@@ -646,7 +646,7 @@
                 <hashTree/>
                 <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Contains mydate" enabled="true">
                   <collectionProp name="Asserion.test_strings">
-                    <stringProp name="-1342741593">&quot;mydate&quot;[\s:]*&quot;2012-03-09T14:56:32UTC&quot;</stringProp>
+                    <stringProp name="1835472337">&quot;mydate&quot;[\s:]*&quot;2012-03-09T14:56:32Z&quot;</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                   <boolProp name="Assertion.assume_success">true</boolProp>
@@ -710,7 +710,7 @@
                 <hashTree/>
                 <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Contains my-date element" enabled="true">
                   <collectionProp name="Asserion.test_strings">
-                    <stringProp name="932060233">MY-DATE: 2012-03-09T14:56:32UTC</stringProp>
+                    <stringProp name="868008031">MY-DATE: 2012-03-09T14:56:32Z</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                   <boolProp name="Assertion.assume_success">true</boolProp>

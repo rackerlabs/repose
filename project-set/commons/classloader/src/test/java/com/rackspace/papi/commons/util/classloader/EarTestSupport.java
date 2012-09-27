@@ -1,6 +1,6 @@
 package com.rackspace.papi.commons.util.classloader;
 
-import com.rackspace.papi.commons.util.classloader.ear.DefaultEarArchiveEntryListener;
+import com.rackspace.papi.commons.util.classloader.ear.DefaultEarArchiveEntryHelper;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoader;
 import com.rackspace.papi.commons.util.classloader.jar.test.EmptyClass;
 import org.junit.After;
@@ -134,8 +134,8 @@ public abstract class EarTestSupport {
         return deploymentDestination;
     }
 
-    protected static DefaultEarArchiveEntryListener createEarArchiveEntryListener(File deploymentDirectory) {
-        return new DefaultEarArchiveEntryListener(deploymentDirectory);
+    protected static DefaultEarArchiveEntryHelper createEarArchiveEntryListener(File deploymentDirectory) {
+        return new DefaultEarArchiveEntryHelper(deploymentDirectory);
     }
 
     protected File createEarFile() {

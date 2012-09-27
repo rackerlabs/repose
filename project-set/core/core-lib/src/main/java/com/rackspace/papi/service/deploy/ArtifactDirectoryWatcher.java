@@ -6,10 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ArtifactDirectoryWatcher implements Runnable, Destroyable {
    private static final Logger LOG = LoggerFactory.getLogger(ArtifactDirectoryWatcher.class);
@@ -46,8 +43,8 @@ public class ArtifactDirectoryWatcher implements Runnable, Destroyable {
          try {
             wait(checkIntervalInMilliseconds);
          } catch (InterruptedException ie) {
-            LOG.info("Artifact directory watcher received an interrupt. Reason: " + ie.getMessage(), ie);
-            
+            LOG.info("Artifact directory watcher received an interrupt.");
+             
             destroy();
             Thread.currentThread().interrupt();
          }
@@ -62,6 +59,8 @@ public class ArtifactDirectoryWatcher implements Runnable, Destroyable {
          throw new DeploymentDirectoryNotFoundException("The Power API configured deployment directory is null.  Please check the Power API configuration file.");
       }
 
+      List<ArtifactDirectoryItem> items = new ArrayList<ArtifactDirectoryItem>();
+      
       for (String artifactPath : artifactDirectoryReference.list(EarFilenameFilter.getInstance())) {
          final File artifactFile = new File(artifactDirectoryReference, artifactPath);
          final long lastModifiedTime = artifactFile.lastModified();
@@ -73,10 +72,12 @@ public class ArtifactDirectoryWatcher implements Runnable, Destroyable {
 
             if (lastRecordedModifiedTime != lastModifiedTime) {
                artifactModificationTimes.put(artifactPath, lastModifiedTime);
-               eventManagerReference.newEvent(ApplicationArtifactEvent.UPDATED, artifactFile.getAbsolutePath());
+               items.add(new ArtifactDirectoryItem(ApplicationArtifactEvent.UPDATED, artifactFile.getAbsolutePath()));
+               //eventManagerReference.newEvent(ApplicationArtifactEvent.UPDATED, artifactFile.getAbsolutePath());
             }
          } else {
-            eventManagerReference.newEvent(ApplicationArtifactEvent.NEW, artifactFile.getAbsolutePath());
+            items.add(new ArtifactDirectoryItem(ApplicationArtifactEvent.NEW, artifactFile.getAbsolutePath()));
+            //eventManagerReference.newEvent(ApplicationArtifactEvent.NEW, artifactFile.getAbsolutePath());
          }
 
          artifactModificationTimes.put(artifactPath, lastModifiedTime);
@@ -86,7 +87,12 @@ public class ArtifactDirectoryWatcher implements Runnable, Destroyable {
          final File artifactFile = new File(artifactDirectoryReference, artifactPath);
 
          artifactModificationTimes.remove(artifactPath);
-         eventManagerReference.newEvent(ApplicationArtifactEvent.DELETED, artifactFile.getAbsolutePath());
+         items.add(new ArtifactDirectoryItem(ApplicationArtifactEvent.DELETED, artifactFile.getAbsolutePath()));
+         //eventManagerReference.newEvent(ApplicationArtifactEvent.DELETED, artifactFile.getAbsolutePath());
+      }
+      
+      if (!items.isEmpty()) {
+        eventManagerReference.newEvent(ApplicationArtifactEvent.ARTIFACTS_MODIFIED, items);
       }
    }
 

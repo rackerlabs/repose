@@ -54,4 +54,14 @@ public class RackspaceToken extends AuthToken implements Serializable {
    public String getRoles() {
       throw new UnsupportedOperationException("The Rackspace Auth 1.1 Token does not provide roles.");
    }
+
+    @Override
+    public String getImpersonatorTenantId() {
+        return "";
+    }
+
+    @Override
+    public String getImpersonatorUsername() {
+        return "";
+    }
 }

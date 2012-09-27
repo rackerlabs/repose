@@ -38,7 +38,7 @@ public class NingResponseProcessorTest {
             when(response.getHeaders()).thenReturn(headers);
             when(servletResponse.getOutputStream()).thenReturn(out);
             
-            processor = new NingResponseProcessor(response, servletResponse);
+            processor = new NingResponseProcessor("", "", response, servletResponse);
 
         }
 
@@ -56,7 +56,7 @@ public class NingResponseProcessorTest {
             for (String header: headers.keySet()) {
                 List<String> values = headers.get(header);
                 for (String value: values) {
-                    verify(servletResponse).setHeader(header, value);
+                    verify(servletResponse).addHeader(header, value);
                 }
             }
         }

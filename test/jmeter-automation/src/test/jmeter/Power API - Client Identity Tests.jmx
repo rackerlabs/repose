@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="2.1">
+<jmeterTestPlan version="1.2" properties="2.3">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -150,6 +150,24 @@
                     <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="175389299">:8889 (Repose/2.3.4-SNAPSHOT)&lt;/h3&gt;</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">16</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="X-Forwarded-For Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="-1346759164">&lt;h3&gt; x-forwarded-for : </stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When X-RAX-User has two users" enabled="true"/>
@@ -201,6 +219,15 @@
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
                     <intProp name="Assertion.test_type">6</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="X-Forwarded-For Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="-1346759164">&lt;h3&gt; x-forwarded-for : </stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
                 </hashTree>
@@ -284,6 +311,15 @@
                     <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="X-Forwarded-For Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="-1346759164">&lt;h3&gt; x-forwarded-for : </stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
               <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When X-Forwarded-For has two IPs" enabled="true"/>
@@ -337,6 +373,15 @@
                     <intProp name="Assertion.test_type">6</intProp>
                   </ResponseAssertion>
                   <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="X-Forwarded-For Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="-1346759164">&lt;h3&gt; x-forwarded-for : </stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
                 </hashTree>
               </hashTree>
             </hashTree>
@@ -348,11 +393,11 @@
                 <stringProp name="TestPlan.comments">This pings whatismyip.com to get the external IP address of the JMeter box so we can validate this is the IP the client IP filter sets.</stringProp>
               </GenericController>
               <hashTree>
-                <BSFSampler guiclass="BSFSamplerGui" testclass="BSFSampler" testname="Get the External IP of the JMeter box" enabled="false">
-                  <stringProp name="BSFSampler.filename"></stringProp>
-                  <stringProp name="BSFSampler.language">javascript</stringProp>
-                  <stringProp name="BSFSampler.parameters"></stringProp>
-                  <stringProp name="BSFSampler.query">
+                <BSFSampler guiclass="TestBeanGUI" testclass="BSFSampler" testname="Get the External IP of the JMeter box" enabled="false">
+                  <stringProp name="filename"></stringProp>
+                  <stringProp name="scriptLanguage">javascript</stringProp>
+                  <stringProp name="parameters"></stringProp>
+                  <stringProp name="script">
 function getSourceIp() {
    var whatismyip = new java.net.URL(&quot;http://automation.whatismyip.com/n09230945.asp&quot;);
    var inputStreamReader = new java.io.InputStreamReader(whatismyip.openStream());
@@ -496,6 +541,15 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                     <collectionProp name="Asserion.test_strings">
                       <stringProp name="1839130122">x-pp-user : .*${accountNumber};q=</stringProp>
                       <stringProp name="559685544">x-pp-groups : .*${uri_identity_group};q=</stringProp>
+                    </collectionProp>
+                    <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                    <boolProp name="Assertion.assume_success">false</boolProp>
+                    <intProp name="Assertion.test_type">2</intProp>
+                  </ResponseAssertion>
+                  <hashTree/>
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="X-Forwarded-For Header Assertion" enabled="true">
+                    <collectionProp name="Asserion.test_strings">
+                      <stringProp name="-1346759164">&lt;h3&gt; x-forwarded-for : </stringProp>
                     </collectionProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
@@ -2642,6 +2696,159 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                   </ResponseAssertion>
                   <hashTree/>
                 </hashTree>
+              </hashTree>
+            </hashTree>
+          </hashTree>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="IP Identity" enabled="true"/>
+          <hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Get Source IP" enabled="true">
+              <stringProp name="TestPlan.comments">This pings whatismyip.com to get the external IP address of the JMeter box so we can validate this is the IP the client IP filter sets.</stringProp>
+            </GenericController>
+            <hashTree>
+              <BSFSampler guiclass="TestBeanGUI" testclass="BSFSampler" testname="Get the External IP of the JMeter box" enabled="false">
+                <stringProp name="filename"></stringProp>
+                <stringProp name="scriptLanguage">javascript</stringProp>
+                <stringProp name="parameters"></stringProp>
+                <stringProp name="script">
+function getSourceIp() {
+   var whatismyip = new java.net.URL(&quot;http://automation.whatismyip.com/n09230945.asp&quot;);
+   var inputStreamReader = new java.io.InputStreamReader(whatismyip.openStream());
+   var bufferedReader = new java.io.BufferedReader(inputStreamReader);
+
+   return bufferedReader.readLine();		
+}
+
+vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
+              </BSFSampler>
+              <hashTree/>
+              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Get the External IP of the Jmeter box" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port"></stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol"></stringProp>
+                <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+                <stringProp name="HTTPSampler.path">http://50.57.189.15:8080/whatismyip</stringProp>
+                <stringProp name="HTTPSampler.method">GET</stringProp>
+                <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+                <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+                <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+                <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+                <boolProp name="HTTPSampler.monitor">false</boolProp>
+                <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              </HTTPSamplerProxy>
+              <hashTree>
+                <RegexExtractor guiclass="RegexExtractorGui" testclass="RegexExtractor" testname="Get the External IP of the Jmeter box" enabled="true">
+                  <stringProp name="RegexExtractor.useHeaders">false</stringProp>
+                  <stringProp name="RegexExtractor.refname">sourceIp</stringProp>
+                  <stringProp name="RegexExtractor.regex">\d+\.\d+\.\d+\.\d+</stringProp>
+                  <stringProp name="RegexExtractor.template"></stringProp>
+                  <stringProp name="RegexExtractor.default">0</stringProp>
+                  <stringProp name="RegexExtractor.match_number"></stringProp>
+                </RegexExtractor>
+                <hashTree/>
+              </hashTree>
+            </hashTree>
+            <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                <collectionProp name="Arguments.arguments"/>
+              </elementProp>
+              <stringProp name="HTTPSampler.domain">${endpoint}</stringProp>
+              <stringProp name="HTTPSampler.port">${port}</stringProp>
+              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+              <stringProp name="HTTPSampler.response_timeout"></stringProp>
+              <stringProp name="HTTPSampler.protocol">http</stringProp>
+              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+              <stringProp name="HTTPSampler.path">/resources/mockendservice</stringProp>
+              <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+            </ConfigTestElement>
+            <hashTree/>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Identifying by IP" enabled="true"/>
+            <hashTree>
+              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="When Identifying by IP" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port"></stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol"></stringProp>
+                <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+                <stringProp name="HTTPSampler.path"></stringProp>
+                <stringProp name="HTTPSampler.method">GET</stringProp>
+                <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+                <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+                <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+                <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+                <boolProp name="HTTPSampler.monitor">false</boolProp>
+                <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              </HTTPSamplerProxy>
+              <hashTree>
+                <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Should return source ip as user" enabled="true">
+                  <collectionProp name="Asserion.test_strings">
+                    <stringProp name="-1901121086">x-pp-user : .*${sourceIp};q=</stringProp>
+                  </collectionProp>
+                  <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                  <boolProp name="Assertion.assume_success">false</boolProp>
+                  <intProp name="Assertion.test_type">2</intProp>
+                </ResponseAssertion>
+                <hashTree/>
+              </hashTree>
+            </hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Identifying as X-Forwarded-For" enabled="true"/>
+            <hashTree>
+              <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
+                <collectionProp name="HeaderManager.headers">
+                  <elementProp name="" elementType="Header">
+                    <stringProp name="Header.name">X-Forwarded-For</stringProp>
+                    <stringProp name="Header.value">10.6.61.192</stringProp>
+                  </elementProp>
+                </collectionProp>
+              </HeaderManager>
+              <hashTree/>
+              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="When Identifying by X-Forwarded-For" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port"></stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol"></stringProp>
+                <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+                <stringProp name="HTTPSampler.path"></stringProp>
+                <stringProp name="HTTPSampler.method">GET</stringProp>
+                <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+                <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+                <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+                <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+                <boolProp name="HTTPSampler.monitor">false</boolProp>
+                <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              </HTTPSamplerProxy>
+              <hashTree>
+                <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Should return source ip as user" enabled="true">
+                  <collectionProp name="Asserion.test_strings">
+                    <stringProp name="-1731538520">x-pp-user : .*10.6.61.192;q=</stringProp>
+                  </collectionProp>
+                  <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                  <boolProp name="Assertion.assume_success">false</boolProp>
+                  <intProp name="Assertion.test_type">2</intProp>
+                </ResponseAssertion>
+                <hashTree/>
+                <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="X-Forwarded-For Header Assertion" enabled="true">
+                  <collectionProp name="Asserion.test_strings">
+                    <stringProp name="-624548431">&lt;h3&gt; x-forwarded-for : 10.6.61.192,.+&lt;/h3&gt;</stringProp>
+                  </collectionProp>
+                  <stringProp name="TestPlan.comments">Should contain both values</stringProp>
+                  <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
+                  <boolProp name="Assertion.assume_success">false</boolProp>
+                  <intProp name="Assertion.test_type">2</intProp>
+                </ResponseAssertion>
+                <hashTree/>
               </hashTree>
             </hashTree>
           </hashTree>

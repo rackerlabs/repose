@@ -9,43 +9,35 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 public class NingResponseProcessor extends AbstractResponseProcessor {
-    private HttpServletResponse response;
+
     private Response clientResponse;
-    
-    public NingResponseProcessor(Response clientResponse, HttpServletResponse response) {
-        super(response, clientResponse.getStatusCode());
+
+    public NingResponseProcessor(String proxiedHostUrl, String requestHostPath, Response clientResponse, HttpServletResponse response) {
+        super(proxiedHostUrl, requestHostPath, response, clientResponse.getStatusCode());
         this.clientResponse = clientResponse;
-        this.response = response;
     }
-    
-   @Override
-   protected void setResponseHeaders() throws IOException {
-      FluentCaseInsensitiveStringsMap headers = clientResponse.getHeaders();
-      for (String headerName : headers.keySet()) {
-         for (String value : headers.get(headerName)) {
-            addHeader(headerName, value);
-         }
-      }
-   }
 
-   @Override
-   protected void setResponseBody() throws IOException {
-   
-   }
-   
-   @Override
-   protected String getResponseHeaderValue(String headerName) throws HttpException {
-      final List<String> locationHeader = clientResponse.getHeaders().get(headerName);
-      if (locationHeader == null || locationHeader.isEmpty()) {
-         throw new HttpException("Expected header was not found in response: " + headerName + " (Response Code: " + getResponseCode() + ")");
-      }
+    @Override
+    protected void setResponseHeaders() throws IOException {
+        FluentCaseInsensitiveStringsMap headers = clientResponse.getHeaders();
+        for (String headerName : headers.keySet()) {
+            for (String value : headers.get(headerName)) {
+                addHeader(headerName, value);
+            }
+        }
+    }
 
-      final String locationValue = locationHeader.get(0);
-      if (locationValue == null) {
-         throw new HttpException("Expected header was not found in response: " + headerName + " (Response Code: " + getResponseCode() + ")");
-      }
+    @Override
+    protected void setResponseBody() throws IOException {
+    }
 
-      return locationValue;
-   }
-   
+    @Override
+    protected String getResponseHeaderValue(String headerName) {
+        final List<String> headerValues = clientResponse.getHeaders().get(headerName);
+        if (headerValues == null || headerValues.isEmpty()) {
+            return null;
+        }
+
+        return headerValues.get(0);
+    }
 }

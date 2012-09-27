@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.rackspace.papi.components</groupId>
         <artifactId>components-support</artifactId>
-        <version>2.1.7-SNAPSHOT</version>
+        <version>2.3.4-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.components</groupId>
@@ -117,13 +117,11 @@
             <artifactId>client-ip-identity</artifactId>
         </dependency>
 
-        <!--
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>xsd-validator</artifactId>
+            <artifactId>flush-output</artifactId>
         </dependency>
-        -->
-        
+
     </dependencies>
 
     <build>
@@ -199,6 +197,11 @@
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>destination-router</artifactId>
+                        </jarModule>
+                            
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components</groupId>
+                            <artifactId>flush-output</artifactId>
                         </jarModule>
                             
                         <jarModule>

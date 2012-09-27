@@ -38,7 +38,7 @@ public class Poller implements Runnable, Destroyable {
                wait(interval);
             }
          } catch (InterruptedException ie) {
-            LOG.warn("Poller interrupted", ie);
+            LOG.warn("Poller interrupted.");
             shouldContinue = false;
          }
       }

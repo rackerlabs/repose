@@ -15,16 +15,24 @@ public class EventDispatcherImpl implements EventDispatcher {
         this.e = e;
     }
 
-   @Override
+    @Override
     public Event getEvent() {
         return e;
     }
 
-   @Override
+    @Override
     public void dispatch() {
+        final Thread currentThread = Thread.currentThread();
+        final ClassLoader previousClassLoader = currentThread.getContextClassLoader();
+
         for (EventListenerDescriptor eventListenerWrapper : listeners) {
             if (eventListenerWrapper.answersTo(e.type())) {
-                eventListenerWrapper.getListener().onEvent(e);
+                currentThread.setContextClassLoader(eventListenerWrapper.getClassLoader());
+                try {
+                    eventListenerWrapper.getListener().onEvent(e);
+                } finally {
+                    currentThread.setContextClassLoader(previousClassLoader);
+                }
             }
         }
     }

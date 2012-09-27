@@ -26,7 +26,8 @@ public enum InitParameter {
     PORT("repose-bound-port"),
     CONNECTION_TIMEOUT("connection-timeout"),
     READ_TIMEOUT("read-timeout"),
-    CONNECTION_FRAMEWORK("connection-framework");
+    CONNECTION_FRAMEWORK("connection-framework"),
+    INSECURE("insecure");
 
     private final String initParameterName;
 

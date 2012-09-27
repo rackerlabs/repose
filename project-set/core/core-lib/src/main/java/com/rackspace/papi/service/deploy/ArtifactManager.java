@@ -1,20 +1,20 @@
 package com.rackspace.papi.service.deploy;
 
-import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.classloader.ear.EarArchiveEntryListener;
+import com.rackspace.papi.commons.util.classloader.ear.EarArchiveEntryHelper;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.service.event.common.Event;
 import com.rackspace.papi.service.event.common.EventListener;
-import com.rackspace.papi.service.event.common.EventService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-public class ArtifactManager implements EventListener<ApplicationArtifactEvent, String> {
+public class ArtifactManager implements EventListener<ApplicationArtifactEvent, List<ArtifactDirectoryItem>> {
 
     private static final Logger LOG = LoggerFactory.getLogger(ArtifactManagerServiceContext.class);
     private final Map<String, String> artifactApplicationNames;
@@ -22,60 +22,75 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
 
     public ArtifactManager(ContainerConfigurationListener containerCfgListener) {
         this.containerCfgListener = containerCfgListener;
-        
+
         artifactApplicationNames = new HashMap<String, String>();
     }
-    
+
     private synchronized void setApplicationNameForArtifact(String artifactName, String applicationName) {
         artifactApplicationNames.put(artifactName, applicationName);
     }
-    
+
     private synchronized String removeApplicationNameForArtifact(String artifactName) {
         return artifactApplicationNames.remove(artifactName);
     }
-    
+
     @Override
-    public void onEvent(Event<ApplicationArtifactEvent, String> e) {
-        final String artifactPath = e.payload();
+    public void onEvent(Event<ApplicationArtifactEvent, List<ArtifactDirectoryItem>> e) {
+        final List<ArtifactDirectoryItem> artifacts = e.payload();
+
+        /*
+         * if (StringUtilities.isBlank(artifactPath)) { throw new IllegalArgumentException("Artifact file must not be
+         * null for DeploymentArtifactEvent events"); }
+         *
+         */
         
-        if (StringUtilities.isBlank(artifactPath)) {
-            throw new IllegalArgumentException("Artifact file must not be null for DeploymentArtifactEvent events");
+        List<EarClassLoaderContext> contexts = new ArrayList<EarClassLoaderContext>();
+
+        for (ArtifactDirectoryItem item: artifacts ) {
+            EarClassLoaderContext context = null;
+            switch (item.getEvent()) {
+                case NEW:
+                    LOG.info("New artifact: " + item.getPath());
+                    context = loadArtifact(item.getPath());
+                    break;
+
+                case UPDATED:
+                    LOG.info("Artifact updated: " + item.getPath());
+                    context = loadArtifact(item.getPath());
+                    break;
+
+                case DELETED:
+                    LOG.info("Artifact deleted: " + item.getPath());
+
+                    // Tell the artifact manager that the artifact has been removed
+                    e.eventManager().newEvent(ApplicationDeploymentEvent.APPLICATION_DELETED, removeApplicationNameForArtifact(item.getPath()));
+                    break;
+            }
+            if (context != null) {
+                contexts.add(context);
+            }
         }
-        
-        switch (e.type()) {
-            case NEW:
-                LOG.info("New artifact: " + artifactPath);
-                loadArtifact(artifactPath, e.eventManager());
-                break;
-
-            case UPDATED:
-                LOG.info("Artifact updated: " + artifactPath);
-                loadArtifact(artifactPath, e.eventManager());
-                break;
-
-            case DELETED:
-                LOG.info("Artifact deleted: " + artifactPath);
-                
-                // Tell the artifact manager that the artifact has been removed
-                e.eventManager().newEvent(ApplicationDeploymentEvent.APPLICATION_DELETED, removeApplicationNameForArtifact(artifactPath));
-                break;
+        if (!contexts.isEmpty()) {
+            e.eventManager().newEvent(ApplicationDeploymentEvent.APPLICATION_LOADED, contexts);
         }
     }
 
-    private void loadArtifact(String archivePath, EventService eventManager) {
+    private EarClassLoaderContext loadArtifact(String archivePath) {
         final File archive = new File(archivePath);
-        
+
         try {
-            final EarArchiveEntryListener listener = containerCfgListener.newEarArchiveEntryListener();
+            final EarArchiveEntryHelper listener = containerCfgListener.newEarArchiveEntryListener();
             final EarClassLoaderContext classLoaderContext = containerCfgListener.getUnpacker().read(listener, archive);
 
             // Associates this artifact with the application name for unlinking later
             setApplicationNameForArtifact(archive.getAbsolutePath(), classLoaderContext.getEarDescriptor().getApplicationName());
-            
+
+            return classLoaderContext;
             // Notify the artifact manager of the new application
-            eventManager.newEvent(ApplicationDeploymentEvent.APPLICATION_LOADED, classLoaderContext);
+            //eventManager.newEvent(ApplicationDeploymentEvent.APPLICATION_LOADED, classLoaderContext);
         } catch (IOException ioe) {
             LOG.error("Failure in loading artifact, \"" + archive.getAbsolutePath() + "\" - Reason: " + ioe.getMessage(), ioe);
         }
+        return null;
     }
 }

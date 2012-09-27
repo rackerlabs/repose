@@ -1,85 +1,171 @@
 package com.rackspace.papi.components.translation;
 
-
-import com.rackspace.httpx.MessageDetail;
-import com.rackspace.httpx.RequestHeadDetail;
-import com.rackspace.papi.commons.util.pooling.Pool;
+import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import com.rackspace.papi.commons.util.http.header.HeaderValue;
+import com.rackspace.papi.commons.util.http.media.MediaRangeProcessor;
+import com.rackspace.papi.commons.util.http.media.MediaType;
+import com.rackspace.papi.commons.util.http.media.MimeType;
+import com.rackspace.papi.commons.util.io.ByteBufferServletInputStream;
+import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
+import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
+import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
 import com.rackspace.papi.commons.util.pooling.ResourceContext;
 import com.rackspace.papi.commons.util.pooling.ResourceContextException;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.translation.config.TranslationConfig;
-import com.rackspace.papi.components.translation.postprocessor.RequestStreamPostProcessor;
-import com.rackspace.papi.components.translation.xproc.Pipeline;
-import com.rackspace.papi.components.translation.xproc.PipelineInput;
+import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlChainPool;
+import com.rackspace.papi.components.translation.xslt.XsltException;
+import com.rackspace.papi.components.translation.xslt.XsltParameter;
+import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlFilterChain;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import com.rackspace.papi.httpx.parser.RequestParserFactory;
-import org.xml.sax.InputSource;
-
-import javax.xml.transform.Source;
+import com.rackspace.papi.httpx.processor.TranslationPreProcessor;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import org.xml.sax.XMLFilter;
 
 public class TranslationHandler extends AbstractFilterLogicHandler {
-    private static final String SOURCE_PORT = "source";
-    private static final String PRIMARY_RESULT = "result";
+
+    private static final int DEFAULT_BUFFER_SIZE = 2048;
+    private static final MediaType DEFAULT_TYPE = new MediaType(MimeType.WILDCARD);
+    private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TranslationHandler.class);
     private final TranslationConfig config;
-    private final RequestStreamPostProcessor postProcessor;
-    private Pool<Pipeline> requestPipelinePool;
-    private Pool<Pipeline> responsePipelinePool;
+    private final List<XmlChainPool> requestProcessors;
+    private final List<XmlChainPool> responseProcessors;
 
-    public TranslationHandler(TranslationConfig translationConfig, Pool<Pipeline> requestPipelinePool, Pool<Pipeline> responsePipelinePool) {
+    public TranslationHandler(TranslationConfig translationConfig, List<XmlChainPool> requestProcessors, List<XmlChainPool> responseProcessors) {
         this.config = translationConfig;
-        postProcessor = new RequestStreamPostProcessor();
+        this.requestProcessors = requestProcessors;
+        this.responseProcessors = responseProcessors;
     }
-    
-    protected InputStream getHttpxStream(MutableHttpServletRequest request) {
-      // TODO: get these from translation config 
-      List<MessageDetail> requestFidelity = new ArrayList<MessageDetail>();
-      List<RequestHeadDetail > headFidelity =  new ArrayList<RequestHeadDetail>();
-      List<String> headersFidelity = new ArrayList<String>();
-      boolean jsonPreprocessing = false;
 
-      return RequestParserFactory.newInstance().parse(request, requestFidelity, headFidelity, headersFidelity, jsonPreprocessing);
+    List<XmlChainPool> getRequestProcessors() {
+        return requestProcessors;
     }
-    
-    public FilterDirector handleRequest(final MutableHttpServletRequest request, MutableHttpServletResponse response) throws IOException {
-        FilterDirector filterDirector = new FilterDirectorImpl();
 
-        
-        List<Source> nodes = requestPipelinePool.use(new ResourceContext<Pipeline, List<Source>>() {
+    List<XmlChainPool> getResponseProcessors() {
+        return responseProcessors;
+    }
+
+    private XmlChainPool getHandlerChainPool(String method, MediaType contentType, List<MediaType> accept, String status, List<XmlChainPool> pools) {
+        for (MediaType value : accept) {
+            for (XmlChainPool pool : pools) {
+                if (pool.accepts(method, contentType, value, status)) {
+                    return pool;
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private boolean executePool(final XmlChainPool pool, final InputStream in, final OutputStream out) {
+        Boolean result = (Boolean) pool.getPool().use(new ResourceContext<XmlFilterChain, Boolean>() {
             @Override
-            public List<Source> perform(Pipeline pipe) throws ResourceContextException {
-               // Send HTTPx as the source port.  The input stream will already
-               // contain the request body if requested via "fidelity" options
-               List<PipelineInput> inputs = new ArrayList<PipelineInput>();
-               inputs.add(PipelineInput.port(SOURCE_PORT, new InputSource(getHttpxStream(request))));
-
-               pipe.run(inputs);
-
-               return pipe.getResultPort(PRIMARY_RESULT);
+            public Boolean perform(XmlFilterChain chain) throws ResourceContextException {
+                List<XsltParameter> params = new ArrayList<XsltParameter>(pool.getParams());
+                try {
+                    chain.executeChain(in, out, params, null);
+                } catch (XsltException ex) {
+                    LOG.warn("Error processing transforms", ex.getMessage());
+                    return false;
+                }
+                return true;
             }
         });
-        
 
-        final InputStream httpxStream;
-        if (!nodes.isEmpty()) {
-           // Use the first document returned on the result port
-           httpxStream = postProcessor.process(nodes.get(0));
-        } else {
-           httpxStream = null;
-        }
-        
-        // TODO use stream to create new HTTPx request.
-        
+        return result;
+
+    }
+
+    private List<MediaType> getAcceptValues(List<HeaderValue> values) {
+        MediaRangeProcessor processor = new MediaRangeProcessor(values);
+        return processor.process();
+    }
+
+    private MediaType getContentType(String contentType) {
+        MimeType contentMimeType = MimeType.getMatchingMimeType(contentType);
+        return new MediaType(contentMimeType);
+    }
+
+    @Override
+    public FilterDirector handleResponse(HttpServletRequest httpRequest, ReadableHttpServletResponse httpResponse) {
+        MutableHttpServletRequest request = MutableHttpServletRequest.wrap(httpRequest);
+        MutableHttpServletResponse response = MutableHttpServletResponse.wrap(httpRequest, httpResponse);
+        final FilterDirector filterDirector = new FilterDirectorImpl();
         filterDirector.setFilterAction(FilterAction.PASS);
-        
+        MediaType contentType = getContentType(response.getHeader("content-type"));
+        List<MediaType> acceptValues = getAcceptValues(request.getPreferredHeaderValues("Accept", DEFAULT_TYPE));
+        XmlChainPool pool = getHandlerChainPool("", contentType, acceptValues, String.valueOf(response.getStatus()), responseProcessors);
+
+        if (pool != null) {
+            try {
+                filterDirector.setResponseStatusCode(response.getStatus());
+                if (response.hasBody()) {
+                    InputStream in = response.getBufferedOutputAsInputStream();
+                    if (in.available() > 0) {
+                        boolean success = executePool(pool, new TranslationPreProcessor(response.getInputStream(), contentType, true).getBodyStream(), filterDirector.getResponseOutputStream());
+                        
+                        if (success) {
+                            response.setContentType(pool.getResultContentType());
+                        } else {
+                            filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                            response.setContentLength(0);
+                        }
+                    }
+                }
+            } catch (IOException ex) {
+                LOG.error("Error executing response transformer chain", ex);
+                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                response.setContentLength(0);
+            }
+        } else {
+            filterDirector.setResponseStatusCode(response.getStatus());
+        }
+
         return filterDirector;
     }
-    
+
+    @Override
+    public FilterDirector handleRequest(HttpServletRequest httpRequest, ReadableHttpServletResponse httpResponse) {
+        MutableHttpServletRequest request = MutableHttpServletRequest.wrap(httpRequest);
+        MutableHttpServletResponse response = MutableHttpServletResponse.wrap(httpRequest, httpResponse);
+        FilterDirector filterDirector = new FilterDirectorImpl();
+        MediaType contentType = getContentType(request.getHeader("content-type"));
+        List<MediaType> acceptValues = getAcceptValues(request.getPreferredHeaderValues("Accept", DEFAULT_TYPE));
+        XmlChainPool pool = getHandlerChainPool(request.getMethod(), contentType, acceptValues, "", requestProcessors);
+
+        if (pool != null) {
+            try {
+                final ByteBuffer internalBuffer = new CyclicByteBuffer(DEFAULT_BUFFER_SIZE, true);
+                boolean success = executePool(pool, new TranslationPreProcessor(request.getInputStream(), contentType, true).getBodyStream(), new ByteBufferServletOutputStream(internalBuffer));
+                
+                if (success) {
+                    request.setInputStream(new ByteBufferServletInputStream(internalBuffer));
+                    filterDirector.requestHeaderManager().putHeader("content-type", pool.getResultContentType());
+                    filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
+                } else {
+                    filterDirector.setResponseStatus(HttpStatusCode.BAD_REQUEST);
+                    filterDirector.setFilterAction(FilterAction.RETURN);
+                }
+            } catch (IOException ex) {
+                LOG.error("Error executing request transformer chain", ex);
+                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+                filterDirector.setFilterAction(FilterAction.RETURN);
+            }
+        } else {
+            filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
+        }
+
+
+        return filterDirector;
+    }
 }
