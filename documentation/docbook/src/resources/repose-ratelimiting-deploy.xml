@@ -162,6 +162,10 @@
             therefore only provided by the origin service. 
             However, &PRODABBREV; will integrate absolute and current limits as they apply to a client.
         </para>
+        <para>
+            You can learn more about absolute limits in 
+            <xref linkend="Absolute-d1e631" />.
+        </para>
     </chapter>
     <chapter xml:id="HTTP_Message_Requirements-d1e222">
         <title>HTTP Message Requirements</title>
