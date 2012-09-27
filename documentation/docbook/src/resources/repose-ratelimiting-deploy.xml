@@ -63,7 +63,7 @@
         </copyright>
         <releaseinfo>v2.3.3</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2012-01-11</pubdate>
+        <pubdate>2012-09-28</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -74,6 +74,14 @@
                 their service to use the Rate Limiting component of the &PRODEXPAND;. </para>
         </abstract>
         <revhistory>
+            <revision>
+                <date>2012-09-28</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem><para>Republished for Repose v2.3.3</para></listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
             <revision>
                 <date>2012-01-11</date>
                 <revdescription>

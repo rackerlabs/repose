@@ -95,8 +95,10 @@
                             <!-- customize more-info link on cover: show project home page  
                                  <coverUrl> value is displayed as-is but "http://" is prepended to link so don't specify it for display -->
                             <coverUrl>www.openrepose.org</coverUrl>
-                            <!-- customize color of wide band on doc cover as RGB: 0000FF is true blue -->
-                            <coverColor>0066FF</coverColor>
+                            <!-- customize color of wide band on doc cover as RGB: 
+                                0000FF is true blue 
+                                A1CAFF is blue of water in logo -->
+                            <coverColor>A1CAFF</coverColor>
                             <!-- enable pop-up tool-tips from the glossary book into the HTML versions of all the books -->
                             <glossaryCollection>${project.build.directory}/../src/resources/repose-glossary.xml</glossaryCollection>
                             <!-- use this .XML as the source for the books to be generated as .PDF & .HTML -->
