@@ -24,7 +24,6 @@ import org.springframework.stereotype.Component;
 public class RequestProxyServiceImpl implements RequestProxyService {
 
     private static final Integer DEFAULT_THREADPOOL_SIZE = 20;
-    private static final Integer DEFAULT_HTTP_PORT = 80;
     private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);
     private ClientWrapper client;
     private Integer connectionTimeout = Integer.valueOf(0);
@@ -72,7 +71,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         try {
             WebResource resource = getClient().resource(target);
             WebResource.Builder builder = processor.process(resource);
-            return executeProxyRequest(host, builder, request, response);
+            return executeProxyRequest(builder, request, response);
         } catch (HttpException ex) {
             LOG.error("Error processing request", ex);
             MutableHttpServletResponse mutableResponse = (MutableHttpServletResponse) response;
@@ -82,22 +81,12 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         return -1;
     }
 
-    private String extractHostPath(HttpServletRequest request) {
-        final StringBuilder myHostName = new StringBuilder(request.getScheme()).append("://").append(request.getServerName());
-
-        if (request.getServerPort() != DEFAULT_HTTP_PORT) {
-            myHostName.append(":").append(request.getServerPort());
-        }
-
-        return myHostName.append(request.getContextPath()).toString();
-    }
-
-    private int executeProxyRequest(TargetHostInfo host, WebResource.Builder builder, HttpServletRequest sourceRequest, HttpServletResponse sourceResponse) throws IOException, HttpException {
+    private int executeProxyRequest(WebResource.Builder builder, HttpServletRequest sourceRequest, HttpServletResponse sourceResponse) throws IOException, HttpException {
 
         ClientResponse response = builder.method(sourceRequest.getMethod(), ClientResponse.class);
 
         HttpResponseCodeProcessor responseCode = new HttpResponseCodeProcessor(response.getStatus());
-        JerseyResponseProcessor responseProcessor = new JerseyResponseProcessor(host.getProxiedHostUrl().toExternalForm(), extractHostPath(sourceRequest), response, sourceResponse);
+        JerseyResponseProcessor responseProcessor = new JerseyResponseProcessor(response, sourceResponse);
 
         if (responseCode.isRedirect()) {
             responseProcessor.sendTranslatedRedirect(response.getStatus());

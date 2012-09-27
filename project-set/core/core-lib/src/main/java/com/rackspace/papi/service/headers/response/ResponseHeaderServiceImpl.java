@@ -11,10 +11,12 @@ import org.springframework.stereotype.Component;
 public class ResponseHeaderServiceImpl implements ResponseHeaderService {
 
     private ViaHeaderBuilder viaHeaderBuilder;
+    private LocationHeaderBuilder locationHeaderBuilder;
 
     @Override
-    public synchronized void updateConfig(ViaHeaderBuilder viaHeaderBuilder) {
+    public synchronized void updateConfig(ViaHeaderBuilder viaHeaderBuilder, LocationHeaderBuilder locationHeaderBuilder) {
         this.viaHeaderBuilder = viaHeaderBuilder;
+        this.locationHeaderBuilder = locationHeaderBuilder;
     }
 
     @Override
@@ -23,6 +25,21 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
         final String myVia = viaHeaderBuilder.buildVia(request);
         final String via = StringUtilities.isBlank(existingVia) ? myVia : existingVia + ", " + myVia ;
 
-        response.setHeader(CommonHttpHeader.VIA.toString(), via);
+        response.setHeader(CommonHttpHeader.VIA.name(), via);
+    }
+
+    @Override
+    public void fixLocationHeader(MutableHttpServletResponse response, String locationUri, String requestHostPath, String rootPath) {
+        String uri = cleanPath(locationUri);
+        if (!uri.matches("^https?://.*")) {
+            // local dispatch
+            uri = requestHostPath;
+        }
+
+        locationHeaderBuilder.setLocationHeader(response, uri, requestHostPath, rootPath);
+    }
+
+    private String cleanPath(String uri) {
+        return uri == null ? "" : uri.split("\\?")[0];
     }
 }

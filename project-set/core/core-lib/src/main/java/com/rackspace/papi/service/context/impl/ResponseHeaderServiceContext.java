@@ -6,6 +6,7 @@ import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.ServletContextHelper;
+import com.rackspace.papi.service.headers.response.LocationHeaderBuilder;
 import com.rackspace.papi.service.headers.response.ResponseHeaderService;
 import com.rackspace.papi.service.headers.response.ViaResponseHeaderBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,6 @@ public class ResponseHeaderServiceContext implements ServiceContext<ResponseHead
     private final ContainerConfigurationListener configurationListener;
 
     private String reposeVersion = "";
-    private String viaReceivedBy = "";
 
     @Autowired
     public ResponseHeaderServiceContext(@Qualifier("responseHeaderService") ResponseHeaderService responseHeaderService,
@@ -73,10 +73,11 @@ public class ResponseHeaderServiceContext implements ServiceContext<ResponseHead
         public void configurationUpdated(ContainerConfiguration configurationObject) {
 
             if (configurationObject.getDeploymentConfig() != null) {
-                viaReceivedBy = configurationObject.getDeploymentConfig().getVia();
+                final String viaReceivedBy = configurationObject.getDeploymentConfig().getVia();
 
                 final ViaResponseHeaderBuilder viaBuilder = new ViaResponseHeaderBuilder(reposeVersion, viaReceivedBy);
-                responseHeaderService.updateConfig(viaBuilder);
+                final LocationHeaderBuilder locationBuilder = new LocationHeaderBuilder();
+                responseHeaderService.updateConfig(viaBuilder, locationBuilder);
             }
         }
     }
