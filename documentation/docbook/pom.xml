@@ -50,7 +50,7 @@
                     the version of the *software* that is the subject of the document is indicated within each document:
                     look for <releaseinfo> near <pubdate>, both in the <info> section
                     1.1.0 of the plugin is compatible with Maven 2 for inclusion in the Jenkins build & color-formats sample code -->
-                <version>1.1.0</version>
+                <version>1.3.1</version>
                 <executions>
                     <execution>
                         <id>g1</id>
