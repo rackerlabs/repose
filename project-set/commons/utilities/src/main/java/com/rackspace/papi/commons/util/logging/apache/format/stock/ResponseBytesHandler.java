@@ -5,10 +5,6 @@ import com.rackspace.papi.commons.util.logging.apache.format.FormatterLogic;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-/**
- *
- * 
- */
 public class ResponseBytesHandler implements FormatterLogic {
 
     @Override

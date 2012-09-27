@@ -7,10 +7,10 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.servlet.http.HttpServletRequest;
 
 public class MediaTypeNormalizer {
     private static final Logger LOG = LoggerFactory.getLogger(MediaTypeNormalizer.class);
@@ -27,20 +27,20 @@ public class MediaTypeNormalizer {
     }
 
     private MediaType getPreferredMediaType(List<MediaType> mediaTypes) {
-        MediaType preferredMediaType = mediaTypes.size() > 0 ? mediaTypes.get(0) : null;
+        MediaType prefMediaType = mediaTypes.size() > 0 ? mediaTypes.get(0) : null;
 
         for (MediaType mediaType : configuredMediaTypes) {
             if (mediaType.isPreferred()) {
-                preferredMediaType = mediaType;
+                prefMediaType = mediaType;
                 break;
             }
         }
 
-        if (preferredMediaType != null && !preferredMediaType.isPreferred()) {
+        if (prefMediaType != null && !prefMediaType.isPreferred()) {
             LOG.info("No preferred media type specified in the content normalization configuration.  Using the first in the list.");
         }
 
-        return preferredMediaType;
+        return prefMediaType;
     }
 
     public void normalizeContentMediaType(HttpServletRequest request, FilterDirector director) {

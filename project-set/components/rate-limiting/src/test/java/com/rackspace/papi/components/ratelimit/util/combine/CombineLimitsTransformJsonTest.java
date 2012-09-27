@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.ratelimit.util.combine;
 
+import com.rackspace.papi.commons.util.transform.StreamTransform;
 import com.rackspace.papi.components.limits.schema.HttpMethod;
 import com.rackspace.papi.components.limits.schema.ObjectFactory;
 import com.rackspace.papi.components.limits.schema.RateLimitList;
@@ -9,24 +10,19 @@ import com.rackspace.papi.components.ratelimit.cache.CachedRateLimit;
 import com.rackspace.papi.components.ratelimit.config.ConfiguredLimitGroup;
 import com.rackspace.papi.components.ratelimit.util.LimitsEntityStreamTransformer;
 import com.rackspace.papi.components.ratelimit.util.TransformHelper;
-import com.rackspace.papi.commons.util.transform.StreamTransform;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import javax.xml.bind.JAXBContext;
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.junit.Ignore;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 

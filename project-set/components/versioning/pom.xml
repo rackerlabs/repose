@@ -5,13 +5,13 @@
     <parent>
         <groupId>com.rackspace.papi.components</groupId>
         <artifactId>components-support</artifactId>
-        <version>1.1.2-SNAPSHOT</version>
+        <version>2.1.7-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.components</groupId>
     <artifactId>versioning</artifactId>
 
-    <name>Power API Components - Versioning</name>
+    <name>Repose Components - Versioning</name>
     <description>TODO</description>
 
     <packaging>jar</packaging>
@@ -46,13 +46,13 @@
         <dependency>
            <groupId>org.codehaus.jackson</groupId>
            <artifactId>jackson-core-lgpl</artifactId>
-           <version>1.6.4</version>
+           <version>1.9.4</version>
            <scope>test</scope>
         </dependency>
         <dependency>
            <groupId>org.codehaus.jackson</groupId>
            <artifactId>jackson-mapper-lgpl</artifactId>
-           <version>1.6.4</version>
+           <version>1.9.4</version>
            <scope>test</scope>
         </dependency>
         <!--
@@ -93,24 +93,25 @@
             <!--</plugin>-->
 
             <plugin>
-                <groupId>com.sun.tools.xjc.maven2</groupId>
-                <artifactId>maven-jaxb-plugin</artifactId>
-                
-                <configuration>
-                    <!--<schemaDirectory>${basedir}/target/generated-resources/xml/xslt</schemaDirectory>-->
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb2-plugin</artifactId>
 
-                    <includeSchemas>
-                        <includeSchema>**/*.xsd</includeSchema>
-                    </includeSchemas>
-                    
-                    <includeBindings>
-                        <includeBinding>**/*.xjb</includeBinding>
-                    </includeBindings>
-                    
+                <configuration>
+
+                    <specVersion>2.1</specVersion>
+
+                    <schemaIncludes>
+                        <include>**/*.xsd</include>
+                    </schemaIncludes>
+                    <bindingIncludes>
+                        <include>**/*.xjb</include>
+                    </bindingIncludes>
+
                     <strict>true</strict>
-                    <verbose>true</verbose>
+                    <verbose>false</verbose>
+
                 </configuration>
-            </plugin>
+            </plugin>           
         </plugins>
     </build>
 </project>

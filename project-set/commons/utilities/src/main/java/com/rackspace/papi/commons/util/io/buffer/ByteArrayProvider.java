@@ -6,5 +6,5 @@ package com.rackspace.papi.commons.util.io.buffer;
  */
 public interface ByteArrayProvider {
 
-    byte[] allocate(int capacity);
+   byte[] allocate(int capacity);
 }

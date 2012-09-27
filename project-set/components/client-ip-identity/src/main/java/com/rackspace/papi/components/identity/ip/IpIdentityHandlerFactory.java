@@ -1,16 +1,22 @@
 package com.rackspace.papi.components.identity.ip;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.commons.util.net.IpAddressRange;
 import com.rackspace.papi.components.identity.ip.config.IpIdentityConfig;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+import org.slf4j.LoggerFactory;
+
+import java.net.UnknownHostException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class IpIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFactory<IpIdentityHandler> {
 
-   public static final String DEFAULT_QUALITY = "0.1";
+   private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(IpIdentityHandlerFactory.class);
    private IpIdentityConfig config;
-   private String quality;
+   private List<IpAddressRange> whitelist;
 
    public IpIdentityHandlerFactory() {
    }
@@ -27,25 +33,24 @@ public class IpIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
    private class ClientIpIdentityConfigurationListener implements UpdateListener<IpIdentityConfig> {
 
-      private String determineQuality() {
-         String q = DEFAULT_QUALITY;
-
-         if (config.getQuality() != null && !config.getQuality().trim().isEmpty()) {
-            q = config.getQuality().trim();
-         }
-
-         return ";q=" + q;
-      }
-
       @Override
       public void configurationUpdated(IpIdentityConfig configurationObject) {
          config = configurationObject;
-         quality = determineQuality();
+         whitelist = new ArrayList<IpAddressRange>();
+         if (config.getWhiteList() != null) {
+            for (String address : config.getWhiteList().getIpAddress()) {
+               try {
+                  whitelist.add(new IpAddressRange(address));
+               } catch (UnknownHostException ex) {
+                  LOG.warn("Invalid IP address specified in white list: " + address);
+               }
+            }
+         }
       }
    }
 
    @Override
    protected IpIdentityHandler buildHandler() {
-      return new IpIdentityHandler(config, quality);
+      return new IpIdentityHandler(config, whitelist);
    }
 }

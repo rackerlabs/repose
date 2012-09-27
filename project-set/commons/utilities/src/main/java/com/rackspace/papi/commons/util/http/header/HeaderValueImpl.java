@@ -1,6 +1,7 @@
 package com.rackspace.papi.commons.util.http.header;
 
 import com.rackspace.papi.commons.util.StringUtilities;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -14,12 +15,13 @@ import java.util.Map.Entry;
 public class HeaderValueImpl implements HeaderValue {
 
    public static final String QUALITY_FACTOR_PARAM_NAME = "q";
+   public static final double DEFAULT_QUALITY = 1.0;
    private final Map<String, String> parameters;
    private final String value;
    private double parsedQualityFactor;
 
-   private static double getQualityFactor(Map<String, String> parameters) throws MalformedHeaderValueException {
-      double qualityFactor = -1;
+   private static double getQualityFactor(Map<String, String> parameters) {
+      double qualityFactor = 1;
 
       final String qualityFactorString = parameters.get(QUALITY_FACTOR_PARAM_NAME);
 
@@ -36,9 +38,15 @@ public class HeaderValueImpl implements HeaderValue {
 
    private static Map<String, String> qualityFactorToParameterMap(double qualityFactor) {
       final Map<String, String> parameters = new HashMap<String, String>();
-      parameters.put(QUALITY_FACTOR_PARAM_NAME, String.valueOf(qualityFactor));
+      if (qualityFactor != DEFAULT_QUALITY) {
+         parameters.put(QUALITY_FACTOR_PARAM_NAME, String.valueOf(qualityFactor));
+      }
 
       return parameters;
+   }
+   
+   public HeaderValueImpl(String value) {
+      this(value, 1.0);
    }
 
    /**
@@ -54,13 +62,12 @@ public class HeaderValueImpl implements HeaderValue {
    }
 
    /**
-    * This constructor copies the parameter map into the header value parameter
-    * map.
+    * This constructor copies the parameter map into the header value parameter map.
     *
     * @param value
     * @param parameters
     */
-   public HeaderValueImpl(String value, Map<String, String> parameters) throws MalformedHeaderValueException {
+   public HeaderValueImpl(String value, Map<String, String> parameters) {
       this.parsedQualityFactor = getQualityFactor(parameters);
       this.parameters = new HashMap(parameters);
       this.value = value;
@@ -100,13 +107,15 @@ public class HeaderValueImpl implements HeaderValue {
       return compareTo(other) == 0;
    }
 
+   private static final int HASH_BASE = 7;
+   private static final int HASH_PRIME = 67;
    @Override
    public int hashCode() {
-      int hash = 7;
-      
-      hash = 67 * hash + (this.parameters != null ? this.parameters.hashCode() : 0);
-      hash = 67 * hash + (this.value != null ? this.value.hashCode() : 0);
-      
+      int hash = HASH_BASE;
+
+      hash = HASH_PRIME * hash + (this.parameters != null ? this.parameters.hashCode() : 0);
+      hash = HASH_PRIME * hash + (this.value != null ? this.value.hashCode() : 0);
+
       return hash;
    }
 
@@ -121,7 +130,7 @@ public class HeaderValueImpl implements HeaderValue {
             comparasionValue = compareHeaderValues(this.getValue(), that.getValue());
          }
       }
-      
+
       return comparasionValue;
    }
 
@@ -155,7 +164,8 @@ public class HeaderValueImpl implements HeaderValue {
             final Entry<String, String> nextParameter = parameterIterator.next();
             builder.append(nextParameter.getKey()).append("=").append(nextParameter.getValue());
 
-            if (hasNext = parameterIterator.hasNext()) {
+            hasNext = parameterIterator.hasNext();
+            if (hasNext) {
                builder.append(";");
             }
          }

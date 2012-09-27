@@ -1,12 +1,16 @@
 package com.rackspace.papi.filter;
 
+import com.oracle.javaee6.FilterType;
+import com.oracle.javaee6.FullyQualifiedClassType;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoader;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.commons.util.classloader.ear.EarDescriptor;
+import com.rackspace.papi.model.Filter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.springframework.context.ApplicationContext;
 
 import javax.servlet.FilterConfig;
 import java.util.Collection;
@@ -25,9 +29,13 @@ public class FilterContextManagerTest {
     public static class WhenLoadingFilterContext {
         private FilterConfig mockedFilterConfig;
         private FilterContextManager contextManager;
+        private Filter filter;
 
         @Before
         public void setup() {
+            filter = new Filter();
+            filter.setName("FilterName");
+            filter.setUriRegex(".*");
             contextManager = null;
             mockedFilterConfig = mock(FilterConfig.class);
         }
@@ -35,13 +43,17 @@ public class FilterContextManagerTest {
         private EarClassLoaderContext getMockedEarClassLoader(String filterClassName, Boolean loadThrowsException) throws ClassNotFoundException {
             EarClassLoaderContext mockedEarClassLoaderContext = mock(EarClassLoaderContext.class);
             EarDescriptor mockedEarDescriptor = mock(EarDescriptor.class);
-            Map<String, String> mockedFiltersMap = mock(Map.class);
+            Map<String, FilterType> mockedFiltersMap = mock(Map.class);
             EarClassLoader mockedEarClassLoader = mock(EarClassLoader.class);
+            FilterType mockedFilterType = mock(FilterType.class);
+            FullyQualifiedClassType mockedClassType = mock(FullyQualifiedClassType.class);
 
             when(mockedEarClassLoaderContext.getEarDescriptor()).thenReturn(mockedEarDescriptor);
             when(mockedEarDescriptor.getRegisteredFilters()).thenReturn(mockedFiltersMap);
             when(mockedEarClassLoaderContext.getClassLoader()).thenReturn(mockedEarClassLoader);
-            when(mockedFiltersMap.get(any(String.class))).thenReturn(filterClassName);
+            when(mockedFiltersMap.get(any(String.class))).thenReturn(mockedFilterType);
+            when(mockedFilterType.getFilterClass()).thenReturn(mockedClassType);
+            when(mockedClassType.getValue()).thenReturn(filterClassName);
 
             if (loadThrowsException) {
                 when(mockedEarClassLoader.loadClass(any(String.class))).thenThrow(new ClassNotFoundException());
@@ -58,8 +70,8 @@ public class FilterContextManagerTest {
             Collection<EarClassLoaderContext> loadedApplications = new LinkedList<EarClassLoaderContext>();
             loadedApplications.add(mockedEarClassLoaderContext);
 
-            contextManager = new FilterContextManagerImpl(mockedFilterConfig);
-            FilterContext filterContext = contextManager.loadFilterContext("FilterName", loadedApplications);
+            contextManager = new FilterContextManagerImpl(mockedFilterConfig, mock(ApplicationContext.class));
+            FilterContext filterContext = contextManager.loadFilterContext(filter, loadedApplications);
 
             assertNotNull(filterContext);
         }
@@ -73,8 +85,8 @@ public class FilterContextManagerTest {
             loadedApplications.add(mockedEarClassLoaderContextWithNullClassName);
             loadedApplications.add(mockedEarClassLoaderContextWithClassName);
 
-            contextManager = new FilterContextManagerImpl(mockedFilterConfig);
-            FilterContext filterContext = contextManager.loadFilterContext("FilterName", loadedApplications);
+            contextManager = new FilterContextManagerImpl(mockedFilterConfig, mock(ApplicationContext.class));
+            FilterContext filterContext = contextManager.loadFilterContext(filter, loadedApplications);
 
             assertNotNull(filterContext);
         }
@@ -85,8 +97,8 @@ public class FilterContextManagerTest {
             Collection<EarClassLoaderContext> loadedApplications = new LinkedList<EarClassLoaderContext>();
             loadedApplications.add(mockedEarClassLoaderContext);
 
-            contextManager = new FilterContextManagerImpl(mockedFilterConfig);
-            contextManager.loadFilterContext("FilterName", loadedApplications);
+            contextManager = new FilterContextManagerImpl(mockedFilterConfig, mock(ApplicationContext.class));
+            contextManager.loadFilterContext(filter, loadedApplications);
         }
     }
 

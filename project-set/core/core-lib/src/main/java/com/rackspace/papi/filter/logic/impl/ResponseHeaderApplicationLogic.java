@@ -7,7 +7,7 @@ import java.util.Set;
 
 public class ResponseHeaderApplicationLogic implements HeaderApplicationLogic {
 
-    final HttpServletResponse response;
+    private final HttpServletResponse response;
 
     public ResponseHeaderApplicationLogic(final HttpServletResponse response) {
         this.response = response;

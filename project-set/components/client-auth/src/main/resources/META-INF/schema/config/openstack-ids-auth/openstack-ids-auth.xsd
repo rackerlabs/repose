@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://docs.openrepose.org/power-api/client-auth/os-ids-auth/v1.0"
-           xmlns:os-ids-auth="http://docs.openrepose.org/power-api/client-auth/os-ids-auth/v1.0"
+           targetNamespace="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0"
+           xmlns:os-ids-auth="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">    
 
@@ -20,10 +20,26 @@
                 <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="1" maxOccurs="unbounded" />
             </xs:sequence>
 
-            <xs:attribute name="delegatable" type="xs:boolean" use="optional" default="false">
+            <xs:attribute name="delegable" type="xs:boolean" use="optional" default="false">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>Tells the service whether or not to support auth delegation.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+            
+            <xs:attribute name="include-query-params" type="xs:boolean" use="optional" default="false">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Option to include the query strings to find extract the client id</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
+            
+            <xs:attribute name="tenanted" type="xs:boolean" use="optional" default="true">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Option to include the query strings to find extract the client id</html:p>
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>

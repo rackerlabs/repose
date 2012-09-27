@@ -1,13 +1,9 @@
 package com.rackspace.papi.servlet.boot.service.config;
 
-import com.rackspace.papi.service.config.ParserListenerPair;
+import com.rackspace.papi.service.config.impl.ParserListenerPair;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
 
 /**
  * Created by IntelliJ IDEA.

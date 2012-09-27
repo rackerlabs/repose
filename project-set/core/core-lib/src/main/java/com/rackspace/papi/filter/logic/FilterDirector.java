@@ -2,46 +2,69 @@ package com.rackspace.papi.filter.logic;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
+import com.rackspace.papi.commons.util.servlet.http.RouteDestination;
+import com.rackspace.papi.model.Destination;
+
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
-import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
- *
- * @author jhopper
+ * TODO: Starting to feel like a candidate for a bit of ISP love - read below for more info.
+ * 
+ * Feels like there's three separate domains being represented: filter direction 
+ * (routing, action, application), response modification (response headers, 
+ * response writer, response status code, body), and lastly request modification 
+ * (request url and uri, query parameters, request header). I didn't think these domains were too 
+ * different early on but now that we need to communicate more directives, the 
+ * domains have begun to diverge.
+ * 
  */
 public interface FilterDirector {
 
-    void setRequestUri(String newUri);
+   void setRequestUriQuery(String query);
+   
+   void setRequestUri(String newUri);
 
-    void setRequestUrl(StringBuffer newUrl);
+   void setRequestUrl(StringBuffer newUrl);
 
-    String getRequestUri();
+   String getRequestUri();
 
-    StringBuffer getRequestUrl();
+   StringBuffer getRequestUrl();
 
-    HeaderManager requestHeaderManager();
+   HeaderManager requestHeaderManager();
 
-    HeaderManager responseHeaderManager();
+   HeaderManager responseHeaderManager();
 
-    FilterAction getFilterAction();
+   FilterAction getFilterAction();
 
-    HttpStatusCode getResponseStatus();
+   HttpStatusCode getResponseStatus();
 
-    void setFilterAction(FilterAction action);
+   int getResponseStatusCode();
 
-    void setResponseStatus(HttpStatusCode delegatedStatus);
+   void setFilterAction(FilterAction action);
 
-    String getResponseMessageBody();
+   void setResponseStatus(HttpStatusCode delegatedStatus);
 
-    byte[] getResponseMessageBodyBytes();
+   void setResponseStatusCode(int status);
 
-    PrintWriter getResponseWriter();
+   String getResponseMessageBody();
 
-    OutputStream getResponseOutputStream();
+   byte[] getResponseMessageBodyBytes();
 
-    void applyTo(MutableHttpServletRequest request);
+   PrintWriter getResponseWriter();
 
-    void applyTo(HttpServletResponse response) throws IOException;
+   OutputStream getResponseOutputStream();
+
+   void applyTo(MutableHttpServletRequest request);
+
+   void applyTo(HttpServletResponse response) throws IOException;
+
+   void addDestination(String id, String uri, float quality);
+
+   void addDestination(Destination dest, String uri, float quality);
+   
+   List<RouteDestination> getDestinations();
 }

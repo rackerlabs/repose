@@ -1,25 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<power-proxy xmlns="http://docs.openrepose.org/repose/system-model/v1.1">
-   <service-domain name="nova-repose" cluster="repose" port="8080" filter-chain="nova-repose-filters">
-      <forward destination="nova-api" />
-   </service-domain>
+<system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
+   <repose-cluster id="nova-repose">
+      <nodes>
+         <node id="nova-n01" hostname="nova-n01.ord.internal.rackspace.corp" http-port="8080" https-port="8443" />
+         <node id="nova-n02" hostname="nova-n02.ord.internal.rackspace.corp" http-port="8080" https-port="8443" />
+      </nodes>
+      
+      <filters>
+         <filter name="client-authentication" />
+         <filter name="client-authorization" />
+         <filter name="dist-datastore" />
+         <filter name="rate-limiting" />
+         <filter name="default-router" />
+      </filters>
 
-   <service-domain name="nova-api" cluster="nova-api" port="8081" />
-   
-   <filter-chain name="nova-repose-filters">
-      <filter name="client-authentication" />
-      <filter name="client-authorization" />
-      <filter name="dist-datastore" />
-      <filter name="rate-limiting" />
-   </filter-chain>
-   
-   <cluster name="repose">
-      <node alias="nova-n01" host="nova-n01.ord.internal.rackspace.corp" />
-      <node alias="nova-n02" host="nova-n02.ord.internal.rackspace.corp" />
-   </cluster>
-   
-   <cluster name="nova-api">
-      <node host="localhost" />
-   </cluster>
-</power-proxy>
+      <destinations>
+         <!-- hostname will default to localhost if not specified -->
+         <endpoint id="local" protocol="http" port="8774" default="true"/>
+      </destinations>
+   </repose-cluster>
+</system-model>

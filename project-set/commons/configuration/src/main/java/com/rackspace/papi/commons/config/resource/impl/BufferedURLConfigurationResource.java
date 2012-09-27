@@ -3,12 +3,13 @@ package com.rackspace.papi.commons.config.resource.impl;
 import com.rackspace.papi.commons.config.ConfigurationResourceException;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.arrays.ByteArrayComparator;
-import com.rackspace.papi.commons.util.io.MessageDigesterOutputStream;
-import com.rackspace.papi.commons.util.io.OutputStreamSplitter;
 import com.rackspace.papi.commons.util.io.ByteBufferInputStream;
 import com.rackspace.papi.commons.util.io.ByteBufferOutputStream;
-import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
+import com.rackspace.papi.commons.util.io.MessageDigesterOutputStream;
+import com.rackspace.papi.commons.util.io.OutputStreamSplitter;
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
+import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,11 +23,12 @@ public class BufferedURLConfigurationResource implements ConfigurationResource<B
    private final URL resourceUrl;
    private ByteBuffer byteBuffer;
    private byte[] digest;
+   private static final int DEFAULT_BYTE_ARRAY_SIZE = 2048;
 
    public BufferedURLConfigurationResource(URL resourceUrl) {
       this.resourceUrl = resourceUrl;
 
-      internalByteArray = new byte[2048];
+      internalByteArray = new byte[DEFAULT_BYTE_ARRAY_SIZE];
    }
 
    @Override

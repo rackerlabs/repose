@@ -1,23 +1,21 @@
 package com.rackspace.papi.service.context.jndi;
 
-import com.rackspace.papi.service.ServiceContext;
-import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.ClassLoaderServiceContext;
-import com.rackspace.papi.service.context.LoggingServiceContext;
-import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.service.logging.LoggingService;
-import com.rackspace.papi.service.rms.ResponseMessageService;
 import com.rackspace.papi.service.ServiceUnavailableException;
-import com.rackspace.papi.service.event.common.EventService;
-import com.rackspace.papi.service.context.EventManagerServiceContext;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
-import com.rackspace.papi.service.context.ConfigurationServiceContext;
-import com.rackspace.papi.service.context.ResponseMessageServiceContext;
-import com.rackspace.papi.service.context.DatastoreServiceContext;
-import com.rackspace.papi.service.context.FilterChainGCServiceContext;
+import com.rackspace.papi.service.config.ConfigurationService;
+import com.rackspace.papi.service.context.ContextAdapter;
+import com.rackspace.papi.service.context.ServiceContext;
+import com.rackspace.papi.service.context.container.ContainerConfigurationService;
+import com.rackspace.papi.service.context.impl.*;
+import com.rackspace.papi.service.datastore.DatastoreService;
+import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.filterchain.GarbageCollectionService;
-import com.rackspace.papi.service.threading.ThreadingServiceContext;
+import com.rackspace.papi.service.logging.LoggingService;
+import com.rackspace.papi.service.proxy.RequestProxyService;
+import com.rackspace.papi.service.rms.ResponseMessageService;
+import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.service.threading.ThreadingService;
+import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
 
 import javax.naming.Context;
 import javax.naming.NamingException;
@@ -30,9 +28,9 @@ public class JndiContextAdapter implements ContextAdapter {
         this.namingContext = namingContext;
     }
 
-    public static <T> T lookup(String name, Context context) throws ServiceUnavailableException {
+    public <T> T lookup(String name) {
         try {
-            final Object o = context.lookup(name);
+            final Object o = namingContext.lookup(name);
             return ((ServiceContext<T>) o).getService();
         } catch (NamingException ne) {
             throw new ServiceUnavailableException(name + " service is unavailable. Reason: " + ne.getExplanation(), ne.getCause());
@@ -40,42 +38,63 @@ public class JndiContextAdapter implements ContextAdapter {
     }
 
     @Override
-    public ConfigurationService configurationService() throws ServiceUnavailableException {
-        return lookup(ConfigurationServiceContext.SERVICE_NAME, namingContext);
+    public ConfigurationService configurationService() {
+        return lookup(ConfigurationServiceContext.SERVICE_NAME);
     }
 
    @Override
-   public ClassLoaderManagerService classLoader() throws ServiceUnavailableException {
-      return lookup(ClassLoaderServiceContext.SERVICE_NAME, namingContext);
+   public ClassLoaderManagerService classLoader() {
+      return lookup(ClassLoaderServiceContext.SERVICE_NAME);
    }
 
     @Override
-    public DatastoreService datastoreService() throws ServiceUnavailableException {
-        return lookup(DatastoreServiceContext.SERVICE_NAME, namingContext);
+    public DatastoreService datastoreService() {
+        return lookup(DatastoreServiceContext.SERVICE_NAME);
     }
 
     @Override
-    public ResponseMessageService responseMessageService() throws ServiceUnavailableException {
-        return lookup(ResponseMessageServiceContext.SERVICE_NAME, namingContext);
+    public ResponseMessageService responseMessageService() {
+        return lookup(ResponseMessageServiceContext.SERVICE_NAME);
     }
 
     @Override
-    public EventService eventService() throws ServiceUnavailableException {
-        return lookup(EventManagerServiceContext.SERVICE_NAME, namingContext);
+    public EventService eventService() {
+        return lookup(EventManagerServiceContext.SERVICE_NAME);
     }
 
     @Override
-    public ThreadingService threadingService() throws ServiceUnavailableException {
-        return lookup(ThreadingServiceContext.SERVICE_NAME, namingContext);
+    public ThreadingService threadingService() {
+        return lookup(ThreadingServiceContext.SERVICE_NAME);
+    }
+    
+    @Override
+    public RoutingService routingService() {
+       return lookup(RoutingServiceContext.SERVICE_NAME);
     }
 
     @Override
-    public GarbageCollectionService filterChainGarbageCollectorService() throws ServiceUnavailableException {
-        return lookup(FilterChainGCServiceContext.SERVICE_NAME, namingContext);
+    public GarbageCollectionService filterChainGarbageCollectorService() {
+        return lookup(FilterChainGCServiceContext.SERVICE_NAME);
     }
 
     @Override
-    public LoggingService loggingService() throws ServiceUnavailableException {
-        return lookup(LoggingServiceContext.SERVICE_NAME, namingContext);
+    public LoggingService loggingService() {
+        return lookup(LoggingServiceContext.SERVICE_NAME);
     }
+
+   @Override
+   public ContainerConfigurationService containerConfigurationService() {
+        return lookup(ContainerServiceContext.SERVICE_NAME);
+   }
+
+   @Override
+   public <T extends ServiceContext<?>> T getContext(Class<T> clazz) {
+      throw new UnsupportedOperationException("Not supported yet.");
+   }
+
+    @Override
+    public RequestProxyService requestProxyService() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
 }

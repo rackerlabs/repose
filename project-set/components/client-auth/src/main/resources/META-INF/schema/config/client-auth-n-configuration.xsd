@@ -1,25 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://docs.rackspacecloud.com/power-api/client-auth/v1.0"
-           xmlns:auth="http://docs.rackspacecloud.com/power-api/client-auth/v1.0"
-           xmlns:auth-1.1="http://docs.rackspacecloud.com/power-api/client-auth/rs-auth-1.1/v1.0"
-           xmlns:os-ids-auth="http://docs.openrepose.org/power-api/client-auth/os-ids-auth/v1.0"
-           xmlns:auth-http-basic="http://docs.rackspacecloud.com/power-api/client-auth/http-basic/v1.0"
+           targetNamespace="http://docs.rackspacecloud.com/repose/client-auth/v1.0"
+           xmlns:auth="http://docs.rackspacecloud.com/repose/client-auth/v1.0"
+           xmlns:auth-1.1="http://docs.rackspacecloud.com/repose/client-auth/rs-auth-1.1/v1.0"
+           xmlns:os-ids-auth="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0"
+           xmlns:auth-http-basic="http://docs.rackspacecloud.com/repose/client-auth/http-basic/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
     
     <!-- Rackspace Cloud Auth v1.1 -->
-    <xs:import namespace="http://docs.rackspacecloud.com/power-api/client-auth/rs-auth-1.1/v1.0" schemaLocation="./rackspace-auth-v1.1/rackspace-auth-v1.1.xsd" />
+    <xs:import namespace="http://docs.rackspacecloud.com/repose/client-auth/rs-auth-1.1/v1.0" schemaLocation="./rackspace-auth-v1.1/rackspace-auth-v1.1.xsd" />
 
     <!-- OpenStack Identity Service Auth -->
-    <xs:import namespace="http://docs.openrepose.org/power-api/client-auth/os-ids-auth/v1.0" schemaLocation="./openstack-ids-auth/openstack-ids-auth.xsd" />
+    <xs:import namespace="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0" schemaLocation="./openstack-ids-auth/openstack-ids-auth.xsd" />
     
     <!-- HTTP Basic Authentication -->
-    <xs:import namespace="http://docs.rackspacecloud.com/power-api/client-auth/http-basic/v1.0" schemaLocation="./http-basic/http-basic.xsd" />    
+    <xs:import namespace="http://docs.rackspacecloud.com/repose/client-auth/http-basic/v1.0" schemaLocation="./http-basic/http-basic.xsd" />    
     
     <!-- Configuration -->
     <xs:element name="client-auth" type="auth:clientAuthConfig" />
+
+    <xs:complexType name="URIPattern">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>A uri pattern to which a user has access.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+      <xs:attribute name="uri-regex" type="xs:string" use="required">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Regex of what uri is allowed access.</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+        
+    </xs:complexType>
+
+    <xs:complexType name="WhiteList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>A list of uri patterns all users can access.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="uri-pattern" type="auth:URIPattern" minOccurs="1" maxOccurs="unbounded" />
+        </xs:sequence>
+    </xs:complexType>
 
     <xs:complexType name="clientAuthConfig">
         <xs:annotation>
@@ -27,13 +56,16 @@
                 <html:p>Describes a collection of filter modules that should be loaded and configured at runtime start-up.</html:p>
             </xs:documentation>
         </xs:annotation>
-
+                
         <xs:sequence>
             <xs:choice>
                 <xs:element ref="auth-1.1:rackspace-auth" />
                 <xs:element ref="os-ids-auth:openstack-auth" />
                 <xs:element ref="auth-http-basic:http-basic-auth" />
             </xs:choice>
+
+            <xs:element name="white-list" type="auth:WhiteList" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
+
     </xs:complexType>
 </xs:schema>

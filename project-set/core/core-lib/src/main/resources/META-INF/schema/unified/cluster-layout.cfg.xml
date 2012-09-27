@@ -1,38 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<power-proxy xmlns="http://docs.openrepose.org/repose/system-model/v1.1">
-   <service-domain name="nova-auth" cluster="repose-auth" port="8080" filter-chain="auth">
-      <forward destination="nova-rate-limiting" />
-   </service-domain>
+<system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
+   <repose-cluster id="nova-auth">
+      <nodes>
+         <node id="repose-nova-auth-n01" host="repose-nova-auth-n01.ord.internal.rackspace.corp" http-port="8080" />
+         <node id="repose-nova-auth-n02" host="repose-nova-auth-n02.ord.internal.rackspace.corp" http-port="8080" />
+      </nodes>      
+      
+      <filters>
+         <filter name="client-authentication" />
+         <filter name="client-authorization" />
+         <filter name="default-router" />
+      </filters>
+      
+      <destinations>
+         <target id="limiting" cluster="nova-rate-limiting" protocol="http" default="true"/>
+      </destinations>
+   </repose-cluster>
    
-   <service-domain name="nova-rate-limiting" cluster="repose-rl" port="8080" filter-chain="nova-rate-limiting">
-      <forward destination="nova-api" />
-   </service-domain>
+   <repose-cluster id="nova-rate-limiting">
+      <nodes>
+         <node id="repose-nova-rl-n01" hostname="repose-nova-rl-n01.ord.internal.rackspace.corp" http-port="8080" />
+         <node id="repose-nova-rl-n02" hostname="repose-nova-rl-n02.ord.internal.rackspace.corp" http-port="8080" />
+      </nodes>      
 
-   <service-domain name="nova-api" cluster="nova-api" port="8080" />
+      <filters>
+         <filter name="dist-datastore" />
+         <filter name="rate-limiting" />
+         <filter name="default-router" />
+      </filters>
    
-   <filter-chain name="auth">
-      <filter name="client-authentication" />
-      <filter name="client-authorization" />
-   </filter-chain>
+      <destinations>
+         <target id="nova" cluster="nova-api" protocol="http" default="true"/>
+      </destinations>
+   </repose-cluster>
+
+   <service-cluster id="nova-api">
+      <nodes>
+         <node id="nova-n01" hostname="nova-n01.ord.internal.rackspace.corp" http-port="8080" />
+         <node id="nova-n02" hostname="nova-n02.ord.internal.rackspace.corp" http-port="8080" />
+      </nodes>      
+   </service-cluster>
    
-   <filter-chain name="nova-rate-limiting">
-      <filter name="dist-datastore" />
-      <filter name="rate-limiting" />
-   </filter-chain>
-   
-   <cluster name="repose-auth">
-      <node alias="repose-nova-auth-n01" host="repose-nova-auth-n01.ord.internal.rackspace.corp" />
-      <node alias="repose-nova-auth-n02" host="repose-nova-auth-n02.ord.internal.rackspace.corp" />
-   </cluster>
-   
-   <cluster name="repose-rl">
-      <node alias="repose-nova-rl-n01" host="repose-nova-rl-n01.ord.internal.rackspace.corp" />
-      <node alias="repose-nova-rl-n02" host="repose-nova-rl-n02.ord.internal.rackspace.corp" />
-   </cluster>
-   
-   <cluster name="nova-api">
-      <node alias="nova-n01" host="nova-n01.ord.internal.rackspace.corp" />
-      <node alias="nova-n02" host="nova-n02.ord.internal.rackspace.corp" />
-   </cluster>
-</power-proxy>
+</system-model>

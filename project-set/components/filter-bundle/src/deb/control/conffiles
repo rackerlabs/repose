@@ -1,8 +1,0 @@
-/etc/powerapi/client-auth-n.cfg.xml
-/etc/powerapi/openstack-authorization.cfg.xml
-/etc/powerapi/content-normalization.cfg.xml
-/etc/powerapi/dist-datastore.cfg.xml
-/etc/powerapi/http-logging.cfg.xml
-/etc/powerapi/rate-limiting.cfg.xml
-/etc/powerapi/root-context-router.cfg.xml
-/etc/powerapi/versioning.cfg.xml

@@ -5,13 +5,13 @@
    <parent>
       <groupId>com.rackspace.papi.components</groupId>
       <artifactId>components-support</artifactId>
-      <version>1.1.2-SNAPSHOT</version>
+      <version>2.1.7-SNAPSHOT</version>
    </parent>
 
    <groupId>com.rackspace.papi.components</groupId>
    <artifactId>distributed-datastore</artifactId>
 
-   <name>Power API Components - Distributed Datastore</name>
+   <name>Repose Components - Distributed Datastore</name>
    <description>TODO</description>
 
    <packaging>jar</packaging>
@@ -43,11 +43,6 @@
       </dependency>
         
       <dependency>
-         <groupId>org.apache.httpcomponents</groupId>
-         <artifactId>httpclient</artifactId>
-      </dependency>
-        
-      <dependency>
          <groupId>com.rackspace.papi.commons</groupId>
          <artifactId>jetty-container</artifactId>
          <scope>test</scope>
@@ -56,23 +51,27 @@
    
    <build>
       <plugins>
-         <plugin>
-            <groupId>com.sun.tools.xjc.maven2</groupId>
-            <artifactId>maven-jaxb-plugin</artifactId>
+          <plugin>
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb2-plugin</artifactId>
 
-            <configuration>
-               <includeSchemas>
-                  <includeSchema>**/*.xsd</includeSchema>
-               </includeSchemas>
+                <configuration>
 
-               <includeBindings>
-                  <includeBinding>**/*.xjb</includeBinding>
-               </includeBindings>
+                    <specVersion>2.1</specVersion>
 
-               <strict>true</strict>
-               <verbose>false</verbose>
-            </configuration>
-         </plugin>
+                    <schemaIncludes>
+                        <include>**/*.xsd</include>
+                    </schemaIncludes>
+                    <bindingIncludes>
+                        <include>**/*.xjb</include>
+                    </bindingIncludes>
+
+                    <strict>true</strict>
+                    <verbose>false</verbose>
+
+                </configuration>
+            </plugin>
+                  
       </plugins>
    </build>
 </project>

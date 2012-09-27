@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>rpm</artifactId>
+        <groupId>com.rackspace.repose.installation.rpm</groupId>
+        <version>2.1.7-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.rackspace.repose.installation.rpm.ug.valve</groupId>
+    <artifactId>ug-repose-valve</artifactId>
+
+    <name>Repose - Installation Utility Grid Valve RPM</name>
+
+    <description>
+        Module for the Utility Grid Valve RPM.
+    </description>
+
+    <packaging>pom</packaging>
+
+    <profiles>
+        <profile>
+            <id>build-system-packages</id>
+
+            <activation>
+                <property>
+                    <name>Build Valve</name>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>pl.project13.maven</groupId>
+                        <artifactId>git-commit-id-plugin</artifactId>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>properties-maven-plugin</artifactId>                        
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>rpm-maven-plugin</artifactId>
+
+                        <configuration>
+                            <name>ug-repose-valve</name>                            
+
+                            <mappings>
+                                <mapping>
+                                    <directory>/usr/share/lib/repose</directory>
+                                    <username>intermediary</username>
+                                    <groupname>intermediary</groupname>
+                                    <filemode>755</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>${basedir}/../../../core/valve/target/repose-valve.jar</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/usr/share/doc/repose-valve</directory>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <filemode>644</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>${basedir}/target/git.properties</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/etc/repose/</directory>
+                                    <username>intermediary</username>
+                                    <groupname>intermediary</groupname>
+                                    <configuration>noreplace</configuration>
+                                    <filemode>755</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <!-- Grabs all the config files in configs/core -->
+                                            <location>${basedir}/../../configs/core</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/usr/local/bin</directory>
+                                    <username>intermediary</username>
+                                    <groupname>intermediary</groupname>
+                                    <filemode>755</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>${basedir}/../../bash/clean-repose-deploy
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/etc/init.d</directory>
+                                    <username>intermediary</username>
+                                    <groupname>intermediary</groupname>
+                                    <filemode>755</filemode>
+                                    <directoryIncluded>false</directoryIncluded>
+
+                                    <sources>
+                                        <source>
+                                            <location>src/rpm/etc/init.d/repose-valve</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/var/log/repose</directory>
+                                    <username>intermediary</username>
+                                    <groupname>intermediary</groupname>
+                                    <filemode>755</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>src/rpm/.log_dir_placeholder
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/var/repose</directory>
+                                    <username>intermediary</username>
+                                    <groupname>intermediary</groupname>
+                                    <filemode>760</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>src/rpm/.var_repose_dir_placeholder
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/etc/logrotate.d</directory>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <filemode>644</filemode>
+                                    <directoryIncluded>false</directoryIncluded>
+
+                                    <sources>
+                                        <source>
+                                            <location>src/rpm/etc/logrotate.d/repose</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                            </mappings>
+
+                            <preinstallScriptlet>
+                                <script>
+                                    getent group intermediary || groupadd -r intermediary
+                                    getent passwd intermediary || useradd -r -g intermediary -s /sbin/nologin intermediary
+                                </script>
+                            </preinstallScriptlet>
+
+                            <requires>
+                                <require>java</require>
+                                <require>logrotate</require>
+                                <require>daemonize</require>
+                            </requires>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+</project>

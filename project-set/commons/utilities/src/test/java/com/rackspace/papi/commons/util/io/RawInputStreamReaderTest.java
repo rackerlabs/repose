@@ -1,10 +1,15 @@
 package com.rackspace.papi.commons.util.io;
 
-import java.io.*;
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import static org.junit.Assert.assertEquals;
 
 @RunWith(Enclosed.class)
 public class RawInputStreamReaderTest {

@@ -3,7 +3,6 @@ package com.rackspace.papi.commons.config.manager;
 import com.rackspace.papi.commons.util.thread.KeyedStackLock;
 
 /**
- * Created by IntelliJ IDEA.
  * User: joshualockwood
  * Date: 6/13/11
  * Time: 1:49 PM

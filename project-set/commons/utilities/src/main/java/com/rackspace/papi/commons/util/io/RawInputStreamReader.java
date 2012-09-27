@@ -18,7 +18,11 @@ public final class RawInputStreamReader {
    }
    
    public long copyTo(InputStream is, OutputStream os) throws IOException {
-      final byte[] internalBuffer = new byte[DEFAULT_INTERNAL_BUFFER_SIZE];
+      return copyTo(is, os, DEFAULT_INTERNAL_BUFFER_SIZE);
+   }
+   
+   public long copyTo(InputStream is, OutputStream os, int bufferSize) throws IOException {
+      final byte[] internalBuffer = new byte[bufferSize];
       
       long total = 0;
       int read;

@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<rate-limiting delegation="true" xmlns="http://docs.rackspacecloud.com/power-api/rate-limiting/v1.0">
+<rate-limiting delegation="false" xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0">
     <!--
         Defines an endpoint with a matching regex to bind GET requests for
         returning live rate limiting information.
     -->
-    <request-endpoint uri-regex="\/servers\/limits\/" />
+    <request-endpoint uri-regex="\/servers\/limits\/" limits-format="OPENSTACK" />
     
     <!--
         Defining a limit group.

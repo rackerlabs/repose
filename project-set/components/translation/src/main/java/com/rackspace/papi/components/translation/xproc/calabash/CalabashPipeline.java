@@ -9,20 +9,17 @@ import com.xmlcalabash.core.XProcRuntime;
 import com.xmlcalabash.io.ReadablePipe;
 import com.xmlcalabash.model.RuntimeValue;
 import com.xmlcalabash.runtime.XPipeline;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.Source;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.dom.DOMResult;
 import net.sf.saxon.s9api.QName;
 import net.sf.saxon.s9api.SaxonApiException;
 import net.sf.saxon.s9api.XdmNode;
 import org.xml.sax.InputSource;
+
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CalabashPipeline extends AbstractPipeline implements Pipeline {
    private final XProcRuntime runtime;
@@ -59,7 +56,6 @@ public class CalabashPipeline extends AbstractPipeline implements Pipeline {
    @Override
    protected <T> void addParameter(PipelineInput<T> input) {
       RuntimeValue runtimeParam = getRuntimeValue(input);
-      T source = input.getSource();
       
       if (pipeline.getInputs().contains("parameters")) {
          pipeline.setParameter("parameters", new QName("", input.getName()), runtimeParam);
@@ -97,7 +93,7 @@ public class CalabashPipeline extends AbstractPipeline implements Pipeline {
       
    
    @Override
-   public void run(List<PipelineInput> inputs) throws PipelineException {
+   public void run(List<PipelineInput> inputs) {
       try {
          reset();
          handleInputs(inputs);
@@ -109,6 +105,7 @@ public class CalabashPipeline extends AbstractPipeline implements Pipeline {
             clearParameters(inputs);
          }
       } catch (SaxonApiException ex) {
+         // TODO: Should we log the exception here?
          throw new PipelineException(ex);
       }
    }
@@ -126,8 +123,7 @@ public class CalabashPipeline extends AbstractPipeline implements Pipeline {
       return ret;
    }
 
-   protected List<Source> getCalabashResultPort(String name)
-      throws PipelineException {
+   protected List<Source> getCalabashResultPort(String name) {
       try {
          ReadablePipe pipe = pipeline.readFrom(name);
          List<Source> nodes = new ArrayList<Source>();
@@ -138,12 +134,12 @@ public class CalabashPipeline extends AbstractPipeline implements Pipeline {
 
          return nodes;
       } catch (SaxonApiException ex) {
+         // TODO: Should we log the exception here?
          throw new PipelineException(ex);
       }
    }
 
-   protected List<Source> getLegacyResultPort(String name)
-      throws PipelineException {
+   protected List<Source> getLegacyResultPort(String name) {
       try {
          List<Source> standard = getCalabashResultPort (name);
          List<Source> ret = new ArrayList<Source>(standard.size());
@@ -159,8 +155,10 @@ public class CalabashPipeline extends AbstractPipeline implements Pipeline {
 
          return ret;
       }catch (TransformerConfigurationException tce) {
+         // TODO: Should we log the exception here?
          throw new PipelineException (tce);
       }catch (TransformerException te) {
+         // TODO: Should we log the exception here?
          throw new PipelineException (te);
       }
    }

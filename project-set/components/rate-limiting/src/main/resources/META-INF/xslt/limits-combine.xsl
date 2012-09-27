@@ -2,7 +2,7 @@
 
 <!-- Limits Combine -->
 <!--
-   Combines rate limits, submited as input, with 
+   Combines rate limits, submited as input, with
    absolute limits submited via the absoluteURL parameter.
 -->
 <transform xmlns="http://www.w3.org/1999/XSL/Transform"
@@ -22,13 +22,18 @@
 
     <template match="lim:limits">
         <if test="not($absoluteURL)">
-            <message terminate="yes">absoluteURL parameter must be set</message>
+            <message terminate="yes">limits-combine.xsl: absoluteURL parameter must be set</message>
         </if>
-        
-        <if test="count($absoluteDoc)!=1">
-            <message terminate="yes">Could not load <value-of select="$absoluteURL"/></message>
-        </if>
-        
+
+        <choose>
+            <when test="count($absoluteDoc)!=1">
+                <message>limits-combine.xsl: Could not load origin URL: <value-of select="$absoluteURL"/></message>
+            </when>
+            <when test="not($absoluteDoc/lim:limits/lim:absolute)">
+                <message>limits-combine.xsl: Missing /limits/absolute from origin URL : <value-of select="$absoluteURL"/> Got : <xsl:copy-of select="$absoluteDoc"/></message>
+            </when>
+        </choose>
+
         <limits xmlns="http://docs.openstack.org/common/api/v1.0">
             <xsl:apply-templates select="lim:rates"/>
             <xsl:apply-templates select="$absoluteDoc/lim:limits/lim:absolute"/>

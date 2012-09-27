@@ -1,14 +1,13 @@
 package com.rackspace.papi.filter;
 
-import com.rackspace.papi.filter.FilterContext;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import javax.servlet.Filter;
-import java.lang.ClassLoader;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 /**
  * @author fran

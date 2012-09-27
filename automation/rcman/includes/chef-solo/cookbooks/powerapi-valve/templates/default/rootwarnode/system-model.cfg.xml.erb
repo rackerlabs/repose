@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
+  <repose-cluster id="repose">
+
+    <nodes>
+      <node id="proxy-n01" hostname="<%= node[:fqdn]%>" http-port="8080"/>
+    </nodes>
+
+    <filters>
+        <filter name="versioning" />
+        <filter name="client-auth" />
+        <filter name="ip-identity" />
+        <filter name="rate-limiting" />
+        <filter name="service-authentication" />
+    </filters>
+
+    <destinations>
+      <endpoint id="service" protocol="http" hostname="50.57.189.15" root-path="/" port="8080" default="true"/>
+      <endpoint id="mocks" protocol="http" root-path="/mocks" port="8080"/>
+    </destinations>
+
+  </repose-cluster>
+</system-model>

@@ -2,7 +2,8 @@ package com.rackspace.papi.filter.logic;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.thread.KeyedStackLock;
-import java.util.*;
+
+import java.util.Map;
 
 /**
  *

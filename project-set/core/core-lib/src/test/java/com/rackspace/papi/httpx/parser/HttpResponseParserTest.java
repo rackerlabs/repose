@@ -2,23 +2,26 @@ package com.rackspace.papi.httpx.parser;
 
 import com.rackspace.httpx.MessageDetail;
 import com.rackspace.httpx.ResponseHeadDetail;
+import org.custommonkey.xmlunit.Diff;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.xml.sax.SAXException;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
-import org.custommonkey.xmlunit.Diff;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Vector;
 
-import static org.junit.Assert.*;
-import org.junit.Ignore;
-import static org.mockito.Mockito.*;
-import org.xml.sax.SAXException;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author fran

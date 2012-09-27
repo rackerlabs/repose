@@ -1,0 +1,43 @@
+package org.openrepose.components.routing.servlet;
+
+import com.rackspace.papi.filter.FilterConfigHelper;
+import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
+import com.rackspace.papi.model.SystemModel;
+import com.rackspace.papi.service.config.ConfigurationService;
+import com.rackspace.papi.service.context.ServletContextHelper;
+import org.openrepose.components.routing.servlet.config.DestinationRouterConfiguration;
+
+import javax.servlet.*;
+import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class DestinationRouterFilter implements Filter {
+
+    private static final Logger LOG = LoggerFactory.getLogger(DestinationRouterFilter.class);
+    private static final String DEFAULT_CONFIG = "destination-router.cfg.xml";
+    private String config;
+    private DestinationRouterHandlerFactory handlerFactory;
+    private ConfigurationService manager;
+
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        new FilterLogicHandlerDelegate(request, response, chain).doFilter(handlerFactory.newHandler());
+    }
+
+    @Override
+    public void destroy() {
+        manager.unsubscribeFrom(config, handlerFactory);
+    }
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {        
+        manager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
+        config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
+        LOG.info("Initializing filter using config " + config);
+        handlerFactory = new DestinationRouterHandlerFactory();
+        
+        manager.subscribeTo("system-model.cfg.xml", handlerFactory, SystemModel.class);
+        manager.subscribeTo(config, handlerFactory, DestinationRouterConfiguration.class);
+    }
+}

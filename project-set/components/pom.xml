@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    
+
     <parent>
         <groupId>com.rackspace.papi</groupId>
         <artifactId>profile-support</artifactId>
-        <version>1.1.2-SNAPSHOT</version>
+        <version>2.1.7-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.components</groupId>
     <artifactId>components-support</artifactId>
 
-    <name>Power API Components - Components Support</name>
+    <name>Repose Components - Components Support</name>
     <packaging>pom</packaging>
 
     <modules>
@@ -20,20 +20,28 @@
         <module>http-logging</module>
         <module>client-auth</module>
         <module>header-identity</module>
+        <module>header-id-mapping</module>
         <module>uri-identity</module>
-        <module>service-auth</module>
-        <module>cli-utils</module>
+        <module>content-identity-auth-1.1</module>
+        <module>content-identity-auth-2.0</module>
         <module>content-normalization</module>
+        <module>service-authentication</module>
+        <module>cli-utils</module>
         <module>rate-limiting</module>
         <module>versioning</module>
         <module>translation</module>
         <module>default-router</module>
-        <module>root-context-router</module>
+        <module>destination-router</module>
         <module>echo</module>
         <module>client-authorization</module>
         <module>client-ip-identity</module>
+        <!--
+        <module>xsd-validator</module>
+        -->
+        <module>header-normalization</module>
+        <module>uri-normalization</module>
     </modules>
-    
+
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -41,7 +49,7 @@
                 <artifactId>echo</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.rackspace.papi.core</groupId>
                 <artifactId>core-lib</artifactId>
@@ -59,37 +67,49 @@
                 <artifactId>utilities</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.rackspace.papi.commons</groupId>
                 <artifactId>jetty-container</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.rackspace.papi.commons</groupId>
                 <artifactId>classloader</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.rackspace.cloud.services.clients</groupId>
-                <artifactId>rackspace-auth-v1.1</artifactId>
+                <artifactId>auth</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            
+
             <dependency>
-                <groupId>com.rackspace.cloud.services.clients</groupId>
-                <artifactId>openstack-ids</artifactId>
+                <groupId>com.rackspace.papi.external</groupId>
+                <artifactId>rs-auth-schemas</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            
+
             <dependency>
-                <groupId>org.apache.httpcomponents</groupId>
-                <artifactId>httpclient</artifactId>
-                <version>4.1.2</version>
+                <groupId>com.rackspace.papi.external</groupId>
+                <artifactId>os-auth-schemas</artifactId>
+                <version>${project.version}</version>
             </dependency>
-            
+
+            <!--<dependency>-->
+            <!--<groupId>com.rackspace.cloud.services.clients</groupId>-->
+            <!--<artifactId>rackspace-auth-v1.1</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--</dependency>-->
+
+            <!--<dependency>-->
+            <!--<groupId>com.rackspace.cloud.services.clients</groupId>-->
+            <!--<artifactId>openstack-ids</artifactId>-->
+            <!--<version>${project.version}</version>-->
+            <!--</dependency>-->
+
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
@@ -107,7 +127,7 @@
                 <artifactId>ehcache-core</artifactId>
                 <version>2.4.3</version>
             </dependency>
-            
+
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>default-router</artifactId>
@@ -128,7 +148,13 @@
 
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
-                <artifactId>content-normalization</artifactId>
+                <artifactId>uri-normalization</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>header-normalization</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
@@ -146,10 +172,30 @@
 
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>header-id-mapping</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>content-normalization</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>client-ip-identity</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
+            <!--
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>xsd-validator</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            -->
+            
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>uri-identity</artifactId>
@@ -158,13 +204,25 @@
 
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
-                <artifactId>service-auth</artifactId>
+                <artifactId>content-identity-auth-1.1</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
-                <artifactId>root-context-router</artifactId>
+                <artifactId>content-identity-auth-2.0</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>service-authentication</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>destination-router</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

@@ -1,22 +1,20 @@
 package com.rackspace.papi.components.cnorm;
 
 import com.rackspace.papi.components.normalization.config.ContentNormalizationConfig;
-import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
-import org.slf4j.Logger;
-
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import com.rackspace.papi.service.config.ConfigurationService;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import java.io.IOException;
+import javax.servlet.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ContentNormalizationFilter implements Filter {
 
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ContentNormalizationFilter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ContentNormalizationFilter.class);
+    private static final String DEFAULT_CONFIG = "content-normalization.cfg.xml";
+    private String config;
     private ContentNormalizationHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;
 
@@ -27,14 +25,15 @@ public class ContentNormalizationFilter implements Filter {
 
     @Override
     public void destroy() {
-        configurationManager.unsubscribeFrom("content-normalization.cfg.xml", handlerFactory);
+        configurationManager.unsubscribeFrom(config, handlerFactory);
     }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        configurationManager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
+        config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
+        LOG.info("Initializing filter using config " + config);
+        configurationManager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
         handlerFactory = new ContentNormalizationHandlerFactory();
-
-        configurationManager.subscribeTo("content-normalization.cfg.xml", handlerFactory, ContentNormalizationConfig.class);
+        configurationManager.subscribeTo(config, handlerFactory, ContentNormalizationConfig.class);
     }
 }

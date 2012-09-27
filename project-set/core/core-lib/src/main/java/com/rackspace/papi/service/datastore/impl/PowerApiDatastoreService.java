@@ -2,9 +2,11 @@ package com.rackspace.papi.service.datastore.impl;
 
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
+import org.springframework.stereotype.Component;
 
 import java.util.*;
 
+@Component("datastoreSerivce")
 public class PowerApiDatastoreService implements DatastoreService {
 
    private final Map<String, DatastoreManager> localManagers;

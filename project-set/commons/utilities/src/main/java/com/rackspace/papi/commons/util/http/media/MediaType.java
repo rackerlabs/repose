@@ -1,21 +1,28 @@
 package com.rackspace.papi.commons.util.http.media;
 
 import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
-import java.util.Collections;
+
 import java.util.Map;
 
 public class MediaType extends HeaderValueImpl {
-
    private final MimeType mimeType;
 
    public MediaType(MimeType mimeType) {
-      this(mimeType.getMimeType(), mimeType);
+      this(mimeType.getMimeType(), mimeType, HeaderValueImpl.DEFAULT_QUALITY);
    }
 
-   public MediaType(String value, MimeType mimeTYpe) {
-      super(value, Collections.EMPTY_MAP);
+   public MediaType(MimeType mimeType, double quality) {
+      this(mimeType.getMimeType(), mimeType, quality);
+   }
 
-      this.mimeType = mimeTYpe;
+   public MediaType(String value, MimeType mimeType) {
+       this(value, mimeType, HeaderValueImpl.DEFAULT_QUALITY);
+   }
+   
+   public MediaType(String value, MimeType mimeType, double quality) {
+      super(value, quality); //Collections.EMPTY_MAP);
+
+      this.mimeType = mimeType;
    }
 
    public MediaType(String value, MimeType mediaType, Map<String, String> parameters) {

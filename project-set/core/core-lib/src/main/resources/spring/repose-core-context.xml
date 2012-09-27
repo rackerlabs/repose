@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+   <context:component-scan base-package="com.rackspace"/>
+   <context:annotation-config/>
+   
+   <!-- Service Contexts -->
+   <bean name="artifactManagerServiceContext" class="com.rackspace.papi.service.deploy.ArtifactManagerServiceContext">
+      <constructor-arg index="0" ref="artifactManager" />
+      <constructor-arg index="1" ref="eventManager" />
+      <constructor-arg index="2" ref="containerConfigurationListener" />
+      <constructor-arg index="3" ref="serviceRegistry" />
+      <constructor-arg index="4" ref="configurationManager" />
+      <constructor-arg index="5" ref="threadingServiceContext" />
+   </bean>
+
+   <bean name="loggingServiceContext" class="com.rackspace.papi.service.context.impl.LoggingServiceContext">
+      <constructor-arg index="0" ref="log4jLoggingService" />
+      <constructor-arg index="1" ref="serviceRegistry" />
+      <constructor-arg index="2" ref="configurationManager" />
+   </bean>
+
+   <!-- Services -->
+   <bean name="artifactManager" class="com.rackspace.papi.service.deploy.ArtifactManager" >
+      <constructor-arg index="0" ref="containerConfigurationListener" />
+   </bean>
+   
+   <bean name="log4jLoggingService" class="com.rackspace.papi.service.logging.LoggingServiceImpl" >
+      <constructor-arg index="0" value="LOG4J" />
+   </bean>
+   
+   <!-- Other -->
+   
+   <!--
+   <bean name="containerConfigurationListener" class="com.rackspace.papi.service.deploy.ContainerConfigurationListener" scope="prototype">
+      <constructor-arg index="0" ref="eventManager" />
+   </bean>
+   -->
+
+   <!-- The following service contexts are defined using annotations -->
+   <!-- 
+   <bean name="classLoaderServiceContext" class="com.rackspace.papi.service.context.impl.ClassLoaderServiceContext">
+      <constructor-arg index="0" ref="classLoaderManager"/>
+   </bean> 
+
+   <bean name="configurationServiceContext" class="com.rackspace.papi.service.context.impl.ConfigurationServiceContext">
+      <constructor-arg index="0" ref="configurationManager"/>
+   </bean> 
+   
+   <bean name="containerServiceContext" class="com.rackspace.papi.service.context.impl.ContainerServiceContext">
+      <constructor-arg index="0" ref="containerConfigurationService"/>
+   </bean> 
+
+   <bean name="datastoreServiceContext" class="com.rackspace.papi.service.context.impl.DatastoreServiceContext">
+      <constructor-arg index="0" ref="datastoreSerivce" />
+   </bean>
+
+   <bean name="eventManagerServiceContext" class="com.rackspace.papi.service.context.impl.EventManagerServiceContext">
+      <constructor-arg index="0" ref="eventManager" />
+   </bean>
+
+   <bean name="filterChainGCServiceContext" class="com.rackspace.papi.service.context.impl.FilterChainGCServiceContext">
+      <constructor-arg index="0" ref="garbageService" />
+   </bean>
+
+   <bean name="threadingServiceContext" class="com.rackspace.papi.service.threading.impl.ThreadingServiceContext" />
+   <bean name="responseMessageServiceContext" class="com.rackspace.papi.service.context.impl.ResponseMessageServiceContext">
+      <constructor-arg index="0" ref="responseMessagingService" />
+   </bean>
+
+   <bean name="routingServiceContext" class="com.rackspace.papi.service.context.impl.RoutingServiceContext">
+      <constructor-arg index="0" ref="routingService" />
+   </bean>
+   -->
+
+   <!-- The following services are defined using annotations -->
+   <!--
+   <bean name="classLoaderManager" class="com.rackspace.papi.service.classloader.ApplicationClassLoaderManagerImpl" />
+   <bean name="configurationManager" class="com.rackspace.papi.service.config.impl.PowerApiConfigurationManager" />
+   <bean name="containerConfigurationService" class="com.rackspace.papi.service.context.container.ContainerConfigurationServiceImpl" />
+   <bean name="datastoreSerivce" class="com.rackspace.papi.service.datastore.impl.PowerApiDatastoreService" />
+   <bean name="eventManager" class="com.rackspace.papi.service.event.PowerProxyEventManager" />
+   <bean name="garbageService" class="com.rackspace.papi.service.filterchain.SweepingGarbageCollector" />
+   <bean name="responseMessagingService" class="com.rackspace.papi.service.rms.ResponseMessageServiceImpl" />
+   <bean name="routingService" class="com.rackspace.papi.service.routing.robin.RoundRobinRoutingService" />
+   -->
+   
+</beans>

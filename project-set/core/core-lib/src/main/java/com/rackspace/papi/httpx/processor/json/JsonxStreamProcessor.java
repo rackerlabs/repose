@@ -2,26 +2,24 @@ package com.rackspace.papi.httpx.processor.json;
 
 import com.rackspace.papi.commons.util.Destroyable;
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
-//import com.rackspace.papi.components.translation.preprocessor.Element;
-//import com.rackspace.papi.components.translation.preprocessor.InputStreamProcessor;
-//import com.rackspace.papi.components.translation.preprocessor.PreProcessorException;
 import com.rackspace.papi.httpx.processor.common.Element;
 import com.rackspace.papi.httpx.processor.common.InputStreamProcessor;
 import com.rackspace.papi.httpx.processor.common.PreProcessorException;
 import com.rackspace.papi.httpx.processor.json.elements.ElementFactory;
-import java.io.*;
-import java.util.Properties;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.sax.SAXTransformerFactory;
-import javax.xml.transform.sax.TransformerHandler;
-import javax.xml.transform.stream.StreamResult;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonToken;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.SAXException;
+
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.sax.TransformerHandler;
+import javax.xml.transform.stream.StreamResult;
+import java.io.*;
+import java.util.Properties;
 
 public class JsonxStreamProcessor implements InputStreamProcessor {
 
@@ -81,7 +79,7 @@ public class JsonxStreamProcessor implements InputStreamProcessor {
             handler.endDocument();
             out.close();
          } catch (Exception ex) {
-            LOG.error("Error processing JSON input stream", ex);
+            LOG.error("Error processing JSON input stream. Reason: " + ex.getMessage(), ex);
          }
       }
 

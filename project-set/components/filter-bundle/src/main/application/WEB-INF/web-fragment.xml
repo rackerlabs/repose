@@ -22,13 +22,38 @@
     </filter>
 
     <filter>
-        <filter-name>uri-identity</filter-name>
-        <filter-class>com.rackspace.papi.components.identity.uri.UriIdentityFilter</filter-class>
+        <filter-name>header-id-mapping</filter-name>
+        <filter-class>com.rackspace.papi.components.identity.header_mapping.HeaderIdMappingFilter</filter-class>
     </filter>
 
     <filter>
         <filter-name>content-normalization</filter-name>
         <filter-class>com.rackspace.papi.components.cnorm.ContentNormalizationFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>uri-identity</filter-name>
+        <filter-class>com.rackspace.papi.components.identity.uri.UriIdentityFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>content-identity-auth-1.1</filter-name>
+        <filter-class>com.rackspace.papi.components.identity.content.auth.ContentIdentityAuthFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>content-identity-auth-2.0</filter-name>
+        <filter-class>org.openrepose.rackspace.auth_2_0.identity.content.auth.ContentIdentityAuthFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>uri-normalization</filter-name>
+        <filter-class>com.rackspace.papi.components.unorm.UriNormalizationFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>header-normalization</filter-name>
+        <filter-class>com.rackspace.papi.components.hnorm.HeaderNormalizationFilter</filter-class>
     </filter>
 
     <filter>
@@ -42,13 +67,13 @@
     </filter>
 
     <filter>
-        <filter-name>root-context-router</filter-name>
-        <filter-class>org.openrepose.components.routing.servlet.RootContextRoutingFilter</filter-class>
+        <filter-name>destination-router</filter-name>
+        <filter-class>org.openrepose.components.routing.servlet.DestinationRouterFilter</filter-class>
     </filter>
 
     <filter>
-        <filter-name>service-auth</filter-name>
-        <filter-class>com.rackspace.papi.components.serviceauth.ServiceAuthenticationFilter</filter-class>
+        <filter-name>service-authentication</filter-name>
+        <filter-class>com.rackspace.papi.components.service.authentication.ServiceAuthFilter</filter-class>
     </filter>
 
     <filter>
@@ -75,5 +100,4 @@
         <filter-name>ip-identity</filter-name>
         <filter-class>com.rackspace.papi.components.identity.ip.IpIdentityFilter</filter-class>
     </filter>
-
 </web-fragment>

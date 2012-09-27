@@ -3,42 +3,54 @@ package com.rackspace.papi.commons.util.logging.apache.constraint;
 import javax.servlet.http.HttpServletResponse;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.regex.Pattern;
 
-/**
- *
- * 
- */
 public class StatusCodeConstraint {
-    private final Set<Integer> statusCodes;
-    private final boolean isInclusivePass;
 
-    public StatusCodeConstraint(boolean isExclusivePass) {
-        this.isInclusivePass = isExclusivePass;
+   private static final Pattern STATUS_CODE_RX = Pattern.compile(",");
+   private final Set<Integer> statusCodes;
+   private final boolean isInclusivePass;
 
-        statusCodes = new HashSet<Integer>();
-    }
+   public StatusCodeConstraint(boolean isExclusivePass) {
+      this.isInclusivePass = isExclusivePass;
 
-    public void addStatusCode(Integer statusCode) {
-        statusCodes.add(statusCode);
-    }
+      statusCodes = new HashSet<Integer>();
+   }
 
-    public boolean pass(HttpServletResponse response) {
+   public StatusCodeConstraint(String codes) {
+      this.isInclusivePass = !codes.startsWith("!");
 
-        int responseStatusCode = response.getStatus();
+      statusCodes = new HashSet<Integer>();
+      for (String st : STATUS_CODE_RX.split(removeNegation(codes))) {
+         statusCodes.add(Integer.parseInt(st));
+      }
+   }
 
-        return pass(isInclusivePass, responseStatusCode);
-    }
+   private String removeNegation(String codes) {
+      return codes.startsWith("!") ? codes.substring(1) : codes;
+   }
 
-    private boolean pass(boolean passedByDefault, int responseStatusCode) {
-        boolean passed = !passedByDefault;
+   public void addStatusCode(Integer statusCode) {
+      statusCodes.add(statusCode);
+   }
 
-        for (int targetStatusCode : statusCodes) {
-            if (responseStatusCode == targetStatusCode) {
-                passed = !passed;
-                break;
-            }
-        }
+   public boolean pass(HttpServletResponse response) {
 
-        return passed;
-    }
+      int responseStatusCode = response.getStatus();
+
+      return pass(isInclusivePass, responseStatusCode);
+   }
+
+   private boolean pass(boolean passedByDefault, int responseStatusCode) {
+      boolean passed = !passedByDefault;
+
+      for (int targetStatusCode : statusCodes) {
+         if (responseStatusCode == targetStatusCode) {
+            passed = !passed;
+            break;
+         }
+      }
+
+      return passed;
+   }
 }

@@ -1,9 +1,10 @@
 package org.apache.jmeter;
 
-import static org.junit.Assert.*;
-
 import org.apache.maven.plugin.MojoFailureException;
 import org.junit.Test;
+
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class ErrorScannerTest {
 

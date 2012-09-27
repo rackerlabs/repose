@@ -1,14 +1,14 @@
 package com.rackspace.papi.components.versioning.domain;
 
 import com.rackspace.papi.components.versioning.config.ServiceVersionMapping;
-import com.rackspace.papi.model.Host;
+import com.rackspace.papi.model.Destination;
 
 public class VersionedOriginService {
 
     private final ServiceVersionMapping mapping;
-    private final Host originServiceHost;
+    private final Destination originServiceHost;
 
-    public VersionedOriginService(ServiceVersionMapping mapping, Host originServiceHost) {
+    public VersionedOriginService(ServiceVersionMapping mapping, Destination originServiceHost) {
         this.mapping = mapping;
         this.originServiceHost = originServiceHost;
     }
@@ -17,7 +17,7 @@ public class VersionedOriginService {
         return mapping;
     }
 
-    public Host getOriginServiceHost() {
+    public Destination getOriginServiceHost() {
         return originServiceHost;
     }
 }

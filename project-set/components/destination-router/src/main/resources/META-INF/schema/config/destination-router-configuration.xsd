@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://openrepose.org/repose/destination-router/v1.0"
+           xmlns:scr="http://openrepose.org/repose/destination-router/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Configuration Schema Definitions -->
+    <xs:element name="destination-router" type="scr:DestinationRouterConfiguration" />
+
+    <xs:complexType name="DestinationRouterConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+               Defines a collection of servlet context routing destinations and 
+               their associated quality factors.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+         <!-- TODO:Review - Does 'minOccurs="0"' make sense? -->
+         <!-- Setting this as simple as possible -->
+            <xs:element name="target" type="scr:Target" minOccurs="1" maxOccurs="1" />
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="Target">
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines a destination id within the service domain.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        
+        <xs:attribute name="quality" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Quality of this destination</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+</xs:schema>

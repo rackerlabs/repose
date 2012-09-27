@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.rackspace.repose.installation</groupId>
+        <artifactId>installation</artifactId>
+        <version>2.1.7-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.rackspace.repose.installation.deb</groupId>
+    <artifactId>deb</artifactId>
+    <version>2.1.7-SNAPSHOT</version>
+
+    <name>Repose - Installation DEB</name>
+
+    <description>
+        POM file to provide management of the DEB installation packages
+    </description>
+
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>cli-utils</module>
+        <module>repose-filter-bundle</module>
+        <module>repose-valve</module>
+    </modules>
+
+    <profiles>
+        <profile>
+            <id>DEB Build Support</id>
+
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <build>
+                <!-- Having these here configures the plugin execution goals and configurations used by all children poms -->
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.vafer</groupId>
+                            <artifactId>jdeb</artifactId>
+                            <version>0.9</version>
+
+                            <executions>
+                                <execution>
+                                    <phase>package</phase>
+                                    <goals>
+                                        <goal>jdeb</goal>
+                                    </goals>
+                                </execution>
+                            </executions>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
+            </build>
+        </profile>
+
+    </profiles>
+
+</project>

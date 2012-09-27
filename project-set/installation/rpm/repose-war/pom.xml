@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.rackspace.repose.installation.rpm</groupId>
+        <artifactId>rpm</artifactId>
+        <version>2.1.7-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.rackspace.repose.installation.rpm.war</groupId>
+    <artifactId>repose-war</artifactId>
+
+    <name>Repose - Installation ROOT.WAR RPM</name>
+
+    <description>
+        Module for the ROOT.WAR RPM.
+    </description>
+
+    <packaging>pom</packaging>
+
+    <profiles>
+        <profile>
+            <id>build-system-packages</id>
+
+            <activation>
+                <property>
+                    <name>Build ROOT Web Application RPM</name>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>rpm-maven-plugin</artifactId>
+
+                        <configuration>
+                            <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer
+                                 to this RPM.-->
+                            <name>repose-war</name>
+
+                            <mappings>
+                                <mapping>
+                                    <directory>/var/lib/tomcat7/webapps</directory>
+                                    <username>tomcat</username>
+                                    <groupname>tomcat</groupname>
+                                    <filemode>755</filemode>
+
+                                    <sources>
+                                        <source>
+                                            <location>
+                                                ${basedir}/../../../core/web-application/target/ROOT.war
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/etc/repose/</directory>
+                                    <username>tomcat</username>
+                                    <groupname>tomcat</groupname>
+                                    <filemode>755</filemode>
+                                    <configuration>noreplace</configuration>
+
+                                    <sources>
+                                        <source>
+                                            <!-- Grabs all the config files in configs/core -->
+                                            <location>${basedir}/../../configs/core</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/var/log/repose/</directory>
+                                    <username>tomcat</username>
+                                    <groupname>tomcat</groupname>
+                                    <filemode>765</filemode>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/var/repose/</directory>
+                                    <username>tomcat</username>
+                                    <groupname>tomcat</groupname>
+                                    <filemode>765</filemode>
+                                </mapping>
+
+                                <mapping>
+                                    <directory>/usr/share/repose/filters/</directory>
+                                    <username>tomcat</username>
+                                    <groupname>tomcat</groupname>
+                                    <filemode>755</filemode>
+                                </mapping>
+                            </mappings>
+
+                            <requires>
+                                <require>java-1.6.0-openjdk</require>
+                                <require>tomcat7</require>
+                            </requires>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

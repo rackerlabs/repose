@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<powerapi-container xmlns='http://docs.rackspacecloud.com/power-api/container/v1.0'>
-    <deployment-config port="8020">
-        <deployment-directory auto-clean="false">/var/powerapi</deployment-directory>
+<repose-container xmlns='http://docs.rackspacecloud.com/repose/container/v2.0'>
+    <deployment-config http-port="8774" https-port="8775" connection-timeout="30000" read-timeout="30000">
+        <deployment-directory auto-clean="false">/var/repose</deployment-directory>
         
-        <artifact-directory check-interval="60000">/usr/share/powerapi/filters</artifact-directory>
+        <artifact-directory check-interval="60000">/usr/share/repose/filters</artifact-directory>
         
         <logging-configuration href="log4j.properties"/>
+
+        <ssl-configuration>
+            <keystore-filename>keystore.repose</keystore-filename>
+            <keystore-password>manage</keystore-password>
+            <key-password>password</key-password>
+        </ssl-configuration>
     </deployment-config>
-</powerapi-container>
+</repose-container>

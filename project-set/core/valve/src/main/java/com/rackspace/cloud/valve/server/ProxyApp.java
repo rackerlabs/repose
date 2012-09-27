@@ -1,26 +1,24 @@
 package com.rackspace.cloud.valve.server;
 
-import org.apache.log4j.BasicConfigurator;
+import com.rackspace.cloud.valve.logging.DefaultLogConfigurator;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
  * @author zinic
  */
 public class ProxyApp {
 
    private static final Logger LOG = LoggerFactory.getLogger(ProxyApp.class);
-   private static final String DEFAULT_CFG_DIR = "/etc/powerapi";
+   private static final String DEFAULT_CFG_DIR = "/etc/repose";
+   private static final int UPPER_PORT = 49150;
+   private static final int LOWER_PORT = 1024;
 
    public static void main(String[] args) throws Exception {
-      // Use default logging confg which sets to DEBUG
-      BasicConfigurator.configure();
 
-      // Turn off Jetty logging
-      org.apache.log4j.Logger.getLogger("org.eclipse.jetty").setLevel(org.apache.log4j.Level.OFF);
+      DefaultLogConfigurator.configure();
 
       final CommandLineArguments commandLineArgs = new CommandLineArguments();
       final CmdLineParser cmdLineParser = new CmdLineParser(commandLineArgs);
@@ -32,8 +30,7 @@ public class ProxyApp {
          return;
       }
 
-      if (!portIsInRange(commandLineArgs.getStopPort())) {
-         LOG.info("Invalid Power API Valve port setting, use a value between 1024 and 49150");
+      if (!validPorts(commandLineArgs)) {
          return;
       }
 
@@ -49,6 +46,30 @@ public class ProxyApp {
       }
    }
 
+
+   private static boolean validPorts(CommandLineArguments commandLineArgs) {
+      boolean valid = true;
+
+      Integer httpPort = commandLineArgs.getHttpPort();
+      if ((httpPort != null) && (!(portIsInRange(httpPort)))) {
+         LOG.info("Invalid Repose http port, use a value between 1024 and 49150");
+         valid = false;
+      }
+
+      Integer httpsPort = commandLineArgs.getHttpsPort();
+      if (httpsPort != null && !portIsInRange(httpsPort)) {
+         LOG.info("Invalid Repose https port, use a value between 1024 and 49150");
+         valid = false;
+      }
+
+      if ((!(portIsInRange(commandLineArgs.getStopPort())))) {
+         LOG.info("Invalid Repose stop port, use a value between 1024 and 49150");
+         valid = false;
+      }
+
+      return valid;
+   }
+
    private static void validateConfigDirectory(CommandLineArguments commandLineArgs) {
       if (commandLineArgs.getConfigDirectory() == null || commandLineArgs.getConfigDirectory().length() <= 0) {
          commandLineArgs.setConfigDirectory(DEFAULT_CFG_DIR);
@@ -57,14 +78,11 @@ public class ProxyApp {
 
    private static void displayUsage(CmdLineParser cmdLineParser, Exception e) {
       System.err.println(e.getMessage());
-      System.err.println("java -jar PowerApiServer.jar [options...] arguments...");
+      System.err.println("java -jar repose-valve.jar [options...] arguments...");
       cmdLineParser.printUsage(System.err);
    }
 
    private static boolean portIsInRange(int portNum) {
-      if ((portNum < 49150) && (portNum > 1024)) {
-         return true;
-      }
-      return false;
+      return ((portNum < UPPER_PORT) && (portNum > LOWER_PORT));
    }
 }

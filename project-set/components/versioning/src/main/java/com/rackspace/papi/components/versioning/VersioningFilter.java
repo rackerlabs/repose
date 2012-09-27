@@ -1,26 +1,16 @@
 package com.rackspace.papi.components.versioning;
 
-import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.components.versioning.config.ServiceVersionMappingList;
-import com.rackspace.papi.model.PowerProxy;
+import com.rackspace.papi.domain.ServicePorts;
+import com.rackspace.papi.filter.FilterConfigHelper;
+import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
+import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
-import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.servlet.InitParameter;
-import org.slf4j.Logger;
+import com.rackspace.papi.service.context.ServletContextHelper;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import javax.servlet.*;
 import java.io.IOException;
+import org.slf4j.Logger;
 
 /**
  *
@@ -28,48 +18,33 @@ import java.io.IOException;
  */
 public class VersioningFilter implements Filter {
 
-   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(VersioningFilter.class);
-   private VersioningHandlerFactory handlerFactory;
-   private ConfigurationService configurationManager;
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(VersioningFilter.class);
+    private static final String DEFAULT_CONFIG = "versioning.cfg.xml";
+    private String config;
+    private VersioningHandlerFactory handlerFactory;
+    private ConfigurationService configurationManager;
 
-   @Override
-   public void destroy() {
-      configurationManager.unsubscribeFrom("power-proxy.cfg.xml", handlerFactory);
-      configurationManager.unsubscribeFrom("versioning.cfg.xml", handlerFactory);
-   }
+    @Override
+    public void destroy() {
+        configurationManager.unsubscribeFrom("system-model.cfg.xml", handlerFactory);
+        configurationManager.unsubscribeFrom(config, handlerFactory);
+    }
 
-   @Override
-   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-      HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
+    @Override
+    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        new FilterLogicHandlerDelegate(request, response, chain).doFilter(handlerFactory.newHandler());
+    }
 
-      final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
-      final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        final ServletContext servletContext = filterConfig.getServletContext();
+        final ServicePorts ports = ServletContextHelper.getInstance().getServerPorts(servletContext);
 
-      final FilterDirector director = handlerFactory.newHandler().handleRequest(mutableHttpRequest, mutableHttpResponse);
-
-      director.applyTo(mutableHttpRequest);
-
-      switch (director.getFilterAction()) {
-         case RETURN:
-            director.applyTo(mutableHttpResponse);
-            break;
-
-         case PASS:
-            chain.doFilter(mutableHttpRequest, response);
-            break;
-      }
-   }
-
-   @Override
-   public void init(FilterConfig filterConfig) throws ServletException {
-      final ServletContext servletContext = filterConfig.getServletContext();
-      final int port = ServletContextHelper.getServerPort(servletContext);
-      
-      handlerFactory = new VersioningHandlerFactory(port);
-      
-      configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
-
-      configurationManager.subscribeTo("power-proxy.cfg.xml", handlerFactory, PowerProxy.class);
-      configurationManager.subscribeTo("versioning.cfg.xml", handlerFactory, ServiceVersionMappingList.class);
-   }
+        config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
+        LOG.info("Initializing filter using config " + config);
+        handlerFactory = new VersioningHandlerFactory(ports);
+        configurationManager = ServletContextHelper.getInstance().getPowerApiContext(servletContext).configurationService();
+        configurationManager.subscribeTo("system-model.cfg.xml", handlerFactory, SystemModel.class);
+        configurationManager.subscribeTo(config, handlerFactory, ServiceVersionMappingList.class);
+    }
 }

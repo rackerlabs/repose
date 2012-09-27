@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://docs.rackspacecloud.com/power-api/container/v1.0"
-           xmlns:papic="http://docs.rackspacecloud.com/power-api/container/v1.0"
+           targetNamespace="http://docs.rackspacecloud.com/repose/container/v2.0"
+           xmlns:papic="http://docs.rackspacecloud.com/repose/container/v2.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-    <xs:element name="powerapi-container" type="papic:ContainerConfiguration" />
+    <xs:element name="repose-container" type="papic:ContainerConfiguration"/>
 
     <xs:complexType name="ContainerConfiguration">
         <xs:annotation>
@@ -15,7 +15,7 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="deployment-config" type="papic:DeploymentConfiguration" />
+            <xs:element name="deployment-config" type="papic:DeploymentConfiguration"/>
         </xs:sequence>
     </xs:complexType>
 
@@ -26,18 +26,60 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="deployment-directory" type="papic:DeploymentDirectory" minOccurs="1" maxOccurs="1" />
-            <xs:element name="artifact-directory" type="papic:ArtifactDirectory" minOccurs="1" maxOccurs="1" />
-            <xs:element name="logging-configuration" type="papic:LoggingConfiguration" minOccurs="0" maxOccurs="1" />
+            <xs:element name="deployment-directory" type="papic:DeploymentDirectory" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="artifact-directory" type="papic:ArtifactDirectory" minOccurs="1" maxOccurs="1"/>
+            <xs:element name="logging-configuration" type="papic:LoggingConfiguration" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="ssl-configuration" type="papic:SslConfiguration" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
 
-        <xs:attribute name="port" type="xs:int" use="optional">
+        <xs:attribute name="http-port" type="xs:int" use="optional">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Port number of the http service of the host</html:p>
+                    <html:p>Http port number on which Repose listens for requests</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        <xs:attribute name="https-port" type="xs:int" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Https port number on which Repose listens for requests</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="connection-timeout" type="xs:int" use="optional" default="30000">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The number of milliseconds to wait for a connection to an origin service.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="read-timeout" type="xs:int" use="optional" default="30000">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The number of milliseconds to wait when reading from an origin service.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="proxy-thread-pool" type="xs:int" use="optional" default="20">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Connection thread pool for communicating with end services.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="client-request-logging" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Log client requests</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
     </xs:complexType>
 
     <xs:complexType name="ArtifactDirectory">
@@ -50,7 +92,7 @@
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
-            </xs:extension>    
+            </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
 
@@ -72,19 +114,54 @@
             </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
-    
+
     <xs:complexType name="LoggingConfiguration">
         <xs:simpleContent>
             <xs:extension base="xs:string">
                 <xs:attribute name="href" type="xs:string" use="required">
                     <xs:annotation>
                         <xs:documentation>
-                            <html:p>Location for system state log config</html:p>
+                            <html:p>Name of the system state log config</html:p>
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
-            </xs:extension>    
+            </xs:extension>
         </xs:simpleContent>
     </xs:complexType>
-    
+
+    <xs:complexType name="SslConfiguration">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>
+                    Contains the information needed to run Repose in an SSL enabled mode.
+                </html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="keystore-filename" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>Name of the application keystore file, e.g keystore.repose</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="keystore-password" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>The password for the entire application keystore.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+            <xs:element name="key-password" type="xs:string">
+                <xs:annotation>
+                    <xs:documentation>
+                        <html:p>The password for the particular application key in the keystore.</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:element>
+        </xs:sequence>
+
+    </xs:complexType>
+
 </xs:schema>

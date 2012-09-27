@@ -1,7 +1,6 @@
 package com.rackspace.papi.mocks;
 
 import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
 
 /**
  * This resource should be the parent class of every mock resource defined in

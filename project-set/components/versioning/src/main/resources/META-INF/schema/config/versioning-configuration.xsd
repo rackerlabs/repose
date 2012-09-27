@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
-           targetNamespace="http://docs.rackspacecloud.com/power-api/versioning/v1.0"
-           xmlns:vers-config="http://docs.rackspacecloud.com/power-api/versioning/v1.0"
+           targetNamespace="http://docs.rackspacecloud.com/repose/versioning/v2.0"
+           xmlns:vers-config="http://docs.rackspacecloud.com/repose/versioning/v2.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
@@ -16,7 +16,6 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="service-root" type="vers-config:ServiceRootContext" minOccurs="1" maxOccurs="1" />
             <xs:element name="version-mapping" type="vers-config:ServiceVersionMapping" minOccurs="1" maxOccurs="unbounded" />
         </xs:sequence>
     </xs:complexType>
@@ -59,15 +58,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="context-path" type="xs:string" use="optional">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p></html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="pp-host-id" type="xs:string">
+        <xs:attribute name="pp-dest-id" type="xs:string">
             <xs:annotation>
                 <xs:documentation>
                     <html:p></html:p>

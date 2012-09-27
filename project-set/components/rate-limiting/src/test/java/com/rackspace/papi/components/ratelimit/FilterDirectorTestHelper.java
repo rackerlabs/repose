@@ -1,9 +1,10 @@
 package com.rackspace.papi.components.ratelimit;
 
 import com.rackspace.papi.filter.logic.FilterDirector;
+
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertTrue;
 
 /**
  * TODO:Refactor - Move this class somewhere where other things can get at it (e.g. shared library)

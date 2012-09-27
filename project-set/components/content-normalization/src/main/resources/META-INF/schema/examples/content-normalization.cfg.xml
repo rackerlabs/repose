@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <content-normalization  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
-   xmlns='http://docs.api.rackspacecloud.com/powerapi/content-normalization/v1.0'
-   xsi:schemaLocation='http://docs.api.rackspacecloud.com/powerapi/content-normalization/v1.0 ../config/normalization-configuration.xsd'>
+   xmlns='http://docs.api.rackspacecloud.com/repose/content-normalization/v1.0'
+   xsi:schemaLocation='http://docs.api.rackspacecloud.com/repose/content-normalization/v1.0 ../config/normalization-configuration.xsd'>
 
     <header-filters>
         <blacklist id="rate-limit-headers">
@@ -12,8 +12,8 @@
     </header-filters>
     
     <media-types>
-        <media-type name="application/xml" variant-extension="xml" preferred="true" />
+        <media-type name="application/xml" variant-extension="xml" />
         <media-type name="application/atom+xml" variant-extension="atom" />
-        <media-type name="application/json" variant-extension="json" />
+        <media-type name="application/json" variant-extension="json" preferred="true" />
     </media-types>
 </content-normalization>

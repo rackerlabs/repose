@@ -6,6 +6,7 @@ import com.rackspace.papi.components.ratelimit.cache.RateLimitCache;
 import com.rackspace.papi.components.ratelimit.config.ConfiguredLimitGroup;
 import com.rackspace.papi.components.ratelimit.config.ConfiguredRatelimit;
 import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
+import com.rackspace.papi.components.ratelimit.util.RateLimitKeyGenerator;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.datastore.Datastore;
 import org.slf4j.Logger;
@@ -20,63 +21,70 @@ import java.util.regex.Pattern;
  */
 public final class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RateLimitingHandler> {
 
-   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingHandlerFactory.class);
-   
-   private final Map<String, Map<String, Pattern>> regexCache;
-   private final RateLimitCache rateLimitCache;
-   
-   //Volatile
-   private Pattern describeLimitsUriRegex;
-   private RateLimitingConfiguration rateLimitingConfig;
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RateLimitingHandlerFactory.class);
+    private final Map<String, Map<String, Pattern>> regexCache;
+    private final RateLimitCache rateLimitCache;
+    private final RateLimiterBuilder rateLimiterBuilder;
+    //Volatile
+    private Pattern describeLimitsUriRegex;
+    private RateLimitingConfiguration rateLimitingConfig;
 
-   @Override
-   protected Map<Class, UpdateListener<?>> getListeners() {
-      final Map<Class, UpdateListener<?>> listenerMap = new HashMap<Class, UpdateListener<?>>();
-      listenerMap.put(RateLimitingConfiguration.class, new RateLimitingConfigurationListener());
+    public RateLimitingHandlerFactory(Datastore datastore) {
+        this(datastore, DefaultRateLimiterBuilder.getInstance());
+    }
 
-      return listenerMap;
-   }
+    public RateLimitingHandlerFactory(Datastore datastore, RateLimiterBuilder rateLimiterBuilder) {
+        rateLimitCache = new ManagedRateLimitCache(datastore);
+        regexCache = new HashMap<String, Map<String, Pattern>>();
 
-   private class RateLimitingConfigurationListener implements UpdateListener<RateLimitingConfiguration> {
+        this.rateLimiterBuilder = rateLimiterBuilder;
+    }
 
-      @Override
-      public void configurationUpdated(RateLimitingConfiguration configurationObject) {
-         boolean defaultSet = false;
+    @Override
+    protected Map<Class, UpdateListener<?>> getListeners() {
+        final Map<Class, UpdateListener<?>> listenerMap = new HashMap<Class, UpdateListener<?>>();
+        listenerMap.put(RateLimitingConfiguration.class, new RateLimitingConfigurationListener());
 
-         regexCache.clear();
+        return listenerMap;
+    }
 
-         for (ConfiguredLimitGroup limitGroup : configurationObject.getLimitGroup()) {
-            final Map<String, Pattern> compiledRegexMap = new HashMap<String, Pattern>();
+    private class RateLimitingConfigurationListener implements UpdateListener<RateLimitingConfiguration> {
 
-            // Makes sure that only the first limit group set to default is the only default group
-            if (limitGroup.isDefault() && defaultSet == true) {
-               limitGroup.setDefault(false);
+        @Override
+        public void configurationUpdated(RateLimitingConfiguration configurationObject) {
+            boolean defaultSet = false;
 
-               LOG.warn("Rate-limiting Configuration has more than one default group set. Limit Group '"
-                       + limitGroup.getId() + "' will not be set as a default limit group. Please update your configuration file.");
-            } else if (limitGroup.isDefault()) {
-               defaultSet = true;
+            regexCache.clear();
+
+            for (ConfiguredLimitGroup limitGroup : configurationObject.getLimitGroup()) {
+                final Map<String, Pattern> compiledRegexMap = new HashMap<String, Pattern>();
+
+                // Makes sure that only the first limit group set to default is the only default group
+                if (limitGroup.isDefault()) {
+
+                    if (defaultSet) {
+                        limitGroup.setDefault(false);
+                        LOG.warn("Rate-limiting Configuration has more than one default group set. Limit Group '"
+                                + limitGroup.getId() + "' will not be set as a default limit group. Please update your configuration file.");
+                    } else {
+                        defaultSet = true;
+                    }
+
+                }
+                for (ConfiguredRatelimit configuredRatelimit : limitGroup.getLimit()) {
+                    compiledRegexMap.put(RateLimitKeyGenerator.createMapKey(configuredRatelimit), Pattern.compile(configuredRatelimit.getUriRegex()));
+                }
+
+                regexCache.put(limitGroup.getId(), compiledRegexMap);
             }
 
-            for (ConfiguredRatelimit configuredLimitGroup : limitGroup.getLimit()) {
-               compiledRegexMap.put(configuredLimitGroup.getUri(), Pattern.compile(configuredLimitGroup.getUriRegex()));
-            }
+            describeLimitsUriRegex = Pattern.compile(configurationObject.getRequestEndpoint().getUriRegex());
+            rateLimitingConfig = configurationObject;
+        }
+    }
 
-            regexCache.put(limitGroup.getId(), compiledRegexMap);
-         }
-
-         describeLimitsUriRegex = Pattern.compile(configurationObject.getRequestEndpoint().getUriRegex());
-         rateLimitingConfig = configurationObject;
-      }
-   }
-
-   public RateLimitingHandlerFactory(Datastore datastore) {
-      rateLimitCache = new ManagedRateLimitCache(datastore);
-      regexCache = new HashMap<String, Map<String, Pattern>>();
-   }
-
-   @Override
-   protected RateLimitingHandler buildHandler() {
-      return new RateLimitingHandler(regexCache, rateLimitCache, describeLimitsUriRegex, rateLimitingConfig);
-   }
+    @Override
+    protected RateLimitingHandler buildHandler() {
+        return new RateLimitingHandler(regexCache, rateLimitCache, describeLimitsUriRegex, rateLimitingConfig, rateLimiterBuilder);
+    }
 }

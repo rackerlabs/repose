@@ -2,16 +2,21 @@ package com.rackspace.papi.components.identity.uri;
 
 
 import com.rackspace.papi.components.identity.uri.config.UriIdentityConfig;
+import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
-import java.io.IOException;
+import com.rackspace.papi.service.context.ServletContextHelper;
+
 import javax.servlet.*;
+import java.io.IOException;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class UriIdentityFilter implements Filter {
 
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(UriIdentityFilter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(UriIdentityFilter.class);
+    private static final String DEFAULT_CONFIG = "uri-identity.cfg.xml";
+    private String config;
     private UriIdentityHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;
 
@@ -22,14 +27,16 @@ public class UriIdentityFilter implements Filter {
 
     @Override
     public void destroy() {
-        configurationManager.unsubscribeFrom("uri-identity.cfg.xml", handlerFactory);
+        configurationManager.unsubscribeFrom(config, handlerFactory);
     }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        configurationManager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
+        config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
+        LOG.info("Initializing filter using config " + config);
+        configurationManager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
         handlerFactory = new UriIdentityHandlerFactory();
 
-        configurationManager.subscribeTo("uri-identity.cfg.xml", handlerFactory, UriIdentityConfig.class);
+        configurationManager.subscribeTo(config, handlerFactory, UriIdentityConfig.class);
     }
 }

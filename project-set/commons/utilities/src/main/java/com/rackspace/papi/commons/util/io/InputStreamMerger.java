@@ -4,7 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-public class InputStreamMerger extends InputStream {
+public final class InputStreamMerger extends InputStream {
 
    public static InputStream merge(InputStream... streams) {
       return new InputStreamMerger(streams);
@@ -76,7 +76,8 @@ public class InputStreamMerger extends InputStream {
          remaining -= skipped;
          totalSkipped += skipped;
 
-         if (skipped < count) {
+         if (skipped < count && getCurrentStream().available() <= 0) {
+            // Skip to next stream to continue skipping
             index++;
          }
       }

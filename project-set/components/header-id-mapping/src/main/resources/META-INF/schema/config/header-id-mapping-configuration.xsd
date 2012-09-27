@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.api.rackspacecloud.com/repose/header-id-mapping/v1.0"
+           xmlns:header-identity="http://docs.api.rackspacecloud.com/repose/header-id-mapping/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:atom="http://www.w3.org/2005/Atom"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <!-- Client IP Identity Configuration -->
+    <xs:element name="header-id-mapping" type="header-identity:HeaderIdMappingConfig" />
+
+    <xs:complexType name="HeaderIdMappingConfig">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:all>
+            <xs:element name="source-headers" type="header-identity:HttpHeaderList" minOccurs="1" maxOccurs="1" />
+        </xs:all>
+    </xs:complexType>
+
+    <xs:complexType name="HttpHeaderList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:sequence>
+            <xs:element name="header" type="header-identity:HttpHeader" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        
+    </xs:complexType>
+    
+    
+    <xs:complexType name="HttpHeader">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p></html:p>
+            </xs:documentation>
+        </xs:annotation>
+        
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>            
+        </xs:attribute>
+        
+        <xs:attribute name="user-header" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>            
+        </xs:attribute>
+        
+        <xs:attribute name="group-header" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>            
+        </xs:attribute>
+        
+        <xs:attribute name="quality" type="xs:string">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p></html:p>
+                </xs:documentation>
+            </xs:annotation>            
+        </xs:attribute>
+    </xs:complexType>
+</xs:schema>

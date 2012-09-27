@@ -4,28 +4,29 @@ import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.io.stream.ServletInputStreamWrapper;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.datastore.common.CacheRequest;
-import com.rackspace.papi.components.datastore.common.DatastoreRequestHeaders;
+import com.rackspace.papi.components.datastore.common.DatastoreHeader;
+import com.rackspace.papi.components.datastore.common.RemoteBehavior;
+import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
-import com.rackspace.papi.service.datastore.hash.HashedDatastore;
+import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.impl.StoredElementImpl;
-import java.io.ByteArrayInputStream;
-import java.net.InetAddress;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import java.io.ByteArrayInputStream;
+import java.net.InetAddress;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
 
 /**
  *
@@ -37,40 +38,40 @@ public class DatastoreFilterLogicHandlerTest {
    @Ignore
    public static class TestParent {
 
+      protected static final String RESOURCE = "3ae04e3f-164e-ab96-04d2-51aa51104daa";
       protected ReadableHttpServletResponse mockResponse;
       protected DatastoreFilterLogicHandler logicHandler;
       protected DatastoreAccessControl dac;
-      protected HashedDatastore hashedDatastore;
+      protected HashRingDatastore hashedDatastore;
 
       @Before
       public void beforeAny() throws Exception {
-         hashedDatastore = mock(HashedDatastore.class);
-         when(hashedDatastore.getByHash(anyString())).thenReturn(new StoredElementImpl("", null));
+         hashedDatastore = mock(HashRingDatastore.class);
+         when(hashedDatastore.get(anyString(), any(byte[].class), any(RemoteBehavior.class))).thenReturn(new StoredElementImpl("", null));
 
          mockResponse = mock(ReadableHttpServletResponse.class);
 
-         final MutableClusterView mutableClusterView = mock(MutableClusterView.class);
          final List<InetAddress> allowedAddresses = new LinkedList<InetAddress>();
          allowedAddresses.add(InetAddress.getByName("10.1.1.1"));
 
          dac = new DatastoreAccessControl(allowedAddresses, false);
-         logicHandler = new DatastoreFilterLogicHandler(mutableClusterView, "localhost", hashedDatastore, dac);
+         logicHandler = new DatastoreFilterLogicHandler(UUIDEncodingProvider.getInstance(), hashedDatastore, dac);
       }
 
       public HttpServletRequest mockRequestWithMethod(String method, String remoteHost) {
          final HttpServletRequest mockedRequest = mock(HttpServletRequest.class);
-         when(mockedRequest.getRequestURI()).thenReturn(CacheRequest.CACHE_URI_PATH + "resource");
+         when(mockedRequest.getRequestURI()).thenReturn(CacheRequest.CACHE_URI_PATH + RESOURCE);
          when(mockedRequest.getMethod()).thenReturn(method);
          when(mockedRequest.getLocalAddr()).thenReturn("localhost");
          when(mockedRequest.getLocalPort()).thenReturn(2101);
          when(mockedRequest.getRemoteHost()).thenReturn(remoteHost);
-         when(mockedRequest.getHeader(DatastoreRequestHeaders.DATASTORE_HOST_KEY)).thenReturn("temp");
+         when(mockedRequest.getHeader(DatastoreHeader.HOST_KEY.toString())).thenReturn("temp");
 
          return mockedRequest;
       }
    }
 
-   public static class WhenHandlingCacheRequests extends TestParent {
+   public static class WhenHandlingRequests extends TestParent {
 
       @Test
       public void shouldGetCacheObjects() {
@@ -78,7 +79,7 @@ public class DatastoreFilterLogicHandlerTest {
 
          logicHandler.handleRequest(mockGetRequest, mockResponse);
 
-         verify(hashedDatastore, times(1)).getByHash(eq("resource"));
+         verify(hashedDatastore, times(1)).get(eq(RESOURCE), any(byte[].class), eq(RemoteBehavior.ALLOW_FORWARDING));
       }
 
       @Test
@@ -91,7 +92,7 @@ public class DatastoreFilterLogicHandlerTest {
 
          logicHandler.handleRequest(mockPutRequest, mockResponse);
 
-         verify(hashedDatastore, times(1)).putByHash(eq("resource"), any(byte[].class), eq(60), eq(TimeUnit.SECONDS));
+         verify(hashedDatastore, times(1)).put(eq(RESOURCE), any(byte[].class), any(byte[].class), eq(60), eq(TimeUnit.SECONDS), eq(RemoteBehavior.ALLOW_FORWARDING));
       }
 
       @Test
@@ -100,7 +101,52 @@ public class DatastoreFilterLogicHandlerTest {
 
          logicHandler.handleRequest(mockGetRequest, mockResponse);
 
-         verify(hashedDatastore, times(1)).removeByHash(eq("resource"));
+         verify(hashedDatastore, times(1)).remove(eq(RESOURCE), any(byte[].class), eq(RemoteBehavior.ALLOW_FORWARDING));
+      }
+
+      @Test
+      public void shouldIgnoreNonCacheRequests() {
+         final HttpServletRequest mockGetRequest = mockRequestWithMethod("GET", "10.1.1.1");
+         when(mockGetRequest.getRequestURI()).thenReturn("/the/magic/path");
+         
+         final FilterDirector director = logicHandler.handleRequest(mockGetRequest, mockResponse);
+
+         assertEquals("Datastore must pass non-cache requests", FilterAction.PASS, director.getFilterAction());
+      }
+
+      @Test
+      public void shouldRejectUnknownMethods() {
+         final HttpServletRequest mockGetRequest = mockRequestWithMethod("TRACE", "10.1.1.1");
+
+         final FilterDirector director = logicHandler.handleRequest(mockGetRequest, mockResponse);
+
+         assertEquals("Datastore must fail cache requests is can not handle", FilterAction.RETURN, director.getFilterAction());
+         assertEquals("Datastore must fail cache requests is can not handle", HttpStatusCode.NOT_IMPLEMENTED, director.getResponseStatus());
+      }
+
+      @Test
+      public void shouldRejectBadCacheRequests() {
+         final HttpServletRequest mockGetRequest = mockRequestWithMethod("GET", "10.1.1.1");
+         when(mockGetRequest.getRequestURI()).thenReturn(CacheRequest.CACHE_URI_PATH + "fail");
+
+         final FilterDirector director = logicHandler.handleRequest(mockGetRequest, mockResponse);
+
+         assertEquals("Datastore must fail cache requests is can not handle", FilterAction.RETURN, director.getFilterAction());
+         assertEquals("Datastore must fail cache requests is can not handle", HttpStatusCode.BAD_REQUEST, director.getResponseStatus());
+      }
+   }
+
+   @Ignore
+   public static class WhenHandlingBadCacheRequests extends TestParent {
+
+      @Test
+      public void shouldReturnCorrectHTTPStatusCode() {
+         final HttpServletRequest mockGetRequest = mockRequestWithMethod("GET", "10.1.1.1");
+         when(mockGetRequest.getHeader(eq(DatastoreHeader.HOST_KEY.toString()))).thenReturn(null);
+
+         final FilterDirector director = logicHandler.handleRequest(mockGetRequest, mockResponse);
+
+         assertEquals("Datastore must pass requests is can not handle", FilterAction.PASS, director.getFilterAction());
       }
    }
 
@@ -122,6 +168,19 @@ public class DatastoreFilterLogicHandlerTest {
 
          assertEquals("Authorized requests must be returned", FilterAction.RETURN, actual.getFilterAction());
          assertEquals("Request should return not-found for allowed requests that have nothing stored at the requested resource", HttpStatusCode.NOT_FOUND, actual.getResponseStatus());
+      }
+   }
+
+   public static class WhenDictatingRemoteBehavior extends TestParent {
+
+      @Test
+      public void shouldSetRemoteBehaviorForRequestedOperation() {
+         final HttpServletRequest mockGetRequest = mockRequestWithMethod("GET", "10.1.1.1");
+         when(mockGetRequest.getHeader(DatastoreHeader.REMOTE_BEHAVIOR.toString())).thenReturn("diSallOw_forwaRding");
+
+         logicHandler.handleRequest(mockGetRequest, mockResponse);
+
+         verify(hashedDatastore, times(1)).get(eq(RESOURCE), any(byte[].class), eq(RemoteBehavior.DISALLOW_FORWARDING));
       }
    }
 }

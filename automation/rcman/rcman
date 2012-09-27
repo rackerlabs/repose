@@ -1,103 +1,59 @@
 #!/usr/bin/ruby
 
-require File.dirname(__FILE__) + '/includes/functions'
-require File.dirname(__FILE__) + '/includes/utilities'
-require File.dirname(__FILE__) + '/includes/configBuilder'
-require File.dirname(__FILE__) + '/includes/cluster'
-require File.dirname(__FILE__) + '/includes/valveConfigBuilder'
-require File.dirname(__FILE__) + '/includes/valveCluster'
+require File.join(File.dirname(__FILE__), '/includes/reposebuilder')
+include ReposeBuilder 
+require 'highline/import'
 
-include Functions
-include Cluster
-include ValveCluster
-include Utilities
-include ConfigBuilder
-include ValveConfigBuilder
-
-require 'rubygems'
-require 'builder' 
-
-
-defaultFilterChain = ["dist-datastore","versioning","client-auth","rate-limiting"]
 arg = ARGV.shift
 case arg
-when "--configure"
-    p "configure"
-    checkChefInstall
-when "--create-cluster"
-    jenkins = false
-    clusterSize=4 #leaving this as 1 for now
-    rootwar = false
-    p "build"
-    if !File.exists?("#{File.dirname(__FILE__)}/configs/rcman.conf")
-        puts "RCMAN has not yet been configured"
-        configure = ask "Would you like to run the configuration setup? y/n"
-        if configure=='y'
-            checkChefInstall
-        else
-            "Unable to build cluster until configuration has been completed"
+    when "--configure"
+        p "configure"
+        user = ask "Please input your Cloud Servers Username"
+        apikey = ask "Please input your Cloud Servers ApiKey"
+        writeCredentials(user,apikey)
+        
+    when "--create-cluster"
+        p "build"
+        #check for config file
+        if !File.exists?("#{File.expand_path("~/.rcman/rscredentials")}")
+            puts "RCMAN does not currently have a Cloud Servers Account to use. Please run './rcman --configure' before creating a cluster"
             exit
         end
-    end
-    if File.exists?("#{File.dirname(__FILE__)}/configs/rsInstances") || File.exists?("./configs/nodeNames")
-        puts "User cannot build more than one cluster at a time."
-        answer = ask "Delete current cluster? y/n"
-        if answer == 'y'
-            puts "Destroying current cluster"
-            destroyCluster
-        else
-            puts "Please delete current cluster if you wish to build a new one"
-            exit
-        end
-    end
-=begin
-    remote = ARGV.delete("-r")
-    if remote != nil
-        jenkins = true
-    end
-    single = ARGV.delete("-s")
-    if single != nil
-        clusterSize=1
-    end
-=end
-    if ARGV[ARGV.size-1].start_with?("-")
-        options = ARGV.pop
-        if options.include? 'r'
-            jenkins = true
+
+        #Build only one cluster at a time
+        if File.exists?("/tmp/rsInstances")
+            puts "User cannot build more than one cluster at a time."
+            answer = ask "Delete current cluster? y/n"
+            if answer == 'y'
+                puts "Destroying current cluster"
+                deleteReposeBox
+            else
+                puts "Please delete current cluster if you wish to build a new one"
+                exit
+            end
         end
 
-        if options.include? 's'
-            clusterSize=1
-        end
-        if options.include? 'w'
-            rootwar=true
-        end
-    end
 
-    rcFilterChain = genRCFilterChain(ARGV)
-    if rootwar==true
-        cluster = buildCluster(rcFilterChain,clusterSize,jenkins)
+        puts "building server 1"
+        server1 = buildReposeBox1 
+        puts "building server 2..."
+        server2 = buildReposeBox2 
+        waitForRepose(server1.ip,["8887", "8888", "8889", "8890", "8891", "8892", "8080"])
+        waitForRepose(server2.ip,["8080"])
+
+        logger.info("Repose instance 1 built: #{server1.ip} : #{server1.password}")
+        logger.info("Repose instance 2 built: #{server2.ip} : #{server2.password}")
+
+    when "--delete-cluster"
+        puts "Destroying current cluster"
+        deleteReposeBox
+
+    when "-h"
+        puts "Valid Arguments for Repose Cluster Manager"
+        puts "\t--create-cluster [name of cluster] \t\tBuilds the repose regression environment" 
+        puts "\t--delete-cluster\t\t\t\tDeletes the active cluster"
+        puts "\t--configure\t\t\t\t\tStarts the configuration for the Repose Cluster Manager"
     else
-        if ARGV.empty?
-            rcFilterChain = defaultFilterChain
-        end
-        cluster = buildValveCluster(rcFilterChain,clusterSize,jenkins)
-    end
-    puts "Cluster built with the nodes:"
-    cluster.each do |node|
-        puts "\t#{node[2]} : #{node[7]}"
-    end
-when "--delete-cluster"
-    destroyCluster
-when "-h"
-    puts "Valid Arguments for Repose Cluster Manager"
-    puts "\t--create-cluster [list_of_filters] [options]\t\tBuilds a 4 Node Repose cluster with the given filters"
-    puts "\t\t -r : use to drop cluster information to /tmp"
-    puts "\t\t -s : use to create only a single node deployment"
-    puts "\t\t -w : use to deploy cluster using tomcat7 and rootwar"
-    puts "\t--delete-cluster\t\t\t\tDeletes the active cluster"
-    puts "\t--configure\t\t\t\t\tStarts the configuration for the Repose Cluster Manager"
-else
-    p "Please provide valid arguments '-h' for list of arguments"
+        p "Please provide valid arguments '-h' for list of arguments"
 end
 

@@ -1,13 +1,13 @@
 package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.jmx.agents.SystemJmxAgent;
 import com.rackspace.papi.model.Filter;
-import com.rackspace.papi.model.Host;
-import com.rackspace.papi.model.PowerProxy;
+import com.rackspace.papi.model.Node;
+import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
 
 import javax.servlet.FilterConfig;
 import java.util.LinkedList;
@@ -21,36 +21,39 @@ public class FilterContextInitializer {
    private static final Logger LOG = LoggerFactory.getLogger(FilterContextInitializer.class);
    private final FilterContextManager filterContextManager;
 
-   public FilterContextInitializer(FilterConfig filterConfig) {
-      filterContextManager = new FilterContextManagerImpl(filterConfig);
+   public FilterContextInitializer(FilterConfig filterConfig, ApplicationContext applicationContext) {
+      filterContextManager = new FilterContextManagerImpl(filterConfig, applicationContext);
    }
 
-   public List<FilterContext> buildFilterContexts(ClassLoaderManagerService classLoaderContextManager, PowerProxy powerProxy, int port) {
+   public List<FilterContext> buildFilterContexts(ClassLoaderManagerService classLoaderContextManager, ReposeCluster domain, Node localHost) {
       final List<FilterContext> filterContexts = new LinkedList<FilterContext>();
-      final Host localHost = new SystemModelInterrogator(powerProxy, port).getLocalHost();
 
-      if (localHost != null) {
-         // TODO: This may need to move once we determine what parts of repose should be instrumented via JMX.
-         new SystemJmxAgent(localHost).registerMBean();
+      if (localHost == null || domain == null) {
+         LOG.error("Unable to identify the local host in the system model - please check your system-model.cfg.xml");
+         throw new IllegalArgumentException("Domain and host cannot be null");
+      }
 
-         for (com.rackspace.papi.model.Filter papiFilter : localHost.getFilters().getFilter()) {
-            if (StringUtilities.isBlank(papiFilter.getName())) {
-               LOG.error("Filter declaration has a null or empty name value - please check your system model configuration");
-               continue;
-            }
+      // TODO: This may need to move once we determine what parts of repose should be instrumented via JMX.
+      // new SystemJmxAgent(localHost).registerMBean();
 
-            if (classLoaderContextManager.hasFilter(papiFilter.getName())) {
-               final FilterContext context = getFilterContext(classLoaderContextManager, papiFilter);
-
-               if (context != null) {
-                  filterContexts.add(context);
-               }
-            } else {
-               LOG.error("Unable to satisfy requested filter chain - none of the loaded artifacts supply a filter named " + papiFilter.getName());
-            }
+      for (com.rackspace.papi.model.Filter papiFilter : domain.getFilters().getFilter()) {
+         if (StringUtilities.isBlank(papiFilter.getName())) {
+            LOG.error("Filter declaration has a null or empty name value - please check your system model configuration");
+            continue;
          }
-      } else {
-         LOG.error("Unable to identify the local host in the system model - please check your power-proxy.cfg.xml");
+
+         if (classLoaderContextManager.hasFilter(papiFilter.getName())) {
+            final FilterContext context = getFilterContext(classLoaderContextManager, papiFilter);
+
+            if (context != null) {
+               filterContexts.add(context);
+            } else {
+               filterContexts.add(new FilterContext(null, null, papiFilter));
+            }
+         } else {
+            LOG.error("Unable to satisfy requested filter chain - none of the loaded artifacts supply a filter named " + papiFilter.getName());
+            filterContexts.add(new FilterContext(null, null, papiFilter));
+         }
       }
 
       return filterContexts;
@@ -60,10 +63,11 @@ public class FilterContextInitializer {
       FilterContext context = null;
 
       try {
-         context = filterContextManager.loadFilterContext(papiFilter.getName(),
+         context = filterContextManager.loadFilterContext(
+                 papiFilter,
                  classLoaderContextManager.getLoadedApplications());
       } catch (Exception e) {
-         LOG.info("Problem loading the filter class. Just process the next filter.", e);
+         LOG.info("Problem loading the filter class. Just process the next filter. Reason: " + e.getMessage(), e);
       }
 
       return context;

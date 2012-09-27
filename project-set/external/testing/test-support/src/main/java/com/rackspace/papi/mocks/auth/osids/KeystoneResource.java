@@ -1,19 +1,21 @@
 package com.rackspace.papi.mocks.auth.osids;
 
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.mocks.BaseResource;
 import com.rackspace.papi.mocks.auth.osids.providers.KeystonePropertiesProvider;
 import com.rackspace.papi.mocks.auth.osids.providers.KeystoneProvider;
 import com.rackspace.papi.mocks.auth.osids.wrappers.JaxbElementWrapper;
 import com.rackspace.papi.mocks.auth.osids.wrappers.ResponseWrapper;
 import com.sun.jersey.spi.resource.Singleton;
-import java.io.IOException;
+import org.openstack.docs.identity.api.v2.*;
+
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 import javax.xml.datatype.DatatypeConfigurationException;
-import org.openstack.docs.identity.api.v2.*;
+import java.io.IOException;
 
 @Path("/keystone")
 @Singleton
@@ -57,7 +59,7 @@ public class KeystoneResource extends BaseResource {
     @GET
     @Path("/tokens/{token}")
     @Produces(MediaType.APPLICATION_XML)
-    public Response validateToken(@PathParam("token") String userToken, @HeaderParam("X-Auth-Token") String authToken, @Context UriInfo context) {
+    public Response validateToken(@PathParam("token") String userToken, @HeaderParam("X-Auth-Token") String authToken, @QueryParam("belongsTo") String belongsTo, @Context UriInfo context) {
         KeystoneProvider p = getProvider();
         ResponseWrapper wrapper = new JaxbElementWrapper();
 
@@ -71,6 +73,10 @@ public class KeystoneResource extends BaseResource {
         }
 
         String userName = p.getUsernameFromToken(userToken);
+        
+        if(!StringUtilities.isBlank(belongsTo) && !StringUtilities.nullSafeEquals(belongsTo, userName)){
+            return Response.status(Response.Status.NOT_FOUND).entity(wrapper.wrapElement(p.createItemNotFound())).build();
+        }
 
         AuthenticateResponse response = p.newAuthenticateResponse();
 

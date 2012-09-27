@@ -1,19 +1,15 @@
 package org.openrepose.components.rackspace.authz;
 
-import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
+import com.rackspace.auth.openstack.AuthenticationService;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import org.openrepose.components.authz.rackspace.config.ServiceEndpoint;
 import org.openrepose.components.rackspace.authz.cache.CachedEndpoint;
 import org.openrepose.components.rackspace.authz.cache.EndpointListCache;
@@ -21,14 +17,19 @@ import org.openstack.docs.identity.api.v2.Endpoint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+
 public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
    private static final Logger LOG = LoggerFactory.getLogger(RequestAuthorizationHandler.class);
-   private final OpenStackAuthenticationService authenticationService;
+   private final AuthenticationService authenticationService;
    private final EndpointListCache endpointListCache;
    private final ServiceEndpoint myEndpoint;
 
-   public RequestAuthorizationHandler(OpenStackAuthenticationService authenticationService, EndpointListCache endpointListCache, ServiceEndpoint myEndpoint) {
+   public RequestAuthorizationHandler(AuthenticationService authenticationService, EndpointListCache endpointListCache, ServiceEndpoint myEndpoint) {
       this.authenticationService = authenticationService;
       this.endpointListCache = endpointListCache;
       this.myEndpoint = myEndpoint;
@@ -67,6 +68,10 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
 
       if (isEndpointAuthorized(authorizedEndpoints)) {
          director.setFilterAction(FilterAction.PASS);
+      } else {
+         LOG.info("User token: " + userToken + ": The user's service catalog does not contain an endpoint that matches " +
+                  "the endpoint configured in openstack-authorization.cfg.xml: \"" +
+                  myEndpoint.getHref() + "\".  User not authorized to access service.");
       }
    }
 

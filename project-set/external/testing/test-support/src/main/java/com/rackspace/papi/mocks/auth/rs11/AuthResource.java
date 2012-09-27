@@ -7,11 +7,12 @@ import com.rackspace.papi.mocks.auth.rs11.wrappers.JaxbElementWrapper;
 import com.rackspace.papi.mocks.auth.rs11.wrappers.JsonElementWrapper;
 import com.rackspace.papi.mocks.auth.rs11.wrappers.ResponseWrapper;
 import com.sun.jersey.spi.resource.Singleton;
-import java.io.IOException;
+
 import javax.ws.rs.*;
-import javax.ws.rs.core.Response.Status;
 import javax.ws.rs.core.*;
+import javax.ws.rs.core.Response.Status;
 import javax.xml.datatype.DatatypeConfigurationException;
+import java.io.IOException;
 
 @Path("/v1.1")
 @Singleton

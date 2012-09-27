@@ -39,3 +39,4 @@ rsInstances
 nodeNames
 hosts.csv
 automation/rcman/files/*
+log.txt

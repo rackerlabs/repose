@@ -5,7 +5,7 @@
    <parent>
       <groupId>com.rackspace.papi.external</groupId>
       <artifactId>external-lib-support</artifactId>
-      <version>1.1.2-SNAPSHOT</version>
+      <version>2.1.7-SNAPSHOT</version>
       <relativePath>../../pom.xml</relativePath>
    </parent>
 
@@ -13,7 +13,7 @@
    <artifactId>test-service-mock</artifactId>
    <packaging>war</packaging>
 
-   <name>Power API Test - Testing Service and Mocks</name>
+   <name>Repose Test - Testing Service and Mocks</name>
 
    <properties>
       <endorsed.dir>${project.build.directory}/endorsed</endorsed.dir>
@@ -34,39 +34,38 @@
       </dependency>
         
       <dependency>
-         <groupId>com.rackspace.cloud.services.clients</groupId>
-         <artifactId>rackspace-auth-v1.1</artifactId>
+         <groupId>com.rackspace.papi.external</groupId>
+         <artifactId>rs-auth-schemas</artifactId>
          <version>${project.version}</version>
       </dependency>
 
       <dependency>
-         <groupId>com.rackspace.cloud.services.clients</groupId>
-         <artifactId>openstack-ids</artifactId>
+         <groupId>com.rackspace.papi.external</groupId>
+         <artifactId>os-auth-schemas</artifactId>
          <version>${project.version}</version>
       </dependency>
 
       <dependency>
          <groupId>com.sun.jersey</groupId>
          <artifactId>jersey-client</artifactId>
-         <version>1.9.1</version>
       </dependency>
 
       <dependency>
          <groupId>org.codehaus.jackson</groupId>
          <artifactId>jackson-core-lgpl</artifactId>
-         <version>1.9.2</version>
+         <version>1.9.4</version>
       </dependency>
 
       <dependency>
          <groupId>org.codehaus.jackson</groupId>
          <artifactId>jackson-jaxrs</artifactId>
-         <version>1.9.2</version>
+         <version>1.9.4</version>
       </dependency>
 
       <dependency>
          <groupId>org.codehaus.jackson</groupId>
          <artifactId>jackson-xc</artifactId>
-         <version>1.9.2</version>
+         <version>1.9.4</version>
       </dependency>
 
       <dependency>
@@ -76,7 +75,6 @@
       <dependency>
          <groupId>com.sun.jersey.test.framework</groupId>
          <artifactId>jersey-test-framework</artifactId>
-         <version>1.0.3.1</version>
          <scope>test</scope>
       </dependency>
       <!-- javax.mail provides a functional version of javaee jar required for tests -->

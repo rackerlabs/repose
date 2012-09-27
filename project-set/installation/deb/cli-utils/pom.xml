@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.rackspace.repose.installation.deb</groupId>
+        <artifactId>deb</artifactId>
+        <version>2.1.7-SNAPSHOT</version>
+    </parent>
+
+    <groupId>com.rackspace.repose.installation.deb.cli-utils</groupId>
+    <artifactId>cli-utils</artifactId>
+
+    <name>Repose - Installation Cloud Integration CLI-Utilities DEB</name>
+
+    <description>
+        Module for the CLI-Utils DEB.
+    </description>
+
+    <packaging>pom</packaging>
+
+    <profiles>
+        <profile>
+            <id>build-system-packages</id>
+
+            <activation>
+                <property>
+                    <name>Build Command Line Utilities DEB</name>
+                </property>
+            </activation>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>pl.project13.maven</groupId>
+                        <artifactId>git-commit-id-plugin</artifactId>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>properties-maven-plugin</artifactId>                        
+                    </plugin>
+                    
+                    <plugin>
+                        <groupId>org.vafer</groupId>
+                        <artifactId>jdeb</artifactId>
+
+                        <executions>
+                            <execution>
+
+                                <configuration>
+                                    <deb>[[buildDir]]/repose-[[artifactId]]-[[version]]-${git.commit.id.abbrev}.deb</deb>
+                                    <timestamped>true</timestamped>
+                                    
+                                    <dataSet>
+                                        <!-- The jar file -->
+                                        <data>
+                                            <src>${basedir}/../../../components/cli-utils/target/repose-cli.jar</src>
+                                            <type>file</type>
+                                            <mapper>
+                                                <type>perm</type>
+                                                <prefix>/usr/share/lib/repose</prefix>
+                                                <filemode>755</filemode>
+                                            </mapper>
+                                        </data>
+
+                                        <!-- The start script -->
+                                        <data>
+                                            <src>${basedir}/../../bash/dd-remove</src>
+                                            <type>file</type>
+                                            <mapper>
+                                                <type>perm</type>
+                                                <prefix>/etc/init.d</prefix>
+                                                <filemode>755</filemode>
+                                            </mapper>
+                                        </data>
+
+                                        <!-- The clean up script -->
+                                        <data>
+                                            <src>${basedir}/../../bash/clean-repose-deploy</src>
+                                            <type>file</type>
+                                            <mapper>
+                                                <type>perm</type>
+                                                <prefix>/usr/bin</prefix>
+                                                <filemode>755</filemode>
+                                            </mapper>
+                                        </data>
+
+                                    </dataSet>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

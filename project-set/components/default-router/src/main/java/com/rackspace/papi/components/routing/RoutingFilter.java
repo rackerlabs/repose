@@ -1,23 +1,21 @@
 package com.rackspace.papi.components.routing;
 
-import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
-import com.rackspace.papi.model.PowerProxy;
-import org.slf4j.Logger;
+import com.rackspace.papi.model.SystemModel;
+import com.rackspace.papi.service.config.ConfigurationService;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeansException;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
+import javax.servlet.*;
 import java.io.IOException;
 
-public class RoutingFilter implements Filter {
+public class RoutingFilter implements Filter, ApplicationContextAware {
 
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RoutingFilter.class);
     private RoutingHandlerFactory handlerFactory;
+    private ApplicationContext applicationContext;
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -30,9 +28,14 @@ public class RoutingFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        final ConfigurationService manager = ServletContextHelper.getPowerApiContext(filterConfig.getServletContext()).configurationService();
-        handlerFactory = new RoutingHandlerFactory(ServletContextHelper.getServerPort(filterConfig.getServletContext()));
+        handlerFactory = applicationContext.getBean("routingHandlerFactory", RoutingHandlerFactory.class);
+        applicationContext
+                .getBean(ConfigurationService.class)
+                .subscribeTo("system-model.cfg.xml", handlerFactory, SystemModel.class);
+    }
 
-        manager.subscribeTo("power-proxy.cfg.xml", handlerFactory, PowerProxy.class);
+    @Override
+    public void setApplicationContext(ApplicationContext ac) throws BeansException {
+        applicationContext = new ClassPathXmlApplicationContext(new String[]{"default-router-context.xml"}, ac);
     }
 }

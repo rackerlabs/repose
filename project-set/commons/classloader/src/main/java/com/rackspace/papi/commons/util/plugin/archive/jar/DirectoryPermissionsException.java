@@ -5,7 +5,7 @@ package com.rackspace.papi.commons.util.plugin.archive.jar;
  */
 public class DirectoryPermissionsException extends RuntimeException {
 
-    public DirectoryPermissionsException(String message) {
-        super(message);
-    }
+   public DirectoryPermissionsException(String message) {
+      super(message);
+   }
 }

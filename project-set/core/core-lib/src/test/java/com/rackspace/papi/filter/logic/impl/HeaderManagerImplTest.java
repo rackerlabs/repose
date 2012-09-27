@@ -1,16 +1,16 @@
 package com.rackspace.papi.filter.logic.impl;
 
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
-import java.util.Iterator;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import javax.servlet.http.HttpServletRequest;
-
+import java.util.Iterator;
 import java.util.Set;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 

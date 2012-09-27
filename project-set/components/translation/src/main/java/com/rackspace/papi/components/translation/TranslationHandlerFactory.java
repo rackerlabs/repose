@@ -11,6 +11,7 @@ import com.rackspace.papi.components.translation.xproc.Pipeline;
 import com.rackspace.papi.components.translation.xproc.PipelineException;
 import com.rackspace.papi.components.translation.xproc.calabash.CalabashPipelineBuilder;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,7 +50,7 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
                    return new CalabashPipelineBuilder(false).build(config.getRequestTranslationProcess().getHref());
 
                   } catch (PipelineException ex) {
-                     throw new ResourceConstructionException("Unable to build request pipeline", ex);
+                     throw new ResourceConstructionException("Unable to build request pipeline.  Reason: " + ex.getMessage(), ex);
                   }
                }
             });
@@ -61,7 +62,7 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
                    return new CalabashPipelineBuilder(false).build(config.getResponseTranslationProcess().getHref());
 
                   } catch (PipelineException ex) {
-                     throw new ResourceConstructionException("Unable to build request pipeline", ex);
+                     throw new ResourceConstructionException("Unable to build request pipeline. Reason: " + ex.getMessage(), ex);
                   }
                }
             });

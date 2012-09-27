@@ -4,8 +4,8 @@ import com.rackspace.papi.commons.util.digest.AbstractMessageDigester;
 
 public class MD5MessageDigester extends AbstractMessageDigester {
 
-    @Override
-    protected String digestSpecName() {
-        return "MD5";
-    }
+   @Override
+   protected String digestSpecName() {
+      return "MD5";
+   }
 }

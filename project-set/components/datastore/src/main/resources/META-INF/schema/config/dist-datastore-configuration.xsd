@@ -7,7 +7,7 @@
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <!-- Configuration Schema Definitions -->
-   <xs:element name="distirubted-datastore" type="dds:DistributedDatastoreConfiguration" />
+   <xs:element name="distributed-datastore" type="dds:DistributedDatastoreConfiguration" />
 
    <xs:complexType name="DistributedDatastoreConfiguration">
       <xs:annotation>

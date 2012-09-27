@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.translation.xproc;
 
 import com.rackspace.papi.components.translation.util.InputStreamUriParameterResolver;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
@@ -56,7 +57,7 @@ public abstract class AbstractPipeline implements Pipeline {
          try {
             ((InputStream)source).close();
          } catch (IOException ex) {
-            LOG.error("Unable to close input stream", ex);
+            LOG.error("Unable to close input stream. Reason: " + ex.getMessage(), ex);
          }
          resolver.removeStream((InputStream)source);
       }

@@ -4,8 +4,8 @@ import com.rackspace.papi.commons.util.digest.AbstractMessageDigester;
 
 public class SHA1MessageDigester extends AbstractMessageDigester {
 
-    @Override
-    protected String digestSpecName() {
-        return "SHA-1";
-    }
+   @Override
+   protected String digestSpecName() {
+      return "SHA-1";
+   }
 }

@@ -1,13 +1,13 @@
 package com.rackspace.papi.commons.util.http;
 
-import com.rackspace.papi.commons.util.http.HttpDate;
-import java.util.Calendar;
-import java.util.TimeZone;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import java.util.Calendar;
+import java.util.TimeZone;
+
+import static org.junit.Assert.assertEquals;
 
 /**
  *

@@ -5,14 +5,14 @@
     <parent>
         <groupId>com.rackspace.papi</groupId>
         <artifactId>profile-support</artifactId>
-        <version>1.1.2-SNAPSHOT</version>
+        <version>2.1.7-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.papi.external</groupId>
     <artifactId>external-lib-support</artifactId>
-    <version>1.1.2-SNAPSHOT</version>
+    <version>2.1.7-SNAPSHOT</version>
 
-    <name>Power API - External Library Support</name>
+    <name>Repose - External Library Support</name>
 
     <description>
         This project houses any libraries that we must build ourselves (in this project
@@ -27,5 +27,7 @@
         <module>service-clients</module>
         <module>maven-plugins/jmeter-maven-plugin</module>
         <module>testing/test-support</module>
+        <module>os-auth-schemas</module>
+        <module>rs-auth-schemas</module>
     </modules>
 </project>

@@ -12,21 +12,22 @@ import com.rackspace.papi.components.translation.config.TranslationConfig;
 import com.rackspace.papi.components.translation.postprocessor.RequestStreamPostProcessor;
 import com.rackspace.papi.components.translation.xproc.Pipeline;
 import com.rackspace.papi.components.translation.xproc.PipelineInput;
-import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.httpx.parser.RequestParserFactory;
+import org.xml.sax.InputSource;
+
+import javax.xml.transform.Source;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.transform.Source;
-import org.xml.sax.InputSource;
 
 public class TranslationHandler extends AbstractFilterLogicHandler {
-    private final static String SOURCE_PORT = "source";
-    private final static String PRIMARY_RESULT = "result";
+    private static final String SOURCE_PORT = "source";
+    private static final String PRIMARY_RESULT = "result";
     private final TranslationConfig config;
     private final RequestStreamPostProcessor postProcessor;
     private Pool<Pipeline> requestPipelinePool;

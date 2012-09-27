@@ -7,13 +7,16 @@ import java.util.List;
 
 /**
  *
+ * @deprecated @see(com.rackspace.papi.commons.util.http.header.QualityFactorHeaderChooser)
+ * 
  * @author zinic
  */
+@Deprecated
 public final class QualityFactorUtility {
 
    private QualityFactorUtility() {
    }
-   
+
    public static <T extends HeaderValue> T choosePreferredHeaderValue(Iterable<T> headerValues) {
       final Iterator<T> headerValueIterator = headerValues != null ? headerValues.iterator() : Collections.EMPTY_LIST.iterator();
 
@@ -32,14 +35,14 @@ public final class QualityFactorUtility {
 
    public static <T extends HeaderValue> List<T> choosePreferredHeaderValues(Iterable<T> headerValues) {
       final Iterator<T> headerValueIterator = headerValues != null ? headerValues.iterator() : Collections.EMPTY_LIST.iterator();
-      
+
       List<T> preferred = new ArrayList<T>();
-      
+
       double currentQuality = -1;
-      
+
       while (headerValueIterator.hasNext()) {
          final T next = headerValueIterator.next();
-         
+
          if (next.getQualityFactor() > currentQuality) {
             preferred.clear();
             preferred.add(next);
@@ -48,7 +51,7 @@ public final class QualityFactorUtility {
             preferred.add(next);
          }
       }
-      
+
       return preferred;
    }
 }

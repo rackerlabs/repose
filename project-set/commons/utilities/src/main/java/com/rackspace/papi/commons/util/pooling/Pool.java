@@ -1,12 +1,8 @@
 package com.rackspace.papi.commons.util.pooling;
 
-/**
- *
- * 
- */
 public interface Pool<R> {
 
-    public static final int DEFAULT_MAX_POOL_SIZE = 5, DEFAULT_MIN_POOL_SIZE = 1;
+    int DEFAULT_MAX_POOL_SIZE = 5, DEFAULT_MIN_POOL_SIZE = 1;
 
     int size();
 

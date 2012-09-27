@@ -1,27 +1,28 @@
 package org.openrepose.components.rackspace.authz;
 
-import com.rackspace.auth.openstack.ids.OpenStackAuthenticationService;
+import com.rackspace.auth.openstack.AuthenticationService;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import org.junit.Before;
+import org.junit.Ignore;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
+import org.openrepose.components.authz.rackspace.config.ServiceEndpoint;
+import org.openrepose.components.rackspace.authz.cache.CachedEndpoint;
+import org.openrepose.components.rackspace.authz.cache.EndpointListCache;
+import org.openstack.docs.identity.api.v2.Endpoint;
+
+import javax.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
-import org.junit.Before;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
-import org.junit.Test;
-import org.openrepose.components.authz.rackspace.config.ServiceEndpoint;
-import org.openstack.docs.identity.api.v2.Endpoint;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
-import static org.junit.Assert.*;
-import org.junit.Ignore;
-import org.openrepose.components.rackspace.authz.cache.CachedEndpoint;
-import org.openrepose.components.rackspace.authz.cache.EndpointListCache;
 
 /**
  *
@@ -36,7 +37,7 @@ public class RequestAuthorizationHandlerTest {
    @Ignore
    public static class TestParent {
 
-      protected OpenStackAuthenticationService mockedAuthService;
+      protected AuthenticationService mockedAuthService;
       protected RequestAuthorizationHandler handler;
       protected EndpointListCache mockedCache;
       protected HttpServletRequest mockedRequest;
@@ -67,7 +68,7 @@ public class RequestAuthorizationHandlerTest {
          endpointList.add(endpointb);
          endpointList.add(endpoint);
 
-         mockedAuthService = mock(OpenStackAuthenticationService.class);
+         mockedAuthService = mock(AuthenticationService.class);
          when(mockedAuthService.getEndpointsForToken(UNAUTHORIZED_TOKEN)).thenReturn(Collections.EMPTY_LIST);
          when(mockedAuthService.getEndpointsForToken(AUTHORIZED_TOKEN)).thenReturn(endpointList);
          when(mockedAuthService.getEndpointsForToken(CACHED_TOKEN)).thenReturn(endpointList);

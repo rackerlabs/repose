@@ -1,7 +1,5 @@
 package com.rackspace.papi.commons.util.io;
 
-import com.rackspace.papi.commons.util.io.FileReaderImpl;
-import com.rackspace.papi.commons.util.io.FileReader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;

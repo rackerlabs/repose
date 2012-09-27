@@ -1,16 +1,21 @@
 package com.rackspace.papi.components.ratelimit;
 
-import com.rackspace.papi.commons.util.http.*;
+import com.rackspace.papi.commons.util.http.CommonHttpHeader;
+import com.rackspace.papi.commons.util.http.HttpDate;
+import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import com.rackspace.papi.commons.util.http.PowerApiHeader;
+import com.rackspace.papi.components.limits.schema.HttpMethod;
 import com.rackspace.papi.components.ratelimit.cache.NextAvailableResponse;
 import com.rackspace.papi.components.ratelimit.cache.RateLimitCache;
 import com.rackspace.papi.components.ratelimit.config.ConfiguredLimitGroup;
 import com.rackspace.papi.components.ratelimit.config.ConfiguredRatelimit;
 import com.rackspace.papi.components.ratelimit.config.RateLimitingConfiguration;
+import com.rackspace.papi.components.ratelimit.util.RateLimitKeyGenerator;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import java.io.IOException;
 import org.slf4j.Logger;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,27 +54,28 @@ public class RateLimiter extends RateLimitingOperation {
 
    public void recordLimitedRequest(RateLimitingRequestInfo requestInfo, FilterDirector filterDirector) {
       final String requestUri = requestInfo.getRequest().getRequestURI();
-      final List<ConfiguredLimitGroup> availableLimitGroups = getRatelimitsForRole(requestInfo.getFirstUserGroup());
+      final ConfiguredLimitGroup currentLimitGroup = getRateLimitGroupForRole(requestInfo.getUserGroups());
 
-      for (ConfiguredLimitGroup currentLimitGroup : availableLimitGroups) {
+      // Go through all of the configured limits for this group
+      for (ConfiguredRatelimit rateLimit : currentLimitGroup.getLimit()) {
+         final Pattern p = getPattern(currentLimitGroup.getId(), rateLimit);
+         final Matcher uriMatcher = p.matcher(requestUri);
 
-         // Go through all of the configured limits for this group
-         for (ConfiguredRatelimit rateLimit : currentLimitGroup.getLimit()) {
-            final Pattern p = getPattern(currentLimitGroup.getId(), rateLimit);
-            final Matcher uriMatcher = p.matcher(requestUri);
-
-            // Did we find a limit that matches the current request?
-            if (uriMatcher.matches() && rateLimit.getHttpMethods().contains(requestInfo.getRequestMethod())) {
-               handleRateLimit(requestInfo, uriMatcher, rateLimit, filterDirector);
-               return;
-            }
+         // Did we find a limit that matches the current request?
+         if (uriMatcher.matches() && httpMethodMatches(rateLimit.getHttpMethods(), requestInfo.getRequestMethod())) {
+            handleRateLimit(requestInfo, uriMatcher, rateLimit, filterDirector);
+            return;
          }
       }
    }
 
+   private boolean httpMethodMatches(List<HttpMethod> configMethods, HttpMethod requestMethod) {
+      return (configMethods.contains(HttpMethod.ALL) || configMethods.contains(requestMethod));
+   }
+
    private Pattern getPattern(String appliedRatesId, ConfiguredRatelimit rateLimit) {
       final Map<String, Pattern> ratesRegexCache = regexCache.get(appliedRatesId);
-      Pattern uriRegexPattern = ratesRegexCache != null ? ratesRegexCache.get(rateLimit.getUri()) : null;
+      Pattern uriRegexPattern = ratesRegexCache != null ? ratesRegexCache.get(RateLimitKeyGenerator.createMapKey(rateLimit)) : null;
 
       if (uriRegexPattern == null) {
          LOG.error("Unable to locate prebuilt regular expression pattern in "
@@ -99,16 +105,23 @@ public class RateLimiter extends RateLimitingOperation {
          }
       } else {
          // We default to the whole URI in the case where no regex group info was provided
-         LOG.warn("Using regex caputure groups is recommended to help Power API build replicable, meaningful cache IDs for rate limits. Please update your config.");
+         LOG.warn("Using regex caputure groups is recommended to help Repose build replicable, meaningful cache IDs for rate limits. Please update your config.");
          cacheIdBuffer.append(requestInfo.getRequest().getRequestURI());
       }
 
       // Get the next, shortest available time that a user has to wait for
       try {
-         final NextAvailableResponse nextAvailable = cache.updateLimit(requestInfo.getRequestMethod(), requestInfo.getUserName(), cacheIdBuffer.toString(), rateLimit);
+         for (HttpMethod configuredMethod : rateLimit.getHttpMethods()) {
+            final NextAvailableResponse nextAvailable = cache.updateLimit(configuredMethod, requestInfo.getUserName().getValue(), cacheIdBuffer.toString(), rateLimit);
 
-         if (!nextAvailable.hasRequestsRemaining()) {
-            prepareNextAvailableResponse(nextAvailable, filterDirector);
+            if (!nextAvailable.hasRequestsRemaining()) {
+               prepareNextAvailableResponse(nextAvailable, filterDirector);
+
+               final UserIdentificationSanitizer sanitizer = new UserIdentificationSanitizer(requestInfo);
+               LOG.info("Rate limiting user " + sanitizer.getUserIdentification() + " at limit amount " + nextAvailable.getCurrentLimitAmount() + ".");
+               LOG.info("User rate limited for request " + requestInfo.getRequestMethod().value() + " " + requestInfo.getRequest().getRequestURL() + ".");
+               LOG.info("Configured rate limit is: " + rateLimit.toString());
+            }
          }
       } catch (IOException ioe) {
          LOG.error("IOException caught during cache commit for rate limit user: " + requestInfo.getUserName()

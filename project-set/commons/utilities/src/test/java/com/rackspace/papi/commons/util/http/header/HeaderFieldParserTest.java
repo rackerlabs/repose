@@ -1,13 +1,13 @@
 package com.rackspace.papi.commons.util.http.header;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
-import static org.junit.Assert.*;
+import java.util.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  *
@@ -21,6 +21,17 @@ public class HeaderFieldParserTest {
       private static final String BASIC_CONTENT_TYPE = "application/xml";
       private static final String SUPER_COMPLICATED_MEDIA_TYPE = "application/vnd.rackspace.services.a+xml; x=v1.0; q=.8, application/json; q=.5";
 
+      @Test
+      public void shouldHandleNullConstructorArguments() {
+         final String nullString = null;
+         final Enumeration<String> nullEnumeration = null;
+         final Set<String> nullSet = null;
+         
+         assertTrue("", new HeaderFieldParser(nullString).parse().isEmpty());
+         assertTrue("", new HeaderFieldParser(nullEnumeration).parse().isEmpty());
+         assertTrue("", new HeaderFieldParser(nullSet).parse().isEmpty());
+      }
+      
       @Test
       public void shouldParseHeaderFields() {
          final List<HeaderValue> headerValues = new HeaderFieldParser(BASIC_CONTENT_TYPE).parse();

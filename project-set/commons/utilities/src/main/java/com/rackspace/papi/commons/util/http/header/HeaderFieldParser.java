@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util.http.header;
 
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,28 +20,48 @@ public class HeaderFieldParser {
    public HeaderFieldParser(String rawHeaderString) {
       this();
 
-      final String[] splitHeaderValues = rawHeaderString.split(",");
-      
-      for (String splitHeaderValue : splitHeaderValues) {
-         headerValueStrings.add(splitHeaderValue.trim());
+      if (rawHeaderString != null) {
+         addValue(rawHeaderString);
       }
    }
 
    public HeaderFieldParser(Enumeration<String> headerValueEnumeration) {
       this();
-      
-      while(headerValueEnumeration.hasMoreElements()) {
-         this.headerValueStrings.add(headerValueEnumeration.nextElement());
+
+      if (headerValueEnumeration != null) {
+         while (headerValueEnumeration.hasMoreElements()) {
+            addValue(headerValueEnumeration.nextElement());
+         }
       }
    }
-   
+
+   public HeaderFieldParser(Collection<String> headers) {
+      this();
+
+      if (headers != null) {
+         for (String header : headers) {
+            addValue(header);
+         }
+      }
+   }
+
+   private void addValue(String rawHeaderString) {
+      final String[] splitHeaderValues = rawHeaderString.split(",");
+
+      for (String splitHeaderValue : splitHeaderValues) {
+          if(!splitHeaderValue.isEmpty()){
+            headerValueStrings.add(splitHeaderValue.trim());
+          }
+      }
+   }
+
    public List<HeaderValue> parse() {
       final List<HeaderValue> headerValues = new LinkedList<HeaderValue>();
-      
+
       for (String headerValueString : headerValueStrings) {
          headerValues.add(new HeaderValueParser(headerValueString).parse());
       }
-      
+
       return headerValues;
    }
 }

@@ -1,10 +1,11 @@
 package com.rackspace.papi.service.context.banner;
 
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
-import java.io.IOException;
-import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 public final class PapiBanner {
 
@@ -22,7 +23,7 @@ public final class PapiBanner {
                 log.info(bannerString);
             }
         } catch (IOException ioe) {
-            LOG.warn("NON-FATAL: " + ioe.getMessage(), ioe);
+            LOG.warn("NON-FATAL - Failure in reading Papi the Narwhal's start banner. Reason: " + ioe.getMessage(), ioe);
         }
     }
 }

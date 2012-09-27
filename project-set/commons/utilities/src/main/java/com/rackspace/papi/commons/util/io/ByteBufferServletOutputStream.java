@@ -1,8 +1,9 @@
 package com.rackspace.papi.commons.util.io;
 
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
-import java.io.IOException;
+
 import javax.servlet.ServletOutputStream;
+import java.io.IOException;
 
 public class ByteBufferServletOutputStream extends ServletOutputStream {
 
@@ -20,6 +21,10 @@ public class ByteBufferServletOutputStream extends ServletOutputStream {
       /*if (closed) {
             throw new IOException("InputStream has been closed. Futher operations are prohibited");
         }*/
+    }
+    
+    public boolean isClosed() {
+       return closed;
     }
 
     @Override

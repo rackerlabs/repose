@@ -1,19 +1,25 @@
 package com.rackspace.papi.components.clientauth;
 
-import com.rackspace.papi.auth.AuthModule;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
+import com.rackspace.papi.components.clientauth.common.AuthenticationHandler;
+import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
+import com.rackspace.papi.components.clientauth.config.URIPattern;
+import com.rackspace.papi.components.clientauth.config.WhiteList;
 import com.rackspace.papi.components.clientauth.openstack.config.ClientMapping;
 import com.rackspace.papi.components.clientauth.openstack.v1_0.OpenStackAuthenticationHandlerFactory;
 import com.rackspace.papi.components.clientauth.rackspace.config.AccountMapping;
 import com.rackspace.papi.components.clientauth.rackspace.v1_1.RackspaceAuthenticationHandlerFactory;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.datastore.Datastore;
-import java.util.HashMap;
-import java.util.Map;
 import org.slf4j.Logger;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -24,11 +30,12 @@ import org.slf4j.Logger;
  * example, a Rackspace specific or Basic Http authentication.
  *
  */
-public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<AuthModule> {
+public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<AuthenticationHandler> {
 
    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ClientAuthenticationHandlerFactory.class);
-   private AuthModule authenticationModule;
+   private AuthenticationHandler authenticationModule;
    private KeyedRegexExtractor<String> accountRegexExtractor = new KeyedRegexExtractor<String>();
+   private UriMatcher uriMatcher;
    private final Datastore datastore;
 
    public ClientAuthenticationHandlerFactory(Datastore datastore) {
@@ -48,8 +55,11 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
       @Override
       public void configurationUpdated(ClientAuthConfig modifiedConfig) {
 
+         updateUriMatcher(modifiedConfig.getWhiteList());         
+
+         accountRegexExtractor.clear();
          if (modifiedConfig.getRackspaceAuth() != null) {
-            authenticationModule = getAuth1_1Handler(modifiedConfig);
+            authenticationModule = getRackspaceAuthHandler(modifiedConfig);
             for (AccountMapping accountMapping : modifiedConfig.getRackspaceAuth().getAccountMapping()) {
                accountRegexExtractor.addPattern(accountMapping.getIdRegex(), accountMapping.getType().value());
             }
@@ -67,16 +77,28 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
       }
    }
 
-   private AuthModule getAuth1_1Handler(ClientAuthConfig cfg) {
-      return RackspaceAuthenticationHandlerFactory.newInstance(cfg, accountRegexExtractor, datastore);
+   private void updateUriMatcher(WhiteList whiteList) {
+      final List<Pattern> whiteListRegexPatterns = new ArrayList<Pattern>();
+
+      if (whiteList != null) {
+         for (URIPattern pattern : whiteList.getUriPattern()) {
+            whiteListRegexPatterns.add(Pattern.compile(pattern.getUriRegex()));
+         }
+      }
+
+      uriMatcher = new UriMatcher(whiteListRegexPatterns);
    }
 
-   private AuthModule getOpenStackAuthHandler(ClientAuthConfig config) {
-      return OpenStackAuthenticationHandlerFactory.newInstance(config, accountRegexExtractor, datastore);
+   private AuthenticationHandler getRackspaceAuthHandler(ClientAuthConfig cfg) {
+      return RackspaceAuthenticationHandlerFactory.newInstance(cfg, accountRegexExtractor, datastore, uriMatcher);
+   }
+
+   private AuthenticationHandler getOpenStackAuthHandler(ClientAuthConfig config) {
+      return OpenStackAuthenticationHandlerFactory.newInstance(config, accountRegexExtractor, datastore, uriMatcher);
    }
 
    @Override
-   protected AuthModule buildHandler() {
+   protected AuthenticationHandler buildHandler() {
       return authenticationModule;
    }
 }

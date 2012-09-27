@@ -1,21 +1,25 @@
 package com.rackspace.papi.components.datastore;
 
-import com.rackspace.papi.service.ServiceContext;
+import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.ConfigurationServiceContext;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
+import com.rackspace.papi.service.context.ServletContextHelper;
+import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
+import com.rackspace.papi.service.context.impl.DatastoreServiceContext;
+import com.rackspace.papi.service.context.impl.RequestProxyServiceContext;
+import com.rackspace.papi.service.context.spring.SpringContextAdapter;
+import com.rackspace.papi.service.context.spring.SpringContextAdapterProvider;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
-import com.rackspace.papi.service.context.DatastoreServiceContext;
-import javax.naming.Context;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletContext;
-
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import org.springframework.context.ApplicationContext;
+
+import javax.naming.Context;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletContext;
 
 import static org.mockito.Mockito.*;
 
@@ -38,16 +42,23 @@ public class DatastoreDatastoreFilterTest {
 
          final ServletContext servletContext = mock(ServletContext.class);
          final Context context = mock(Context.class);
+         final ApplicationContext appContext = mock(ApplicationContext.class);
          final ConfigurationService configurationService = mock(ConfigurationService.class);
-         final ServiceContext<ConfigurationService> configurationServiceContext = mock(ServiceContext.class);
-         final ServiceContext<DatastoreService> datastoreServiceContext = mock(ServiceContext.class);
+         final ConfigurationServiceContext configurationServiceContext = mock(ConfigurationServiceContext.class);
+         final DatastoreServiceContext datastoreServiceContext = mock(DatastoreServiceContext.class);
          final DatastoreManager localManager = mock(DatastoreManager.class);
+         final RequestProxyServiceContext proxyService = mock(RequestProxyServiceContext.class);
 
+         ServletContextHelper.configureInstance(new SpringContextAdapterProvider(appContext), servletContext, mock(ApplicationContext.class));
+         
          when(mockFilterConfig.getServletContext()).thenReturn(servletContext);
          when(servletContext.getAttribute(ServletContextHelper.SERVLET_CONTEXT_ATTRIBUTE_NAME)).thenReturn(context);
+         when(servletContext.getAttribute(ServletContextHelper.SPRING_APPLICATION_CONTEXT_ATTRIBUTE_NAME)).thenReturn(appContext);
 
-         when(context.lookup(ConfigurationServiceContext.SERVICE_NAME)).thenReturn(configurationServiceContext);
-         when(context.lookup(DatastoreServiceContext.SERVICE_NAME)).thenReturn(datastoreServiceContext);
+         when(appContext.getBean(eq(SpringContextAdapter.CONFIGURATION_SERVICE_CONTEXT))).thenReturn(configurationServiceContext);
+         when(appContext.getBean(eq(SpringContextAdapter.DATASTORE_SERVICE_CONTEXT))).thenReturn(datastoreServiceContext);
+         when(appContext.getBean(eq(SpringContextAdapter.REQUEST_PROXY_SERVICE_CONTEXT))).thenReturn(proxyService);
+         when(appContext.getBean(anyString(), eq(ServicePorts.class))).thenReturn(new ServicePorts());
 
          when(configurationServiceContext.getService()).thenReturn(configurationService);
          when(datastoreServiceContext.getService()).thenReturn(datastoreService);
@@ -73,8 +84,8 @@ public class DatastoreDatastoreFilterTest {
          filter.init(mockFilterConfig);
          filter.destroy();
 
-         verify(datastoreService, times(1)).registerDatastoreManager(eq(DATASTORE_MANAGER_NAME), any(DatastoreManager.class));
-         verify(datastoreService, times(1)).unregisterDatastoreManager(DATASTORE_MANAGER_NAME);
+         verify(datastoreService).registerDatastoreManager(eq(DATASTORE_MANAGER_NAME), any(DatastoreManager.class));
+         verify(datastoreService).unregisterDatastoreManager(DATASTORE_MANAGER_NAME);
       }
    }
 }

@@ -1,98 +1,180 @@
 package com.rackspace.papi.filter;
 
-import com.rackspace.papi.commons.util.net.StaticNetworkNameResolver;
-import com.rackspace.papi.model.Host;
-import com.rackspace.papi.model.PowerProxy;
 import com.rackspace.papi.commons.util.net.NetworkInterfaceProvider;
 import com.rackspace.papi.commons.util.net.NetworkNameResolver;
 import com.rackspace.papi.commons.util.net.StaticNetworkInterfaceProvider;
+import com.rackspace.papi.commons.util.net.StaticNetworkNameResolver;
+import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.domain.ServicePorts;
+import com.rackspace.papi.model.Destination;
+import com.rackspace.papi.model.Node;
+import com.rackspace.papi.model.ReposeCluster;
+import com.rackspace.papi.model.SystemModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
-import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author franshua
  */
+@Component("modelInterrogator")
 public class SystemModelInterrogator {
 
    private static final Logger LOG = LoggerFactory.getLogger(SystemModelInterrogator.class);
-
    private final NetworkInterfaceProvider networkInterfaceProvider;
    private final NetworkNameResolver nameResolver;
-   private final PowerProxy systemModel;
-   private final int localPort;
+   private final List<Port> ports;
 
-   public SystemModelInterrogator(PowerProxy powerProxy, int port) {
-      this(StaticNetworkNameResolver.getInstance(), StaticNetworkInterfaceProvider.getInstance(), powerProxy, port);
+    @Autowired
+   public SystemModelInterrogator(@Qualifier("servicePorts") ServicePorts ports) {
+      this(StaticNetworkNameResolver.getInstance(), StaticNetworkInterfaceProvider.getInstance(), ports);
    }
 
-   public SystemModelInterrogator(NetworkNameResolver nameResolver, NetworkInterfaceProvider nip, PowerProxy systemModel, int port) {
+   public SystemModelInterrogator(NetworkNameResolver nameResolver, NetworkInterfaceProvider nip, ServicePorts ports) {
       this.nameResolver = nameResolver;
       this.networkInterfaceProvider = nip;
-      this.systemModel = systemModel;
-      this.localPort = port;
+      this.ports = ports;
    }
 
-   public Host getLocalHost() {
-      Host localHost = null;
+   public final class DomainNodeWrapper {
 
-      final List<Host> possibleHosts = new LinkedList<Host>();
+      private final Node node;
 
-      if (localPort > 0) {
-         for (Host powerProxyHost : systemModel.getHost()) {
-            if (powerProxyHost.getServicePort() == localPort) {
-               possibleHosts.add(powerProxyHost);
-            }
+      private DomainNodeWrapper(Node node) {
+         if (node == null) {
+            throw new IllegalArgumentException("Node cannot be null");
          }
-      } else {
-         // This is the case where we are running ROOT.war so we
-         // don't have easy programmatic access to the port on which
-         // the local Repose is running.  So, just use the hostname to
-         // resolve which is the local Repose node.
-         possibleHosts.addAll(systemModel.getHost());
+         this.node = node;
       }
 
-      try {
-         for (Host powerProxyHost : possibleHosts) {
-            final InetAddress hostAddress = nameResolver.lookupName(powerProxyHost.getHostname());
+      public boolean hasLocalInterface() {
+         boolean result = false;
 
-            if (networkInterfaceProvider.hasInterfaceFor(hostAddress)) {
-               localHost = powerProxyHost;
+         try {
+            final InetAddress hostAddress = nameResolver.lookupName(node.getHostname());
+            result = networkInterfaceProvider.hasInterfaceFor(hostAddress);
+         } catch (UnknownHostException uhe) {
+            LOG.error("Unable to look up network host name. Reason: " + uhe.getMessage(), uhe);
+         } catch (SocketException socketException) {
+            LOG.error(socketException.getMessage(), socketException);
+         }
+
+         return result;
+      }
+
+      private List<Port> getPortsList() {
+         List<Port> portList = new ArrayList<Port>();
+         
+         
+         // TODO Model: use constants or enum for possible protocols
+         if (node.getHttpPort() > 0) {
+            portList.add(new Port("http", node.getHttpPort()));
+         }
+         
+         if (node.getHttpsPort() > 0) {
+            portList.add(new Port("https", node.getHttpsPort()));
+         }
+         
+         return portList;
+      }
+
+   }
+
+   public final class ServiceDomainWrapper {
+
+      private final ReposeCluster domain;
+
+      private ServiceDomainWrapper(ReposeCluster domain) {
+         if (domain == null) {
+            throw new IllegalArgumentException("Domain cannot be null");
+         }
+         this.domain = domain;
+      }
+
+      public boolean containsLocalNodeForPorts(List<Port> ports) {
+         return getLocalNodeForPorts(ports) != null;
+      }
+      
+      public Node getLocalNodeForPorts(List<Port> ports) {
+
+         Node localhost = null;
+         
+         if (ports.isEmpty()) {
+            return localhost;
+         }
+
+         for (Node host : domain.getNodes().getNode()) {
+            DomainNodeWrapper wrapper = new DomainNodeWrapper(host);
+            List<Port> hostPorts = wrapper.getPortsList();
+            
+            if (hostPorts.equals(ports) && wrapper.hasLocalInterface()) {
+               localhost = host;
+               break;
+
+            }
+         }
+
+         return localhost;
+      }
+
+      public Destination getDefaultDestination() {
+         Destination dest = null;
+
+         List<Destination> destinations = new ArrayList<Destination>();
+
+         destinations.addAll(domain.getDestinations().getEndpoint());
+         destinations.addAll(domain.getDestinations().getTarget());
+
+         for (Destination destination : destinations) {
+            if (destination.isDefault()) {
+               dest = destination;
                break;
             }
          }
-      } catch (UnknownHostException uhe) {
-         LOG.error("Unable to look up network host name. Reason: " + uhe.getMessage(), uhe);
-      } catch (SocketException socketException) {
-         LOG.error(socketException.getMessage(), socketException);
+
+         return dest;
+      }
+   }
+
+   public ReposeCluster getLocalServiceDomain(SystemModel systemModel) {
+      ReposeCluster domain = null;
+
+      for (ReposeCluster possibleDomain : systemModel.getReposeCluster()) {
+         if (new ServiceDomainWrapper(possibleDomain).containsLocalNodeForPorts(ports)) {
+            domain = possibleDomain;
+            break;
+         }
+      }
+
+      return domain;
+   }
+
+   public Node getLocalHost(SystemModel systemModel) {
+      Node localHost = null;
+
+      for (ReposeCluster domain : systemModel.getReposeCluster()) {
+         Node node = new ServiceDomainWrapper(domain).getLocalNodeForPorts(ports);
+
+         if (node != null) {
+            localHost = node;
+            break;
+         }
       }
 
       return localHost;
    }
 
-   // TODO: Enhancement - Explore using service domains to better handle routing identification logic
+   public Destination getDefaultDestination(SystemModel systemModel) {
+      ServiceDomainWrapper domain = new ServiceDomainWrapper(getLocalServiceDomain(systemModel));
 
-   public Host getNextRoutableHost() {
-      final Host localHost = getLocalHost();
-
-      Host nextRoutableHost = null;
-
-      for (Iterator<Host> hostIterator = systemModel.getHost().iterator(); hostIterator.hasNext();) {
-         final Host currentHost = hostIterator.next();
-
-         if (currentHost.equals(localHost)) {
-            nextRoutableHost = hostIterator.hasNext() ? hostIterator.next() : null;
-            break;
-         }
-      }
-
-      return nextRoutableHost;
+      return domain.getDefaultDestination();
    }
 }

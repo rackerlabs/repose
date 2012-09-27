@@ -4,154 +4,201 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
+import com.rackspace.papi.commons.util.servlet.http.RouteDestination;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.HeaderManager;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import com.rackspace.papi.model.Destination;
+
 import javax.servlet.http.HttpServletResponse;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class FilterDirectorImpl implements FilterDirector {
 
-    private final ByteArrayOutputStream directorOutputStream;
-    private final PrintWriter responsePrintWriter;
-    private HeaderManagerImpl requestHeaderManager, responseHeaderManager;
-    private HttpStatusCode delegatedStatus;
-    private FilterAction delegatedAction;
-    private StringBuffer requestUrl;
-    private String requestUri;
+   private final ByteArrayOutputStream directorOutputStream;
+   private final PrintWriter responsePrintWriter;
+   private final List<RouteDestination> destinations;
+   private HeaderManagerImpl requestHeaderManager, responseHeaderManager;
+   private int status;
+   private FilterAction delegatedAction;
+   private StringBuffer requestUrl;
+   private String requestUri, requestUriQuery;
 
-    public FilterDirectorImpl() {
-        this(HttpStatusCode.INTERNAL_SERVER_ERROR, FilterAction.NOT_SET);
-    }
+   public FilterDirectorImpl() {
+      this(HttpStatusCode.INTERNAL_SERVER_ERROR, FilterAction.NOT_SET);
+   }
 
-    private FilterDirectorImpl(HttpStatusCode delegatedStatus, FilterAction delegatedAction) {
-        this.delegatedStatus = delegatedStatus;
-        this.delegatedAction = delegatedAction;
+   private FilterDirectorImpl(HttpStatusCode delegatedStatus, FilterAction delegatedAction) {
+      this.status = delegatedStatus.intValue();
+      this.delegatedAction = delegatedAction;
 
-        directorOutputStream = new ByteArrayOutputStream();
-        responsePrintWriter = new PrintWriter(directorOutputStream);
-    }
+      directorOutputStream = new ByteArrayOutputStream();
+      responsePrintWriter = new PrintWriter(directorOutputStream);
+      destinations = new ArrayList<RouteDestination>();
+   }
 
-    @Override
-    public synchronized void applyTo(MutableHttpServletRequest request) {
-        if (requestHeaderManager().hasHeaders()) {
-            requestHeaderManager().applyTo(request);
-        }
+   @Override
+   public void setRequestUriQuery(String query) {
+      requestUriQuery = query;
+   }
 
-        if (requestUri != null && StringUtilities.isNotBlank(requestUri)) {
-            request.setRequestUri(requestUri);
-        }
+   public String getRequestUriQuery() {
+      return requestUriQuery;
+   }
 
-        if (requestUrl != null && StringUtilities.isNotBlank(requestUrl.toString())) {
-            request.setRequestUrl(requestUrl);
-        }
-    }
+   @Override
+   public void addDestination(String id, String uri, float quality) {
+      destinations.add(new RouteDestination(id, uri, quality));
+   }
 
-    @Override
-    public synchronized void applyTo(HttpServletResponse response) throws IOException {
-        if (responseHeaderManager().hasHeaders()) {
-            responseHeaderManager().applyTo(response);
-        }
+   @Override
+   public void addDestination(Destination dest, String uri, float quality) {
+      addDestination(dest.getId(), uri, quality);
+   }
 
-        if (delegatedAction != FilterAction.NOT_SET) {
-            response.setStatus(delegatedStatus.intValue());
-        }
+   @Override
+   public List<RouteDestination> getDestinations() {
+      return Collections.unmodifiableList(destinations);
+   }
 
-        if (directorOutputStream.size() > 0) {
-            response.setContentLength(directorOutputStream.size());
-            RawInputStreamReader.instance().copyTo(new ByteArrayInputStream(getResponseMessageBodyBytes()), response.getOutputStream());
-        }
-    }
+   @Override
+   public synchronized void applyTo(MutableHttpServletRequest request) {
+      if (requestHeaderManager().hasHeaders()) {
+         requestHeaderManager().applyTo(request);
+      }
 
-    @Override
-    public String getRequestUri() {
-        return requestUri;
-    }
+      if (requestUriQuery != null) {
+         request.setQueryString(requestUriQuery);
+         request.setParameterMap(requestUriQuery);
+      }
 
-    @Override
-    public StringBuffer getRequestUrl() {
-        return requestUrl;
-    }
-    
-    @Override
-    public void setRequestUri(String newUri) {
-        this.requestUri = newUri;
-    }
+      if (requestUri != null && StringUtilities.isNotBlank(requestUri)) {
+         request.setRequestUri(requestUri);
+      }
 
-    @Override
-    public void setRequestUrl(StringBuffer newUrl) {
-        this.requestUrl = newUrl;
-    }
+      if (requestUrl != null && StringUtilities.isNotBlank(requestUrl.toString())) {
+         request.setRequestUrl(requestUrl);
+      }
 
-    @Override
-    public byte[] getResponseMessageBodyBytes() {
-        responsePrintWriter.flush();
+      for (RouteDestination dest : destinations) {
+         request.addDestination(dest);
+      }
+   }
 
-        return directorOutputStream.toByteArray();
-    }
+   @Override
+   public synchronized void applyTo(HttpServletResponse response) throws IOException {
+      if (responseHeaderManager().hasHeaders()) {
+         responseHeaderManager().applyTo(response);
+      }
 
-    @Override
-    public String getResponseMessageBody() {
-        responsePrintWriter.flush();
+      if (HttpStatusCode.UNSUPPORTED_RESPONSE_CODE.intValue() != status && delegatedAction != FilterAction.NOT_SET) {
+         response.setStatus(status);
+      }
 
-        final byte[] bytesWritten = directorOutputStream.toByteArray();
+      if (directorOutputStream.size() > 0) {
+         response.setContentLength(directorOutputStream.size());
+         RawInputStreamReader.instance().copyTo(new ByteArrayInputStream(getResponseMessageBodyBytes()), response.getOutputStream());
+      }
+   }
 
-        if (bytesWritten.length > 0) {
-            return new String(bytesWritten);
-        }
+   @Override
+   public String getRequestUri() {
+      return requestUri;
+   }
 
-        return "";
-    }
+   @Override
+   public StringBuffer getRequestUrl() {
+      return requestUrl;
+   }
 
-    @Override
-    public OutputStream getResponseOutputStream() {
-        return directorOutputStream;
-    }
+   @Override
+   public void setRequestUri(String newUri) {
+      this.requestUri = newUri;
+   }
 
-    @Override
-    public PrintWriter getResponseWriter() {
-        return responsePrintWriter;
-    }
+   @Override
+   public void setRequestUrl(StringBuffer newUrl) {
+      this.requestUrl = newUrl;
+   }
 
-    @Override
-    public HttpStatusCode getResponseStatus() {
-        return delegatedStatus;
-    }
+   @Override
+   public byte[] getResponseMessageBodyBytes() {
+      responsePrintWriter.flush();
 
-    @Override
-    public void setResponseStatus(HttpStatusCode delegatedStatus) {
-        this.delegatedStatus = delegatedStatus;
-    }
+      return directorOutputStream.toByteArray();
+   }
 
-    @Override
-    public FilterAction getFilterAction() {
-        return delegatedAction;
-    }
+   @Override
+   public String getResponseMessageBody() {
+      responsePrintWriter.flush();
 
-    @Override
-    public void setFilterAction(FilterAction action) {
-        this.delegatedAction = action;
-    }
+      final byte[] bytesWritten = directorOutputStream.toByteArray();
 
-    @Override
-    public HeaderManager requestHeaderManager() {
-        if (requestHeaderManager == null) {
-            requestHeaderManager = new HeaderManagerImpl();
-        }
+      if (bytesWritten.length > 0) {
+         return new String(bytesWritten);
+      }
 
-        return requestHeaderManager;
-    }
+      return "";
+   }
 
-    @Override
-    public HeaderManager responseHeaderManager() {
-        if (responseHeaderManager == null) {
-            responseHeaderManager = new HeaderManagerImpl();
-        }
+   @Override
+   public OutputStream getResponseOutputStream() {
+      return directorOutputStream;
+   }
 
-        return responseHeaderManager;
-    }
+   @Override
+   public PrintWriter getResponseWriter() {
+      return responsePrintWriter;
+   }
+
+   @Override
+   public HttpStatusCode getResponseStatus() {
+      return HttpStatusCode.fromInt(status);
+   }
+
+   @Override
+   public int getResponseStatusCode() {
+      return status;
+   }
+
+   @Override
+   public void setResponseStatus(HttpStatusCode delegatedStatus) {
+      this.status = delegatedStatus.intValue();
+   }
+
+   @Override
+   public void setResponseStatusCode(int status) {
+      this.status = status;
+   }
+
+   @Override
+   public FilterAction getFilterAction() {
+      return delegatedAction;
+   }
+
+   @Override
+   public void setFilterAction(FilterAction action) {
+      this.delegatedAction = action;
+   }
+
+   @Override
+   public HeaderManager requestHeaderManager() {
+      if (requestHeaderManager == null) {
+         requestHeaderManager = new HeaderManagerImpl();
+      }
+
+      return requestHeaderManager;
+   }
+
+   @Override
+   public HeaderManager responseHeaderManager() {
+      if (responseHeaderManager == null) {
+         responseHeaderManager = new HeaderManagerImpl();
+      }
+
+      return responseHeaderManager;
+   }
 }

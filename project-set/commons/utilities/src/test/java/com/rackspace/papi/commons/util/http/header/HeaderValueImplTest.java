@@ -1,12 +1,13 @@
 package com.rackspace.papi.commons.util.http.header;
 
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
+
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 
 import static org.junit.Assert.*;
 
@@ -77,7 +78,7 @@ public class HeaderValueImplTest {
       public void shouldReturnNegativeOneWhenNoQualityFactorCanBeDetermined() {
          final HeaderValueImpl headerValue = new HeaderValueImpl("value", Collections.EMPTY_MAP);
 
-         assertTrue("Header value must match expected output", -1 == headerValue.getQualityFactor());
+         assertTrue("Header value must match expected output", 1 == headerValue.getQualityFactor());
       }
    }
 

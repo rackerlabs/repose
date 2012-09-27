@@ -1,63 +1,38 @@
 package com.rackspace.papi.components.translation;
 
-import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.components.translation.config.TranslationConfig;
-import com.rackspace.papi.filter.logic.FilterDirector;
+import com.rackspace.papi.filter.FilterConfigHelper;
+import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
-import com.rackspace.papi.service.context.jndi.ServletContextHelper;
-import com.rackspace.papi.servlet.InitParameter;
-import org.slf4j.Logger;
-
-import javax.servlet.*;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import java.io.IOException;
+import javax.servlet.*;
+import org.slf4j.Logger;
 
 public class TranslationFilter implements Filter {
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(TranslationFilter.class);
+    private static final String DEFAULT_CONFIG = "translation.cfg.xml";
+    private String config;
     private TranslationHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;
 
     @Override
     public void destroy() {
-        configurationManager.unsubscribeFrom("translation.cfg.xml", handlerFactory);
+        configurationManager.unsubscribeFrom(config, handlerFactory);
     }
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
-
-        final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
-        final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap((HttpServletResponse) response);
-
-        FilterDirector director = handlerFactory.newHandler().handleRequest(mutableHttpRequest, mutableHttpResponse);
-
-        director.applyTo(mutableHttpRequest);
-
-        switch (director.getFilterAction()) {
-            case RETURN:
-                director.applyTo(mutableHttpResponse);
-                break;
-               
-            case PROCESS_RESPONSE:
-                director = handlerFactory.newHandler().handleResponse(mutableHttpRequest, mutableHttpResponse);
-                break;
-
-            case PASS:
-                chain.doFilter(mutableHttpRequest, response);
-                break;
-        }
-        
+        new FilterLogicHandlerDelegate(request, response, chain).doFilter(handlerFactory.newHandler());
     }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         ServletContext servletContext = filterConfig.getServletContext();
+        config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
+        LOG.info("Initializing filter using config " + config);
         handlerFactory = new TranslationHandlerFactory();
-        configurationManager = ServletContextHelper.getPowerApiContext(servletContext).configurationService();
-
-        configurationManager.subscribeTo("translation.cfg.xml", handlerFactory, TranslationConfig.class);
+        configurationManager = ServletContextHelper.getInstance().getPowerApiContext(servletContext).configurationService();
+        configurationManager.subscribeTo(config, handlerFactory, TranslationConfig.class);
     }
 }

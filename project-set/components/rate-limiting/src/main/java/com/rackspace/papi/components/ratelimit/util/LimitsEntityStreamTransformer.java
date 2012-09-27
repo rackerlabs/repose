@@ -5,8 +5,10 @@ import com.rackspace.papi.commons.util.transform.jaxb.JaxbToStreamTransform;
 import com.rackspace.papi.commons.util.transform.xslt.StreamToXsltTransform;
 import com.rackspace.papi.components.limits.schema.Limits;
 import com.rackspace.papi.components.limits.schema.ObjectFactory;
+import com.rackspace.papi.components.ratelimit.config.LimitsFormat;
 import com.rackspace.papi.components.ratelimit.util.combine.CombinedLimitsTransformer;
 import com.rackspace.papi.components.ratelimit.util.combine.LimitsTransformPair;
+import org.slf4j.Logger;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -14,45 +16,60 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 public class LimitsEntityStreamTransformer {
+   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(LimitsEntityStreamTransformer.class);
 
-    private static final ObjectFactory LIMITS_OBJECT_FACTORY = new ObjectFactory();
-    
-    public static final String JSON_XSL_LOCATION = "/META-INF/xslt/limits-json.xsl",
-            COMBINER_XSL_LOCATION = "/META-INF/xslt/limits-combine.xsl";
-    
-    private final StreamTransform<LimitsTransformPair, OutputStream> combiner;
-    private final StreamTransform<InputStream, OutputStream> jsonTransform;
-    private final StreamTransform<JAXBElement<Limits>, OutputStream> entiyTransform;
+   private static final ObjectFactory LIMITS_OBJECT_FACTORY = new ObjectFactory();
 
-    public LimitsEntityStreamTransformer() {
-        this(buildJaxbContext());
-    }
+   public static final String JSON_XSL_LOCATION = "/META-INF/xslt/limits-json.xsl",
+           COMBINER_XSL_LOCATION = "/META-INF/xslt/limits-combine.xsl",
+           LBAAS_JSON_XSL_LOCATION = "/META-INF/xslt/lbaas-limits-json.xsl";
 
-    public LimitsEntityStreamTransformer(JAXBContext context) {
-        jsonTransform = new StreamToXsltTransform(
-                TransformHelper.getTemplatesFromInputStream(
-                LimitsEntityStreamTransformer.class.getResourceAsStream(JSON_XSL_LOCATION)));
+   private final StreamTransform<LimitsTransformPair, OutputStream> combiner;
+   private final StreamTransform<InputStream, OutputStream> jsonTransform;
+   private final StreamTransform<InputStream, OutputStream> lbaasJsonTransform;
+   private final StreamTransform<JAXBElement<Limits>, OutputStream> entiyTransform;
 
-        combiner = new CombinedLimitsTransformer(
-                TransformHelper.getTemplatesFromInputStream(
-                LimitsEntityStreamTransformer.class.getResourceAsStream(COMBINER_XSL_LOCATION)), context, LIMITS_OBJECT_FACTORY);
+   public LimitsEntityStreamTransformer() {
+      this(buildJaxbContext());
+   }
 
-        entiyTransform = new JaxbToStreamTransform(context);
-    }
+   public LimitsEntityStreamTransformer(JAXBContext context) {
+      jsonTransform = new StreamToXsltTransform(
+              TransformHelper.getTemplatesFromInputStream(
+                      LimitsEntityStreamTransformer.class.getResourceAsStream(JSON_XSL_LOCATION)));
 
-    private static JAXBContext buildJaxbContext() {
-        return TransformHelper.buildJaxbContext(LIMITS_OBJECT_FACTORY.getClass());
-    }
+      lbaasJsonTransform = new StreamToXsltTransform(
+              TransformHelper.getTemplatesFromInputStream(
+                      LimitsEntityStreamTransformer.class.getResourceAsStream(LBAAS_JSON_XSL_LOCATION)));
 
-    public void combine(LimitsTransformPair pair, OutputStream out) {
-        combiner.transform(pair, out);
-    }
+      combiner = new CombinedLimitsTransformer(
+              TransformHelper.getTemplatesFromInputStream(
+                      LimitsEntityStreamTransformer.class.getResourceAsStream(COMBINER_XSL_LOCATION)), context, LIMITS_OBJECT_FACTORY);
 
-    public void streamAsJson(InputStream in, OutputStream out) {
-        jsonTransform.transform(in, out);
-    }
+      entiyTransform = new JaxbToStreamTransform(context);
+   }
 
-    public void entityAsXml(Limits l, OutputStream output) {
-        entiyTransform.transform(LIMITS_OBJECT_FACTORY.createLimits(l), output);
-    }
+   private static JAXBContext buildJaxbContext() {
+      return TransformHelper.buildJaxbContext(LIMITS_OBJECT_FACTORY.getClass());
+   }
+
+   public void combine(LimitsTransformPair pair, OutputStream out) {
+      combiner.transform(pair, out);
+   }
+
+   public void streamAsJson(InputStream in, OutputStream out, LimitsFormat limitsFormat) {
+
+      switch (limitsFormat) {
+         case LBAAS:
+            LOG.warn("This version of the rate limit response is deprecated.  Ensure you do not need to update to the OpenStack Compute API Rate Limit format.");
+            lbaasJsonTransform.transform(in, out);
+            break;
+         default:
+            jsonTransform.transform(in, out);
+      }
+   }
+
+   public void entityAsXml(Limits l, OutputStream output) {
+      entiyTransform.transform(LIMITS_OBJECT_FACTORY.createLimits(l), output);
+   }
 }

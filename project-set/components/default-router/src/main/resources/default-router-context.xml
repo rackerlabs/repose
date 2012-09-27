@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans-3.1.xsd">
+         
+    <!--
+    <context:component-scan base-package="com.rackspace.papi.components.routing"/>
+    <context:annotation-config/>
+    -->
+
+    <bean name="routingHandlerFactory" class="com.rackspace.papi.components.routing.RoutingHandlerFactory" >
+        <constructor-arg index="0" ref="modelInterrogator"/>
+    </bean>
+    
+    <bean name="routingTagger" class="com.rackspace.papi.components.routing.RoutingTagger" scope="prototype"/>
+</beans>

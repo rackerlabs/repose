@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
+  <repose-cluster id="repose">
+
+    <nodes>
+      <node id="proxy-n01" hostname="<%= node[:fqdn]%>" http-port="8890"/>
+      <node id="proxy-n02" hostname="<%= node[:fqdn]%>" http-port="8891"/>
+      <node id="proxy-n03" hostname="<%= node[:fqdn]%>" http-port="8892"/>
+    </nodes>
+
+    <filters>
+        <filter name="client-auth" uri-regex="/test-uri-regex/non-tenanted-auth/.*" />
+        <filter name="ip-identity" uri-regex="/test-uri-regex/.*" />
+        <filter name="ip-identity" configuration="ip-identity2.cfg.xml" uri-regex="/test-uri-regex-q1/.*" />
+        <filter name="default-router" uri-regex="/test-uri-regex/.*" />
+        <filter name="default-router" uri-regex="/test-uri-regex-q1/.*" />
+        <filter name="dist-datastore"/>
+    </filters>
+
+    <destinations>
+      <endpoint id="service" protocol="http" hostname="50.57.189.15" root-path="/" port="8080" default="true"/>
+    </destinations>
+
+  </repose-cluster>
+</system-model>

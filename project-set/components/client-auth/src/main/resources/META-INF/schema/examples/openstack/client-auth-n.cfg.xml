@@ -1,9 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<client-auth xmlns="http://docs.rackspacecloud.com/power-api/client-auth/v1.0">
-    <openstack-auth delegatable="true" xmlns="http://docs.openrepose.org/power-api/client-auth/os-ids-auth/v1.0">
+<client-auth xmlns="http://docs.rackspacecloud.com/repose/client-auth/v1.0">
+    <openstack-auth delegable="true" xmlns="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0">
         <identity-service username="admin_username" password="admin_password" uri="http://auth-n02.dev.us.ccp.rackspace.net/v2.0/" />
-
-        <client-mapping id-regex=".*/servers/(\w*)/.*"/>
+        
+        <!-- Example Regex to capture user identity in uri
+            e.g: /servers/usertest1/action => x-pp-user=usertest1
+            e.g: /servers/853473/action => x-pp-user=853473
+            e.g: /servers/-741057/action => x-pp-user=-741057
+            e.g: /servers/reposeuser/action => x-pp-user=reposeuser
+            -->
+        <client-mapping id-regex=".*/servers/([-|\w]+)/?.*"/>
     </openstack-auth>
+
+    <white-list>
+        <uri-pattern uri-regex="/application\.wadl$" />
+    </white-list>
 </client-auth>

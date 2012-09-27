@@ -1,116 +1,224 @@
- package com.rackspace.papi.mocks;
+package com.rackspace.papi.mocks;
 
-import java.util.List;
-import java.util.Set;
+import com.rackspace.papi.mocks.providers.MockServiceProvider;
+import java.io.*;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
-import com.rackspace.papi.components.limits.schema.*;
-import com.rackspace.papi.components.ratelimit.util.*;
 
 /**
- *
  * @author malconis
  */
-@Path("/mockendservice/")
+@Path("/")
 public class MockServiceResource {
 
-    private ObjectFactory factory;
-    private String[] absNames = {"Admin", "Tech", "Demo"};
+   private MockServiceProvider provider;
 
-    public MockServiceResource() {
-        factory = new ObjectFactory();
-    }
+   public MockServiceResource() {
+      provider = new MockServiceProvider();
+   }
 
-    @GET
-    @Path("{id : .*}")
-    public Response getEndService(@Context HttpHeaders headers, @Context UriInfo uri) {
-        
-        
-        Set<String> headerPairs = headers.getRequestHeaders().keySet();
-        Set<String> queryParams = uri.getQueryParameters().keySet();
-        String resp = "<html>\n\t<head>\n\t\t<title>Servlet version</title>\n\t</head>\n\t<body>\n\t\t<h1>Servlet version at "
-                      + uri.getPath() + "</h1>";
-        List<String> header;
-        if (!headerPairs.isEmpty()) {
-            resp += "\n\t\t<h2>HEADERS</h2>";
-            for (String h : headerPairs) {
-                header = headers.getRequestHeader(h);
-                for (String hh : header) {
-                    resp += "\n\t\t<h3> " + h + " : " + hh + "</h3>";
-                }
+   @POST
+   @Path("/postcode/{statusCode}")
+   public Response postStatusCode(@PathParam("statusCode") String statusCode, String body, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
+      URI uri = uriInfo.getAbsolutePath();
+
+      return provider.postStatusCode(body, statusCode, uri.toURL().toExternalForm().replaceAll("/statuscode/", "/"), headers, uriInfo);
+   }
+
+   @GET
+   @Path("/statuscode/{statusCode}")
+   public Response getStatusCode(@PathParam("statusCode") String statusCode, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
+      URI uri = uriInfo.getAbsolutePath();
+
+      return provider.getStatusCode(statusCode, uri.toURL().toExternalForm().replaceAll("/statuscode/", "/"), headers, uriInfo);
+   }
+
+   @GET
+   @Path("{id : .*}")
+   public Response getEndService(@Context HttpHeaders headers, @Context UriInfo uri) {
+      return provider.getEndService("", headers, uri);
+   }
+
+   @GET
+   @Path("/")
+   public Response getService(@Context HttpHeaders headers, @Context UriInfo uri) {
+      return provider.getEndService("", headers, uri);
+   }
+
+   private StreamingOutput streamBytes(final byte[] bytes) {
+      return new StreamingOutput() {
+
+         @Override
+         public void write(OutputStream out) throws IOException, WebApplicationException {
+            for (byte b : bytes) {
+               out.write(b);
             }
-        }
-        if (!queryParams.isEmpty()) {
-            resp += "\n\t\t<h2>Query Parameters</h2>";
-            for (String q : queryParams) {
-                resp += "\n\t\t<h3> " + q + " : " + uri.getQueryParameters().get(q) + "</h3>";
+
+            out.flush();
+            out.close();
+         }
+      };
+
+   }
+
+   @GET
+   @Path("/stream{extra: .*}")
+   public StreamingOutput getStreamingService(@Context HttpHeaders headers, @Context UriInfo uri) {
+      final String body = provider.getEchoBody("", headers, uri);
+      return streamBytes(body.getBytes());
+   }
+
+   @POST
+   @Path("/post-stream{extra: .*}")
+   public StreamingOutput getPostStreamingService(String body, @Context HttpHeaders headers, @Context UriInfo uri) {
+      final String data = provider.getEchoBody(body, headers, uri);
+      return streamBytes(data.getBytes());
+   }
+
+   @GET
+   @Path("/responsesize/{size}")
+   public StreamingOutput getSizedResponse(final @PathParam("size") int size, @Context HttpHeaders headers, @Context UriInfo uri) {
+      return new StreamingOutput() {
+
+         @Override
+         public void write(OutputStream out) throws IOException, WebApplicationException {
+            BufferedOutputStream buff = new BufferedOutputStream(out);
+            
+            for (int i = 0; i < size; i++) {
+               buff.write((byte) (i % 128));
             }
-        }
-        resp += "\n\t</body>\n</html>";
-        return Response.ok(resp).header("x-request-id", "somevalue").build();
-    }
-
-    @GET
-    @Path("/")
-    public Response getService(@Context HttpHeaders headers, @Context UriInfo uri) {
-        return this.getEndService(headers, uri);
-    }
-
-    @GET
-    @Path("/{version}/{user}/limits")
-    @Produces("application/xml")
-    public Response getAbsoluteLimits() {
-
-        Limits limits = new Limits();
-        AbsoluteLimitList absList = buildAbsoluteLimits();
-        limits.setAbsolute(absList);
-
-        return Response.ok(factory.createLimits(limits)).build();
-    }
-    
-    @GET
-    @Path("/{version}/{user}/limits")
-    @Produces("application/json")
-    public Response getAbsoluteLimitsJson(){
-        
-        Limits limits = new Limits();
-        AbsoluteLimitList absList = buildAbsoluteLimits();
-        limits.setAbsolute(absList);
-        
-        LimitsEntityTransformer transformer = new LimitsEntityTransformer();
-        return Response.ok(transformer.entityAsJson(limits)).build();
-    }
-    
-    @GET
-    @Path("*/statuscode/{statusCode}")
-    public Response getStatusCode(@PathParam("statusCode") String statusCode){
-        
-        int status;
-        try{
-            status = Integer.parseInt(statusCode);
-        }catch (NumberFormatException e){
-            status = 404;
-        }
-        
-        return Response.status(status).build();
-        
-    }
+            
+            buff.flush();
+            buff.close();
+         }
+      };
+   }
    
-    
+   @GET
+   @Path("{prefix: .*}/responsesize/{size}")
+   public StreamingOutput getSizedResponse2(final @PathParam("size") int size, @Context HttpHeaders headers, @Context UriInfo uri) {
+      return getSizedResponse(size, headers, uri);
+   }
 
-    public AbsoluteLimitList buildAbsoluteLimits() {
-        AbsoluteLimitList limitList = new AbsoluteLimitList();
-        
-        
-        AbsoluteLimit abs;
-        int value = 20;
-        for (String name : absNames) {
-            abs = new AbsoluteLimit();
-            abs.setName(name);
-            abs.setValue(value -= 5);
-            limitList.getLimit().add(abs);
-        }
+   /*
+   @GET
+   @Path("{prefix1: .*}/{prefix2: .*}/responsesize/{size}")
+   public StreamingOutput getSizedResponse3(final @PathParam("size") int size, @Context HttpHeaders headers, @Context UriInfo uri) {
+      return getSizedResponse(size, headers, uri);
+   }
 
-        return limitList;
-    }
+   @GET
+   @Path("{prefix1: .*}/{prefix2: .*}/{prefix3: .*}/responsesize/{size}")
+   public StreamingOutput getSizedResponse4(final @PathParam("size") int size, @Context HttpHeaders headers, @Context UriInfo uri) {
+      return getSizedResponse(size, headers, uri);
+   }
+   * 
+   */
+
+
+   @POST
+   @Path("{id : .*}")
+   public Response postEndService(String body, @Context HttpHeaders headers, @Context UriInfo uri) {
+      return provider.getEndService(body, headers, uri);
+   }
+
+   @POST
+   @Path("/")
+   public Response postService(String body, @Context HttpHeaders headers, @Context UriInfo uri) {
+      return provider.getEndService(body, headers, uri);
+   }
+
+   @GET
+   @Path("/{service}/limits")
+   @Produces("application/json")
+   public Response getLimitsJson() {
+      return provider.getAbsoluteLimitsJSON();
+   }
+
+   @GET
+   @Path("/{service}/limits")
+   @Produces("application/xml")
+   public Response getLimitsXml() {
+      return provider.getAbsoluteLimitsXML();
+   }
+
+   @GET
+   @Path("/{version}/{user}/limits")
+   @Produces("application/json")
+   public Response getAbsoluteLimitsJson() {
+      return provider.getAbsoluteLimitsJSON();
+
+   }
+
+   @GET
+   @Path("/{version}/{user}/limits")
+   @Produces("application/xml")
+   public Response getAbsoluteLimits() {
+      return provider.getAbsoluteLimitsXML();
+   }
+
+   @GET
+   @Path("/delayedresponse/{time}")
+   public Response getDelayedResponse(@PathParam("time") int time, @Context HttpHeaders headers, @Context UriInfo uri) {
+      return provider.getDelayedResponse(time, headers, uri);
+   }
+
+   @GET
+   @Path("/nova/limits")
+   public Response getNovaLimits() {
+
+      StringBuilder limits = new StringBuilder();
+
+      limits.append("<limits xmlns:atom=\"http://www.w3.org/2005/Atom\"");
+      limits.append(" xmlns=\"http://docs.openstack.org/common/api/v1.1\"><rates/><absolute><limit name=\"maxServerMeta\"");
+      limits.append(" value=\"5\"/><limit name=\"maxPersonality\" value=\"5\"/><limit name=\"maxImageMeta\" value=\"5\"/><limit name=\"maxPersonalitySize\"");
+      limits.append(" value=\"1000\"/><limit name=\"maxTotalInstances\" value=\"1000\"/><limit name=\"maxTotalRAMSize\" value=\"10240000\"/></absolute></limits>");
+
+      return Response.ok(limits.toString()).build();
+   }
+
+   @GET
+   @Path("/loadbalancers/absolutelimits")
+   @Produces("application/xml")
+   public Response getLBaaSLimitsXml() {
+
+      return provider.getLBaaSLimitsXml();
+   }
+
+   @GET
+   @Path("/loadbalancers/absolutelimits")
+   @Produces("application/json")
+   public Response getLBaaSLimitsJson() {
+
+      return provider.getLBaaSLimitsJson();
+   }
+
+   @GET
+   @Path("/{user}/loadbalancers/absolutelimits")
+   @Produces("application/xml")
+   public Response getLBaaSLimitsXmlUser() {
+
+      return provider.getLBaaSLimitsXml();
+   }
+
+   @GET
+   @Path("/{user}/loadbalancers/absolutelimits")
+   @Produces("application/json")
+   public Response getLBaaSLimitsJsonUser() {
+
+      return provider.getLBaaSLimitsJson();
+   }
+
+   @GET
+   @Path("/whatismyip")
+   public Response getRequestingIp(@Context HttpServletRequest req) {
+
+      return provider.getRequestingIp(req);
+   }
 }
