@@ -223,13 +223,146 @@
         <title>Configuration</title>
         <para> The rate limiting component obtains its configuration,
             including its API endpoint, from a file named
-                <code>rate-limiting.cfg.xml</code>. </para>
-        <para>
-            To change the rate limiting configuration,
-            edit 
-            <code>rate-limiting.cfg.xml</code> 
-            at any time.
-        </para>
+                <code>rate-limiting.cfg.xml</code>.  We have included
+            an annotated example of a valid
+                <code>rate-limiting.cfg.xml</code> in this
+            section.</para>
+        <para> To change your rate limiting configuration, edit
+                <code>rate-limiting.cfg.xml</code> at any time. Within
+                <code>rate-limiting.cfg.xml</code>, you can specify
+            the following: </para>
+        <itemizedlist>
+            <listitem>
+                <para><emphasis role="bold"> Delegation</emphasis>:
+                    <?sbr?> If set to <code>true</code> and the
+                    identified user has reached a rate limit,
+                    &PRODNAME; rate limiting will not return the
+                    response directly to the client. Instead,
+                    &PRODNAME; will set an
+                    <code>X-PP-Rate-Limited</code> header to a
+                    <code>Retry-After</code> date for the next
+                    available non-rate limited request and send the
+                    request on to the origin service. </para>
+            </listitem>
+            <listitem>
+                <para><emphasis role="bold"> Endpoint</emphasis>:
+                    <?sbr?> <code>&lt;request-endpoint&gt;</code> sets the endpoint and format with which the user can query limits. </para>
+                <itemizedlist>
+                    <listitem>
+                        <para>
+                            <code>&lt;uri-regex&gt;</code> is a
+                            regular expression (regex) for the URI at
+                            which the user can query their limits.
+                            Within the regex, each capture group is
+                            allowed the number of hits specified in
+                            the value attribute of the limit element.
+                            For example, suppose the configuration
+                            specifies a regex of
+                                <literal>/v1/(.*)</literal> with
+                                <code>value</code> set to 100. With
+                            this configuration, some requests come in
+                            with a URI of <code>/v1/pan</code> and
+                            other requests come in with a URI of
+                                <code>/v1/cake</code>. Each user would
+                            be allowed 200 hits if the hits are evenly
+                            divided among the two URIs: 100 hits for
+                            URI <code>/v1/pan</code> and 100 hits for
+                            URI <code>/v1/cake</code>. </para>
+                    </listitem>
+                    <listitem>
+                    <para>
+                        <code>&lt;include-absolute-limits&gt;</code> enables or disables integration with absolute limits. 
+                    </para>
+                    </listitem>
+                    <listitem>
+                        <para>
+                            <code>&lt;limits-format&gt;</code>
+                            identifies the format of returned rate
+                            limits. Valid values include: 
+                            <itemizedlist>
+                                <listitem>
+                                   <para>
+                                   <code>OPENSTACK</code>, the format
+                                   supported by OpenStack. You can
+                                   learn about this format at <link
+                                   xlink:href="http://docs.openstack.org/api/openstack-compute/2/content/ProgramaticLimits.html"
+                                   >http://docs.openstack.org/api/openstack-compute/2/content/ProgramaticLimits.html</link>. </para>
+                                </listitem>
+                            </itemizedlist>
+                        </para>
+                    </listitem>
+                </itemizedlist>
+            </listitem>
+            <listitem>
+                <para><emphasis role="bold"> Group</emphasis>:
+                    <?sbr?> <code>&lt;limit-group&gt;</code> is a list of rate limits to be applied to a user, based on the user's membership in a group. </para>
+                <itemizedlist>
+                    <listitem>
+                        <para>
+                            <code>&lt;id&gt;</code> is the unique identifier for a given limit group
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <para>
+                            <code>&lt;groups&gt;</code> is a space-delimited list of the groups to which this limit group will apply
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <para>
+                            <code>&lt;default&gt;</code> identifies the limit group that will be applied if a user is passed in either of these conditions:
+                            <itemizedlist>
+                                <listitem>
+                                    <para>
+                                        no group is specified
+                                    </para>
+                                </listitem>
+                                <listitem>
+                                    <para>
+                                        no group in the rate limiting configuration matches the group or groups specified
+                                    </para>
+                                </listitem>
+                            </itemizedlist>
+                        </para>
+                    </listitem>
+                    <listitem>
+                        <para>
+                            <code>&lt;limit&gt;</code> describes limits configured for a given endpoint:
+                        <itemizedlist>
+                            <listitem>
+                                <para>
+                                    <code>&lt;uri&gt;</code> is a human-readable URI describing the endpoint for a given configured limit
+                                </para>
+                            </listitem>
+                            <listitem>
+                                <para>
+                                    <code>&lt;uri-regex&gt;</code> is the regex used to match a passing request to current limit group
+                                </para>
+                            </listitem>
+                            <listitem>
+                                <para>
+                                    <code>&lt;http-methods&gt;</code> lists the HTTP methods associated with this limit.
+                                    Valid values include: GET, DELETE, POST, PUT, HEAD, OPTIONS, CONNECT, TRACE, ALL
+                                </para>
+                            </listitem>
+                            <listitem>
+                                <para>
+                                   <code>&lt;unit&gt;</code> is the
+                                   unit of time associated with this
+                                   limit. Valid values include:
+                                   SECOND, MINUTE, HOUR, DAY</para>
+                            </listitem>
+                            <listitem>
+                                <para>
+                                   <code>&lt;value&gt;</code> is the
+                                   number of requests allowed within
+                                   the configured unit of time</para>
+                            </listitem>
+                        </itemizedlist>
+                        </para>
+                    </listitem>
+                </itemizedlist>
+            </listitem>
+        </itemizedlist>
         <example>
             <title>Rate Limiting Configuration: XML</title>
             <programlistingco>
