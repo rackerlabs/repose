@@ -78,7 +78,15 @@
                 <date>2012-09-28</date>
                 <revdescription>
                     <itemizedlist spacing="compact">
-                        <listitem><para>Republished for Repose v2.3.3</para></listitem>
+                        <listitem><para>Republished for Repose v2.3.3.</para></listitem>
+                        <listitem><para>Expanded <xref linkend="Configuration-d1e365"/>, updating sample
+                                in that section and adding 
+                                information about
+                                   <code>java.util.regex.Pattern</code>.</para></listitem>
+                        <listitem><para>Expanded <xref linkend="Querying_Limits-d1e531"/>, adding sample
+                                conversations and details about
+                                headers and quality.</para></listitem>
+                        <listitem><para>Expanded <xref linkend="Absolute-d1e631"></xref>, adding examples of absolute limits returned by origin service.</para></listitem>
                     </itemizedlist>
                 </revdescription>
             </revision>
@@ -146,7 +154,11 @@
     <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
     <chapter xml:id="Introduction-000">
         <title>Introduction to the Rate Limiting Component of &PRODNAME;</title>
-        <para> &PRODNAME;'s rate limiting service filter protects
+        <para>
+            Rate limiting controls the flow of traffic. You can use &PRODNAME;'s rate limiting filter to manage the flow of traffic into your service so that it does not exceed the service's actual capacity.
+            In addition to allowing you to manage legitimate workloads, this allows you prevent overload due to abuse of your system.
+        </para>
+        <para> &PRODNAME;'s rate limiting filter protects
             the origin service from being bombarded by client
             requests. It accomplishes this by specifying limits for
             the number of times a client may request a given resource.
@@ -163,9 +175,15 @@
             However, &PRODABBREV; will integrate absolute and current limits as they apply to a client.
         </para>
         <para>
-            You can learn more about absolute limits in 
+            You can learn more about absolute limits at 
             <xref linkend="Absolute-d1e631" />.
         </para>
+        <tip>
+            <para>
+                Your rate limits are controlled by <code>rate-limiting.cfg.xml</code>; to change your rate limiting configuration, edit <code>rate-limiting.cfg.xml</code>.
+                You can see an annotated example of <code>rate-limiting.cfg.xml</code> at <xref linkend="Configuration-d1e365" />.            
+            </para>
+        </tip>
     </chapter>
     <chapter xml:id="HTTP_Message_Requirements-d1e222">
         <title>HTTP Message Requirements</title>
@@ -529,14 +547,15 @@
                 </tbody>
             </table>
             <important>
-                <para>
-                    The <code>unit</code> and <code>value</code> attributes must always be specified as pairs.
-                    For example, <code>UNIT="SECOND" VALUE="1"</code> allows a rate of one request per second.
-                </para>
+                <para> The <code>unit</code> and <code>value</code>
+                    attributes must always be specified as pairs. For
+                    example, <code>unit="SECOND" value="1"</code>
+                    allows a rate of one request per second. </para>
             </important>
         </section>
         <section xml:id="Constructing_Cache_Keys-d1e378">
-            <title>Constructing Cache Keys</title>
+            <title>Constructing Cache Keys with Regular
+                Expressions</title>
             <para> The rate limiting component must be able to track rate limits per resource. To
                 effectively facilitate this, the rate limiting component attempts to generate a
                 cache key from the limit's regular expression, as defined in its
@@ -546,6 +565,12 @@
                 cache key for the request. This is considered sub-optimal in most cases, since each
                 unique resource representation will have requests made against it tracked
                 separately. </para>
+            <para>
+                The rate limiting component uses the java.util.regex package to match character sequences against patterns specified by regular expressions.
+                The patterns are defined in <code>java.util.regex.Pattern</code>. You can learn about <code>java.util.regex.Pattern</code> at 
+                <link xlink:href="http://download.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html"
+                    >http://download.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html</link>.
+            </para>
             <warning>
                 <para> 
                     You can get an unexpected result
@@ -559,7 +584,8 @@
                     request URI that the rate limiting component
                     operates against. </para>
             </warning>
-            <para>As you plan your own regular expressions, consider the following examples: </para>
+            <para>The following examples may help you plan your own
+                regular expressions: </para>
             <annotation>
                 <remark> The ampersand character is used in regular
                     expressions but it's also used in DocBook XML
@@ -690,11 +716,12 @@
     </chapter>
     <chapter xml:id="Querying_Limits-d1e531">
         <title>Querying Current Limits</title>
-        <para> A client may request from the rate limiting component information about the client's own current limits. Those limits may
-            include 
-            <link linkend="Absolute-d1e631">absolute limits</link>.
-        </para>
-        <para> Valid content MIME types are: <itemizedlist spacing="compact">
+        <para> A client may ask the rate limiting component for
+            information about the client's own current limits. Those
+            limits may include <link linkend="Absolute-d1e631"
+                >absolute limits</link>. </para>
+        <para> Valid content MIME types for such requests are:
+                <itemizedlist spacing="compact">
                 <listitem>
                     <para>application/xml</para>
                 </listitem>
@@ -709,11 +736,15 @@
                 </listitem>
             </itemizedlist>
         </para>
-        
+        <para> As shown below, a request in which the user is
+            identified via <code>X-PP-User</code> and the user's group
+            is identified via <code>X-PP-Groups</code> generates a
+            response showing all the limits applicable to that user in
+            that group:</para>        
         <table border="1" frame="box">
             <?dbfo keep-together="always"?>
             <caption>Sample Request/Response Conversation: Request
-                Limits</caption>
+                Limits for User</caption>
             <thead>
                 <tr>
                     <td>Request</td>
@@ -749,16 +780,159 @@ Content-Length: 538
                     </td>
                 </tr>
             </tbody>
-        </table>
+        </table>   
+        <para> The rate limiting component caches rate limits by user.
+            Consequently, to query rate limits, a user must be passed
+            into the rate limiting component. The rate limiting
+            component uses the <code>X-PP-User</code> header to
+            identify a user whose limits will be queried. Without a
+            value in this header, the rate limiting component will
+            send back a '401 Unauthorized'. </para>
+        <para> The rate limiting component uses the
+                <code>X-PP-Groups</code> header to determine which
+            rate limits to apply to the user. If this header is not
+            present, the rate limiting component will assign limits
+            from a default group specified in the
+                <code>rate-limiting.cfg.xml</code> configuration file. </para>
+        <para> It is possible to query a user's rate limits before the
+            user's limits are placed in the cache. This is the case
+            when querying limits before the user has ever been rate
+            limited. In this case, there are two possible results,
+            based on the contents of the <code>X-PP-Groups</code>
+            header: <itemizedlist>
+                <listitem>
+                    <para> If the <code>X-PP-Groups</code> header,
+                        containing specification of a group, is passed
+                        in, then the rate limits configured for the
+                        specified group in rate-limiting.cfg.xml are
+                        returned. </para>
+                </listitem>
+                <listitem>
+                    <para> If the <code>X-PP-Groups</code> header is
+                        not passed in, then the rate limits configured
+                        for the default limit group in
+                        rate-limiting.cfg.xml are returned. </para>
+                </listitem>
+            </itemizedlist>
+        </para>
+        <para>
+            Once the user has made a call which uses any of the defined limits, the user has rate limits in the cache. 
+            At this point, the rate limiting component will return the limits stored in the cache for that user.
+        </para>
+        <note>
+            <para> The rate limiting component understands quality
+                factors for the <code>X-PP-User</code> and
+                    <code>X-PP-Groups</code> headers. This is useful
+                when a service implementer wishes to employ multiple
+                authentication/identity mechanisms. You can learn more
+                about how &PRODNAME; handles authentication and
+                identity in the &PRODNAME; Authentication and
+                Authorization Components Deployment Handbook. </para>
+            <para> If multiple user or group values are present in the
+                    <code>X-PP-User</code> or <code>X-PP-Groups</code>
+                headers with the same quality, then the first value is
+                used. If the user or group does not have an explicit
+                quality, &PRODNAME;  assumes the quality for that item
+                is 1. </para>
+        </note>
+        <para> In the rate limiting configuration shown below,
+                <code>rate-limiting.cfg.xml</code> defines limits to
+            be applied to two groups, <code>BETA_Group</code> and
+                <code>IP_Standard</code>, and separately defines
+            limits to be applied to default group named
+                <code>My_Group</code>. The limits defined for
+                <code>My_Group</code> apply when no other group is
+            specified. In the <code>request-endpoint</code> element,
+            which applies to all groups, the <code>uri-regex</code>
+            attribute is set to <code>/limits</code>.  This is the URI
+            at which the user should query for rate limits.</para>
+        <example>
+            <title>Rate Limiting Configuration with Default Group</title>    
+                <programlisting language="xml">
+<xi:include href="samples/repose-ratelimit-default.xml" parse="text"/>
+                </programlisting>
+        </example>
+        <para> Under this rate limiting configuration, a request in
+            which the user is not yet in the cache generates a
+            response showing the limits applicable to that user on the
+            basis of the default group:</para>        
+        <table border="1" frame="box">
+            <?dbfo keep-together="always"?>
+            <caption>Sample Request/Response Conversation: Request
+                Limits for User Not in Cache </caption>
+            <thead>
+                <tr>
+                    <td>Request</td>
+                    <td>Response</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <programlisting>
+curl http://localhost:8020/limits -H "x-pp-user: 123456" -H "accept: application/xml" 
+</programlisting>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <informalexample>
+                            <programlisting language="xml">
+<xi:include href="samples/repose-ratelimit-response-default.xml" parse="text"/>
+</programlisting>
+                        </informalexample>
+                    </td>
+                </tr>
+            </tbody>
+        </table> 
+        <para> Under the same rate limiting configuration, a request
+            associating a user with a group generates a response
+            showing the limits applicable to that user on the basis of
+            membership in the <code>IP_Standard</code> group:</para>        
+        <table border="1" frame="box">
+            <?dbfo keep-together="always"?>
+            <caption>Sample Request/Response Conversation: Request
+                Limits for User in Group </caption>
+            <thead>
+                <tr>
+                    <td>Request</td>
+                    <td>Response</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <programlisting>
+curl http://localhost:8020/limits -H "x-pp-user: 123456"  -H "x-pp-groups: IP_Standard" -H "accept: application/xml" 
+</programlisting>
+                    </td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <informalexample>
+                            <programlisting language="xml">
+<xi:include href="samples/repose-ratelimit-response-group.xml" parse="text"/>
+</programlisting>
+                        </informalexample>
+                    </td>
+                </tr>
+            </tbody>
+        </table>         
     </chapter>
     <chapter xml:id="Absolute-d1e631">
         <title>Integrating Absolute Limits</title>
         <para> The rate limiting component is designed to integrate
             with limits that are returned as a response from the
-            origin service. These limits are absolute and are specific
-            to the origin service domain.  For example, the absolute
-            limits returned by the OpenStack Compute API may resemble
-            the following: </para>
+            origin service. These limits are absolute, meaning that
+            they define limits for the service as a whole rather than
+            for any individual consumer of the service.  Absolute
+            limits are specific to the origin service domain. For
+            example, the absolute limits returned by the OpenStack
+            Compute API may resemble the following: </para>
         <table border="1" frame="box">
             <?dbfo keep-together="always"?>
             <caption>Sample Absolute Limits Returned by Origin Service</caption>
