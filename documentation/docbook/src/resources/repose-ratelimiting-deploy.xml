@@ -221,8 +221,9 @@
     </chapter>
     <chapter xml:id="Configuration-d1e365">
         <title>Configuration</title>
-        <para> The rate limiting component sources its configuration, including its API endpoint,
-            from a file named <code>rate-limiting.cfg.xml</code>. </para>
+        <para> The rate limiting component obtains its configuration,
+            including its API endpoint, from a file named
+                <code>rate-limiting.cfg.xml</code>. </para>
         <example>
             <title>Rate Limiting Configuration: XML</title>
             <programlistingco>
@@ -231,13 +232,13 @@
                     <area xml:id="cfg.xml.uri-regex" units="linecolumn" coords="5 32"/>
                     <area xml:id="cfg.xml.include-absolute-limits" units="linecolumn" coords="6 32"/>
                     <area xml:id="cfg.xml.limit-group" units="linecolumn" coords="8 17"/>
-                    <area xml:id="cfg.xml.id" units="linecolumn" coords="8 37"/>
+                    <area xml:id="cfg.xml.id" units="linecolumn" coords="8 21"/>
                     <area xml:id="cfg.xml.groups" units="linecolumn" coords="9 15"/>
-                    <area xml:id="cfg.xml.default" units="linecolumn" coords="9 34"/>
+                    <area xml:id="cfg.xml.default" units="linecolumn" coords="9 35"/>
                     <area xml:id="cfg.xml.limit" units="linecolumn" coords="10 15"/>
                 </areaspec>        
             <programlisting language="xml">
-<xi:include href="samples/papi-ratelimit.xml" parse="text"/>
+<xi:include href="samples/repose-ratelimit.xml" parse="text"/>
             </programlisting>
             </programlistingco>
         </example>
