@@ -139,6 +139,25 @@
                     </para>
                 </abstract>
             </biblioentry>
+            <biblioentry xml:id="XSL">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                </orgname>
+                <title>Extensible Stylesheet Language Family (XSL), The 
+                    <link xlink:href="http://www.w3.org/Style/XSL/">http://www.w3.org/Style/XSL/</link>
+                </title>
+                <abstract>
+                    <para>
+                        The Rate Limiting component uses this method to convert between XML and JSON.
+                    </para>
+                </abstract>
+            </biblioentry>
             <biblioentry xml:id="RFC2616">
                 <author>
                     <personname>
@@ -179,7 +198,7 @@
                     </para>
                 </abstract>
             </biblioentry>
-            <biblioentry xml:id="RFC2046">
+              <biblioentry xml:id="RFC2046">
                 <author>
                     <personname>
                         <firstname>R.</firstname>
@@ -197,6 +216,48 @@
                     <para>
                         The Versioning component uses MIME types to describe the media types associated with version mappings.
                     </para>
+                </abstract>
+            </biblioentry>
+            <biblioentry xml:id="OSLIMIT">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    OpenStack
+                </orgname>
+                <title>OpenStack Compute Developer Guide: Determining Limits Programmatically
+                    <link xlink:href="http://docs.openstack.org/api/openstack-compute/2/content/ProgramaticLimits.html">http://docs.openstack.org/api/openstack-compute/2/content/ProgramaticLimits.html</link>
+                </title>
+                <abstract>
+                    <para>
+                        The Rate Limiting component can use absolute limits provided by an origin service, such as the absolute limits shown here.
+                    </para>
+                </abstract>
+            </biblioentry>
+            <biblioentry xml:id="REGEX">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    Oracle Corporation
+                </orgname>
+                <title>Pattern (Java Platform SE 7)
+                    <link xlink:href="http://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html">http://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html</link>
+                </title>
+                <abstract>
+                    <para> The Rate Limiting component uses
+                        <code>java.util.regex.Pattern</code>,
+                        defined here, to match character sequences
+                        against patterns specified by regular
+                        expressions. </para>
                 </abstract>
             </biblioentry>
             <biblioentry xml:id="RAXCAUTH">

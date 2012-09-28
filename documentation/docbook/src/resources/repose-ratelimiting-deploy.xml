@@ -178,11 +178,29 @@
             You can learn more about absolute limits at 
             <xref linkend="Absolute-d1e631" />.
         </para>
+        <para>
+            The &PRODNAME; rate limiting component performs two categories of behavior:
+            <itemizedlist>
+                <listitem>
+                    <para>
+                      <link linkend="Querying_Limits-d1e531">querying for limits</link> 
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <link linkend="Recording_Requests-d1e431">tracking limits</link>
+                    </para>
+                </listitem>
+            </itemizedlist>
+        </para>
         <tip>
-            <para>
-                Your rate limits are controlled by <code>rate-limiting.cfg.xml</code>; to change your rate limiting configuration, edit <code>rate-limiting.cfg.xml</code>.
-                You can see an annotated example of <code>rate-limiting.cfg.xml</code> at <xref linkend="Configuration-d1e365" />.            
-            </para>
+            <para> Rate limits are controlled by
+                    <code>rate-limiting.cfg.xml</code>; to change your
+                rate limiting configuration, edit
+                    <code>rate-limiting.cfg.xml</code>. You can see an
+                annotated example of
+                    <code>rate-limiting.cfg.xml</code> at <xref
+                    linkend="Configuration-d1e365"/>. </para>
         </tip>
     </chapter>
     <chapter xml:id="HTTP_Message_Requirements-d1e222">
