@@ -224,6 +224,12 @@
         <para> The rate limiting component obtains its configuration,
             including its API endpoint, from a file named
                 <code>rate-limiting.cfg.xml</code>. </para>
+        <para>
+            To change the rate limiting configuration,
+            edit 
+            <code>rate-limiting.cfg.xml</code> 
+            at any time.
+        </para>
         <example>
             <title>Rate Limiting Configuration: XML</title>
             <programlistingco>
@@ -307,8 +313,7 @@
         <section xml:id="Configuring_Limits-d1e376">
             <title>Configuring Limits</title>
             <para> To set a rate limit, assign acceptable values to the rate limiting configuration
-                attributes shown in the code sample introducing <xref linkend="Configuration-d1e365"
-                />
+                attributes as shown in the table below. You can see these attributes in context in the code sample introducing <xref linkend="Configuration-d1e365" />.
             </para>
             
             <table border="1" frame="box">
@@ -409,10 +414,17 @@
                 unique resource representation will have requests made against it tracked
                 separately. </para>
             <warning>
-                <para> As you construct regular expressions, keep in mind that query parameters as
-                    well as other request URI components ARE included as part of the request URI
-                    that the rate limiting component operates against. You can get an unexpected
-                    result by failing to account for all request URI components.</para>
+                <para> 
+                    You can get an unexpected result
+                    by failing to account for all components of a request URI.
+                </para>
+                <para>
+                    As you construct regular expressions, keep in
+                    mind that query parameters as well as other
+                    request URI components <emphasis role="bold"
+                        >are</emphasis> included as part of the
+                    request URI that the rate limiting component
+                    operates against. </para>
             </warning>
             <para>As you plan your own regular expressions, consider the following examples: </para>
             <annotation>
@@ -443,9 +455,11 @@
                             <code>/service/.*</code>
                         </td>
                         <td>
-                            <para> This is a blanket regular expression that recognizes a parent
-                                resource, <code>service</code>, and catches any request against a
-                                resource that falls under the parent. </para>
+                            <para> This is a blanket regular
+                                expression that recognizes a parent
+                                resource named <code>service</code>
+                                and catches any request against a
+                                resource that falls under that parent. </para>
                             <para> The rate limiting component cannot detect whether the service
                                 implementer is requesting that each resource request be tracked
                                 separately or as part of a group; the component defaults to tracking
@@ -460,14 +474,20 @@
                             <para> This regular expression generates cache keys from the second-tier
                                 resource in a given request URI. This is useful for grouping child
                                 resources under a shared rate limit. </para>
-                            <para> A service can require clients to use their account numbers as
-                                part of the resource tree to their service resources. For a client
-                                request formed like
-                                <code>http://demo.com/service/12345-account/resource</code>,
-                                executing this regular expression against the client request
-                                extracts <code>12345-account</code>. The Rate Limiting component can
-                                use this extracted information as a unique identifier to ensure that
-                                all of the recorded rate limits belong only to this client. </para>
+                            <para> A service can require clients to
+                                use their account numbers as part of
+                                the resource tree to their service
+                                resources. For a client request formed
+                                like
+                                   <code>http://example.com/service/12345-account/resource</code>,
+                                executing this regular expression
+                                against the client request extracts
+                                   <code>12345-account</code>. The
+                                rate limiting component can use this
+                                extracted information as a unique
+                                identifier to ensure that all of the
+                                recorded rate limits belong only to
+                                this client. </para>
                         </td>
                     </tr>
                 </tbody>
