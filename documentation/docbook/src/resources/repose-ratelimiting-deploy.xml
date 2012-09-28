@@ -520,29 +520,39 @@
          </para>
         <section xml:id="Cache_Indexing-d1e439">
         <title>Cache Indexing</title>
-        <para> 
-            The caching format for the rate limiting component is designed for high throughput. 
-            Because of this, an aggregation index is required to group active rate
-            limits to a named client. 
-        </para>
-        <para> The rate limiting component indexes stored limit cache keys in a separate cached
+            <para> 
+                The caching format for the rate limiting component is designed for high throughput. 
+                Because of this, an aggregation index is required to group active rate
+                limits for a named client. 
+            </para>
+            <para> 
+                The string value of the <code>X-PP-User</code> HTTP header is treated as the cache
+                key for this index. 
+            </para>
+            <para> 
+                The rate limiting component indexes stored limit cache keys in a separate cached
                 object for each named client identified with the <code>X-PP-User</code> HTTP header.
-                This data structure is called the user limit key map.  </para>
-        <para> The string value of the <code>X-PP-User</code> HTTP header is treated as the cache
-                key for this index. </para>
+                This data structure is called the user limit key map.  
+            </para>
         </section>
-        <section xml:id="Single_Node-d1e447">
-            <title>Single-Node Installation</title>
-            <para> The rate limiting component supports a single-node &PRODNAME; installation in
-                which all cache operations are performed locally. &PRODNAME;'s default local
-                datastore is used when no other nodes are identified in the system model as hosting
-                a distributed datastore component. </para>
-        </section>
-            <section xml:id="Multi-Node-d1e470">
-                <title>Multi-Node Installation</title>
-                <para> The rate limiting component supports multiple-node &PRODNAME; installations
-                    via &PRODNAME;'s datastore service. If a clustered datastore is available, the
-                component will make use of it. </para>
+        <section xml:id="Single_Node_Multi_Node-d1e447">
+            <title>Caching in Single-Node or Multi-Node Configurations</title>
+            <para> 
+                The rate limiting component caches in single-node or multi-node configurations.
+            </para>
+            <para>
+                The rate limiting component 
+                supports a single-node &PRODNAME; installation in
+                which all cache operations are performed locally. When no other nodes are identified in the system model as hosting
+                a distributed datastore component, 
+                &PRODNAME;'s default local
+                datastore is used. 
+            </para>
+            <para> 
+                The rate limiting component supports multiple-node &PRODNAME; installations
+                via &PRODNAME;'s datastore service. If a clustered datastore is available, the
+                component will make use of it for caching. 
+            </para>
             </section>
     </chapter>
     <chapter xml:id="Requesting_Limits-d1e531">
