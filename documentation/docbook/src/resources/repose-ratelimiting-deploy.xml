@@ -555,10 +555,12 @@
             </para>
             </section>
     </chapter>
-    <chapter xml:id="Requesting_Limits-d1e531">
-        <title>Requesting Current Limits</title>
-        <para> A client may request from the rate limiting component their current limits, which may
-            include absolute limits. </para>
+    <chapter xml:id="Querying_Limits-d1e531">
+        <title>Querying Current Limits</title>
+        <para> A client may request from the rate limiting component information about the client's own current limits. Those limits may
+            include 
+            <link linkend="Absolute-d1e631">absolute limits</link>.
+        </para>
         <para> Valid content MIME types are: <itemizedlist spacing="compact">
                 <listitem>
                     <para>application/xml</para>
@@ -618,9 +620,65 @@ Content-Length: 538
     </chapter>
     <chapter xml:id="Absolute-d1e631">
         <title>Integrating Absolute Limits</title>
-        <para> The rate limiting component is designed to integrate with limits that are returned as
-            a response from the origin service. These limits are absolute and are specific to the
-            origin service domain. </para>
+        <para> The rate limiting component is designed to integrate
+            with limits that are returned as a response from the
+            origin service. These limits are absolute and are specific
+            to the origin service domain.  For example, the absolute
+            limits returned by the OpenStack Compute API may resemble
+            the following: </para>
+        <table border="1" frame="box">
+            <?dbfo keep-together="always"?>
+            <caption>Sample Absolute Limits Returned by Origin Service</caption>
+            <thead>
+                <tr>
+                    <td>Name</td>
+                    <td>Value</td>
+                    <td>Description</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <code> maxTotalRAMSize </code>
+                    </td>
+                    <td align="right">51200</td>
+                    <td>
+                        <para>Maximum total amount of RAM (MB)</para> 
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <code> maxServerMeta </code>
+                    </td>
+                    <td align="right">5</td>
+                    <td>
+                        <para>Maximum number of metadata items
+                            associated with a server</para>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <code> maxImageMeta  </code>
+                    </td>
+                    <td align="right">5</td>
+                    <td>Maximum number of metadata items associated with an image</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code> maxPersonality  </code>
+                    </td>
+                    <td align="right">5</td>
+                    <td>Maximum number of file path/content pairs that can be supplied on server build</td>
+                </tr>
+                <tr>
+                    <td>
+                        <code> maxPersonalitySize  </code>
+                    </td>
+                    <td align="right">10240</td>
+                    <td>Maximum size, in bytes, for each personality file</td>
+                </tr>
+            </tbody>
+        </table>
         <para> To activate inclusion of absolute limits that are specific to a client's origin
             service, use the optional configuration attribute, <code>include-absolute-limits</code>. </para>
         <para> When <code>include-absolute-limits</code> is set to <code>true</code>, the rate
@@ -629,6 +687,16 @@ Content-Length: 538
             origin service responds with the client's absolute limits, the rate limiting component
             enhances the response with the combined absolute and current rate limits. It then sends
             the response to the client. </para>
+        <note>
+            <para>
+                Repose will always request absolute limits from the origin service as XML. 
+                This is due to issues with using 
+                <link xlink:href="http://www.w3.org/Style/XSL/">XSL</link> 
+                on JSON to combine absolute limits with current rate limits. 
+                After it receives the absolute limits response as XML, 
+                Repose combines the absolute limits response with the user's current rate limits and returns the combined limits in the media type (XML or JSON) requested by the user.
+            </para>
+        </note>
     </chapter>
     <chapter xml:id="Limited-d1e731">
         <title>Handling Limited Client Requests</title>
