@@ -492,57 +492,6 @@
                     </tr>
                 </tbody>
             </table>
-<!--            
-            <table frame="all">
-                <?dbhtml table-width="85%" ?>
-                <?dbfo table-width="100%" ?>
-                <title>Sample Regular Expressions</title>
-                <tgroup cols="2">
-                    <colspec colname="c1" colnum="1" colwidth="1.0*"/>
-                    <colspec colname="c2" colnum="2" colwidth="1.48*"/>
-                    <thead>
-                        <row>
-                            <entry>RegEx</entry>
-                            <entry>Discussion</entry>
-                        </row>
-                    </thead>
-                    <tbody>
-                        <row>
-                            <entry>
-                                <code>/service/.*</code>
-                            </entry>
-                            <entry>
-                                <para> This is a blanket regular expression that recognizes a parent
-                                    resource, <code>service</code>, and catches any request against a
-                                    resource that falls under the parent. </para>
-                                <para> The rate limiting component cannot detect whether the service
-                                    implementer is requesting that each resource request be tracked
-                                    separately or as part of a group; the component defaults to tracking
-                                    limited requests under unique keys. </para>
-                            </entry>
-                        </row>
-                        <row>
-                            <entry>
-                                <code>/service/([^!*'();:@&amp;=+$,/?#\\[\\]]*)/.*</code>
-                             </entry>
-                            <entry>
-                                <para> This regular expression generates cache keys from the second-tier
-                                    resource in a given request URI. This is useful for grouping child
-                                    resources under a shared rate limit. </para>
-                                <para> A service can require clients to use their account numbers as
-                                    part of the resource tree to their service resources. For a client
-                                    request formed like
-                                    <code>http://demo.com/service/12345-account/resource</code>,
-                                    executing this regular expression against the client request
-                                    extracts <code>12345-account</code>. The Rate Limiting component can
-                                    use this extracted information as a unique identifier to ensure that
-                                    all of the recorded rate limits belong only to this client. </para>
-                            </entry>
-                        </row>
-                    </tbody>
-                </tgroup>
-            </table>
-            -->
             <note>
                 <para> Service implementers should use capture groups in their regular expressions.
                     In addition, the performance of the regular expression should be taken into
@@ -554,9 +503,21 @@
     </chapter>
     <chapter xml:id="Recording_Requests-d1e431">
         <title>Recording Client Requests</title>
-        <para> The rate limiting component must be able to both record request usage on a per-limit
-            basis and recall all stored limits that belong to a named client. The
-                <code>X-PP-User</code> HTTP header is used for this purpose. </para>
+        <para> The rate limiting component uses the 
+            <code>X-PP-User</code> HTTP header for two purposes:
+            <itemizedlist>
+                <listitem>
+                    <para>
+                        recording request usage on a per-limit basis
+                    </para>
+                </listitem>
+                <listitem>
+                    <para>
+                        recalling all stored limits that belong to a named client
+                    </para>
+                </listitem>
+            </itemizedlist>
+         </para>
         <section xml:id="Cache_Indexing-d1e439">
         <title>Cache Indexing</title>
         <para> 
