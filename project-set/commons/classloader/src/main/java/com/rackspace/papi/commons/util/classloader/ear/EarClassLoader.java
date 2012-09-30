@@ -61,11 +61,13 @@ public class EarClassLoader extends ClassLoader {
          } catch (ClassNotFoundException e) {
             // ClassNotFoundException thrown if class not found
             // from the non-null parent class loader
+            c = findClass(name);
          }
+      }
 
-         if (c == null && (parent instanceof EarClassLoader)) {
-            LOG.debug("Unable to load class: " + name);
-         }
+      if (c == null) {
+         // If still not found throw an exception
+         throw new ClassNotFoundException(name);
       }
 
       if (resolve) {
