@@ -1,37 +1,49 @@
-package com.rackspace.papi.components.translation.xslt.handlerchain;
+package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
 import com.rackspace.papi.components.translation.resolvers.ClassPathUriResolver;
 import com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver;
 import com.rackspace.papi.components.translation.resolvers.OutputStreamUriParameterResolver;
 import com.rackspace.papi.components.translation.resolvers.SourceUriResolverChain;
-import java.io.*;
+import com.rackspace.papi.components.translation.xslt.XsltParameter;
+import com.rackspace.papi.components.translation.xslt.XsltException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
+import java.util.Properties;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
-import javax.xml.transform.sax.TransformerHandler;
+import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import net.sf.saxon.Controller;
 import net.sf.saxon.lib.OutputURIResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-public class XsltHandlerChainExecutor {
+public class XmlFilterChainExecutor {
 
-    private final XsltHandlerChain chain;
+    private final XmlFilterChain chain;
+    private final Properties format = new Properties();
 
-    public XsltHandlerChainExecutor(XsltHandlerChain chain) {
+    public XmlFilterChainExecutor(XmlFilterChain chain) {
         this.chain = chain;
+        format.put(OutputKeys.METHOD, "xml");
+        format.put(OutputKeys.OMIT_XML_DECLARATION, "yes");
+        format.put(OutputKeys.ENCODING, "UTF-8");
+        format.put(OutputKeys.INDENT, "yes");
     }
 
-    private InputStreamUriParameterResolver getResolver(Transformer transformer) {
+    protected InputStreamUriParameterResolver getResolver(Transformer transformer) {
         URIResolver resolver = transformer.getURIResolver();
         SourceUriResolverChain resolverChain;
-        if (resolver == null || !(resolver instanceof SourceUriResolverChain)) {
+        if (!(resolver instanceof SourceUriResolverChain)) {
             resolverChain = new SourceUriResolverChain(resolver);
             resolverChain.addResolver(new InputStreamUriParameterResolver());
             resolverChain.addResolver(new ClassPathUriResolver());
@@ -44,11 +56,17 @@ public class XsltHandlerChainExecutor {
 
     }
 
-    private void setInputParameters(Transformer transformer, List<Parameter> inputs) {
+    protected void setInputParameters(String id, Transformer transformer, List<XsltParameter> inputs) {
 
-        if (inputs.size() > 0) {
-            InputStreamUriParameterResolver resolver = getResolver(transformer);
-            for (Parameter input : inputs) {
+        transformer.clearParameters();
+
+        if (inputs != null && inputs.size() > 0) {
+            com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver resolver = getResolver(transformer);
+            for (XsltParameter input : inputs) {
+                if (!"*".equals(input.getStyleId()) && !id.equals(input.getStyleId())) {
+                    continue;
+                }
+
                 String param;
                 if (input.getValue() instanceof InputStream) {
                     param = resolver.addStream((InputStream) input.getValue());
@@ -61,7 +79,7 @@ public class XsltHandlerChainExecutor {
 
     }
 
-    private OutputStreamUriParameterResolver getOutputResolver(Controller controller) {
+    protected OutputStreamUriParameterResolver getOutputResolver(Controller controller) {
         OutputURIResolver currentResolver = controller.getOutputURIResolver();
         OutputStreamUriParameterResolver outputResolver;
 
@@ -73,56 +91,48 @@ public class XsltHandlerChainExecutor {
         }
 
         controller.setOutputURIResolver(outputResolver);
-        
+
         return outputResolver;
     }
 
-    private void setAlternateOutputs(Transformer transformer, List<Parameter<? extends OutputStream>> outputs) {
-        if (outputs.size() > 0) {
+    protected void setAlternateOutputs(String id, Transformer transformer, List<XsltParameter<? extends OutputStream>> outputs) {
+        if (outputs != null && outputs.size() > 0) {
             if (transformer instanceof Controller) {
                 OutputStreamUriParameterResolver outputResolver = getOutputResolver((Controller) transformer);
 
-                for (Parameter<? extends OutputStream> output : outputs) {
+                for (XsltParameter<? extends OutputStream> output : outputs) {
                     outputResolver.addStream(output.getValue(), output.getName());
                 }
             }
         }
     }
 
-    public void executeChain(InputStream in, OutputStream out, List<Parameter> inputs, List<Parameter<? extends OutputStream>> outputs) throws XsltHandlerException {
+    public void executeChain(InputStream in, OutputStream output, List<XsltParameter> inputs, List<XsltParameter<? extends OutputStream>> outputs) throws XsltException {
         try {
-            XMLReader reader = getSaxReader();
-            // TODO: Make validation optional
-            reader.setFeature("http://xml.org/sax/features/validation", false);
-
-            if (!chain.getHandlers().isEmpty()) {
-
-                // Set the content handler of the reader to be the first handler
-                TransformerHandler firstHandler = chain.getHandlers().get(0);
-                reader.setContentHandler(firstHandler);
-
-                for (TransformerHandler handler : chain.getHandlers()) {
-                    Transformer transformer = handler.getTransformer();
-                    transformer.clearParameters();
-
-                    //transformer.setURIResolver(new ClassPathUriResolver(transformer.getURIResolver()));
-                    setInputParameters(transformer, inputs);
-                    setAlternateOutputs(transformer, outputs);
-                }
-
-                // Set the result of the last handler to be the output stream
-                chain.getHandlers().get(chain.getHandlers().size() - 1).setResult(new StreamResult(out));
+            for (XmlFilterReference filter : chain.getFilters()) {
+                // pass the input stream to all transforms as a param inputstream
+                net.sf.saxon.Filter saxonFilter = (net.sf.saxon.Filter) filter.getFilter();
+                Transformer transformer = saxonFilter.getTransformer();
+                setInputParameters(filter.getId(), transformer, inputs);
+                setAlternateOutputs(filter.getId(), transformer, outputs);
             }
 
-            reader.parse(new InputSource(in));
-            in.close();
-        } catch (IOException ex) {
-            throw new XsltHandlerException(ex);
-        } catch (ParserConfigurationException ex) {
-            throw new XsltHandlerException(ex);
-        } catch (SAXException ex) {
-            throw new XsltHandlerException(ex);
+            Transformer transformer = chain.getFactory().newTransformer();
+            transformer.setOutputProperties(format);
+            transformer.transform(getSAXSource(new InputSource(in)), new StreamResult(output));
+        } catch (TransformerException ex) {
+            throw new XsltException(ex);
         }
+    }
+
+    protected SAXSource getSAXSource(InputSource source) {
+        if (chain.getFilters().isEmpty()) {
+            return new SAXSource(source);
+        }
+
+        XMLFilter lastFilter = chain.getFilters().get(chain.getFilters().size() - 1).getFilter();
+
+        return new SAXSource(lastFilter, source);
     }
 
     protected XMLReader getSaxReader() throws ParserConfigurationException, SAXException {

@@ -47,8 +47,8 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        
-        <xs:attribute name="via" type="xs:string" use="optional">
+
+        <xs:attribute name="via" type="xs:Name" use="optional">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Via header value</html:p>

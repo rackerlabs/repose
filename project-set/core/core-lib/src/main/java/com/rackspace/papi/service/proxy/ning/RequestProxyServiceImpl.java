@@ -10,12 +10,14 @@ import com.rackspace.papi.http.proxy.common.HttpResponseCodeProcessor;
 import com.rackspace.papi.service.proxy.ProxyUtilities;
 import com.rackspace.papi.service.proxy.RequestProxyService;
 import com.rackspace.papi.service.proxy.TargetHostInfo;
+
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import javax.net.ssl.SSLContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -24,24 +26,13 @@ import org.springframework.stereotype.Component;
 public class RequestProxyServiceImpl implements RequestProxyService {
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);
-    private static final int DEFAULT_HTTP_PORT = 80;
     private final Object clientLock = new Object();
     private Integer connectionTimeout = Integer.valueOf(0);
     private Integer readTimeout = Integer.valueOf(0);
     private AsyncHttpClient client;
 
-   public RequestProxyServiceImpl() {
+    public RequestProxyServiceImpl() {
         client = new AsyncHttpClient();
-    }
-
-    private String extractHostPath(HttpServletRequest request) {
-        final StringBuilder myHostName = new StringBuilder(request.getServerName());
-
-        if (request.getServerPort() != DEFAULT_HTTP_PORT) {
-            myHostName.append(":").append(request.getServerPort());
-        }
-
-        return myHostName.append(request.getContextPath()).toString();
     }
 
     @Override
@@ -55,7 +46,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             HttpResponseCodeProcessor responseCode = new HttpResponseCodeProcessor(response.getStatus());
 
             if (responseCode.isRedirect()) {
-                responseProcessor.sendTranslatedRedirect(host.getProxiedHostUrl().toExternalForm(), extractHostPath(request), response.getStatus());
+                responseProcessor.sendTranslatedRedirect(response.getStatus());
             } else {
                 responseProcessor.process();
             }
@@ -108,14 +99,14 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             String value = headers.get(header);
             builder.addHeader(header, value);
         }
-        
+
         return builder;
     }
-    
+
     private ServiceClientResponse executeRequest(BoundRequestBuilder builder) {
         try {
             Response get = builder.execute().get();
-            return new ServiceClientResponse(get.getStatusCode(), get.hasResponseBody()? get.getResponseBodyAsStream(): null);
+            return new ServiceClientResponse(get.getStatusCode(), get.hasResponseBody() ? get.getResponseBodyAsStream() : null);
         } catch (IOException ex) {
             LOG.error("Error executing request", ex);
         } catch (InterruptedException ex) {

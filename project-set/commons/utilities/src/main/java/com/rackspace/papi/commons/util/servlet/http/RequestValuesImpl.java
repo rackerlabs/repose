@@ -1,12 +1,5 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
-import com.rackspace.papi.commons.util.servlet.http.RequestDestinations;
-import com.rackspace.papi.commons.util.servlet.http.RequestHeaderValues;
-import com.rackspace.papi.commons.util.servlet.http.RequestQueryParameters;
-import com.rackspace.papi.commons.util.servlet.http.RequestValues;
-import com.rackspace.papi.commons.util.servlet.http.RequestDestinationsImpl;
-import com.rackspace.papi.commons.util.servlet.http.RequestHeaderValuesImpl;
-import com.rackspace.papi.commons.util.servlet.http.RequestQueryParametersImpl;
 import javax.servlet.http.HttpServletRequest;
 
 public class RequestValuesImpl implements RequestValues {

@@ -433,7 +433,7 @@
                   <hashTree/>
                   <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
                     <collectionProp name="Asserion.test_strings">
-                      <stringProp name="725856633">&lt;h3&gt; via : 1.1 Repose (</stringProp>
+                      <stringProp name="-1025494300">:8080 (Repose/2.3.4-SNAPSHOT)&lt;/h3&gt;</stringProp>
                     </collectionProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
@@ -536,7 +536,7 @@
                   <hashTree/>
                   <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
                     <collectionProp name="Asserion.test_strings">
-                      <stringProp name="725856633">&lt;h3&gt; via : 1.1 Repose (</stringProp>
+                      <stringProp name="-1025494300">:8080 (Repose/2.3.4-SNAPSHOT)&lt;/h3&gt;</stringProp>
                     </collectionProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
@@ -732,7 +732,7 @@
                   <hashTree/>
                   <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
                     <collectionProp name="Asserion.test_strings">
-                      <stringProp name="725856633">&lt;h3&gt; via : 1.1 Repose (</stringProp>
+                      <stringProp name="-1025494300">:8080 (Repose/2.3.4-SNAPSHOT)&lt;/h3&gt;</stringProp>
                     </collectionProp>
                     <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                     <boolProp name="Assertion.assume_success">false</boolProp>
@@ -817,7 +817,7 @@
                 <hashTree/>
                 <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
                   <collectionProp name="Asserion.test_strings">
-                    <stringProp name="725856633">&lt;h3&gt; via : 1.1 Repose (</stringProp>
+                    <stringProp name="-1025494300">:8080 (Repose/2.3.4-SNAPSHOT)&lt;/h3&gt;</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                   <boolProp name="Assertion.assume_success">false</boolProp>
@@ -872,7 +872,7 @@
                 <hashTree/>
                 <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
                   <collectionProp name="Asserion.test_strings">
-                    <stringProp name="725856633">&lt;h3&gt; via : 1.1 Repose (</stringProp>
+                    <stringProp name="-1025494300">:8080 (Repose/2.3.4-SNAPSHOT)&lt;/h3&gt;</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                   <boolProp name="Assertion.assume_success">false</boolProp>

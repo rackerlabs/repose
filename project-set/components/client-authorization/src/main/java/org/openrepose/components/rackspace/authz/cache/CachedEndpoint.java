@@ -1,4 +1,4 @@
-package com.rackspace.auth;
+package org.openrepose.components.rackspace.authz.cache;
 
 import java.io.Serializable;
 

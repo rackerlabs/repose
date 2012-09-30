@@ -42,7 +42,6 @@ import org.springframework.stereotype.Component;
 public class RequestProxyServiceImpl implements RequestProxyService {
 
    private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);
-   private static final int DEFAULT_HTTP_PORT = 80;
    private static final int DEFAULT_HTTPS_PORT = 443;
    private final Object clientLock = new Object();
    private Integer connectionTimeout = Integer.valueOf(0);
@@ -98,7 +97,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
          if (method != null) {
             HttpRequestBase processedMethod = method.process(processor);
 
-            return executeProxyRequest(proxiedHost, processedMethod, request, response);
+            return executeProxyRequest(processedMethod, response);
          }
       } catch (HttpException ex) {
          LOG.error("Error processing request", ex);
@@ -108,17 +107,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
       return -1;
    }
 
-   private String extractHostPath(HttpServletRequest request) {
-      final StringBuilder myHostName = new StringBuilder(request.getServerName());
-
-      if (request.getServerPort() != DEFAULT_HTTP_PORT) {
-         myHostName.append(":").append(request.getServerPort());
-      }
-
-      return myHostName.append(request.getContextPath()).toString();
-   }
-
-   private int executeProxyRequest(HttpHost proxiedHost, HttpRequestBase httpMethodProxyRequest, HttpServletRequest sourceRequest, HttpServletResponse response) throws IOException, HttpException {
+   private int executeProxyRequest(HttpRequestBase httpMethodProxyRequest, HttpServletResponse response) throws IOException, HttpException {
 
       //httpMethodProxyRequest.setFollowRedirects(false);
 
@@ -127,7 +116,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
       HttpComponentResponseProcessor responseProcessor = new HttpComponentResponseProcessor(httpResponse, response, responseCode);
 
       if (responseCode.isRedirect()) {
-         responseProcessor.sendTranslatedRedirect(proxiedHost.toURI(), extractHostPath(sourceRequest), responseCode.getCode());
+         responseProcessor.sendTranslatedRedirect(responseCode.getCode());
       } else {
          responseProcessor.process();
       }

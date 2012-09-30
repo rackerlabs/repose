@@ -42,14 +42,4 @@ public class HttpComponentResponseProcessor extends AbstractResponseProcessor {
         }
 
     }
-
-    @Override
-    protected String getResponseHeaderValue(String headerName) throws com.rackspace.papi.http.proxy.HttpException {
-        final Header[] headerValues = httpResponse.getHeaders(headerName);
-        if (headerValues == null || headerValues.length == 0) {
-            return null;
-        }
-
-        return headerValues[0].getValue();
-    }
 }

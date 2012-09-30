@@ -2,23 +2,20 @@ package com.rackspace.papi.httpx.parser;
 
 import com.rackspace.httpx.MessageDetail;
 import com.rackspace.httpx.RequestHeadDetail;
-import org.custommonkey.xmlunit.Diff;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
-import org.xml.sax.SAXException;
-
-import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
-
+import javax.servlet.http.HttpServletRequest;
+import org.custommonkey.xmlunit.Diff;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
+import static org.mockito.Mockito.*;
+import org.xml.sax.SAXException;
 
 /**
  * @author fran
@@ -72,6 +69,7 @@ public class HttpRequestParserTest {
             when(mockedRequest.getRequestURI()).thenReturn("/request");
             when(mockedRequest.getProtocol()).thenReturn("HTTP/1.1");
             when(mockedRequest.getContentType()).thenReturn("application/xml");
+            when(mockedRequest.getHeader(eq("content-type"))).thenReturn("application/xml");
             
             messageFidelity.add(MessageDetail.BODY);
             messageFidelity.add(MessageDetail.HEAD);

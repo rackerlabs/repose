@@ -25,9 +25,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.jar.Manifest;
 
-public class DefaultEarArchiveEntryListener implements EarArchiveEntryListener {
+public class DefaultEarArchiveEntryHelper implements EarArchiveEntryHelper {
 
-    private static final Logger LOG = LoggerFactory.getLogger(DefaultEarArchiveEntryListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DefaultEarArchiveEntryHelper.class);
     private static final List<String> DEFAULT_ACCEPTED_RESOURCE_EXTENSIONS = Arrays.asList("xml", "properties");
     
     private static final ConfigurationParser<ApplicationType> APPLICATION_XML_PARSER;
@@ -53,15 +53,15 @@ public class DefaultEarArchiveEntryListener implements EarArchiveEntryListener {
 
     private final SimpleEarClassLoaderContext context;
 
-    public DefaultEarArchiveEntryListener(File deploymentRoot) {
+    public DefaultEarArchiveEntryHelper(File deploymentRoot) {
         this(new SimpleEarClassLoaderContext(deploymentRoot));
     }
 
-    public DefaultEarArchiveEntryListener(ClassLoader absoluteParent, File deploymentRoot) {
+    public DefaultEarArchiveEntryHelper(ClassLoader absoluteParent, File deploymentRoot) {
         this(new SimpleEarClassLoaderContext(absoluteParent, deploymentRoot));
     }
 
-    private DefaultEarArchiveEntryListener(SimpleEarClassLoaderContext context) {
+    private DefaultEarArchiveEntryHelper(SimpleEarClassLoaderContext context) {
         this.context = context;
     }
 

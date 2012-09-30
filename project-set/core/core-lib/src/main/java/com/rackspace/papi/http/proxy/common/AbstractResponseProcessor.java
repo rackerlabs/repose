@@ -1,20 +1,17 @@
 package com.rackspace.papi.http.proxy.common;
 
-import com.rackspace.papi.commons.util.StringUtilities;
-
-import javax.servlet.http.HttpServletResponse;
+import static com.rackspace.papi.commons.util.http.CommonHttpHeader.CONTENT_LENGTH;
+import com.rackspace.papi.http.proxy.HttpException;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.TreeSet;
-
-import static com.rackspace.papi.commons.util.http.CommonHttpHeader.CONTENT_LENGTH;
-import static com.rackspace.papi.commons.util.http.CommonHttpHeader.LOCATION;
-
-import com.rackspace.papi.http.proxy.HttpException;
 import java.util.Set;
+import java.util.TreeSet;
+import javax.servlet.http.HttpServletResponse;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractResponseProcessor {
 
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AbstractResponseProcessor.class);
     private static final String[] EXCLUDE_HEADERS = {"connection", "transfer-encoding", "server"};
     private static final Set<String> EXCLUDE_HEADERS_SET = new TreeSet<String>(Arrays.asList(EXCLUDE_HEADERS));
     private final HttpServletResponse response;
@@ -33,11 +30,8 @@ public abstract class AbstractResponseProcessor {
         return responseCode;
     }
 
-    protected void sendRedirect(String url, int statusCode) throws IOException {
+    protected void sendRedirect(int statusCode) throws IOException {
         response.setStatus(statusCode);
-        if (url != null) {
-            response.setHeader("Location", url);
-        }
     }
 
     protected void setStatus() {
@@ -54,33 +48,14 @@ public abstract class AbstractResponseProcessor {
 
     protected abstract void setResponseBody() throws IOException;
 
-    protected abstract String getResponseHeaderValue(String name) throws HttpException;
-
-    private String translateRedirectUrl(String proxiedRedirectUrl, String proxiedHostUrl, String requestHostPath) {
-        if (proxiedRedirectUrl == null) {
-            return null;
-        }
-
-        if (StringUtilities.isEmpty(proxiedRedirectUrl)) {
-            return requestHostPath;
-        }
-        return proxiedRedirectUrl.replace(proxiedHostUrl, requestHostPath);
-    }
-
     /**
-     *
-     * @param proxiedHostUrl - host:port/contextPath to the origin service
-     * @param requestHostPath - host:port/contextPath from the client request
      * @param statusCode
      * @throws HttpException
      * @throws IOException
      */
-    public void sendTranslatedRedirect(String proxiedHostUrl, String requestHostPath, int statusCode) throws HttpException, IOException {
-        final String proxiedRedirectUrl = getResponseHeaderValue(LOCATION.name());
-        final String translatedRedirectUrl = translateRedirectUrl(proxiedRedirectUrl, proxiedHostUrl, requestHostPath);
-
+    public void sendTranslatedRedirect(int statusCode) throws HttpException, IOException {
         setResponseHeaders();
-        sendRedirect(translatedRedirectUrl, statusCode);
+        sendRedirect(statusCode);
         setResponseBody();
     }
 

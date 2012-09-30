@@ -2,7 +2,7 @@ package com.rackspace.papi.commons.util.plugin.archive;
 
 import java.util.jar.Manifest;
 
-public interface ArchiveEntryListener {
+public interface ArchiveEntryHelper {
     
     EntryAction nextJarEntry(ArchiveEntryDescriptor je);
 

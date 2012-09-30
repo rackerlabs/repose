@@ -2,8 +2,8 @@ package com.rackspace.papi.service.deploy;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.StringUtilities;
-import com.rackspace.papi.commons.util.classloader.ear.DefaultEarArchiveEntryListener;
-import com.rackspace.papi.commons.util.classloader.ear.EarArchiveEntryListener;
+import com.rackspace.papi.commons.util.classloader.ear.DefaultEarArchiveEntryHelper;
+import com.rackspace.papi.commons.util.classloader.ear.EarArchiveEntryHelper;
 import com.rackspace.papi.commons.util.classloader.ear.EarUnpacker;
 import com.rackspace.papi.container.config.ArtifactDirectory;
 import com.rackspace.papi.container.config.ContainerConfiguration;
@@ -78,12 +78,12 @@ public class ContainerConfigurationListener implements UpdateListener<ContainerC
       }
    }
 
-   public synchronized EarArchiveEntryListener newEarArchiveEntryListener() {
+   public synchronized EarArchiveEntryHelper newEarArchiveEntryListener() {
       validateDeploymentDirectory();
 
       final ClassLoader localClassLoaderCtx = Thread.currentThread().getContextClassLoader();
 
-      return new DefaultEarArchiveEntryListener(localClassLoaderCtx, getUnpacker().getDeploymentDirectory());
+      return new DefaultEarArchiveEntryHelper(localClassLoaderCtx, getUnpacker().getDeploymentDirectory());
    }
 
    public synchronized ArtifactDirectoryWatcher getDirWatcher() {

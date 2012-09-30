@@ -25,11 +25,11 @@ public class EarUnpacker {
       return deploymentDirectory;
    }
 
-   public EarClassLoaderContext read(EarArchiveEntryListener entryListener, File earFile) throws IOException {
+   public EarClassLoaderContext read(EarArchiveEntryHelper entryListener, File earFile) throws IOException {
       return read(entryListener, new FileInputStream(earFile));
    }
 
-   public EarClassLoaderContext read(EarArchiveEntryListener entryListener, InputStream inputStream) throws IOException {
+   public EarClassLoaderContext read(EarArchiveEntryHelper entryListener, InputStream inputStream) throws IOException {
       final JarInputStream jarInputStream = new JarInputStream(inputStream);
       final Stack<ArchiveStackElement> archiveStack = new Stack<ArchiveStackElement>();
       archiveStack.push(new ArchiveStackElement(jarInputStream, ArchiveEntryDescriptor.ROOT_ARCHIVE));

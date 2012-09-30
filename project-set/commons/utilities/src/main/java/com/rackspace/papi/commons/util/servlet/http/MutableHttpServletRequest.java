@@ -18,7 +18,7 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
     public static MutableHttpServletRequest wrap(HttpServletRequest request) {
         return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request);
     }
-    private BufferedServletInputStream inputStream;
+    private ServletInputStream inputStream;
     private final RequestValues values;
 
     private MutableHttpServletRequest(HttpServletRequest request) {
@@ -76,6 +76,10 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
             }
         }
         return inputStream;
+    }
+    
+    public void setInputStream(ServletInputStream inputStream) {
+        this.inputStream = inputStream;
     }
 
     @Override

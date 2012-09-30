@@ -7,7 +7,6 @@ import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.domain.ServicePorts;
-import com.rackspace.papi.http.ProxyHeadersGenerator;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
@@ -23,6 +22,7 @@ import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.rackspace.papi.service.headers.response.ResponseHeaderService;
 import com.rackspace.papi.service.reporting.ReportingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +41,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     private Node localHost;
     private FilterConfig filterConfig;
     private ReportingService reportingService;
-    private ProxyHeadersGenerator proxyHeadersGenerator;
+    private ResponseHeaderService responseHeaderService;
 
     public PowerFilter() {
         firstInitialization = true;
@@ -134,10 +134,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         filterConfig.getServletContext().setAttribute("powerFilter", this);
 
         reportingService = papiContext.reportingService();
-
-        final String via = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).containerConfigurationService().getVia();
-        final String reposeVersion = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).getReposeVersion();
-        proxyHeadersGenerator = new ProxyHeadersGenerator(via, reposeVersion);
+        responseHeaderService = papiContext.responseHeaderService();
     }
 
     @Override
@@ -151,9 +148,8 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
 
-        proxyHeadersGenerator.setResponseProxyHeaders(mutableHttpRequest, mutableHttpResponse);
-
         if (powerFilterChainBuilder == null) {
+            responseHeaderService.setVia(mutableHttpRequest, mutableHttpResponse);
             throw new ServletException("Filter chain has not been initialized");
         }
 
@@ -173,10 +169,15 @@ public class PowerFilter extends ApplicationContextAwareFilter {
             // the response will be committed by an underlying service, outside of repose
             if (!mutableHttpResponse.isCommitted()) {
                 papiContext.responseMessageService().handle(mutableHttpRequest, mutableHttpResponse);
+                responseHeaderService.setVia(mutableHttpRequest, mutableHttpResponse);
             }
 
-            mutableHttpResponse.commitBufferToServletOutputStream();
-            reportingService.incrementReposeStatusCodeCount(((HttpServletResponse) response).getStatus());
+            try {
+                mutableHttpResponse.commitBufferToServletOutputStream();
+            } catch(IOException ex) {
+                LOG.error("Error committing output stream", ex);
+            }
+            reportingService.incrementReposeStatusCodeCount(((HttpServletResponse) response).getStatus());            
         }
     }
 }
