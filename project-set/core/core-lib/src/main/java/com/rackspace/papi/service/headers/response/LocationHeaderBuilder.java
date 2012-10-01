@@ -32,7 +32,7 @@ public class LocationHeaderBuilder {
     }
 
     private String translateLocationUrl(String proxiedRedirectUrl, String proxiedHostUrlRoot, String requestHostPath) {
-        if (StringUtilities.isBlank(proxiedRedirectUrl)) {
+        if (proxiedRedirectUrl == null) {
             return null;
         }
 
@@ -44,7 +44,7 @@ public class LocationHeaderBuilder {
     }
 
     private String getLocationHeader(MutableHttpServletResponse servletResponse) {
-        String location = "";
+        String location = null;
 
         Collection<String> locations = servletResponse.getHeaders(LOCATION.name());
 
