@@ -3,8 +3,11 @@ package com.rackspace.papi.components.datastore.hash.remote;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.components.datastore.common.RemoteBehavior;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
+import com.rackspace.papi.service.proxy.ProxyRequestException;
 import com.rackspace.papi.service.proxy.RequestProxyService;
+import com.sun.jersey.api.client.ClientHandlerException;
 import java.io.IOException;
+import java.net.ConnectException;
 
 /**
  *
@@ -33,6 +36,8 @@ public class RemoteCommandExecutor {
             command.setHostKey(hostKey);
             ServiceClientResponse execute = command.execute(proxyService, behavior);
             return command.handleResponse(execute);
+        } catch (ProxyRequestException ex) {
+            throw new RemoteConnectionException("Error communicating with remote node", ex);
         } catch (IOException ex) {
             throw new DatastoreOperationException("Error handling response", ex);
         }
