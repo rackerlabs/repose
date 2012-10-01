@@ -32,7 +32,7 @@ public class LocationHeaderBuilder {
     }
 
     private String translateLocationUrl(String proxiedRedirectUrl, String proxiedHostUrlRoot, String requestHostPath) {
-        if (proxiedRedirectUrl == null) {
+        if (StringUtilities.isBlank(proxiedRedirectUrl)) {
             return null;
         }
 
