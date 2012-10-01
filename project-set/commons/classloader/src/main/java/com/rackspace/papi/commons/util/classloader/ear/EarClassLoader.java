@@ -68,7 +68,7 @@ public class EarClassLoader extends ClassLoader {
             c = findClass(name);
          }
          
-         if (c == null) {
+         if (c == null && (parent instanceof EarClassLoader)) {
             LOG.debug("Unable to load class: " + name);
          }
       }

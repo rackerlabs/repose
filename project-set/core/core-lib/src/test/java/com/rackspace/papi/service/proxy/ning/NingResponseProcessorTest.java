@@ -8,7 +8,6 @@ import java.util.List;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import org.junit.*;
-import static org.junit.Assert.*;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import static org.mockito.Mockito.*;
@@ -38,7 +37,7 @@ public class NingResponseProcessorTest {
             when(response.getHeaders()).thenReturn(headers);
             when(servletResponse.getOutputStream()).thenReturn(out);
             
-            processor = new NingResponseProcessor("", "", response, servletResponse);
+            processor = new NingResponseProcessor(response, servletResponse);
 
         }
 
