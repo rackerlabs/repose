@@ -30,13 +30,13 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
 
     @Override
     public void fixLocationHeader(MutableHttpServletResponse response, String locationUri, String requestHostPath, String rootPath) {
-//        String uri = cleanPath(locationUri);
-//        if (!uri.matches("^https?://.*")) {
-//            // local dispatch
-//            uri = requestHostPath;
-//        }
-//
-//        locationHeaderBuilder.setLocationHeader(response, uri, requestHostPath, rootPath);
+        String uri = cleanPath(locationUri);
+        if (!uri.matches("^https?://.*")) {
+            // local dispatch
+            uri = requestHostPath;
+        }
+
+        locationHeaderBuilder.setLocationHeader(response, uri, requestHostPath, rootPath);
     }
 
     private String cleanPath(String uri) {
