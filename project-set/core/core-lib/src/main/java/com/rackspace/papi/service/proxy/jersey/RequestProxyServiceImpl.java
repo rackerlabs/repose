@@ -4,9 +4,11 @@ import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.http.proxy.HttpException;
 import com.rackspace.papi.http.proxy.common.HttpResponseCodeProcessor;
+import com.rackspace.papi.service.proxy.ProxyRequestException;
 import com.rackspace.papi.service.proxy.RequestProxyService;
 import com.rackspace.papi.service.proxy.TargetHostInfo;
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
@@ -24,7 +26,6 @@ import org.springframework.stereotype.Component;
 public class RequestProxyServiceImpl implements RequestProxyService {
 
     private static final Integer DEFAULT_THREADPOOL_SIZE = 20;
-    private static final Integer DEFAULT_HTTP_PORT = 80;
     private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);
     private ClientWrapper client;
     private Integer connectionTimeout = Integer.valueOf(0);
@@ -72,7 +73,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         try {
             WebResource resource = getClient().resource(target);
             WebResource.Builder builder = processor.process(resource);
-            return executeProxyRequest(host, builder, request, response);
+            return executeProxyRequest(builder, request, response);
         } catch (HttpException ex) {
             LOG.error("Error processing request", ex);
             MutableHttpServletResponse mutableResponse = (MutableHttpServletResponse) response;
@@ -82,22 +83,12 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         return -1;
     }
 
-    private String extractHostPath(HttpServletRequest request) {
-        final StringBuilder myHostName = new StringBuilder(request.getScheme()).append("://").append(request.getServerName());
-
-        if (request.getServerPort() != DEFAULT_HTTP_PORT) {
-            myHostName.append(":").append(request.getServerPort());
-        }
-
-        return myHostName.append(request.getContextPath()).toString();
-    }
-
-    private int executeProxyRequest(TargetHostInfo host, WebResource.Builder builder, HttpServletRequest sourceRequest, HttpServletResponse sourceResponse) throws IOException, HttpException {
+    private int executeProxyRequest(WebResource.Builder builder, HttpServletRequest sourceRequest, HttpServletResponse sourceResponse) throws IOException, HttpException {
 
         ClientResponse response = builder.method(sourceRequest.getMethod(), ClientResponse.class);
 
         HttpResponseCodeProcessor responseCode = new HttpResponseCodeProcessor(response.getStatus());
-        JerseyResponseProcessor responseProcessor = new JerseyResponseProcessor(host.getProxiedHostUrl().toExternalForm(), extractHostPath(sourceRequest), response, sourceResponse);
+        JerseyResponseProcessor responseProcessor = new JerseyResponseProcessor(response, sourceResponse);
 
         if (responseCode.isRedirect()) {
             responseProcessor.sendTranslatedRedirect(response.getStatus());
@@ -121,36 +112,56 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     @Override
     public ServiceClientResponse get(String uri, Map<String, String> headers) {
         WebResource.Builder requestBuilder = getClient().resource(uri).getRequestBuilder();
-        ClientResponse response = setHeaders(requestBuilder, headers).get(ClientResponse.class);
-        return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
+        try {
+            ClientResponse response = setHeaders(requestBuilder, headers).get(ClientResponse.class);
+            return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
+        } catch (ClientHandlerException ex) {
+            throw new ProxyRequestException("Error dispatching GET request", ex);
+        }
     }
 
     @Override
     public ServiceClientResponse get(String baseUri, String path, Map<String, String> headers) {
         WebResource.Builder requestBuilder = getClient().resource(baseUri, true).path(path).getRequestBuilder();
-        ClientResponse response = setHeaders(requestBuilder, headers).get(ClientResponse.class);
-        return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
+        try {
+            ClientResponse response = setHeaders(requestBuilder, headers).get(ClientResponse.class);
+            return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
+        } catch (ClientHandlerException ex) {
+            throw new ProxyRequestException("Error dispatching GET request", ex);
+        }
     }
 
     @Override
     public ServiceClientResponse delete(String baseUri, String path, Map<String, String> headers) {
         WebResource.Builder requestBuilder = getClient().resource(baseUri, true).path(path).getRequestBuilder();
-        ClientResponse response = setHeaders(requestBuilder, headers).delete(ClientResponse.class);
-        return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
+        try {
+            ClientResponse response = setHeaders(requestBuilder, headers).delete(ClientResponse.class);
+            return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
+        } catch (ClientHandlerException ex) {
+            throw new ProxyRequestException("Error dispatching DELETE request", ex);
+        }
     }
 
     @Override
     public ServiceClientResponse put(String uri, Map<String, String> headers, byte[] body) {
         WebResource resource = getClient().resource(uri);
-        ClientResponse response = setHeaders(resource.getRequestBuilder(), headers).put(ClientResponse.class, body);
-        return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
+        try {
+            ClientResponse response = setHeaders(resource.getRequestBuilder(), headers).put(ClientResponse.class, body);
+            return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
+        } catch (ClientHandlerException ex) {
+            throw new ProxyRequestException("Error dispatching PUT request", ex);
+        }
     }
 
     @Override
     public ServiceClientResponse put(String baseUri, String path, Map<String, String> headers, byte[] body) {
         WebResource resource = getClient().resource(baseUri, true).path(path);
-        ClientResponse response = setHeaders(resource.getRequestBuilder(), headers).put(ClientResponse.class, body);
+        try {
+            ClientResponse response = setHeaders(resource.getRequestBuilder(), headers).put(ClientResponse.class, body);
 
-        return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
+            return new ServiceClientResponse(response.getStatus(), response.getEntityInputStream());
+        } catch (ClientHandlerException ex) {
+            throw new ProxyRequestException("Error dispatching PUT request", ex);
+        }
     }
 }
