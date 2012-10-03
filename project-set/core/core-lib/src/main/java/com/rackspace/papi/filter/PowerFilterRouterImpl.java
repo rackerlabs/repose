@@ -1,5 +1,6 @@
 package com.rackspace.papi.filter;
 
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
@@ -134,6 +135,21 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
 
         return myHostName.append(request.getContextPath()).toString();
     }
+    
+    private String extractVersionPath(String destinationUri,String RequestPath) {
+        if(StringUtilities.isNotBlank(destinationUri) && StringUtilities.isNotBlank(RequestPath)){
+             int index = RequestPath.lastIndexOf(destinationUri);
+                if (index > -1) {
+                   return RequestPath.substring(0,index);
+                }else{
+                    return "";
+                }
+              
+        }else{
+            return "";
+        }
+                        
+    }
 
     @Override
     public void route(MutableHttpServletRequest servletRequest, MutableHttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
@@ -166,8 +182,8 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
 
             if (targetContext != null) {
                 // Capture this for Location header processing
-                final String requestHostPath = extractHostPath(servletRequest);
-
+                final String requestHostPath = extractHostPath(servletRequest).concat(extractVersionPath(destination.getUri(),((HttpServletRequest)((MutableHttpServletRequest) servletRequest).getRequest()).getPathInfo()));
+                
                 String uri = new DispatchPathBuilder(location.getUri().getPath(), targetContext.getContextPath()).build();
                 final RequestDispatcher dispatcher = targetContext.getRequestDispatcher(uri);
 
@@ -190,7 +206,8 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                         reportingService.accumulateResponseTime(destination.getDestinationId(), (stopTime - startTime));
                         reportingService.incrementResponseCount(destination.getDestinationId());
                         reportingService.incrementDestinationStatusCodeCount(destination.getDestinationId(), servletResponse.getStatus());
-
+                        
+                       
                         responseHeaderService.fixLocationHeader(servletResponse, location.getUri().toString(), requestHostPath, rootPath);
                     } catch (ClientHandlerException e) {
                         LOG.error("Connection Refused to " + location.getUri() + " " + e.getMessage(), e);
