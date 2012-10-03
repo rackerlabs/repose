@@ -43,27 +43,6 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
     }
     
     /**
-     * Scan header values and manipulate as necessary.  Host header, if provided,
-     * may need to be updated.
-     * 
-     * @param headerName
-     * @param headerValue
-     * @return 
-     */
-    private String processHeaderValue(String headerName, String headerValue) {
-        String result = headerValue;
-        
-        // In case the proxy host is running multiple virtual servers,
-        // rewrite the Host header to ensure that we get content from
-        // the correct virtual server
-        if (headerName.equalsIgnoreCase(HOST.toString())) {
-            result = targetHost.getHostName() + ":" + targetHost.getPort();
-        }
-        
-        return result;
-    }
-
-    /**
      * Copy header values from source request to the http method.
      * 
      * @param method 
@@ -82,7 +61,7 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
 
             while (headerValues.hasMoreElements()) {
                 String headerValue = headerValues.nextElement();
-                method.addHeader(headerName, processHeaderValue(headerName, headerValue));
+                method.addHeader(headerName, headerValue);
             }
         }
     }
