@@ -2,7 +2,6 @@ package com.rackspace.papi.service.proxy.ning;
 
 import com.ning.http.client.Body;
 import com.ning.http.client.BodyGenerator;
-import static com.rackspace.papi.commons.util.http.CommonHttpHeader.HOST;
 import java.io.*;
 import java.net.URI;
 import java.net.URLDecoder;
