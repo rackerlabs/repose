@@ -1,6 +1,5 @@
 package com.rackspace.papi.service.proxy.httpcomponent;
 
-import static com.rackspace.papi.commons.util.http.CommonHttpHeader.HOST;
 import com.rackspace.papi.http.proxy.common.AbstractRequestProcessor;
 import java.io.IOException;
 import java.util.Enumeration;
