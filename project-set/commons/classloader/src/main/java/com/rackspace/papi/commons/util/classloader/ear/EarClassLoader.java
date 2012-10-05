@@ -63,11 +63,11 @@ public class EarClassLoader extends ClassLoader {
             // from the non-null parent class loader
             c = findClass(name);
          }
-      }
 
-      if (c == null) {
-         // If still not found throw an exception
-         throw new ClassNotFoundException(name);
+         if (c == null) {
+            // If still not found throw an exception
+            throw new ClassNotFoundException(name);
+         }
       }
 
       if (resolve) {
@@ -103,7 +103,7 @@ public class EarClassLoader extends ClassLoader {
 
          if (descriptor != null) {
             resourceUrl = descriptorToUrl(descriptor);
-         } else {
+         } else if (parent instanceof EarClassLoader) {
             LOG.debug("Unable to find resource: " + resourcePath);
          }
       }

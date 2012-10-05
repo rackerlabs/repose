@@ -44,7 +44,7 @@ public class LocationHeaderBuilder {
     }
 
     private String getLocationHeader(MutableHttpServletResponse servletResponse) {
-        String location = "";
+        String location = null;
 
         Collection<String> locations = servletResponse.getHeaders(LOCATION.name());
 

@@ -2,7 +2,6 @@ package com.rackspace.papi.service.proxy.ning;
 
 import com.ning.http.client.Body;
 import com.ning.http.client.BodyGenerator;
-import static com.rackspace.papi.commons.util.http.CommonHttpHeader.HOST;
 import java.io.*;
 import java.net.URI;
 import java.net.URLDecoder;
@@ -133,27 +132,6 @@ class NingRequestProcessor extends AbstractRequestProcessor {
     }
 
     /**
-     * Scan header values and manipulate as necessary. Host header, if provided,
-     * may need to be updated.
-     *
-     * @param headerName
-     * @param headerValue
-     * @return
-     */
-    private String processHeaderValue(String headerName, String headerValue) {
-        String result = headerValue;
-
-        // In case the proxy host is running multiple virtual servers,
-        // rewrite the Host header to ensure that we get content from
-        // the correct virtual server
-        if (headerName.equalsIgnoreCase(HOST.toString())) {
-            result = targetHost.getHost() + ":" + targetHost.getPort();
-        }
-
-        return result;
-    }
-
-    /**
      * Copy header values from source request to the http method.
      *
      * @param method
@@ -171,7 +149,7 @@ class NingRequestProcessor extends AbstractRequestProcessor {
             Enumeration<String> values = request.getHeaders(header);
             while (values.hasMoreElements()) {
                 String value = values.nextElement();
-                builder.addHeader(header, processHeaderValue(header, value));
+                builder.addHeader(header, value);
             }
         }
     }
