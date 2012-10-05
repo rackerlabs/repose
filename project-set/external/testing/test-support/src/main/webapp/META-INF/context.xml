@@ -1,3 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Context crossContext="true" antiJARLocking="true" path=""/>
-
+<Context antiJARLocking="true" crossContext="true" path="/test-service-mock"/>

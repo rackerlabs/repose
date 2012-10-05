@@ -3,6 +3,7 @@ package com.rackspace.papi.components.clientauth.common;
 import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthGroups;
 import com.rackspace.auth.AuthToken;
+import com.rackspace.papi.commons.util.StringUriUtilities;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
@@ -100,7 +101,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
             if (token == null) {
                 try {
-                    token = validateToken(account, authToken);
+                    token = validateToken(account, StringUriUtilities.encodeUri(authToken));
                     cacheUserInfo(token);
                 } catch (ClientHandlerException ex) {
                     LOG.error("Failure communicating with the auth service: " + ex.getMessage(), ex);

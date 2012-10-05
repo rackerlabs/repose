@@ -3,6 +3,8 @@ package com.rackspace.papi.commons.util;
 import com.rackspace.papi.commons.util.string.JCharSequence;
 
 import static com.rackspace.papi.commons.util.string.JCharSequenceFactory.jchars;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * This is a simple helper class that can be used to generalize URI related
@@ -105,6 +107,18 @@ public final class StringUriUtilities {
 
 
         return externalName.toString();
+    }
+    
+    public static String encodeUri(String uri){
+       
+       String encodedUri = "";
+       
+       try{
+          encodedUri=URLEncoder.encode(uri, "UTF8");
+       }catch(UnsupportedEncodingException e){
+       }
+       
+       return encodedUri;
     }
 
     private StringUriUtilities() {
