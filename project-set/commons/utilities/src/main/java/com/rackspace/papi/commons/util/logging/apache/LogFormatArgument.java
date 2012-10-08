@@ -21,7 +21,8 @@ public enum LogFormatArgument {
     RESPONSE_HEADER("o"),
     STRING("STRING"),
     ERROR_MESSAGE("M"),
-    RESPONSE_TIME("D");
+    RESPONSE_TIME_MICROSECONDS("D"),
+    RESPONSE_TIME_SECONDS("T");
 
     public static LogFormatArgument fromString(String st) {
         return ReverseLookup.LOOKUP_MAP.get(st);
