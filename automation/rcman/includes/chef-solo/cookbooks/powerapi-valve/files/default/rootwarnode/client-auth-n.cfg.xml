@@ -11,5 +11,9 @@
         <uri-pattern uri-regex="/v2/application\.wadl" />
         <uri-pattern uri-regex="/v2/delayedresponse/.*" />
         <uri-pattern uri-regex="/v2/statuscode/.*" />
+	<uri-pattern uri-regex="/v2/rawstatuscode/.*" />
+        <uri-pattern uri-regex="/v1/location/.*" />
+        <uri-pattern uri-regex="/v3/.*" />
+	<uri-pattern uri-regex="/v2/location/.*" /> 
     </white-list>
 </client-auth>
