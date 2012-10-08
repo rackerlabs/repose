@@ -72,8 +72,11 @@ public class HttpLogFormatter {
 
     public static void setLogic(final LogArgumentGroupExtractor extractor, final LogArgumentFormatter formatter) {
         switch (LogFormatArgument.fromString(extractor.getEntity())) {
-            case RESPONSE_TIME:
-                formatter.setLogic(new ResponseTimeHandler());
+            case RESPONSE_TIME_MICROSECONDS:
+                formatter.setLogic(new ResponseTimeHandler(1000));
+                break;
+            case RESPONSE_TIME_SECONDS:
+                formatter.setLogic(new ResponseTimeHandler(.001));
                 break;
             case REQUEST_HEADER:
                 formatter.setLogic(new RequestHeaderHandler(extractor.getVariable(), extractor.getArguments()));
