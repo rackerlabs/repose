@@ -636,7 +636,7 @@
                     <intProp name="Assertion.test_type">2</intProp>
                   </ResponseAssertion>
                   <hashTree/>
-                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
+                  <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="false">
                     <collectionProp name="Asserion.test_strings">
                       <stringProp name="-369628759">Location:\s*http://.+(:\d+)?/v3/get3/</stringProp>
                     </collectionProp>
