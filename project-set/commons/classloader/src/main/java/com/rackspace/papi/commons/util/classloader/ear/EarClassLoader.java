@@ -61,15 +61,12 @@ public class EarClassLoader extends ClassLoader {
          } catch (ClassNotFoundException e) {
             // ClassNotFoundException thrown if class not found
             // from the non-null parent class loader
-         }
-
-         if (c == null) {
-            // If still not found, then invoke findClass in order to find the class.
             c = findClass(name);
          }
 
-         if (c == null && (parent instanceof EarClassLoader)) {
-            LOG.debug("Unable to load class: " + name);
+         if (c == null) {
+            // If still not found throw an exception
+            throw new ClassNotFoundException(name);
          }
       }
 
@@ -106,8 +103,8 @@ public class EarClassLoader extends ClassLoader {
 
          if (descriptor != null) {
             resourceUrl = descriptorToUrl(descriptor);
-         } else if(parent instanceof EarClassLoader) {
-               LOG.debug("Unable to find resource: " + resourcePath);
+         } else if (parent instanceof EarClassLoader) {
+            LOG.debug("Unable to find resource: " + resourcePath);
          }
       }
 
