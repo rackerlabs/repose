@@ -9,7 +9,7 @@
     </status-code>
 
     <status-code id="413" code-regex="413">
-        <message media-type="*/*" content-type="application/json">
+        <message media-type="*/*">
 {
     "overLimit" : {
         "code" : 413,
@@ -59,6 +59,11 @@
         "code" : 346
     }
 }
+        </message>
+    </status-code>
+
+    <status-code id="311" code-regex="311" overwrite="ALWAYS">
+        <message media-type="*/*" content-type="application/xml"><![CDATA[<outer><groups>%{X-PP-Groups}i</groups><somedate>%{MYDATE DATE ISO_8601}i</somedate></outer>]]>
         </message>
     </status-code>
 
