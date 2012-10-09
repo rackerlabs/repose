@@ -86,46 +86,6 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         }
     }
 
-
-//    private String translateLocationUrl(String proxiedRedirectUrl, String proxiedHostUrl, String requestHostPath) {
-//        if (proxiedRedirectUrl == null) {
-//            return null;
-//        }
-//
-//        if (StringUtilities.isEmpty(proxiedRedirectUrl)) {
-//            return requestHostPath;
-//        }
-//        return proxiedRedirectUrl.replace(proxiedHostUrl, requestHostPath);
-//    }
-
-//    protected void fixLocationHeader(MutableHttpServletResponse servletResponse, String locationUri, String requestHostPath, String rootPath) {
-//        final String proxiedHostUrl = cleanPath(new TargetHostInfo(locationUri).getProxiedHostUrl().toExternalForm());
-//        final String translatedLocationUrl = translateLocationUrl(getLocationHeader(servletResponse), proxiedHostUrl, requestHostPath);
-//
-//        if (translatedLocationUrl != null) {
-//            servletResponse.setHeader("Location", translatedLocationUrl);
-//        }
-//    }
-//
-//    private String getLocationHeader(MutableHttpServletResponse servletResponse) {
-//        String location = "";
-//
-//        Collection<String> locations = servletResponse.getHeaders(LOCATION.name());
-//
-//        if (locations != null) {
-//            for (Iterator<String> iterator = locations.iterator(); iterator.hasNext();) {
-//                location = iterator.next();
-//            }
-//        }
-//
-//        return location;
-//    }
-//
-//    private String cleanPath(String uri) {
-//        return uri == null ? "" : uri.split("\\?")[0];
-//    }
-
-
     private String extractHostPath(HttpServletRequest request) {
         final StringBuilder myHostName = new StringBuilder(request.getScheme()).append("://").append(request.getServerName());
 

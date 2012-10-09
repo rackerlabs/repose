@@ -56,7 +56,8 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
 
                final String formattedOutput = formatter.format("", request, response).trim();
 
-               overwriteResponseBody(response, formattedOutput, preferredMediaType.getMimeType().toString());
+               final Message message = MessageFilter.filterByMediaType(matchedCode.getMessage(), preferredMediaType);
+               overwriteResponseBody(response, formattedOutput, message.getContentType());
             }
          } else{
             LOG.info("No formatter found for message code.  Skipping Response Message Service formatting for status code regex " + matchedCode.getCodeRegex());
@@ -110,10 +111,10 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
       return matchedCode;
    }
 
-   private void overwriteResponseBody(HttpServletResponse response, final String formattedOutput, String mediaType) throws IOException {
+   private void overwriteResponseBody(HttpServletResponse response, final String formattedOutput, String contentType) throws IOException {
       response.resetBuffer();
       response.setContentLength(formattedOutput.length());
-      response.setHeader(CommonHttpHeader.CONTENT_TYPE.toString(), mediaType);
+      response.setHeader(CommonHttpHeader.CONTENT_TYPE.toString(), contentType);
 
       // TODO:Enhancement - Update formatter logic for streaming
       // TODO:Enhancement - Update getBytes(...) to use requested content encoding

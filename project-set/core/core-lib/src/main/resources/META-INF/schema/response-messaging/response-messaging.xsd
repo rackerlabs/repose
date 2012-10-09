@@ -96,6 +96,16 @@
                     </xs:annotation>
                 </xs:attribute>
 
+                <xs:attribute name="content-type" type="xs:string" use="optional" default="text/plain">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>
+                                Content Type of the response message returned to the client.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
+
                 <xs:attribute name="href" type="xs:anyURI" use="optional">
                     <xs:annotation>
                         <xs:documentation>

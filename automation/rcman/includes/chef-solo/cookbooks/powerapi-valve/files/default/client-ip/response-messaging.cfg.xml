@@ -9,7 +9,7 @@
     </status-code>
 
     <status-code id="413" code-regex="413">
-        <message media-type="*/*">
+        <message media-type="*/*" content-type="application/json">
 {
     "overLimit" : {
         "code" : 413,

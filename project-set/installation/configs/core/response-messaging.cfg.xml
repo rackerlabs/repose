@@ -6,7 +6,7 @@
 <response-messaging xmlns="http://docs.rackspacecloud.com/repose/response-messaging/v1.0">
 
     <status-code id="413" code-regex="413">
-        <message media-type="*/*">
+        <message media-type="*/*" content-type="application/json">
 {
     "overLimit" : {
         "code" : 413,
@@ -17,7 +17,7 @@
 }
         </message>
 
-        <message media-type="application/xml">
+        <message media-type="application/xml" content-type="application/xml">
 <![CDATA[
 <overLimit
     xmlns="http://docs.openstack.org/compute/api/v1.1"
