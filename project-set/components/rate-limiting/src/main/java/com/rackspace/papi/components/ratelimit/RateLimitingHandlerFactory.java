@@ -21,7 +21,7 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
 
     private final RateLimitCache rateLimitCache;
     //Volatile
-    private Pattern describeLimitsUriRegex =  null;
+    private Pattern describeLimitsUriRegex;
     private RateLimitingConfiguration rateLimitingConfig;
     private RateLimitingService service;
 
@@ -43,9 +43,7 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
         public void configurationUpdated(RateLimitingConfiguration configurationObject) {
             service = RateLimitingServiceFactory.createRateLimitingService(rateLimitCache, configurationObject);
 
-            if (configurationObject.getRequestEndpoint() != null) {
-                describeLimitsUriRegex = Pattern.compile(configurationObject.getRequestEndpoint().getUriRegex());    
-            }
+            describeLimitsUriRegex = Pattern.compile(configurationObject.getRequestEndpoint().getUriRegex());
 
             rateLimitingConfig = configurationObject;
         }
@@ -57,11 +55,7 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
         final ActiveLimitsWriter activeLimitsWriter = new ActiveLimitsWriter();
         final CombinedLimitsWriter combinedLimitsWriter = new CombinedLimitsWriter();
         final RateLimitingServiceHelper serviceHelper = new RateLimitingServiceHelper(service, activeLimitsWriter, combinedLimitsWriter);
-        boolean includeAbsoluteLimits = false;
-
-        if (rateLimitingConfig.getRequestEndpoint() != null) {
-            includeAbsoluteLimits = rateLimitingConfig.getRequestEndpoint().isIncludeAbsoluteLimits();
-        }
+        boolean includeAbsoluteLimits = rateLimitingConfig.getRequestEndpoint().isIncludeAbsoluteLimits();
 
         return new RateLimitingHandler(serviceHelper, includeAbsoluteLimits, rateLimitingConfig.isDelegation(), describeLimitsUriRegex);
     }

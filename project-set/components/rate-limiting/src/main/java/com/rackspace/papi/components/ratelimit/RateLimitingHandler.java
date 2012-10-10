@@ -55,7 +55,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
          director.setFilterAction(FilterAction.PASS);
 
          // Does the request match the configured getCurrentLimits API call endpoint?
-         if (describeLimitsUriPattern != null && describeLimitsUriPattern.matcher(requestUri).matches()) {
+         if (describeLimitsUriPattern.matcher(requestUri).matches()) {
             describeLimitsForRequest(request, director, preferredMediaType);
          } else {
             recordLimitedRequest(request, director);

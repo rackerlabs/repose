@@ -34,7 +34,7 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="request-endpoint" type="rl:RequestEndpoint" minOccurs="0" maxOccurs="1"/>
+            <xs:element name="request-endpoint" type="rl:RequestEndpoint" minOccurs="1" maxOccurs="1"/>
             <xs:element name="limit-group" type="rl:ConfiguredLimitGroup" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
 
