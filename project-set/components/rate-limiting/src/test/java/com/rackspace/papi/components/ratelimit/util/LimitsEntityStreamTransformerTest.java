@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.ratelimit.util;
 
-import com.rackspace.repose.service.ratelimit.config.LimitsFormat;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -39,32 +38,9 @@ public class LimitsEntityStreamTransformerTest {
 
 
          final OutputStream outputStream = new ByteArrayOutputStream();
-         transformer.streamAsJson(inputStream, outputStream, LimitsFormat.OPENSTACK);
+         transformer.streamAsJson(inputStream, outputStream);
 
          assertEquals(JSON_LIMITS.replaceAll("\\s", ""), outputStream.toString().replaceAll("\\s", ""));
       }
-
-      @Test
-      public void shouldStreamLBaaSFormat() {
-         final String JSON_LIMITS = "{\"limits\" : {\"rate\" : {\"values\": [{\"uri\" : \"/v1.0/*\",\"regex\" : \"^/1.0/.*\"," +
-                 "\"limit\" : [{\"verb\" : \"GET\",\"value\" : 600000,\"remaining\" : 426852,\"unit\" : \"HOUR\"," +
-                 "\"next-available\" : \"2011-02-22T19:32:43.835Z\"}]}]}}}";
-
-         final OutputStream outputStream = new ByteArrayOutputStream();
-         transformer.streamAsJson(inputStream, outputStream, LimitsFormat.LBAAS);
-
-         assertEquals(JSON_LIMITS.replaceAll("\\s", ""), outputStream.toString().replaceAll("\\s", ""));
-      }
-
-//              @Test
-//        public void shouldMarshallContentsCorrectly() {
-//            final RateLimitList rll = new RateLimitListBuilder(cacheMap, configuredLimitGroup).toRateLimitList();
-//
-//            final Limits limits = new Limits();
-//            limits.setRates(rll);
-//
-//            System.out.println(ENTITY_TRANSFORMER.entityAsJson(limits));
-//            System.out.println(ENTITY_TRANSFORMER.entityAsXml(limits));
-//        }
    }
 }
