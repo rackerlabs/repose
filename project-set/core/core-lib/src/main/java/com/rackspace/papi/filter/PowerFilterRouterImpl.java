@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 public class PowerFilterRouterImpl implements PowerFilterRouter {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilterRouterImpl.class);
-    private static final Integer DEFAULT_HTTP_PORT = 80;
     private final Map<String, Destination> destinations;
     private final Node localhost;
     private final RoutingService routingService;
@@ -86,16 +85,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         }
     }
 
-    private String extractHostPath(HttpServletRequest request) {
-        final StringBuilder myHostName = new StringBuilder(request.getScheme()).append("://").append(request.getServerName());
-
-        if (request.getServerPort() != DEFAULT_HTTP_PORT) {
-            myHostName.append(":").append(request.getServerPort());
-        }
-
-        return myHostName.append(request.getContextPath()).toString();
-    }
-    
+    /*
     private String extractVersionPath(String destinationUri,String RequestPath) {
         if(StringUtilities.isNotBlank(destinationUri) && StringUtilities.isNotBlank(RequestPath)){
              int index = RequestPath.lastIndexOf(destinationUri);
@@ -110,6 +100,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         }
                         
     }
+    */
 
     @Override
     public void route(MutableHttpServletRequest servletRequest, MutableHttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
@@ -142,7 +133,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
 
             if (targetContext != null) {
                 // Capture this for Location header processing
-                final String requestHostPath = extractHostPath(servletRequest).concat(extractVersionPath(destination.getUri(),((HttpServletRequest)((MutableHttpServletRequest) servletRequest).getRequest()).getPathInfo()));
+                final HttpServletRequest originalRequest = (HttpServletRequest) servletRequest.getRequest();
                 
                 String uri = new DispatchPathBuilder(location.getUri().getPath(), targetContext.getContextPath()).build();
                 final RequestDispatcher dispatcher = targetContext.getRequestDispatcher(uri);
@@ -168,7 +159,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                         reportingService.incrementDestinationStatusCodeCount(destination.getDestinationId(), servletResponse.getStatus());
                         
                        
-                        responseHeaderService.fixLocationHeader(servletResponse, location.getUri().toString(), requestHostPath, rootPath);
+                        responseHeaderService.fixLocationHeader(originalRequest, servletResponse, destination, location.getUri().toString(), rootPath);
                     } catch (ClientHandlerException e) {
                         LOG.error("Connection Refused to " + location.getUri() + " " + e.getMessage(), e);
                         ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.SERVICE_UNAVAIL.intValue());
