@@ -12,6 +12,7 @@
     </limit-group>
 
     <limit-group id="customer-limits" groups="user customer" default="true">
+        <limit uri="/service/limits" uri-regex="/service/limits" http-methods="GET" unit="MINUTE" value="1000"/>
         <limit uri="/service/*" uri-regex="/service/(.*)" http-methods="GET" unit="MINUTE" value="3"/>
         <limit uri="/service/*" uri-regex="/service/(.*)" http-methods="POST" unit="HOUR" value="10"/>
         <limit uri="/service/*" uri-regex="/service/(.*)" http-methods="PUT" unit="DAY" value="5"/>
