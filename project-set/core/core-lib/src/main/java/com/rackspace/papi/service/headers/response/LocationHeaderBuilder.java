@@ -81,7 +81,7 @@ public class LocationHeaderBuilder {
         String prefixToAdd = getAbsolutePath(requestedPrefix);
 
         if (locationPath.startsWith(prefixToRemove)) {
-            locationPath = prefixToAdd + locationPath.substring(prefixToRemove.length());
+            locationPath = prefixToAdd + getAbsolutePath(locationPath.substring(prefixToRemove.length()));
         }
 
         return locationPath;
