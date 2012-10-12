@@ -35,7 +35,6 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
 
     @Override
     public void fixLocationHeader(HttpServletRequest originalRequest, MutableHttpServletResponse response, RouteDestination destination, String destinationLocationUri, String proxiedRootContext) {
-        //String destinationContext, String destinationLocationUri, String requestedScheme, String requestedHost, String requestedContext }) {
         String destinationUri = cleanPath(destinationLocationUri);
         if (!destinationUri.matches("^https?://.*")) {
             // local dispatch

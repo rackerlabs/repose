@@ -1,6 +1,5 @@
 package com.rackspace.papi.filter;
 
-import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
@@ -85,23 +84,6 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         }
     }
 
-    /*
-    private String extractVersionPath(String destinationUri,String RequestPath) {
-        if(StringUtilities.isNotBlank(destinationUri) && StringUtilities.isNotBlank(RequestPath)){
-             int index = RequestPath.lastIndexOf(destinationUri);
-                if (index > -1) {
-                   return RequestPath.substring(0,index);
-                }else{
-                    return "";
-                }
-              
-        }else{
-            return "";
-        }
-                        
-    }
-    */
-
     @Override
     public void route(MutableHttpServletRequest servletRequest, MutableHttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
         DestinationLocation location = null;
@@ -112,7 +94,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
             Destination dest = destinations.get(destination.getDestinationId());
             if (dest == null) {
                 LOG.warn("Invalid routing destination specified: " + destination.getDestinationId() + " for domain: " + domain.getId());
-                ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.SERVICE_UNAVAIL.intValue());
+                ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.NOT_FOUND.intValue());
             } else {
                 location = new DestinationLocationBuilder(
                         routingService,

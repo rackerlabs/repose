@@ -10,6 +10,8 @@ import javax.servlet.http.HttpServletRequest;
 
 public class LocationHeaderBuilder {
 
+    private static final String HTTPS = "https";
+    private static final String HTTP = "http";
     private static final Integer DEFAULT_HTTP_PORT = 80;
     private static final Integer DEFAULT_HTTPS_PORT = 443;
 
@@ -34,10 +36,10 @@ public class LocationHeaderBuilder {
     }
 
     private int getDefaultPort(String scheme) {
-        if ("https".equalsIgnoreCase(scheme)) {
+        if (HTTPS.equalsIgnoreCase(scheme)) {
             return DEFAULT_HTTPS_PORT;
         }
-        if ("http".equalsIgnoreCase(scheme)) {
+        if (HTTP.equalsIgnoreCase(scheme)) {
             return DEFAULT_HTTP_PORT;
         }
 
