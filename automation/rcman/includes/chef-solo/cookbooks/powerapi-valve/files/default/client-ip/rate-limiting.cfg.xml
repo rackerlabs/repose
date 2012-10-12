@@ -45,5 +45,9 @@
         <limit uri="/service/*" uri-regex="/service/(.*)" http-methods="GET POST" unit="HOUR" value="1"/>
     </limit-group>
 
+    <limit-group id="query-limits" groups="query-limits" default="false">
+        <limit uri="/service/limits" uri-regex="/service/limits" http-methods="GET" unit="HOUR" value="1"/>
+    </limit-group>
+
 </rate-limiting>
 
