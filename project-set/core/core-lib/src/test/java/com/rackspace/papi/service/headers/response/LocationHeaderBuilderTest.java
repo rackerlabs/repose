@@ -3,15 +3,9 @@ package com.rackspace.papi.service.headers.response;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Collection;
 import javax.servlet.http.HttpServletRequest;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import static org.mockito.Mockito.*;
@@ -45,9 +39,7 @@ public class LocationHeaderBuilderTest {
             final String requestedContext = "";
             final String rootPath = "/mocks";
             
-            Collection<String> locationHeaders = new ArrayList<String>();
-            locationHeaders.add("http://myhost.com:8080/mocks/test");
-            when(response.getHeaders(eq(CommonHttpHeader.LOCATION.name()))).thenReturn(locationHeaders);
+            when(response.getHeader(eq(CommonHttpHeader.LOCATION.name()))).thenReturn("http://myhost.com:8080/mocks/test");
             
             instance.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
             
@@ -68,9 +60,7 @@ public class LocationHeaderBuilderTest {
             final String requestedContext = "";
             final String rootPath = "/mocks";
             
-            Collection<String> locationHeaders = new ArrayList<String>();
-            locationHeaders.add("http://otherhost.com/mocks/test");
-            when(response.getHeaders(eq(CommonHttpHeader.LOCATION.name()))).thenReturn(locationHeaders);
+            when(response.getHeader(eq(CommonHttpHeader.LOCATION.name()))).thenReturn("http://otherhost.com/mocks/test");
             
             instance.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
             
@@ -91,9 +81,7 @@ public class LocationHeaderBuilderTest {
             final String requestedContext = "v1";
             final String rootPath = "/mocks";
             
-            Collection<String> locationHeaders = new ArrayList<String>();
-            locationHeaders.add("http://otherhost.com/mocks/test");
-            when(response.getHeaders(eq(CommonHttpHeader.LOCATION.name()))).thenReturn(locationHeaders);
+            when(response.getHeader(eq(CommonHttpHeader.LOCATION.name()))).thenReturn("http://otherhost.com/mocks/test");
             
             instance.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
             
@@ -114,9 +102,7 @@ public class LocationHeaderBuilderTest {
             final String requestedContext = "";
             final String rootPath = "/mocks";
             
-            Collection<String> locationHeaders = new ArrayList<String>();
-            locationHeaders.add("http://myhost.com/mocks/test");
-            when(response.getHeaders(eq(CommonHttpHeader.LOCATION.name()))).thenReturn(locationHeaders);
+            when(response.getHeader(eq(CommonHttpHeader.LOCATION.name()))).thenReturn("http://myhost.com/mocks/test");
             
             instance.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
             
@@ -137,9 +123,7 @@ public class LocationHeaderBuilderTest {
             final String requestedContext = "";
             final String rootPath = "/mocks";
             
-            Collection<String> locationHeaders = new ArrayList<String>();
-            locationHeaders.add("http://otherhost.com/mocks/test");
-            when(response.getHeaders(eq(CommonHttpHeader.LOCATION.name()))).thenReturn(locationHeaders);
+            when(response.getHeader(eq(CommonHttpHeader.LOCATION.name()))).thenReturn("http://otherhost.com/mocks/test");
             
             instance.setLocationHeader(originalRequest, response, destUri, requestedContext, rootPath);
             

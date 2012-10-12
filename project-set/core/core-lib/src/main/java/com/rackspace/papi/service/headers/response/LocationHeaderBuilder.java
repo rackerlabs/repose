@@ -6,8 +6,6 @@ import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.service.proxy.TargetHostInfo;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collection;
-import java.util.Iterator;
 import javax.servlet.http.HttpServletRequest;
 
 public class LocationHeaderBuilder {
@@ -26,15 +24,15 @@ public class LocationHeaderBuilder {
             servletResponse.setHeader(CommonHttpHeader.LOCATION.name(), translatedLocationUrl);
         }
     }
-    
+
     private int getPort(URL url) {
         if (url.getPort() == -1) {
             return getDefaultPort(url.getProtocol());
         }
-        
+
         return url.getPort();
     }
-    
+
     private int getDefaultPort(String scheme) {
         if ("https".equalsIgnoreCase(scheme)) {
             return DEFAULT_HTTPS_PORT;
@@ -42,25 +40,19 @@ public class LocationHeaderBuilder {
         if ("http".equalsIgnoreCase(scheme)) {
             return DEFAULT_HTTP_PORT;
         }
-        
+
         return -1;
     }
 
     private URL extractHostPath(HttpServletRequest request) throws MalformedURLException {
         final StringBuilder myHostName = new StringBuilder(request.getScheme()).append("://").append(request.getServerName());
-
-        //if (request.getServerPort() != DEFAULT_HTTP_PORT) {
-            myHostName.append(":").append(request.getServerPort());
-        //}
-            
-        
-
+        myHostName.append(":").append(request.getServerPort());
         myHostName.append(request.getContextPath());
         return new URL(myHostName.toString());
     }
 
     private URL getLocationUrl(MutableHttpServletResponse servletResponse) throws MalformedURLException {
-        String locationHeader = getLocationHeader(servletResponse);
+        String locationHeader = servletResponse.getHeader(CommonHttpHeader.LOCATION.name());
         if (StringUtilities.isNotBlank(locationHeader)) {
             return new URL(locationHeader);
         }
@@ -121,19 +113,4 @@ public class LocationHeaderBuilder {
 
         return buffer.length() == 0 ? locationUrl.toExternalForm() : buffer.toString();
     }
-
-    private String getLocationHeader(MutableHttpServletResponse servletResponse) {
-        String location = null;
-
-        Collection<String> locations = servletResponse.getHeaders(CommonHttpHeader.LOCATION.name());
-
-        if (locations != null) {
-            for (Iterator<String> iterator = locations.iterator(); iterator.hasNext();) {
-                location = iterator.next();
-            }
-        }
-
-        return location;
-    }
-
 }
