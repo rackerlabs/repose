@@ -28,6 +28,9 @@ public class TargetHostInfo {
     }
 
     private URL asUri(URI host) {
+        if (host.getScheme() == null || host.getHost() == null) {
+            return null;
+        }
         try {
             return new URL(host.getScheme(), host.getHost(), host.getPort(), "");
         } catch (MalformedURLException ex) {

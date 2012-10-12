@@ -88,7 +88,7 @@ public class LocationHeaderBuilder {
     }
 
     private boolean shouldRewriteLocation(URL locationUrl, URL proxiedHostUrl, URL requestedHost) {
-        if (locationUrl.getHost().equals(proxiedHostUrl.getHost()) && getPort(locationUrl) == getPort(proxiedHostUrl)) {
+        if (proxiedHostUrl == null || locationUrl.getHost().equals(proxiedHostUrl.getHost()) && getPort(locationUrl) == getPort(proxiedHostUrl)) {
             return true;
         }
 
