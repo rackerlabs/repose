@@ -50,7 +50,7 @@ public class KeystonePropertiesProvider extends UserDataPropertiesProviderImpl i
     public UserForAuthenticateResponse getUser(String userName) {
         UserForAuthenticateResponse user = objectFactory.createUserForAuthenticateResponse();
 
-        user.setId(String.valueOf(getUserId(userName)));
+        user.setId(userName);
         user.setName(userName);
         user.setRoles(getRoles(userName));
 
