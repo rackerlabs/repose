@@ -1,7 +1,6 @@
 package com.rackspace.papi.components.ratelimit.write;
 
 import com.rackspace.papi.components.ratelimit.util.LimitsEntityStreamTransformer;
-import com.rackspace.repose.service.ratelimit.config.LimitsFormat;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
@@ -27,9 +26,9 @@ public class LimitsResponseMimeTypeWriterTest {
          transformer = mock(LimitsEntityStreamTransformer.class);
          out = mock(OutputStream.class);
          final InputStream in = mock(InputStream.class);
-         this.writer = new LimitsResponseMimeTypeWriter(LimitsFormat.OPENSTACK, transformer);
+         this.writer = new LimitsResponseMimeTypeWriter(transformer);
 
-         doNothing().when(transformer).streamAsJson(in, out, LimitsFormat.OPENSTACK);
+         doNothing().when(transformer).streamAsJson(in, out);
          doNothing().when(out).write(readableContents);
       }
 
@@ -44,7 +43,7 @@ public class LimitsResponseMimeTypeWriterTest {
       public void shouldChooseJsonPath() throws IOException {
          writer.writeLimitsResponse(readableContents, MediaType.APPLICATION_JSON_TYPE, out);
 
-         verify(transformer, times(1)).streamAsJson(any(InputStream.class), any(OutputStream.class), any(LimitsFormat.class));
+         verify(transformer, times(1)).streamAsJson(any(InputStream.class), any(OutputStream.class));
       }
    }
 

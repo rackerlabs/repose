@@ -1,6 +1,6 @@
 <rate-limiting xmlns="http://docs.rackspacecloud.com/repose/rate-limiting/v1.0">
 
-  <request-endpoint include-absolute-limits="false" uri-regex=".*/loadbalancers/limits" limits-format="LBAAS"/>
+  <request-endpoint include-absolute-limits="false" uri-regex=".*/loadbalancers/limits"/>
 
   <limit-group default="true" id="admin-limits" roles="Admin">
       <limit uri="/loadbalancers*" http-methods="GET" unit="MINUTE" value="1000" uri-regex="/loadbalancers/([^/]+).*"/>

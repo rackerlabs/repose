@@ -4,56 +4,115 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.service.proxy.TargetHostInfo;
-
-import java.util.Collection;
-import java.util.Iterator;
-
-import static com.rackspace.papi.commons.util.http.CommonHttpHeader.LOCATION;
+import java.net.MalformedURLException;
+import java.net.URL;
+import javax.servlet.http.HttpServletRequest;
 
 public class LocationHeaderBuilder {
 
-    public void setLocationHeader(MutableHttpServletResponse servletResponse, String uri, String requestHostPath, String rootPath) {
-        final String proxiedHostUrlRoot = createProxiedHostUrlRoot(uri, rootPath);
-        final String translatedLocationUrl = translateLocationUrl(getLocationHeader(servletResponse), proxiedHostUrlRoot, requestHostPath);
+    private static final String HTTPS = "https";
+    private static final String HTTP = "http";
+    private static final Integer DEFAULT_HTTP_PORT = 80;
+    private static final Integer DEFAULT_HTTPS_PORT = 443;
+
+    public void setLocationHeader(HttpServletRequest originalRequest, MutableHttpServletResponse servletResponse, String destinationUri, String requestedContext, String rootPath) throws MalformedURLException {
+        final URL requestedHostUrl = extractHostPath(originalRequest);
+        final URL proxiedHostUrl = new TargetHostInfo(destinationUri).getProxiedHostUrl();
+        final URL locationUrl = getLocationUrl(servletResponse);
+
+        final String translatedLocationUrl = translateLocationUrl(locationUrl, proxiedHostUrl, requestedHostUrl, requestedContext, rootPath);
 
         if (translatedLocationUrl != null) {
             servletResponse.setHeader(CommonHttpHeader.LOCATION.name(), translatedLocationUrl);
         }
     }
 
-    private String createProxiedHostUrlRoot(String uri, String rootPath) {
-        StringBuilder builder = new StringBuilder(new TargetHostInfo(uri).getProxiedHostUrl().toExternalForm());
-
-        if (StringUtilities.isNotBlank(rootPath) && !"/".equalsIgnoreCase(rootPath)) {
-            builder.append(rootPath);
+    private int getPort(URL url) {
+        if (url.getPort() == -1) {
+            return getDefaultPort(url.getProtocol());
         }
 
-        return builder.toString();
+        return url.getPort();
     }
 
-    private String translateLocationUrl(String proxiedRedirectUrl, String proxiedHostUrlRoot, String requestHostPath) {
-        if (proxiedRedirectUrl == null) {
+    private int getDefaultPort(String scheme) {
+        if (HTTPS.equalsIgnoreCase(scheme)) {
+            return DEFAULT_HTTPS_PORT;
+        }
+        if (HTTP.equalsIgnoreCase(scheme)) {
+            return DEFAULT_HTTP_PORT;
+        }
+
+        return -1;
+    }
+
+    private URL extractHostPath(HttpServletRequest request) throws MalformedURLException {
+        final StringBuilder myHostName = new StringBuilder(request.getScheme()).append("://").append(request.getServerName());
+        myHostName.append(":").append(request.getServerPort());
+        myHostName.append(request.getContextPath());
+        return new URL(myHostName.toString());
+    }
+
+    private URL getLocationUrl(MutableHttpServletResponse servletResponse) throws MalformedURLException {
+        String locationHeader = servletResponse.getHeader(CommonHttpHeader.LOCATION.name());
+        if (StringUtilities.isNotBlank(locationHeader)) {
+            return new URL(locationHeader);
+        }
+
+        return null;
+    }
+
+    private String getAbsolutePath(String inPath) {
+        if (StringUtilities.isBlank(inPath)) {
+            return "";
+        }
+        return !inPath.startsWith("/") ? "/" + inPath : inPath;
+
+    }
+
+    private String fixPathPrefix(String locationPath, String requestedPrefix, String addedPrefix) {
+        String prefixToRemove = getAbsolutePath(addedPrefix);
+        String prefixToAdd = getAbsolutePath(requestedPrefix);
+
+        if (locationPath.startsWith(prefixToRemove)) {
+            locationPath = prefixToAdd + getAbsolutePath(locationPath.substring(prefixToRemove.length()));
+        }
+
+        return locationPath;
+    }
+
+    private boolean shouldRewriteLocation(URL locationUrl, URL proxiedHostUrl, URL requestedHost) {
+        if (proxiedHostUrl == null || locationUrl.getHost().equals(proxiedHostUrl.getHost()) && getPort(locationUrl) == getPort(proxiedHostUrl)) {
+            return true;
+        }
+
+        if (locationUrl.getHost().equals(requestedHost.getHost()) && getPort(locationUrl) == getPort(requestedHost)) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private String translateLocationUrl(URL locationUrl, URL proxiedHostUrl, URL requestedHost, String requestedContext, String proxiedRootPath) {
+        StringBuilder buffer = new StringBuilder();
+
+        if (locationUrl == null) {
             return null;
         }
 
-        if (StringUtilities.isEmpty(proxiedRedirectUrl)) {
-            return requestHostPath;
+        if (StringUtilities.isEmpty(locationUrl.getHost())) {
+            return requestedContext;
         }
 
-        return proxiedRedirectUrl.replace(proxiedHostUrlRoot, requestHostPath);
-    }
-
-    private String getLocationHeader(MutableHttpServletResponse servletResponse) {
-        String location = null;
-
-        Collection<String> locations = servletResponse.getHeaders(LOCATION.name());
-
-        if (locations != null) {
-            for (Iterator<String> iterator = locations.iterator(); iterator.hasNext();) {
-                location = iterator.next();
+        if (shouldRewriteLocation(locationUrl, proxiedHostUrl, requestedHost)) {
+            // location header contains our host info
+            buffer.append(requestedHost.getProtocol()).append("://").append(requestedHost.getHost());
+            if (requestedHost.getPort() != DEFAULT_HTTP_PORT) {
+                buffer.append(":").append(requestedHost.getPort());
             }
+            buffer.append(fixPathPrefix(locationUrl.getPath(), requestedContext, proxiedRootPath));
         }
 
-        return location;
+        return buffer.length() == 0 ? locationUrl.toExternalForm() : buffer.toString();
     }
 }

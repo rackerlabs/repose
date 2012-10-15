@@ -2,6 +2,7 @@ package com.rackspace.papi.components.versioning;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
+import com.rackspace.papi.commons.util.servlet.http.RouteDestination;
 import com.rackspace.papi.components.versioning.domain.ConfigurationData;
 import com.rackspace.papi.components.versioning.domain.VersionedHostNotFoundException;
 import com.rackspace.papi.components.versioning.domain.VersionedOriginService;
@@ -93,7 +94,8 @@ public class VersioningHandler extends AbstractFilterLogicHandler {
          filterDirector.setResponseStatus(HttpStatusCode.OK);
          filterDirector.setFilterAction(FilterAction.RETURN);
       } else {
-         filterDirector.addDestination(targetOriginService.getOriginServiceHost(), versionedRequest.asInternalURI(), (float) VERSIONING_DEFAULT_QUALITY);
+         RouteDestination dest = filterDirector.addDestination(targetOriginService.getOriginServiceHost(), versionedRequest.asInternalURI(), (float) VERSIONING_DEFAULT_QUALITY);
+         dest.setContextRemoved(versionedRequest.getMapping().getId());
          filterDirector.setFilterAction(FilterAction.PASS);
       }
    }

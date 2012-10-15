@@ -4,12 +4,17 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+import com.rackspace.papi.commons.util.servlet.http.RouteDestination;
 import com.rackspace.papi.service.headers.common.ViaHeaderBuilder;
+import java.net.MalformedURLException;
+import javax.servlet.http.HttpServletRequest;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 @Component("responseHeaderService")
 public class ResponseHeaderServiceImpl implements ResponseHeaderService {
 
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ResponseHeaderServiceImpl.class);
     private ViaHeaderBuilder viaHeaderBuilder;
     private LocationHeaderBuilder locationHeaderBuilder;
 
@@ -29,14 +34,17 @@ public class ResponseHeaderServiceImpl implements ResponseHeaderService {
     }
 
     @Override
-    public void fixLocationHeader(MutableHttpServletResponse response, String locationUri, String requestHostPath, String rootPath) {
-        String uri = cleanPath(locationUri);
-        if (!uri.matches("^https?://.*")) {
+    public void fixLocationHeader(HttpServletRequest originalRequest, MutableHttpServletResponse response, RouteDestination destination, String destinationLocationUri, String proxiedRootContext) {
+        String destinationUri = cleanPath(destinationLocationUri);
+        if (!destinationUri.matches("^https?://.*")) {
             // local dispatch
-            uri = requestHostPath;
+            destinationUri = proxiedRootContext;
         }
-
-        locationHeaderBuilder.setLocationHeader(response, uri, requestHostPath, rootPath);
+        try {
+            locationHeaderBuilder.setLocationHeader(originalRequest, response, destinationUri, destination.getContextRemoved(), proxiedRootContext);
+        } catch (MalformedURLException ex) {
+            LOG.warn("Invalid URL in location header processing", ex);
+        }
     }
 
     private String cleanPath(String uri) {
