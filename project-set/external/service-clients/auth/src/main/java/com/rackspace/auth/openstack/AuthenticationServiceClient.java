@@ -2,6 +2,7 @@ package com.rackspace.auth.openstack;
 
 import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthGroups;
+import com.rackspace.auth.AuthServiceException;
 import com.rackspace.auth.AuthToken;
 import com.rackspace.auth.ResponseUnmarshaller;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
@@ -35,7 +36,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
    private AdminToken currentAdminToken;
    private final JAXBElement jaxbRequest;
 
-   public AuthenticationServiceClient(String targetHostUri, String username, String password,
+   public AuthenticationServiceClient(String targetHostUri, String username, String password, String tenantId,
            ResponseUnmarshaller openStackCoreResponseUnmarshaller,
            ResponseUnmarshaller openStackGroupsResponseUnmarshaller) {
       this.openStackCoreResponseUnmarshaller = openStackCoreResponseUnmarshaller;
@@ -51,6 +52,11 @@ public class AuthenticationServiceClient implements AuthenticationService {
       JAXBElement jaxbCredentials = objectFactory.createPasswordCredentials(credentials);
 
       AuthenticationRequest request = new AuthenticationRequest();
+
+      if (!StringUtilities.isBlank(tenantId)) {
+         request.setTenantId(tenantId);
+      }
+
       request.setCredential(jaxbCredentials);
 
       this.jaxbRequest = objectFactory.createAuth(request);
@@ -58,7 +64,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
    @Override
    public AuthToken validateToken(String tenant, String userToken) {
-      
+
       OpenStackToken token = null;
 
       ServiceClientResponse<AuthenticateResponse> serviceResponse = validateUser(userToken, tenant);
@@ -75,13 +81,14 @@ public class AuthenticationServiceClient implements AuthenticationService {
          case UNAUTHORIZED:
             LOG.warn("Unable to validate token for tenant: " + serviceResponse.getStatusCode() + " :admin token expired. Retrieving new admin token and retrying token validation...");
             currentAdminToken = null;
-            
+
             serviceResponse = validateUser(userToken, tenant);
 
             if (serviceResponse.getStatusCode() == 200) {
                token = getOpenStackToken(tenant, serviceResponse);
             } else {
                LOG.warn("Still unable to validate token for tenant: " + serviceResponse.getStatusCode());
+               throw new AuthServiceException("Unable to authenticate user with configured Admin credentials");
             }
             break;
 
@@ -95,22 +102,29 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
    private ServiceClientResponse<AuthenticateResponse> validateUser(String userToken, String tenant) {
       ServiceClientResponse<AuthenticateResponse> serviceResponse;
-      
+
       final Map<String, String> headers = new HashMap<String, String>();
       headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
       headers.put(AUTH_TOKEN_HEADER, getAdminToken());
-      if (!StringUtilities.isEmpty(tenant)) {
-         serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, headers, "belongsTo", tenant);
-      } else {
-         serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, headers);
-      }
+      serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, headers);
 
       return serviceResponse;
    }
 
    private OpenStackToken getOpenStackToken(String tenant, ServiceClientResponse<AuthenticateResponse> serviceResponse) {
       final AuthenticateResponse authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
-      return new OpenStackToken(tenant, authenticateResponse);
+      OpenStackToken token = null;
+
+      if (!StringUtilities.isBlank(tenant)) {
+         if (StringUtilities.nullSafeEqualsIgnoreCase(tenant, authenticateResponse.getUser().getId())) {
+            token = new OpenStackToken(tenant, authenticateResponse);
+         }
+      } else {
+         token = new OpenStackToken(authenticateResponse);
+      }
+
+
+      return token;
    }
 
    @Override
@@ -139,6 +153,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
                endpointList = getEndpointList(endpointListResponse);
             } else {
                LOG.warn("Still unable to get endpoints: " + endpointListResponse.getStatusCode());
+               throw new AuthServiceException("Unable to retrieve service catalog for user with configured Admin credentials");
             }
             break;
          default:

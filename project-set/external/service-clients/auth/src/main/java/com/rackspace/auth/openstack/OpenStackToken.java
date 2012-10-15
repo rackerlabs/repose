@@ -44,6 +44,10 @@ public class OpenStackToken extends AuthToken implements Serializable {
         }
     }
     
+    public OpenStackToken(AuthenticateResponse response){
+       this(response.getUser().getId(), response);
+    }
+    
     @Override
     public String getTenantId() {
         return tenantId;
