@@ -67,7 +67,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
       OpenStackToken token = null;
 
-      ServiceClientResponse<AuthenticateResponse> serviceResponse = validateUser(userToken, tenant);
+      ServiceClientResponse<AuthenticateResponse> serviceResponse = validateUser(userToken);
 
       switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
          case OK:
@@ -82,7 +82,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
             LOG.warn("Unable to validate token for tenant: " + serviceResponse.getStatusCode() + " :admin token expired. Retrieving new admin token and retrying token validation...");
             currentAdminToken = null;
 
-            serviceResponse = validateUser(userToken, tenant);
+            serviceResponse = validateUser(userToken);
 
             if (serviceResponse.getStatusCode() == 200) {
                token = getOpenStackToken(tenant, serviceResponse);
@@ -100,7 +100,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
       return token;
    }
 
-   private ServiceClientResponse<AuthenticateResponse> validateUser(String userToken, String tenant) {
+   private ServiceClientResponse<AuthenticateResponse> validateUser(String userToken) {
       ServiceClientResponse<AuthenticateResponse> serviceResponse;
 
       final Map<String, String> headers = new HashMap<String, String>();
