@@ -9,7 +9,7 @@ public interface KeystoneProvider extends UserDataProvider {
 
    ItemNotFoundFault createItemNotFound();
 
-   TenantForAuthenticateResponse createTenant();
+   TenantForAuthenticateResponse createTenant(String userName);
 
    Token createToken(String tokenId);
 

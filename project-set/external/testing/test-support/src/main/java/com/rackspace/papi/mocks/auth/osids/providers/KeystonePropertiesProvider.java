@@ -50,7 +50,7 @@ public class KeystonePropertiesProvider extends UserDataPropertiesProviderImpl i
     public UserForAuthenticateResponse getUser(String userName) {
         UserForAuthenticateResponse user = objectFactory.createUserForAuthenticateResponse();
 
-        user.setId(userName);
+        user.setId(String.valueOf(getUserId(userName)));
         user.setName(userName);
         user.setRoles(getRoles(userName));
 
@@ -155,10 +155,10 @@ public class KeystonePropertiesProvider extends UserDataPropertiesProviderImpl i
     }
 
     @Override
-    public TenantForAuthenticateResponse createTenant() {
+    public TenantForAuthenticateResponse createTenant(String userName) {
         TenantForAuthenticateResponse tenant = objectFactory.createTenantForAuthenticateResponse();
-        tenant.setId("tenantId");
-        tenant.setName("tenantName");
+        tenant.setId(userName);
+        tenant.setName(userName);
 
         return tenant;
     }
@@ -168,7 +168,7 @@ public class KeystonePropertiesProvider extends UserDataPropertiesProviderImpl i
         Token token = objectFactory.createToken();
         token.setId(tokenId);
         token.setExpires(getCalendar(Calendar.DAY_OF_MONTH, 1));
-        //token.setTenant(createTenant());
+        token.setTenant(createTenant(getUsernameFromToken(tokenId)));
 
         return token;
     }

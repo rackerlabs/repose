@@ -116,7 +116,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
       OpenStackToken token = null;
 
       if (!StringUtilities.isBlank(tenant)) {
-         if (StringUtilities.nullSafeEqualsIgnoreCase(tenant, authenticateResponse.getUser().getId())) {
+         if (StringUtilities.nullSafeEqualsIgnoreCase(tenant, authenticateResponse.getToken().getTenant().getId())) {
             token = new OpenStackToken(tenant, authenticateResponse);
          }
       } else {
