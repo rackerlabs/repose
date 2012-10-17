@@ -96,6 +96,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
                localHost = interrogator.getLocalHost(currentSystemModel);
                serviceDomain = interrogator.getLocalServiceDomain(currentSystemModel);
+               defaultDst = interrogator.getDefaultDestination(currentSystemModel);
                final List<FilterContext> newFilterChain = new FilterContextInitializer(
                        filterConfig,
                        ServletContextHelper.getInstance().getApplicationContext(filterConfig.getServletContext())).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
@@ -114,7 +115,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
          papiContext.filterChainGarbageCollectorService().reclaimDestroyable(powerFilterChainBuilder, powerFilterChainBuilder.getResourceConsumerMonitor());
       }
       try {
-         powerFilterChainBuilder = new PowerFilterChainBuilder(serviceDomain, localHost, newFilterChain, filterConfig.getServletContext());
+         powerFilterChainBuilder = new PowerFilterChainBuilder(serviceDomain, localHost, newFilterChain, filterConfig.getServletContext(),defaultDst.getId());
       } catch (PowerFilterChainException ex) {
          LOG.error("Unable to initialize filter chain builder", ex);
       }
@@ -156,7 +157,6 @@ public class PowerFilter extends ApplicationContextAwareFilter {
          responseHeaderService.setVia(mutableHttpRequest, mutableHttpResponse);
          throw new ServletException("Filter chain has not been initialized");
       }
-      mutableHttpRequest.addDestination(new RouteDestination(defaultDst.getId(), mutableHttpRequest.getRequestURI(), -1));
 
       try {
          final PowerFilterChain requestFilterChainState = powerFilterChainBuilder.newPowerFilterChain(chain);
