@@ -1,7 +1,6 @@
 package com.rackspace.papi.service.proxy.jersey;
 
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
-import com.rackspace.papi.http.proxy.HttpException;
 import com.rackspace.papi.http.proxy.common.AbstractResponseProcessor;
 import com.sun.jersey.api.client.ClientResponse;
 
@@ -11,7 +10,6 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.List;
 
 class JerseyResponseProcessor extends AbstractResponseProcessor {
 
@@ -19,8 +17,8 @@ class JerseyResponseProcessor extends AbstractResponseProcessor {
     private static final int READ_BUFFER_SIZE = 1024;
     private final ClientResponse clientResponse;
 
-    public JerseyResponseProcessor(String proxiedHostUrl, String requestHostPath, ClientResponse clientResponse, HttpServletResponse response) {
-        super(proxiedHostUrl, requestHostPath, response, clientResponse.getStatus());
+    public JerseyResponseProcessor(ClientResponse clientResponse, HttpServletResponse response) {
+        super(response, clientResponse.getStatus());
         this.clientResponse = clientResponse;
     }
 
@@ -68,15 +66,5 @@ class JerseyResponseProcessor extends AbstractResponseProcessor {
             }
             clientResponse.close();
         }
-    }
-
-    @Override
-    protected String getResponseHeaderValue(String headerName) {
-        final List<String> headerValues = clientResponse.getHeaders().get(headerName);
-        if (headerValues == null || headerValues.isEmpty()) {
-            return null;
-        }
-
-        return headerValues.get(0);
     }
 }

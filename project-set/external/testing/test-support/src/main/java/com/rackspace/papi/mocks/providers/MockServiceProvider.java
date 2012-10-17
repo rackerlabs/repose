@@ -41,6 +41,7 @@ public class MockServiceProvider {
         Set<String> queryParams = uri.getQueryParameters().keySet();
         StringBuilder resp = new StringBuilder("<html>\n\t<head>\n\t\t<title>Servlet version</title>\n\t</head>\n\t<body>\n\t\t<h1>Servlet version at ");
         resp.append(uri.getPath()).append("</h1>");
+        resp.append("<h1>Base URI: ").append(uri.getBaseUri().toString()).append("</h1>");
         try {
             resp.append("<h3>Server : ").append(InetAddress.getLocalHost().getHostAddress()).append("</h3>");
         } catch (UnknownHostException ex) {

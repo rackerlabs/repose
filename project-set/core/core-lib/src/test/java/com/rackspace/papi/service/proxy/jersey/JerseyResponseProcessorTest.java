@@ -55,7 +55,7 @@ public class JerseyResponseProcessorTest {
             when(response.getStatus()).thenReturn(200);
             when(response.getEntityInputStream()).thenReturn(in);
             when(servletResponse.getOutputStream()).thenReturn(out);
-            processor = new JerseyResponseProcessor("", "", response, servletResponse);
+            processor = new JerseyResponseProcessor(response, servletResponse);
         }
 
         @Test
@@ -110,7 +110,7 @@ public class JerseyResponseProcessorTest {
             when(response.getStatus()).thenReturn(200);
             when(response.getEntityInputStream()).thenReturn(in);
             when(servletResponse.getOutputStream()).thenReturn(out);
-            processor = new JerseyResponseProcessor("", "", response, servletResponse);
+            processor = new JerseyResponseProcessor(response, servletResponse);
         }
 
         @Test

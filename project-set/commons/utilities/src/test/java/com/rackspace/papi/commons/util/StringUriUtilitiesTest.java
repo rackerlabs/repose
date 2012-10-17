@@ -137,4 +137,26 @@ public class StringUriUtilitiesTest {
       }
       
    }
+   
+   public static class WhenEncodingUris{
+      
+      @Test
+      public void shouldNotChangeWhenEncodingNonEncodableCharacters(){
+         String uri1 = "qwerasdfjklvcxhjkfe-3djfkdfs";
+         
+         String uri2 = StringUriUtilities.encodeUri(uri1);
+         
+         assertEquals(uri2, uri1);
+      }
+      
+      @Test
+      public void shouldChangeWhenEncodingEncodableCharacters(){
+         String uri1 = "key$test";
+         
+         String uri2 = StringUriUtilities.encodeUri(uri1);
+         
+         assertEquals(uri2, "key%24test");
+      }
+      
+   }
 }

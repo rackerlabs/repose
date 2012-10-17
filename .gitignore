@@ -40,3 +40,4 @@ nodeNames
 hosts.csv
 automation/rcman/files/*
 log.txt
+/test/JavaApplication1/nbproject/private/

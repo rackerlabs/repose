@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 public class PowerFilterChain implements FilterChain {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilterChain.class);
+    private static final String START_TIME_ATTRIBUTE = "com.rackspace.repose.logging.start.time";
     private final ResourceMonitor resourceMonitor;
     private final List<FilterContext> filterChainCopy;
     private final FilterChain containerFilterChain;
@@ -151,6 +152,15 @@ public class PowerFilterChain implements FilterChain {
         }
     }
 
+    private void setStartTimeForHttpLogger(long startTime, MutableHttpServletRequest mutableHttpRequest) {
+        long start = startTime;
+
+        if (startTime == 0) {
+            start = System.currentTimeMillis();
+        }
+        mutableHttpRequest.setAttribute(START_TIME_ATTRIBUTE, start);
+    }
+
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) servletRequest);
@@ -159,6 +169,7 @@ public class PowerFilterChain implements FilterChain {
         if (filterChainAvailable && position < currentFilters.size()) {
             FilterContext filter = currentFilters.get(position++);
             long start = tracer.traceEnter();
+            setStartTimeForHttpLogger(start, mutableHttpRequest);
             doReposeFilter(mutableHttpRequest, servletResponse, filter);
             tracer.traceExit(mutableHttpResponse, filter.getFilterConfig().getName(), start);
         } else {

@@ -21,7 +21,7 @@ public final class OpenStackAuthenticationHandlerFactory {
         final AuthGroupCache grpCache = new AuthGroupCache(datastore, AUTH_GROUP_CACHE_PREFIX);
         final OpenstackAuth authConfig = config.getOpenstackAuth();
         final OpenStackIdentityService ids = authConfig.getIdentityService();
-        final AuthenticationService authService = new AuthenticationServiceFactory().build(ids.getUri(), ids.getUsername(), ids.getPassword());
+        final AuthenticationService authService = new AuthenticationServiceFactory().build(ids.getUri(), ids.getUsername(), ids.getPassword(),ids.getTenantId());
         final Configurables configurables = new Configurables(authConfig.isDelegable(),
                 ids.getUri(),
                 accountRegexExtractor,

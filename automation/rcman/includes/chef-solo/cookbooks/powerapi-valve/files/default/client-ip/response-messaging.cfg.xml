@@ -62,6 +62,11 @@
         </message>
     </status-code>
 
+    <status-code id="311" code-regex="311" overwrite="ALWAYS">
+        <message media-type="*/*" content-type="application/xml"><![CDATA[<outer><groups>%{X-PP-Groups}i</groups><somedate>%{MYDATE DATE ISO_8601}i</somedate></outer>]]>
+        </message>
+    </status-code>
+
     <status-code id="333" code-regex="333" overwrite="ALWAYS">
         <message media-type="application/xml"><![CDATA[<outer><groups>%{X-PP-Groups}i</groups><somedate>%{MYDATE DATE ISO_8601}i</somedate></outer>]]>
         </message>

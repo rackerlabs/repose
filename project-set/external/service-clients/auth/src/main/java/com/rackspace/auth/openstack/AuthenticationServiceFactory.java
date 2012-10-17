@@ -11,7 +11,7 @@ import javax.xml.bind.JAXBException;
 public class AuthenticationServiceFactory {
    private static final Logger LOG = LoggerFactory.getLogger(AuthenticationServiceFactory.class);
 
-   public AuthenticationService build(String targetHostUri, String username, String password) {
+   public AuthenticationService build(String targetHostUri, String username, String password, String tenantId) {
 
       JAXBContext coreJaxbContext;
       JAXBContext groupJaxbContext;
@@ -26,7 +26,7 @@ public class AuthenticationServiceFactory {
                  + e.getMessage(), e);
       }
 
-      return new AuthenticationServiceClient(targetHostUri, username, password,
+      return new AuthenticationServiceClient(targetHostUri, username, password, tenantId,
               new ResponseUnmarshaller(coreJaxbContext),
               new ResponseUnmarshaller(groupJaxbContext));
    }

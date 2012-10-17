@@ -1,5 +1,6 @@
 package org.openrepose.components.rackspace.authz;
 
+import com.rackspace.auth.AuthServiceException;
 import com.rackspace.auth.openstack.AuthenticationService;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
@@ -79,7 +80,11 @@ public class RequestAuthorizationHandler extends AbstractFilterLogicHandler {
         } catch (ClientHandlerException ex) {
             LOG.error("Failure communicating with the auth service: " + ex.getMessage(), ex);
             director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-        } catch (Exception ex) {
+        } catch (AuthServiceException ex){
+           LOG.error("Failure in authorization component" + ex.getMessage());
+           director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+        }
+        catch (Exception ex) {
             LOG.error("Failure in authorization component: " + ex.getMessage(), ex);
             director.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
         }

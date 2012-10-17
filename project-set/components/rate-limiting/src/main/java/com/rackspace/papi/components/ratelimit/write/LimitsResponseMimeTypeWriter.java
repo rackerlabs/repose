@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.ratelimit.write;
 
-import com.rackspace.repose.service.ratelimit.config.LimitsFormat;
 import com.rackspace.papi.components.ratelimit.util.LimitsEntityStreamTransformer;
 
 import javax.ws.rs.core.MediaType;
@@ -11,10 +10,8 @@ import java.io.OutputStream;
 public class LimitsResponseMimeTypeWriter {
 
    private final LimitsEntityStreamTransformer responseTransformer;
-   private final LimitsFormat limitsFormat;
 
-   public LimitsResponseMimeTypeWriter(LimitsFormat limitsFormat, LimitsEntityStreamTransformer responseTransformer) {
-      this.limitsFormat = limitsFormat;
+   public LimitsResponseMimeTypeWriter(LimitsEntityStreamTransformer responseTransformer) {
       this.responseTransformer = responseTransformer;
    }
 
@@ -24,7 +21,7 @@ public class LimitsResponseMimeTypeWriter {
          return MediaType.APPLICATION_XML_TYPE;
       } else {
          // default to json for now
-         responseTransformer.streamAsJson(new ByteArrayInputStream(readableContents), outputStream, limitsFormat);
+         responseTransformer.streamAsJson(new ByteArrayInputStream(readableContents), outputStream);
          return MediaType.APPLICATION_JSON_TYPE;
       }     
    }

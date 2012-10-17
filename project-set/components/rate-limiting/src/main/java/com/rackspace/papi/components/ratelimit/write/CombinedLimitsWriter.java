@@ -2,7 +2,6 @@ package com.rackspace.papi.components.ratelimit.write;
 
 import javax.ws.rs.core.MediaType;
 import com.rackspace.repose.service.limits.schema.RateLimitList;
-import com.rackspace.repose.service.ratelimit.config.LimitsFormat;
 
 import com.rackspace.papi.components.ratelimit.exception.RateLimitingSerializationException;
 import com.rackspace.papi.components.ratelimit.util.LimitsEntityStreamTransformer;
@@ -17,10 +16,8 @@ public class CombinedLimitsWriter {
 
    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(CombinedLimitsWriter.class);
    private static final LimitsEntityStreamTransformer RESPONSE_TRANSFORMER = new LimitsEntityStreamTransformer();
-   private final LimitsFormat limitsFormat;
 
-   public CombinedLimitsWriter(LimitsFormat limitsFormat) {
-      this.limitsFormat = limitsFormat;
+   public CombinedLimitsWriter() {
    }
 
    public MediaType write(RateLimitList activeRateLimits, MediaType mediaType, InputStream absoluteLimits, OutputStream outputStream) {
@@ -31,7 +28,7 @@ public class CombinedLimitsWriter {
          final ByteArrayOutputStream bos = new ByteArrayOutputStream();
          RESPONSE_TRANSFORMER.combine(transformPair, bos);
 
-         final LimitsResponseMimeTypeWriter responseWriter = new LimitsResponseMimeTypeWriter(limitsFormat, RESPONSE_TRANSFORMER);
+         final LimitsResponseMimeTypeWriter responseWriter = new LimitsResponseMimeTypeWriter(RESPONSE_TRANSFORMER);
          
          return responseWriter.writeLimitsResponse(bos.toByteArray(), mediaType, outputStream);
       } catch (Exception ex) {

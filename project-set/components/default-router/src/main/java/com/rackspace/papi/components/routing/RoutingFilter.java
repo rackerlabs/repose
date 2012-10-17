@@ -12,6 +12,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import javax.servlet.*;
 import java.io.IOException;
 
+@Deprecated
 public class RoutingFilter implements Filter, ApplicationContextAware {
 
     private RoutingHandlerFactory handlerFactory;

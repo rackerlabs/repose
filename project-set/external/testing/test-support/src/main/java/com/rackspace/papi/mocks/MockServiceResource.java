@@ -41,6 +41,23 @@ public class MockServiceResource {
         return response.entity(body).header("Content-Length", body.length()).build();
     }
 
+    @PUT
+    @Path("/echobody")
+    public Response echoBodyRootPut(String body, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
+        return echoBody(body, headers, uriInfo);
+    }
+
+    @PUT
+    @Path("{prefix: .*}/echobody")
+    public Response echoBodyPut(String body, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
+        Response.ResponseBuilder response = Response.ok();
+        String type = headers.getRequestHeader("content-type").isEmpty() ? "" : headers.getRequestHeader("content-type").get(0);
+        if (type.length() > 0) {
+            response = response.type(type);
+        }
+        return response.entity(body).header("Content-Length", body.length()).build();
+    }
+
     @POST
     @Path("/postcode/{statusCode}")
     public Response postStatusCode(@PathParam("statusCode") String statusCode, String body, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
@@ -76,6 +93,12 @@ public class MockServiceResource {
     @GET
     @Path("/echoheaders")
     public Response getEchoHeaders(@Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
+        return provider.getEndServiceWithEchoHeaders("", headers, uriInfo);
+    }
+
+    @GET
+    @Path("/echoheaders/{suffix: .*}")
+    public Response getEchoHeadersWithPath(@Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
         return provider.getEndServiceWithEchoHeaders("", headers, uriInfo);
     }
 

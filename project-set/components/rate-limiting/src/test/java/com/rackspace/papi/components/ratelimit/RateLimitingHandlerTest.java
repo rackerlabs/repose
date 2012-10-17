@@ -25,147 +25,174 @@ import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
 public class RateLimitingHandlerTest extends RateLimitingTestSupport {
-   private static Enumeration<String> createStringEnumeration(String... names) {
-      Vector<String> namesCollection = new Vector<String>(names.length);
+    private static Enumeration<String> createStringEnumeration(String... names) {
+        Vector<String> namesCollection = new Vector<String>(names.length);
 
-      namesCollection.addAll(Arrays.asList(names));
+        namesCollection.addAll(Arrays.asList(names));
 
-      return namesCollection.elements();
-   }
+        return namesCollection.elements();
+    }
 
-   public static class WhenMakingInvalidRequests extends TestParent {
+    public static class WhenMakingInvalidRequests extends TestParent {
 
-      @Test
-      public void shouldReturnUnauthorizedWhenUserInformationIsMissing() {
-         final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
+        @Test
+        public void shouldReturnUnauthorizedWhenUserInformationIsMissing() {
+            final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
 
-         assertEquals("FilterDirectory must return on rate limiting failure", FilterAction.RETURN, director.getFilterAction());
-         assertEquals("Must return 401 if the user has not been identified", HttpStatusCode.UNAUTHORIZED, director.getResponseStatus());
-      }
-   }
+            assertEquals("FilterDirectory must return on rate limiting failure", FilterAction.RETURN, director.getFilterAction());
+            assertEquals("Must return 401 if the user has not been identified", HttpStatusCode.UNAUTHORIZED, director.getResponseStatus());
+        }
+    }
 
-   public static class WhenMakingValidRequests extends TestParent {
+    public static class WhenMakingValidRequests extends TestParent {
 
-      @Before
-      public void standUp() {
-         when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenAnswer(new Answer<Object>() {
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-               List<String> headerValues = new LinkedList<String>();
-               headerValues.add("group-4");
-               headerValues.add("group-2");
-               headerValues.add("group-1");
-               headerValues.add("group-3");
+        @Before
+        public void standUp() {
+            when(mockedRequest.getHeaders(PowerApiHeader.GROUPS.toString())).thenAnswer(new Answer<Object>() {
+                public Object answer(InvocationOnMock invocation) throws Throwable {
+                    List<String> headerValues = new LinkedList<String>();
+                    headerValues.add("group-4");
+                    headerValues.add("group-2");
+                    headerValues.add("group-1");
+                    headerValues.add("group-3");
 
-               return Collections.enumeration(headerValues);
-            }
-         });
+                    return Collections.enumeration(headerValues);
+                }
+            });
 
-         when(mockedRequest.getHeaders(PowerApiHeader.USER.toString())).thenAnswer(new Answer<Object>() {
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-               List<String> headerValues = new LinkedList<String>();
-               headerValues.add("that other user;q=0.5");
-               headerValues.add("127.0.0.1;q=0.1");
+            when(mockedRequest.getHeaders(PowerApiHeader.USER.toString())).thenAnswer(new Answer<Object>() {
+                public Object answer(InvocationOnMock invocation) throws Throwable {
+                    List<String> headerValues = new LinkedList<String>();
+                    headerValues.add("that other user;q=0.5");
+                    headerValues.add("127.0.0.1;q=0.1");
 
-               return Collections.enumeration(headerValues);
-            }
-         });
+                    return Collections.enumeration(headerValues);
+                }
+            });
 
-         when(mockedRequest.getHeader(PowerApiHeader.USER.toString())).thenReturn("127.0.0.1;q=0.1");
-         when(mockedRequest.getHeader(PowerApiHeader.GROUPS.toString())).thenReturn("group-1");
-      }
+            when(mockedRequest.getHeader(PowerApiHeader.USER.toString())).thenReturn("127.0.0.1;q=0.1");
+            when(mockedRequest.getHeader(PowerApiHeader.GROUPS.toString())).thenReturn("group-1");
+        }
 
-      @Test
-      public void shouldPassValidRequests() {
-         when(mockedRequest.getHeaderNames()).thenAnswer(new Answer<Object>() {
-            public Object answer(InvocationOnMock invocation) throws Throwable {
-               return createStringEnumeration("Accept", PowerApiHeader.USER.toString(), PowerApiHeader.GROUPS.toString());
-            }
-         });
+        @Test
+        public void shouldPassValidRequests() {
+            when(mockedRequest.getHeaderNames()).thenAnswer(new Answer<Object>() {
+                public Object answer(InvocationOnMock invocation) throws Throwable {
+                    return createStringEnumeration("Accept", PowerApiHeader.USER.toString(), PowerApiHeader.GROUPS.toString());
+                }
+            });
 
-         when(mockedRequest.getMethod()).thenReturn("GET");
-         when(mockedRequest.getRequestURI()).thenReturn("/v1.0/12345/resource");
-         when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/12345/resource"));
-         when(mockedRequest.getHeader("Accept")).thenReturn(MimeType.APPLICATION_JSON.toString());
-         when(mockedRequest.getHeaders("accept")).thenReturn(createStringEnumeration(MimeType.APPLICATION_JSON.toString()));
+            when(mockedRequest.getMethod()).thenReturn("GET");
+            when(mockedRequest.getRequestURI()).thenReturn("/v1.0/12345/resource");
+            when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/12345/resource"));
+            when(mockedRequest.getHeader("Accept")).thenReturn(MimeType.APPLICATION_JSON.toString());
+            when(mockedRequest.getHeaders("accept")).thenReturn(createStringEnumeration(MimeType.APPLICATION_JSON.toString()));
 
-         final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
+            final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
 
-         assertEquals("Filter must pass valid, non-limited requests", FilterAction.PASS, director.getFilterAction());
-      }
+            assertEquals("Filter must pass valid, non-limited requests", FilterAction.PASS, director.getFilterAction());
+        }
 
-      @Test
-      public void shouldProcessResponseWhenAbsoluteLimitsIntegrationIsEnabled() {
-         when(mockedRequest.getMethod()).thenReturn("GET");
-         when(mockedRequest.getRequestURI()).thenReturn("/v1.0/limits");
-         when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/limits"));
+        @Test
+        public void shouldProcessResponseWhenAbsoluteLimitsIntegrationIsEnabled() {
+            when(mockedRequest.getHeaderNames()).thenAnswer(new Answer<Object>() {
+                public Object answer(InvocationOnMock invocation) throws Throwable {
+                    return createStringEnumeration("Accept", PowerApiHeader.USER.toString(), PowerApiHeader.GROUPS.toString());
+                }
+            });
 
-         final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
+            when(mockedRequest.getMethod()).thenReturn("GET");
+            when(mockedRequest.getRequestURI()).thenReturn("/v1.0/limits");
+            when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/limits"));
+            when(mockedRequest.getHeader("Accept")).thenReturn(MimeType.APPLICATION_JSON.toString());
+            when(mockedRequest.getHeaders("accept")).thenReturn(createStringEnumeration(MimeType.APPLICATION_JSON.toString()));
 
-         assertEquals("On successful pass, filter must process response", FilterAction.PROCESS_RESPONSE, director.getFilterAction());
-      }
+            final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
 
-      @Test
-      public void shouldChangeAcceptTypeToXmlWhenJsonAbsoluteLimitsIsRequested() {
-         when(mockedRequest.getMethod()).thenReturn("GET");
-         when(mockedRequest.getRequestURI()).thenReturn("/v1.0/limits");
-         when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/limits"));
-         when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton(MimeType.APPLICATION_JSON.toString())));
+            assertEquals("On successful pass, filter must process response", FilterAction.PROCESS_RESPONSE, director.getFilterAction());
+        }
 
-         final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
+        @Test
+        public void shouldChangeAcceptTypeToXmlWhenJsonAbsoluteLimitsIsRequested() {
+            when(mockedRequest.getHeaderNames()).thenAnswer(new Answer<Object>() {
+                public Object answer(InvocationOnMock invocation) throws Throwable {
+                    return createStringEnumeration("Accept", PowerApiHeader.USER.toString(), PowerApiHeader.GROUPS.toString());
+                }
+            });
 
-         assertTrue("Filter Director is set to add an accept type header", director.requestHeaderManager().headersToAdd().containsKey("accept"));
-         assertTrue("Filter Director is set to remove the accept type header", director.requestHeaderManager().headersToRemove().contains("accept"));
-         assertTrue("Filter Director is set to add application/xml to the accept header",
-                 director.requestHeaderManager().headersToAdd().get("accept").toArray()[0].toString().equals(MimeType.APPLICATION_XML.getMimeType()));
-      }
+            when(mockedRequest.getMethod()).thenReturn("GET");
+            when(mockedRequest.getRequestURI()).thenReturn("/v1.0/limits");
+            when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/limits"));
+            when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton(MimeType.APPLICATION_XML.toString())));
+            when(mockedRequest.getHeaders("accept")).thenReturn(createStringEnumeration(MimeType.APPLICATION_XML.toString()));
 
-      @Test
-      public void shouldRejectDescribeLimitsCallwith406() {
-         when(mockedRequest.getMethod()).thenReturn("GET");
-         when(mockedRequest.getRequestURI()).thenReturn("/v1.0/limits");
-         when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/limits"));
-         when(mockedRequest.getHeaderNames()).thenReturn(Collections.enumeration(Collections.singleton("Accept")));
-         when(mockedRequest.getHeaders("accept")).thenReturn(Collections.enumeration(Collections.singleton("leqz")));
-         when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton("leqz")));
+            final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
 
-         final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
+            assertTrue("Filter Director is set to add an accept type header", director.requestHeaderManager().headersToAdd().containsKey("accept"));
+            assertTrue("Filter Director is set to remove the accept type header", director.requestHeaderManager().headersToRemove().contains("accept"));
+            assertTrue("Filter Director is set to add application/xml to the accept header",
+                    director.requestHeaderManager().headersToAdd().get("accept").toArray()[0].toString().equals(MimeType.APPLICATION_XML.getMimeType()));
+        }
 
-         assertEquals("On rejected media type, filter must return a response", FilterAction.RETURN, director.getFilterAction());
-         assertEquals("On rejected media type, returned status code must be 406", HttpStatusCode.NOT_ACCEPTABLE, director.getResponseStatus());
-      }
+        @Test
+        public void shouldRejectDescribeLimitsCallwith406() {
+            when(mockedRequest.getHeaderNames()).thenAnswer(new Answer<Object>() {
+                public Object answer(InvocationOnMock invocation) throws Throwable {
+                    return createStringEnumeration("Accept", PowerApiHeader.USER.toString(), PowerApiHeader.GROUPS.toString());
+                }
+            });
 
-      @Test
-      public void shouldDescribeLimitsCallWithEmptyAcceptType() {
-         when(mockedRequest.getMethod()).thenReturn("GET");
-         when(mockedRequest.getRequestURI()).thenReturn("/v1.0/limits");
-         when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/limits"));
-         when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton("")));
+            when(mockedRequest.getMethod()).thenReturn("GET");
+            when(mockedRequest.getRequestURI()).thenReturn("/v1.0/limits");
+            when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/limits"));
+            when(mockedRequest.getHeaders("accept")).thenReturn(Collections.enumeration(Collections.singleton("leqz")));
+            when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton("leqz")));
 
-         final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
+            final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
 
-         assertEquals("On rejected media type, filter must return a response", FilterAction.PROCESS_RESPONSE, director.getFilterAction());
-         assertTrue("Filter Director is set to add application/xml to the accept header",
-                 director.requestHeaderManager().headersToAdd().get("accept").toArray()[0].toString().equals(MimeType.APPLICATION_XML.getMimeType()));
-      }
-   }
+            assertEquals("On rejected media type, filter must return a response", FilterAction.RETURN, director.getFilterAction());
+            assertEquals("On rejected media type, returned status code must be 406", HttpStatusCode.NOT_ACCEPTABLE, director.getResponseStatus());
+        }
 
-   @Ignore
-   public static class TestParent {
+        @Test
+        public void shouldDescribeLimitsCallWithEmptyAcceptType() {
+            when(mockedRequest.getHeaderNames()).thenAnswer(new Answer<Object>() {
+                public Object answer(InvocationOnMock invocation) throws Throwable {
+                    return createStringEnumeration("Accept", PowerApiHeader.USER.toString(), PowerApiHeader.GROUPS.toString());
+                }
+            });
 
-      protected RateLimitingHandlerFactory handlerFactory;
-      protected HttpServletRequest mockedRequest;
-      protected ReadableHttpServletResponse mockedResponse;
+            when(mockedRequest.getMethod()).thenReturn("GET");
+            when(mockedRequest.getRequestURI()).thenReturn("/v1.0/limits");
+            when(mockedRequest.getRequestURL()).thenReturn(new StringBuffer("http://localhost/v1.0/limits"));
+            when(mockedRequest.getHeaders("Accept")).thenReturn(Collections.enumeration(Collections.singleton("")));
+            when(mockedRequest.getHeaders("accept")).thenReturn(Collections.enumeration(Collections.singleton("")));
 
-      @Before
-      public void beforeAny() {
-         final Datastore datastoreMock = mock(Datastore.class);
-         when(datastoreMock.get(anyString())).thenReturn(new StoredElementImpl("key", null));
+            final FilterDirector director = handlerFactory.newHandler().handleRequest(mockedRequest, null);
 
-         handlerFactory = new RateLimitingHandlerFactory(datastoreMock);
-         handlerFactory.configurationUpdated(defaultRateLimitingConfiguration());
+            assertEquals("On rejected media type, filter must return a response", FilterAction.PROCESS_RESPONSE, director.getFilterAction());
+            assertTrue("Filter Director is set to add application/xml to the accept header",
+                    director.requestHeaderManager().headersToAdd().get("accept").toArray()[0].toString().equals(MimeType.APPLICATION_XML.getMimeType()));
+        }
+    }
 
-         mockedRequest = mock(HttpServletRequest.class);
-         mockedResponse = mock(ReadableHttpServletResponse.class);
-      }
-   }
+    @Ignore
+    public static class TestParent {
+
+        protected RateLimitingHandlerFactory handlerFactory;
+        protected HttpServletRequest mockedRequest;
+        protected ReadableHttpServletResponse mockedResponse;
+
+        @Before
+        public void beforeAny() {
+            final Datastore datastoreMock = mock(Datastore.class);
+            when(datastoreMock.get(anyString())).thenReturn(new StoredElementImpl("key", null));
+
+            handlerFactory = new RateLimitingHandlerFactory(datastoreMock);
+            handlerFactory.configurationUpdated(defaultRateLimitingConfiguration());
+
+            mockedRequest = mock(HttpServletRequest.class);
+            mockedResponse = mock(ReadableHttpServletResponse.class);
+        }
+    }
 }

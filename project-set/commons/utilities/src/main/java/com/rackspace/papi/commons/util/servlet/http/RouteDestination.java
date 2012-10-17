@@ -3,6 +3,7 @@ package com.rackspace.papi.commons.util.servlet.http;
 public class RouteDestination implements Comparable {
    private final String destinationId;
    private final String uri;
+   private String contextRemoved;
    private final float quality;
 
    @Override
@@ -64,4 +65,12 @@ public class RouteDestination implements Comparable {
    public float getQuality() {
       return quality;
    }
+
+    public String getContextRemoved() {
+        return contextRemoved;
+    }
+
+    public void setContextRemoved(String contextRemoved) {
+        this.contextRemoved = contextRemoved;
+    }
 }
