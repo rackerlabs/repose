@@ -35,7 +35,7 @@ public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilter
          final AuthenticationServer serverInfo = authorizationConfiguration.getAuthenticationServer();
 
          if (serverInfo != null && authorizationConfiguration.getServiceEndpoint() != null) {
-            authenticationService = new AuthenticationServiceFactory().build(serverInfo.getHref(), serverInfo.getUsername(), serverInfo.getPassword());
+            authenticationService = new AuthenticationServiceFactory().build(serverInfo.getHref(), serverInfo.getUsername(), serverInfo.getPassword(), serverInfo.getTenantId());
          } else {
             LOG.error("Errors detected in rackspace authorization configuration. Please check configurations.");
          }

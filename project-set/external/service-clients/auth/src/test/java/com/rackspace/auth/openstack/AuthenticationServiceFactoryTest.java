@@ -13,7 +13,7 @@ public class AuthenticationServiceFactoryTest {
 
         @Test
         public void shouldBuildAthenticationService() {
-            final AuthenticationService service = new AuthenticationServiceFactory().build("/some/host/uri", "username", "password");
+            final AuthenticationService service = new AuthenticationServiceFactory().build("/some/host/uri", "username", "password",null);
 
             assertNotNull(service);
         }
