@@ -19,7 +19,8 @@ public class LocalDatastoreCommandList extends AbstractCommandList {
     public Command[] availableCommands() {
         return new Command[]{
                 new AuthTokenAndRolesRemover(),
-                new AuthGroupsRemover()
+                new AuthGroupsRemover(),
+                new RateLimitsRemover()
         };
     }
 }
