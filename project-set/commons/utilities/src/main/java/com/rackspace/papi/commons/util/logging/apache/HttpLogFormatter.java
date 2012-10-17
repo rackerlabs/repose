@@ -108,6 +108,9 @@ public class HttpLogFormatter {
             case REQUEST_METHOD:
                 formatter.setLogic(new RequestMethodHandler());
                 break;
+            case RESPONSE_CLF_BYTES:
+                formatter.setLogic(new ResponseBytesClfHandler());
+                break;
             case RESPONSE_BYTES:
                 formatter.setLogic(new ResponseBytesHandler());
                 break;
