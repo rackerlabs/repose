@@ -149,7 +149,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
             headers.put(AUTH_TOKEN_HEADER, getAdminToken());
             endpointListResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken + "/endpoints", headers);
 
-            if (endpointListResponse.getStatusCode() == 200) {
+            if (endpointListResponse.getStatusCode() == HttpStatusCode.ACCEPTED.intValue()) {
                endpointList = getEndpointList(endpointListResponse);
             } else {
                LOG.warn("Still unable to get endpoints: " + endpointListResponse.getStatusCode());
@@ -198,7 +198,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
             serviceResponse = serviceClient.get(targetHostUri + "/users/" + userId + "/RAX-KSGRP", headers);
 
-            if (serviceResponse.getStatusCode() == 200) {
+            if (serviceResponse.getStatusCode() == HttpStatusCode.ACCEPTED.intValue()) {
                authGroups = getAuthGroups(serviceResponse);
             } else {
                LOG.warn("Still unable to get groups: " + serviceResponse.getStatusCode());

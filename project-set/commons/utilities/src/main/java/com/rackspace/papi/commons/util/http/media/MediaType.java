@@ -5,7 +5,10 @@ import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
 import java.util.Map;
 
 public class MediaType extends HeaderValueImpl {
+
    private final MimeType mimeType;
+   private static final int HASH_CODE_NUM1 = 3;
+   private static final int HASH_CODE_NUM2 = 79;
 
    public MediaType(MimeType mimeType) {
       this(mimeType.getMimeType(), mimeType, HeaderValueImpl.DEFAULT_QUALITY);
@@ -16,9 +19,9 @@ public class MediaType extends HeaderValueImpl {
    }
 
    public MediaType(String value, MimeType mimeType) {
-       this(value, mimeType, HeaderValueImpl.DEFAULT_QUALITY);
+      this(value, mimeType, HeaderValueImpl.DEFAULT_QUALITY);
    }
-   
+
    public MediaType(String value, MimeType mimeType, double quality) {
       super(value, quality); //Collections.EMPTY_MAP);
 
@@ -40,25 +43,24 @@ public class MediaType extends HeaderValueImpl {
       if (obj == null) {
          return false;
       }
-      
+
       if (getClass() != obj.getClass()) {
          return false;
       }
-      
+
       final MediaType other = (MediaType) obj;
-      
+
       if (this.mimeType != other.mimeType) {
          return false;
       }
-      
+
       return super.equals(obj);
    }
 
    @Override
    public int hashCode() {
-      int hash = 3;
-      hash = 79 * hash + (this.mimeType != null ? this.mimeType.hashCode() : 0);
-      
+      int hash = HASH_CODE_NUM2 * HASH_CODE_NUM1 + (this.mimeType != null ? this.mimeType.hashCode() : 0);
+
       return hash + super.hashCode();
    }
 }

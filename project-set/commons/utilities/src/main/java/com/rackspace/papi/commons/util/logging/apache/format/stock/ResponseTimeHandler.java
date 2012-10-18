@@ -10,8 +10,9 @@ import java.text.DecimalFormat;
 public class ResponseTimeHandler implements FormatterLogic {
 
     private static final String START_TIME_ATTRIBUTE = "com.rackspace.repose.logging.start.time";
+    private static final double DEFAULT_MULTIPLIER = 1000;
     private final DecimalFormat decimalFormat = new DecimalFormat("#.##");
-    private double multiplier = 1000;
+    private double multiplier = DEFAULT_MULTIPLIER;
 
     public ResponseTimeHandler(double multiplier) {
         this.multiplier = multiplier;
