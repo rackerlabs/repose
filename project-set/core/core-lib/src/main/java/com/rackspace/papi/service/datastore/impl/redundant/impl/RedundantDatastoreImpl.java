@@ -16,7 +16,6 @@ import com.rackspace.papi.service.datastore.impl.redundant.subscriptions.UdpSubs
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;

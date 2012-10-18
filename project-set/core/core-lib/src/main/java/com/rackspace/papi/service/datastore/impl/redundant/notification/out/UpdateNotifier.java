@@ -75,41 +75,10 @@ public class UpdateNotifier implements Notifier {
         }
     }
 
-    /*
-    public void notifyNode(Subscriber subscriber, byte[] messageData) {
-        if (subscriber.getPort() < 0) {
-            return;
-        }
-
-        OutputStream out = null;
-        try {
-            //socket = new Socket(subscriber.getHost(), subscriber.getPort());
-            Socket socket = subscriber.getSocket();
-            out = new BufferedOutputStream(socket.getOutputStream());
-            out.write(messageData);
-            out.flush();
-        } catch (IOException ex) {
-            LOG.error("Error notifying node: " + subscriber.getHost() + ":" + subscriber.getPort(), ex);
-            removeSubscriber(subscriber);
-            if (out != null) {
-                try {
-                    out.close();
-                } catch (IOException ioex) {
-                    LOG.warn("Error closing output stream", ioex);
-                }
-            }
-        }
-    }
-    */
-
     @Override
     public void notifyNode(Operation operation, Subscriber subscriber, String key, byte[] data, int ttl) throws IOException {
         Message message = new Message(operation, key, data, ttl);
         queue.offer(new MessageQueueItem(subscriber, message));
-        /*
-        byte[] messageData = ObjectSerializer.instance().writeObject(message);
-        notifyNode(subscriber, messageData);
-        */
 
     }
 
@@ -117,24 +86,18 @@ public class UpdateNotifier implements Notifier {
     public void notifyNode(Operation operation, Subscriber subscriber, String[] keys, byte[][] data, int[] ttl) throws IOException {
         Message message = new Message(operation, keys, data, ttl);
         queue.offer(new MessageQueueItem(subscriber, message));
-        /*
-        byte[] messageData = ObjectSerializer.instance().writeObject(message);
-        notifyNode(subscriber, messageData);
-        */
 
     }
 
     @Override
     public void notifyAllNodes(Operation operation, String key, byte[] data, int ttl) throws IOException {
         Message message = new Message(operation, key, data, ttl);
-        //byte[] messageData = ObjectSerializer.instance().writeObject(message);
         List<Subscriber> invalid = new ArrayList<Subscriber>();
         for (Subscriber subscriber : subscribers) {
             if (subscriber.getPort() < 0) {
                 invalid.add(subscriber);
             } else {
                 queue.offer(new MessageQueueItem(subscriber, message));
-                //notifyNode(subscriber, messageData);
             }
         }
 

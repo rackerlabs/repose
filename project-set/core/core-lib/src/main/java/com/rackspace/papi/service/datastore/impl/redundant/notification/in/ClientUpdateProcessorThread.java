@@ -29,6 +29,22 @@ public class ClientUpdateProcessorThread implements Runnable {
         this.done = false;
     }
 
+    private void putMessage(Message message) {
+        for (Message.KeyValue value : message.getValues()) {
+            if (message.getTtl() > 0) {
+                datastore.put(value.getKey(), value.getData(), value.getTtl(), TimeUnit.SECONDS, false);
+            } else {
+                datastore.put(value.getKey(), value.getData(), false);
+            }
+            LOG.debug("Received: " + value.getKey());
+        }
+    }
+
+    private void removeMessage(Message message) {
+        datastore.remove(message.getKey(), false);
+        LOG.debug("Received: " + message.getKey());
+    }
+
     @Override
     public void run() {
         byte[] ok = new byte[]{1};
@@ -42,36 +58,13 @@ public class ClientUpdateProcessorThread implements Runnable {
                         continue;
                     }
 
-                    /*
-                     int read;
-                     os.reset();
-                     while (is.available() > 0 && (read = is.read(buffer)) != -1) {
-                     os.write(buffer, 0, read);
-                     }
-
-                     request.getOutputStream().write(ok);
-                     request.getOutputStream().flush();
-
-                     byte[] data = os.toByteArray();
-                     if (data.length > 0) {
-
-                     Message message = (Message) ObjectSerializer.instance().readObject(data);
-                     */
                     Message message = (Message) ObjectSerializer.instance().readObject(is);
                     switch (message.getOperation()) {
                         case PUT:
-                            for (Message.KeyValue value : message.getValues()) {
-                                if (message.getTtl() > 0) {
-                                    datastore.put(value.getKey(), value.getData(), value.getTtl(), TimeUnit.SECONDS, false);
-                                } else {
-                                    datastore.put(value.getKey(), value.getData(), false);
-                                }
-                                LOG.debug("Received: " + value.getKey());
-                            }
+                            putMessage(message);
                             break;
                         case REMOVE:
-                            datastore.remove(message.getKey(), false);
-                            LOG.debug("Received: " + message.getKey());
+                            removeMessage(message);
                             break;
                     }
                     //}

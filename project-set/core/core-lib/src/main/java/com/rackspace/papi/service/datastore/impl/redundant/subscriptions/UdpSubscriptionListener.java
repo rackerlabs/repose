@@ -67,10 +67,10 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
         Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
 
         while (nets.hasMoreElements()) {
-            NetworkInterface net = nets.nextElement();
-            if (net.getName().equals(name)) {
-                LOG.info("Interface: " + net.getDisplayName());
-                return net;
+            NetworkInterface nextNet = nets.nextElement();
+            if (nextNet.getName().equals(name)) {
+                LOG.info("Interface: " + nextNet.getDisplayName());
+                return nextNet;
             }
         }
 
@@ -83,8 +83,8 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
         Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
 
         while (nets.hasMoreElements()) {
-            NetworkInterface net = nets.nextElement();
-            LOG.info(net.getName() + " supports multicast " + net.supportsMulticast());
+            NetworkInterface nextNet = nets.nextElement();
+            LOG.info(nextNet.getName() + " supports multicast " + nextNet.supportsMulticast());
         }
 
     }
@@ -106,6 +106,7 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
         }
     }
 
+    @Override
     public void join(String host, int port) {
         this.tcpHost = host;
         this.tcpPort = port;
@@ -207,6 +208,7 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
         socket.close();
     }
 
+    @Override
     public void unsubscribe() {
         done = true;
     }
