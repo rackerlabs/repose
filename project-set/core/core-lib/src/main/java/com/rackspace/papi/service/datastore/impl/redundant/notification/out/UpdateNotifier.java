@@ -39,10 +39,12 @@ public class UpdateNotifier implements Notifier {
         }
     }
     
+    @Override
     public void startNotifications() {
         senderThread.start();
     }
     
+    @Override
     public void stopNotifications() {
         sender.stop();
         senderThread.interrupt();
