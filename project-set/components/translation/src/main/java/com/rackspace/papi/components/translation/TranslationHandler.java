@@ -30,7 +30,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import javax.servlet.http.HttpServletRequest;
-import org.xml.sax.XMLFilter;
 
 public class TranslationHandler extends AbstractFilterLogicHandler {
 

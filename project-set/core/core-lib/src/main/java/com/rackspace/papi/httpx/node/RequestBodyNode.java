@@ -2,14 +2,8 @@ package com.rackspace.papi.httpx.node;
 
 import com.rackspace.httpx.Body;
 import com.rackspace.httpx.Request;
-import com.rackspace.papi.commons.util.http.media.MediaRangeProcessor;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MimeType;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
-import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
-import com.rackspace.papi.filter.logic.FilterAction;
-import com.rackspace.papi.filter.logic.FilterDirector;
-import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.httpx.ObjectFactoryUser;
 import com.rackspace.papi.httpx.processor.TranslationPreProcessor;
 import org.slf4j.Logger;
