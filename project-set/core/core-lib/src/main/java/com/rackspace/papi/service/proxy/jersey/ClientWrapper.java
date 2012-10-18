@@ -55,7 +55,7 @@ public class ClientWrapper {
         final Configuration config = new Configuration();
         config.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
         config.setUpdateCheck(false);
-        cacheManager = new CacheManager(config);
+        cacheManager = CacheManager.create(config);
         shortCache = newCache(cacheManager, SHORT_TERM_CACHE_SIZE, SHORT_TERM_TTL, SHORT_TERM_TTL);
         longCache = newCache(cacheManager, LONG_TERM_CACHE_SIZE, LONG_TERM_TTL, LONG_TERM_TTL);
     }

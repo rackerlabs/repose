@@ -66,6 +66,7 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
 
     @Override
     public void contextDestroyed(ServletContextEvent servletContextEvent) {
+        reportingService.shutdown();
         configurationManager.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
         configurationManager.unsubscribeFrom("container.cfg.xml", containerConfigurationListener);
     }
