@@ -5,6 +5,8 @@ import org.openrepose.cli.command.AbstractCommand;
 import org.openrepose.cli.command.results.*;
 
 public class AuthTokenAndRolesRemover extends AbstractCommand {
+   
+   private static final int ARGUMENTS_LENGTH = 3;
 
     @Override
     public String getCommandToken() {
@@ -19,7 +21,7 @@ public class AuthTokenAndRolesRemover extends AbstractCommand {
     @Override
     public CommandResult perform(String[] arguments) {
 
-        if (arguments.length != 3) {
+        if (arguments.length != ARGUMENTS_LENGTH) {
             return new InvalidArguments("The token remover expects three string arguments.");
         }
 

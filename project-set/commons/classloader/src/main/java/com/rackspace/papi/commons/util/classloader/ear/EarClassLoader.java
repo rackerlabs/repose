@@ -16,6 +16,7 @@ import java.net.URL;
 public class EarClassLoader extends ClassLoader {
 
    private static final Logger LOG = LoggerFactory.getLogger(EarClassLoader.class);
+   private static final int BYTE_BUFFER_SIZE = 1024;
    private final ResourceIdentityTree classPathIdentityTree;
    private final File unpackedArchiveRoot;
    private final ClassLoader parent;
@@ -139,7 +140,7 @@ public class EarClassLoader extends ClassLoader {
 
    public static ByteArrayOutputStream createOutPutStream(InputStream resourceInputStream) throws IOException {
       final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-      final byte[] byteBuffer = new byte[1024];
+      final byte[] byteBuffer = new byte[BYTE_BUFFER_SIZE];
       int read;
 
       while ((read = resourceInputStream.read(byteBuffer)) != -1) {
