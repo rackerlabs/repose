@@ -41,12 +41,8 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
     private final int udpPort;
 
     public UdpSubscriptionListener(RedundantDatastore datastore, Notifier notifier, String udpAddress, int udpPort) throws IOException {
-        this(datastore, notifier, "*", udpAddress, udpPort);
-    }
-
-    public UdpSubscriptionListener(RedundantDatastore datastore, Notifier notifier, String nic, String updAddress, int udpPort) throws IOException {
         this.udpPort = udpPort;
-        this.socketAddress = new InetSocketAddress(updAddress, udpPort);
+        this.socketAddress = new InetSocketAddress(udpAddress, udpPort);
         this.socket = new DatagramSocket(socketAddress);
         this.buffer = new byte[BUFFER_SIZE];
         this.notifier = notifier;
@@ -58,6 +54,7 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
         socket.setReceiveBufferSize(BUFFER_SIZE);
     }
 
+    /*
     private NetworkInterface getInterface(String name) throws SocketException {
         if (StringUtilities.isBlank(name) || "*".equals(name)) {
             return null;
@@ -87,6 +84,7 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
         }
 
     }
+    */
 
     public void announce(Message message) {
         try {
