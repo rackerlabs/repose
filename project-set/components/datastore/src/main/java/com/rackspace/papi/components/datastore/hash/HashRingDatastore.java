@@ -190,4 +190,19 @@ public class HashRingDatastore extends AbstractHashedDatastore {
          }
       }, initialBehavior);
    }
+
+    @Override
+    public boolean remove(String key, boolean notify) throws DatastoreOperationException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void put(String key, byte[] value, boolean notify) throws DatastoreOperationException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    public void put(String key, byte[] value, int ttl, TimeUnit timeUnit, boolean notify) throws DatastoreOperationException {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
 }
