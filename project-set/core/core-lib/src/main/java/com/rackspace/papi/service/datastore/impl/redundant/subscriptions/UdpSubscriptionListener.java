@@ -2,6 +2,7 @@ package com.rackspace.papi.service.datastore.impl.redundant.subscriptions;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
+import com.rackspace.papi.service.datastore.impl.DatastoreServiceException;
 import com.rackspace.papi.service.datastore.impl.redundant.Notifier;
 import com.rackspace.papi.service.datastore.impl.redundant.RedundantDatastore;
 import com.rackspace.papi.service.datastore.impl.redundant.SubscriptionListener;
@@ -16,7 +17,6 @@ import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.UUID;
 import org.slf4j.Logger;
@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
 
     private static final Logger LOG = LoggerFactory.getLogger(UdpSubscriptionListener.class);
+    private static final String UNABLE_TO_SERIALIZE = "Unable to serialize subscriber information";
     private static final int BUFFER_SIZE = 1024 * 8;
     private static final int SOCKET_TIMEOUT = 1000;
     private final DatagramSocket socket;
@@ -36,15 +37,14 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
     private final RedundantDatastore datastore;
     private boolean synched;
     private final UUID id;
-    private final NetworkInterface net;
     private final InetSocketAddress socketAddress;
     private final int udpPort;
 
-    public UdpSubscriptionListener(RedundantDatastore datastore, Notifier notifier, String udpAddress, int udpPort) throws UnknownHostException, IOException {
+    public UdpSubscriptionListener(RedundantDatastore datastore, Notifier notifier, String udpAddress, int udpPort) throws IOException {
         this(datastore, notifier, "*", udpAddress, udpPort);
     }
 
-    public UdpSubscriptionListener(RedundantDatastore datastore, Notifier notifier, String nic, String updAddress, int udpPort) throws UnknownHostException, IOException {
+    public UdpSubscriptionListener(RedundantDatastore datastore, Notifier notifier, String nic, String updAddress, int udpPort) throws IOException {
         this.udpPort = udpPort;
         this.socketAddress = new InetSocketAddress(updAddress, udpPort);
         this.socket = new DatagramSocket(socketAddress);
@@ -54,7 +54,6 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
         this.id = UUID.randomUUID();
         this.done = false;
         this.synched = false;
-        this.net = getInterface(nic);
         socket.setSoTimeout(SOCKET_TIMEOUT);
         socket.setReceiveBufferSize(BUFFER_SIZE);
     }
@@ -76,7 +75,7 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
 
         listAvailableNics();
 
-        throw new RuntimeException("Cannot find network interface by name: " + name);
+        throw new DatastoreServiceException("Cannot find network interface by name: " + name);
     }
 
     private void listAvailableNics() throws SocketException {
@@ -114,7 +113,7 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
             byte[] subscriberData = ObjectSerializer.instance().writeObject(new Subscriber(host, port, this.socketAddress.getPort()));
             announce(new Message(Operation.JOINING, id.toString(), subscriberData, 0));
         } catch (IOException ex) {
-            LOG.error("Unable to serialize subscriber information", ex);
+            LOG.error(UNABLE_TO_SERIALIZE, ex);
         }
     }
 
@@ -124,7 +123,7 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
             byte[] subscriberData = ObjectSerializer.instance().writeObject(subscriber);
             announce(new Message(Operation.SYNC, targetId, id.toString(), subscriberData, 0));
         } catch (IOException ex) {
-            LOG.error("Unable to serialize subscriber information", ex);
+            LOG.error(UNABLE_TO_SERIALIZE, ex);
         }
 
     }
@@ -135,7 +134,7 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
             byte[] subscriberData = ObjectSerializer.instance().writeObject(subscriber);
             announce(new Message(Operation.LISTENING, id.toString(), subscriberData, 0));
         } catch (IOException ex) {
-            LOG.error("Unable to serialize subscriber information", ex);
+            LOG.error(UNABLE_TO_SERIALIZE, ex);
         }
 
     }
@@ -146,7 +145,7 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
             byte[] subscriberData = ObjectSerializer.instance().writeObject(subscriber);
             announce(new Message(Operation.LEAVING, id.toString(), subscriberData, 0));
         } catch (IOException ex) {
-            LOG.error("Unable to serialize subscriber information", ex);
+            LOG.error(UNABLE_TO_SERIALIZE, ex);
         }
 
     }
