@@ -80,6 +80,7 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
+        LOG.info("Destroying datastore service context");
         stopDatastore();
         ehCacheManager.removalAll();
         ehCacheManager.shutdown();

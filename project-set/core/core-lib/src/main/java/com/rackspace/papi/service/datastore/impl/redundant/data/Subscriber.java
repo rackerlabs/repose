@@ -9,6 +9,7 @@ import java.net.UnknownHostException;
 public class Subscriber implements Serializable {
 
     private static final int TIMEOUT = 1000;
+    private static final int HASH = 29;
     private final String host;
     private final int port;
     private final int updPort;
@@ -37,7 +38,7 @@ public class Subscriber implements Serializable {
         this.socket = socket;
     }
 
-    public Socket getSocket() throws UnknownHostException, IOException {
+    public Socket getSocket() throws IOException {
         if (socket == null) {
             socket = new Socket(host, port);
             socket.setKeepAlive(true);
@@ -67,9 +68,9 @@ public class Subscriber implements Serializable {
 
     @Override
     public int hashCode() {
-        int hash = 7;
-        hash = 29 * hash + (this.getHost() != null ? this.getHost().hashCode() : 0);
-        hash = 29 * hash + this.getPort();
+        int hash = HASH;
+        hash = HASH * hash + (this.getHost() != null ? this.getHost().hashCode() : 0);
+        hash = HASH * hash + this.getPort();
         return hash;
     }
 
