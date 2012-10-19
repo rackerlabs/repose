@@ -186,7 +186,7 @@ for nodeNumber in 1..6
          mode 0644
          variables({
             :port => 8886 + nodeNumber,
-            :via => via
+            :via => via,
             :cbrl => cbrl
          })
       end
