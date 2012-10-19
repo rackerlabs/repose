@@ -157,12 +157,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         try {
             final PowerFilterChain requestFilterChainState = powerFilterChainBuilder.newPowerFilterChain(chain);
             requestFilterChainState.startFilterChain(mutableHttpRequest, mutableHttpResponse);
-        } catch (ReadLimitReachedException ex) {
-            LOG.warn("Error reading request content", ex);
-            mutableHttpResponse.sendError(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE.intValue(), "Error reading request content");
-            mutableHttpResponse.setLastException(ex);
-           
-        } catch (PowerFilterChainException ex) {
+        }  catch (PowerFilterChainException ex) {
             LOG.warn("Error creating filter chain", ex);
             mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Error creating filter chain");
             mutableHttpResponse.setLastException(ex);
