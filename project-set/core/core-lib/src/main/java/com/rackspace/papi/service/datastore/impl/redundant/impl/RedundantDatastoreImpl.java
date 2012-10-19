@@ -14,9 +14,7 @@ import com.rackspace.papi.service.datastore.impl.redundant.notification.in.Chann
 import com.rackspace.papi.service.datastore.impl.redundant.notification.out.UpdateNotifier;
 import com.rackspace.papi.service.datastore.impl.redundant.subscriptions.UdpSubscriptionListener;
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -34,23 +32,21 @@ public class RedundantDatastoreImpl implements Datastore, RedundantDatastore {
     private final UpdateListener updateListener;
     private final Thread updateListenerThread;
     private final Notifier updateNotifier;
-    private final String nic;
 
-    public RedundantDatastoreImpl(String subscriptionAddress, int subscriptionPort, Cache ehCacheInstance) throws UnknownHostException, IOException {
+    public RedundantDatastoreImpl(String subscriptionAddress, int subscriptionPort, Cache ehCacheInstance) throws IOException {
         this("*", subscriptionAddress, subscriptionPort, ehCacheInstance);
     }
     
-    public RedundantDatastoreImpl(String nic, String subscriptionAddress, int subscriptionPort, Cache ehCacheInstance) throws UnknownHostException, IOException {
+    public RedundantDatastoreImpl(String nic, String subscriptionAddress, int subscriptionPort, Cache ehCacheInstance) throws IOException {
         this(null, nic, subscriptionAddress, subscriptionPort, ehCacheInstance);
     }
     
-    public RedundantDatastoreImpl(Set<Subscriber> subscribers, String nic, String address, int subscriptionPort, Cache ehCacheInstance) throws UnknownHostException, IOException {
+    public RedundantDatastoreImpl(Set<Subscriber> subscribers, String nic, String address, int subscriptionPort, Cache ehCacheInstance) throws IOException {
         LOG.info("Listening on udp: " + nic + " - " + address + ":" + subscriptionPort);
-        this.nic = nic;
         this.cache = ehCacheInstance;
         this.updateNotifier = new UpdateNotifier(subscribers);
         //this.subscriptionListener = new MulticastSubscriptionListener(this, updateNotifier, nic, subscriptionAddress, subscriptionPort);
-        this.subscriptionListener = new UdpSubscriptionListener(this, updateNotifier, nic, address, subscriptionPort);
+        this.subscriptionListener = new UdpSubscriptionListener(this, updateNotifier, address, subscriptionPort);
         //this.updateListener = new UpdateListenerOneTimeConnection(this);
         this.updateListener = new ChannelledUpdateListener(this, address);
         this.subscriberThread = new Thread((Runnable)subscriptionListener);

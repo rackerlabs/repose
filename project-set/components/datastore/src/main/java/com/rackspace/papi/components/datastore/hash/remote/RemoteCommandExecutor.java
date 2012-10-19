@@ -5,9 +5,7 @@ import com.rackspace.papi.components.datastore.common.RemoteBehavior;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.proxy.ProxyRequestException;
 import com.rackspace.papi.service.proxy.RequestProxyService;
-import com.sun.jersey.api.client.ClientHandlerException;
 import java.io.IOException;
-import java.net.ConnectException;
 
 /**
  *
