@@ -3,9 +3,9 @@ package com.rackspace.papi.commons.util.io;
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 
 import java.io.IOException;
-import java.io.InputStream;
+import javax.servlet.ServletInputStream;
 
-public class ByteBufferInputStream extends InputStream {
+public class ByteBufferInputStream extends ServletInputStream {
 
    private final ByteBuffer sharedBuffer;
    private volatile boolean closed;
