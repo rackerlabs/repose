@@ -4,7 +4,9 @@ import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
 import com.ning.http.client.AsyncHttpClientConfig.Builder;
 import com.ning.http.client.*;
 import com.rackspace.papi.commons.util.StringUriUtilities;
+import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
+import com.rackspace.papi.commons.util.io.stream.ReadLimitReachedException;
 import com.rackspace.papi.http.proxy.HttpException;
 import com.rackspace.papi.http.proxy.common.HttpResponseCodeProcessor;
 import com.rackspace.papi.service.proxy.ProxyUtilities;
@@ -36,7 +38,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     }
 
     @Override
-    public int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response) throws IOException,ReadLimitReachedException {
         TargetHostInfo host = new TargetHostInfo(targetHost);
         RequestBuilder process = new NingRequestProcessor(request, host).process();
         Request build = process.build();
@@ -55,7 +57,12 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         } catch (InterruptedException ex) {
             LOG.warn("Request interrupted", ex);
         } catch (ExecutionException ex) {
-            LOG.error("Error executing request", ex);
+            if("ReadLimitReachedException".equals(ex.getCause().getClass().getSimpleName())){
+                LOG.error("Error reading request content", ex);
+                response.sendError(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE.intValue(), "Error reading request content");
+            }else{
+                LOG.error("Error executing request", ex);
+            }
         } catch (HttpException ex) {
             LOG.error("Error processing request", ex);
         }
