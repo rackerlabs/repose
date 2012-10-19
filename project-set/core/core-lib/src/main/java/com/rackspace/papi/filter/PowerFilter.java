@@ -2,6 +2,7 @@ package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import com.rackspace.papi.commons.util.io.stream.ReadLimitReachedException;
 import com.rackspace.papi.commons.util.servlet.filter.ApplicationContextAwareFilter;
 import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
@@ -144,8 +145,8 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
-
-        final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
+        int streamLimit=papiContext.containerConfigurationService().getContentBodyReadLimit();
+        final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request,streamLimit);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
 
         if (powerFilterChainBuilder == null) {
@@ -156,6 +157,11 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         try {
             final PowerFilterChain requestFilterChainState = powerFilterChainBuilder.newPowerFilterChain(chain);
             requestFilterChainState.startFilterChain(mutableHttpRequest, mutableHttpResponse);
+        } catch (ReadLimitReachedException ex) {
+            LOG.warn("Error reading request content", ex);
+            mutableHttpResponse.sendError(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE.intValue(), "Error reading request content");
+            mutableHttpResponse.setLastException(ex);
+           
         } catch (PowerFilterChainException ex) {
             LOG.warn("Error creating filter chain", ex);
             mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Error creating filter chain");
