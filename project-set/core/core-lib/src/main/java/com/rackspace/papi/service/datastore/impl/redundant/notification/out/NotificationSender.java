@@ -28,7 +28,7 @@ public class NotificationSender implements Runnable {
         process = false;
     }
 
-    private void notifyNode(Subscriber subscriber, byte[] messageData) {
+    void notifyNode(Subscriber subscriber, byte[] messageData) {
         if (subscriber.getPort() < 0) {
             return;
         }

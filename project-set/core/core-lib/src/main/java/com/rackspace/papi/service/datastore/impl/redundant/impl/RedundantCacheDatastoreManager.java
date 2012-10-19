@@ -19,17 +19,15 @@ public class RedundantCacheDatastoreManager implements DatastoreManager {
     private final String cacheName;
     private boolean available;
     private final Set<Subscriber> subscribers;
-    private final String nic;
     private final String address;
     private final int port;
     private RedundantDatastoreImpl datastore;
 
-    public RedundantCacheDatastoreManager(CacheManager cacheManagerInstance, Set<Subscriber> subscribers, String nic, String address, int port) {
+    public RedundantCacheDatastoreManager(CacheManager cacheManagerInstance, Set<Subscriber> subscribers, String address, int port) {
         this.cacheManagerInstance = cacheManagerInstance;
 
         cacheName = CACHE_NAME_PREFIX + UUID.randomUUID().toString();
         this.subscribers = subscribers;
-        this.nic = nic;
         this.address = address;
         this.port = port;
 
@@ -60,7 +58,7 @@ public class RedundantCacheDatastoreManager implements DatastoreManager {
         try {
             synchronized (this) {
                 if (datastore == null) {
-                    datastore = new RedundantDatastoreImpl(subscribers, nic, address, port, cacheManagerInstance.getCache(cacheName));
+                    datastore = new RedundantDatastoreImpl(subscribers, address, port, cacheManagerInstance.getCache(cacheName));
                     datastore.joinGroup();
                 }
             }

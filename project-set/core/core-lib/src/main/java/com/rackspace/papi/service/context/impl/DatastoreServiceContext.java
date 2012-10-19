@@ -5,7 +5,9 @@ import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.DeploymentConfiguration;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ServicePorts;
+import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.model.Node;
+import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
@@ -13,8 +15,11 @@ import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.impl.ehcache.EHCacheDatastoreManager;
 import com.rackspace.papi.service.datastore.impl.redundant.RedundantDatastore;
+import com.rackspace.papi.service.datastore.impl.redundant.data.Subscriber;
 import com.rackspace.papi.service.datastore.impl.redundant.impl.RedundantCacheDatastoreManager;
 import com.rackspace.papi.service.datastore.impl.redundant.impl.RedundantDatastoreImpl;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.ServletContextEvent;
 import net.sf.ehcache.CacheManager;
@@ -108,8 +113,6 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
             return;
         }
         
-        /*
-
         if (!ports.isEmpty()) {
             SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
             ReposeCluster serviceDomain = interrogator.getLocalServiceDomain(systemModel);
@@ -121,14 +124,13 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
             }
 
             if (redundantDatastoreManager == null) {
-                redundantDatastoreManager = new RedundantCacheDatastoreManager(ehCacheManager, subscribers, "*", localHost.getHostname(), getPort(localHost));
-                datastoreService.registerDatastoreManager("redundantDatastore", redundantDatastoreManager);
+                redundantDatastoreManager = new RedundantCacheDatastoreManager(ehCacheManager, subscribers, localHost.getHostname(), getPort(localHost));
+                datastoreService.registerDatastoreManager(DatastoreService.REDUNDANT_DISTRIBUTED, redundantDatastoreManager);
             } else {
                 RedundantDatastore datastore = (RedundantDatastoreImpl) redundantDatastoreManager.getDatastore();
                 datastore.addSubscribers(subscribers);
             }
         }
-        */
     }
 
     private class SystemModelUpdateListener implements UpdateListener<SystemModel> {

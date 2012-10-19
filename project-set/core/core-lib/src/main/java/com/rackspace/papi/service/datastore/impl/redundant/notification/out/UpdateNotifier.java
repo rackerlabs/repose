@@ -39,6 +39,10 @@ public class UpdateNotifier implements Notifier {
         }
     }
     
+    BlockingQueue<MessageQueueItem> getQueue() {
+        return queue;
+    }
+    
     @Override
     public void startNotifications() {
         senderThread.start();
@@ -78,21 +82,21 @@ public class UpdateNotifier implements Notifier {
     }
 
     @Override
-    public void notifyNode(Operation operation, Subscriber subscriber, String key, byte[] data, int ttl) throws IOException {
+    public void notifyNode(Operation operation, Subscriber subscriber, String key, byte[] data, int ttl) {
         Message message = new Message(operation, key, data, ttl);
         queue.offer(new MessageQueueItem(subscriber, message));
 
     }
 
     @Override
-    public void notifyNode(Operation operation, Subscriber subscriber, String[] keys, byte[][] data, int[] ttl) throws IOException {
+    public void notifyNode(Operation operation, Subscriber subscriber, String[] keys, byte[][] data, int[] ttl) {
         Message message = new Message(operation, keys, data, ttl);
         queue.offer(new MessageQueueItem(subscriber, message));
 
     }
 
     @Override
-    public void notifyAllNodes(Operation operation, String key, byte[] data, int ttl) throws IOException {
+    public void notifyAllNodes(Operation operation, String key, byte[] data, int ttl) {
         Message message = new Message(operation, key, data, ttl);
         List<Subscriber> invalid = new ArrayList<Subscriber>();
         for (Subscriber subscriber : subscribers) {
@@ -107,12 +111,12 @@ public class UpdateNotifier implements Notifier {
     }
 
     @Override
-    public void notifyAllNodes(Operation operation, String key, byte[] data) throws IOException {
+    public void notifyAllNodes(Operation operation, String key, byte[] data) {
         notifyAllNodes(operation, key, data, 0);
     }
 
     @Override
-    public void notifyAllNodes(Operation operation, String key) throws IOException {
+    public void notifyAllNodes(Operation operation, String key) {
         notifyAllNodes(operation, key, null, 0);
     }
 }

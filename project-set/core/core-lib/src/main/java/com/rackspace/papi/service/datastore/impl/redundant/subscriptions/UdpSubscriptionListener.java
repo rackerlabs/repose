@@ -1,8 +1,6 @@
 package com.rackspace.papi.service.datastore.impl.redundant.subscriptions;
 
-import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
-import com.rackspace.papi.service.datastore.impl.DatastoreServiceException;
 import com.rackspace.papi.service.datastore.impl.redundant.Notifier;
 import com.rackspace.papi.service.datastore.impl.redundant.RedundantDatastore;
 import com.rackspace.papi.service.datastore.impl.redundant.SubscriptionListener;
@@ -14,10 +12,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.util.Enumeration;
 import java.util.UUID;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +47,22 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
         this.synched = false;
         socket.setSoTimeout(SOCKET_TIMEOUT);
         socket.setReceiveBufferSize(BUFFER_SIZE);
+    }
+    
+    DatagramSocket getSocket() {
+        return socket;
+    }
+    
+    void setTcpHost(String host) {
+        this.tcpHost = host;
+    }
+    
+    void setTcpPort(int port) {
+        this.tcpPort = port;
+    }
+    
+    public String getId() {
+        return id.toString();
     }
 
     /*
@@ -148,7 +159,7 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
 
     }
 
-    private void receivedAnnouncement(String key, String targetId, Operation operation, Subscriber subscriber) {
+    void receivedAnnouncement(String key, String targetId, Operation operation, Subscriber subscriber) {
         if (tcpHost.equalsIgnoreCase(subscriber.getHost()) && subscriber.getPort() == tcpPort) {
             return;
         }

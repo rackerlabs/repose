@@ -34,20 +34,14 @@ public class RedundantDatastoreImpl implements Datastore, RedundantDatastore {
     private final Notifier updateNotifier;
 
     public RedundantDatastoreImpl(String subscriptionAddress, int subscriptionPort, Cache ehCacheInstance) throws IOException {
-        this("*", subscriptionAddress, subscriptionPort, ehCacheInstance);
+        this(null, subscriptionAddress, subscriptionPort, ehCacheInstance);
     }
     
-    public RedundantDatastoreImpl(String nic, String subscriptionAddress, int subscriptionPort, Cache ehCacheInstance) throws IOException {
-        this(null, nic, subscriptionAddress, subscriptionPort, ehCacheInstance);
-    }
-    
-    public RedundantDatastoreImpl(Set<Subscriber> subscribers, String nic, String address, int subscriptionPort, Cache ehCacheInstance) throws IOException {
-        LOG.info("Listening on udp: " + nic + " - " + address + ":" + subscriptionPort);
+    public RedundantDatastoreImpl(Set<Subscriber> subscribers, String address, int subscriptionPort, Cache ehCacheInstance) throws IOException {
+        LOG.info("Listening on udp: " + address + ":" + subscriptionPort);
         this.cache = ehCacheInstance;
         this.updateNotifier = new UpdateNotifier(subscribers);
-        //this.subscriptionListener = new MulticastSubscriptionListener(this, updateNotifier, nic, subscriptionAddress, subscriptionPort);
         this.subscriptionListener = new UdpSubscriptionListener(this, updateNotifier, address, subscriptionPort);
-        //this.updateListener = new UpdateListenerOneTimeConnection(this);
         this.updateListener = new ChannelledUpdateListener(this, address);
         this.subscriberThread = new Thread((Runnable)subscriptionListener);
         this.updateListenerThread = new Thread(updateListener);
@@ -120,6 +114,7 @@ public class RedundantDatastoreImpl implements Datastore, RedundantDatastore {
         }
     }
 
+    @Override
     public void sync(Subscriber subscriber) throws IOException {
         cache.evictExpiredElements();
         Map<Object, Element> all = cache.getAll(cache.getKeysWithExpiryCheck());
