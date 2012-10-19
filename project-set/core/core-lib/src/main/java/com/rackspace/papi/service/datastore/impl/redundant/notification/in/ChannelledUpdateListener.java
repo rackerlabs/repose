@@ -19,6 +19,7 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -153,7 +154,12 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
                 LOG.error("Unable to deserialize update message", ex);
             }
         }
-
+        try {
+            channel.close();
+        } catch (IOException ex) {
+            LOG.warn("Error closing channel", ex);
+        }
+        
         LOG.info("Exiting update listener thread");
     }
 
