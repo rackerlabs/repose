@@ -41,8 +41,9 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     private final ResponseHeaderService responseHeaderService;
     private final ServletContext context;
     private final ReposeCluster domain;
+    private final String defaultDst;
 
-    public PowerFilterRouterImpl(ReposeCluster domain, Node localhost, ServletContext context) throws PowerFilterChainException {
+    public PowerFilterRouterImpl(ReposeCluster domain, Node localhost, ServletContext context, String defaultDst) throws PowerFilterChainException {
         if (localhost == null || domain == null) {
             throw new PowerFilterChainException("Domain and localhost cannot be null");
         }
@@ -54,6 +55,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
         this.requestHeaderService = getRequestHeaderService(context);
         this.responseHeaderService = getResponseHeaderService(context);
         this.context = context;
+        this.defaultDst = defaultDst;
         destinations = new HashMap<String, Destination>();
 
         if (domain.getDestinations() != null) {
@@ -88,6 +90,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
     @Override
     public void route(MutableHttpServletRequest servletRequest, MutableHttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
         DestinationLocation location = null;
+        servletRequest.addDestination(defaultDst, servletRequest.getRequestURI(),-1);
         RouteDestination destination = servletRequest.getDestination();
         String rootPath = "";
 
