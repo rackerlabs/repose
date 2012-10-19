@@ -1,6 +1,7 @@
 package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import com.rackspace.papi.commons.util.io.stream.ReadLimitReachedException;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.commons.util.servlet.http.RouteDestination;
@@ -142,9 +143,15 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                         
                        
                         responseHeaderService.fixLocationHeader(originalRequest, servletResponse, destination, location.getUri().toString(), rootPath);
-                    } catch (ClientHandlerException e) {
-                        LOG.error("Connection Refused to " + location.getUri() + " " + e.getMessage(), e);
+                    }catch (ClientHandlerException e) {
+                        if("ReadLimitReachedException".equals(e.getCause().getClass().getSimpleName())){
+                            LOG.error("Error reading request content", e);
+                            servletResponse.sendError(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE.intValue(), "Error reading request content");
+                            servletResponse.setLastException(e); 
+                        }else{
+                         LOG.error("Connection Refused to " + location.getUri() + " " + e.getMessage(), e);
                         ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.SERVICE_UNAVAIL.intValue());
+                        }
                     }
                 }
             }
