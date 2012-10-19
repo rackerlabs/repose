@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="2.1">
+<jmeterTestPlan version="1.2" properties="2.3">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -166,7 +166,7 @@
               </hashTree>
             </hashTree>
           </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Content Encoding" enabled="false"/>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Content Encoding" enabled="true"/>
           <hashTree>
             <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Simple Controller" enabled="true"/>
             <hashTree>
@@ -216,6 +216,70 @@
                 <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
                   <collectionProp name="Asserion.test_strings">
                     <stringProp name="50547">300</stringProp>
+                  </collectionProp>
+                  <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
+                  <boolProp name="Assertion.assume_success">true</boolProp>
+                  <intProp name="Assertion.test_type">8</intProp>
+                </ResponseAssertion>
+                <hashTree/>
+              </hashTree>
+            </hashTree>
+          </hashTree>
+        </hashTree>
+        <IfController guiclass="IfControllerPanel" testclass="IfController" testname="If Controller" enabled="true">
+          <stringProp name="IfController.condition">&quot;${type}&quot; == &quot;Dist-Datastore‬‬&quot;</stringProp>
+          <boolProp name="IfController.evaluateAll">false</boolProp>
+        </IfController>
+        <hashTree>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Request Mgmt" enabled="true"/>
+          <hashTree>
+            <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="413" enabled="true"/>
+            <hashTree>
+              <ConfigTestElement guiclass="HttpDefaultsGui" testclass="ConfigTestElement" testname="HTTP Request Defaults" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments"/>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain">${endpoint}</stringProp>
+                <stringProp name="HTTPSampler.port">${port}</stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol"></stringProp>
+                <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+                <stringProp name="HTTPSampler.path">statuscode</stringProp>
+                <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
+              </ConfigTestElement>
+              <hashTree/>
+              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="HTTP Request" enabled="true">
+                <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+                  <collectionProp name="Arguments.arguments">
+                    <elementProp name="" elementType="HTTPArgument">
+                      <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                      <stringProp name="Argument.value">X-PP-User &amp; X-PP-Groups If the requesting client is able to authenticate and is passed down the request chain, the Authentication Filter will set X-PP-User and X-PP-Groups according to the schema of the Authentication service. The Authentication Filter will also set a quality with a value of &apos;1&apos; for these headers. White List REPOSE authentication may be configured to allow the processing of requests that do not require authentication.  For example, a service might want all calls authenticated with the exception of the call for wadl retrieval.  In this situation, the REPOSE white list may be configured as shown in the sample authentication configuration file: Sample OpenStack Identity Service Authentication Configuration The white-list contains a list of regular expressions REPOSE will attempt to match against the full request URI.  If the URI matches a regular expression on the white list, then the request is passed to the origin service.  Otherwise, authentication is performed against the request. Caching REPOSE authentication provides caching for both user tokens, roles, and groups.  The amount of time tokens and roles are cached is determined by the Time To Live (TTL) returned from the authentication service (e.g. Rackspace Identity) during token validation.  The TTL for caching of auth tokens and roles can be specified in the client auth configuration file.  If token-cache-timeout is specified in the config file, then this value is used when caching tokens and roles, unless the token TTL is less than the token-cache-timeout.  If the tokens TTL is less than the configured TTL, then the token&apos;s TTL is used.  This will prevent REPOSE from caching stale tokens. The amount of time the user groups are cached is determined by a REPOSE configuration attribute: group-cache-timeout.  This attribute is optional and defaults to 600000 milliseconds (10 minutes) if not specified. The group-cache-timeout attribute may be set in the OpenStack or Rackspace authentication schemas as show in the example client-auth-n.cfg.xml.  X-PP-User &amp; X-PP-Groups If the requesting client is able to authenticate and is passed down the request chain, the Authentication Filter will set X-PP-User and X-PP-Groups according to the schema of the Authentication service. The Authentication Filter will also set a quality with a value of &apos;1&apos; for these headers. White List REPOSE authentication may be configured to allow the processing of requests that do not require authentication.  For example, a service might want all calls authenticated with the exception of the call for wadl retrieval.  In this situation, the REPOSE white list may be configured as shown in the sample authentication configuration file: Sample OpenStack Identity Service Authentication Configuration The white-list contains a list of regular expressions REPOSE will attempt to match against the full request URI.  If the URI matches a regular expression on the white list, then the request is passed to the origin service.  Otherwise, authentication is performed against the request. Caching REPOSE authentication provides caching for both user tokens, roles, and groups.  The amount of time tokens and roles are cached is determined by the Time To Live (TTL) returned from the authentication service (e.g. Rackspace Identity) during token validation.  The TTL for caching of auth tokens and roles can be specified in the client auth configuration file.  If token-cache-timeout is specified in the config file, then this value is used when caching tokens and roles, unless the token TTL is less than the token-cache-timeout.  If the tokens TTL is less than the configured TTL, then the token&apos;s TTL is used.  This will prevent REPOSE from caching stale tokens. The amount of time the user groups are cached is determined by a REPOSE configuration attribute: group-cache-timeout.  This attribute is optional and defaults to 600000 milliseconds (10 minutes) if not specified. The group-cache-timeout attribute may be set in the OpenStack or Rackspace authentication schemas as show in the example client-auth-n.cfg.xml. X-PP-User &amp; X-PP-Groups If the requesting client is able to authenticate and is passed down the request chain, the Authentication Filter will set X-PP-User and X-PP-Groups according to the schema of the Authentication service. The Authentication Filter will also set a quality with a value of &apos;1&apos; for these headers. White List REPOSE authentication may be configured to allow the processing of requests that do not require authentication.  For example, a service might want all calls authenticated with the exception of the call for wadl retrieval.  In this situation, the REPOSE white list may be configured as shown in the sample authentication configuration file: Sample OpenStack Identity Service Authentication Configuration The white-list contains a list of regular expressions REPOSE will attempt to match against the full request URI.  If the URI matches a regular expression on the white list, then the request is passed to the origin service.  Otherwise, authentication is performed against the request. Caching REPOSE authentication provides caching for both user tokens, roles, and groups.  The amount of time tokens and roles are cached is determined by the Time To Live (TTL) returned from the authentication service (e.g. Rackspace Identity) during token validation.  The TTL for caching of auth tokens and roles can be specified in the client auth configuration file.  If token-cache-timeout is specified in the config file, then this value is used when caching tokens and roles, unless the token TTL is less than the token-cache-timeout.  If the tokens TTL is less than the configured TTL, then the token&apos;s TTL is used.  This will prevent REPOSE from caching stale tokens. The amount of time the user groups are cached is determined by a REPOSE configuration attribute: group-cache-timeout.  This attribute is optional and defaults to 600000 milliseconds (10 minutes) if not specified. The group-cache-timeout attribute may be set in the OpenStack or Rackspace authentication schemas as show in the example client-auth-n.cfg.xml.   </stringProp>
+                      <stringProp name="Argument.metadata">=</stringProp>
+                      <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                      <stringProp name="Argument.name"></stringProp>
+                    </elementProp>
+                  </collectionProp>
+                </elementProp>
+                <stringProp name="HTTPSampler.domain"></stringProp>
+                <stringProp name="HTTPSampler.port"></stringProp>
+                <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+                <stringProp name="HTTPSampler.response_timeout"></stringProp>
+                <stringProp name="HTTPSampler.protocol"></stringProp>
+                <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+                <stringProp name="HTTPSampler.path"></stringProp>
+                <stringProp name="HTTPSampler.method">POST</stringProp>
+                <boolProp name="HTTPSampler.follow_redirects">false</boolProp>
+                <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+                <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+                <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+                <boolProp name="HTTPSampler.monitor">false</boolProp>
+                <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+              </HTTPSamplerProxy>
+              <hashTree>
+                <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="should return 413" enabled="true">
+                  <collectionProp name="Asserion.test_strings">
+                    <stringProp name="51542">413</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.test_field">Assertion.response_code</stringProp>
                   <boolProp name="Assertion.assume_success">true</boolProp>
