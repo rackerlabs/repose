@@ -112,6 +112,8 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
             return;
         }
         
+        /*
+        
         if (!ports.isEmpty()) {
             SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
             ReposeCluster serviceDomain = interrogator.getLocalServiceDomain(systemModel);
@@ -130,6 +132,7 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
                 datastore.addSubscribers(subscribers);
             }
         }
+        */
     }
 
     private class SystemModelUpdateListener implements UpdateListener<SystemModel> {

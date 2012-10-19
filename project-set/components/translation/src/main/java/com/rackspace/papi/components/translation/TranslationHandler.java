@@ -5,7 +5,7 @@ import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.media.MediaRangeProcessor;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MimeType;
-import com.rackspace.papi.commons.util.io.ByteBufferServletInputStream;
+import com.rackspace.papi.commons.util.io.ByteBufferInputStream;
 import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
@@ -148,7 +148,7 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
                 boolean success = executePool(pool, new TranslationPreProcessor(request.getInputStream(), contentType, true).getBodyStream(), new ByteBufferServletOutputStream(internalBuffer));
                 
                 if (success) {
-                    request.setInputStream(new ByteBufferServletInputStream(internalBuffer));
+                    request.setInputStream(new ByteBufferInputStream(internalBuffer));
                     filterDirector.requestHeaderManager().putHeader("content-type", pool.getResultContentType());
                     filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
                 } else {
