@@ -4,6 +4,7 @@ import com.rackspace.papi.commons.util.StringUriUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.http.proxy.HttpException;
 import com.rackspace.papi.service.proxy.ProxyUtilities;
 import com.rackspace.papi.service.proxy.RequestProxyService;
@@ -19,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpHost;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
@@ -93,6 +95,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
          final String target = proxiedHost.toURI() + request.getRequestURI();
          final HttpComponentRequestProcessor processor = new HttpComponentRequestProcessor(request, proxiedHost);
          final HttpComponentProcessableRequest method = HttpComponentFactory.getMethod(request.getMethod(), target);
+         ((MutableHttpServletRequest)request).removeHeader("Content-Length");
 
          if (method != null) {
             HttpRequestBase processedMethod = method.process(processor);
@@ -109,8 +112,11 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
    private int executeProxyRequest(HttpRequestBase httpMethodProxyRequest, HttpServletResponse response) throws IOException, HttpException {
 
-      //httpMethodProxyRequest.setFollowRedirects(false);
-
+     
+       //httpMethodProxyRequest.setFollowRedirects(false);
+      try{
+          
+    
       HttpResponse httpResponse = getClient().execute(httpMethodProxyRequest);
       HttpComponentResponseCodeProcessor responseCode = new HttpComponentResponseCodeProcessor(httpResponse.getStatusLine().getStatusCode());
       HttpComponentResponseProcessor responseProcessor = new HttpComponentResponseProcessor(httpResponse, response, responseCode);
@@ -122,6 +128,17 @@ public class RequestProxyServiceImpl implements RequestProxyService {
       }
 
       return responseCode.getCode();
+      } catch(ClientProtocolException ex){
+          if("ReadLimitReachedException".equals(ex.getCause().getCause().getClass().getSimpleName())){
+                            LOG.error("Error reading request content", ex);
+                            response.sendError(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE.intValue(), "Error reading request content");
+            }else{
+               LOG.error("Error processing request", ex);
+               return -1;
+          }
+      }
+     return 1;
+  
    }
 
    @Override
