@@ -2,11 +2,14 @@ package com.rackspace.papi.commons.util.servlet.http;
 
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.io.BufferedServletInputStream;
+import com.rackspace.papi.commons.util.io.stream.LimitedReadInputStream;
+import com.rackspace.papi.commons.util.io.stream.ServletInputStreamWrapper;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 
 /**
@@ -18,13 +21,26 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
     public static MutableHttpServletRequest wrap(HttpServletRequest request) {
         return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request);
     }
+     public static MutableHttpServletRequest wrap(HttpServletRequest request, int streamLimit ) {
+        return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request,streamLimit);
+    }
+    
     private ServletInputStream inputStream;
     private final RequestValues values;
+    private final int streamLimit;
 
     private MutableHttpServletRequest(HttpServletRequest request) {
         super(request);
 
         this.values = new RequestValuesImpl(request);
+        streamLimit=-1;
+    }
+    
+    private MutableHttpServletRequest(HttpServletRequest request,int streamLimit) {
+        super(request);
+
+        this.values = new RequestValuesImpl(request);
+        this.streamLimit=streamLimit;
     }
 
     public void addDestination(String id, String uri, float quality) {
@@ -72,7 +88,12 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
     public ServletInputStream getInputStream() throws IOException {
         synchronized (this) {
             if (inputStream == null) {
-                inputStream = new BufferedServletInputStream(super.getInputStream());
+                
+               if(streamLimit <=0){
+                    inputStream = new BufferedServletInputStream(super.getInputStream());
+               }else{
+                  inputStream =new ServletInputStreamWrapper((InputStream) new LimitedReadInputStream(streamLimit, super.getInputStream()));
+               }
             }
         }
         return inputStream;
