@@ -41,7 +41,6 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
     private final ServiceRegistry registry;
     private ServicePorts ports = null;
     private SystemModel systemModel = null;
-    private Configuration defaultConfiguration;
     private CacheManager ehCacheManager;
     private final ConfigurationService configurationManager;
     private final ContainerConfigurationListener configurationListener;
@@ -149,19 +148,19 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
     private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
 
         private ServicePorts determinePorts(DeploymentConfiguration deployConfig) {
-            ServicePorts ports = new ServicePorts();
+            ServicePorts servicePorts = new ServicePorts();
 
             if (deployConfig != null) {
                 if (deployConfig.getHttpPort() != null) {
-                    ports.add(new Port("http", deployConfig.getHttpPort()));
+                    servicePorts.add(new Port("http", deployConfig.getHttpPort()));
                 }
 
                 if (deployConfig.getHttpsPort() != null) {
-                    ports.add(new Port("https", deployConfig.getHttpsPort()));
+                    servicePorts.add(new Port("https", deployConfig.getHttpsPort()));
                 }
             }
 
-            return ports;
+            return servicePorts;
         }
 
         @Override
@@ -175,7 +174,7 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         // Init our local default cache and a new service object to hold it
-        defaultConfiguration = new Configuration();
+        Configuration defaultConfiguration = new Configuration();
         defaultConfiguration.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
         defaultConfiguration.setUpdateCheck(false);
 

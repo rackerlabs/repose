@@ -34,12 +34,12 @@ public class Message implements Serializable {
         } else {
             this.data = null;
         }
-        this.ttl = ttl;
+        this.ttl = ttl != null? Arrays.copyOf(ttl, ttl.length): null;
         this.targetId = targetId;
 
     }
 
-    public static class KeyValue {
+    public static final class KeyValue {
 
         private final String key;
         private final byte[] data;

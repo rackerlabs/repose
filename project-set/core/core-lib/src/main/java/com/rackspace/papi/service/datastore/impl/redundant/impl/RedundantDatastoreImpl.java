@@ -46,6 +46,10 @@ public class RedundantDatastoreImpl implements Datastore, RedundantDatastore {
         this.subscriberThread = new Thread((Runnable)subscriptionListener);
         this.updateListenerThread = new Thread(updateListener);
     }
+    
+    Notifier getUpdateNotifier() {
+        return updateNotifier;
+    }
 
     @Override
     public void joinGroup() {

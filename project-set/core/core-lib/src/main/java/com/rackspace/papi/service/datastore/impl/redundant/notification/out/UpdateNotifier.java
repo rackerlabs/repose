@@ -39,7 +39,7 @@ public class UpdateNotifier implements Notifier {
         }
     }
     
-    BlockingQueue<MessageQueueItem> getQueue() {
+    public BlockingQueue<MessageQueueItem> getQueue() {
         return queue;
     }
     
