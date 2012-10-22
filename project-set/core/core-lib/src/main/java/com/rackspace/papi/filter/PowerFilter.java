@@ -149,8 +149,8 @@ public class PowerFilter extends ApplicationContextAwareFilter {
    @Override
    public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
       HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
-
-      final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
+        int streamLimit=papiContext.containerConfigurationService().getContentBodyReadLimit();
+        final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request,streamLimit);
       final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
 
       if (powerFilterChainBuilder == null) {
