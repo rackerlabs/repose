@@ -7,6 +7,7 @@ public class LoggedRequest implements Serializable {
 
     private final UUID id;
     private final Long timestamp;
+    private static final int HASH_NUM = 5669;
 
     public LoggedRequest(Long timestamp) {
         this.timestamp = timestamp;
@@ -39,6 +40,6 @@ public class LoggedRequest implements Serializable {
 
     @Override
     public int hashCode() {
-        return 5669 + (this.id != null ? this.id.hashCode() : 0);
+        return HASH_NUM + (this.id != null ? this.id.hashCode() : 0);
     }
 }

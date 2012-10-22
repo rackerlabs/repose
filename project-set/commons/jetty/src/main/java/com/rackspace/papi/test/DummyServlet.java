@@ -7,10 +7,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 public class DummyServlet extends HttpServlet {
+   
+   private static final int DEFAULT_STATUS_CODE = 200;
 
    @Override
    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-      resp.setStatus(200);
+      resp.setStatus(DEFAULT_STATUS_CODE);
       resp.getWriter().write(req.getRequestURI());
    }
 }

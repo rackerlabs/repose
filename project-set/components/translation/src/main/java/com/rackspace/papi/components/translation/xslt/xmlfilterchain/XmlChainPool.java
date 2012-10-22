@@ -9,7 +9,6 @@ import com.rackspace.papi.components.translation.xslt.XsltParameter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-import org.xml.sax.XMLFilter;
 
 public class XmlChainPool {
 

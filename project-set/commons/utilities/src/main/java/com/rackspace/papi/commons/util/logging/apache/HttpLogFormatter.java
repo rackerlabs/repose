@@ -21,6 +21,8 @@ public class HttpLogFormatter {
     private static final Pattern NEWLINES = Pattern.compile("\\\\n+");
     private final String formatTemplate;
     private final List<FormatArgumentHandler> handlerList;
+    private static final double RESPONSE_TIME_MULTIPLIER_MICROSEC = 1000;
+    private static final double RESPONSE_TIME_MULTIPLIER_SEC = .001;
 
     public HttpLogFormatter(String formatTemplate) {
         this.formatTemplate = handleTabsAndNewlines(formatTemplate);
@@ -73,10 +75,10 @@ public class HttpLogFormatter {
     public static void setLogic(final LogArgumentGroupExtractor extractor, final LogArgumentFormatter formatter) {
         switch (LogFormatArgument.fromString(extractor.getEntity())) {
             case RESPONSE_TIME_MICROSECONDS:
-                formatter.setLogic(new ResponseTimeHandler(1000));
+                formatter.setLogic(new ResponseTimeHandler(RESPONSE_TIME_MULTIPLIER_MICROSEC));
                 break;
             case RESPONSE_TIME_SECONDS:
-                formatter.setLogic(new ResponseTimeHandler(.001));
+                formatter.setLogic(new ResponseTimeHandler(RESPONSE_TIME_MULTIPLIER_SEC));
                 break;
             case REQUEST_HEADER:
                 formatter.setLogic(new RequestHeaderHandler(extractor.getVariable(), extractor.getArguments()));

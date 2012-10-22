@@ -28,6 +28,10 @@ public class ReportingServiceImpl implements ReportingService {
     public synchronized Date getLastReset() {
         return lastReset;
     }
+    
+    public void shutdown() {
+        timer.cancel();
+    }
 
     @Override
     public synchronized void updateConfiguration(List<String> destinationIds, int seconds) {
