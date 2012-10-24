@@ -5,7 +5,6 @@ import java.util.Collection;
 public interface DatastoreService {
 
    String DEFAULT_LOCAL = "local/default";
-   String REDUNDANT_DISTRIBUTED = "distributed/redundant";
 
    /**
     * Always returns the default, local (read L1) cache that has been registered

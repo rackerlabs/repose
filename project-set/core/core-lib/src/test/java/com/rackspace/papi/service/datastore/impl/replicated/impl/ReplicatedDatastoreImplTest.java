@@ -27,7 +27,7 @@ public class ReplicatedDatastoreImplTest {
             defaultConfiguration.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
             defaultConfiguration.setUpdateCheck(false);
 
-            ehCacheManager = CacheManager.create(defaultConfiguration);
+            ehCacheManager = CacheManager.newInstance(defaultConfiguration);
         }
 
         @AfterClass

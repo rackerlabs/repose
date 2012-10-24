@@ -56,8 +56,8 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         LOG.info("Destroying datastore service context");
-        ehCacheManager.removalAll();
-        ehCacheManager.shutdown();
+        //ehCacheManager.removalAll();
+        //ehCacheManager.shutdown();
         /*
          * final Context namingContext = ServletContextHelper.getInstance().namingContext(sce.getServletContext());
          *
@@ -74,7 +74,7 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
         defaultConfiguration.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
         defaultConfiguration.setUpdateCheck(false);
 
-        ehCacheManager = CacheManager.create(defaultConfiguration);
+        ehCacheManager = CacheManager.newInstance(defaultConfiguration);
 
         datastoreService.registerDatastoreManager(DatastoreService.DEFAULT_LOCAL, new EHCacheDatastoreManager(ehCacheManager));
 

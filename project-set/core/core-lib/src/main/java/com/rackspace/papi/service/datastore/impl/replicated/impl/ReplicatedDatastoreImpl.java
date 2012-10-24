@@ -38,7 +38,7 @@ public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore {
     }
     
     public ReplicatedDatastoreImpl(Set<Subscriber> subscribers, String address, int subscriptionPort, Cache ehCacheInstance) throws IOException {
-        LOG.info("Redundant Datastore Socket (udp): " + address + ":" + subscriptionPort);
+        LOG.info("Replicated Datastore Socket (udp): " + address + ":" + subscriptionPort);
         this.cache = ehCacheInstance;
         this.updateNotifier = new UpdateNotifier(subscribers);
         this.subscriptionListener = new UdpSubscriptionListener(this, updateNotifier, address, subscriptionPort);

@@ -42,7 +42,7 @@ public class ReplicatedDatastoreFilter implements Filter {
         defaultConfiguration.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
         defaultConfiguration.setUpdateCheck(false);
 
-        ehCacheManager = CacheManager.create(defaultConfiguration);
+        ehCacheManager = CacheManager.newInstance(defaultConfiguration);
         
         handlerFactory = new ReplicatedDatastoreFilterHandlerFactory(contextAdapter.datastoreService(), ehCacheManager);
         configurationManager = contextAdapter.configurationService();
@@ -55,7 +55,7 @@ public class ReplicatedDatastoreFilter implements Filter {
         configurationManager.unsubscribeFrom("container.cfg.xml", handlerFactory);
         configurationManager.unsubscribeFrom("system-model.cfg.xml", handlerFactory);
         handlerFactory.stopDatastore();
-        ehCacheManager.removalAll();
-        ehCacheManager.shutdown();
+        //ehCacheManager.removalAll();
+        //ehCacheManager.shutdown();
     }
 }

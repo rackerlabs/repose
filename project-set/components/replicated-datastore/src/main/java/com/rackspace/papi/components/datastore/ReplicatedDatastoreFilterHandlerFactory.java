@@ -65,8 +65,8 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
         if (redundantDatastoreManager != null) {
             ReplicatedDatastore datastore = (ReplicatedDatastoreImpl) redundantDatastoreManager.getDatastore();
             datastore.leaveGroup();
-            LOG.info("Unregistering datastore " + DatastoreService.REDUNDANT_DISTRIBUTED);
-            service.unregisterDatastoreManager(DatastoreService.REDUNDANT_DISTRIBUTED);
+            LOG.info("Unregistering datastore " + ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED);
+            service.unregisterDatastoreManager(ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED);
         }
     }
 
@@ -81,9 +81,9 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
             Node localHost = interrogator.getLocalHost(systemModel);
 
             if (redundantDatastoreManager == null) {
-                LOG.info("Registering datastore " + DatastoreService.REDUNDANT_DISTRIBUTED);
+                LOG.info("Registering datastore " + ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED);
                 redundantDatastoreManager = new ReplicatedCacheDatastoreManager(ehCacheManager, getDatastoreNodes(serviceDomain), localHost.getHostname(), getPort(localHost));
-                service.registerDatastoreManager(DatastoreService.REDUNDANT_DISTRIBUTED, redundantDatastoreManager);
+                service.registerDatastoreManager(ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED, redundantDatastoreManager);
             } else {
                 ReplicatedDatastore datastore = (ReplicatedDatastoreImpl) redundantDatastoreManager.getDatastore();
                 datastore.addSubscribers(getDatastoreNodes(serviceDomain));

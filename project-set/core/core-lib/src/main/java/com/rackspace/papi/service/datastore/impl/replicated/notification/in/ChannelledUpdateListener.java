@@ -72,13 +72,13 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
             } else {
                 datastore.put(value.getKey(), value.getData(), false);
             }
-            LOG.debug(socket.getLocalPort() + " Received: " + value.getKey() + ": " + new String(value.getData()));
+            //LOG.debug(socket.getLocalPort() + " Received: " + value.getKey() + ": " + new String(value.getData()));
         }
     }
 
     private void removeMessage(Message message) {
         datastore.remove(message.getKey(), false);
-        LOG.debug(socket.getLocalPort() + " Received: " + message.getKey() + ": " + new String(message.getData()));
+        //LOG.debug(socket.getLocalPort() + " Received: " + message.getKey() + ": " + new String(message.getData()));
     }
     
     private ByteArrayOutputStream readData(SelectionKey key) throws IOException {
@@ -103,7 +103,7 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
     private void readMessage(SelectionKey key) throws IOException, ClassNotFoundException {
         ByteArrayOutputStream os = readData(key);
         byte[] data = os.toByteArray();
-        LOG.info("Read " + data.length + " bytes of data");
+        //LOG.info("Read " + data.length + " bytes of data");
 
         if (data.length == 0) {
             return;

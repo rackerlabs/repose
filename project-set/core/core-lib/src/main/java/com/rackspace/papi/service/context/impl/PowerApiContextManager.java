@@ -17,6 +17,7 @@ import com.rackspace.papi.spring.SpringConfiguration;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
+import net.sf.ehcache.CacheManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -124,6 +125,11 @@ public class PowerApiContextManager implements ServletContextListener {
         ServiceRegistry registry = applicationContext.getBean("serviceRegistry", ServiceRegistry.class);
         for (ServiceContext ctx : registry.getServices()) {
             ctx.contextDestroyed(sce);
+        }
+        CacheManager instance = CacheManager.getInstance();
+        if (instance != null) {
+            LOG.info("Stopping EH Cache Manager");
+            instance.shutdown();
         }
     }
 }

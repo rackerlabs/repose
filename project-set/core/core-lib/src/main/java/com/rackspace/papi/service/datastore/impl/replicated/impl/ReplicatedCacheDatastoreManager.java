@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 
 public class ReplicatedCacheDatastoreManager implements DatastoreManager {
 
+    public static final String REPLICATED_DISTRIBUTED = "distributed/replicated";
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ReplicatedCacheDatastoreManager.class);
     private static final String CACHE_NAME_PREFIX = "PAPI_REDUNDANT_";
     private final CacheManager cacheManagerInstance;
