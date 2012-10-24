@@ -11,9 +11,8 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.ArrayList;
 import javax.servlet.FilterChain;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -22,14 +21,14 @@ import org.slf4j.LoggerFactory;
 public class ApiValidatorHandler extends AbstractFilterLogicHandler {
 
     private static final Logger LOG = LoggerFactory.getLogger(ApiValidatorHandler.class);
-    private final Map<String, ValidatorInfo> validators;
+    private final List<ValidatorInfo> validators;
     private final ValidatorInfo defaultValidator;
     private FilterChain chain;
 
-    public ApiValidatorHandler(ValidatorInfo defaultValidator, Map<String, ValidatorInfo> validators) {
-        this.validators = new HashMap<String, ValidatorInfo>();
+    public ApiValidatorHandler(ValidatorInfo defaultValidator, List<ValidatorInfo> validators) {
+        this.validators = new ArrayList<ValidatorInfo>(validators.size());
         if (validators != null) {
-            this.validators.putAll(validators);
+            this.validators.addAll(validators);
         }
         this.defaultValidator = defaultValidator;
 
@@ -42,10 +41,10 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
     protected ValidatorInfo getValidatorForRole(List<? extends HeaderValue> roles) {
 
         if (validators != null) {
-            for (String validatorRole : validators.keySet()) {
+            for (ValidatorInfo validator : validators) {
                 for (HeaderValue role : roles) {
-                    if (validatorRole.equals(role.getValue())) {
-                        return validators.get(validatorRole);
+                   if (validator.getRole().equals(role.getValue())) {
+                      return validator;
                     }
                 }
             }
