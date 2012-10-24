@@ -9,4 +9,6 @@ public interface DatastoreManager extends Destroyable {
    boolean isAvailable();
 
    boolean isDistributed();
+   
+   String getName();
 }

@@ -7,21 +7,22 @@ import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.service.datastore.Datastore;
+import com.rackspace.papi.service.datastore.DatastoreManager;
+import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.impl.StoredElementImpl;
+import java.util.*;
+import javax.servlet.http.HttpServletRequest;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.*;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.*;
-
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
 public class RateLimitingHandlerTest extends RateLimitingTestSupport {
@@ -186,9 +187,17 @@ public class RateLimitingHandlerTest extends RateLimitingTestSupport {
         @Before
         public void beforeAny() {
             final Datastore datastoreMock = mock(Datastore.class);
+            final DatastoreService service = mock(DatastoreService.class);
+            final DatastoreManager manager = mock(DatastoreManager.class);
+            
+            List<DatastoreManager> managers = new ArrayList<DatastoreManager>();
+            managers.add(manager);
+            
+            when(manager.getDatastore()).thenReturn(datastoreMock);
+            when(service.availableDistributedDatastores()).thenReturn(managers);
             when(datastoreMock.get(anyString())).thenReturn(new StoredElementImpl("key", null));
 
-            handlerFactory = new RateLimitingHandlerFactory(datastoreMock);
+            handlerFactory = new RateLimitingHandlerFactory(service);
             handlerFactory.configurationUpdated(defaultRateLimitingConfiguration());
 
             mockedRequest = mock(HttpServletRequest.class);
