@@ -11,7 +11,6 @@ import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.FilterChain;
@@ -66,12 +65,12 @@ public class ApiValidatorHandlerTest {
             blowupValidatorInfo = new ValidatorInfo("blowupValidator", "blowupWadl", null);
             blowupValidatorInfo.setValidator(blowupValidator);
 
-            Map<String, ValidatorInfo> validators = new HashMap<String, ValidatorInfo>();
-            validators.put(defaultValidatorInfo.getRole(), defaultValidatorInfo);
-            validators.put(role1ValidatorInfo.getRole(), role1ValidatorInfo);
-            validators.put(role2ValidatorInfo.getRole(), role2ValidatorInfo);
-            validators.put(nullValidatorInfo.getRole(), nullValidatorInfo);
-            validators.put(blowupValidatorInfo.getRole(), blowupValidatorInfo);
+            List<ValidatorInfo> validators = new ArrayList<ValidatorInfo>();
+            validators.add(defaultValidatorInfo);
+            validators.add(role1ValidatorInfo);
+            validators.add(role2ValidatorInfo);
+            validators.add(nullValidatorInfo);
+            validators.add(blowupValidatorInfo);
             
             instance = new ApiValidatorHandler(defaultValidatorInfo, validators);
             instance.setFilterChain(chain);

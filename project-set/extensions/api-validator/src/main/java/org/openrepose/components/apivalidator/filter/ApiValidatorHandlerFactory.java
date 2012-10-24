@@ -29,7 +29,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     private static final Logger LOG = LoggerFactory.getLogger(ApiValidatorHandlerFactory.class);
     private ValidatorConfiguration validatorConfiguration;
     private ValidatorInfo defaultValidator;
-    private Map<String, ValidatorInfo> validators;
+    private List<ValidatorInfo> validators;
     private boolean initialized = false;
     private final ConfigurationService manager;
     private final ApiValidatorWadlListener wadlListener;
@@ -50,7 +50,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                 return;
             }
 
-            for (ValidatorInfo info : validators.values()) {
+            for (ValidatorInfo info : validators) {
                 manager.unsubscribeFrom(info.getUri(), wadlListener);
             }
         }
@@ -60,7 +60,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         return wadlListener;
     }
 
-    void setValidators(Map<String, ValidatorInfo> validators) {
+    void setValidators(List<ValidatorInfo> validators) {
         this.validators = validators;
     }
 
@@ -86,7 +86,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                 }
                 boolean found = false;
 
-                for (ValidatorInfo info : validators.values()) {
+                for (ValidatorInfo info : validators) {
                     if (getNormalizedPath(info.getUri()).equals(config.name())) {
                         //info.clearValidator();
                         info.reinitValidator();
@@ -97,7 +97,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                 if (!found) {
                     // If we couldn't match the particular config... be safe and clear 
                     // all fo the validators
-                    for (ValidatorInfo info : validators.values()) {
+                    for (ValidatorInfo info : validators) {
                         //info.clearValidator();
                         info.reinitValidator();
                     }
@@ -146,7 +146,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                 return;
             }
 
-            validators = new HashMap<String, ValidatorInfo>();
+            validators = new ArrayList<ValidatorInfo>(validatorConfiguration.getValidator().size());
             defaultValidator = null;
 
             for (ValidatorItem validatorItem : validatorConfiguration.getValidator()) {
@@ -167,13 +167,13 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                 config.setJoinXPathChecks(validatorItem.isJoinXpathChecks());
 
                 ValidatorInfo validator = new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), config);
-                validators.put(validatorItem.getRole(), validator);
+                validators.add (validator);
                 if (validatorItem.isDefault() && defaultValidator == null) {
                     defaultValidator = validator;
                 }
             }
 
-            for (ValidatorInfo validator : validators.values()) {
+            for (ValidatorInfo validator : validators) {
                 addListener(validator.getUri());
             }
 
