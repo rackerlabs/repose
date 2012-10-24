@@ -96,16 +96,16 @@ public class ApiValidatorHandlerFactoryTest {
             URL resource = this.getClass().getClassLoader().getResource(wadl);
             instance = new ApiValidatorHandlerFactory(configService, resource.getPath());
 
-            Map<String, ValidatorInfo> validators = new HashMap<String, ValidatorInfo>();
+            List<ValidatorInfo> validators = new ArrayList<ValidatorInfo>();
             info1 = mock(ValidatorInfo.class);
             when(info1.getUri()).thenReturn(instance.getWadlPath(wadl1));
             when(info1.getRole()).thenReturn(role1);
-            validators.put(info1.getRole(), info1);
+            validators.add(info1);
             
             info2 = mock(ValidatorInfo.class);
             when(info2.getUri()).thenReturn(instance.getWadlPath(wadl2));
             when(info2.getRole()).thenReturn(role2);
-            validators.put(info2.getRole(), info2);
+            validators.add(info2);
             
             
             instance.setValidators(validators);
