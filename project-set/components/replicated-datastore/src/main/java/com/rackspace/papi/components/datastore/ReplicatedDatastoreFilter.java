@@ -19,6 +19,7 @@ public class ReplicatedDatastoreFilter implements Filter {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReplicatedDatastoreFilter.class);
     private static final String DEFAULT_CONFIG = "replicated-datastore.cfg.xml";
+    private static final String CACHE_MANAGER_NAME = "ReplicatedDatastoreCacheManager";
     private String config;
     private ReplicatedDatastoreFilterHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;
@@ -39,6 +40,7 @@ public class ReplicatedDatastoreFilter implements Filter {
         LOG.info("Initializing filter");
 
         Configuration defaultConfiguration = new Configuration();
+        defaultConfiguration.setName(CACHE_MANAGER_NAME);
         defaultConfiguration.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
         defaultConfiguration.setUpdateCheck(false);
 
@@ -55,7 +57,7 @@ public class ReplicatedDatastoreFilter implements Filter {
         configurationManager.unsubscribeFrom("container.cfg.xml", handlerFactory);
         configurationManager.unsubscribeFrom("system-model.cfg.xml", handlerFactory);
         handlerFactory.stopDatastore();
-        //ehCacheManager.removalAll();
-        //ehCacheManager.shutdown();
+        ehCacheManager.removalAll();
+        ehCacheManager.shutdown();
     }
 }

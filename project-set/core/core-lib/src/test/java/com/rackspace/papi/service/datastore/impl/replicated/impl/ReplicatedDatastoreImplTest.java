@@ -24,6 +24,7 @@ public class ReplicatedDatastoreImplTest {
         @BeforeClass
         public static void setUpClass() {
             Configuration defaultConfiguration = new Configuration();
+            defaultConfiguration.setName("TestCacheManager");
             defaultConfiguration.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
             defaultConfiguration.setUpdateCheck(false);
 

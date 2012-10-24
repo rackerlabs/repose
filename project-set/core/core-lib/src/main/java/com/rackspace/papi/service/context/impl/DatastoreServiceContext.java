@@ -22,6 +22,7 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
     private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(DatastoreServiceContext.class);
     public static final String DATASTORE_NAME = "powerapi:/datastore";
     public static final String SERVICE_NAME = "powerapi:/datastore/service";
+    private static final String CACHE_MANAGER_NAME = "LocalDatastoreCacheManager";
     private final DatastoreService datastoreService;
     private final ServiceRegistry registry;
     private CacheManager ehCacheManager;
@@ -56,8 +57,8 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         LOG.info("Destroying datastore service context");
-        //ehCacheManager.removalAll();
-        //ehCacheManager.shutdown();
+        ehCacheManager.removalAll();
+        ehCacheManager.shutdown();
         /*
          * final Context namingContext = ServletContextHelper.getInstance().namingContext(sce.getServletContext());
          *
@@ -71,6 +72,7 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
     public void contextInitialized(ServletContextEvent sce) {
         // Init our local default cache and a new service object to hold it
         Configuration defaultConfiguration = new Configuration();
+        defaultConfiguration.setName(CACHE_MANAGER_NAME);
         defaultConfiguration.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
         defaultConfiguration.setUpdateCheck(false);
 

@@ -20,6 +20,7 @@ public class ClientWrapper {
     private static final int LONG_TERM_CACHE_SIZE = 1000;
     private static final int LONG_TERM_TTL = 60;
     private static final String CACHE_NAME_PREFIX = "jersey:resources:";
+    private static final String CACHE_MANAGER_NAME = "JerseyCacheManager";
     private final Client client;
     private CacheManager cacheManager;
     private Cache shortCache;
@@ -39,8 +40,8 @@ public class ClientWrapper {
 
     @Override
     public void finalize() throws Throwable {
-        //cacheManager.removalAll();
-        //cacheManager.shutdown();
+        cacheManager.removalAll();
+        cacheManager.shutdown();
         super.finalize();
     }
 
@@ -53,6 +54,7 @@ public class ClientWrapper {
 
     private void initCache() {
         final Configuration config = new Configuration();
+        config.setName(CACHE_MANAGER_NAME);
         config.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
         config.setUpdateCheck(false);
         cacheManager = CacheManager.newInstance(config);
