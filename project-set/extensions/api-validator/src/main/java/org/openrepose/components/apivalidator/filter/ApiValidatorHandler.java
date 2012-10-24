@@ -44,7 +44,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
         if (validators != null) {
             for (String validatorRole : validators.keySet()) {
                 for (HeaderValue role : roles) {
-                    if (validatorRole.contains(role.getValue())) {
+                    if (validatorRole.equals(role.getValue())) {
                         return validators.get(validatorRole);
                     }
                 }
