@@ -43,6 +43,11 @@ public class ReplicatedCacheDatastoreManager implements DatastoreManager {
     }
 
     @Override
+    public String getName() {
+        return REPLICATED_DISTRIBUTED;
+    }
+
+    @Override
     public boolean isAvailable() {
         return available;
     }

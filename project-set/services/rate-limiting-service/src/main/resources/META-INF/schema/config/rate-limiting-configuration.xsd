@@ -48,6 +48,15 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        <xs:attribute name="datastore" type="xs:string" use="optional" default="distributed/hash-ring">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="RequestEndpoint">

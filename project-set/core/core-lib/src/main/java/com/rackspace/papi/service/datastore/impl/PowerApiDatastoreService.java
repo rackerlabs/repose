@@ -30,7 +30,7 @@ public class PowerApiDatastoreService implements DatastoreService {
    }
 
    private DatastoreManager availableOrNull(DatastoreManager manager) {
-      return manager.isAvailable() ? manager : null;
+      return manager != null && manager.isAvailable() ? manager : null;
    }
 
    private DatastoreManager getLocalDatastore(String datastoreName) {
