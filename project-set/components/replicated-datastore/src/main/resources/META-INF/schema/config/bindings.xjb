@@ -6,6 +6,6 @@
         schemaLocation="replicated-datastore-configuration.xsd">
             
     <schemaBindings>
-        <package name="org.openrepose.components.datastore.config" />
+        <package name="org.openrepose.components.datastore.replicated.config" />
     </schemaBindings>
 </bindings>
