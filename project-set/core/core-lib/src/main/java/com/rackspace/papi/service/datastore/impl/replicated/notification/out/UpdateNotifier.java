@@ -7,6 +7,7 @@ import com.rackspace.papi.service.datastore.impl.replicated.data.Operation;
 import com.rackspace.papi.service.datastore.impl.replicated.data.Subscriber;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -38,60 +39,77 @@ public class UpdateNotifier implements Notifier {
             this.subscribers.addAll(subscribers);
         }
     }
-    
+
     public BlockingQueue<MessageQueueItem> getQueue() {
         return queue;
     }
-    
+
     @Override
     public void startNotifications() {
         senderThread.start();
     }
-    
+
     @Override
     public void stopNotifications() {
         sender.stop();
         senderThread.interrupt();
     }
-
+    
     @Override
-    public synchronized Set<Subscriber> getSubscribers() {
-        return Collections.unmodifiableSet(subscribers);
+    public void addSubscribers(Collection<Subscriber> subscribers) {
+        synchronized(this.subscribers) {
+            this.subscribers.addAll(subscribers);
+        }
     }
 
     @Override
-    public synchronized void addSubscriber(Subscriber subscriber) {
-        subscribers.add(subscriber);
+    public Set<Subscriber> getSubscribers() {
+        synchronized (subscribers) {
+            return Collections.unmodifiableSet(subscribers);
+        }
     }
 
     @Override
-    public synchronized void removeSubscriber(Subscriber subscriber) {
-        try {
-            for (Subscriber s : subscribers) {
-                if (s.equals(subscriber)) {
-                    try {
-                        s.close();
-                    } catch (IOException ex) {
-                        LOG.warn("Error closing socket", ex);
+    public void addSubscriber(Subscriber subscriber) {
+        synchronized (subscribers) {
+            subscribers.add(subscriber);
+        }
+    }
+
+    @Override
+    public void removeSubscriber(Subscriber subscriber) {
+        synchronized (subscribers) {
+            try {
+                for (Subscriber s : subscribers) {
+                    if (s.equals(subscriber)) {
+                        try {
+                            s.close();
+                        } catch (IOException ex) {
+                            LOG.warn("Error closing socket", ex);
+                        }
                     }
                 }
+            } finally {
+                subscribers.remove(subscriber);
             }
-        } finally {
-            subscribers.remove(subscriber);
         }
+    }
+
+    private void queueItem(MessageQueueItem item) {
+        queue.offer(item);
     }
 
     @Override
     public void notifyNode(Operation operation, Subscriber subscriber, String key, byte[] data, int ttl) {
         Message message = new Message(operation, key, data, ttl);
-        queue.offer(new MessageQueueItem(subscriber, message));
+        queueItem(new MessageQueueItem(subscriber, message));
 
     }
 
     @Override
     public void notifyNode(Operation operation, Subscriber subscriber, String[] keys, byte[][] data, int[] ttl) {
         Message message = new Message(operation, keys, data, ttl);
-        queue.offer(new MessageQueueItem(subscriber, message));
+        queueItem(new MessageQueueItem(subscriber, message));
 
     }
 
@@ -99,15 +117,17 @@ public class UpdateNotifier implements Notifier {
     public void notifyAllNodes(Operation operation, String key, byte[] data, int ttl) {
         Message message = new Message(operation, key, data, ttl);
         List<Subscriber> invalid = new ArrayList<Subscriber>();
-        for (Subscriber subscriber : subscribers) {
-            if (subscriber.getPort() < 0) {
-                invalid.add(subscriber);
-            } else {
-                queue.offer(new MessageQueueItem(subscriber, message));
+        synchronized (subscribers) {
+            for (Subscriber subscriber : subscribers) {
+                if (subscriber.getPort() < 0) {
+                    invalid.add(subscriber);
+                } else {
+                    queueItem(new MessageQueueItem(subscriber, message));
+                }
             }
-        }
 
-        subscribers.removeAll(invalid);
+            subscribers.removeAll(invalid);
+        }
     }
 
     @Override

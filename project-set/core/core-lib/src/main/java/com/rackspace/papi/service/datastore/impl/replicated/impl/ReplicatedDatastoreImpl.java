@@ -75,7 +75,7 @@ public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore {
 
     @Override
     public void addSubscribers(Collection<Subscriber> subscribers) {
-        updateNotifier.getSubscribers().addAll(subscribers);
+        updateNotifier.addSubscribers(subscribers);
     }
     
     @Override

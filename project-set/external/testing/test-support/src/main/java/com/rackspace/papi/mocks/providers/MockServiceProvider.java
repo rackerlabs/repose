@@ -22,6 +22,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.Set;
 import javax.ws.rs.core.Response.ResponseBuilder;
+import javax.ws.rs.core.UriBuilder;
 
 public class MockServiceProvider {
 
@@ -36,12 +37,17 @@ public class MockServiceProvider {
         factory = new ObjectFactory();
     }
 
-    public String getEchoBody(String body, HttpHeaders headers, UriInfo uri) {
+    public String getEchoBody(String body, HttpHeaders headers, UriInfo uri, HttpServletRequest request) {
         Set<String> headerPairs = headers.getRequestHeaders().keySet();
         Set<String> queryParams = uri.getQueryParameters().keySet();
         StringBuilder resp = new StringBuilder("<html>\n\t<head>\n\t\t<title>Servlet version</title>\n\t</head>\n\t<body>\n\t\t<h1>Servlet version at ");
         resp.append(uri.getPath()).append("</h1>");
-        resp.append("<h1>Base URI: ").append(uri.getBaseUri().toString()).append("</h1>");
+        UriBuilder absolutePathBuilder = uri.getAbsolutePathBuilder();
+        
+        resp.append("<h1>Base URI: ").append(uri.getBaseUri().toString()).append("</h1>\r\n");
+        resp.append("<h2>Absolute URI: ").append(absolutePathBuilder.build().toString()).append("</h2>\r\n");
+        resp.append("<h2>Requested URL: ").append(request.getRequestURL().toString()).append("</h2>\r\n");
+        
         try {
             resp.append("<h3>Server : ").append(InetAddress.getLocalHost().getHostAddress()).append("</h3>");
         } catch (UnknownHostException ex) {
@@ -76,11 +82,11 @@ public class MockServiceProvider {
         return resp.toString();
     }
 
-    public Response getEndService(String body, HttpHeaders headers, UriInfo uri) {
-        return getEndService(body, "200", headers, uri);
+    public Response getEndService(String body, HttpHeaders headers, UriInfo uri, HttpServletRequest request) {
+        return getEndService(body, "200", headers, uri, request);
     }
 
-    public Response getEndService(String body, String statusCode, HttpHeaders headers, UriInfo uri) {
+    public Response getEndService(String body, String statusCode, HttpHeaders headers, UriInfo uri, HttpServletRequest request) {
         int status;
         try {
             status = Integer.parseInt(statusCode);
@@ -90,15 +96,15 @@ public class MockServiceProvider {
         }
 
 
-        String resp = getEchoBody(body, headers, uri);
+        String resp = getEchoBody(body, headers, uri, request);
 
         ResponseBuilder response = Response.status(status);
 
         return response.entity(resp).header("x-request-id", "somevalue").header("Content-Length", resp.length()).build();
     }
 
-    public Response getEndServiceWithEchoHeaders(String body, HttpHeaders headers, UriInfo uri) {
-        String resp = getEchoBody(body, headers, uri);
+    public Response getEndServiceWithEchoHeaders(String body, HttpHeaders headers, UriInfo uri, HttpServletRequest request) {
+        String resp = getEchoBody(body, headers, uri, request);
 
         ResponseBuilder response = Response.ok();
         for (String headerName : headers.getRequestHeaders().keySet()) {
@@ -145,7 +151,7 @@ public class MockServiceProvider {
         return limitList;
     }
 
-    public Response getStatusCode(String statusCode, String location, HttpHeaders headers, UriInfo uri) throws URISyntaxException {
+    public Response getStatusCode(String statusCode, String location, HttpHeaders headers, UriInfo uri, HttpServletRequest request) throws URISyntaxException {
 
         int status;
         try {
@@ -154,7 +160,7 @@ public class MockServiceProvider {
             status = Response.Status.NOT_FOUND.getStatusCode();
         }
 
-        String resp = getEchoBody("", headers, uri);
+        String resp = getEchoBody("", headers, uri, request);
 
         if (status >= THREE_HUNDRED && status < FOUR_HUNDRED) {
 
@@ -176,7 +182,7 @@ public class MockServiceProvider {
 
     }
 
-    public Response getLocation(String statusCode, String location, HttpHeaders headers, UriInfo uri) throws URISyntaxException {
+    public Response getLocation(String statusCode, String location, HttpHeaders headers, UriInfo uri, HttpServletRequest request) throws URISyntaxException {
 
         int status;
         try {
@@ -192,13 +198,13 @@ public class MockServiceProvider {
             newLocation = new URI(newLocations.get(0).replaceAll("", ""));
         }
 
-        String resp = getEchoBody("", headers, uri);
+        String resp = getEchoBody("", headers, uri, request);
 
         return Response.status(status).header("Location", newLocation).entity(resp).build();
     }
 
 
-    public Response getRawStatusCode(String statusCode, String location, HttpHeaders headers, UriInfo uri) throws URISyntaxException {
+    public Response getRawStatusCode(String statusCode, String location, HttpHeaders headers, UriInfo uri, HttpServletRequest request) throws URISyntaxException {
 
         int status;
         try {
@@ -207,12 +213,12 @@ public class MockServiceProvider {
             status = Response.Status.NOT_FOUND.getStatusCode();
         }
 
-        String resp = getEchoBody("", headers, uri);
+        String resp = getEchoBody("", headers, uri, request);
 
         return Response.status(status).entity(resp).build();
     }
 
-    public Response postStatusCode(String body, String statusCode, String location, HttpHeaders headers, UriInfo uri) throws URISyntaxException {
+    public Response postStatusCode(String body, String statusCode, String location, HttpHeaders headers, UriInfo uri, HttpServletRequest request) throws URISyntaxException {
 
         int status;
         try {
@@ -221,7 +227,7 @@ public class MockServiceProvider {
             status = Response.Status.NOT_FOUND.getStatusCode();
         }
 
-        String resp = getEchoBody(body, headers, uri);
+        String resp = getEchoBody(body, headers, uri, request);
 
         if (status >= THREE_HUNDRED && status < FOUR_HUNDRED) {
 
@@ -251,7 +257,7 @@ public class MockServiceProvider {
         return Response.status(status).entity(resp).build();
     }
 
-    public Response getDelayedResponse(int time, HttpHeaders headers, UriInfo uri) {
+    public Response getDelayedResponse(int time, HttpHeaders headers, UriInfo uri, HttpServletRequest request) {
         int t = time;
         while (t > 0) {
             try {
@@ -263,7 +269,7 @@ public class MockServiceProvider {
         }
         StringBuilder body = new StringBuilder("Response delayed by ");
         body.append(time).append(" milliseconds");
-        return this.getEndService(body.toString(), headers, uri);
+        return this.getEndService(body.toString(), headers, uri, request);
     }
 
     public Response getLBaaSLimitsJson() {
