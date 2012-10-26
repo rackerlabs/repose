@@ -27,7 +27,9 @@ public enum InitParameter {
     CONNECTION_TIMEOUT("connection-timeout"),
     READ_TIMEOUT("read-timeout"),
     CONNECTION_FRAMEWORK("connection-framework"),
-    INSECURE("insecure");
+    INSECURE("insecure"),
+    MANAGEMENT_PORT("com.rackspace.repose.management.port"),
+    MANAGEMENT_CONTEXT("com.rackspace.repose.management.context");
 
     private final String initParameterName;
 

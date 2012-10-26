@@ -32,6 +32,7 @@
         <module>extensions</module>
         <module>services</module>
         <module>installation</module>
+        <module>management</module>
     </modules>
 
     <profiles>
