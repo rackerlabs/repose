@@ -34,21 +34,38 @@ public class ManagementResourcesService {
         return new ReposeReportMBeanAdapter().getReportingData(reposeReportingJMXClient);        
     }
 
-    @DELETE
+    @GET
     @Path("/datastore/token/{tenantId}/{token}")
-    public void removeToken(@PathParam("tenantId") String tenantId, @PathParam("token") String token) {
-        reposeCacheJMXClient.removeTokenAndRoles(tenantId, token);
+    public String removeToken(@PathParam("tenantId") String tenantId, @PathParam("token") String token) {
+        String response = "Successfully cleared cache.";
+
+        if (!reposeCacheJMXClient.removeTokenAndRoles(tenantId, token)) {
+            response = "Unable to clear token and roles cache for tenant " + tenantId;    
+        }
+        return response;
     }
 
-    @DELETE
+    @GET
     @Path("/datastore/groups/{tenantId}/{token}")
-    public void removeGroups(@PathParam("tenantId") String tenantId, @PathParam("token") String token) {
-        reposeCacheJMXClient.removeTokenAndRoles(tenantId, token);
+    public String removeGroups(@PathParam("tenantId") String tenantId, @PathParam("token") String token) {
+        String response = "Successfully cleared cache.";
+
+        if (!reposeCacheJMXClient.removeTokenAndRoles(tenantId, token)) {
+            response = "Unable to clear groups cache for tenant " + tenantId;
+        }
+
+        return response;
     }
 
-    @DELETE
+    @GET
     @Path("/datastore/limits/{userId}")
-    public void removeLimits(@PathParam("userId") String userId) {
-        reposeCacheJMXClient.removeLimits(userId);
+    public String removeLimits(@PathParam("userId") String userId) {
+        String response = "Successfully cleared cache.";
+
+        if (!reposeCacheJMXClient.removeLimits(userId)) {
+            response = "Unable to remove limits for user " + userId;
+        }
+
+        return response;
     }
 }
