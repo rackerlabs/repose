@@ -7,7 +7,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class Subscriber implements Serializable {
-
+    
     private static final int TIMEOUT = 1000;
     private static final int HASH = 29;
     private final String host;
@@ -50,9 +50,10 @@ public class Subscriber implements Serializable {
     public void close() throws IOException {
         if (socket != null) {
             socket.close();
+            socket = null;
         }
     }
-
+    
     @Override
     public boolean equals(Object other) {
         if (!(other instanceof Subscriber)) {
@@ -62,7 +63,7 @@ public class Subscriber implements Serializable {
         Subscriber subscriber = (Subscriber) other;
 
         return getHost().equalsIgnoreCase(subscriber.getHost()) 
-                && getPort() == subscriber.getPort() 
+                //&& (getPort() == subscriber.getPort() || getPort() == -1 || subscriber.getPort() == -1)
                 && getUpdPort() == subscriber.getUpdPort();
     }
 
@@ -85,4 +86,5 @@ public class Subscriber implements Serializable {
     public int getUpdPort() {
         return updPort;
     }
+    
 }

@@ -33,11 +33,13 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
     private final Datastore datastore;
     private final ServerSocketChannel channel;
     private final Selector selector;
+    private final String address;
 
     public ChannelledUpdateListener(Datastore datastore, String address) throws IOException {
         channel = ServerSocketChannel.open();
         selector = Selector.open();
         socket = channel.socket();
+        this.address = address;
         socket.bind(new InetSocketAddress(address, 0));
         channel.configureBlocking(false);
         channel.register(selector, SelectionKey.OP_ACCEPT);
@@ -47,7 +49,7 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
 
     @Override
     public String getAddress() {
-        return socket.getInetAddress().getHostAddress();
+        return address;
     }
 
     @Override

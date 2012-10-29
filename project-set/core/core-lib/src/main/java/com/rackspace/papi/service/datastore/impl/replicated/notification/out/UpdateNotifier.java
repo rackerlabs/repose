@@ -54,10 +54,10 @@ public class UpdateNotifier implements Notifier {
         sender.stop();
         senderThread.interrupt();
     }
-    
+
     @Override
     public void addSubscribers(Collection<Subscriber> subscribers) {
-        synchronized(this.subscribers) {
+        synchronized (this.subscribers) {
             this.subscribers.addAll(subscribers);
         }
     }
@@ -65,19 +65,41 @@ public class UpdateNotifier implements Notifier {
     @Override
     public Set<Subscriber> getSubscribers() {
         synchronized (subscribers) {
-            return Collections.unmodifiableSet(subscribers);
+            return Collections.unmodifiableSet(new HashSet<Subscriber>(subscribers));
         }
     }
 
     @Override
     public void addSubscriber(Subscriber subscriber) {
         synchronized (subscribers) {
-            subscribers.add(subscriber);
+            Subscriber current = getSubscriber(subscriber);
+            if (current == null || current.getPort() != subscriber.getPort()) {
+                subscribers.remove(current);
+                subscribers.add(subscriber);
+            }
         }
+    }
+
+    public Subscriber getSubscriber(Subscriber subscriber) {
+        Subscriber result = null;
+        synchronized (subscribers) {
+            for (Subscriber s : subscribers) {
+                if (s.equals(subscriber)) {
+                    result = s;
+                    break;
+                }
+            }
+        }
+
+        return result;
     }
 
     @Override
     public void removeSubscriber(Subscriber subscriber) {
+        if (subscriber == null) {
+            return;
+        }
+        
         synchronized (subscribers) {
             try {
                 for (Subscriber s : subscribers) {
