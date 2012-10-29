@@ -1,6 +1,7 @@
 package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.io.stream.ReadLimitReachedException;
 import com.rackspace.papi.commons.util.servlet.filter.ApplicationContextAwareFilter;
@@ -115,7 +116,12 @@ public class PowerFilter extends ApplicationContextAwareFilter {
             papiContext.filterChainGarbageCollectorService().reclaimDestroyable(powerFilterChainBuilder, powerFilterChainBuilder.getResourceConsumerMonitor());
         }
         try {
-            powerFilterChainBuilder = new PowerFilterChainBuilder(serviceDomain, localHost, newFilterChain, filterConfig.getServletContext(), defaultDst.getId());
+           String dftDst = "";
+           
+           if (defaultDst != null){
+              dftDst = defaultDst.getId();
+           }
+            powerFilterChainBuilder = new PowerFilterChainBuilder(serviceDomain, localHost, newFilterChain, filterConfig.getServletContext(), dftDst);
         } catch (PowerFilterChainException ex) {
             LOG.error("Unable to initialize filter chain builder", ex);
         }

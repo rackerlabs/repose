@@ -1,5 +1,6 @@
 package com.rackspace.papi.filter;
 
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.io.stream.ReadLimitReachedException;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
@@ -32,132 +33,136 @@ import org.slf4j.LoggerFactory;
 
 public class PowerFilterRouterImpl implements PowerFilterRouter {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PowerFilterRouterImpl.class);
-    private final Map<String, Destination> destinations;
-    private final Node localhost;
-    private final RoutingService routingService;
-    private final ReportingService reportingService;
-    private final RequestHeaderService requestHeaderService;
-    private final ResponseHeaderService responseHeaderService;
-    private final ServletContext context;
-    private final ReposeCluster domain;
-    private final String defaultDst;
+   private static final Logger LOG = LoggerFactory.getLogger(PowerFilterRouterImpl.class);
+   private final Map<String, Destination> destinations;
+   private final Node localhost;
+   private final RoutingService routingService;
+   private final ReportingService reportingService;
+   private final RequestHeaderService requestHeaderService;
+   private final ResponseHeaderService responseHeaderService;
+   private final ServletContext context;
+   private final ReposeCluster domain;
+   private final String defaultDst;
 
-    public PowerFilterRouterImpl(ReposeCluster domain, Node localhost, ServletContext context, String defaultDst) throws PowerFilterChainException {
-        if (localhost == null || domain == null) {
-            throw new PowerFilterChainException("Domain and localhost cannot be null");
-        }
+   public PowerFilterRouterImpl(ReposeCluster domain, Node localhost, ServletContext context, String defaultDst) throws PowerFilterChainException {
+      if (localhost == null || domain == null) {
+         throw new PowerFilterChainException("Domain and localhost cannot be null");
+      }
 
-        this.domain = domain;
-        this.localhost = localhost;
-        this.routingService = getRoutingService(context);
-        this.reportingService = getReportingService(context);
-        this.requestHeaderService = getRequestHeaderService(context);
-        this.responseHeaderService = getResponseHeaderService(context);
-        this.context = context;
-        this.defaultDst = defaultDst;
-        destinations = new HashMap<String, Destination>();
+      this.domain = domain;
+      this.localhost = localhost;
+      this.routingService = getRoutingService(context);
+      this.reportingService = getReportingService(context);
+      this.requestHeaderService = getRequestHeaderService(context);
+      this.responseHeaderService = getResponseHeaderService(context);
+      this.context = context;
+      this.defaultDst = defaultDst;
+      destinations = new HashMap<String, Destination>();
 
-        if (domain.getDestinations() != null) {
-            addDestinations(domain.getDestinations().getEndpoint());
-            addDestinations(domain.getDestinations().getTarget());
-        }
+      if (domain.getDestinations() != null) {
+         addDestinations(domain.getDestinations().getEndpoint());
+         addDestinations(domain.getDestinations().getTarget());
+      }
 
-    }
+   }
 
-    private ReportingService getReportingService(ServletContext servletContext) {
-        return ServletContextHelper.getInstance().getPowerApiContext(servletContext).reportingService();
-    }
+   private ReportingService getReportingService(ServletContext servletContext) {
+      return ServletContextHelper.getInstance().getPowerApiContext(servletContext).reportingService();
+   }
 
-    private RequestHeaderService getRequestHeaderService(ServletContext servletContext) {
-        return ServletContextHelper.getInstance().getPowerApiContext(servletContext).requestHeaderService();
-    }
+   private RequestHeaderService getRequestHeaderService(ServletContext servletContext) {
+      return ServletContextHelper.getInstance().getPowerApiContext(servletContext).requestHeaderService();
+   }
 
-    private ResponseHeaderService getResponseHeaderService(ServletContext servletContext) {
-        return ServletContextHelper.getInstance().getPowerApiContext(servletContext).responseHeaderService();
-    }
+   private ResponseHeaderService getResponseHeaderService(ServletContext servletContext) {
+      return ServletContextHelper.getInstance().getPowerApiContext(servletContext).responseHeaderService();
+   }
 
-    private RoutingService getRoutingService(ServletContext servletContext) {
-        return ServletContextHelper.getInstance().getPowerApiContext(servletContext).routingService();
-    }
+   private RoutingService getRoutingService(ServletContext servletContext) {
+      return ServletContextHelper.getInstance().getPowerApiContext(servletContext).routingService();
+   }
 
-    private void addDestinations(List<? extends Destination> destList) {
-        for (Destination dest : destList) {
-            destinations.put(dest.getId(), dest);
-        }
-    }
+   private void addDestinations(List<? extends Destination> destList) {
+      for (Destination dest : destList) {
+         destinations.put(dest.getId(), dest);
+      }
+   }
 
-    @Override
-    public void route(MutableHttpServletRequest servletRequest, MutableHttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
-        DestinationLocation location = null;
-        servletRequest.addDestination(defaultDst, servletRequest.getRequestURI(),-1);
-        RouteDestination destination = servletRequest.getDestination();
-        String rootPath = "";
+   @Override
+   public void route(MutableHttpServletRequest servletRequest, MutableHttpServletResponse servletResponse) throws IOException, ServletException, URISyntaxException {
+      DestinationLocation location = null;
 
-        if (destination != null) {
-            Destination dest = destinations.get(destination.getDestinationId());
-            if (dest == null) {
-                LOG.warn("Invalid routing destination specified: " + destination.getDestinationId() + " for domain: " + domain.getId());
-                ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.NOT_FOUND.intValue());
-            } else {
-                location = new DestinationLocationBuilder(
-                        routingService,
-                        localhost,
-                        dest,
-                        destination.getUri(),
-                        servletRequest).build();
+      if (!StringUtilities.isBlank(defaultDst)) {
+         servletRequest.addDestination(defaultDst, servletRequest.getRequestURI(), -1);
 
-                rootPath = dest.getRootPath();
+      }
+      RouteDestination destination = servletRequest.getDestination();
+      String rootPath = "";
+
+      if (destination != null) {
+         Destination dest = destinations.get(destination.getDestinationId());
+         if (dest == null) {
+            LOG.warn("Invalid routing destination specified: " + destination.getDestinationId() + " for domain: " + domain.getId());
+            ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.NOT_FOUND.intValue());
+         } else {
+            location = new DestinationLocationBuilder(
+                    routingService,
+                    localhost,
+                    dest,
+                    destination.getUri(),
+                    servletRequest).build();
+
+            rootPath = dest.getRootPath();
+         }
+      }
+
+      if (location != null) {
+         // According to the Java 6 javadocs the routeDestination passed into getContext:
+         // "The given path [routeDestination] must begin with /, is interpreted relative to the server's document root
+         // and is matched against the context roots of other web applications hosted on this container."
+         final ServletContext targetContext = context.getContext(location.getUri().toString());
+
+         if (targetContext != null) {
+            // Capture this for Location header processing
+            final HttpServletRequest originalRequest = (HttpServletRequest) servletRequest.getRequest();
+
+            String uri = new DispatchPathBuilder(location.getUri().getPath(), targetContext.getContextPath()).build();
+            final RequestDispatcher dispatcher = targetContext.getRequestDispatcher(uri);
+
+            servletRequest.setRequestUrl(new StringBuffer(location.getUrl().toExternalForm()));
+            servletRequest.setRequestUri(location.getUri().getPath());
+            requestHeaderService.setVia(servletRequest);
+            requestHeaderService.setXForwardedFor(servletRequest);
+            if (dispatcher != null) {
+               LOG.debug("Attempting to route to " + location.getUri());
+               LOG.debug("Request URL: " + ((HttpServletRequest) servletRequest).getRequestURL());
+               LOG.debug("Request URI: " + ((HttpServletRequest) servletRequest).getRequestURI());
+               LOG.debug("Context path = " + targetContext.getContextPath());
+
+               try {
+                  reportingService.incrementRequestCount(destination.getDestinationId());
+                  final long startTime = System.currentTimeMillis();
+                  dispatcher.forward(servletRequest, servletResponse);
+
+                  final long stopTime = System.currentTimeMillis();
+                  reportingService.accumulateResponseTime(destination.getDestinationId(), (stopTime - startTime));
+                  reportingService.incrementResponseCount(destination.getDestinationId());
+                  reportingService.incrementDestinationStatusCodeCount(destination.getDestinationId(), servletResponse.getStatus());
+
+
+                  responseHeaderService.fixLocationHeader(originalRequest, servletResponse, destination, location.getUri().toString(), rootPath);
+               } catch (ClientHandlerException e) {
+                  if ("ReadLimitReachedException".equals(e.getCause().getClass().getSimpleName())) {
+                     LOG.error("Error reading request content", e);
+                     servletResponse.sendError(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE.intValue(), "Error reading request content");
+                     servletResponse.setLastException(e);
+                  } else {
+                     LOG.error("Connection Refused to " + location.getUri() + " " + e.getMessage(), e);
+                     ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.SERVICE_UNAVAIL.intValue());
+                  }
+               }
             }
-        }
-
-        if (location != null) {
-            // According to the Java 6 javadocs the routeDestination passed into getContext:
-            // "The given path [routeDestination] must begin with /, is interpreted relative to the server's document root
-            // and is matched against the context roots of other web applications hosted on this container."
-            final ServletContext targetContext = context.getContext(location.getUri().toString());
-
-            if (targetContext != null) {
-                // Capture this for Location header processing
-                final HttpServletRequest originalRequest = (HttpServletRequest) servletRequest.getRequest();
-                
-                String uri = new DispatchPathBuilder(location.getUri().getPath(), targetContext.getContextPath()).build();
-                final RequestDispatcher dispatcher = targetContext.getRequestDispatcher(uri);
-
-                servletRequest.setRequestUrl(new StringBuffer(location.getUrl().toExternalForm()));
-                servletRequest.setRequestUri(location.getUri().getPath());
-                requestHeaderService.setVia(servletRequest);
-                requestHeaderService.setXForwardedFor(servletRequest);
-                if (dispatcher != null) {
-                    LOG.debug("Attempting to route to " + location.getUri());
-                    LOG.debug("Request URL: " + ((HttpServletRequest) servletRequest).getRequestURL());
-                    LOG.debug("Request URI: " + ((HttpServletRequest) servletRequest).getRequestURI());
-                    LOG.debug("Context path = " + targetContext.getContextPath());
-
-                    try {
-                        reportingService.incrementRequestCount(destination.getDestinationId());
-                        final long startTime = System.currentTimeMillis();
-                        dispatcher.forward(servletRequest, servletResponse);
-
-                        final long stopTime = System.currentTimeMillis();
-                        reportingService.accumulateResponseTime(destination.getDestinationId(), (stopTime - startTime));
-                        reportingService.incrementResponseCount(destination.getDestinationId());
-                        reportingService.incrementDestinationStatusCodeCount(destination.getDestinationId(), servletResponse.getStatus());
-                        
-                       
-                        responseHeaderService.fixLocationHeader(originalRequest, servletResponse, destination, location.getUri().toString(), rootPath);
-                    }catch (ClientHandlerException e) {
-                        if("ReadLimitReachedException".equals(e.getCause().getClass().getSimpleName())){
-                            LOG.error("Error reading request content", e);
-                            servletResponse.sendError(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE.intValue(), "Error reading request content");
-                            servletResponse.setLastException(e); 
-                        }else{
-                         LOG.error("Connection Refused to " + location.getUri() + " " + e.getMessage(), e);
-                        ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.SERVICE_UNAVAIL.intValue());
-                        }
-                    }
-                }
-            }
-        }
-    }
+         }
+      }
+   }
 }
