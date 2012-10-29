@@ -21,6 +21,7 @@ public class Put extends AbstractRemoteCommand {
     private final byte[] value;
     private final int ttl;
 
+    @SuppressWarnings("pmd:ArrayIsStoredDirectly")
     public Put(TimeUnit timeUnit, byte[] value, int ttl, String cacheObjectKey, InetSocketAddress remoteEndpoint) {
         super(cacheObjectKey, remoteEndpoint);
         this.timeUnit = timeUnit;
