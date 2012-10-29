@@ -77,9 +77,9 @@ public class SubscriberTest {
         }
 
         @Test
-        public void shouldNotEqualIfPortDiffers() {
+        public void shouldEqualIfOnlyPortDiffers() {
             Subscriber s2 = new Subscriber(host, port + 1, udpPort);
-            assertFalse(subscriberWithUdpPort.equals(s2));
+            assertTrue(subscriberWithUdpPort.equals(s2));
         }
 
         @Test

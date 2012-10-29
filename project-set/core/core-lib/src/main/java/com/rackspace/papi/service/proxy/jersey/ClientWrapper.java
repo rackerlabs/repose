@@ -54,7 +54,7 @@ public class ClientWrapper {
 
     private void initCache() {
         final Configuration config = new Configuration();
-        config.setName(CACHE_MANAGER_NAME);
+        config.setName(CACHE_MANAGER_NAME + "-" + UUID.randomUUID());
         config.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
         config.setUpdateCheck(false);
         cacheManager = CacheManager.newInstance(config);

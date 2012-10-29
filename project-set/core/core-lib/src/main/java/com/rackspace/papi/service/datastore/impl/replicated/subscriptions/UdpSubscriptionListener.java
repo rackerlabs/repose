@@ -23,6 +23,7 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
     private static final String UNABLE_TO_SERIALIZE = "Unable to serialize subscriber information";
     private static final int BUFFER_SIZE = 1024 * 8;
     private static final int SOCKET_TIMEOUT = 1000;
+    private static final int PING_TIME = 5000;
     private final DatagramSocket socket;
     private final byte[] buffer;
     private boolean done;
@@ -48,66 +49,82 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
         socket.setSoTimeout(SOCKET_TIMEOUT);
         socket.setReceiveBufferSize(BUFFER_SIZE);
     }
-    
+
     DatagramSocket getSocket() {
         return socket;
     }
-    
+
     void setTcpHost(String host) {
         this.tcpHost = host;
     }
-    
+
     void setTcpPort(int port) {
         this.tcpPort = port;
     }
-    
+
     public String getId() {
         return id.toString();
     }
 
     /*
-    private NetworkInterface getInterface(String name) throws SocketException {
-        if (StringUtilities.isBlank(name) || "*".equals(name)) {
-            return null;
+     private NetworkInterface getInterface(String name) throws SocketException {
+     if (StringUtilities.isBlank(name) || "*".equals(name)) {
+     return null;
+     }
+
+     Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
+
+     while (nets.hasMoreElements()) {
+     NetworkInterface nextNet = nets.nextElement();
+     if (nextNet.getName().equals(name)) {
+     LOG.info("Interface: " + nextNet.getDisplayName());
+     return nextNet;
+     }
+     }
+
+     listAvailableNics();
+
+     throw new DatastoreServiceException("Cannot find network interface by name: " + name);
+     }
+
+     private void listAvailableNics() throws SocketException {
+     Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
+
+     while (nets.hasMoreElements()) {
+     NetworkInterface nextNet = nets.nextElement();
+     LOG.info(nextNet.getName() + " supports multicast " + nextNet.supportsMulticast());
+     }
+
+     }
+     */
+    public void announce(Subscriber subscriber, Message message) {
+        try {
+            byte[] messageData = ObjectSerializer.instance().writeObject(message);
+            announce(subscriber, messageData);
+        } catch (IOException ex) {
+            LOG.error("Unable to send multicast announcement", ex);
         }
+    }
 
-        Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
-
-        while (nets.hasMoreElements()) {
-            NetworkInterface nextNet = nets.nextElement();
-            if (nextNet.getName().equals(name)) {
-                LOG.info("Interface: " + nextNet.getDisplayName());
-                return nextNet;
+    public void announce(Subscriber subscriber, byte[] messageData) {
+        try {
+            InetAddress address = subscriber.getAddress();
+            if (address == null) {
+                LOG.warn("Unable to determine address for host: " + subscriber.getHost());
+                return;
             }
+            DatagramPacket messagePacket = new DatagramPacket(messageData, messageData.length, address, subscriber.getUpdPort());
+            socket.send(messagePacket);
+        } catch (IOException ex) {
+            LOG.error("Unable to send multicast announcement", ex);
         }
-
-        listAvailableNics();
-
-        throw new DatastoreServiceException("Cannot find network interface by name: " + name);
     }
-
-    private void listAvailableNics() throws SocketException {
-        Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
-
-        while (nets.hasMoreElements()) {
-            NetworkInterface nextNet = nets.nextElement();
-            LOG.info(nextNet.getName() + " supports multicast " + nextNet.supportsMulticast());
-        }
-
-    }
-    */
 
     public void announce(Message message) {
         try {
             byte[] messageData = ObjectSerializer.instance().writeObject(message);
             for (Subscriber subscriber : notifier.getSubscribers()) {
-                InetAddress address = subscriber.getAddress();
-                if (address == null) {
-                    LOG.warn("Unable to determine address for host: " + subscriber.getHost());
-                    continue;
-                }
-                DatagramPacket messagePacket = new DatagramPacket(messageData, messageData.length, address, subscriber.getUpdPort());
-                socket.send(messagePacket);
+                announce(subscriber, messageData);
             }
         } catch (IOException ex) {
             LOG.error("Unable to send multicast announcement", ex);
@@ -148,6 +165,11 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
 
     }
 
+    public long ping() {
+        listening();
+        return System.currentTimeMillis();
+    }
+
     public void leaving() {
         try {
             Subscriber subscriber = new Subscriber(tcpHost, tcpPort, udpPort);
@@ -166,6 +188,10 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
 
         switch (operation) {
             case JOINING:
+                notifier.addSubscriber(subscriber);
+                listening();
+                break;
+            case PING:
                 notifier.addSubscriber(subscriber);
                 listening();
                 break;
@@ -190,13 +216,21 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
                 break;
         }
 
-        LOG.debug("Received " + operation.name() + " Request From: " + subscriber.getHost() + ":" + subscriber.getPort());
+        LOG.trace("Received " + operation.name() + " Request From: " + subscriber.getHost() + ":" + subscriber.getPort());
+    }
+    
+    private boolean shouldPing(long time) {
+        return System.currentTimeMillis() - time > PING_TIME;
     }
 
     @Override
     public void run() {
+        long time = System.currentTimeMillis();
         while (!done) {
             try {
+                if (shouldPing(time)) {
+                    time = ping();
+                }
                 DatagramPacket recv = new DatagramPacket(buffer, BUFFER_SIZE);
                 socket.receive(recv);
                 Message message = (Message) ObjectSerializer.instance().readObject(recv.getData());

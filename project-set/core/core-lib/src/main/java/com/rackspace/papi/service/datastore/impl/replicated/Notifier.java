@@ -19,5 +19,4 @@ public interface Notifier {
     void notifyAllNodes(Operation operation, String key, byte[] data) throws IOException;
     void notifyAllNodes(Operation operation, String key) throws IOException;
     void removeSubscriber(Subscriber subscriber);
-    
 }
