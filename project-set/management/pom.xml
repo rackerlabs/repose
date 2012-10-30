@@ -33,6 +33,18 @@
         </dependency>
 
         <dependency>
+            <artifactId>rate-limiting-service</artifactId>
+            <groupId>com.rackspace.papi.service</groupId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>versioning</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-server</artifactId>
             <version>1.12</version>
