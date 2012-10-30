@@ -23,7 +23,7 @@
         <longProp name="ThreadGroup.end_time">1351095161000</longProp>
         <boolProp name="ThreadGroup.scheduler">true</boolProp>
         <stringProp name="ThreadGroup.duration">${__P(duration)}</stringProp>
-        <stringProp name="ThreadGroup.delay">1</stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
       </ThreadGroup>
       <hashTree>
         <RandomVariableConfig guiclass="TestBeanGUI" testclass="RandomVariableConfig" testname="Random Variable" enabled="true">
@@ -39,7 +39,7 @@
           <stringProp name="maximumValue">1000</stringProp>
           <stringProp name="minimumValue">1</stringProp>
           <stringProp name="outputFormat">user_000</stringProp>
-          <boolProp name="perThread">false</boolProp>
+          <boolProp name="perThread">true</boolProp>
           <stringProp name="randomSeed"></stringProp>
           <stringProp name="variableName">users</stringProp>
         </RandomVariableConfig>
@@ -69,6 +69,76 @@
             <elementProp name="host" elementType="Argument">
               <stringProp name="Argument.name">host</stringProp>
               <stringProp name="Argument.value">r710-n10.cit.rackspace.net</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="port_3" elementType="Argument">
+              <stringProp name="Argument.name">port_3</stringProp>
+              <stringProp name="Argument.value">8776</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="port_4" elementType="Argument">
+              <stringProp name="Argument.name">port_4</stringProp>
+              <stringProp name="Argument.value">8777</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="port_5" elementType="Argument">
+              <stringProp name="Argument.name">port_5</stringProp>
+              <stringProp name="Argument.value">8778</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="port_6" elementType="Argument">
+              <stringProp name="Argument.name">port_6</stringProp>
+              <stringProp name="Argument.value">8779</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="port_7" elementType="Argument">
+              <stringProp name="Argument.name">port_7</stringProp>
+              <stringProp name="Argument.value">8780</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="port_8" elementType="Argument">
+              <stringProp name="Argument.name">port_8</stringProp>
+              <stringProp name="Argument.value">8781</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="port_9" elementType="Argument">
+              <stringProp name="Argument.name">port_9</stringProp>
+              <stringProp name="Argument.value">8782</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="port_10" elementType="Argument">
+              <stringProp name="Argument.name">port_10</stringProp>
+              <stringProp name="Argument.value">8783</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="port_11" elementType="Argument">
+              <stringProp name="Argument.name">port_11</stringProp>
+              <stringProp name="Argument.value">8784</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="port_12" elementType="Argument">
+              <stringProp name="Argument.name">port_12</stringProp>
+              <stringProp name="Argument.value">8785</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="port_13" elementType="Argument">
+              <stringProp name="Argument.name">port_13</stringProp>
+              <stringProp name="Argument.value">8786</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="port_14" elementType="Argument">
+              <stringProp name="Argument.name">port_14</stringProp>
+              <stringProp name="Argument.value">8787</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="port_15" elementType="Argument">
+              <stringProp name="Argument.name">port_15</stringProp>
+              <stringProp name="Argument.value">8788</stringProp>
+              <stringProp name="Argument.metadata">=</stringProp>
+            </elementProp>
+            <elementProp name="port_16" elementType="Argument">
+              <stringProp name="Argument.name">port_16</stringProp>
+              <stringProp name="Argument.value">8789</stringProp>
               <stringProp name="Argument.metadata">=</stringProp>
             </elementProp>
           </collectionProp>
