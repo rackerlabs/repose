@@ -1,6 +1,5 @@
 package com.rackspace.papi.service.management;
 
-import com.rackspace.papi.commons.util.net.NetUtilities;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.slf4j.Logger;
@@ -49,10 +48,8 @@ public class ManagementServiceImpl implements ManagementService {
     }
 
     private String buildManagementUrl(int managementPort, String managementContext) {
-        StringBuilder builder = new StringBuilder("http://");
+        StringBuilder builder = new StringBuilder("http://localhost:");
 
-        builder.append(NetUtilities.getLocalHostName());
-        builder.append(":");
         builder.append(Integer.toString(managementPort));
         builder.append(managementContext);
         builder.append("/application.wadl");
