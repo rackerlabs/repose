@@ -21,7 +21,7 @@ public class Put extends AbstractRemoteCommand {
     private final byte[] value;
     private final int ttl;
 
-    @SuppressWarnings("ArrayIsStoredDirectly")
+    @SuppressWarnings("PMD.ArrayIsStoredDirectly")
     public Put(TimeUnit timeUnit, byte[] value, int ttl, String cacheObjectKey, InetSocketAddress remoteEndpoint) {
         super(cacheObjectKey, remoteEndpoint);
         this.timeUnit = timeUnit;
@@ -40,7 +40,7 @@ public class Put extends AbstractRemoteCommand {
     protected byte[] getBody() {
         return value;
     }
-
+    
     @Override
     public Object handleResponse(ServiceClientResponse response) throws IOException, DatastoreOperationException {
         if (response.getStatusCode() != HttpStatusCode.ACCEPTED.intValue()) {
