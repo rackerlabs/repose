@@ -63,7 +63,7 @@
         </copyright>
         <releaseinfo>v2.3.4</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2012-10-17</pubdate>
+        <pubdate>2012-10-31</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -74,6 +74,17 @@
                 their service to use the Rate Limiting component of the &PRODEXPAND;. </para>
         </abstract>
         <revhistory>
+            <revision>
+                <date>2012-10-31</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem>
+                            <para>Deleted unused <code>Delegation</code> element from <xref
+                                linkend="Configuration-d1e365"/>.</para>
+                        </listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
             <revision>
                 <date>2012-10-17</date>
                 <revdescription>
