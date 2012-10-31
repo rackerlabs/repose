@@ -17,7 +17,6 @@
       <filter name="dist-datastore" />
       <filter name="rate-limiting" />
       -->
-      <filter name="default-router"/>
     </filters>
     <destinations>
       <!-- Update this endpoint if you want Repose to send requests to a different service -->

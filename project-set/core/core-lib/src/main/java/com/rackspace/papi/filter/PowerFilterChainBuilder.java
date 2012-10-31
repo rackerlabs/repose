@@ -20,12 +20,12 @@ public class PowerFilterChainBuilder implements Destroyable {
     private final Node localhost;
     private final PowerFilterRouter router;
 
-    public PowerFilterChainBuilder(ReposeCluster domain, Node localhost, List<FilterContext> currentFilterChain, ServletContext servletContext) throws PowerFilterChainException {
+    public PowerFilterChainBuilder(ReposeCluster domain, Node localhost, List<FilterContext> currentFilterChain, ServletContext servletContext, String defaultDst) throws PowerFilterChainException {
         this.currentFilterChain = currentFilterChain;
         resourceConsumerMonitor = new ResourceConsumerCounter();
         this.domain = domain;
         this.localhost = localhost;
-        this.router = new PowerFilterRouterImpl(domain, localhost, servletContext);
+        this.router = new PowerFilterRouterImpl(domain, localhost, servletContext, defaultDst);
     }
 
     public ResourceConsumerCounter getResourceConsumerMonitor() {

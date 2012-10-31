@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="2.1">
+<jmeterTestPlan version="1.2" properties="2.3">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -87,7 +87,7 @@
           <hashTree>
             <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Hitting Neither Test URI" enabled="true"/>
             <hashTree>
-              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Should not receive message body" enabled="true">
+              <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Should Route to default" enabled="true">
                 <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
                   <collectionProp name="Arguments.arguments">
                     <elementProp name="" elementType="HTTPArgument">
@@ -126,7 +126,7 @@
                 <SizeAssertion guiclass="SizeAssertionGui" testclass="SizeAssertion" testname="Size Assertion" enabled="true">
                   <stringProp name="Assertion.test_field">SizeAssertion.response_data</stringProp>
                   <stringProp name="SizeAssertion.size">0</stringProp>
-                  <intProp name="SizeAssertion.operator">1</intProp>
+                  <intProp name="SizeAssertion.operator">3</intProp>
                 </SizeAssertion>
                 <hashTree/>
               </hashTree>

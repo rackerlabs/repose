@@ -60,59 +60,59 @@ public class MockServiceResource {
 
     @POST
     @Path("/postcode/{statusCode}")
-    public Response postStatusCode(@PathParam("statusCode") String statusCode, String body, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
+    public Response postStatusCode(@PathParam("statusCode") String statusCode, String body, @Context HttpHeaders headers, @Context UriInfo uriInfo, @Context HttpServletRequest request) throws MalformedURLException, URISyntaxException {
         URI uri = uriInfo.getAbsolutePath();
 
-        return provider.postStatusCode(body, statusCode, uri.toURL().toExternalForm().replaceAll("/statuscode/", "/"), headers, uriInfo);
+        return provider.postStatusCode(body, statusCode, uri.toURL().toExternalForm().replaceAll("/statuscode/", "/"), headers, uriInfo, request);
     }
 
     @GET
     @Path("/statuscode/{statusCode}")
-    public Response getStatusCode(@PathParam("statusCode") String statusCode, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
+    public Response getStatusCode(@PathParam("statusCode") String statusCode, @Context HttpHeaders headers, @Context UriInfo uriInfo, @Context HttpServletRequest request) throws MalformedURLException, URISyntaxException {
         URI uri = uriInfo.getAbsolutePath();
 
-        return provider.getStatusCode(statusCode, uri.toURL().toExternalForm().replaceAll("/statuscode/", "/"), headers, uriInfo);
+        return provider.getStatusCode(statusCode, uri.toURL().toExternalForm().replaceAll("/statuscode/", "/"), headers, uriInfo, request);
     }
 
     @GET
     @Path("/location/{statusCode}")
-    public Response getLocation(@PathParam("statusCode") String statusCode, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
+    public Response getLocation(@PathParam("statusCode") String statusCode, @Context HttpHeaders headers, @Context UriInfo uriInfo, @Context HttpServletRequest request) throws MalformedURLException, URISyntaxException {
         URI uri = uriInfo.getAbsolutePath();
 
-        return provider.getLocation(statusCode, uri.toURL().toExternalForm(), headers, uriInfo);
+        return provider.getLocation(statusCode, uri.toURL().toExternalForm(), headers, uriInfo, request);
     }
 
     @GET
     @Path("/rawstatuscode/{statusCode}")
-    public Response getRawStatusCode(@PathParam("statusCode") String statusCode, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
+    public Response getRawStatusCode(@PathParam("statusCode") String statusCode, @Context HttpHeaders headers, @Context UriInfo uriInfo, @Context HttpServletRequest request) throws MalformedURLException, URISyntaxException {
         URI uri = uriInfo.getAbsolutePath();
 
-        return provider.getRawStatusCode(statusCode, uri.toURL().toExternalForm().replaceAll("/statuscode/", "/"), headers, uriInfo);
+        return provider.getRawStatusCode(statusCode, uri.toURL().toExternalForm().replaceAll("/statuscode/", "/"), headers, uriInfo, request);
     }
 
     @GET
     @Path("/echoheaders")
-    public Response getEchoHeaders(@Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
-        return provider.getEndServiceWithEchoHeaders("", headers, uriInfo);
+    public Response getEchoHeaders(@Context HttpHeaders headers, @Context UriInfo uriInfo, @Context HttpServletRequest request) throws MalformedURLException, URISyntaxException {
+        return provider.getEndServiceWithEchoHeaders("", headers, uriInfo, request);
     }
 
     @GET
     @Path("/echoheaders/{suffix: .*}")
-    public Response getEchoHeadersWithPath(@Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
-        return provider.getEndServiceWithEchoHeaders("", headers, uriInfo);
+    public Response getEchoHeadersWithPath(@Context HttpHeaders headers, @Context UriInfo uriInfo, @Context HttpServletRequest request) throws MalformedURLException, URISyntaxException {
+        return provider.getEndServiceWithEchoHeaders("", headers, uriInfo, request);
     }
 
     @GET
     @Path("{id : .*}")
-    public Response getEndService(@Context HttpHeaders headers, @Context UriInfo uri) {
+    public Response getEndService(@Context HttpHeaders headers, @Context UriInfo uri, @Context HttpServletRequest request) {
 
-        return provider.getEndService("", headers, uri);
+        return provider.getEndService("", headers, uri, request);
     }
 
     @GET
     @Path("/")
-    public Response getService(@Context HttpHeaders headers, @Context UriInfo uri) {
-        return provider.getEndService("", headers, uri);
+    public Response getService(@Context HttpHeaders headers, @Context UriInfo uri, @Context HttpServletRequest request) {
+        return provider.getEndService("", headers, uri, request);
     }
 
     private StreamingOutput streamBytes(final byte[] bytes) {
@@ -133,15 +133,15 @@ public class MockServiceResource {
 
     @GET
     @Path("/stream{extra: .*}")
-    public StreamingOutput getStreamingService(@Context HttpHeaders headers, @Context UriInfo uri) {
-        final String body = provider.getEchoBody("", headers, uri);
+    public StreamingOutput getStreamingService(@Context HttpHeaders headers, @Context UriInfo uri, @Context HttpServletRequest request) {
+        final String body = provider.getEchoBody("", headers, uri, request);
         return streamBytes(body.getBytes());
     }
 
     @POST
     @Path("/post-stream{extra: .*}")
-    public StreamingOutput getPostStreamingService(String body, @Context HttpHeaders headers, @Context UriInfo uri) {
-        final String data = provider.getEchoBody(body, headers, uri);
+    public StreamingOutput getPostStreamingService(String body, @Context HttpHeaders headers, @Context UriInfo uri, @Context HttpServletRequest request) {
+        final String data = provider.getEchoBody(body, headers, uri, request);
         return streamBytes(data.getBytes());
     }
 
@@ -188,14 +188,14 @@ public class MockServiceResource {
 
     @POST
     @Path("{id : .*}")
-    public Response postEndService(String body, @Context HttpHeaders headers, @Context UriInfo uri) {
-        return provider.getEndService(body, headers, uri);
+    public Response postEndService(String body, @Context HttpHeaders headers, @Context UriInfo uri, @Context HttpServletRequest request) {
+        return provider.getEndService(body, headers, uri, request);
     }
 
     @POST
     @Path("/")
-    public Response postService(String body, @Context HttpHeaders headers, @Context UriInfo uri) {
-        return provider.getEndService(body, headers, uri);
+    public Response postService(String body, @Context HttpHeaders headers, @Context UriInfo uri, @Context HttpServletRequest request) {
+        return provider.getEndService(body, headers, uri, request);
     }
 
     @GET
@@ -229,8 +229,8 @@ public class MockServiceResource {
 
     @GET
     @Path("/delayedresponse/{time}")
-    public Response getDelayedResponse(@PathParam("time") int time, @Context HttpHeaders headers, @Context UriInfo uri) {
-        return provider.getDelayedResponse(time, headers, uri);
+    public Response getDelayedResponse(@PathParam("time") int time, @Context HttpHeaders headers, @Context UriInfo uri, @Context HttpServletRequest request) {
+        return provider.getDelayedResponse(time, headers, uri, request);
     }
 
     @GET

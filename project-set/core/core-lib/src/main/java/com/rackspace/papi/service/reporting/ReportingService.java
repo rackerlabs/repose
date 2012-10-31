@@ -8,6 +8,7 @@ import java.util.List;
 
 public interface ReportingService {
 
+    void shutdown();
     void updateConfiguration(List<String> destinationIds, int seconds);
     Date getLastReset();
 

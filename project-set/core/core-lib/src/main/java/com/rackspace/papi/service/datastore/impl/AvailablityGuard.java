@@ -11,35 +11,40 @@ import com.rackspace.papi.service.datastore.DatastoreUnavailableException;
  */
 public final class AvailablityGuard implements DatastoreManager {
 
-   private final DatastoreManager manager;
-   private final DatastoreService service;
+    private final DatastoreManager manager;
+    private final DatastoreService service;
 
-   public AvailablityGuard(DatastoreManager manager, DatastoreService service) {
-      this.manager = manager;
-      this.service = service;
-   }
+    public AvailablityGuard(DatastoreManager manager, DatastoreService service) {
+        this.manager = manager;
+        this.service = service;
+    }
 
-   @Override
-   public void destroy() {
-      manager.destroy();
-   }
+    @Override
+    public String getName() {
+        return manager.getName();
+    }
 
-   @Override
-   public boolean isDistributed() {
-      return manager.isDistributed();
-   }
+    @Override
+    public void destroy() {
+        manager.destroy();
+    }
 
-   @Override
-   public boolean isAvailable() {
-      return manager.isAvailable();
-   }
+    @Override
+    public boolean isDistributed() {
+        return manager.isDistributed();
+    }
 
-   @Override
-   public Datastore getDatastore() throws DatastoreUnavailableException {
-      if (!isAvailable()) {
-         throw new DatastoreUnavailableException(service, "Datastore  " + manager.toString() + " is currently unavailable.");
-      }
+    @Override
+    public boolean isAvailable() {
+        return manager.isAvailable();
+    }
 
-      return manager.getDatastore();
-   }
+    @Override
+    public Datastore getDatastore() throws DatastoreUnavailableException {
+        if (!isAvailable()) {
+            throw new DatastoreUnavailableException(service, "Datastore  " + manager.toString() + " is currently unavailable.");
+        }
+
+        return manager.getDatastore();
+    }
 }

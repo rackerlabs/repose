@@ -38,12 +38,10 @@
             <xs:element name="limit-group" type="rl:ConfiguredLimitGroup" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
 
-        <xs:attribute name="delegation" type="xs:boolean" use="optional" default="false">
+        <xs:attribute name="datastore" type="xs:string" use="optional" default="distributed/hash-ring">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        Enables response delegation logic that informs downstream
-                        components of rate limited requests.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>

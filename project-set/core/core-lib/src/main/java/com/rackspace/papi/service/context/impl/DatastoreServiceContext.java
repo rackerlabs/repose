@@ -1,6 +1,7 @@
 package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.service.ServiceRegistry;
+import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.impl.ehcache.EHCacheDatastoreManager;
@@ -9,6 +10,7 @@ import javax.servlet.ServletContextEvent;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
+import org.slf4j.LoggerFactory;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -17,15 +19,21 @@ import org.springframework.stereotype.Component;
 @Component("datastoreServiceContext")
 public class DatastoreServiceContext implements ServiceContext<DatastoreService> {
 
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(DatastoreServiceContext.class);
     public static final String DATASTORE_NAME = "powerapi:/datastore";
     public static final String SERVICE_NAME = "powerapi:/datastore/service";
+    private static final String CACHE_MANAGER_NAME = "LocalDatastoreCacheManager";
     private final DatastoreService datastoreService;
     private final ServiceRegistry registry;
+    private CacheManager ehCacheManager;
+    private final ConfigurationService configurationManager;
 
     @Autowired
     public DatastoreServiceContext(
             @Qualifier("datastoreService") DatastoreService datastoreService,
-            @Qualifier("serviceRegistry") ServiceRegistry registry) {
+            @Qualifier("serviceRegistry") ServiceRegistry registry,
+            @Qualifier("configurationManager") ConfigurationService configurationManager) {
+        this.configurationManager = configurationManager;
         this.datastoreService = datastoreService;
         this.registry = registry;
     }
@@ -48,6 +56,9 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
 
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
+        LOG.info("Destroying datastore service context");
+        ehCacheManager.removalAll();
+        ehCacheManager.shutdown();
         /*
          * final Context namingContext = ServletContextHelper.getInstance().namingContext(sce.getServletContext());
          *
@@ -60,11 +71,12 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
     @Override
     public void contextInitialized(ServletContextEvent sce) {
         // Init our local default cache and a new service object to hold it
-        final Configuration defaultConfiguration = new Configuration();
+        Configuration defaultConfiguration = new Configuration();
+        defaultConfiguration.setName(CACHE_MANAGER_NAME);
         defaultConfiguration.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
         defaultConfiguration.setUpdateCheck(false);
 
-        final CacheManager ehCacheManager = new CacheManager(defaultConfiguration);
+        ehCacheManager = CacheManager.newInstance(defaultConfiguration);
 
         datastoreService.registerDatastoreManager(DatastoreService.DEFAULT_LOCAL, new EHCacheDatastoreManager(ehCacheManager));
 

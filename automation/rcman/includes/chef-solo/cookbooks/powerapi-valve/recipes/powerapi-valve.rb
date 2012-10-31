@@ -84,6 +84,7 @@ for nodeNumber in 1..6
    end
 
    via=""
+   cbrl=""
 
    case nodeNumber
    when 1
@@ -176,6 +177,7 @@ for nodeNumber in 1..6
          mode 0644
       end
       via=""
+      cbrl="content-body-read-limit=\"256\""
    end
 
    ["container.cfg.xml"].each do |config|
@@ -184,7 +186,8 @@ for nodeNumber in 1..6
          mode 0644
          variables({
             :port => 8886 + nodeNumber,
-            :via => via
+            :via => via,
+            :cbrl => cbrl
          })
       end
    end

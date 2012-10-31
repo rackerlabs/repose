@@ -2,6 +2,7 @@ package com.rackspace.papi.jetty;
 
 public abstract class JettyTestingContext {
 
+   private static final int DEFAULT_PORT = 26216;
    private JettyServerBuilder server;
 
    public JettyTestingContext() {
@@ -26,6 +27,6 @@ public abstract class JettyTestingContext {
    public abstract void buildServerContext(JettyServerBuilder serverBuilder) throws Exception;
 
    public static int getPort() {
-      return 26216;
+      return DEFAULT_PORT;
    }
 }

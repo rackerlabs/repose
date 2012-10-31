@@ -10,7 +10,6 @@
       <filter name="http-logging" />
       <filter name="header-id-mapping" />
       -->
-      <filter name="default-router"/>
     </filters>
     <destinations>
       <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80" default="true"/>

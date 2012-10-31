@@ -38,28 +38,13 @@ public class RateLimitingFilter implements Filter {
         new FilterLogicHandlerDelegate(request, response, chain).doFilter(handlerFactory.newHandler());
     }
 
-    private Datastore getDatastore(DatastoreService datastoreService) {
-        Datastore targetDatastore;
-
-        final Collection<DatastoreManager> distributedDatastores = datastoreService.availableDistributedDatastores();
-
-        if (!distributedDatastores.isEmpty()) {
-            targetDatastore = distributedDatastores.iterator().next().getDatastore();
-        } else {
-            LOG.warn("There were no distributed datastore managers available. Clustering for rate-limiting will be disabled.");
-            targetDatastore = datastoreService.defaultDatastore().getDatastore();
-        }
-
-        return targetDatastore;
-    }
-
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         final ContextAdapter ctx = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext());
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
 
-        handlerFactory = new RateLimitingHandlerFactory(getDatastore(ctx.datastoreService()));
+        handlerFactory = new RateLimitingHandlerFactory(ctx.datastoreService());
         configurationManager = ctx.configurationService();
         configurationManager.subscribeTo(config, handlerFactory, RateLimitingConfiguration.class);
     }

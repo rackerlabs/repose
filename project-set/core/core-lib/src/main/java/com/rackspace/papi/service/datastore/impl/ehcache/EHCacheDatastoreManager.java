@@ -2,6 +2,7 @@ package com.rackspace.papi.service.datastore.impl.ehcache;
 
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreManager;
+import com.rackspace.papi.service.datastore.DatastoreService;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 
@@ -29,6 +30,11 @@ public class EHCacheDatastoreManager implements DatastoreManager {
       available = true;
    }
 
+    @Override
+    public String getName() {
+        return DatastoreService.DEFAULT_LOCAL;
+    }
+
    @Override
    public boolean isAvailable() {
       return available;
@@ -39,7 +45,7 @@ public class EHCacheDatastoreManager implements DatastoreManager {
       available = false;
       
       cacheManagerInstance.removeCache(cacheName);
-      cacheManagerInstance.shutdown();
+      //cacheManagerInstance.shutdown();
    }
 
    @Override
