@@ -338,20 +338,6 @@
             </thead>
             <tbody>
                 <tr>
-                    <td><emphasis role="bold">Delegation</emphasis>:
-                        <?sbr?> If set to <code>true</code> and the
-                        identified user has reached a rate limit,
-                        &PRODNAME; rate limiting will not return the
-                        response directly to the client. Instead,
-                        &PRODNAME; will set an
-                            <code>X-PP-Rate-Limited</code> header to a
-                            <code>Retry-After</code> date for the next
-                        available non-rate limited request and send
-                        the request on to the origin service. </td>
-                    <td/>
-                    <td/>
-                </tr>
-                <tr>
                     <td rowspan="4"><emphasis role="bold"
                             >Endpoint</emphasis>: <?sbr?>
                         <code>&lt;request-endpoint&gt;</code> sets the
