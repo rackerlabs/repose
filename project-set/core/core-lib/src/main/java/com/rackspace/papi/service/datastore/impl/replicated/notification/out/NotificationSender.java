@@ -4,6 +4,7 @@ import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.service.datastore.impl.replicated.data.MessageQueueItem;
 import com.rackspace.papi.service.datastore.impl.replicated.data.Subscriber;
 import java.io.BufferedOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -33,11 +34,12 @@ public class NotificationSender implements Runnable {
             return;
         }
 
-        OutputStream out = null;
+        DataOutputStream out = null;
         try {
             //socket = new Socket(subscriber.getHost(), subscriber.getPort());
             Socket socket = subscriber.getSocket();
-            out = new BufferedOutputStream(socket.getOutputStream());
+            out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+            out.writeInt(messageData.length);
             out.write(messageData);
             out.flush();
         } catch (IOException ex) {
