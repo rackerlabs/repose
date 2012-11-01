@@ -97,6 +97,6 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
         final RateLimitingServiceHelper serviceHelper = new RateLimitingServiceHelper(service, activeLimitsWriter, combinedLimitsWriter);
         boolean includeAbsoluteLimits = rateLimitingConfig.getRequestEndpoint().isIncludeAbsoluteLimits();
 
-        return new RateLimitingHandler(serviceHelper, includeAbsoluteLimits, rateLimitingConfig.isDelegation(), describeLimitsUriRegex);
+        return new RateLimitingHandler(serviceHelper, includeAbsoluteLimits, describeLimitsUriRegex);
     }
 }

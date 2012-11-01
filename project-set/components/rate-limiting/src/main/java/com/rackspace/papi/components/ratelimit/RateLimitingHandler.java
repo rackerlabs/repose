@@ -28,13 +28,11 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
     private static final MediaType DEFAULT_TYPE = new MediaType(MimeType.APPLICATION_JSON);
     private MediaType originalPreferredAccept;
     private final boolean includeAbsoluteLimits;
-    private final boolean responseDelegationEnabled;
     private final Pattern describeLimitsUriPattern;
     private final RateLimitingServiceHelper rateLimitingServiceHelper;
 
-    public RateLimitingHandler(RateLimitingServiceHelper rateLimitingServiceHelper, boolean includeAbsoluteLimits, boolean responseDelegationEnabled, Pattern describeLimitsUriPattern) {
+    public RateLimitingHandler(RateLimitingServiceHelper rateLimitingServiceHelper, boolean includeAbsoluteLimits, Pattern describeLimitsUriPattern) {
         this.includeAbsoluteLimits = includeAbsoluteLimits;
-        this.responseDelegationEnabled = responseDelegationEnabled;
         this.describeLimitsUriPattern = describeLimitsUriPattern;
         this.rateLimitingServiceHelper = rateLimitingServiceHelper;
     }
@@ -109,7 +107,6 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
     }
 
     /**
-     *
      * @return false if over-limit and response delegation is not enabled
      */
     private boolean recordLimitedRequest(HttpServletRequest request, FilterDirector director) {
@@ -121,22 +118,15 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
             new LimitLogger(e.getUser(), request).log(e.getConfiguredLimit(), Integer.toString(e.getCurrentLimitAmount()));
             final HttpDate nextAvailableTime = new HttpDate(e.getNextAvailableTime());
 
-            if (!responseDelegationEnabled) {
-                // Tell the filter we want to return right away
-                director.setFilterAction(FilterAction.RETURN);
-                pass = false;
+            // Tell the filter we want to return right away
+            director.setFilterAction(FilterAction.RETURN);
+            pass = false;
 
-                // We use a 413 "Request Entity Too Large" to communicate that the user
-                // in question has hit their rate limit for this requested URI
-                director.setResponseStatus(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE);
-                director.responseHeaderManager().appendHeader(CommonHttpHeader.RETRY_AFTER.toString(), nextAvailableTime.toRFC1123());
-            } else {
-                // When response delegation is enabled, we add the X-PP-Rate-Limited
-                // request header with its value set to the correctly formatted
-                // retry-after date that would have been returned to the client
-                director.setFilterAction(FilterAction.PASS);
-                director.requestHeaderManager().putHeader(PowerApiHeader.RATE_LIMITED.toString(), nextAvailableTime.toRFC1123());
-            }
+            // We use a 413 "Request Entity Too Large" to communicate that the user
+            // in question has hit their rate limit for this requested URI
+            director.setResponseStatus(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE);
+            director.responseHeaderManager().appendHeader(CommonHttpHeader.RETRY_AFTER.toString(), nextAvailableTime.toRFC1123());
+
 
         } catch (CacheException e) {
             LOG.error("Failure when tracking limits. Reason: " + e.getMessage(), e);

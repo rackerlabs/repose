@@ -191,10 +191,6 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
                 notifier.addSubscriber(subscriber);
                 listening();
                 break;
-            case PING:
-                notifier.addSubscriber(subscriber);
-                listening();
-                break;
             case SYNC:
                 if (id.toString().equals(targetId)) {
                     try {

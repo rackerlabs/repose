@@ -2,7 +2,9 @@ package com.rackspace.papi.service.datastore.impl.replicated.notification.out;
 
 import com.rackspace.papi.service.datastore.impl.replicated.data.MessageQueueItem;
 import com.rackspace.papi.service.datastore.impl.replicated.data.Subscriber;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -38,16 +40,23 @@ public class NotificationSenderTest {
         }
 
         @Test
-        public void shouldSendData() {
+        public void shouldSendData() throws IOException {
             byte[] data = new byte[]{1, 2, 3};
 
             instance.notifyNode(subscriber, data);
             
-            byte[] actual = out.toByteArray();
+            DataInputStream in = new DataInputStream(new ByteArrayInputStream(out.toByteArray()));
             
-            assertEquals(data.length, actual.length);
+            int expected = 4 + data.length;
+            
+            assertEquals(expected, in.available());
+            
+            int len = in.readInt();
+            assertEquals(3, len);
+            
+            
             for (int i = 0; i < data.length; i++) {
-                assertEquals(data[i], actual[i]);
+                assertEquals(data[i], in.readByte());
             }
         }
 
