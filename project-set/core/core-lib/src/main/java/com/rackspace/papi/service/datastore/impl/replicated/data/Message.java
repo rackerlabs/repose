@@ -23,6 +23,7 @@ public class Message implements Serializable {
         this(operation, "*", keys, data, ttl);
     }
 
+    @SuppressWarnings("PMD.ArrayIsStoredDirectly")
     public Message(Operation operation, String targetId, String[] keys, byte[][] data, int[] ttl) {
         this.operation = operation;
         this.keys = keys != null? Arrays.copyOf(keys, keys.length): null;

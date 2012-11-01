@@ -17,6 +17,8 @@
         <filter name="header-id-mapping"/>
          <filter name="content-identity-auth-1.1"/>
         <filter name="rate-limiting"/>
+      	<filter name="client-auth" configuration="keystone-auth.cfg.xml" uri-regex="/keystone-auth/.*"/>
+
     </filters>
 
     <destinations>
