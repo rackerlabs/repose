@@ -73,12 +73,10 @@ public class ArtifactDirectoryWatcher implements Runnable, Destroyable {
             if (lastRecordedModifiedTime != lastModifiedTime) {
                artifactModificationTimes.put(artifactPath, lastModifiedTime);
                items.add(new ArtifactDirectoryItem(ApplicationArtifactEvent.UPDATED, artifactFile.getAbsolutePath()));
-               //eventManagerReference.newEvent(ApplicationArtifactEvent.UPDATED, artifactFile.getAbsolutePath());
-            }
+              }
          } else {
             items.add(new ArtifactDirectoryItem(ApplicationArtifactEvent.NEW, artifactFile.getAbsolutePath()));
-            //eventManagerReference.newEvent(ApplicationArtifactEvent.NEW, artifactFile.getAbsolutePath());
-         }
+        }
 
          artifactModificationTimes.put(artifactPath, lastModifiedTime);
       }
@@ -88,8 +86,7 @@ public class ArtifactDirectoryWatcher implements Runnable, Destroyable {
 
          artifactModificationTimes.remove(artifactPath);
          items.add(new ArtifactDirectoryItem(ApplicationArtifactEvent.DELETED, artifactFile.getAbsolutePath()));
-         //eventManagerReference.newEvent(ApplicationArtifactEvent.DELETED, artifactFile.getAbsolutePath());
-      }
+     }
       
       if (!items.isEmpty()) {
         eventManagerReference.newEvent(ApplicationArtifactEvent.ARTIFACTS_MODIFIED, items);

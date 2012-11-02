@@ -18,9 +18,6 @@ public class ByteBufferServletOutputStream extends ServletOutputStream {
 
     private void checkForClosedStream() throws IOException {
       //TODO: We need to compensate for systems outside of powerapi trying to close the streams  
-      /*if (closed) {
-            throw new IOException("InputStream has been closed. Futher operations are prohibited");
-        }*/
     }
     
     public boolean isClosed() {

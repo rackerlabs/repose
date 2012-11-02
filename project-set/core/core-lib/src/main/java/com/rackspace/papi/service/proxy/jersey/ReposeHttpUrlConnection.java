@@ -284,10 +284,6 @@ public class ReposeHttpUrlConnection extends HttpURLConnection {
       return httpUrlConnection.equals(o);
    }
 
-   @Override
-   public void setFixedLengthStreamingMode(int i) {
-      //httpUrlConnection.setFixedLengthStreamingMode(i);
-   }
 
    @Override
    public InputStream getErrorStream() {

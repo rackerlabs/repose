@@ -63,8 +63,7 @@ public class Subscriber implements Serializable {
         Subscriber subscriber = (Subscriber) other;
 
         return getHost().equalsIgnoreCase(subscriber.getHost()) 
-                //&& (getPort() == subscriber.getPort() || getPort() == -1 || subscriber.getPort() == -1)
-                && getUpdPort() == subscriber.getUpdPort();
+                 && getUpdPort() == subscriber.getUpdPort();
     }
 
     @Override

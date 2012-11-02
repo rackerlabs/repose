@@ -32,7 +32,6 @@ public class PowerApiContextManager implements ServletContextListener {
     private boolean contextInitialized = false;
 
     public PowerApiContextManager() {
-        //applicationContext = new ClassPathXmlApplicationContext(APPLICATION_CONTEXT_CONFIG);
     }
 
     public PowerApiContextManager setPorts(ServicePorts ports) {

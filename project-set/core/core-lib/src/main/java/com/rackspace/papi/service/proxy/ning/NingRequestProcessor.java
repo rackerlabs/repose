@@ -53,19 +53,7 @@ class NingRequestProcessor extends AbstractRequestProcessor {
                 return -1;
             }
             
-            int capacity = bb.capacity();
-            /*
-            int readData = stream.read();
-            int count = 0;
-            while (readData != -1 && count < capacity) {
-                count++;
-                bb.put((byte) readData);
-                readData = stream.read();
-            }
-            return count == 0? -1: count;
-            * 
-            */
-            
+            int capacity = bb.capacity();             
             byte[] data = new byte[capacity]; 
             int read = stream.read(data, 0, capacity); 
             if (read > 0) { 

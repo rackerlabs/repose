@@ -65,38 +65,7 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
     public String getId() {
         return id.toString();
     }
-
-    /*
-     private NetworkInterface getInterface(String name) throws SocketException {
-     if (StringUtilities.isBlank(name) || "*".equals(name)) {
-     return null;
-     }
-
-     Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
-
-     while (nets.hasMoreElements()) {
-     NetworkInterface nextNet = nets.nextElement();
-     if (nextNet.getName().equals(name)) {
-     LOG.info("Interface: " + nextNet.getDisplayName());
-     return nextNet;
-     }
-     }
-
-     listAvailableNics();
-
-     throw new DatastoreServiceException("Cannot find network interface by name: " + name);
-     }
-
-     private void listAvailableNics() throws SocketException {
-     Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
-
-     while (nets.hasMoreElements()) {
-     NetworkInterface nextNet = nets.nextElement();
-     LOG.info(nextNet.getName() + " supports multicast " + nextNet.supportsMulticast());
-     }
-
-     }
-     */
+   
     public void announce(Subscriber subscriber, Message message) {
         try {
             byte[] messageData = ObjectSerializer.instance().writeObject(message);

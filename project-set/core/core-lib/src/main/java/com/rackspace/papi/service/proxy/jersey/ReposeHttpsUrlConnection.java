@@ -335,7 +335,6 @@ public class ReposeHttpsUrlConnection extends HttpsURLConnection {
 
    @Override
    public void setFixedLengthStreamingMode(int i) {
-      //httpsUrlConnection.setFixedLengthStreamingMode(i);
    }
 
    @Override

@@ -36,7 +36,6 @@ public class NotificationSender implements Runnable {
 
         DataOutputStream out = null;
         try {
-            //socket = new Socket(subscriber.getHost(), subscriber.getPort());
             Socket socket = subscriber.getSocket();
             out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
             out.writeInt(messageData.length);

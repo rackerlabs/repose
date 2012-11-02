@@ -33,7 +33,7 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
 
     public RateLimitingHandlerFactory(DatastoreService datastoreService) {
         this.datastoreService = datastoreService;
-        //rateLimitCache = new ManagedRateLimitCache(datastore);
+      
     }
 
     @Override
