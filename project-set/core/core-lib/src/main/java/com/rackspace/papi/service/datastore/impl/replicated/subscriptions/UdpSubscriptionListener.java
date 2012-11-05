@@ -147,7 +147,7 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
         try {
             Subscriber subscriber = new Subscriber(tcpHost, tcpPort, udpPort);
             byte[] subscriberData = ObjectSerializer.instance().writeObject(subscriber);
-            announce(new Message(Operation.SYNC, targetId, id.toString(), subscriberData, 0));
+            announce(new Message(targetId, Operation.SYNC, id.toString(), subscriberData, 0));
         } catch (IOException ex) {
             LOG.error(UNABLE_TO_SERIALIZE, ex);
         }
@@ -230,7 +230,7 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
                 DatagramPacket recv = new DatagramPacket(buffer, BUFFER_SIZE);
                 socket.receive(recv);
                 Message message = (Message) ObjectSerializer.instance().readObject(recv.getData());
-                receivedAnnouncement(message.getKey(), message.getTargetId(), message.getOperation(), (Subscriber) ObjectSerializer.instance().readObject(message.getData()));
+                receivedAnnouncement(message.getTargetId(), message.getKey(), message.getOperation(), (Subscriber) ObjectSerializer.instance().readObject(message.getData()));
             } catch (SocketTimeoutException ex) {
                 // ignore
             } catch (ClassNotFoundException ex) {
