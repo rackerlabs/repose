@@ -14,14 +14,14 @@ import java.util.Map;
  */
 public class MediaTypeFilter extends UriConnegFilter {
 
-    private static final Map<String, MediaType> mappedMediaTypes = new HashMap<String, MediaType>(2);
+    private static final Map<String, MediaType> MAPPED_MEDIA_TYPES = new HashMap<String, MediaType>(2);
 
     static {
-        mappedMediaTypes.put("json", MediaType.APPLICATION_JSON_TYPE);
-        mappedMediaTypes.put("xml", MediaType.APPLICATION_XML_TYPE);
+        MAPPED_MEDIA_TYPES.put("json", MediaType.APPLICATION_JSON_TYPE);
+        MAPPED_MEDIA_TYPES.put("xml", MediaType.APPLICATION_XML_TYPE);
     }
 
     public MediaTypeFilter() {
-        super(mappedMediaTypes);
+        super(MAPPED_MEDIA_TYPES);
     }
 }

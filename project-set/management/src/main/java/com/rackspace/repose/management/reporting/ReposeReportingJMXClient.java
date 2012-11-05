@@ -23,7 +23,7 @@ import java.util.List;
  */
 public class ReposeReportingJMXClient implements ReposeReportMBean {
 
-    final ReposeReportMBean reposeReportMBean;
+    private final ReposeReportMBean reposeReportMBean;
 
     public ReposeReportingJMXClient() throws IOException, MalformedObjectNameException {
 

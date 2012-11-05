@@ -35,7 +35,7 @@ public class ResponseMessagingMarshaller implements ReposeMarshaller {
    public void marshal(String configurationRoot, Object config) throws FileNotFoundException, JAXBException {
       if (!(config instanceof ResponseMessagingConfiguration)) {
          // TODO: Clean up exception handling
-         throw new RuntimeException("The config object passed is not a ResponseMessagingConfiguration.");
+         throw new IllegalArgumentException("The config object passed is not a ResponseMessagingConfiguration.");
       }
 
       marshaller.marshal(objectFactory.createResponseMessaging((ResponseMessagingConfiguration) config), new FileOutputStream(configurationRoot + ReposeConfiguration.RMS.getConfigFilename()));
