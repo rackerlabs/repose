@@ -75,8 +75,6 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             Scheme scheme = new Scheme("https", DEFAULT_HTTPS_PORT, ssf);
             registry.register(scheme);
             client = new DefaultHttpClient(manager);
-            //client.addResponseInterceptor(new ResponseContentEncoding());
-            //client.addRequestInterceptor(new RequestAcceptEncoding());
             client.getParams().setBooleanParameter(ClientPNames.HANDLE_REDIRECTS, false);
             client.getParams().setIntParameter(CoreConnectionPNames.SO_TIMEOUT, readTimeout);
             client.getParams().setIntParameter(CoreConnectionPNames.CONNECTION_TIMEOUT, connectionTimeout);
@@ -112,8 +110,6 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
    private int executeProxyRequest(HttpRequestBase httpMethodProxyRequest, HttpServletResponse response) throws IOException, HttpException {
 
-     
-       //httpMethodProxyRequest.setFollowRedirects(false);
       try{
           
     

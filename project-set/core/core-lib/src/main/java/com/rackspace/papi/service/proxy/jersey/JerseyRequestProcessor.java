@@ -116,15 +116,6 @@ class JerseyRequestProcessor extends AbstractRequestProcessor {
       if (input != null) {
          builder.entity(input);
       }
-      /*
-      byte[] data = getData();
-      if (data != null && data.length > 0) {
-         builder.entity(data);
-      }
-      * 
-      */
-
-      //method.entity(sourceRequest.getInputStream());
-      return builder;
+     return builder;
    }
 }

@@ -90,7 +90,7 @@ public class ValveJettyServerBuilder {
         servletContext.getInitParams().put(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), configurationPathAndFile);
         servletContext.getInitParams().put(InitParameter.CONNECTION_FRAMEWORK.getParameterName(), connectionFramework);
         servletContext.getInitParams().put(InitParameter.INSECURE.getParameterName(), Boolean.toString(insecure));
-        //servletContext.getAttributes().setAttribute(InitParameter.PORT.getParameterName(), ports);
+        
 
         try {
             contextManager = PowerApiContextManager.class.newInstance();

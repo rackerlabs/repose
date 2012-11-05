@@ -152,13 +152,6 @@ public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore {
         
         updateNotifier.notifyNode(operation, subscriber, keys, data, ttl);
 
-        /*
-        List keys = cache.getKeysWithExpiryCheck();
-        for (Object key: keys) {
-            final Element element = cache.get(key);
-            updateNotifier.notifyNode(Operation.PUT, subscriber, (String)key, (byte[]) element.getValue(), element.getTimeToLive());
-        }
-        */
     }
 
     @Override

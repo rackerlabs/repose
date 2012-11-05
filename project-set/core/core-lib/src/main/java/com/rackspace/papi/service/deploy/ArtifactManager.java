@@ -38,12 +38,7 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
     public void onEvent(Event<ApplicationArtifactEvent, List<ArtifactDirectoryItem>> e) {
         final List<ArtifactDirectoryItem> artifacts = e.payload();
 
-        /*
-         * if (StringUtilities.isBlank(artifactPath)) { throw new IllegalArgumentException("Artifact file must not be
-         * null for DeploymentArtifactEvent events"); }
-         *
-         */
-        
+            
         List<EarClassLoaderContext> contexts = new ArrayList<EarClassLoaderContext>();
 
         for (ArtifactDirectoryItem item: artifacts ) {
@@ -86,8 +81,7 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
             setApplicationNameForArtifact(archive.getAbsolutePath(), classLoaderContext.getEarDescriptor().getApplicationName());
 
             return classLoaderContext;
-            // Notify the artifact manager of the new application
-            //eventManager.newEvent(ApplicationDeploymentEvent.APPLICATION_LOADED, classLoaderContext);
+           
         } catch (IOException ioe) {
             LOG.error("Failure in loading artifact, \"" + archive.getAbsolutePath() + "\" - Reason: " + ioe.getMessage(), ioe);
         }

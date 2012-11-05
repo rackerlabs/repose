@@ -139,13 +139,6 @@ public class ServletContextWrapper implements ServletContext {
 
         if (target != null) {
             return new HttpRequestDispatcher(getProxyService(), targetContext);
-            /*
-             * synchronized (DISPATCHERS) { dispatcher =
-             * DISPATCHERS.get(target); if (dispatcher == null) { dispatcher =
-             * new HttpRequestDispatcher(targetContext, getConnectionTimeout(),
-             * getReadTimeout()); DISPATCHERS.put(target, dispatcher); } }
-             *
-             */
         }
 
         return dispatcher;
@@ -181,7 +174,6 @@ public class ServletContextWrapper implements ServletContext {
             dispatcher = getDispatcher();
             if (dispatcher == null) {
                 dispatcher = new HttpRequestDispatcher(getProxyService(), targetContext);
-                //dispatcher = new HttpRequestDispatcher(targetContext, getConnectionTimeout(), getReadTimeout());
             }
         } else {
             String dispatchPath = path.startsWith("/") ? path : "/" + path;

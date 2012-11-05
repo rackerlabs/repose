@@ -34,7 +34,7 @@ public class QualityFactorHeaderChooser <T extends HeaderValue> implements Heade
          
          if (next != null && StringUtilities.isNotBlank(next.getValue())) {
             prefered = prefered == null || prefered.getQualityFactor() < next.getQualityFactor()? next: prefered;
-            //prefered = prefered.compareTo(next) < 0 ? next : prefered;
+           
          }
       }
       

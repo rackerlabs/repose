@@ -20,11 +20,5 @@ public class HttpDate {
 
       return formatter.format(utcTime);
    }
-//    public String toISO8601() {
-//        try {
-//            final XMLGregorianCalendar cal = DatatypeFactory.newInstance().newXMLGregorianCalendar();
-//            cal.set
-//        } catch (DatatypeConfigurationException dce) {
-//        }
-//    }
+
 }
