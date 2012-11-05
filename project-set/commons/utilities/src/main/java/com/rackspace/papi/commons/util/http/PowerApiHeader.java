@@ -7,7 +7,6 @@ package com.rackspace.papi.commons.util.http;
 public enum PowerApiHeader implements HeaderConstant {
 
    NEXT_ROUTE("X-PP-Next-Route"),
-   RATE_LIMITED("X-PP-Rate-Limited"),
    USER("X-PP-User"),
    GROUPS("X-PP-Groups");
    
