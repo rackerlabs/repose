@@ -19,17 +19,6 @@ public final class CredentialFactory {
 
    public static AuthCredentials getCredentials(CredentialType type, Map<String, Object> credentials) {
       // TODO
-//        switch (type) {
-//            case MOSSO:
-//                return new MossoCredentialsWrapper(credentials);
-//            case NAST:
-//                return new NastCredentialsWrapper(credentials);
-//            case PASSWORD:
-//                return new PasswordCredentialsWrapper(credentials);
-//            case USER:
-//                return new UserCredentialsWrapper(credentials);
-//        }
-
       return null;
    }
 

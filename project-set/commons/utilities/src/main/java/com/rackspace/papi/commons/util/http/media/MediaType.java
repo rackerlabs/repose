@@ -23,7 +23,7 @@ public class MediaType extends HeaderValueImpl {
    }
 
    public MediaType(String value, MimeType mimeType, double quality) {
-      super(value, quality); //Collections.EMPTY_MAP);
+      super(value, quality);
 
       this.mimeType = mimeType;
    }

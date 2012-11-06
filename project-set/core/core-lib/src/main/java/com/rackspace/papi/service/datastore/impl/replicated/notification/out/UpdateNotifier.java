@@ -12,26 +12,32 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class UpdateNotifier implements Notifier {
 
     private static final Logger LOG = LoggerFactory.getLogger(UpdateNotifier.class);
-    private final BlockingQueue<MessageQueueItem> queue;
+    private final BlockingDeque<MessageQueueItem> queue;
     private final Set<Subscriber> subscribers;
     private final NotificationSender sender;
     private final Thread senderThread;
 
     public UpdateNotifier() {
-        this(null);
+        this(null, Integer.MAX_VALUE);
     }
 
     public UpdateNotifier(Set<Subscriber> subscribers) {
+        this(subscribers, Integer.MAX_VALUE);
+    }
+
+    public UpdateNotifier(Set<Subscriber> subscribers, int maxQueueSize) {
+        LOG.info("Created notification queue with max queue size of " + (maxQueueSize > 0 ? String.valueOf(maxQueueSize) : "default"));
         this.subscribers = new HashSet<Subscriber>();
-        this.queue = new LinkedBlockingQueue<MessageQueueItem>();
+        this.queue = new LinkedBlockingDeque<MessageQueueItem>(maxQueueSize > 0 ? maxQueueSize : Integer.MAX_VALUE);
         this.sender = new NotificationSender(this, queue);
         this.senderThread = new Thread(sender);
 
@@ -52,6 +58,9 @@ public class UpdateNotifier implements Notifier {
     @Override
     public void stopNotifications() {
         sender.stop();
+        synchronized(queue) {
+            queue.notify();
+        }
         senderThread.interrupt();
     }
 
@@ -99,7 +108,7 @@ public class UpdateNotifier implements Notifier {
         if (subscriber == null) {
             return;
         }
-        
+
         synchronized (subscribers) {
             try {
                 for (Subscriber s : subscribers) {
@@ -118,7 +127,11 @@ public class UpdateNotifier implements Notifier {
     }
 
     private void queueItem(MessageQueueItem item) {
-        queue.offer(item);
+        try {
+            queue.put(item);
+        } catch (InterruptedException ex) {
+            LOG.warn("Unable to queue message", ex);
+        }
     }
 
     @Override
@@ -129,7 +142,7 @@ public class UpdateNotifier implements Notifier {
     }
 
     @Override
-    public void notifyNode(Operation operation, Subscriber subscriber, String[] keys, byte[][] data, int[] ttl) {
+    public void notifyNode(Operation[] operation, Subscriber subscriber, String[] keys, byte[][] data, int[] ttl) {
         Message message = new Message(operation, keys, data, ttl);
         queueItem(new MessageQueueItem(subscriber, message));
 

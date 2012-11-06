@@ -34,7 +34,7 @@ public class ReportJsonMarshaller implements MessageBodyWriter <Report> {
     }
 
     @Override
-    public void writeTo(Report report, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
+    public void writeTo(Report report, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException {
         final ObjectMapper  mapper = new ObjectMapper();
 
         mapper.writeValue(entityStream, report);

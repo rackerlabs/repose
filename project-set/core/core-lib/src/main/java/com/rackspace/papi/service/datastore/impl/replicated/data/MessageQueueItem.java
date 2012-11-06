@@ -6,6 +6,9 @@ public class MessageQueueItem {
     private final Message message;
 
     public MessageQueueItem(Subscriber subscriber, Message message) {
+        if (subscriber == null || message == null) {
+            throw new IllegalArgumentException("Subscriber and message must not be null");
+        }
         this.subscriber = subscriber;
         this.message = message;
     }
@@ -17,4 +20,5 @@ public class MessageQueueItem {
     public Message getMessage() {
         return message;
     }
+
 }

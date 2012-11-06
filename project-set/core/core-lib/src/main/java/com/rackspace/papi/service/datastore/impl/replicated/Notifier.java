@@ -14,7 +14,7 @@ public interface Notifier {
     void addSubscribers(Collection<Subscriber> subscribers);
     Set<Subscriber> getSubscribers();
     void notifyNode(Operation operation, Subscriber subscriber, String key, byte[] data, int ttl) throws IOException;
-    void notifyNode(Operation operation, Subscriber subscriber, String[] keys, byte[][] data, int[] ttl) throws IOException;
+    void notifyNode(Operation[] operation, Subscriber subscriber, String[] keys, byte[][] data, int[] ttl) throws IOException;
     void notifyAllNodes(Operation operation, String key, byte[] data, int ttl) throws IOException;
     void notifyAllNodes(Operation operation, String key, byte[] data) throws IOException;
     void notifyAllNodes(Operation operation, String key) throws IOException;

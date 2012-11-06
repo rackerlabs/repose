@@ -59,14 +59,7 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
         LOG.info("Destroying datastore service context");
         ehCacheManager.removalAll();
         ehCacheManager.shutdown();
-        /*
-         * final Context namingContext = ServletContextHelper.getInstance().namingContext(sce.getServletContext());
-         *
-         * try { namingContext.destroySubcontext(SERVICE_NAME); } catch (NamingException ne) { LOG.warn("Failure in
-         * attempting to destroy sub-context \"" + SERVICE_NAME + "\" - Reason: " + ne.getMessage(), ne); }
-         *
-         */
-    }
+     }
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {

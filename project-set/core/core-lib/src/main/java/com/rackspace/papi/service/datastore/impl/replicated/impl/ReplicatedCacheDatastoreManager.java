@@ -23,14 +23,16 @@ public class ReplicatedCacheDatastoreManager implements DatastoreManager {
     private final String address;
     private final int port;
     private ReplicatedDatastoreImpl datastore;
+    private int maxQueueSize;
 
-    public ReplicatedCacheDatastoreManager(CacheManager cacheManagerInstance, Set<Subscriber> subscribers, String address, int port) {
+    public ReplicatedCacheDatastoreManager(CacheManager cacheManagerInstance, Set<Subscriber> subscribers, String address, int port, int maxQueueSize) {
         this.cacheManagerInstance = cacheManagerInstance;
 
         cacheName = CACHE_NAME_PREFIX + UUID.randomUUID().toString();
         this.subscribers = subscribers;
         this.address = address;
         this.port = port;
+        this.maxQueueSize = maxQueueSize;
 
         init();
     }
@@ -58,13 +60,28 @@ public class ReplicatedCacheDatastoreManager implements DatastoreManager {
 
         cacheManagerInstance.removeCache(cacheName);
     }
+    
+    public void setMaxQueueSize(int maxQueueSize) {
+        if (datastore ==  null) {
+            this.maxQueueSize = maxQueueSize;
+        } else {
+            LOG.warn("Datastore has been created.  Changing max queue size is not possible");
+        }
+    }
+    
+    public void updateSubscribers(Set<Subscriber> subscribers) {
+        this.subscribers.addAll(subscribers);
+        if (datastore !=  null) {
+            datastore.addSubscribers(subscribers);
+        }
+    }
 
     @Override
     public Datastore getDatastore() {
         try {
             synchronized (this) {
                 if (datastore == null) {
-                    datastore = new ReplicatedDatastoreImpl(subscribers, address, port, cacheManagerInstance.getCache(cacheName));
+                    datastore = new ReplicatedDatastoreImpl(subscribers, address, port, cacheManagerInstance.getCache(cacheName), maxQueueSize);
                     datastore.joinGroup();
                 }
             }

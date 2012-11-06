@@ -43,7 +43,7 @@ public class ReplicatedDatastoreImplTest {
 
         @Before
         public void setUp() {
-            manager = new ReplicatedCacheDatastoreManager(ehCacheManager, null, "127.0.0.1", 0);
+            manager = new ReplicatedCacheDatastoreManager(ehCacheManager, null, "127.0.0.1", 0, 0);
             instance = (ReplicatedDatastoreImpl) manager.getDatastore();
             instance.leaveGroup();
             subscriber1 = new Subscriber("host1", 1, 1);

@@ -10,7 +10,6 @@ import java.io.IOException;
 
 public class UnmarshallerResourceContext implements ResourceContext<Unmarshaller, Object> {
 
-//   private static boolean log = false;
    private final ConfigurationResource cfgResource;
 
    public UnmarshallerResourceContext(ConfigurationResource cfgResource) {

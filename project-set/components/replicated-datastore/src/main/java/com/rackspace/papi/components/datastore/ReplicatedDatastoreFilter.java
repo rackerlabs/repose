@@ -12,6 +12,7 @@ import javax.servlet.*;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
+import org.openrepose.components.datastore.replicated.config.ReplicatedDatastoreConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,12 +51,14 @@ public class ReplicatedDatastoreFilter implements Filter {
         configurationManager = contextAdapter.configurationService();
         configurationManager.subscribeTo("container.cfg.xml", handlerFactory, ContainerConfiguration.class);
         configurationManager.subscribeTo("system-model.cfg.xml", handlerFactory, SystemModel.class);
+        configurationManager.subscribeTo(config, handlerFactory, ReplicatedDatastoreConfiguration.class);
     }
 
     @Override
     public void destroy() {
         configurationManager.unsubscribeFrom("container.cfg.xml", handlerFactory);
         configurationManager.unsubscribeFrom("system-model.cfg.xml", handlerFactory);
+        configurationManager.unsubscribeFrom(config, handlerFactory);
         handlerFactory.stopDatastore();
         ehCacheManager.removalAll();
         ehCacheManager.shutdown();

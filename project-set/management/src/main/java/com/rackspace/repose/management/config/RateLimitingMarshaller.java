@@ -37,7 +37,7 @@ public class RateLimitingMarshaller implements ReposeMarshaller {
 
       if (!(config instanceof RateLimitingConfiguration)) {
          // TODO: Clean up exception handling
-         throw new RuntimeException("The config object passed is not a RateLimitingConfiguration.");
+         throw new IllegalArgumentException("The config object passed is not a RateLimitingConfiguration.");
       }
 
       marshaller.marshal(objectFactory.createRateLimiting((RateLimitingConfiguration) config), new FileOutputStream(configurationRoot + ReposeConfiguration.RATE_LIMITING.getConfigFilename()));

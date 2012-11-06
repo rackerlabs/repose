@@ -48,8 +48,7 @@ public class EndpointUriBuilder {
             return null;
          }
 
-         // dispatching to this host, but not our port
-         //return localhost.getHostname();
+      
       }
 
       return endpoint.getHostname();

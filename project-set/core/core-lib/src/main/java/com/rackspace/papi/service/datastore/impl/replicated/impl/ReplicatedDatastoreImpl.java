@@ -34,13 +34,13 @@ public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore {
     private final Notifier updateNotifier;
 
     public ReplicatedDatastoreImpl(String subscriptionAddress, int subscriptionPort, Cache ehCacheInstance) throws IOException {
-        this(null, subscriptionAddress, subscriptionPort, ehCacheInstance);
+        this(null, subscriptionAddress, subscriptionPort, ehCacheInstance, 0);
     }
     
-    public ReplicatedDatastoreImpl(Set<Subscriber> subscribers, String address, int subscriptionPort, Cache ehCacheInstance) throws IOException {
+    public ReplicatedDatastoreImpl(Set<Subscriber> subscribers, String address, int subscriptionPort, Cache ehCacheInstance, int maxQueueSize) throws IOException {
         LOG.info("Replicated Datastore Socket (udp): " + address + ":" + subscriptionPort);
         this.cache = ehCacheInstance;
-        this.updateNotifier = new UpdateNotifier(subscribers);
+        this.updateNotifier = new UpdateNotifier(subscribers, maxQueueSize);
         this.subscriptionListener = new UdpSubscriptionListener(this, updateNotifier, address, subscriptionPort);
         this.updateListener = new ChannelledUpdateListener(this, address);
         this.subscriberThread = new Thread((Runnable)subscriptionListener);
@@ -129,6 +129,8 @@ public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore {
         
         Set<Object> keySet = all.keySet();
         Collection<Element> values = all.values();
+        
+        Operation[] operation = new Operation[keySet.size()];
         String[] keys = new String[keySet.size()];
         byte[][] data = new byte[values.size()][];
         int[] ttl = new int[values.size()];
@@ -136,6 +138,7 @@ public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore {
         int index = 0;
         for (Object key: keySet) {
             keys[index++] = (String)key;
+            operation[index] = Operation.PUT;
         }
         
         index = 0;
@@ -147,15 +150,8 @@ public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore {
             index++;
         }
         
-        updateNotifier.notifyNode(Operation.PUT, subscriber, keys, data, ttl);
+        updateNotifier.notifyNode(operation, subscriber, keys, data, ttl);
 
-        /*
-        List keys = cache.getKeysWithExpiryCheck();
-        for (Object key: keys) {
-            final Element element = cache.get(key);
-            updateNotifier.notifyNode(Operation.PUT, subscriber, (String)key, (byte[]) element.getValue(), element.getTimeToLive());
-        }
-        */
     }
 
     @Override
