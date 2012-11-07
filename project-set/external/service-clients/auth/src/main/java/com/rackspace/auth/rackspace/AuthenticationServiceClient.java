@@ -56,10 +56,12 @@ public class AuthenticationServiceClient implements AuthenticationService {
                 authToken = new RackspaceToken(account.getResult(), tokenResponse);
                 break;
 
-            case NOT_FOUND: // User's token is bad
+            case NOT_FOUND: 
+                // User's token is bad
                 break;
 
-            case UNAUTHORIZED: // Admin token is bad most likely
+            case UNAUTHORIZED: 
+                // Admin token is bad most likely
                 LOG.warn("Unable to validate token for tenant.  Has the admin token expired? " + serviceResponse.getStatusCode());
                 break;
         }

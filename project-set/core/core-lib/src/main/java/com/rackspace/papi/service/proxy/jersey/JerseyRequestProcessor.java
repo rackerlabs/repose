@@ -5,7 +5,6 @@ import com.sun.jersey.api.client.PartialRequestBuilder;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
 import java.io.*;
-import java.net.URI;
 import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.regex.Pattern;

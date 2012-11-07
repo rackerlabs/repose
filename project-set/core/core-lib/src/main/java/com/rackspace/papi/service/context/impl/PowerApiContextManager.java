@@ -22,7 +22,6 @@ import net.sf.ehcache.CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.jmx.export.MBeanExporter;
 
 public class PowerApiContextManager implements ServletContextListener {
 

@@ -1,5 +1,9 @@
 package com.rackspace.papi.components.translation.postprocessor;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.Templates;
@@ -8,20 +12,16 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 
 public class RequestStreamPostProcessor implements InputStreamPostProcessor {
-   private static final SAXTransformerFactory handlerFactory = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
-   private static final SAXParserFactory parserFactory = SAXParserFactory.newInstance();
+   private static final SAXTransformerFactory HANDLER_FACTORY = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+   private static final SAXParserFactory PARSER_FACTORY = SAXParserFactory.newInstance();
    private static final String DEFAULT_XSL = "request-post-process.xsl";
    private final Templates templates;
    
    static {
-      parserFactory.setValidating(true);
-      parserFactory.setNamespaceAware(true);
+      PARSER_FACTORY.setValidating(true);
+      PARSER_FACTORY.setNamespaceAware(true);
    }
    
    public RequestStreamPostProcessor() throws PostProcessorException {
@@ -31,7 +31,7 @@ public class RequestStreamPostProcessor implements InputStreamPostProcessor {
    public RequestStreamPostProcessor(String xsltName) throws PostProcessorException {
       try {
          InputStream xsltStream = RequestStreamPostProcessor.class.getResourceAsStream(xsltName);
-         templates = handlerFactory.newTemplates(new StreamSource(xsltStream));
+         templates = HANDLER_FACTORY.newTemplates(new StreamSource(xsltStream));
       } catch (TransformerConfigurationException ex) {
          throw new PostProcessorException(ex);
       }

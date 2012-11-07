@@ -1,9 +1,7 @@
 package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import com.rackspace.papi.commons.util.io.stream.ReadLimitReachedException;
 import com.rackspace.papi.commons.util.servlet.filter.ApplicationContextAwareFilter;
 import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;

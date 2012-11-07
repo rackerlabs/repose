@@ -18,7 +18,8 @@ public class LogArgumentGroupExtractor {
         String STATUS_CODE_EXTRACTOR = "([!]?([0-9]{3}[,]?)*)?";   
         // Group 4 (ignore), 5, 6 
         String VARIABLE_EXTRACTOR = "(\\{([\\-a-zA-Z0-9]*)[ ,]?([_\\-a-zA-Z0-9 ,]*)\\})?";  
-        String ENTITY_EXTRACTOR = "([%a-zA-Z])";                   // Group 6
+        // Group 7
+        String ENTITY_EXTRACTOR = "([%a-zA-Z])";                   
         Pattern PATTERN = Pattern.compile("%" + LIFECYCLE_MODIFIER_EXTRACTOR + STATUS_CODE_EXTRACTOR + VARIABLE_EXTRACTOR + ENTITY_EXTRACTOR);
         int LIFECYCLE_GROUP_INDEX = 1;
         int STATUS_CODE_INDEX = 2;

@@ -11,7 +11,6 @@ import java.io.IOException;
 import javax.servlet.*;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import org.slf4j.Logger;
-import org.xml.sax.XMLFilter;
 
 public class TranslationFilter implements Filter {
 

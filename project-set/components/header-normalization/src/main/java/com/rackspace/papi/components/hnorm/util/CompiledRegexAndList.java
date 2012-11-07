@@ -19,8 +19,10 @@ public class CompiledRegexAndList {
     private Set<String> filterList;
     
     public CompiledRegexAndList(String pattern, List<HttpHeader> headerList, List<HttpMethod> methodList, Boolean isBlackList){
-        this.pattern = pattern==null ? Pattern.compile(".*") : Pattern.compile(pattern); //sets this as the catch-all
-        this.methodList = methodList; //this will default to all if they do not provide it in the config
+        //sets this as the catch-all
+        this.pattern = pattern==null ? Pattern.compile(".*") : Pattern.compile(pattern); 
+        //this will default to all if they do not provide it in the config
+        this.methodList = methodList; 
         this.isBlackList = isBlackList;
         
         if(methodList.isEmpty()){

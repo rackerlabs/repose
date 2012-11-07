@@ -14,7 +14,6 @@ import com.rackspace.papi.commons.util.pooling.ResourceContextException;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.translation.config.TranslationConfig;
 import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlChainPool;
 import com.rackspace.papi.components.translation.xslt.XsltException;
 import com.rackspace.papi.components.translation.xslt.XsltParameter;
