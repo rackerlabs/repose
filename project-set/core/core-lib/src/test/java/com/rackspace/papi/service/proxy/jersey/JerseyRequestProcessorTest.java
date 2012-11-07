@@ -51,7 +51,7 @@ public class JerseyRequestProcessorTest {
             when(request.getQueryString()).thenReturn(queryString);
             when(request.getInputStream()).thenReturn(input);
             
-            processor = new JerseyRequestProcessor(request, uri);
+            processor = new JerseyRequestProcessor(request);
         }
         
         @Test

@@ -51,7 +51,7 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
     @Override
     protected TranslationHandler buildHandler() {
         synchronized (lock) {
-            return new TranslationHandler(configuration, new ArrayList<XmlChainPool>(requestProcessorPools), new ArrayList<XmlChainPool>(responseProcessorPools));
+            return new TranslationHandler(new ArrayList<XmlChainPool>(requestProcessorPools), new ArrayList<XmlChainPool>(responseProcessorPools));
         }
     }
 

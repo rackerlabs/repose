@@ -10,6 +10,7 @@ import com.rackspace.papi.service.datastore.impl.replicated.data.Message;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.SocketTimeoutException;
@@ -116,6 +117,10 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
 
             return null;
         }
+        
+        OutputStream getOutputStream() {
+            return outputStream;
+        }
     }
 
     private void acceptConnection(SelectionKey next) throws IOException {
@@ -148,7 +153,7 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
         int read;
         while ((read = client.read(buffer)) > 0) {
             buffer.flip();
-            attachment.outputStream.write(buffer.array(), 0, read);
+            attachment.getOutputStream().write(buffer.array(), 0, read);
             buffer.clear();
         }
 
