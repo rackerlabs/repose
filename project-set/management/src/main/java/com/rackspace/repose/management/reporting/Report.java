@@ -17,16 +17,16 @@ import java.util.List;
 public class Report {
 
     @XmlElement
-    protected String lastResetDate;
+    private String lastResetDate;
 
     @XmlElement
-    protected String total400sReposeToClient;
+    private String total400sReposeToClient;
 
     @XmlElement
-    protected String total500sReposeToClient;
+    private String total500sReposeToClient;
 
     @XmlElement
-    protected List<Destination> destinations;
+    private List<Destination> destinations;
 
     public Report() {
     }

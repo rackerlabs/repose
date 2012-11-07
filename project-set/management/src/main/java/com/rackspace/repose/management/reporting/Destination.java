@@ -16,22 +16,22 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Destination {
 
     @XmlElement
-    protected String destinationId;
+    private String destinationId;
 
     @XmlElement
-    protected String totalRequests;
+    private String totalRequests;
 
     @XmlElement
-    protected String total400s;
+    private String total400s;
 
     @XmlElement
-    protected String total500s;
+    private String total500s;
 
     @XmlElement
-    protected String responseTimeInMillis;
+    private String responseTimeInMillis;
 
     @XmlElement
-    protected String throughputInSeconds;
+    private String throughputInSeconds;
 
     public String getDestinationId() {
         return destinationId;
