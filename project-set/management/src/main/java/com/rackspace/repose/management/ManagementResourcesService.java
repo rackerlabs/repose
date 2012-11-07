@@ -10,6 +10,8 @@ import com.rackspace.repose.management.reporting.Report;
 import com.rackspace.repose.management.reporting.ReposeReportMBeanAdapter;
 import com.rackspace.repose.management.reporting.ReposeReportingJMXClient;
 import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.management.MalformedObjectNameException;
 
@@ -29,6 +31,8 @@ import java.net.URI;
  */
 @Path("/management")
 public class ManagementResourcesService {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ManagementResourcesService.class);
 
     // TODO: Unhardcode this
     private static final String REPOSE_CONFIG_DIRECTORY = "/etc/repose/";
@@ -97,9 +101,9 @@ public class ManagementResourcesService {
         try {
             new ContainerMarshaller().marshal(REPOSE_CONFIG_DIRECTORY, config);
         } catch (JAXBException e) {
-            e.printStackTrace();
+            LOG.error("Problem marshalling container configuration", e);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            LOG.error("Cannot find container configuration", e);
         }
 
         return Response.created(URI.create("")).build();
@@ -115,9 +119,9 @@ public class ManagementResourcesService {
         try {
             config = (JAXBElement<ContainerConfiguration>) new ContainerMarshaller().unmarshal(REPOSE_CONFIG_DIRECTORY);
         } catch (JAXBException e) {
-            e.printStackTrace();
+            LOG.error("Problem unmarshalling container configuration", e);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            LOG.error("Cannot find container configuration", e);
         }
 
         return config;
@@ -131,9 +135,9 @@ public class ManagementResourcesService {
         try {
             new SystemModelMarshaller().marshal(REPOSE_CONFIG_DIRECTORY, config);
         } catch (JAXBException e) {
-            e.printStackTrace();
+            LOG.error("Problem marshalling system configuration", e);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            LOG.error("Cannot find system configuration", e);
         }
 
         return Response.created(URI.create("")).build();
@@ -149,9 +153,9 @@ public class ManagementResourcesService {
         try {
             config = (JAXBElement<SystemModel>) new SystemModelMarshaller().unmarshal(REPOSE_CONFIG_DIRECTORY);
         } catch (JAXBException e) {
-            e.printStackTrace();
+            LOG.error("Problem unmarshalling system configuration", e);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            LOG.error("Cannot find system configuration", e);
         }
 
         return config;
@@ -165,9 +169,9 @@ public class ManagementResourcesService {
         try {
             new ResponseMessagingMarshaller().marshal(REPOSE_CONFIG_DIRECTORY, config);
         } catch (JAXBException e) {
-            e.printStackTrace();
+            LOG.error("Problem marshalling response messaging configuration", e);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            LOG.error("Cannot find response messaging configuration", e);
         }
 
         return Response.created(URI.create("")).build();
@@ -183,9 +187,9 @@ public class ManagementResourcesService {
         try {
             config = (JAXBElement<ResponseMessagingConfiguration>) new ResponseMessagingMarshaller().unmarshal(REPOSE_CONFIG_DIRECTORY);
         } catch (JAXBException e) {
-            e.printStackTrace();
+            LOG.error("Problem unmarshalling response messaging configuration", e);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            LOG.error("Cannot find response messaging configuration", e);
         }
 
         return config;
@@ -199,9 +203,9 @@ public class ManagementResourcesService {
         try {
             new RateLimitingMarshaller().marshal(REPOSE_CONFIG_DIRECTORY, config);
         } catch (JAXBException e) {
-            e.printStackTrace();
+            LOG.error("Problem marshalling rate limiting configuration", e);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            LOG.error("Cannot find rate limiting configuration", e);
         }
 
         return Response.created(URI.create("")).build();
@@ -215,11 +219,11 @@ public class ManagementResourcesService {
         JAXBElement<RateLimitingConfiguration> config = null;
 
         try {
-            config = (JAXBElement<RateLimitingConfiguration>) new RateLimitingMarshaller().unmarshal(REPOSE_CONFIG_DIRECTORY);
+            config = new RateLimitingMarshaller().unmarshal(REPOSE_CONFIG_DIRECTORY);
         } catch (JAXBException e) {
-            e.printStackTrace();
+            LOG.error("Problem unmarshalling rate limiting configuration", e);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            LOG.error("Cannot find rate limiting configuration", e);
         }
 
         return config;
@@ -233,9 +237,9 @@ public class ManagementResourcesService {
         try {
             new VersioningMarshaller().marshal(REPOSE_CONFIG_DIRECTORY, config);
         } catch (JAXBException e) {
-            e.printStackTrace();
+            LOG.error("Problem marshalling versioning configuration", e);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            LOG.error("Cannot find versioning configuration", e);
         }
 
         return Response.created(URI.create("")).build();
@@ -251,9 +255,9 @@ public class ManagementResourcesService {
         try {
             config = (JAXBElement<ServiceVersionMappingList>) new VersioningMarshaller().unmarshal(REPOSE_CONFIG_DIRECTORY);
         } catch (JAXBException e) {
-            e.printStackTrace();
+            LOG.error("Problem unmarshalling versioning configuration", e);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            LOG.error("Cannot find versioning configuration", e);
         }
 
         return config;

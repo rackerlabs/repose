@@ -35,7 +35,7 @@ public class VersioningMarshaller implements ReposeMarshaller {
    public void marshal(String configurationRoot, Object config) throws FileNotFoundException, JAXBException {
       if (!(config instanceof ServiceVersionMappingList)) {
          // TODO: Clean up exception handling
-         throw new RuntimeException("The config object passed is not a RateLimitingConfiguration.");
+         throw new IllegalArgumentException("The config object passed is not a RateLimitingConfiguration.");
       }
 
       marshaller.marshal(objectFactory.createVersioning((ServiceVersionMappingList) config), new FileOutputStream(configurationRoot + ReposeConfiguration.VERSIONING.getConfigFilename()));

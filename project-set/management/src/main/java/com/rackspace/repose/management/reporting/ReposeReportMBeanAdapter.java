@@ -20,6 +20,12 @@ import java.util.List;
 public class ReposeReportMBeanAdapter {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReposeReportMBeanAdapter.class);
+    private static final int ZERO = 0;
+    private static final int ONE = 1;
+    private static final int TWO = 2;
+    private static final int THREE = 3;
+    private static final int FOUR = 4;
+    private static final int FIVE = 5;
 
     public Report getReportingData(ReposeReportMBean reportMBean) {
         Report report = new Report();
@@ -53,28 +59,28 @@ public class ReposeReportMBeanAdapter {
     private Destination getDestinationData(CompositeData compositeData) {
         Destination destination = new Destination();
 
-        if (compositeData.containsKey(keys[0])) {
-            destination.setDestinationId((String) compositeData.get(keys[0]));
+        if (compositeData.containsKey(keys[ZERO])) {
+            destination.setDestinationId((String) compositeData.get(keys[ZERO]));
         }
 
-        if (compositeData.containsKey(keys[1])) {
-            destination.setTotalRequests(compositeData.get(keys[1]).toString());
+        if (compositeData.containsKey(keys[ONE])) {
+            destination.setTotalRequests(compositeData.get(keys[ONE]).toString());
         }
 
-        if (compositeData.containsKey(keys[2])) {
-            destination.setTotal400s(compositeData.get(keys[2]).toString());
+        if (compositeData.containsKey(keys[TWO])) {
+            destination.setTotal400s(compositeData.get(keys[TWO]).toString());
         }
 
-        if (compositeData.containsKey(keys[3])) {
-            destination.setTotal500s(compositeData.get(keys[3]).toString());
+        if (compositeData.containsKey(keys[THREE])) {
+            destination.setTotal500s(compositeData.get(keys[THREE]).toString());
         }
 
-        if (compositeData.containsKey(keys[4])) {
-            destination.setResponseTimeInMillis(compositeData.get(keys[4]).toString());
+        if (compositeData.containsKey(keys[FOUR])) {
+            destination.setResponseTimeInMillis(compositeData.get(keys[FOUR]).toString());
         }
 
-        if (compositeData.containsKey(keys[5])) {
-            destination.setThroughputInSeconds(compositeData.get(keys[5]).toString());
+        if (compositeData.containsKey(keys[FIVE])) {
+            destination.setThroughputInSeconds(compositeData.get(keys[FIVE]).toString());
         }
 
         return destination;
