@@ -7,6 +7,7 @@ import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.filter.ValvePowerFilter;
 import com.rackspace.papi.service.context.impl.PowerApiContextManager;
 import com.rackspace.papi.servlet.InitParameter;
+import java.io.File;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
@@ -78,7 +79,7 @@ public class ValveJettyServerBuilder {
         sslConnector.setPort(port.getPort());
         SslContextFactory cf = sslConnector.getSslContextFactory();
 
-        cf.setKeyStore(configurationPathAndFile + "/" + sslConfiguration.getKeystoreFilename());
+        cf.setKeyStore(configurationPathAndFile + File.separator + sslConfiguration.getKeystoreFilename());
         cf.setKeyStorePassword(sslConfiguration.getKeystorePassword());
         cf.setKeyManagerPassword(sslConfiguration.getKeyPassword());
 

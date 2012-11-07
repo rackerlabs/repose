@@ -82,6 +82,10 @@ public final class StringUriUtilities {
      * @return 
      */
     public static String formatUri(String uri) {
+       if(StringUtilities.nullSafeStartsWith(uri, "\\")){ //windows file system
+          return uri;
+       }
+       
         if (StringUtilities.isBlank(uri) || StringUtilities.nullSafeEqualsIgnoreCase("/", uri)) {
             return "/";
         }
