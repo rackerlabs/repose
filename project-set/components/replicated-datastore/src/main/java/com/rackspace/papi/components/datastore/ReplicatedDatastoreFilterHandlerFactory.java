@@ -17,6 +17,7 @@ import com.rackspace.papi.service.datastore.impl.replicated.impl.ReplicatedCache
 import com.rackspace.papi.service.datastore.impl.replicated.impl.ReplicatedDatastoreImpl;
 import java.util.*;
 import net.sf.ehcache.CacheManager;
+import org.openrepose.components.datastore.replicated.config.ReplicatedDatastoreConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,9 +26,10 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
     private static final Logger LOG = LoggerFactory.getLogger(ReplicatedDatastoreFilterHandlerFactory.class);
     private ServicePorts ports = null;
     private SystemModel systemModel = null;
-    private ReplicatedCacheDatastoreManager redundantDatastoreManager;
+    private ReplicatedCacheDatastoreManager replicatedDatastoreManager;
     private final DatastoreService service;
     private final CacheManager ehCacheManager;
+    private ReplicatedDatastoreConfiguration configuration;
 
     public ReplicatedDatastoreFilterHandlerFactory(DatastoreService service, CacheManager ehCacheManager) {
         this.service = service;
@@ -39,6 +41,7 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
         final Map<Class, UpdateListener<?>> listeners = new HashMap<Class, UpdateListener<?>>();
         listeners.put(SystemModel.class, new SystemModelUpdateListener());
         listeners.put(ContainerConfiguration.class, new ContainerConfigurationListener());
+        listeners.put(ReplicatedDatastoreConfiguration.class, new ConfigListener());
 
         return listeners;
     }
@@ -62,8 +65,8 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
     }
 
     public void stopDatastore() {
-        if (redundantDatastoreManager != null) {
-            ReplicatedDatastore datastore = (ReplicatedDatastoreImpl) redundantDatastoreManager.getDatastore();
+        if (replicatedDatastoreManager != null) {
+            ReplicatedDatastore datastore = (ReplicatedDatastoreImpl) replicatedDatastoreManager.getDatastore();
             datastore.leaveGroup();
             LOG.info("Unregistering datastore " + ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED);
             service.unregisterDatastoreManager(ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED);
@@ -79,14 +82,21 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
             SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
             ReposeCluster serviceDomain = interrogator.getLocalServiceDomain(systemModel);
             Node localHost = interrogator.getLocalHost(systemModel);
+            
+            int maxQueueSize = 0;
+            if (configuration != null) {
+                maxQueueSize = configuration.getQueueSizeLimit();
+            }
 
-            if (redundantDatastoreManager == null) {
+            if (replicatedDatastoreManager == null) {
                 LOG.info("Registering datastore " + ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED);
-                redundantDatastoreManager = new ReplicatedCacheDatastoreManager(ehCacheManager, getDatastoreNodes(serviceDomain), localHost.getHostname(), getPort(localHost));
-                service.registerDatastoreManager(ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED, redundantDatastoreManager);
+                replicatedDatastoreManager = new ReplicatedCacheDatastoreManager(ehCacheManager, getDatastoreNodes(serviceDomain), localHost.getHostname(), getPort(localHost), maxQueueSize);
+                service.registerDatastoreManager(ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED, replicatedDatastoreManager);
             } else {
-                ReplicatedDatastore datastore = (ReplicatedDatastoreImpl) redundantDatastoreManager.getDatastore();
-                datastore.addSubscribers(getDatastoreNodes(serviceDomain));
+                replicatedDatastoreManager.setMaxQueueSize(maxQueueSize);
+                replicatedDatastoreManager.updateSubscribers(getDatastoreNodes(serviceDomain));
+                //ReplicatedDatastore datastore = (ReplicatedDatastoreImpl) replicatedDatastoreManager.getDatastore();
+                //datastore.addSubscribers(getDatastoreNodes(serviceDomain));
             }
         }
     }
@@ -126,6 +136,15 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
         public void configurationUpdated(ContainerConfiguration configurationObject) {
             DeploymentConfiguration deployConfig = configurationObject.getDeploymentConfig();
             ports = determinePorts(deployConfig);
+            createDistributedDatastore();
+        }
+    }
+    
+    private class ConfigListener implements UpdateListener<ReplicatedDatastoreConfiguration> {
+
+        @Override
+        public void configurationUpdated(ReplicatedDatastoreConfiguration config) {
+            configuration = config;
             createDistributedDatastore();
         }
     }

@@ -32,7 +32,7 @@ public class UpdateNotifierTest {
             Set<Subscriber> subs = new HashSet<Subscriber>();
             subs.add(subscriber1);
             subs.add(subscriber2);
-            UpdateNotifier u2 = new UpdateNotifier(subs);
+            UpdateNotifier u2 = new UpdateNotifier(subs, 0);
             
             assertEquals(2, u2.getSubscribers().size());
         }

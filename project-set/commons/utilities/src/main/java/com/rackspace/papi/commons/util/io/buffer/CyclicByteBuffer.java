@@ -5,7 +5,7 @@ import java.io.IOException;
 public class CyclicByteBuffer implements ByteBuffer, Cloneable {
 
    private static final ByteArrayProvider DEFAULT_BYTE_ARRAY_PROVIDER = HeapspaceByteArrayProvider.getInstance();
-   private static final int DEFAULT_BUFFER_SIZE = 2048; //in bytes
+   private static final int DEFAULT_BUFFER_SIZE = 2048; 
    private final int initialSize;
    private final ByteArrayProvider byteArrayProvider;
    private int nextWritableIndex, nextReadableIndex;

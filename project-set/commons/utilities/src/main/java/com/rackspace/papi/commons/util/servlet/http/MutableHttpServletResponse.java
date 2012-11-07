@@ -113,7 +113,6 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
     public InputStream getInputStream() throws IOException {
 
         if (bufferedOutput()) {
-            // We have written to the output stream... use that as the input stream now.
             return new ByteBufferInputStream(internalBuffer);
         }
 

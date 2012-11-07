@@ -47,6 +47,7 @@ public class ResponseSizeServlet extends HttpServlet {
             out.println("</head>");
             out.println("<body>");
             out.println("<h1>Servlet ErrorServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h2>Request URL " + request.getRequestURL() + "</h2>");
             out.println("</body>");
             out.println("</html>");
         } finally {

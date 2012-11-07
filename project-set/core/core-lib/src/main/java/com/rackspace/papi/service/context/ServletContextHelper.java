@@ -55,12 +55,5 @@ public final class ServletContextHelper {
 
     public ServicePorts getServerPorts(ServletContext ctx) {
         return getApplicationContext(ctx).getBean("servicePorts", ServicePorts.class);
-        /*
-         * Object port = ctx.getAttribute(InitParameter.PORT.getParameterName());
-         *
-         * if (port != null) { return (ServicePorts) ctx.getAttribute(InitParameter.PORT.getParameterName()); } else {
-         * return new ServicePorts(); }
-         *
-         */
     }
 }

@@ -65,38 +65,7 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
     public String getId() {
         return id.toString();
     }
-
-    /*
-     private NetworkInterface getInterface(String name) throws SocketException {
-     if (StringUtilities.isBlank(name) || "*".equals(name)) {
-     return null;
-     }
-
-     Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
-
-     while (nets.hasMoreElements()) {
-     NetworkInterface nextNet = nets.nextElement();
-     if (nextNet.getName().equals(name)) {
-     LOG.info("Interface: " + nextNet.getDisplayName());
-     return nextNet;
-     }
-     }
-
-     listAvailableNics();
-
-     throw new DatastoreServiceException("Cannot find network interface by name: " + name);
-     }
-
-     private void listAvailableNics() throws SocketException {
-     Enumeration<NetworkInterface> nets = NetworkInterface.getNetworkInterfaces();
-
-     while (nets.hasMoreElements()) {
-     NetworkInterface nextNet = nets.nextElement();
-     LOG.info(nextNet.getName() + " supports multicast " + nextNet.supportsMulticast());
-     }
-
-     }
-     */
+   
     public void announce(Subscriber subscriber, Message message) {
         try {
             byte[] messageData = ObjectSerializer.instance().writeObject(message);
@@ -147,7 +116,7 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
         try {
             Subscriber subscriber = new Subscriber(tcpHost, tcpPort, udpPort);
             byte[] subscriberData = ObjectSerializer.instance().writeObject(subscriber);
-            announce(new Message(Operation.SYNC, targetId, id.toString(), subscriberData, 0));
+            announce(new Message(targetId, Operation.SYNC, id.toString(), subscriberData, 0));
         } catch (IOException ex) {
             LOG.error(UNABLE_TO_SERIALIZE, ex);
         }
@@ -230,7 +199,7 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
                 DatagramPacket recv = new DatagramPacket(buffer, BUFFER_SIZE);
                 socket.receive(recv);
                 Message message = (Message) ObjectSerializer.instance().readObject(recv.getData());
-                receivedAnnouncement(message.getKey(), message.getTargetId(), message.getOperation(), (Subscriber) ObjectSerializer.instance().readObject(message.getData()));
+                receivedAnnouncement(message.getTargetId(), message.getKey(), message.getOperation(), (Subscriber) ObjectSerializer.instance().readObject(message.getData()));
             } catch (SocketTimeoutException ex) {
                 // ignore
             } catch (ClassNotFoundException ex) {

@@ -19,7 +19,7 @@ import java.io.IOException;
  */
 public class ReposeCacheJMXClient implements ReposeLocalCacheMBean {
 
-    final ReposeLocalCacheMBean reposeLocalCacheMBeanProxy;
+    private final ReposeLocalCacheMBean reposeLocalCacheMBeanProxy;
 
     public ReposeCacheJMXClient() throws IOException, MalformedObjectNameException {
 

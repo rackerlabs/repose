@@ -15,14 +15,7 @@ public class DispatchPathBuilder {
     if (dispatchPath.startsWith(context)) {
       dispatchPath = dispatchPath.substring(context.length());
     }
-    
-    /*
-    if(!dispatchPath.startsWith("/")){
-        dispatchPath = StringUriUtilities.formatUri(dispatchPath);
-    }
-    * 
-    */
-    
+
     return dispatchPath;
   }
 }

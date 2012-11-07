@@ -27,7 +27,8 @@ public class QueryParameterCollection {
     public QueryParameterCollection(String query) {
         parameterTracker = new LinkedHashMap<String, QueryParameter>();
 
-        if (!StringUtilities.isBlank(query)) { //This, in theory, should never be blank, but just in case...
+        if (!StringUtilities.isBlank(query)) { 
+            //This, in theory, should never be blank, but just in case...
             parseQueryParameters(query);
         }
     }

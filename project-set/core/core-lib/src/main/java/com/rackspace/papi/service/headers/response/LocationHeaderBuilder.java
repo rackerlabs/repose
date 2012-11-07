@@ -16,9 +16,14 @@ public class LocationHeaderBuilder {
     private static final Integer DEFAULT_HTTPS_PORT = 443;
 
     public void setLocationHeader(HttpServletRequest originalRequest, MutableHttpServletResponse servletResponse, String destinationUri, String requestedContext, String rootPath) throws MalformedURLException {
+        final URL locationUrl = getLocationUrl(servletResponse);
+        
+        if (locationUrl == null) {
+            return;
+        }
+        
         final URL requestedHostUrl = extractHostPath(originalRequest);
         final URL proxiedHostUrl = new TargetHostInfo(destinationUri).getProxiedHostUrl();
-        final URL locationUrl = getLocationUrl(servletResponse);
 
         final String translatedLocationUrl = translateLocationUrl(locationUrl, proxiedHostUrl, requestedHostUrl, requestedContext, rootPath);
 

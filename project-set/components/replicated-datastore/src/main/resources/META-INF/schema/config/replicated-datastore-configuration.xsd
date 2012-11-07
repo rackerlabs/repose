@@ -19,8 +19,11 @@
          </xs:documentation>
       </xs:annotation>
 
+      
       <xs:sequence>
       </xs:sequence>
+
+      <xs:attribute name="queue-size-limit" type="xs:int" use="optional" default="0" />
    </xs:complexType>
     
 </xs:schema>

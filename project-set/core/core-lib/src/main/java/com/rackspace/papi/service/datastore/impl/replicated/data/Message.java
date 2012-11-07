@@ -1,55 +1,68 @@
 package com.rackspace.papi.service.datastore.impl.replicated.data;
 
 import java.io.Serializable;
-import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 public class Message implements Serializable {
 
-    private final Operation operation;
-    private final String[] keys;
-    private final byte[][] data;
-    private final int[] ttl;
     private final String targetId;
+    private final Set<KeyValue> values;
 
     public Message(Operation operation, String key, byte[] data, int ttl) {
-        this(operation, "*", key, data, ttl);
+        this("*", operation, key, data, ttl);
     }
 
-    public Message(Operation operation, String targetId, String key, byte[] data, int ttl) {
-        this(operation, targetId, key != null? new String[]{key}:  null, data != null? new byte[][]{data}: null, new int[]{ttl});
+    public Message(String targetId, Operation operation, String key, byte[] data, int ttl) {
+        this(targetId, operation != null? new Operation[] {operation}: null, key != null ? new String[]{key} : null, data != null ? new byte[][]{data} : null, new int[]{ttl});
     }
 
-    public Message(Operation operation, String[] keys, byte[][] data, int[] ttl) {
-        this(operation, "*", keys, data, ttl);
+    public Message(Operation[] operation, String[] keys, byte[][] data, int[] ttl) {
+        this("*", operation, keys, data, ttl);
+    }
+    
+    public Message(Set<KeyValue> values) {
+        this("*", values);
+    }
+    public Message(String targetId, Set<KeyValue> values) {
+        this.targetId = targetId;
+        this.values = new LinkedHashSet<KeyValue>(values);
     }
 
     @SuppressWarnings("PMD.ArrayIsStoredDirectly")
-    public Message(Operation operation, String targetId, String[] keys, byte[][] data, int[] ttl) {
-        this.operation = operation;
-        this.keys = keys != null? Arrays.copyOf(keys, keys.length): null;
-        if (data != null) {
-            this.data = new byte[data.length][];
-            for (int i = 0; i < data.length; i++) {
-                this.data[i] = Arrays.copyOf(data[i], data[i].length);
+    public Message(String targetId, Operation[] operation, String[] keys, byte[][] data, int[] ttl) {
+        this.values = new LinkedHashSet<KeyValue>();
+        
+        if (keys != null && data != null && ttl != null) {
+            if (keys.length != data.length || keys.length != ttl.length) {
+                throw new IllegalArgumentException("Length of array arguments must match");
             }
-        } else {
-            this.data = null;
+            
+            for (int i = 0; i < keys.length; i++) {
+                values.add(new KeyValue(operation[i], keys[i], data[i], ttl[i]));
+            }
         }
-        this.ttl = ttl != null? Arrays.copyOf(ttl, ttl.length): null;
         this.targetId = targetId;
 
     }
 
-    public static final class KeyValue {
+    public static final class KeyValue implements Serializable {
 
         private final String key;
         private final byte[] data;
         private final int ttl;
+        private final Operation operation;
 
-        private KeyValue(String key, byte[] data, int ttl) {
+        @SuppressWarnings("PMD.ArrayIsStoredDirectly")
+        private KeyValue(Operation operation, String key, byte[] data, int ttl) {
+            this.operation = operation;
             this.key = key;
-            this.data = data != null ? Arrays.copyOf(data, data.length) : null;
+            this.data = data;
             this.ttl = ttl;
+        }
+        
+        public Operation getOperation() {
+            return operation;
         }
 
         public String getKey() {
@@ -63,32 +76,48 @@ public class Message implements Serializable {
         public int getTtl() {
             return ttl;
         }
-    }
 
-    public Operation getOperation() {
-        return operation;
-    }
-
-    public KeyValue[] getValues() {
-        KeyValue[] result = new KeyValue[keys.length];
-
-        for (int i = 0; i < keys.length; i++) {
-            result[i] = new KeyValue(keys[i], data[i], ttl[i]);
+        @Override
+        public int hashCode() {
+            return (key != null ? key.hashCode() : 0);
         }
+        
+        @Override
+        public boolean equals(Object o) {
+            if (!(o instanceof KeyValue)) {
+                return false;
+            }
+            
+            KeyValue other = (KeyValue)o;
+            
+            if (key == null || other.key == null) {
+                return false;
+            }
+            
+            return key.equals(other.key);
+        }
+        
+        
+    }
 
-        return result;
+    public Set<KeyValue>getValues() {
+        return values;
     }
 
     public String getKey() {
-        return keys[0];
+        return !values.isEmpty()? values.iterator().next().getKey(): null;
+    }
+
+    public Operation getOperation() {
+        return !values.isEmpty()? values.iterator().next().getOperation(): null;
     }
 
     public byte[] getData() {
-        return data[0];
+        return !values.isEmpty()? values.iterator().next().getData(): null;
     }
 
     public int getTtl() {
-        return ttl[0];
+        return !values.isEmpty()? values.iterator().next().getTtl(): 0;
     }
 
     public String getTargetId() {

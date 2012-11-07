@@ -35,7 +35,7 @@ public class ContainerMarshaller implements ReposeMarshaller {
    public void marshal(String configurationRoot, Object config) throws FileNotFoundException, JAXBException {
       if (!(config instanceof ContainerConfiguration)) {
          // TODO: Clean up exception handling
-         throw new RuntimeException("The config object passed is not a ContainerConfiguration.");
+         throw new IllegalArgumentException("The config object passed is not a ContainerConfiguration.");
       }
 
       marshaller.marshal(objectFactory.createReposeContainer((ContainerConfiguration) config), new FileOutputStream(configurationRoot + ReposeConfiguration.CONTAINER.getConfigFilename()));

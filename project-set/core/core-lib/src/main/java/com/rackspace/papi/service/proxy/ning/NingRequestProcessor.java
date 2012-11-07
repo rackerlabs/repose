@@ -3,7 +3,6 @@ package com.rackspace.papi.service.proxy.ning;
 import com.ning.http.client.Body;
 import com.ning.http.client.BodyGenerator;
 import java.io.*;
-import java.net.URI;
 import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.regex.Pattern;
@@ -24,7 +23,6 @@ import javax.servlet.ServletInputStream;
 class NingRequestProcessor extends AbstractRequestProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(NingRequestProcessor.class);
-    private final URI targetHost;
     private final HttpServletRequest request;
     private Pattern delimiter = Pattern.compile("&");
     private Pattern pair = Pattern.compile("=");
@@ -53,19 +51,7 @@ class NingRequestProcessor extends AbstractRequestProcessor {
                 return -1;
             }
             
-            int capacity = bb.capacity();
-            /*
-            int readData = stream.read();
-            int count = 0;
-            while (readData != -1 && count < capacity) {
-                count++;
-                bb.put((byte) readData);
-                readData = stream.read();
-            }
-            return count == 0? -1: count;
-            * 
-            */
-            
+            int capacity = bb.capacity();             
             byte[] data = new byte[capacity]; 
             int read = stream.read(data, 0, capacity); 
             if (read > 0) { 
@@ -103,7 +89,6 @@ class NingRequestProcessor extends AbstractRequestProcessor {
     
     NingRequestProcessor(HttpServletRequest request, TargetHostInfo host, RequestBuilder builder) throws IOException {
         this.builder = builder;
-        this.targetHost = host.getProxiedHostUri();
         this.targetUrl = host.getProxiedHostUrl().toExternalForm() + request.getRequestURI();
         this.request = request;
     }

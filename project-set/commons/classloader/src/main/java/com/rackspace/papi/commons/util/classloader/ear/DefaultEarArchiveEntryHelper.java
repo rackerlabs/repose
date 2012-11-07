@@ -122,7 +122,7 @@ public class DefaultEarArchiveEntryHelper implements EarArchiveEntryHelper {
             readWebFragmentXml(fullArchiveName, resourceBytes);
         }
 
-//        LOG.info("Resource registered " + name.fullName());
+
 
         if (context.getClassLoaderForEntry(name).register(getResourceDescriptor(name, resourceBytes))) {
             //TODO: Process conflict and identify all resources that were included with the lib archive

@@ -8,6 +8,6 @@ package com.rackspace.papi.service.management;
  */
 public interface ManagementService {
 
-    public void start(int managementPort, String artifactDirectory, String managementContext);
-    public void stop();
+    void start(int managementPort, String artifactDirectory, String managementContext);
+    void stop();
 }

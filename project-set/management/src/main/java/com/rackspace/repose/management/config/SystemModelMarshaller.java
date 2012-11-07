@@ -35,7 +35,7 @@ public class SystemModelMarshaller implements ReposeMarshaller {
    public void marshal(String configurationRoot, Object config) throws FileNotFoundException, JAXBException {
       if (!(config instanceof SystemModel)) {
          // TODO: Clean up exception handling
-         throw new RuntimeException("The config object passed is not a SystemModel.");
+         throw new IllegalArgumentException("The config object passed is not a SystemModel.");
       }
 
       marshaller.marshal(objectFactory.createSystemModel((SystemModel) config), new FileOutputStream(configurationRoot + ReposeConfiguration.SYSTEM.getConfigFilename()));

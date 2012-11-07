@@ -88,7 +88,6 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
 
                 for (ValidatorInfo info : validators) {
                     if (getNormalizedPath(info.getUri()).equals(config.name())) {
-                        //info.clearValidator();
                         info.reinitValidator();
                         found = true;
                     }
@@ -98,8 +97,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                     // If we couldn't match the particular config... be safe and clear 
                     // all fo the validators
                     for (ValidatorInfo info : validators) {
-                        //info.clearValidator();
-                        info.reinitValidator();
+                       info.reinitValidator();
                     }
                 }
             }

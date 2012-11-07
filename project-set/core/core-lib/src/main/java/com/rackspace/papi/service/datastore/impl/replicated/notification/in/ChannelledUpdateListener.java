@@ -8,9 +8,9 @@ import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.impl.replicated.UpdateListener;
 import com.rackspace.papi.service.datastore.impl.replicated.data.Message;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.SocketTimeoutException;
@@ -117,6 +117,10 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
 
             return null;
         }
+        
+        OutputStream getOutputStream() {
+            return outputStream;
+        }
     }
 
     private void acceptConnection(SelectionKey next) throws IOException {
@@ -129,20 +133,16 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
         register.attach(new Attachment(buffer));
     }
 
-    private void putMessage(Message message) {
-        for (Message.KeyValue value : message.getValues()) {
-            if (message.getTtl() > 0) {
-                datastore.put(value.getKey(), value.getData(), value.getTtl(), TimeUnit.SECONDS, false);
-            } else {
-                datastore.put(value.getKey(), value.getData(), false);
-            }
-            //LOG.debug(socket.getLocalPort() + " Received: " + value.getKey() + ": " + new String(value.getData()));
+    private void putMessage(Message.KeyValue value) {
+        if (value.getTtl() > 0) {
+            datastore.put(value.getKey(), value.getData(), value.getTtl(), TimeUnit.SECONDS, false);
+        } else {
+            datastore.put(value.getKey(), value.getData(), false);
         }
     }
 
-    private void removeMessage(Message message) {
-        datastore.remove(message.getKey(), false);
-        //LOG.debug(socket.getLocalPort() + " Received: " + message.getKey() + ": " + new String(message.getData()));
+    private void removeMessage(Message.KeyValue value) {
+        datastore.remove(value.getKey(), false);
     }
 
     private Attachment readData(SelectionKey key) throws IOException {
@@ -153,7 +153,7 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
         int read;
         while ((read = client.read(buffer)) > 0) {
             buffer.flip();
-            attachment.outputStream.write(buffer.array(), 0, read);
+            attachment.getOutputStream().write(buffer.array(), 0, read);
             buffer.clear();
         }
 
@@ -168,22 +168,23 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
     private void readMessage(SelectionKey key) throws IOException, ClassNotFoundException {
         Attachment attachment = readData(key);
         byte[] data = attachment.getObject();
-        //LOG.info("Read " + data.length + " bytes of data");
-
+      
         while (data != null && data.length > 0) {
             ByteArrayInputStream is = new ByteArrayInputStream(data);
             while (is.available() > 0) {
                 Message message = (Message) ObjectSerializer.instance().readObject(is);
-                switch (message.getOperation()) {
-                    case PUT:
-                        putMessage(message);
-                        break;
-                    case REMOVE:
-                        removeMessage(message);
-                        break;
+                for (Message.KeyValue value : message.getValues()) {
+                    switch (value.getOperation()) {
+                        case PUT:
+                            putMessage(value);
+                            break;
+                        case REMOVE:
+                            removeMessage(value);
+                            break;
+                    }
                 }
             }
-            
+
             data = attachment.getObject();
         }
     }
