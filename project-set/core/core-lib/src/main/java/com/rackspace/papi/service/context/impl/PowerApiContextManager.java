@@ -22,6 +22,7 @@ import net.sf.ehcache.CacheManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.jmx.export.MBeanExporter;
 
 public class PowerApiContextManager implements ServletContextListener {
 
@@ -134,6 +135,10 @@ public class PowerApiContextManager implements ServletContextListener {
         for (ServiceContext ctx : registry.getServices()) {
             ctx.contextDestroyed(sce);
         }
+        
+        LOG.info("Shutting down Spring application context");
+        applicationContext.close();
+        
         CacheManager instance = CacheManager.getInstance();
         if (instance != null) {
             LOG.info("Stopping EH Cache Manager");
