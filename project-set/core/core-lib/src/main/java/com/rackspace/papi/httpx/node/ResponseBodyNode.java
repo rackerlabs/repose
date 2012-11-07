@@ -28,4 +28,13 @@ public class ResponseBodyNode extends ObjectFactoryUser implements Node {
         
         messageResponse.setBody(body);
     }
+    
+    public HttpServletResponse getResponse() {
+        return response;
+    }
+    
+    public boolean getJsonProcessing() {
+        return jsonProcessing;
+    }
+        
 }
