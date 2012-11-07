@@ -3,7 +3,6 @@ package com.rackspace.papi.components.routing;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;

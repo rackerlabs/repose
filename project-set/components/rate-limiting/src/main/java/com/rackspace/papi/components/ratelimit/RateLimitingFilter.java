@@ -7,14 +7,10 @@ import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
-import com.rackspace.papi.service.datastore.Datastore;
-import com.rackspace.papi.service.datastore.DatastoreManager;
-import com.rackspace.papi.service.datastore.DatastoreService;
 import org.slf4j.Logger;
 
 import javax.servlet.*;
 import java.io.IOException;
-import java.util.Collection;
 
 /**
  *
