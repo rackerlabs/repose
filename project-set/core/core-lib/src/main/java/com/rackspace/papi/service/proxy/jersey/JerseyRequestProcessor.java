@@ -21,13 +21,11 @@ import org.slf4j.LoggerFactory;
 class JerseyRequestProcessor extends AbstractRequestProcessor {
 
    private static final Logger LOG = LoggerFactory.getLogger(JerseyRequestProcessor.class);
-   private final URI targetHost;
    private final HttpServletRequest request;
    private Pattern delimiter = Pattern.compile("&");
    private Pattern pair = Pattern.compile("=");
 
-   public JerseyRequestProcessor(HttpServletRequest request, URI host) throws IOException {
-      this.targetHost = host;
+   public JerseyRequestProcessor(HttpServletRequest request) throws IOException {
       this.request = request;
    }
 

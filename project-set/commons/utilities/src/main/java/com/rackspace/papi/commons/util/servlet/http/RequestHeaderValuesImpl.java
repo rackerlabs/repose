@@ -8,146 +8,147 @@ import javax.servlet.http.HttpServletRequest;
 
 public final class RequestHeaderValuesImpl implements RequestHeaderValues {
 
-   private static final String REQUEST_HEADERS_ATTRIBUTE = "repose.request.headers";
-   private final Map<String, List<String>> headers;
-   
-   public static RequestHeaderValues extract(HttpServletRequest request) {
-      return new RequestHeaderValuesImpl(request);
-   }
+    private static final String REQUEST_HEADERS_ATTRIBUTE = "repose.request.headers";
+    private final Map<String, List<String>> headers;
 
-   private RequestHeaderValuesImpl(HttpServletRequest request) {
-      this.headers = initHeaders(request);
-      cloneHeaders(request);
-   }
-   
-   private Map<String, List<String>> initHeaders(HttpServletRequest request) {
-      Map<String, List<String>> currentHeaderMap = (Map<String, List<String>>) request.getAttribute(REQUEST_HEADERS_ATTRIBUTE);
-      
-      if (currentHeaderMap == null) {
-         currentHeaderMap = new HashMap<String, List<String>>();
-         request.setAttribute(REQUEST_HEADERS_ATTRIBUTE, currentHeaderMap);
-      }
-      
-      return currentHeaderMap;
-   }
+    public static RequestHeaderValues extract(HttpServletRequest request) {
+        return new RequestHeaderValuesImpl(request);
+    }
 
-   private void cloneHeaders(HttpServletRequest request) {
+    private RequestHeaderValuesImpl(HttpServletRequest request) {
+        this.headers = initHeaders(request);
+        cloneHeaders(request);
+    }
 
-      final Map<String, List<String>> headerMap = new HashMap<String, List<String>>();
-      final Enumeration<String> headerNames = request.getHeaderNames();
+    private Map<String, List<String>> initHeaders(HttpServletRequest request) {
+        Map<String, List<String>> currentHeaderMap = (Map<String, List<String>>) request.getAttribute(REQUEST_HEADERS_ATTRIBUTE);
 
-      while (headerNames != null && headerNames.hasMoreElements()) {
-         final String headerName = headerNames.nextElement().toLowerCase();  //Normalize to lowercase
+        if (currentHeaderMap == null) {
+            currentHeaderMap = new HashMap<String, List<String>>();
+            request.setAttribute(REQUEST_HEADERS_ATTRIBUTE, currentHeaderMap);
+        }
 
-         final Enumeration<String> headerValues = request.getHeaders(headerName);
-         final List<String> copiedHeaderValues = new LinkedList<String>();
+        return currentHeaderMap;
+    }
 
-         while (headerValues.hasMoreElements()) {
-            copiedHeaderValues.add(headerValues.nextElement());
-         }
+    private void cloneHeaders(HttpServletRequest request) {
 
-         headerMap.put(headerName, copiedHeaderValues);
-      }
-      
-      headers.clear();
-      headers.putAll(headerMap);
-   }
+        final Map<String, List<String>> headerMap = new HashMap<String, List<String>>();
+        final Enumeration<String> headerNames = request.getHeaderNames();
 
-   @Override
-   public void addHeader(String name, String value) {
-      final String lowerCaseName = name.toLowerCase();
+        while (headerNames != null && headerNames.hasMoreElements()) {
+            //Normalize to lowercase
+            final String headerName = headerNames.nextElement().toLowerCase();
 
-      List<String> headerValues = headers.get(lowerCaseName);
+            final Enumeration<String> headerValues = request.getHeaders(headerName);
+            final List<String> copiedHeaderValues = new LinkedList<String>();
 
-      if (headerValues == null) {
-         headerValues = new LinkedList<String>();
-      }
+            while (headerValues.hasMoreElements()) {
+                copiedHeaderValues.add(headerValues.nextElement());
+            }
 
-      headerValues.add(value);
+            headerMap.put(headerName, copiedHeaderValues);
+        }
 
-      headers.put(lowerCaseName, headerValues);
-   }
+        headers.clear();
+        headers.putAll(headerMap);
+    }
 
-   @Override
-   public void replaceHeader(String name, String value) {
-      final List<String> headerValues = new LinkedList<String>();
+    @Override
+    public void addHeader(String name, String value) {
+        final String lowerCaseName = name.toLowerCase();
 
-      headerValues.add(value);
+        List<String> headerValues = headers.get(lowerCaseName);
 
-      headers.put(name.toLowerCase(), headerValues);
-   }
+        if (headerValues == null) {
+            headerValues = new LinkedList<String>();
+        }
 
-   @Override
-   public void removeHeader(String name) {
-      headers.remove(name.toLowerCase());
-   }
+        headerValues.add(value);
 
-   @Override
-   public String getHeader(String name) {
-      return fromMap(headers, name.toLowerCase());
-   }
+        headers.put(lowerCaseName, headerValues);
+    }
 
-   static String fromMap(Map<String, List<String>> headers, String headerName) {
-      final List<String> headerValues = headers.get(headerName);
+    @Override
+    public void replaceHeader(String name, String value) {
+        final List<String> headerValues = new LinkedList<String>();
 
-      return (headerValues != null && headerValues.size() > 0) ? headerValues.get(0) : null;
-   }
+        headerValues.add(value);
 
-   @Override
-   public Enumeration<String> getHeaderNames() {
-      return Collections.enumeration(headers.keySet());
-   }
+        headers.put(name.toLowerCase(), headerValues);
+    }
 
-   @Override
-   public Enumeration<String> getHeaders(String name) {
-      final List<String> headerValues = headers.get(name.toLowerCase());
+    @Override
+    public void removeHeader(String name) {
+        headers.remove(name.toLowerCase());
+    }
 
-      return Collections.enumeration(headerValues != null ? headerValues : Collections.EMPTY_SET);
-   }
+    @Override
+    public String getHeader(String name) {
+        return fromMap(headers, name.toLowerCase());
+    }
 
-   @Override
-   public List<HeaderValue> getPreferredHeaderValues(String name, HeaderValue defaultValue) {
-      HeaderFieldParser parser = new HeaderFieldParser(headers.get(name.toLowerCase()));
-      List<HeaderValue> headerValues = parser.parse();
+    static String fromMap(Map<String, List<String>> headers, String headerName) {
+        final List<String> headerValues = headers.get(headerName);
 
-      QualityFactorHeaderChooser chooser = new QualityFactorHeaderChooser<HeaderValue>();
-      List<HeaderValue> values = chooser.choosePreferredHeaderValues(headerValues);
+        return (headerValues != null && headerValues.size() > 0) ? headerValues.get(0) : null;
+    }
 
-      if (values.isEmpty() && defaultValue != null) {
-         values.add(defaultValue);
-      }
+    @Override
+    public Enumeration<String> getHeaderNames() {
+        return Collections.enumeration(headers.keySet());
+    }
 
-      return values;
+    @Override
+    public Enumeration<String> getHeaders(String name) {
+        final List<String> headerValues = headers.get(name.toLowerCase());
 
-   }
+        return Collections.enumeration(headerValues != null ? headerValues : Collections.EMPTY_SET);
+    }
 
-   @Override
-   public List<HeaderValue> getPreferedHeaders(String name) {
+    @Override
+    public List<HeaderValue> getPreferredHeaderValues(String name, HeaderValue defaultValue) {
+        HeaderFieldParser parser = new HeaderFieldParser(headers.get(name.toLowerCase()));
+        List<HeaderValue> headerValues = parser.parse();
 
-      HeaderFieldParser parser = new HeaderFieldParser(headers.get(name.toLowerCase()));
-      List<HeaderValue> headerValues = parser.parse();
+        QualityFactorHeaderChooser chooser = new QualityFactorHeaderChooser<HeaderValue>();
+        List<HeaderValue> values = chooser.choosePreferredHeaderValues(headerValues);
 
-      Map<Double, List<HeaderValue>> groupedHeaderValues = new LinkedHashMap<Double, List<HeaderValue>>();
+        if (values.isEmpty() && defaultValue != null) {
+            values.add(defaultValue);
+        }
 
-      for (HeaderValue value : headerValues) {
+        return values;
 
-         if (!groupedHeaderValues.keySet().contains(value.getQualityFactor())) {
-            groupedHeaderValues.put(value.getQualityFactor(), new LinkedList<HeaderValue>());
-         }
+    }
 
-         groupedHeaderValues.get(value.getQualityFactor()).add(value);
-      }
+    @Override
+    public List<HeaderValue> getPreferedHeaders(String name) {
 
-      headerValues.clear();
+        HeaderFieldParser parser = new HeaderFieldParser(headers.get(name.toLowerCase()));
+        List<HeaderValue> headerValues = parser.parse();
 
-      List<Double> qualities = new ArrayList<Double>(groupedHeaderValues.keySet());
-      java.util.Collections.sort(qualities);
-      java.util.Collections.reverse(qualities);
+        Map<Double, List<HeaderValue>> groupedHeaderValues = new LinkedHashMap<Double, List<HeaderValue>>();
 
-      for (Double quality : qualities) {
-         headerValues.addAll(groupedHeaderValues.get(quality));
-      }
+        for (HeaderValue value : headerValues) {
 
-      return headerValues;
-   }
+            if (!groupedHeaderValues.keySet().contains(value.getQualityFactor())) {
+                groupedHeaderValues.put(value.getQualityFactor(), new LinkedList<HeaderValue>());
+            }
+
+            groupedHeaderValues.get(value.getQualityFactor()).add(value);
+        }
+
+        headerValues.clear();
+
+        List<Double> qualities = new ArrayList<Double>(groupedHeaderValues.keySet());
+        java.util.Collections.sort(qualities);
+        java.util.Collections.reverse(qualities);
+
+        for (Double quality : qualities) {
+            headerValues.addAll(groupedHeaderValues.get(quality));
+        }
+
+        return headerValues;
+    }
 }
