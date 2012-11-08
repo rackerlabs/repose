@@ -78,12 +78,13 @@ public class LocationHeaderBuilder {
     private String fixPathPrefix(String locationPath, String requestedPrefix, String addedPrefix) {
         String prefixToRemove = getAbsolutePath(addedPrefix);
         String prefixToAdd = getAbsolutePath(requestedPrefix);
+        String result = locationPath;
 
         if (locationPath.startsWith(prefixToRemove)) {
-            locationPath = prefixToAdd + getAbsolutePath(locationPath.substring(prefixToRemove.length()));
+            result = prefixToAdd + getAbsolutePath(locationPath.substring(prefixToRemove.length()));
         }
 
-        return locationPath;
+        return result;
     }
 
     private boolean shouldRewriteLocation(URL locationUrl, URL proxiedHostUrl, URL requestedHost) {

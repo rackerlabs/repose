@@ -95,8 +95,6 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
             } else {
                 replicatedDatastoreManager.setMaxQueueSize(maxQueueSize);
                 replicatedDatastoreManager.updateSubscribers(getDatastoreNodes(serviceDomain));
-                //ReplicatedDatastore datastore = (ReplicatedDatastoreImpl) replicatedDatastoreManager.getDatastore();
-                //datastore.addSubscribers(getDatastoreNodes(serviceDomain));
             }
         }
     }

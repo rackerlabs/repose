@@ -1,6 +1,5 @@
 package com.rackspace.papi.service.context.impl;
 
-import com.rackspace.papi.commons.config.resource.impl.DirectoryResourceResolver;
 import com.rackspace.papi.commons.config.resource.impl.FileDirectoryResourceResolver;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.service.ServiceRegistry;

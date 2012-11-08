@@ -1,13 +1,8 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.rackspace.papi.commons.config.resource.impl;
 
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.config.resource.ConfigurationResourceResolver;
 import com.rackspace.papi.commons.config.resource.ResourceResolutionException;
-import com.rackspace.papi.commons.util.StringUtilities;
 import java.io.File;
 import java.net.MalformedURLException;
 

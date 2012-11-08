@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.rackspace.papi.mocks.providers;
 
 import com.rackspace.repose.service.limits.schema.AbsoluteLimit;
