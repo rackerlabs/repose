@@ -12,27 +12,16 @@ import javax.xml.bind.annotation.XmlRootElement;
  * Time: 2:01:25 PM
  */
 @XmlRootElement(name="destination")
-@XmlAccessorType(XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.PROPERTY)
 public class Destination {
-
-    @XmlElement
     private String destinationId;
-
-    @XmlElement
     private String totalRequests;
-
-    @XmlElement
     private String total400s;
-
-    @XmlElement
     private String total500s;
-
-    @XmlElement
     private String responseTimeInMillis;
-
-    @XmlElement
     private String throughputInSeconds;
 
+    @XmlElement
     public String getDestinationId() {
         return destinationId;
     }
@@ -41,6 +30,7 @@ public class Destination {
         this.destinationId = destinationId;
     }
 
+    @XmlElement
     public String getTotalRequests() {
         return totalRequests;
     }
@@ -49,6 +39,7 @@ public class Destination {
         this.totalRequests = totalRequests;
     }
 
+    @XmlElement
     public String getTotal400s() {
         return total400s;
     }
@@ -57,6 +48,7 @@ public class Destination {
         this.total400s = total400s;
     }
 
+    @XmlElement
     public String getTotal500s() {
         return total500s;
     }
@@ -65,6 +57,7 @@ public class Destination {
         this.total500s = total500s;
     }
 
+    @XmlElement
     public String getResponseTimeInMillis() {
         return responseTimeInMillis;
     }
@@ -73,6 +66,7 @@ public class Destination {
         this.responseTimeInMillis = responseTimeInMillis;
     }
 
+    @XmlElement
     public String getThroughputInSeconds() {
         return throughputInSeconds;
     }
