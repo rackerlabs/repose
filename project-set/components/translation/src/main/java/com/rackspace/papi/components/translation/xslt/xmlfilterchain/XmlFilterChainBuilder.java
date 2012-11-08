@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
+import com.rackspace.papi.components.translation.TranslationFilter;
 import com.rackspace.papi.components.translation.resolvers.ClassPathUriResolver;
 import com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver;
 import com.rackspace.papi.components.translation.resolvers.SourceUriResolver;
@@ -20,12 +21,14 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamSource;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
 
 public class XmlFilterChainBuilder {
 
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(XmlFilterChainBuilder.class);
     private static final String CLASSPATH_PREFIX = "classpath://";
     private final SAXTransformerFactory factory;
 
@@ -77,24 +80,20 @@ public class XmlFilterChainBuilder {
             return new StreamSource(input);
         }
 
-        return null;
+        throw new XsltException("Unable to load stylesheet " + path);
     }
 
     protected StreamSource getStylesheetSource(StyleSheetInfo stylesheet) {
 
-        StreamSource source;
         if (stylesheet.getUri().startsWith(CLASSPATH_PREFIX)) {
-            source = getClassPathResource(stylesheet.getUri());
+            return getClassPathResource(stylesheet.getUri());
         } else {
             try {
-                source = new StreamSource(new URL(stylesheet.getUri()).openStream());
+                return new StreamSource(new URL(stylesheet.getUri()).openStream());
             } catch (IOException ex) {
-                source = null;
-                Logger.getLogger(XmlFilterChainBuilder.class.getName()).log(Level.SEVERE, null, ex);
+                throw new XsltException("Unable to load stylesheet: " + stylesheet.getUri(), ex);
             }
         }
-
-        return source;
     }
 
     protected XMLReader getSaxReader() throws ParserConfigurationException, SAXException {
