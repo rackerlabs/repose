@@ -69,7 +69,7 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
             public Boolean perform(XmlFilterChain chain) throws ResourceContextException {
                 List<XsltParameter> params = new ArrayList<XsltParameter>(pool.getParams());
                 try {
-                    chain.executeChain(in, out, params, null);
+                    chain.executeChain(in, out, params);
                 } catch (XsltException ex) {
                     LOG.warn("Error processing transforms", ex.getMessage());
                     return false;
