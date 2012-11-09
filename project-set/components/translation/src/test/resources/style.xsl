@@ -12,18 +12,6 @@
     
     <xsl:template match="/">
         Main Content Will Be Here!!!
-        <xsl:result-document method="html" include-content-type="no" href="reference:jio:query.html">
-            Parameters:
-            <ul>
-                <xsl:apply-templates select="$queryDoc/params/param"/>
-            </ul>
-        </xsl:result-document>
-        <xsl:result-document method="html" include-content-type="no" href="reference:jio:headers.html">
-            Headers:
-            <ul>
-                <xsl:apply-templates select="$headersDoc/headers/header"/>
-            </ul>
-        </xsl:result-document>
     </xsl:template>
 
     <xsl:template match="param|header">
