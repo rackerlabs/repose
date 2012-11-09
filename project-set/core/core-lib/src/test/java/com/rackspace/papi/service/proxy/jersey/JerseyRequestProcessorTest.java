@@ -50,6 +50,7 @@ public class JerseyRequestProcessorTest {
             when(request.getParameterValues(eq("param2"))).thenReturn(params2);
             when(request.getQueryString()).thenReturn(queryString);
             when(request.getInputStream()).thenReturn(input);
+            when(request.getMethod()).thenReturn("POST");
             
             processor = new JerseyRequestProcessor(request);
         }
