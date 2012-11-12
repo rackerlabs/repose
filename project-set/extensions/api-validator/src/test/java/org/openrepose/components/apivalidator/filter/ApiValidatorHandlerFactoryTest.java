@@ -58,13 +58,16 @@ public class ApiValidatorHandlerFactoryTest {
             roles.add(new HeaderValueImpl(role));
         }
         
-        @Test
+       @Test
         public void shouldBuildValidatorListAndSubscribeToWadl() {
             ApiValidatorHandler handler = instance.buildHandler();
             assertNotNull("Should build handler", handler);
-            ValidatorInfo validatorForRole = handler.getValidatorForRole(roles);
-            assertNotNull(validatorForRole);
-            assertEquals("Should get validator for role", role, validatorForRole.getRole());
+            List<ValidatorInfo> validatorsForRole = handler.getValidatorsForRole(roles);
+            assertNotNull(validatorsForRole);
+            
+            for(ValidatorInfo validatorForRole : validatorsForRole){
+             assertEquals("Should get validator for role", role, validatorForRole.getRole());
+            }
             verify(configService, times(2)).subscribeTo(eq(instance.getWadlPath(wadl)), any(ApiValidatorHandlerFactory.ApiValidatorWadlListener.class), any(GenericResourceConfigurationParser.class));
         }
 
@@ -72,9 +75,9 @@ public class ApiValidatorHandlerFactoryTest {
         public void shouldSetDefaultValidator() {
             ApiValidatorHandler handler = instance.buildHandler();
             assertNotNull("Should build handler", handler);
-            ValidatorInfo validatorForRole = handler.getValidatorForRole(new ArrayList<HeaderValue>());
-            assertNotNull(validatorForRole);
-            assertEquals("Should get validator for default role", defaultRole, validatorForRole.getRole());
+            List<ValidatorInfo> validatorsForRole = handler.getValidatorsForRole(new ArrayList<HeaderValue>());
+            assertNotNull(validatorsForRole);
+            assertEquals("Should get validator for default role", defaultRole, validatorsForRole.get(0).getRole());
         }
     }
     

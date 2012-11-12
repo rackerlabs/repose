@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<validators xmlns='http://openrepose.org/repose/validator/v1.0'>
+<validators multi-role-match="true" xmlns='http://openrepose.org/repose/validator/v1.0'>
    <validator 
       role="default"
       default="true"
