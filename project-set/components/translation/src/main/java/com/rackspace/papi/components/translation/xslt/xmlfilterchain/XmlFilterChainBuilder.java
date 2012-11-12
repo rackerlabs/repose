@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
-import com.rackspace.papi.components.translation.TranslationFilter;
 import com.rackspace.papi.components.translation.resolvers.ClassPathUriResolver;
 import com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver;
 import com.rackspace.papi.components.translation.resolvers.SourceUriResolver;
@@ -12,8 +11,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
