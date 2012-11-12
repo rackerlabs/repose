@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.rackspace.papi.service.logging.common.log4jconf;
 
 import java.util.HashMap;

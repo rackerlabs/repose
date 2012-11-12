@@ -85,8 +85,8 @@ public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore {
 
     @Override
     public void finalize() throws Throwable {
-        super.finalize();
         updateListener.done();
+        super.finalize();
     }
 
     @Override

@@ -162,8 +162,6 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
             outputStreamWriter.flush();
         }
 
-        //final OutputStream out = new BufferedOutputStream(super.getOutputStream());
-
         if (bufferedOutput()) {
             setContentLength(internalBuffer.available());
         }

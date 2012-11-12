@@ -14,7 +14,6 @@ import com.rackspace.papi.commons.util.pooling.ResourceContextException;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.translation.config.TranslationConfig;
 import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlChainPool;
 import com.rackspace.papi.components.translation.xslt.XsltException;
 import com.rackspace.papi.components.translation.xslt.XsltParameter;
@@ -36,12 +35,10 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
     private static final int DEFAULT_BUFFER_SIZE = 2048;
     private static final MediaType DEFAULT_TYPE = new MediaType(MimeType.WILDCARD);
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TranslationHandler.class);
-    private final TranslationConfig config;
     private final List<XmlChainPool> requestProcessors;
     private final List<XmlChainPool> responseProcessors;
 
-    public TranslationHandler(TranslationConfig translationConfig, List<XmlChainPool> requestProcessors, List<XmlChainPool> responseProcessors) {
-        this.config = translationConfig;
+    public TranslationHandler(List<XmlChainPool> requestProcessors, List<XmlChainPool> responseProcessors) {
         this.requestProcessors = requestProcessors;
         this.responseProcessors = responseProcessors;
     }
@@ -72,7 +69,7 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
             public Boolean perform(XmlFilterChain chain) throws ResourceContextException {
                 List<XsltParameter> params = new ArrayList<XsltParameter>(pool.getParams());
                 try {
-                    chain.executeChain(in, out, params, null);
+                    chain.executeChain(in, out, params);
                 } catch (XsltException ex) {
                     LOG.warn("Error processing transforms", ex.getMessage());
                     return false;

@@ -1,7 +1,6 @@
 package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.service.ServiceRegistry;
-import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.impl.ehcache.EHCacheDatastoreManager;
@@ -26,14 +25,11 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
     private final DatastoreService datastoreService;
     private final ServiceRegistry registry;
     private CacheManager ehCacheManager;
-    private final ConfigurationService configurationManager;
 
     @Autowired
     public DatastoreServiceContext(
             @Qualifier("datastoreService") DatastoreService datastoreService,
-            @Qualifier("serviceRegistry") ServiceRegistry registry,
-            @Qualifier("configurationManager") ConfigurationService configurationManager) {
-        this.configurationManager = configurationManager;
+            @Qualifier("serviceRegistry") ServiceRegistry registry) {
         this.datastoreService = datastoreService;
         this.registry = registry;
     }

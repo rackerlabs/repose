@@ -13,24 +13,18 @@ import java.util.List;
  * Time: 12:28:56 PM
  */
 @XmlRootElement(name="report")
-@XmlAccessorType(XmlAccessType.FIELD)
+@XmlAccessorType(XmlAccessType.PROPERTY)
 public class Report {
 
-    @XmlElement
-    protected String lastResetDate;
-
-    @XmlElement
-    protected String total400sReposeToClient;
-
-    @XmlElement
-    protected String total500sReposeToClient;
-
-    @XmlElement
-    protected List<Destination> destinations;
+    private String lastResetDate;
+    private String total400sReposeToClient;
+    private String total500sReposeToClient;
+    private List<Destination> destinations;
 
     public Report() {
     }
 
+    @XmlElement
     public String getLastResetDate() {
         return lastResetDate;
     }
@@ -39,6 +33,7 @@ public class Report {
         this.lastResetDate = lastResetDate;
     }
 
+    @XmlElement
     public String getTotal400sReposeToClient() {
         return total400sReposeToClient;
     }
@@ -47,6 +42,7 @@ public class Report {
         this.total400sReposeToClient = total400sReposeToClient;
     }
 
+    @XmlElement
     public String getTotal500sReposeToClient() {
         return total500sReposeToClient;
     }
@@ -55,6 +51,7 @@ public class Report {
         this.total500sReposeToClient = total500sReposeToClient;
     }
 
+    @XmlElement
     public List<Destination> getDestinations() {
         return destinations;
     }

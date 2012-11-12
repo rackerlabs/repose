@@ -111,12 +111,14 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     }
 
     String getWadlPath(String wadl) {
-        return !wadl.contains("://") ? StringUtilities.join("file://", configRoot, "/", wadl) : wadl;
+        return !wadl.contains("://") ? StringUtilities.join("file://", configRoot, File.separator, wadl) : wadl;
     }
     
     String getPath(String path){
+       File file = new File(configRoot,path);
        
-       return StringUtilities.nullSafeStartsWith(path, "/") ? path : StringUtilities.join(configRoot, "/", path);
+       return file.exists() ? file.getAbsolutePath() : path;
+       //return StringUtilities.nullSafeStartsWith(path, File.separator) || StringUtilities.nullSafeStartsWith(path, ":\\") ? path : StringUtilities.join(configRoot, File.separator, path);
     }
 
     private DispatchHandler getHandlers(ValidatorItem validatorItem) {
@@ -170,7 +172,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                 config.setXSLEngine(validatorItem.getXslEngine().value());
                 config.setJoinXPathChecks(validatorItem.isJoinXpathChecks());
 
-                ValidatorInfo validator = new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), config);
+                ValidatorInfo validator = new ValidatorInfo(validatorItem.getRole(), getPath(validatorItem.getWadl()), config);
                 validators.add (validator);
                 if (validatorItem.isDefault() && defaultValidator == null) {
                     defaultValidator = validator;

@@ -82,6 +82,10 @@ public final class StringUriUtilities {
      * @return 
      */
     public static String formatUri(String uri) {
+       if(StringUtilities.nullSafeStartsWith(uri, "\\")){ //windows file system
+          return uri;
+       }
+       
         if (StringUtilities.isBlank(uri) || StringUtilities.nullSafeEqualsIgnoreCase("/", uri)) {
             return "/";
         }
@@ -94,7 +98,8 @@ public final class StringUriUtilities {
 
         int doubleSlash = externalName.indexOf("//");
 
-        while (doubleSlash > -1) { //removes leading '/'
+        while (doubleSlash > -1) { 
+            //removes leading '/'
             externalName.replace(doubleSlash, doubleSlash + 2, "/");
             doubleSlash = externalName.indexOf("//");
         }

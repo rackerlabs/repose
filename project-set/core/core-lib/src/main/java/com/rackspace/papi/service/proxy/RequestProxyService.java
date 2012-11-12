@@ -15,15 +15,4 @@ public interface RequestProxyService {
     ServiceClientResponse delete(String baseUri, String extraUri, Map<String, String> headers);
     ServiceClientResponse put(String uri, Map<String, String> headers, byte[] body);
     ServiceClientResponse put(String baseUri, String path, Map<String, String> headers, byte[] body);
-    /*
-    ServiceClientResponse get(String uri, Map<String, String> headers, String... queryParameters);
-    ServiceClientResponse get(String uri, Map<String, String> headers);
-    ServiceClientResponse post(String uri, Map<String, String> headers, JAXBElement body, MediaType contentType);
-    ServiceClientResponse post(String uri, Map<String, String> headers, byte[] body, MediaType contentType);
-    ServiceClientResponse put(String uri, Map<String, String> headers, JAXBElement body, MediaType contentType);
-    ServiceClientResponse put(String uri, Map<String, String> headers, byte[] body, MediaType contentType);
-    ServiceClientResponse delete(String uri, Map<String, String> headers, String... queryParameters);
-    ServiceClientResponse delete(String uri, Map<String, String> headers);
-    * 
-    */
 }

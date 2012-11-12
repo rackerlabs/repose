@@ -8,6 +8,7 @@ import com.rackspace.papi.commons.config.resource.impl.BufferedURLConfigurationR
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.SslConfiguration;
 import com.rackspace.papi.domain.Port;
+import java.io.File;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +70,7 @@ public class PowerApiValveServerControl {
    }
 
    private SslConfiguration readSslConfiguration(String cfgRoot) throws MalformedURLException {
-      final URL configurationLocation = new URL("file://" + cfgRoot + "/container.cfg.xml");
+      final URL configurationLocation = new URL("file://" + cfgRoot + File.separator + "container.cfg.xml");
       final JaxbConfigurationParser<ContainerConfiguration> containerConfigParser = ConfigurationParserFactory.getXmlConfigurationParser(ContainerConfiguration.class);
       final ContainerConfiguration cfg = containerConfigParser.read(new BufferedURLConfigurationResource(configurationLocation));
 

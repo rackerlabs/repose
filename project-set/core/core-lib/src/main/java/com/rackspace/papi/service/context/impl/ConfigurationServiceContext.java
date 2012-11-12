@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.context.impl;
 
-import com.rackspace.papi.commons.config.resource.impl.DirectoryResourceResolver;
+import com.rackspace.papi.commons.config.resource.impl.FileDirectoryResourceResolver;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
@@ -66,7 +66,7 @@ public class ConfigurationServiceContext implements ServiceContext<Configuration
                     + InitParameter.POWER_API_CONFIG_DIR.getParameterName() + "\"");
         }
 
-        configurationManager.setResourceResolver(new DirectoryResourceResolver(configurationRoot));
+        configurationManager.setResourceResolver(new FileDirectoryResourceResolver(configurationRoot));
 
         final PowerApiConfigurationUpdateManager papiUpdateManager = new PowerApiConfigurationUpdateManager(eventService);
         papiUpdateManager.initialize(ctx);

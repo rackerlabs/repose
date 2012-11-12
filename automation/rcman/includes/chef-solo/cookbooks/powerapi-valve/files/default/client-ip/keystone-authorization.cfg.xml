@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<rackspace-authorization xmlns='http://openrepose.org/components/openstack-identity/auth-z/v1.0'>
+    <authentication-server username="admin" password="secrete" href="http://198.101.253.115:35357/v2.0" tenantId="8a787c0c0a754b3f901b29094c136393" />
+    <service-endpoint href="http://localhost:8774/v1.1/2168ab3c597541cba2942a67ba46f3ee" />
+</rackspace-authorization>

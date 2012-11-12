@@ -7,11 +7,9 @@ import java.util.Arrays;
 import java.util.Set;
 import java.util.TreeSet;
 import javax.servlet.http.HttpServletResponse;
-import org.slf4j.LoggerFactory;
 
 public abstract class AbstractResponseProcessor {
 
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(AbstractResponseProcessor.class);
     private static final String[] EXCLUDE_HEADERS = {"connection", "transfer-encoding", "server"};
     private static final Set<String> EXCLUDE_HEADERS_SET = new TreeSet<String>(Arrays.asList(EXCLUDE_HEADERS));
     private final HttpServletResponse response;

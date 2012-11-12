@@ -56,13 +56,7 @@ public class XsltFilterChainBuilderTest {
     public static class WhenExecutingChains {
         private static SAXTransformerFactory factory;
         private XmlFilterChainBuilder builder;
-        private static final String params = "<params><param name='p1' value='pv1'/><param name='p2' value='pv2'/></params>";
-        private static final String headers = "<headers><header name='h1' value='hv1'/><header name='h2' value='hv2'/></headers>";
-        private ByteArrayOutputStream headersOutput;
-        private ByteArrayOutputStream queryOutput;
         private ByteArrayOutputStream output;
-        private ByteArrayInputStream headersInput;
-        private ByteArrayInputStream queryInput;
         private InputStream body;
 
         @BeforeClass
@@ -74,11 +68,7 @@ public class XsltFilterChainBuilderTest {
         @Before
         public void setUp() {
             builder = new XmlFilterChainBuilder(factory);
-            headersOutput = new ByteArrayOutputStream();
-            queryOutput = new ByteArrayOutputStream();
             output = new ByteArrayOutputStream();
-            headersInput = new ByteArrayInputStream(headers.getBytes());
-            queryInput = new ByteArrayInputStream(params.getBytes());
             body = getClass().getResourceAsStream("/empty.xml");
         }
 
@@ -86,22 +76,13 @@ public class XsltFilterChainBuilderTest {
         public void shouldUseInputOutputStreams() {
             List<XsltParameter> inputs = new ArrayList<XsltParameter>();
 
-            inputs.add(new XsltParameter("headers", headersInput));
-            inputs.add(new XsltParameter("query", queryInput));
-
             List<XsltParameter<? extends OutputStream>> outputs = new ArrayList<XsltParameter<? extends OutputStream>>();
-            outputs.add(new XsltParameter<OutputStream>("headers.html", headersOutput));
-            outputs.add(new XsltParameter<OutputStream>("query.html", queryOutput));
             
             XmlFilterChain chain = builder.build(new StyleSheetInfo("", "classpath:///style.xsl"));
-            chain.executeChain(body, output, inputs, outputs);
+            chain.executeChain(body, output, inputs);
             
-            String headersResult = headersOutput.toString();
-            String queryResult = queryOutput.toString();
             String outResult = output.toString();
             
-            assertTrue("Should have header output", headersResult.length() > 0);
-            assertTrue("Should have query output", queryResult.length() > 0);
             assertTrue("Shoudl have main output", outResult.length() > 0);
             
         }

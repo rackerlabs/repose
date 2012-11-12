@@ -23,6 +23,12 @@ public class MockServiceResource {
     public MockServiceResource() {
         provider = new MockServiceProvider();
     }
+    
+    @DELETE
+    @Path("/deleteme")
+    public Response delete(String body, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
+        return echoBody(body == null || body.trim().isEmpty()? "no body": body, headers, uriInfo);
+    }
 
     @POST
     @Path("/echobody")

@@ -6,16 +6,16 @@ import java.util.List;
  * @author fran
  */
 public class AcceptFidelityValidator {
-    private static final String acceptFidelity = "ACCEPT";
-    private static final String headerFidelity = "*";
+    private static final String ACCEPT_FIDELITY = "ACCEPT";
+    private static final String HEADER_FIDELITY = "*";
 
     private final boolean hasValidFidelity;
     private final boolean hasAcceptFidelity;
     private final boolean hasStarFidelity;
 
     public AcceptFidelityValidator(List<String> fidelity) {
-        this.hasAcceptFidelity = fidelity.contains(acceptFidelity);
-        this.hasStarFidelity = fidelity.contains(headerFidelity);
+        this.hasAcceptFidelity = fidelity.contains(ACCEPT_FIDELITY);
+        this.hasStarFidelity = fidelity.contains(HEADER_FIDELITY);
         this.hasValidFidelity = hasAcceptFidelity || hasStarFidelity;
     }
 
