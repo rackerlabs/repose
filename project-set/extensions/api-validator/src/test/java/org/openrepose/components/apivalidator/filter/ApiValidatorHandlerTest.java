@@ -72,7 +72,7 @@ public class ApiValidatorHandlerTest {
             validators.add(nullValidatorInfo);
             validators.add(blowupValidatorInfo);
             
-            instance = new ApiValidatorHandler(defaultValidatorInfo, validators);
+            instance = new ApiValidatorHandler(defaultValidatorInfo, validators, false);
             instance.setFilterChain(chain);
 
         }
