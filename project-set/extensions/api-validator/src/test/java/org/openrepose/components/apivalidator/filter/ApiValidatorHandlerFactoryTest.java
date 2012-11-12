@@ -62,6 +62,7 @@ public class ApiValidatorHandlerFactoryTest {
         public void shouldBuildValidatorListAndSubscribeToWadl() {
             ApiValidatorHandler handler = instance.buildHandler();
             assertNotNull("Should build handler", handler);
+
             List<ValidatorInfo> validatorsForRole = handler.getValidatorsForRole(roles);
             assertNotNull(validatorsForRole);
             
@@ -69,6 +70,7 @@ public class ApiValidatorHandlerFactoryTest {
              assertEquals("Should get validator for role", role, validatorForRole.getRole());
             }
             verify(configService, times(2)).subscribeTo(eq(instance.getWadlPath(wadl)), any(ApiValidatorHandlerFactory.ApiValidatorWadlListener.class), any(GenericResourceConfigurationParser.class));
+
         }
 
         @Test
