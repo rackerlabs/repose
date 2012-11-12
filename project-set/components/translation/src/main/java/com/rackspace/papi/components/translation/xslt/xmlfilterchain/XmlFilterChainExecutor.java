@@ -56,6 +56,9 @@ public class XmlFilterChainExecutor {
     protected void setInputParameters(String id, Transformer transformer, List<XsltParameter> inputs) {
 
         transformer.clearParameters();
+        if (id == null) {
+            return;
+        }
 
         if (inputs != null && inputs.size() > 0) {
             com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver resolver = getResolver(transformer);
