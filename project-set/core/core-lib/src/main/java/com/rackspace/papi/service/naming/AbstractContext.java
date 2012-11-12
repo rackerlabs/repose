@@ -14,7 +14,7 @@ public abstract class AbstractContext implements Context {
     private final Map<String, Object> environment;
     private final String nameInNamespace;
 
-    public AbstractContext(String contextName, Hashtable environment) {
+    public AbstractContext(String contextName, Map environment) {
         this.nameInNamespace = contextName;
         this.environment = environment != null ? new HashMap<String, Object>(environment) : new HashMap<String, Object>();
     }
