@@ -35,6 +35,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     private final ApiValidatorWadlListener wadlListener;
     private final Object lock;
     private final String configRoot;
+    private boolean multiRoleMatch=false;
 
     public ApiValidatorHandlerFactory(ConfigurationService manager, String configurationRoot) {
         this.manager = manager;
@@ -122,7 +123,11 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
 
     private DispatchHandler getHandlers(ValidatorItem validatorItem) {
         List<ResultHandler> handlers = new ArrayList<ResultHandler>();
-        handlers.add(new ServletResultHandler());
+        
+        if(!multiRoleMatch){
+            handlers.add(new ServletResultHandler());
+        }
+        
 
         if (StringUtilities.isNotBlank(validatorItem.getDotOutput())) {
             final String dotPath = StringUriUtilities.formatUri(getPath(validatorItem.getDotOutput()));
@@ -148,6 +153,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
 
             validators = new ArrayList<ValidatorInfo>(validatorConfiguration.getValidator().size());
             defaultValidator = null;
+            multiRoleMatch=validatorConfiguration.isMultiRoleMatch();
 
             for (ValidatorItem validatorItem : validatorConfiguration.getValidator()) {
                 Config config = new Config();
@@ -201,8 +207,10 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         if (!initialized) {
             return null;
         }
-        return new ApiValidatorHandler(defaultValidator, validators);
+        return new ApiValidatorHandler(defaultValidator, validators, multiRoleMatch);
     }
+    
+
 
     @Override
     protected Map<Class, UpdateListener<?>> getListeners() {

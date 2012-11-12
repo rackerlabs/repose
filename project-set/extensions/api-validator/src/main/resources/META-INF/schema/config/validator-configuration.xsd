@@ -10,15 +10,26 @@
     <xs:element name="validators" type="scr:ValidatorConfiguration"/>
 
     <xs:complexType name="ValidatorConfiguration">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p>
-                </html:p>
-            </xs:documentation>
-        </xs:annotation>
-        <xs:sequence>
+        
+       <xs:annotation>
+         <xs:documentation>
+            <html:p></html:p>
+         </xs:documentation>
+      </xs:annotation>
+      
+       <xs:sequence>
             <xs:element name="validator" type="scr:ValidatorItem" minOccurs="0" maxOccurs="unbounded"/>
-        </xs:sequence>
+       </xs:sequence>
+      
+       <xs:attribute name="multi-role-match" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+       
 
     </xs:complexType>
 
