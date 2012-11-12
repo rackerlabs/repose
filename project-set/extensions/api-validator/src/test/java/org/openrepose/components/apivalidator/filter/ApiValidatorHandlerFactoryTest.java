@@ -71,6 +71,7 @@ public class ApiValidatorHandlerFactoryTest {
             }
             verify(configService, times(2)).subscribeTo(eq(instance.getPath(wadl)), any(ApiValidatorHandlerFactory.ApiValidatorWadlListener.class), any(GenericResourceConfigurationParser.class));
 
+
         }
 
         @Test
