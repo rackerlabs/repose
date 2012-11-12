@@ -2,6 +2,7 @@ package com.rackspace.papi.commons.util.http.media;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public enum MimeType {
 
    APPLICATION_XML("application", "xml"),
