@@ -110,6 +110,7 @@ public class ServiceContext implements Context {
         destroySubcontext(getNameParser(name).parse(name));
     }
 
+    @SuppressWarnings("PMD.ReplaceHashtableWithMap")
     @Override
     public Hashtable<?, ?> getEnvironment() throws NamingException {
         return new Hashtable(environment);
