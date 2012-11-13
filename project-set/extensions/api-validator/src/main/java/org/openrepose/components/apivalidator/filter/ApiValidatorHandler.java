@@ -96,71 +96,65 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
         
         
        Result lastValidatorResult=null;
-               
+       myDirector.setFilterAction(FilterAction.RETURN);        
        
-       if (validators != null) {
-           List<ValidatorInfo> matchedValidators=getValidatorsForRole(listRoles);
-         if(!matchedValidators.isEmpty()){
-            for (ValidatorInfo validatorInfo : matchedValidators) {
-                                    
-                    Validator validator= validatorInfo.getValidator();
-                    if(validator ==null){
-                         LOG.warn("Validator not available for request:", validatorInfo.getUri());
-                         myDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
-                         
-                    } else{
-                          try {                                
-                                 myDirector.setFilterAction(FilterAction.RETURN);
+       try{
+            if (validators != null) {
+                List<ValidatorInfo> matchedValidators=getValidatorsForRole(listRoles);
+              if(!matchedValidators.isEmpty()){
+                 for (ValidatorInfo validatorInfo : matchedValidators) {
 
-                                 lastValidatorResult= validator.validate(request, response, chain);
-                                 isValid= lastValidatorResult.valid();
-                                 myDirector.setResponseStatusCode(response.getStatus());
-                                 
-                                 if(isValid){
-                                     
-                                     break;
-                                 }
-                              
-                             } catch (Throwable t) {
+                         Validator validator= validatorInfo.getValidator();
+                         if(validator ==null){
+                              LOG.warn("Validator not available for request:", validatorInfo.getUri());
+                              myDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
 
-                                 LOG.error("Some error", t);
-                                 myDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
-                            }
-                        
+                         } else{
+
+
+                                      lastValidatorResult= validator.validate(request, response, chain);
+                                      isValid= lastValidatorResult.valid();
+                                      myDirector.setResponseStatusCode(response.getStatus());
+
+                                      if(isValid){
+
+                                          break;
+                                      }
+                         }
+
+                 }
+
+
+                    if(!isValid && multiRoleMatch){
+
+
+                              if(lastValidatorResult!=null && lastValidatorResult instanceof MultiFailResult){
+
+                                   ErrorResult validatorMultiErrors= (ErrorResult)((MultiFailResult)lastValidatorResult).reduce().get();
+                                   myDirector.setResponseStatusCode(validatorMultiErrors.code());
+                                   response.sendError(validatorMultiErrors.code(), validatorMultiErrors.message());
+
+                                 }else if(lastValidatorResult!=null && lastValidatorResult instanceof ErrorResult) {
+
+                                   myDirector.setResponseStatusCode(((ErrorResult)lastValidatorResult).code());
+                                   response.sendError(((ErrorResult)lastValidatorResult).code(), ((ErrorResult)lastValidatorResult).message());
+
+                               }
+
                     }
-            
+
+            }else{
+
+                myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
+                response.sendError(HttpStatusCode.FORBIDDEN.intValue());
+
             }
-      
-     
-       if(!isValid && multiRoleMatch){
+          }
+        } catch (Throwable t) {
 
-            try{ 
-                 if(lastValidatorResult!=null && lastValidatorResult instanceof MultiFailResult){
-
-                      ErrorResult validatorMultiErrors= (ErrorResult)((MultiFailResult)lastValidatorResult).reduce().get();
-                      myDirector.setResponseStatusCode(validatorMultiErrors.code());
-                      response.sendError(validatorMultiErrors.code(), validatorMultiErrors.message());
-
-                    }else if(lastValidatorResult!=null && lastValidatorResult instanceof ErrorResult) {
-
-                      myDirector.setResponseStatusCode(((ErrorResult)lastValidatorResult).code());
-                      response.sendError(((ErrorResult)lastValidatorResult).code(), ((ErrorResult)lastValidatorResult).message());
-
-                  }
-               }catch (Throwable t) {
-
-                     LOG.error("Some error", t);
-                     myDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
-               }
-           }
-           
-       
- 
+            LOG.error("Some error", t);
+            myDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
         }
-       }else{
-           
-           myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
-       }
         return myDirector;
     }
 }
