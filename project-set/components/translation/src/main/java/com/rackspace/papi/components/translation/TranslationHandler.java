@@ -10,7 +10,6 @@ import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
 import com.rackspace.papi.commons.util.pooling.ResourceContext;
-import com.rackspace.papi.commons.util.pooling.ResourceContextException;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
@@ -66,7 +65,7 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
     private boolean executePool(final XmlChainPool pool, final InputStream in, final OutputStream out) {
         Boolean result = (Boolean) pool.getPool().use(new ResourceContext<XmlFilterChain, Boolean>() {
             @Override
-            public Boolean perform(XmlFilterChain chain) throws ResourceContextException {
+            public Boolean perform(XmlFilterChain chain) {
                 List<XsltParameter> params = new ArrayList<XsltParameter>(pool.getParams());
                 try {
                     chain.executeChain(in, out, params);

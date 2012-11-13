@@ -9,7 +9,6 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
-import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.StoredElement;
 import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
 import org.slf4j.Logger;
@@ -108,7 +107,7 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
       return director;
    }
 
-   public void onCacheDelete(HttpServletRequest request, final FilterDirector director) throws DatastoreOperationException, MalformedCacheRequestException {
+   public void onCacheDelete(HttpServletRequest request, final FilterDirector director) {
       final CacheRequest cacheDelete = CacheRequest.marshallCacheRequest(request);
       hashRingDatastore.remove(cacheDelete.getCacheKey(), encodingProvider.decode(cacheDelete.getCacheKey()), cacheDelete.getRequestedRemoteBehavior());
 
@@ -116,7 +115,7 @@ public class DatastoreFilterLogicHandler extends AbstractFilterLogicHandler {
       director.setFilterAction(FilterAction.RETURN);
    }
 
-   public void onCachePut(HttpServletRequest request, final FilterDirector director) throws MalformedCacheRequestException, DatastoreOperationException {
+   public void onCachePut(HttpServletRequest request, final FilterDirector director) {
       final CacheRequest cachePut = CacheRequest.marshallCachePutRequest(request);
       hashRingDatastore.put(cachePut.getCacheKey(), encodingProvider.decode(cachePut.getCacheKey()), cachePut.getPayload(), cachePut.getTtlInSeconds(), TimeUnit.SECONDS, cachePut.getRequestedRemoteBehavior());
 

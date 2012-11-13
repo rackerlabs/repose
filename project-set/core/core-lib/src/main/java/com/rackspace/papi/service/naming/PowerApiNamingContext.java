@@ -1,8 +1,7 @@
 package com.rackspace.papi.service.naming;
 
-import javax.naming.*;
-import java.util.Hashtable;
 import java.util.Map;
+import javax.naming.*;
 
 @SuppressWarnings("UseOfObsoleteCollectionType")
 public class PowerApiNamingContext extends LocalContext {
