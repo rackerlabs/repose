@@ -13,7 +13,7 @@ public class ServiceContext implements Context {
     private final Map<String, Object> bindingsMap;
     private final String nameInNamespace;
 
-    public ServiceContext(String contextName, Hashtable environment) {
+    public ServiceContext(String contextName, Map environment) {
         this.nameInNamespace = contextName;
         this.environment = environment != null ? new HashMap(environment) : new HashMap<String, Object>();
 
@@ -110,6 +110,7 @@ public class ServiceContext implements Context {
         destroySubcontext(getNameParser(name).parse(name));
     }
 
+    @SuppressWarnings("PMD.ReplaceHashtableWithMap")
     @Override
     public Hashtable<?, ?> getEnvironment() throws NamingException {
         return new Hashtable(environment);

@@ -118,7 +118,6 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
        File file = new File(configRoot,path);
        
        return file.exists() ? file.getAbsolutePath() : path;
-       //return StringUtilities.nullSafeStartsWith(path, File.separator) || StringUtilities.nullSafeStartsWith(path, ":\\") ? path : StringUtilities.join(configRoot, File.separator, path);
     }
 
     private DispatchHandler getHandlers(ValidatorItem validatorItem) {

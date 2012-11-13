@@ -45,6 +45,9 @@ public class ProxyApp {
          serverControl.stopPowerApiValve();
       }
    }
+   
+   private ProxyApp(){
+   }
 
 
    private static boolean validPorts(CommandLineArguments commandLineArgs) {
@@ -75,7 +78,8 @@ public class ProxyApp {
          commandLineArgs.setConfigDirectory(DEFAULT_CFG_DIR);
       }
    }
-
+   
+   @SuppressWarnings("PMD.SystemPrintln")
    private static void displayUsage(CmdLineParser cmdLineParser, Exception e) {
       System.err.println(e.getMessage());
       System.err.println("java -jar repose-valve.jar [options...] arguments...");

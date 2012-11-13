@@ -14,7 +14,8 @@ public class CommandDriver {
 
    private final Command myCommand;
    private final String[] args;
-
+   
+   @SuppressWarnings("PMD.SystemPrintln")
    public static void main(String[] args) {
       final CommandResult result = new CommandDriver(new RootCommandLine(), args).go();
 

@@ -8,12 +8,13 @@ import java.util.Hashtable;
 @SuppressWarnings("UseOfObsoleteCollectionType")
 public class InitialServiceContextFactory implements InitialContextFactory {
 
-    public Context getInitialContext() throws NamingException {
-        return getInitialContext(new Hashtable());
-    }
-    
-    @Override
-    public Context getInitialContext(Hashtable environment) throws NamingException {
-        return new PowerApiNamingContext("", environment);
-    }
+   public Context getInitialContext() throws NamingException {
+      return getInitialContext(new Hashtable());
+   }
+
+   @SuppressWarnings("PMD.ReplaceHashtableWithMap")
+   @Override
+   public Context getInitialContext(Hashtable environment) throws NamingException {
+      return new PowerApiNamingContext("", environment);
+   }
 }

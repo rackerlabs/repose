@@ -100,7 +100,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
        
        if (validators != null) {
            List<ValidatorInfo> matchedValidators=getValidatorsForRole(listRoles);
-         
+         if(!matchedValidators.isEmpty()){
             for (ValidatorInfo validatorInfo : matchedValidators) {
                                     
                     Validator validator= validatorInfo.getValidator();
@@ -156,6 +156,10 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
            
        
  
+        }
+       }else{
+           
+           myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
        }
         return myDirector;
     }
