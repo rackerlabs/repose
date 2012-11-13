@@ -2,7 +2,6 @@ package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.pooling.ConstructionStrategy;
-import com.rackspace.papi.commons.util.pooling.ResourceConstructionException;
 import com.rackspace.papi.components.translation.config.StyleSheet;
 import com.rackspace.papi.components.translation.config.TranslationBase;
 import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;
@@ -26,7 +25,7 @@ public class XmlFilterChainFactory implements ConstructionStrategy<XmlFilterChai
     }
 
     @Override
-    public XmlFilterChain construct() throws ResourceConstructionException {
+    public XmlFilterChain construct() {
         List<StyleSheetInfo> stylesheets = new ArrayList<StyleSheetInfo>();
         if (translation.getStyleSheets() != null) {
             for (StyleSheet sheet : translation.getStyleSheets().getStyle()) {

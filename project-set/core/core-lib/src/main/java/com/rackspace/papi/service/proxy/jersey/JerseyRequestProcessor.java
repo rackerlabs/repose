@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 class JerseyRequestProcessor extends AbstractRequestProcessor {
 
     private static final Logger LOG = LoggerFactory.getLogger(JerseyRequestProcessor.class);
+    private static final int BUFFER_SIZE = 1024;
     private final HttpServletRequest request;
     private Pattern delimiter = Pattern.compile("&");
     private Pattern pair = Pattern.compile("=");
@@ -101,7 +102,7 @@ class JerseyRequestProcessor extends AbstractRequestProcessor {
             return;
         }
 
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[BUFFER_SIZE];
 
         int read = input.read(buffer);
 

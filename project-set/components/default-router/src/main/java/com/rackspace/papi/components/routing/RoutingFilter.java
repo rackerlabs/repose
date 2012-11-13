@@ -3,13 +3,11 @@ package com.rackspace.papi.components.routing;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
-import org.springframework.beans.BeansException;
+import java.io.IOException;
+import javax.servlet.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
-
-import javax.servlet.*;
-import java.io.IOException;
 
 @Deprecated
 public class RoutingFilter implements Filter, ApplicationContextAware {
@@ -35,7 +33,7 @@ public class RoutingFilter implements Filter, ApplicationContextAware {
     }
 
     @Override
-    public void setApplicationContext(ApplicationContext ac) throws BeansException {
+    public void setApplicationContext(ApplicationContext ac) {
         applicationContext = new ClassPathXmlApplicationContext(new String[]{"default-router-context.xml"}, ac);
     }
 }

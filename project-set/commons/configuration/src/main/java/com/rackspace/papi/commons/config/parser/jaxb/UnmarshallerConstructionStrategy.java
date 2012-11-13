@@ -2,7 +2,6 @@ package com.rackspace.papi.commons.config.parser.jaxb;
 
 import com.rackspace.papi.commons.util.pooling.ConstructionStrategy;
 import com.rackspace.papi.commons.util.pooling.ResourceConstructionException;
-
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
@@ -16,7 +15,7 @@ public class UnmarshallerConstructionStrategy implements ConstructionStrategy<Un
     }
     
     @Override
-    public Unmarshaller construct() throws ResourceConstructionException {
+    public Unmarshaller construct() {
         try {
             return context.createUnmarshaller();
         } catch(JAXBException jaxbe) {

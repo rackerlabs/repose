@@ -11,7 +11,7 @@ import net.sf.saxon.lib.OutputURIResolver;
 
 public class OutputStreamUriParameterResolver implements OutputURIResolver {
 
-    private final static String PREFIX = "reference:jio:";
+    private static final String PREFIX = "reference:jio:";
     private final Map<String, OutputStream> streams = new HashMap<String, OutputStream>();
     private final OutputURIResolver parent;
 

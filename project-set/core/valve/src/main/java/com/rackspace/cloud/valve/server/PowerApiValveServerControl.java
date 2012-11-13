@@ -26,7 +26,6 @@ public class PowerApiValveServerControl {
 
    private static final Logger LOG = LoggerFactory.getLogger(PowerApiValveServerControl.class);
    private static final String LOCALHOST_IP = "127.0.0.1";
-   private Server serverInstance;
    private CommandLineArguments commandLineArgs;
    private final List<Port> ports = new ArrayList<Port>();
 
@@ -82,6 +81,7 @@ public class PowerApiValveServerControl {
    }
 
    public void startPowerApiValve() throws Exception {
+      Server serverInstance = null;
       
       try {
 

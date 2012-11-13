@@ -31,6 +31,7 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
     private static final Logger LOG = LoggerFactory.getLogger(ChannelledUpdateListener.class);
     private static final int BUFFER_SIZE = 1024;
     private static final int TIMEOUT = 1000;
+    private static final int INT_SIZE = 4;
     private boolean done;
     private final ServerSocket socket;
     private final Datastore datastore;
@@ -76,8 +77,8 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
         }
 
         private int readInt() throws IOException {
-            byte[] data = new byte[4];
-            int dataToRead = 4;
+            byte[] data = new byte[INT_SIZE];
+            int dataToRead = INT_SIZE;
 
             while (dataToRead > 0) {
                 dataToRead -= inputStream.read(data, 0, dataToRead);
@@ -92,7 +93,7 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
                 return objectSize;
             }
 
-            if (inputStream.available() >= 4) {
+            if (inputStream.available() >= INT_SIZE) {
                 objectSize = readInt();
             }
 

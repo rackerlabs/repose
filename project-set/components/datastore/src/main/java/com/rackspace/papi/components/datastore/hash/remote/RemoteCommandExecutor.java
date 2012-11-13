@@ -29,7 +29,7 @@ public class RemoteCommandExecutor {
         this.hostKey = hostKey;
     }
 
-    public Object execute(final RemoteCommand command, RemoteBehavior behavior) throws DatastoreOperationException, RemoteConnectionException {
+    public Object execute(final RemoteCommand command, RemoteBehavior behavior) {
         try {
             command.setHostKey(hostKey);
             ServiceClientResponse execute = command.execute(proxyService, behavior);
