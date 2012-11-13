@@ -1,18 +1,13 @@
 package org.openrepose.components.apivalidator.filter;
 
 import com.rackspace.com.papi.components.checker.Config;
-import com.rackspace.com.papi.components.checker.handler.ResultHandler;
-import com.rackspace.com.papi.components.checker.handler.SaveDotHandler;
-import com.rackspace.com.papi.components.checker.handler.ServletResultHandler;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.config.parser.generic.GenericResourceConfigurationParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
-import com.rackspace.papi.commons.util.StringUriUtilities;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.config.ConfigurationService;
 import java.io.File;
-import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -116,40 +111,6 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         return !wadl.contains("://") ? StringUtilities.join("file://", file.getAbsolutePath()) : wadl;
     }
     
-    String getPath(String path){
-       File file = new File(path);
-       
-       if (!file.isAbsolute()){
-          file = new File(configRoot,path);
-       }
-       
-       return file.exists() ? file.getAbsolutePath() : path;
-    }
-
-    private DispatchHandler getHandlers(ValidatorItem validatorItem) {
-        List<ResultHandler> handlers = new ArrayList<ResultHandler>();
-        
-        if(!multiRoleMatch){
-            handlers.add(new ServletResultHandler());
-        }
-        
-
-        if (StringUtilities.isNotBlank(validatorItem.getDotOutput())) {
-            final String dotPath = StringUriUtilities.formatUri(getPath(validatorItem.getDotOutput()));
-            File out = new File(dotPath);
-            try {
-                if (out.exists() && out.canWrite() || !out.exists() && out.createNewFile()) {
-                    handlers.add(new SaveDotHandler(out, true, true));
-                } else {
-                    LOG.warn("Cannot write to DOT file: " + dotPath);
-                }
-            } catch (IOException ex) {
-                LOG.warn("Cannot write to DOT file: " + dotPath, ex);
-            }
-        }
-        return new DispatchHandler(handlers.toArray(new ResultHandler[handlers.size()]));
-    }
-
     void initialize() {
         synchronized (lock) {
             if (initialized || validatorConfiguration == null) {
@@ -161,24 +122,9 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
             multiRoleMatch=validatorConfiguration.isMultiRoleMatch();
 
             for (ValidatorItem validatorItem : validatorConfiguration.getValidator()) {
-                Config config = new Config();
-                config.setResultHandler(getHandlers(validatorItem));
-                config.setUseSaxonEEValidation(validatorItem.isUseSaxon());
-                config.setCheckWellFormed(validatorItem.isCheckWellFormed());
-                config.setCheckXSDGrammar(validatorItem.isCheckXsdGrammar());
-                config.setCheckElements(validatorItem.isCheckElements());
-                config.setXPathVersion(validatorItem.getXpathVersion());
-
-                config.setCheckPlainParams(validatorItem.isCheckPlainParams());
-                config.setDoXSDGrammarTransform(validatorItem.isDoXsdGrammarTransform());
-                config.setEnablePreProcessExtension(validatorItem.isEnablePreProcessExtension());
-                config.setRemoveDups(validatorItem.isRemoveDups());
-                config.setValidateChecker(validatorItem.isValidateChecker());
-                config.setXSLEngine(validatorItem.getXslEngine().value());
-                config.setJoinXPathChecks(validatorItem.isJoinXpathChecks());
-                config.setCheckHeaders(validatorItem.isCheckHeaders());
-
+                Config config = new ValidatorConfigurator(validatorItem, multiRoleMatch, configRoot).getConfiguration();
                 ValidatorInfo validator = new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), config);
+
                 validators.add (validator);
                 if (validatorItem.isDefault() && defaultValidator == null) {
                     defaultValidator = validator;
@@ -215,8 +161,6 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         }
         return new ApiValidatorHandler(defaultValidator, validators, multiRoleMatch);
     }
-    
-
 
     @Override
     protected Map<Class, UpdateListener<?>> getListeners() {
