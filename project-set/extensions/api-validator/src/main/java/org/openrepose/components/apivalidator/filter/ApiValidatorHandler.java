@@ -111,68 +111,39 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
         final FilterDirector myDirector = new FilterDirectorImpl();
         myDirector.setFilterAction(FilterAction.PASS);
         MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
+        List<HeaderValue> roles = mutableRequest.getPreferredHeaderValues(OpenStackServiceHeader.ROLES.toString(), new HeaderValueImpl(""));
+        Result lastValidatorResult = null;
         boolean isValid = false;
-        List<HeaderValue> listRoles = mutableRequest.getPreferredHeaderValues(OpenStackServiceHeader.ROLES.toString(), new HeaderValueImpl(""));
-       
-        
-       Result lastValidatorResult=null;
-       myDirector.setFilterAction(FilterAction.RETURN);        
-       
-       try{
-            if (validators != null) {
-                List<ValidatorInfo> matchedValidators=getValidatorsForRole(listRoles);
-              if(!matchedValidators.isEmpty()){
-                 for (ValidatorInfo validatorInfo : matchedValidators) {
+        myDirector.setFilterAction(FilterAction.RETURN);
 
-                         Validator validator= validatorInfo.getValidator();
-                         if(validator ==null){
-                              LOG.warn("Validator not available for request:", validatorInfo.getUri());
-                              myDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
+        try {
+            List<ValidatorInfo> matchedValidators = getValidatorsForRole(roles);
+            if (!matchedValidators.isEmpty()) {
+                for (ValidatorInfo validatorInfo : matchedValidators) {
 
-                         } else{
-
-
-                                      lastValidatorResult= validator.validate(request, response, chain);
-                                      isValid= lastValidatorResult.valid();
-                                      myDirector.setResponseStatusCode(response.getStatus());
-
-                                      if(isValid){
-
-                                          break;
-                                      }
-                         }
-
-                 }
-
-
-                    if(!isValid && multiRoleMatch){
-
-
-                              if(lastValidatorResult!=null && lastValidatorResult instanceof MultiFailResult){
-
-                                   ErrorResult validatorMultiErrors= (ErrorResult)((MultiFailResult)lastValidatorResult).reduce().get();
-                                   myDirector.setResponseStatusCode(validatorMultiErrors.code());
-                                   response.sendError(validatorMultiErrors.code(), validatorMultiErrors.message());
-
-                                 }else if(lastValidatorResult!=null && lastValidatorResult instanceof ErrorResult) {
-
-                                   myDirector.setResponseStatusCode(((ErrorResult)lastValidatorResult).code());
-                                   response.sendError(((ErrorResult)lastValidatorResult).code(), ((ErrorResult)lastValidatorResult).message());
-
-                               }
-
+                    Validator validator = validatorInfo.getValidator();
+                    if (validator == null) {
+                        LOG.warn("Validator not available for request:", validatorInfo.getUri());
+                        myDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
+                    } else {
+                        lastValidatorResult = validator.validate(request, response, chain);
+                        isValid = lastValidatorResult.valid();
+                        myDirector.setResponseStatusCode(response.getStatus());
+                        if (isValid) {
+                            break;
+                        }
                     }
+                }
 
-            }else{
-
+                if (!isValid && multiRoleMatch) {
+                    sendMultiMatchErrorResponse(lastValidatorResult, myDirector, response);
+                }
+            } else {
                 myDirector.setResponseStatus(HttpStatusCode.FORBIDDEN);
                 response.sendError(HttpStatusCode.FORBIDDEN.intValue());
-
             }
-          }
         } catch (Throwable t) {
-
-            LOG.error("Some error", t);
+            LOG.error("Error processing validation", t);
             myDirector.setResponseStatus(HttpStatusCode.BAD_GATEWAY);
         }
 
