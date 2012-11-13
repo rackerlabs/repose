@@ -83,7 +83,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
                 serviceResponse = validateUser(userToken);
 
-                if (serviceResponse.getStatusCode() == 200) {
+                if (serviceResponse.getStatusCode() == HttpStatusCode.OK.intValue()) {
                     token = getOpenStackToken(tenant, serviceResponse);
                 } else {
                     LOG.warn("Still unable to validate token for tenant: " + serviceResponse.getStatusCode());

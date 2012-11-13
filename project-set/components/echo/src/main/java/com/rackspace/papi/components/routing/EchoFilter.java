@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Enumeration;
+import org.eclipse.jetty.http.HttpStatus;
 
 public class EchoFilter implements Filter {
 
@@ -31,7 +32,7 @@ public class EchoFilter implements Filter {
             }
         }
         
-        httpResponse.setStatus(200);
+        httpResponse.setStatus(HttpStatus.OK_200);
     }
 
     @Override

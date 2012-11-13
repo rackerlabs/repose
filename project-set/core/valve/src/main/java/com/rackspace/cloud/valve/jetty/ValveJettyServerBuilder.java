@@ -28,7 +28,6 @@ public class ValveJettyServerBuilder {
     private String configurationPathAndFile = "";
     private final SslConfiguration sslConfiguration;
     private final String connectionFramework;
-    private PowerApiContextManager contextManager;
     private final boolean insecure;
 
     public ValveJettyServerBuilder(String configurationPathAndFile, List<Port> ports, SslConfiguration sslConfiguration, String connectionFramework, boolean insecure) {
@@ -94,7 +93,7 @@ public class ValveJettyServerBuilder {
         
 
         try {
-            contextManager = PowerApiContextManager.class.newInstance();
+            PowerApiContextManager contextManager = PowerApiContextManager.class.newInstance();
             contextManager.setPorts(ports);
             servletContext.addEventListener(contextManager);
         } catch (InstantiationException e) {

@@ -29,6 +29,6 @@ public class RequestTracer {
         long totalRequestTime = new Date().getTime() - requestStart;
         long myTime = totalRequestTime - myStart - accumulatedTime;
         accumulatedTime += myTime;
-        response.addHeader("X-" + filterName + "-Time", String.valueOf(myTime) + "ms");
+        response.addHeader("X-" + filterName + "-Time", myTime + "ms");
     }
 }

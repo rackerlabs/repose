@@ -21,14 +21,13 @@ public class ContentIdentityAuthHandlerFactory extends AbstractConfiguredFilterH
    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ContentIdentityAuthHandlerFactory.class);
    private ContentIdentityAuthConfig config;
    private JacksonJaxbTransform jsonTranformer;
-   private JAXBContext jaxbContext = null;
    private Transform<InputStream, JAXBElement<Credentials>> xmlTransformer;
 
    public ContentIdentityAuthHandlerFactory() {
       jsonTranformer = new JacksonJaxbTransform();
 
       try {
-         jaxbContext = JAXBContext.newInstance(com.rackspacecloud.docs.auth.api.v1.ObjectFactory.class);
+         JAXBContext jaxbContext = JAXBContext.newInstance(com.rackspacecloud.docs.auth.api.v1.ObjectFactory.class);
          xmlTransformer = new StreamToJaxbTransform(jaxbContext);
       } catch (JAXBException e) {
          LOG.error("Error when creating JABXContext for auth credentials. Reason: " + e.getMessage(), e);

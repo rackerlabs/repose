@@ -5,6 +5,7 @@ import org.openrepose.cli.command.AbstractCommand;
 import org.openrepose.cli.command.results.*;
 
 public class AuthGroupsRemover extends AbstractCommand {
+    private static final int ARG_SIZE = 3;
 
     @Override
     public String getCommandToken() {
@@ -19,7 +20,7 @@ public class AuthGroupsRemover extends AbstractCommand {
     @Override
     public CommandResult perform(String[] arguments) {
 
-        if (arguments.length != 3) {
+        if (arguments.length != ARG_SIZE) {
             return new InvalidArguments("The groups remover expects three string arguments.");
         }
 
