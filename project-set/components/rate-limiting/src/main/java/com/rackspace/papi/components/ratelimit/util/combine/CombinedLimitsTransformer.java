@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.ratelimit.util.combine;
 
-import com.rackspace.papi.commons.util.pooling.ResourceContextException;
 import com.rackspace.papi.commons.util.pooling.SimpleResourceContext;
 import com.rackspace.papi.commons.util.transform.StreamTransform;
 import com.rackspace.papi.commons.util.transform.xslt.AbstractXslTransform;
@@ -39,7 +38,7 @@ public class CombinedLimitsTransformer extends AbstractXslTransform implements S
         getXslTransformerPool().use(new SimpleResourceContext<Transformer>() {
 
             @Override
-            public void perform(Transformer resource) throws ResourceContextException {
+            public void perform(Transformer resource) {
                 final StreamResult resultWriter = new StreamResult(target);
                 
                 // The XSL requires a parameter to represent the absolute limits.

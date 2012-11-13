@@ -1,11 +1,10 @@
 package com.rackspace.papi.service.naming;
 
-import javax.naming.*;
-import javax.naming.spi.NamingManager;
 import java.util.Collections;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.TreeMap;
+import javax.naming.*;
+import javax.naming.spi.NamingManager;
 
 @SuppressWarnings("UseOfObsoleteCollectionType")
 public abstract class LocalContext extends AbstractContext {

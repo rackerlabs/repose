@@ -42,7 +42,7 @@ public class Put extends AbstractRemoteCommand {
     }
     
     @Override
-    public Object handleResponse(ServiceClientResponse response) throws IOException, DatastoreOperationException {
+    public Object handleResponse(ServiceClientResponse response) throws IOException {
         if (response.getStatusCode() != HttpStatusCode.ACCEPTED.intValue()) {
             throw new DatastoreOperationException("Remote request failed with: " + response.getStatusCode());
         }

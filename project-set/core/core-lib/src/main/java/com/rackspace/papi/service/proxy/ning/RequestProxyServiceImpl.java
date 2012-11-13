@@ -6,7 +6,6 @@ import com.ning.http.client.*;
 import com.rackspace.papi.commons.util.StringUriUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
-import com.rackspace.papi.commons.util.io.stream.ReadLimitReachedException;
 import com.rackspace.papi.http.proxy.HttpException;
 import com.rackspace.papi.http.proxy.common.HttpResponseCodeProcessor;
 import com.rackspace.papi.service.proxy.ProxyUtilities;
@@ -38,7 +37,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     }
 
     @Override
-    public int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response) throws IOException,ReadLimitReachedException {
+    public int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response) throws IOException {
         TargetHostInfo host = new TargetHostInfo(targetHost);
         RequestBuilder process = new NingRequestProcessor(request, host).process();
         Request build = process.build();
