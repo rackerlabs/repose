@@ -171,6 +171,13 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
+        <xs:attribute name="check-headers" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 </xs:schema>
