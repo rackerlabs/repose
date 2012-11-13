@@ -1,7 +1,5 @@
 package org.openrepose.components.apivalidator.filter;
 
-import org.openrepose.components.apivalidator.filter.ValidatorInfo;
-import org.openrepose.components.apivalidator.filter.ApiValidatorHandler;
 import com.rackspace.com.papi.components.checker.Validator;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
@@ -12,7 +10,6 @@ import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import javax.servlet.FilterChain;
 import org.junit.*;
 import static org.junit.Assert.*;
