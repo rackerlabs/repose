@@ -73,6 +73,7 @@ public final class DefaultLogConfigurator {
     * 
     * @return 
     */
+   @SuppressWarnings("PMD.SystemPrintln")
    private static String determineInitialLogFileName() {
       File defaultLogFile = new File(DEFAULT_LOG_DIR);
       File logDir = defaultLogFile.getParentFile();
