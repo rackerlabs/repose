@@ -8,7 +8,6 @@ import com.rackspace.papi.commons.config.resource.impl.BufferedURLConfigurationR
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.SslConfiguration;
 import com.rackspace.papi.domain.Port;
-import com.rackspace.papi.jetty.JettyException;
 import java.io.File;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;

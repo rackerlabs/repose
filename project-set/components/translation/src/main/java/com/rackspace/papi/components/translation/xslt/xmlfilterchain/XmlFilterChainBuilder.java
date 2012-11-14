@@ -18,14 +18,12 @@ import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamSource;
-import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
 
 public class XmlFilterChainBuilder {
 
-    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(XmlFilterChainBuilder.class);
     private static final String CLASSPATH_PREFIX = "classpath://";
     private final SAXTransformerFactory factory;
 
