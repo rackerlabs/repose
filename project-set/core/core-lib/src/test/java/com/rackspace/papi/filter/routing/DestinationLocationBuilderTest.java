@@ -4,6 +4,8 @@ import com.rackspace.papi.model.DestinationCluster;
 import com.rackspace.papi.model.DestinationEndpoint;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.service.routing.RoutingService;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -46,29 +48,24 @@ public class DestinationLocationBuilderTest {
       
       @Test
       public void shouldContructAnEnpointBuilder() {
-         DestinationLocationBuilder builder = new DestinationLocationBuilder(routingService, localhost, endpointDestination, "", request);
-         assertTrue(builder.getBuilder() instanceof EndpointLocationBuilder);
+         DestinationLocationBuilderImpl builder = new DestinationLocationBuilderImpl(new DomainLocationBuilder(routingService), new EndpointLocationBuilder().init(localhost));
+         assertTrue(builder.getBuilder(endpointDestination) instanceof EndpointLocationBuilder);
       }
 
       @Test
       public void shouldContructADomainBuilder() {
-         DestinationLocationBuilder builder = new DestinationLocationBuilder(routingService, localhost, domainDestination, "", request);
-         assertTrue(builder.getBuilder() instanceof DomainLocationBuilder);
+         DestinationLocationBuilderImpl builder = new DestinationLocationBuilderImpl(new DomainLocationBuilder(routingService), new EndpointLocationBuilder().init(localhost));
+         assertTrue(builder.getBuilder(domainDestination) instanceof DomainLocationBuilder);
       }
       
       @Test(expected=IllegalArgumentException.class)
-      public void shouldThrowIllegalArgumentForNullRouting() {
-         new DestinationLocationBuilder(null, localhost, domainDestination, "", request);
+      public void shouldThrowIllegalArgumentForNullHost() throws MalformedURLException, URISyntaxException {
+         new DestinationLocationBuilderImpl(new DomainLocationBuilder(routingService), new EndpointLocationBuilder()).build(endpointDestination, "", request);
       }
       
       @Test(expected=IllegalArgumentException.class)
-      public void shouldThrowIllegalArgumentForNullHost() {
-         new DestinationLocationBuilder(routingService, null, domainDestination, "", request);
-      }
-      
-      @Test(expected=IllegalArgumentException.class)
-      public void shouldThrowIllegalArgumentForNullDestination() {
-         new DestinationLocationBuilder(routingService, localhost, null, "", request);
+      public void shouldThrowIllegalArgumentForNullDestination() throws MalformedURLException, URISyntaxException {
+         new DestinationLocationBuilderImpl(new DomainLocationBuilder(routingService), new EndpointLocationBuilder().init(localhost)).build(null, "", request);
       }
       
    }

@@ -61,8 +61,8 @@ public class DomainLocationBuilderTest {
       public void shouldFindNodeAndBuildDestination() throws Exception {
          final String uri = "/context";
          
-         instance = new DomainLocationBuilder(routingService, dest, uri,request);
-         DestinationLocation build = instance.build();
+         instance = new DomainLocationBuilder(routingService);
+         DestinationLocation build = instance.build(dest, uri,request);
          assertNotNull(build);
          assertNotNull(build.getUri());
          assertNotNull(build.getUrl());
@@ -81,8 +81,8 @@ public class DomainLocationBuilderTest {
          
          dest.setProtocol("https");
          
-         instance = new DomainLocationBuilder(routingService, dest, uri,request);
-         DestinationLocation build = instance.build();
+         instance = new DomainLocationBuilder(routingService);
+         DestinationLocation build = instance.build(dest, uri,request);
          assertNotNull(build);
          assertNotNull(build.getUri());
          assertNotNull(build.getUrl());
@@ -101,8 +101,8 @@ public class DomainLocationBuilderTest {
 
          when(routingService.getRoutableNode(anyString())).thenReturn(null);
          
-         instance = new DomainLocationBuilder(routingService, dest, uri,request);
-         DestinationLocation build = instance.build();
+         instance = new DomainLocationBuilder(routingService);
+         DestinationLocation build = instance.build(dest, uri,request);
          assertNull(build);
       }
    }
