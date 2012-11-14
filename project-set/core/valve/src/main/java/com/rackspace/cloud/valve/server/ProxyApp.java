@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 /**
  * @author zinic
  */
-public class ProxyApp {
+public final class ProxyApp {
 
    private static final Logger LOG = LoggerFactory.getLogger(ProxyApp.class);
    private static final String DEFAULT_CFG_DIR = "/etc/repose";

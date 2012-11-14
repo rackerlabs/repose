@@ -36,6 +36,12 @@ public class OutputStreamUriParameterResolver implements OutputURIResolver {
     public String getHref(String name) {
         return PREFIX + name;
     }
+    
+    private static class ResourceNotFoundException extends RuntimeException {
+        ResourceNotFoundException(String message) {
+            super(message);
+        }
+    }
 
     @Override
     public Result resolve(String href, String base) throws TransformerException {
@@ -48,9 +54,10 @@ public class OutputStreamUriParameterResolver implements OutputURIResolver {
             return parent.resolve(href, base);
         }
 
-        throw new RuntimeException("Failed to resolve href: " + href);
+        throw new ResourceNotFoundException("Failed to resolve href: " + href);
     }
 
+    @Override
     public void close(Result result) throws TransformerException {
         try {
             ((StreamResult) result).getOutputStream().close();
