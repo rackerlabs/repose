@@ -13,9 +13,9 @@ import com.rackspace.papi.commons.util.pooling.ResourceContext;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlChainPool;
 import com.rackspace.papi.components.translation.xslt.XsltException;
 import com.rackspace.papi.components.translation.xslt.XsltParameter;
+import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlChainPool;
 import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlFilterChain;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -132,7 +132,6 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
     @Override
     public FilterDirector handleRequest(HttpServletRequest httpRequest, ReadableHttpServletResponse httpResponse) {
         MutableHttpServletRequest request = MutableHttpServletRequest.wrap(httpRequest);
-        MutableHttpServletResponse response = MutableHttpServletResponse.wrap(httpRequest, httpResponse);
         FilterDirector filterDirector = new FilterDirectorImpl();
         MediaType contentType = getContentType(request.getHeader("content-type"));
         List<MediaType> acceptValues = getAcceptValues(request.getPreferredHeaderValues("Accept", DEFAULT_TYPE));
