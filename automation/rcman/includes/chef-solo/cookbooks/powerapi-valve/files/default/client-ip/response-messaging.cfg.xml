@@ -32,6 +32,30 @@
         </message>
     </status-code>
 
+<status-code id="429" code-regex="429">
+        <message media-type="*/*">
+{
+    "overLimit" : {
+        "code" : 429,
+        "message" : "OverLimit Retry...",
+        "details" : "Error Details...",
+	"retryAfter" : "%{Retry-After DATE ISO_8601}o"
+    }
+}
+        </message>
+
+        <message media-type="application/xml">
+<![CDATA[
+<overLimit
+    xmlns="http://docs.openstack.org/common/api/v1.1"
+    code="413" retryAfter="%{Retry-After DATE ISO_8601}o">
+  <message>OverLimit Retry...</message>
+  <details>Error Details...</details>
+</overLimit>
+]]>
+        </message>
+    </status-code>
+
 <status-code id="345" code-regex="345" overwrite="IF_EMPTY">
         <message media-type="*/*">
 {
