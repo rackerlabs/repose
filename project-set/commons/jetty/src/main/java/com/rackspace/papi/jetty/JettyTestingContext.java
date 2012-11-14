@@ -9,7 +9,7 @@ public abstract class JettyTestingContext {
       server = null;
    }
 
-   public final synchronized void standUp() throws Exception {
+   public final synchronized void standUp() throws JettyException {
       if (server == null) {
          server = new JettyServerBuilder(getPort());
          buildServerContext(server);
@@ -18,13 +18,13 @@ public abstract class JettyTestingContext {
       }
    }
 
-   public final synchronized void tearDown() throws Exception {
+   public final synchronized void tearDown() throws JettyException {
       if (server != null && server.getServerInstance().isRunning()) {
          server.stop();
       }
    }
 
-   public abstract void buildServerContext(JettyServerBuilder serverBuilder) throws Exception;
+   public abstract void buildServerContext(JettyServerBuilder serverBuilder) throws JettyException;
 
    public static int getPort() {
       return DEFAULT_PORT;

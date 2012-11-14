@@ -1,11 +1,14 @@
 import com.rackspace.papi.components.datastore.DistributedDatastoreFilter;
 import com.rackspace.papi.components.ratelimit.RateLimitingFilter;
 import com.rackspace.papi.filter.PowerFilter;
+import com.rackspace.papi.jetty.JettyException;
 import com.rackspace.papi.jetty.JettyServerBuilder;
 import com.rackspace.papi.jetty.JettyTestingContext;
 import com.rackspace.papi.service.context.impl.PowerApiContextManager;
 import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.test.DummyServlet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class StandAloneRateLimitingServer extends JettyTestingContext {
 
@@ -20,7 +23,7 @@ public class StandAloneRateLimitingServer extends JettyTestingContext {
       }
    }
 
-   public StandAloneRateLimitingServer(int port) throws Exception {
+   public StandAloneRateLimitingServer(int port) throws JettyException {
       final JettyServerBuilder server = new JettyServerBuilder(port);
       buildServerContext(server);
       server.start();
@@ -29,8 +32,14 @@ public class StandAloneRateLimitingServer extends JettyTestingContext {
    }
 
    @Override
-   public final void buildServerContext(JettyServerBuilder serverBuilder) throws Exception {
-      serverBuilder.addContextListener(PowerApiContextManager.class);
+   public final void buildServerContext(JettyServerBuilder serverBuilder) throws JettyException {
+        try {
+            serverBuilder.addContextListener(PowerApiContextManager.class);
+        } catch (IllegalAccessException ex) {
+            throw new JettyException(ex);
+        } catch (InstantiationException ex) {
+            throw new JettyException(ex);
+        }
       serverBuilder.addContextInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), "/home/zinic/ulocal/local/etc/powerapi/rate-limiting");
       serverBuilder.addFilter(PowerFilter.class, "/*");
       serverBuilder.addFilter(DistributedDatastoreFilter.class, "/*");

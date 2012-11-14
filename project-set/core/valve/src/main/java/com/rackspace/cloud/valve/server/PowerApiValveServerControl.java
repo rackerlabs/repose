@@ -8,6 +8,7 @@ import com.rackspace.papi.commons.config.resource.impl.BufferedURLConfigurationR
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.SslConfiguration;
 import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.jetty.JettyException;
 import java.io.File;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
@@ -80,7 +81,7 @@ public class PowerApiValveServerControl {
       throw new ConfigurationResourceException("Container configuration is not valid. Please check your configuration.");
    }
 
-   public void startPowerApiValve() throws Exception {
+   public void startPowerApiValve() {
       Server serverInstance = null;
       
       try {
@@ -102,7 +103,11 @@ public class PowerApiValveServerControl {
          LOG.error("Repose will now stop.");
 
          if (serverInstance != null) {
-            serverInstance.stop();
+             try {
+                serverInstance.stop();
+             } catch(Exception ex) {
+                 LOG.error("Error stopping server", ex);
+             }
          }
       }
    }

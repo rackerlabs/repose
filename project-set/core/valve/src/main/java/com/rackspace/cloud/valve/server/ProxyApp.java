@@ -16,7 +16,7 @@ public class ProxyApp {
    private static final int UPPER_PORT = 49150;
    private static final int LOWER_PORT = 1024;
 
-   public static void main(String[] args) throws Exception {
+   public static void main(String[] args) {
 
       DefaultLogConfigurator.configure();
 
