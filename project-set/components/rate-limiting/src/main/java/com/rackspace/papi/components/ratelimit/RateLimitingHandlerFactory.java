@@ -31,6 +31,7 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
     private RateLimitingService service;
     private final DatastoreService datastoreService;
 
+
     public RateLimitingHandlerFactory(DatastoreService datastoreService) {
         this.datastoreService = datastoreService;
       
@@ -85,8 +86,8 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
             describeLimitsUriRegex = Pattern.compile(configurationObject.getRequestEndpoint().getUriRegex());
 
             rateLimitingConfig = configurationObject;
-
-        }
+            
+           }
     }
 
     @Override
@@ -97,6 +98,6 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
         final RateLimitingServiceHelper serviceHelper = new RateLimitingServiceHelper(service, activeLimitsWriter, combinedLimitsWriter);
         boolean includeAbsoluteLimits = rateLimitingConfig.getRequestEndpoint().isIncludeAbsoluteLimits();
 
-        return new RateLimitingHandler(serviceHelper, includeAbsoluteLimits, describeLimitsUriRegex);
+        return new RateLimitingHandler(serviceHelper, includeAbsoluteLimits, describeLimitsUriRegex, rateLimitingConfig.isOverLimit429ResponseCode());
     }
 }

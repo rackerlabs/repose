@@ -37,6 +37,15 @@
             <xs:element name="request-endpoint" type="rl:RequestEndpoint" minOccurs="1" maxOccurs="1"/>
             <xs:element name="limit-group" type="rl:ConfiguredLimitGroup" minOccurs="1" maxOccurs="unbounded"/>
         </xs:sequence>
+        
+        <xs:attribute name="overLimit-429-responseCode" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
 
         <xs:attribute name="datastore" type="xs:string" use="optional" default="distributed/hash-ring">
             <xs:annotation>
