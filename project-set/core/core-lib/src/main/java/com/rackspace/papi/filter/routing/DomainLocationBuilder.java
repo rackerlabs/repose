@@ -12,24 +12,24 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Component;
 
+@Component("domainLocationBuilder")
 public class DomainLocationBuilder implements LocationBuilder {
     private static final Logger LOG = LoggerFactory.getLogger(DomainLocationBuilder.class);
     private static final String HTTPS_PROTOCOL = "https";
-    private final DestinationCluster domain;
     private final RoutingService routingService;
-    private final String uri;
-    private final HttpServletRequest request;
 
-    public DomainLocationBuilder(RoutingService routingService, Destination destination, String uri, HttpServletRequest request) {
+    @Autowired
+    public DomainLocationBuilder(@Qualifier("routingService") RoutingService routingService) {
         this.routingService = routingService;
-        this.uri = uri;
-        this.domain = (DestinationCluster) destination;
-        this.request = request;
     }
 
     @Override
-    public DestinationLocation build() throws MalformedURLException, URISyntaxException {
+    public DestinationLocation build(Destination destination, String uri, HttpServletRequest request) throws MalformedURLException, URISyntaxException {
+        DestinationCluster domain = (DestinationCluster) destination;
         Node node = routingService.getRoutableNode(domain.getId());
         if (node == null) {
            LOG.warn("No routable node for domain: " + domain.getId());

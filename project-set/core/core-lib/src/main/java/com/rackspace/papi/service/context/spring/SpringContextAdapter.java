@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.context.spring;
 
+import com.rackspace.papi.filter.PowerFilterChainBuilder;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ContextAdapter;
@@ -33,6 +34,7 @@ public class SpringContextAdapter implements ContextAdapter {
     public static final String REPORTING_SERVICE_CONTEXT = "reportingServiceContext";
     public static final String REQUEST_HEADER_SERVICE_CONTEXT = "requestHeaderServiceContext";
     public static final String RESPONSE_HEADER_SERVICE_CONTEXT = "responseHeaderServiceContext";
+    public static final String POWER_FILTER_CHAIN_BUILDER = "powerFilterChainBuilder";
 
     private final ApplicationContext applicationContext;
 
@@ -102,6 +104,11 @@ public class SpringContextAdapter implements ContextAdapter {
     @Override
     public LoggingService loggingService() {
         return ((ServiceContext<LoggingService>) applicationContext.getBean(LOGGING_SERVICE_CONTEXT)).getService();
+    }
+
+    @Override
+    public PowerFilterChainBuilder filterChainBuilder() {
+        return (PowerFilterChainBuilder) applicationContext.getBean(POWER_FILTER_CHAIN_BUILDER);
     }
 
     @Override
