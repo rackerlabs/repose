@@ -24,5 +24,6 @@
       check-well-formed="false"
       check-xsd-grammer="true"
       check-elements="true"
+      check-headers="true"
       use-saxon="false"/>
 </validators>
