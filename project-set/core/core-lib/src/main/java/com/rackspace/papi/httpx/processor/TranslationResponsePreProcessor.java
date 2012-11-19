@@ -11,10 +11,11 @@ import org.codehaus.jackson.JsonFactory;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import java.io.IOException;
 import java.io.InputStream;
+import javax.xml.transform.TransformerFactory;
 
 public class TranslationResponsePreProcessor {
 
-    private static final SAXTransformerFactory HANDLER_FACTORY = (SAXTransformerFactory) SAXTransformerFactory.newInstance();
+    private static final SAXTransformerFactory HANDLER_FACTORY = (SAXTransformerFactory) TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
     private final MutableHttpServletResponse response;
     private final boolean jsonPreprocessing;
     private final MediaType contentType;
