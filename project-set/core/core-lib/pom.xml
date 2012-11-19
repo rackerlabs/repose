@@ -79,6 +79,7 @@
             <groupId>net.sf.saxon</groupId>
             <artifactId>saxon</artifactId>
             <version>9.3</version>
+            <scope>test</scope>
         </dependency>
 
         <!-- Required for @Configuration annotation -->

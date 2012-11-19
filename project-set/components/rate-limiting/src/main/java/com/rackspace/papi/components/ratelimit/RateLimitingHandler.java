@@ -16,11 +16,9 @@ import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.repose.service.ratelimit.exception.CacheException;
 import com.rackspace.repose.service.ratelimit.exception.OverLimitException;
-import java.io.IOException;
-import org.slf4j.Logger;
-
-import javax.servlet.http.HttpServletRequest;
 import java.util.regex.Pattern;
+import javax.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
 
 
 public class RateLimitingHandler extends AbstractFilterLogicHandler {
