@@ -52,6 +52,13 @@
                             </response>
                         </method>
                     </resource>
+                    <resource path="reqheader">
+                        <method name="GET" id="getItemReqHeader">
+                            <request>
+                                <param type="xs:string" style="header" name="x-required-header" required="true"/>
+                            </request>
+                        </method>
+                    </resource>
                     
                 </resource>
             </resource>
