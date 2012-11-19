@@ -15,55 +15,24 @@
     <name>Repose - Documentation</name>
     <packaging>jar</packaging>
     
-    <pluginRepositories>
-        <pluginRepository>
-            <id>rackspace-research</id>
-            <name>Rackspace Research Repository</name>
-            <url>http://maven.research.rackspacecloud.com/content/groups/public/</url>
-        </pluginRepository>
-    </pluginRepositories>
-
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>batik-maven-plugin</artifactId>
-                <version>1.0-beta-1</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>rasterize</goal>
-                        </goals>
-                        <configuration>
-                            <!-- identify locations of figures -->
-                            <srcDir>${basedir}/src/resources/figures</srcDir>
-                            <destDir>${basedir}/target/docbkx/webhelp/repose/content/figures</destDir>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            
             <plugin>
                 <groupId>com.rackspace.cloud.api</groupId>
                 <artifactId>clouddocs-maven-plugin</artifactId>
                 <!-- this <version> relates only to the *plugin* used for document formatting -->
                 <!-- the version of the *API* that is the subject of the document is indicated within each document -->
-                <!-- 1.0.9 of the plugin, released 2012-01-06, corrects HTML search behavior so words previously not searchable, such as "key", are processed normally -->
-                <version>1.0.9</version>
+                <version>1.5.1-SNAPSHOT</version>
                 <executions>
                     <execution>
                         <id>g1</id>
                         <goals>
-                            <!-- 2 output formats: PDF for print; HTML for online -->
-                            <goal>generate-pdf</goal>
                             <goal>generate-webhelp</goal>
                         </goals>
                         <phase>generate-sources</phase>
                         <configuration>
-                            <!-- support inclusion from external /samples/, /figures/, etc -->
-                            <xincludeSupported>true</xincludeSupported>
                             <!-- set branding to OPENSTACK or RACKSPACE -->
-                            <branding>rackspace</branding>
+                            <branding>repose</branding>
                             <!-- for WebHelp: -->
                             <!-- enableDisqus turns on Disqus feature for feedback if any value other than 0; "intranet" for posting on our internal docs-beta.rackspace.com for internal review --> 
                             <!-- disqusShortname = Disqus account where moderator is collecting this feedback -->
@@ -75,69 +44,18 @@
                             <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic>
                             <!-- look here for the .xml and everything to include such as samples and figures -->
                             <sourceDirectory>src/resources</sourceDirectory>
-                            <!-- highlightSource bolds some elements of sample code but disables linewrapping -->
-                            <highlightSource>true</highlightSource>
-                            <!-- enable callouts to label samples -->
-                            <useExtensions>1</useExtensions>
-                            <calloutsExtension>1</calloutsExtension>
-                            <textinsertExtension>1</textinsertExtension>
-                            <!-- enable pop-up tool-tips from the glossary book into the HTML versions of all the books -->
                             <glossaryCollection>${project.build.directory}/../src/resources/repose-glossary.xml</glossaryCollection>
-                            <!-- use this .XML as the source for the books to be generated as .PDF & .HTML -->
-                            <!-- to generate for all, comment out this <includes> -->
-                            <!-- <includes>repose-rootwar-deploy.xml</includes> -->
-                            <!--  -->
-                            <!-- I think the intention of this postProcess is to generate consistent SVGs & PNGs; I don't think it's accomplishing anything now -->
-                            <!-- ask David Cramer -->
-                            <postProcess>
-                                <copy todir="target/docbkx/webhelp/repose-authn-deploy/content/figures">
-                                    <fileset dir="src/resources/figures">
-                                        <include name="**/*.png" />
-                                    </fileset>
-                                </copy>
-                                <copy todir="target/docbkx/webhelp/repose-glossary/content/figures">
-                                    <fileset dir="src/resources/figures">
-                                        <include name="**/*.png" />
-                                    </fileset>
-                                </copy>
-                                <copy todir="target/docbkx/webhelp/repose-intro/content/figures">
-                                    <fileset dir="src/resources/figures">
-                                        <include name="**/*.png" />
-                                    </fileset>
-                                </copy>
-                                <copy todir="target/docbkx/webhelp/repose-logging-deploy/content/figures">
-                                    <fileset dir="src/resources/figures">
-                                        <include name="**/*.png" />
-                                    </fileset>
-                                </copy>
-                                <copy todir="target/docbkx/webhelp/repose-ratelimiting-deploy/content/figures">
-                                    <fileset dir="src/resources/figures">
-                                        <include name="**/*.png" />
-                                    </fileset>
-                                </copy>
-                                <copy todir="target/docbkx/webhelp/repose-rootwar-deploy/content/figures">
-                                    <fileset dir="src/resources/figures">
-                                        <include name="**/*.png" />
-                                    </fileset>
-                                </copy>
-                                <copy todir="target/docbkx/webhelp/repose-versioning-deploy/content/figures">
-                                    <fileset dir="src/resources/figures">
-                                        <include name="**/*.png" />
-                                    </fileset>
-                                </copy>
-                            </postProcess>
                         </configuration>
                     </execution>
                 </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.docbook</groupId>
-                        <artifactId>docbook-xml</artifactId>
-                        <version>4.4</version>
-                        <scope>runtime</scope>
-                    </dependency>
-                </dependencies>
             </plugin>
         </plugins>
     </build>
+    <pluginRepositories>
+        <pluginRepository>
+            <id>rackspace-research</id>
+            <name>Rackspace Research Repository</name>
+            <url>http://maven.research.rackspacecloud.com/content/groups/public/</url>
+        </pluginRepository>
+    </pluginRepositories>
 </project>
