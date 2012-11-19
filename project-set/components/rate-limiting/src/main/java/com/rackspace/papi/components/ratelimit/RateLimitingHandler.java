@@ -30,13 +30,13 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
     private final boolean includeAbsoluteLimits;
     private final Pattern describeLimitsUriPattern;
     private final RateLimitingServiceHelper rateLimitingServiceHelper;
-    private boolean OverLimit429ResponseCode;
+    private boolean overLimit429ResponseCode;
 
-    public RateLimitingHandler(RateLimitingServiceHelper rateLimitingServiceHelper, boolean includeAbsoluteLimits, Pattern describeLimitsUriPattern,boolean OverLimit429ResponseCode) {
+    public RateLimitingHandler(RateLimitingServiceHelper rateLimitingServiceHelper, boolean includeAbsoluteLimits, Pattern describeLimitsUriPattern, boolean overLimit429ResponseCode) {
         this.includeAbsoluteLimits = includeAbsoluteLimits;
         this.describeLimitsUriPattern = describeLimitsUriPattern;
         this.rateLimitingServiceHelper = rateLimitingServiceHelper;
-        this.OverLimit429ResponseCode= OverLimit429ResponseCode;
+        this.overLimit429ResponseCode= overLimit429ResponseCode;
     }
 
     @Override
@@ -126,7 +126,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
 
             // We use a 413 "Request Entity Too Large" to communicate that the user
             // in question has hit their rate limit for this requested URI
-            if(OverLimit429ResponseCode){
+            if(overLimit429ResponseCode){
                 
                director.setResponseStatus(HttpStatusCode.TOO_MANY_REQUESTS);
                 
