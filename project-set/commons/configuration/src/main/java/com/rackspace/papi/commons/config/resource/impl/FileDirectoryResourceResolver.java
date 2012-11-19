@@ -3,7 +3,6 @@ package com.rackspace.papi.commons.config.resource.impl;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.config.resource.ConfigurationResourceResolver;
 import com.rackspace.papi.commons.config.resource.ResourceResolutionException;
-import com.rackspace.papi.commons.util.StringUtilities;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;

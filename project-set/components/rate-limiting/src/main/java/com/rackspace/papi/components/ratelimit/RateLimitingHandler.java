@@ -16,7 +16,6 @@ import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.repose.service.ratelimit.exception.CacheException;
 import com.rackspace.repose.service.ratelimit.exception.OverLimitException;
-import java.io.IOException;
 import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;

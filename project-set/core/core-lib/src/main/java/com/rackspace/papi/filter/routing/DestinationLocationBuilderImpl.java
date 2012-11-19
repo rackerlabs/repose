@@ -37,9 +37,9 @@ public class DestinationLocationBuilderImpl implements DestinationLocationBuilde
         final LocationBuilder builder;
         
         if (destination instanceof DestinationEndpoint) {
-            builder = endpointLocationBuilder; //.build(destination, uri, request);
+            builder = endpointLocationBuilder; 
         } else if (destination instanceof DestinationCluster) {
-            builder = domainLocationBuilder; //new DomainLocationBuilder(routingService, destination, uri, request);
+            builder = domainLocationBuilder; 
         } else {
             throw new IllegalArgumentException("Unknown destination type: " + destination.getClass().getName());
         }
