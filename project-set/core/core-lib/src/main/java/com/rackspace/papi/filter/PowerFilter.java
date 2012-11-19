@@ -121,7 +121,6 @@ public class PowerFilter extends ApplicationContextAwareFilter {
             }
             powerFilterChainBuilder = papiContext.filterChainBuilder();
             powerFilterChainBuilder.initialize(serviceDomain, localHost, newFilterChain, filterConfig.getServletContext(), dftDst);
-            //powerFilterChainBuilder = new PowerFilterChainBuilder(serviceDomain, localHost, newFilterChain, filterConfig.getServletContext(), dftDst);
         } catch (PowerFilterChainException ex) {
             LOG.error("Unable to initialize filter chain builder", ex);
         }
