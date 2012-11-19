@@ -75,6 +75,12 @@
             <version>4.2</version>
         </dependency>
 
+        <dependency>
+            <groupId>net.sf.saxon</groupId>
+            <artifactId>saxon</artifactId>
+            <version>9.3</version>
+        </dependency>
+
         <!-- Required for @Configuration annotation -->
         <dependency>
             <groupId>cglib</groupId>
