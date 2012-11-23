@@ -1,7 +1,6 @@
 package com.rackspace.papi.commons.util.servlet.context.impl;
 
 import com.rackspace.papi.commons.util.servlet.context.ApplicationContextAdapter;
-import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.web.context.support.WebApplicationContextUtils;
@@ -13,7 +12,7 @@ public class ServletSpringContext implements ApplicationContextAware, Applicatio
    private ApplicationContext applicationContext;
 
    @Override
-   public synchronized void setApplicationContext(ApplicationContext ac) throws BeansException {
+   public synchronized void setApplicationContext(ApplicationContext ac) {
       if (applicationContext == null) {
          applicationContext = ac;
       }

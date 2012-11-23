@@ -6,13 +6,13 @@ import java.io.InputStream;
  *
  * @author Dan Daley
  */
-public class ServiceClientResponse<EntityClass> {
+public class ServiceClientResponse<E> {
 
-   private final EntityClass entity;
+   private final E entity;
    private final InputStream data;
    private final int statusCode;
 
-   public ServiceClientResponse(int code, EntityClass entity) {
+   public ServiceClientResponse(int code, E entity) {
       this.statusCode = code;
       this.data = null;
       this.entity = entity;
@@ -30,7 +30,7 @@ public class ServiceClientResponse<EntityClass> {
 
 
 
-   public EntityClass getEntity() {
+   public E getEntity() {
       return entity;
    }
    

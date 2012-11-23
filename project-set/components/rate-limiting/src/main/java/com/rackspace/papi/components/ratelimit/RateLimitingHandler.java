@@ -16,10 +16,9 @@ import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.repose.service.ratelimit.exception.CacheException;
 import com.rackspace.repose.service.ratelimit.exception.OverLimitException;
-import org.slf4j.Logger;
-
-import javax.servlet.http.HttpServletRequest;
 import java.util.regex.Pattern;
+import javax.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
 
 
 public class RateLimitingHandler extends AbstractFilterLogicHandler {
@@ -30,11 +29,13 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
     private final boolean includeAbsoluteLimits;
     private final Pattern describeLimitsUriPattern;
     private final RateLimitingServiceHelper rateLimitingServiceHelper;
+    private boolean overLimit429ResponseCode;
 
-    public RateLimitingHandler(RateLimitingServiceHelper rateLimitingServiceHelper, boolean includeAbsoluteLimits, Pattern describeLimitsUriPattern) {
+    public RateLimitingHandler(RateLimitingServiceHelper rateLimitingServiceHelper, boolean includeAbsoluteLimits, Pattern describeLimitsUriPattern, boolean overLimit429ResponseCode) {
         this.includeAbsoluteLimits = includeAbsoluteLimits;
         this.describeLimitsUriPattern = describeLimitsUriPattern;
         this.rateLimitingServiceHelper = rateLimitingServiceHelper;
+        this.overLimit429ResponseCode= overLimit429ResponseCode;
     }
 
     @Override
@@ -109,7 +110,7 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
     /**
      * @return false if over-limit and response delegation is not enabled
      */
-    private boolean recordLimitedRequest(HttpServletRequest request, FilterDirector director) {
+    private boolean recordLimitedRequest(HttpServletRequest request,FilterDirector director) {
         boolean pass = true;
 
         try {
@@ -124,9 +125,18 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
 
             // We use a 413 "Request Entity Too Large" to communicate that the user
             // in question has hit their rate limit for this requested URI
-            director.setResponseStatus(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE);
+            if(overLimit429ResponseCode){
+                
+               director.setResponseStatus(HttpStatusCode.TOO_MANY_REQUESTS);
+                
+            }else{
+                          
+                director.setResponseStatus(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE);
+            
+            }
             director.responseHeaderManager().appendHeader(CommonHttpHeader.RETRY_AFTER.toString(), nextAvailableTime.toRFC1123());
-
+            
+                
 
         } catch (CacheException e) {
             LOG.error("Failure when tracking limits. Reason: " + e.getMessage(), e);

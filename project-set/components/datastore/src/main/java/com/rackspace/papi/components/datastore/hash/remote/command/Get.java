@@ -27,7 +27,7 @@ public class Get extends AbstractRemoteCommand {
     }
     
    @Override
-   public Object handleResponse(ServiceClientResponse response) throws IOException, DatastoreOperationException {
+   public Object handleResponse(ServiceClientResponse response) throws IOException {
       final int statusCode = response.getStatusCode();
 
       if (statusCode == HttpStatusCode.OK.intValue()) {

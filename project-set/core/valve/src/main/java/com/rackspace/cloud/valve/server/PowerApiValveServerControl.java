@@ -8,6 +8,7 @@ import com.rackspace.papi.commons.config.resource.impl.BufferedURLConfigurationR
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.SslConfiguration;
 import com.rackspace.papi.domain.Port;
+import java.io.File;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,6 @@ public class PowerApiValveServerControl {
 
    private static final Logger LOG = LoggerFactory.getLogger(PowerApiValveServerControl.class);
    private static final String LOCALHOST_IP = "127.0.0.1";
-   private Server serverInstance;
    private CommandLineArguments commandLineArgs;
    private final List<Port> ports = new ArrayList<Port>();
 
@@ -69,7 +69,7 @@ public class PowerApiValveServerControl {
    }
 
    private SslConfiguration readSslConfiguration(String cfgRoot) throws MalformedURLException {
-      final URL configurationLocation = new URL("file://" + cfgRoot + "/container.cfg.xml");
+      final URL configurationLocation = new URL("file://" + cfgRoot + File.separator + "container.cfg.xml");
       final JaxbConfigurationParser<ContainerConfiguration> containerConfigParser = ConfigurationParserFactory.getXmlConfigurationParser(ContainerConfiguration.class);
       final ContainerConfiguration cfg = containerConfigParser.read(new BufferedURLConfigurationResource(configurationLocation));
 
@@ -80,7 +80,8 @@ public class PowerApiValveServerControl {
       throw new ConfigurationResourceException("Container configuration is not valid. Please check your configuration.");
    }
 
-   public void startPowerApiValve() throws Exception {
+   public void startPowerApiValve() {
+      Server serverInstance = null;
       
       try {
 
@@ -101,7 +102,11 @@ public class PowerApiValveServerControl {
          LOG.error("Repose will now stop.");
 
          if (serverInstance != null) {
-            serverInstance.stop();
+             try {
+                serverInstance.stop();
+             } catch(Exception ex) {
+                 LOG.error("Error stopping server", ex);
+             }
          }
       }
    }

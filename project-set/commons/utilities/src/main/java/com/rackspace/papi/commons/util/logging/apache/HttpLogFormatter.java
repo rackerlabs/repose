@@ -72,6 +72,7 @@ public class HttpLogFormatter {
         return argFormatter;
     }
 
+    @SuppressWarnings("PMD.NcssMethodCount")
     public static void setLogic(final LogArgumentGroupExtractor extractor, final LogArgumentFormatter formatter) {
         switch (LogFormatArgument.fromString(extractor.getEntity())) {
             case RESPONSE_TIME_MICROSECONDS:

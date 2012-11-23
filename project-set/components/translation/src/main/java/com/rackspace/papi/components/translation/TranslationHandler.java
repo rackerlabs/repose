@@ -10,14 +10,12 @@ import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
 import com.rackspace.papi.commons.util.pooling.ResourceContext;
-import com.rackspace.papi.commons.util.pooling.ResourceContextException;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
-import com.rackspace.papi.components.translation.config.TranslationConfig;
-import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlChainPool;
 import com.rackspace.papi.components.translation.xslt.XsltException;
 import com.rackspace.papi.components.translation.xslt.XsltParameter;
+import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlChainPool;
 import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlFilterChain;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -36,12 +34,10 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
     private static final int DEFAULT_BUFFER_SIZE = 2048;
     private static final MediaType DEFAULT_TYPE = new MediaType(MimeType.WILDCARD);
     private static final org.slf4j.Logger LOG = org.slf4j.LoggerFactory.getLogger(TranslationHandler.class);
-    private final TranslationConfig config;
     private final List<XmlChainPool> requestProcessors;
     private final List<XmlChainPool> responseProcessors;
 
-    public TranslationHandler(TranslationConfig translationConfig, List<XmlChainPool> requestProcessors, List<XmlChainPool> responseProcessors) {
-        this.config = translationConfig;
+    public TranslationHandler(List<XmlChainPool> requestProcessors, List<XmlChainPool> responseProcessors) {
         this.requestProcessors = requestProcessors;
         this.responseProcessors = responseProcessors;
     }
@@ -69,10 +65,10 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
     private boolean executePool(final XmlChainPool pool, final InputStream in, final OutputStream out) {
         Boolean result = (Boolean) pool.getPool().use(new ResourceContext<XmlFilterChain, Boolean>() {
             @Override
-            public Boolean perform(XmlFilterChain chain) throws ResourceContextException {
+            public Boolean perform(XmlFilterChain chain) {
                 List<XsltParameter> params = new ArrayList<XsltParameter>(pool.getParams());
                 try {
-                    chain.executeChain(in, out, params, null);
+                    chain.executeChain(in, out, params);
                 } catch (XsltException ex) {
                     LOG.warn("Error processing transforms", ex.getMessage());
                     return false;
@@ -136,7 +132,6 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
     @Override
     public FilterDirector handleRequest(HttpServletRequest httpRequest, ReadableHttpServletResponse httpResponse) {
         MutableHttpServletRequest request = MutableHttpServletRequest.wrap(httpRequest);
-        MutableHttpServletResponse response = MutableHttpServletResponse.wrap(httpRequest, httpResponse);
         FilterDirector filterDirector = new FilterDirectorImpl();
         MediaType contentType = getContentType(request.getHeader("content-type"));
         List<MediaType> acceptValues = getAcceptValues(request.getPreferredHeaderValues("Accept", DEFAULT_TYPE));

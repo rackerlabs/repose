@@ -78,9 +78,9 @@ public class EndpointLocationBuilderTest {
          String uri = "/somepath";
          
          
-         instance = new EndpointLocationBuilder(localhost, localNoHostNameSpecifiedDestination, uri, request);
+         instance = new EndpointLocationBuilder().init(localhost);
 
-         DestinationLocation result = instance.build();
+         DestinationLocation result = instance.build(localNoHostNameSpecifiedDestination, uri, request);
          
          assertNotNull(result);
          assertNotNull(result.getUri());
@@ -101,9 +101,9 @@ public class EndpointLocationBuilderTest {
          String uri = "/somepath";
          
          
-         instance = new EndpointLocationBuilder(localhost, localSchemeButNoPortDestination, uri, request);
+         instance = new EndpointLocationBuilder().init(localhost);
 
-         DestinationLocation result = instance.build();
+         DestinationLocation result = instance.build(localSchemeButNoPortDestination, uri, request);
          
          assertNotNull(result);
          assertNotNull(result.getUri());
@@ -124,9 +124,9 @@ public class EndpointLocationBuilderTest {
          String uri = "/somepath";
          
          
-         instance = new EndpointLocationBuilder(localhost, localMinimallySpecifiedDestination, uri, request);
+         instance = new EndpointLocationBuilder().init(localhost);
 
-         DestinationLocation result = instance.build();
+         DestinationLocation result = instance.build(localMinimallySpecifiedDestination, uri, request);
          
          assertNotNull(result);
          assertNotNull(result.getUri());
@@ -144,9 +144,9 @@ public class EndpointLocationBuilderTest {
       @Test
       public void shouldReturnLocalUriWhenHostPortMatchLocalhost() throws Exception {
          
-         instance = new EndpointLocationBuilder(localhost, localFullySpecifiedDestination, null, request);
+         instance = new EndpointLocationBuilder().init(localhost);
 
-         DestinationLocation result = instance.build();
+         DestinationLocation result = instance.build(localFullySpecifiedDestination, null, request);
          
          assertNotNull(result);
          assertNotNull(result.getUri());
@@ -215,9 +215,9 @@ public class EndpointLocationBuilderTest {
          
          String uri = "somepath";
          
-         instance = new EndpointLocationBuilder(localhost, remoteFullySpecifiedDestination, uri, request);
+         instance = new EndpointLocationBuilder().init(localhost);
 
-         DestinationLocation result = instance.build();
+         DestinationLocation result = instance.build(remoteFullySpecifiedDestination, uri, request);
          
          assertNotNull(result);
          assertNotNull(result.getUri());
@@ -237,9 +237,9 @@ public class EndpointLocationBuilderTest {
          
          String uri = "/somepath";
          
-         instance = new EndpointLocationBuilder(localhost, remoteNoRootPathSpecifiedDestination, uri, request);
+         instance = new EndpointLocationBuilder().init(localhost);
 
-         DestinationLocation result = instance.build();
+         DestinationLocation result = instance.build(remoteNoRootPathSpecifiedDestination, uri, request);
          
          assertNotNull(result);
          assertNotNull(result.getUri());
@@ -259,9 +259,9 @@ public class EndpointLocationBuilderTest {
          
          String uri = "somepath";
          
-         instance = new EndpointLocationBuilder(localhost, remoteNoRootPathSpecifiedDestination, uri, request);
+         instance = new EndpointLocationBuilder().init(localhost);
 
-         DestinationLocation result = instance.build();
+         DestinationLocation result = instance.build(remoteNoRootPathSpecifiedDestination, uri, request);
          
          assertNotNull(result);
          assertNotNull(result.getUri());
@@ -281,9 +281,9 @@ public class EndpointLocationBuilderTest {
          
          String uri = "/somepath";
          
-         instance = new EndpointLocationBuilder(localhost, localHostDifferentPortSpecifiedDestination, uri, request);
+         instance = new EndpointLocationBuilder().init(localhost);
 
-         DestinationLocation result = instance.build();
+         DestinationLocation result = instance.build(localHostDifferentPortSpecifiedDestination, uri, request);
          
          assertNotNull(result);
          assertNotNull(result.getUri());

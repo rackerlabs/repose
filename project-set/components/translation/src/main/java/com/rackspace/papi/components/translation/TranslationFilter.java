@@ -9,9 +9,9 @@ import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.servlet.InitParameter;
 import java.io.IOException;
 import javax.servlet.*;
+import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import org.slf4j.Logger;
-import org.xml.sax.XMLFilter;
 
 public class TranslationFilter implements Filter {
 
@@ -42,7 +42,7 @@ public class TranslationFilter implements Filter {
         final ConfigurationService configurationService = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
 
 
-        handlerFactory = new TranslationHandlerFactory(configurationService, new XmlFilterChainBuilder((SAXTransformerFactory) net.sf.saxon.TransformerFactoryImpl.newInstance()), configurationRoot);
+        handlerFactory = new TranslationHandlerFactory(configurationService, new XmlFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null)), configurationRoot);
         configurationManager = ServletContextHelper.getInstance().getPowerApiContext(servletContext).configurationService();
         configurationManager.subscribeTo(config, handlerFactory, TranslationConfig.class);
     }

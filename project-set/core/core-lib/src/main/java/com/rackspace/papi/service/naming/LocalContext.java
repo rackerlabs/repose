@@ -1,11 +1,10 @@
 package com.rackspace.papi.service.naming;
 
-import javax.naming.*;
-import javax.naming.spi.NamingManager;
 import java.util.Collections;
-import java.util.Hashtable;
 import java.util.Map;
 import java.util.TreeMap;
+import javax.naming.*;
+import javax.naming.spi.NamingManager;
 
 @SuppressWarnings("UseOfObsoleteCollectionType")
 public abstract class LocalContext extends AbstractContext {
@@ -17,7 +16,7 @@ public abstract class LocalContext extends AbstractContext {
    
    private final Map<String, Object> bindingsMap;
 
-   public LocalContext(String contextName, Hashtable environment) {
+   public LocalContext(String contextName, Map environment) {
       super(contextName, environment);
 
       this.bindingsMap = Collections.synchronizedMap(new TreeMap<String, Object>());
@@ -32,7 +31,7 @@ public abstract class LocalContext extends AbstractContext {
    protected void validateBindingObject(Object binding) throws NamingException {
    }
 
-   protected Context newContext(String contextName, Hashtable environment) throws NamingException {
+   protected Context newContext(String contextName, Map environment) throws NamingException {
       throw new OperationNotSupportedException();
    }
 

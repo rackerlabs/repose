@@ -16,9 +16,14 @@ public class LocationHeaderBuilder {
     private static final Integer DEFAULT_HTTPS_PORT = 443;
 
     public void setLocationHeader(HttpServletRequest originalRequest, MutableHttpServletResponse servletResponse, String destinationUri, String requestedContext, String rootPath) throws MalformedURLException {
+        final URL locationUrl = getLocationUrl(servletResponse);
+        
+        if (locationUrl == null) {
+            return;
+        }
+        
         final URL requestedHostUrl = extractHostPath(originalRequest);
         final URL proxiedHostUrl = new TargetHostInfo(destinationUri).getProxiedHostUrl();
-        final URL locationUrl = getLocationUrl(servletResponse);
 
         final String translatedLocationUrl = translateLocationUrl(locationUrl, proxiedHostUrl, requestedHostUrl, requestedContext, rootPath);
 
@@ -73,12 +78,13 @@ public class LocationHeaderBuilder {
     private String fixPathPrefix(String locationPath, String requestedPrefix, String addedPrefix) {
         String prefixToRemove = getAbsolutePath(addedPrefix);
         String prefixToAdd = getAbsolutePath(requestedPrefix);
+        String result = locationPath;
 
         if (locationPath.startsWith(prefixToRemove)) {
-            locationPath = prefixToAdd + getAbsolutePath(locationPath.substring(prefixToRemove.length()));
+            result = prefixToAdd + getAbsolutePath(locationPath.substring(prefixToRemove.length()));
         }
 
-        return locationPath;
+        return result;
     }
 
     private boolean shouldRewriteLocation(URL locationUrl, URL proxiedHostUrl, URL requestedHost) {

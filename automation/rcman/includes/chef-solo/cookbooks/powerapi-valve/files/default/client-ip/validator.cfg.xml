@@ -18,11 +18,21 @@
       check-elements="true"
       use-saxon="false"/>
    <validator
+      role="default2"
+      default="false"
+      wadl="default.wadl"
+      check-well-formed="true"
+      check-xsd-grammar="true"
+      check-elements="true"
+      use-saxon="false"
+      ignore-xsd-extension="false" />
+   <validator
       role="default"
       default="true"
       wadl="default.wadl"
       check-well-formed="false"
       check-xsd-grammer="true"
       check-elements="true"
+      check-headers="true"
       use-saxon="false"/>
 </validators>

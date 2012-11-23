@@ -1,11 +1,14 @@
 package com.rackspace.papi.components.datastore.integration;
 
 import com.rackspace.papi.filter.PowerFilter;
+import com.rackspace.papi.jetty.JettyException;
 import com.rackspace.papi.jetty.JettyServerBuilder;
 import com.rackspace.papi.jetty.JettyTestingContext;
 import com.rackspace.papi.service.context.impl.PowerApiContextManager;
 import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.test.DummyServlet;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class StandAloneDatastoreServer extends JettyTestingContext {
 
@@ -22,7 +25,7 @@ public class StandAloneDatastoreServer extends JettyTestingContext {
 
    private final String cfgPath;
    
-   public StandAloneDatastoreServer(int port, String cfgPath) throws Exception {
+   public StandAloneDatastoreServer(int port, String cfgPath) throws JettyException {
       this.cfgPath = cfgPath;
       
       final JettyServerBuilder server = new JettyServerBuilder(port);
@@ -33,8 +36,14 @@ public class StandAloneDatastoreServer extends JettyTestingContext {
    }
 
    @Override
-   public final void buildServerContext(JettyServerBuilder serverBuilder) throws Exception {
-      serverBuilder.addContextListener(PowerApiContextManager.class);
+   public final void buildServerContext(JettyServerBuilder serverBuilder) throws JettyException {
+        try {
+            serverBuilder.addContextListener(PowerApiContextManager.class);
+        } catch (IllegalAccessException ex) {
+            throw new JettyException(ex);
+        } catch (InstantiationException ex) {
+            throw new JettyException(ex);
+        }
       serverBuilder.addContextInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName(), cfgPath);
       serverBuilder.addFilter(PowerFilter.class, "/*");
       serverBuilder.addServlet(DummyServlet.class, "/*");

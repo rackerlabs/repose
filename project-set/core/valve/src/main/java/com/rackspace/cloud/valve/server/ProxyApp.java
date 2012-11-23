@@ -9,14 +9,14 @@ import org.slf4j.LoggerFactory;
 /**
  * @author zinic
  */
-public class ProxyApp {
+public final class ProxyApp {
 
    private static final Logger LOG = LoggerFactory.getLogger(ProxyApp.class);
    private static final String DEFAULT_CFG_DIR = "/etc/repose";
    private static final int UPPER_PORT = 49150;
    private static final int LOWER_PORT = 1024;
 
-   public static void main(String[] args) throws Exception {
+   public static void main(String[] args) {
 
       DefaultLogConfigurator.configure();
 
@@ -44,6 +44,9 @@ public class ProxyApp {
       if (commandLineArgs.getAction().equalsIgnoreCase(CommandLineArguments.ACTION_STOP)) {
          serverControl.stopPowerApiValve();
       }
+   }
+   
+   private ProxyApp(){
    }
 
 
@@ -75,7 +78,8 @@ public class ProxyApp {
          commandLineArgs.setConfigDirectory(DEFAULT_CFG_DIR);
       }
    }
-
+   
+   @SuppressWarnings("PMD.SystemPrintln")
    private static void displayUsage(CmdLineParser cmdLineParser, Exception e) {
       System.err.println(e.getMessage());
       System.err.println("java -jar repose-valve.jar [options...] arguments...");

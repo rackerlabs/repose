@@ -5,7 +5,6 @@ import com.sun.jersey.api.client.PartialRequestBuilder;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
 import java.io.*;
-import java.net.URI;
 import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.regex.Pattern;
@@ -20,84 +19,101 @@ import org.slf4j.LoggerFactory;
  */
 class JerseyRequestProcessor extends AbstractRequestProcessor {
 
-   private static final Logger LOG = LoggerFactory.getLogger(JerseyRequestProcessor.class);
-   private final URI targetHost;
-   private final HttpServletRequest request;
-   private Pattern delimiter = Pattern.compile("&");
-   private Pattern pair = Pattern.compile("=");
+    private static final Logger LOG = LoggerFactory.getLogger(JerseyRequestProcessor.class);
+    private static final int BUFFER_SIZE = 1024;
+    private final HttpServletRequest request;
+    private Pattern delimiter = Pattern.compile("&");
+    private Pattern pair = Pattern.compile("=");
+    private boolean allowBody;
 
-   public JerseyRequestProcessor(HttpServletRequest request, URI host) throws IOException {
-      this.targetHost = host;
-      this.request = request;
-   }
+    public JerseyRequestProcessor(HttpServletRequest request) throws IOException {
+        this.request = request;
+        allowBody = "PUT".equalsIgnoreCase(request.getMethod()) || "POST".equalsIgnoreCase(request.getMethod());
+    }
 
-   public WebResource setRequestParameters(WebResource method) {
-      WebResource newMethod = method;
-      final String queryString = request.getQueryString();
+    public WebResource setRequestParameters(WebResource method) {
+        WebResource newMethod = method;
+        final String queryString = request.getQueryString();
 
-      if (queryString != null && queryString.length() > 0) {
-         String[] params = delimiter.split(queryString);
+        if (queryString != null && queryString.length() > 0) {
+            String[] params = delimiter.split(queryString);
 
-         for (String param : params) {
-            String[] paramPair = pair.split(param, 2);
-            if (paramPair.length == 2) {
-               String paramValue = paramPair[1];
-               try {
-                  paramValue = URLDecoder.decode(paramValue, "UTF-8");
-               } catch (IllegalArgumentException ex) {
-                  LOG.warn("Error decoding query parameter named: " + paramPair[0] + " value: " + paramValue, ex);
-               } catch (UnsupportedEncodingException ex) {
-                  LOG.warn("Error decoding query parameter named: " + paramPair[0] + " value: " + paramValue, ex);
-               }
-               newMethod = newMethod.queryParam(paramPair[0], paramValue);
-            } else {
-               newMethod = newMethod.queryParam(paramPair[0], "");
+            for (String param : params) {
+                String[] paramPair = pair.split(param, 2);
+                if (paramPair.length == 2) {
+                    String paramValue = paramPair[1];
+                    try {
+                        paramValue = URLDecoder.decode(paramValue, "UTF-8");
+                    } catch (IllegalArgumentException ex) {
+                        LOG.warn("Error decoding query parameter named: " + paramPair[0] + " value: " + paramValue, ex);
+                    } catch (UnsupportedEncodingException ex) {
+                        LOG.warn("Error decoding query parameter named: " + paramPair[0] + " value: " + paramValue, ex);
+                    }
+                    newMethod = newMethod.queryParam(paramPair[0], paramValue);
+                } else {
+                    newMethod = newMethod.queryParam(paramPair[0], "");
+                }
             }
-         }
-      }
+        }
 
-      return newMethod;
-   }
+        return newMethod;
+    }
 
-   /**
+    /**
      * Copy header values from source request to the http method.
      *
      * @param method
      */
-   private void setHeaders(PartialRequestBuilder builder) {
-      final Enumeration<String> headerNames = request.getHeaderNames();
+    private void setHeaders(PartialRequestBuilder builder) {
+        final Enumeration<String> headerNames = request.getHeaderNames();
 
-      while (headerNames.hasMoreElements()) {
-         String header = headerNames.nextElement();
+        while (headerNames.hasMoreElements()) {
+            String header = headerNames.nextElement();
 
-         if (!excludeHeader(header)) {
-            Enumeration<String> values = request.getHeaders(header);
-            while (values.hasMoreElements()) {
-               String value = values.nextElement();
-               builder.header(header, value);
+            if (!excludeHeader(header)) {
+                Enumeration<String> values = request.getHeaders(header);
+                while (values.hasMoreElements()) {
+                    String value = values.nextElement();
+                    builder.header(header, value);
+                }
             }
-         }
-      }
-   }
+        }
+    }
 
-   private InputStream getRequestStream() throws IOException {
-      InputStream in = request.getInputStream();
-      
-      if (in == null) {
-          return null;
-      }
-      PushbackInputStream stream = new PushbackInputStream(in, 1);
-      
-      int read = stream.read();
-      if (read == -1) {
-         return null;
-      }
-      
-      stream.unread(read);
-      return stream;
-   }
+    private InputStream getRequestStream() throws IOException {
+        InputStream in = request.getInputStream();
 
-   /**
+        if (in == null) {
+            return null;
+        }
+        PushbackInputStream stream = new PushbackInputStream(in, 1);
+
+        int read = stream.read();
+        if (read == -1) {
+            return null;
+        }
+
+        stream.unread(read);
+        return stream;
+    }
+
+    private void consumeInput(InputStream input) throws IOException {
+        if (input == null) {
+            return;
+        }
+
+        byte[] buffer = new byte[BUFFER_SIZE];
+
+        int read = input.read(buffer);
+
+        while (read > 0) {
+            read = input.read(buffer);
+        }
+
+        input.close();
+    }
+
+    /**
      * Process an entity enclosing http method. These methods can handle a
      * request body.
      *
@@ -105,17 +121,21 @@ class JerseyRequestProcessor extends AbstractRequestProcessor {
      * @return
      * @throws IOException
      */
-   public Builder process(WebResource method) throws IOException {
-      return process(setRequestParameters(method).getRequestBuilder());
-   }
+    public Builder process(WebResource method) throws IOException {
+        return process(setRequestParameters(method).getRequestBuilder());
+    }
 
-   public <T extends PartialRequestBuilder> T process(T builder) throws IOException {
+    public <T extends PartialRequestBuilder> T process(T builder) throws IOException {
 
-      setHeaders(builder);
-      InputStream input = getRequestStream();
-      if (input != null) {
-         builder.entity(input);
-      }
-     return builder;
-   }
+        setHeaders(builder);
+        InputStream input = getRequestStream();
+        if (input != null) {
+            if (allowBody) {
+                builder.entity(input);
+            } else {
+                consumeInput(input);
+            }
+        }
+        return builder;
+    }
 }

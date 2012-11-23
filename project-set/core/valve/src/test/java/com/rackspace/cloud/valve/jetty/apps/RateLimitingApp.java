@@ -1,8 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
-
 package com.rackspace.cloud.valve.jetty.apps;
 
 import com.rackspace.cloud.valve.jetty.servlet.BasicResponseServlet;

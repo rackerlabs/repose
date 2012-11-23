@@ -9,7 +9,7 @@ import java.net.URLEncoder;
 /**
  * This is a simple helper class that can be used to generalize URI related
  * string processing.
- * 
+ *
  * @author zinic
  */
 public final class StringUriUtilities {
@@ -29,21 +29,21 @@ public final class StringUriUtilities {
     }
 
     public static String appendPath(String baseUrl, String... paths) {
-       String path = concatUris(paths);
-       if (StringUtilities.isBlank(path)) {
-          return baseUrl;
-       }
-       
-       StringBuilder url;
-       if (baseUrl.endsWith("/")) {
-          url = new StringBuilder(baseUrl.substring(0, baseUrl.length() - 1));
-       } else {
-           url = new StringBuilder(baseUrl);
-       }
-       
-       return url.append(path).toString();
+        String path = concatUris(paths);
+        if (StringUtilities.isBlank(path)) {
+            return baseUrl;
+        }
+
+        StringBuilder url;
+        if (baseUrl.endsWith("/")) {
+            url = new StringBuilder(baseUrl.substring(0, baseUrl.length() - 1));
+        } else {
+            url = new StringBuilder(baseUrl);
+        }
+
+        return url.append(path).toString();
     }
-    
+
     public static String concatUris(String... uris) {
         StringBuilder builder = new StringBuilder();
 
@@ -71,17 +71,20 @@ public final class StringUriUtilities {
     /**
      * Formats a URI by adding a forward slash and removing the last forward
      * slash from the URI.
-     * 
-     * e.g. some/random/uri/    -> /some/random/uri
-     * e.g. some/random/uri     -> /some/random/uri
-     * e.g. /some/random/uri/   -> /some/random/uri
-     * e.g. /                   -> /
-     * e.g. //////              -> /
-     * 
+     *
+     * e.g. some/random/uri/ -> /some/random/uri e.g. some/random/uri ->
+     * /some/random/uri e.g. /some/random/uri/ -> /some/random/uri e.g. / -> /
+     * e.g. ////// -> /
+     *
      * @param uri
-     * @return 
+     * @return
      */
     public static String formatUri(String uri) {
+        if (StringUtilities.nullSafeStartsWith(uri, "\\")) {
+            //windows file system
+            return uri;
+        }
+
         if (StringUtilities.isBlank(uri) || StringUtilities.nullSafeEqualsIgnoreCase("/", uri)) {
             return "/";
         }
@@ -94,7 +97,8 @@ public final class StringUriUtilities {
 
         int doubleSlash = externalName.indexOf("//");
 
-        while (doubleSlash > -1) { //removes leading '/'
+        while (doubleSlash > -1) {
+            //removes leading '/'
             externalName.replace(doubleSlash, doubleSlash + 2, "/");
             doubleSlash = externalName.indexOf("//");
         }
@@ -108,17 +112,17 @@ public final class StringUriUtilities {
 
         return externalName.toString();
     }
-    
-    public static String encodeUri(String uri){
-       
-       String encodedUri = "";
-       
-       try{
-          encodedUri=URLEncoder.encode(uri, "UTF8");
-       }catch(UnsupportedEncodingException e){
-       }
-       
-       return encodedUri;
+
+    public static String encodeUri(String uri) {
+
+        String encodedUri = "";
+
+        try {
+            encodedUri = URLEncoder.encode(uri, "UTF8");
+        } catch (UnsupportedEncodingException e) {
+        }
+
+        return encodedUri;
     }
 
     private StringUriUtilities() {

@@ -4,6 +4,7 @@ import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.config.resource.ConfigurationResourceResolver;
 import com.rackspace.papi.commons.config.resource.ResourceResolutionException;
 import com.rackspace.papi.commons.util.StringUtilities;
+import java.io.File;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -26,7 +27,7 @@ public class DirectoryResourceResolver implements ConfigurationResourceResolver 
 
     @Override
     public ConfigurationResource resolve(String resourceName) throws ResourceResolutionException {
-        final String spec = resourceName.contains("://")? resourceName: StringUtilities.join(configurationRoot, "/", resourceName);
+        final String spec = resourceName.contains("://")? resourceName: StringUtilities.join(configurationRoot, File.separator, resourceName);
         
         try {
             return new BufferedURLConfigurationResource(new URL(spec));

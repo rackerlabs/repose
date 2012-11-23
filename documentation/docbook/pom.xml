@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.rackspace.papi</groupId>
         <artifactId>papi</artifactId>
-        <version>2.3.7-SNAPSHOT</version>
+        <version>2.4.1-SNAPSHOT</version>
         <relativePath>../../pom.xml</relativePath>
     </parent>
 
@@ -22,7 +22,7 @@
                 <artifactId>clouddocs-maven-plugin</artifactId>
                 <!-- this <version> relates only to the *plugin* used for document formatting -->
                 <!-- the version of the *API* that is the subject of the document is indicated within each document -->
-                <version>1.5.1-SNAPSHOT</version>
+                <version>1.6.1-SNAPSHOT</version>
                 <executions>
                     <execution>
                         <id>g1</id>

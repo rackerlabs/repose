@@ -11,8 +11,6 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -77,24 +75,20 @@ public class XmlFilterChainBuilder {
             return new StreamSource(input);
         }
 
-        return null;
+        throw new XsltException("Unable to load stylesheet " + path);
     }
 
     protected StreamSource getStylesheetSource(StyleSheetInfo stylesheet) {
 
-        StreamSource source;
         if (stylesheet.getUri().startsWith(CLASSPATH_PREFIX)) {
-            source = getClassPathResource(stylesheet.getUri());
+            return getClassPathResource(stylesheet.getUri());
         } else {
             try {
-                source = new StreamSource(new URL(stylesheet.getUri()).openStream());
+                return new StreamSource(new URL(stylesheet.getUri()).openStream());
             } catch (IOException ex) {
-                source = null;
-                Logger.getLogger(XmlFilterChainBuilder.class.getName()).log(Level.SEVERE, null, ex);
+                throw new XsltException("Unable to load stylesheet: " + stylesheet.getUri(), ex);
             }
         }
-
-        return source;
     }
 
     protected XMLReader getSaxReader() throws ParserConfigurationException, SAXException {

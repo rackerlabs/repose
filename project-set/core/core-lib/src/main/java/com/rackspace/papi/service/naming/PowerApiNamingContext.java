@@ -1,19 +1,19 @@
 package com.rackspace.papi.service.naming;
 
+import java.util.Map;
 import javax.naming.*;
-import java.util.Hashtable;
 
 @SuppressWarnings("UseOfObsoleteCollectionType")
 public class PowerApiNamingContext extends LocalContext {
 
     private static final SchemeAwareNameParser NAME_PARSER = new PowerApiNameParser();
 
-    public PowerApiNamingContext(String contextName, Hashtable environment) {
+    public PowerApiNamingContext(String contextName, Map environment) {
         super(contextName, environment);
     }
 
     @Override
-    protected Context newContext(String contextName, Hashtable environment) throws NamingException {
+    protected Context newContext(String contextName, Map environment) throws NamingException {
         return new PowerApiNamingContext(contextName, environment);
     }
 

@@ -2,6 +2,17 @@
 
 <response-messaging xmlns="http://docs.rackspacecloud.com/repose/response-messaging/v1.0">
 
+    <status-code id="400" code-regex="400">
+        <message media-type="*/*">
+            &lt;test&gt;
+              An error occurd.
+              Code %s
+              Message %M
+           &lt;/test&gt;&#xA;
+        </message>
+    </status-code>
+
+
     <status-code id="414" code-regex="414">
       <message media-type="*/*">
 	URI Too Long
@@ -13,6 +24,30 @@
 {
     "overLimit" : {
         "code" : 413,
+        "message" : "OverLimit Retry...",
+        "details" : "Error Details...",
+	"retryAfter" : "%{Retry-After DATE ISO_8601}o"
+    }
+}
+        </message>
+
+        <message media-type="application/xml">
+<![CDATA[
+<overLimit
+    xmlns="http://docs.openstack.org/common/api/v1.1"
+    code="413" retryAfter="%{Retry-After DATE ISO_8601}o">
+  <message>OverLimit Retry...</message>
+  <details>Error Details...</details>
+</overLimit>
+]]>
+        </message>
+    </status-code>
+
+<status-code id="429" code-regex="429">
+        <message media-type="*/*">
+{
+    "overLimit" : {
+        "code" : 429,
         "message" : "OverLimit Retry...",
         "details" : "Error Details...",
 	"retryAfter" : "%{Retry-After DATE ISO_8601}o"

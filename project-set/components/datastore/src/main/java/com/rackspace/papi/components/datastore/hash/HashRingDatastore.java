@@ -60,7 +60,7 @@ public class HashRingDatastore extends AbstractHashedDatastore {
       return ringMembers[memberAddress];
    }
    
-   private boolean isRemoteTarget(InetSocketAddress target) throws DatastoreOperationException {
+   private boolean isRemoteTarget(InetSocketAddress target) {
       try {
          
          if (localDatastore == null) {
@@ -115,21 +115,21 @@ public class HashRingDatastore extends AbstractHashedDatastore {
    }
 
    @Override
-   protected StoredElement get(String name, byte[] id) throws DatastoreOperationException {
+   protected StoredElement get(String name, byte[] id) {
       return get(name, id, RemoteBehavior.ALLOW_FORWARDING);
    }
 
    @Override
-   protected boolean remove(String name, byte[] id) throws DatastoreOperationException {
+   protected boolean remove(String name, byte[] id) {
       return remove(name, id, RemoteBehavior.ALLOW_FORWARDING);
    }
 
    @Override
-   protected void put(String name, byte[] id, final byte[] value, final int ttl, final TimeUnit timeUnit) throws DatastoreOperationException {
+   protected void put(String name, byte[] id, final byte[] value, final int ttl, final TimeUnit timeUnit) {
       put(name, id, value, ttl, timeUnit, RemoteBehavior.ALLOW_FORWARDING);
    }
 
-   public StoredElement get(String name, byte[] id, RemoteBehavior initialBehavior) throws DatastoreOperationException {
+   public StoredElement get(String name, byte[] id, RemoteBehavior initialBehavior) {
       return (StoredElement) performAction(name, id, new DatastoreAction() {
 
          @Override
@@ -149,7 +149,7 @@ public class HashRingDatastore extends AbstractHashedDatastore {
       }, initialBehavior);
    }
 
-   public boolean remove(String name, byte[] id, RemoteBehavior initialBehavior) throws DatastoreOperationException {
+   public boolean remove(String name, byte[] id, RemoteBehavior initialBehavior) {
       return (Boolean) performAction(name, id, new DatastoreAction() {
 
          @Override
@@ -169,7 +169,7 @@ public class HashRingDatastore extends AbstractHashedDatastore {
       }, initialBehavior);
    }
 
-   public void put(String name, byte[] id, final byte[] value, final int ttl, final TimeUnit timeUnit, RemoteBehavior initialBehavior) throws DatastoreOperationException {
+   public void put(String name, byte[] id, final byte[] value, final int ttl, final TimeUnit timeUnit, RemoteBehavior initialBehavior) {
       performAction(name, id, new DatastoreAction() {
 
          @Override
@@ -192,17 +192,17 @@ public class HashRingDatastore extends AbstractHashedDatastore {
    }
 
     @Override
-    public boolean remove(String key, boolean notify) throws DatastoreOperationException {
+    public boolean remove(String key, boolean notify) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public void put(String key, byte[] value, boolean notify) throws DatastoreOperationException {
+    public void put(String key, byte[] value, boolean notify) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
-    public void put(String key, byte[] value, int ttl, TimeUnit timeUnit, boolean notify) throws DatastoreOperationException {
+    public void put(String key, byte[] value, int ttl, TimeUnit timeUnit, boolean notify) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 }

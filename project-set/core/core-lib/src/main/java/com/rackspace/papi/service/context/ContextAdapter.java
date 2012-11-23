@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.context;
 
+import com.rackspace.papi.filter.PowerFilterChainBuilder;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.container.ContainerConfigurationService;
@@ -32,6 +33,7 @@ public interface ContextAdapter {
     String getReposeVersion();
     RequestHeaderService requestHeaderService();
     ResponseHeaderService responseHeaderService();
+    PowerFilterChainBuilder filterChainBuilder();
     
    <T extends ServiceContext<?>> T getContext(Class<T> clazz);
 

@@ -10,6 +10,7 @@ import com.rackspace.papi.service.datastore.impl.replicated.data.Message;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.SocketTimeoutException;
@@ -30,6 +31,7 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
     private static final Logger LOG = LoggerFactory.getLogger(ChannelledUpdateListener.class);
     private static final int BUFFER_SIZE = 1024;
     private static final int TIMEOUT = 1000;
+    private static final int INT_SIZE = 4;
     private boolean done;
     private final ServerSocket socket;
     private final Datastore datastore;
@@ -75,8 +77,8 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
         }
 
         private int readInt() throws IOException {
-            byte[] data = new byte[4];
-            int dataToRead = 4;
+            byte[] data = new byte[INT_SIZE];
+            int dataToRead = INT_SIZE;
 
             while (dataToRead > 0) {
                 dataToRead -= inputStream.read(data, 0, dataToRead);
@@ -91,7 +93,7 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
                 return objectSize;
             }
 
-            if (inputStream.available() >= 4) {
+            if (inputStream.available() >= INT_SIZE) {
                 objectSize = readInt();
             }
 
@@ -115,6 +117,10 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
             }
 
             return null;
+        }
+
+        OutputStream getOutputStream() {
+            return outputStream;
         }
     }
 
@@ -148,7 +154,7 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
         int read;
         while ((read = client.read(buffer)) > 0) {
             buffer.flip();
-            attachment.outputStream.write(buffer.array(), 0, read);
+            attachment.getOutputStream().write(buffer.array(), 0, read);
             buffer.clear();
         }
 
@@ -163,7 +169,7 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
     private void readMessage(SelectionKey key) throws IOException, ClassNotFoundException {
         Attachment attachment = readData(key);
         byte[] data = attachment.getObject();
-      
+
         while (data != null && data.length > 0) {
             ByteArrayInputStream is = new ByteArrayInputStream(data);
             while (is.available() > 0) {
@@ -184,6 +190,15 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
         }
     }
 
+    private void handle(SelectionKey key) throws IOException, ClassNotFoundException {
+        if (key.isAcceptable()) {
+            acceptConnection(key);
+        } else if (key.isReadable()) {
+            readMessage(key);
+        }
+
+    }
+
     @Override
     public void run() {
         while (!done) {
@@ -198,12 +213,7 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
                 while (it.hasNext()) {
                     SelectionKey key = it.next();
                     it.remove();
-
-                    if (key.isAcceptable()) {
-                        acceptConnection(key);
-                    } else if (key.isReadable()) {
-                        readMessage(key);
-                    }
+                    handle(key);
                 }
             } catch (SocketTimeoutException ex) {
                 // ignore

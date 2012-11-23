@@ -7,6 +7,7 @@ import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.filter.ValvePowerFilter;
 import com.rackspace.papi.service.context.impl.PowerApiContextManager;
 import com.rackspace.papi.servlet.InitParameter;
+import java.io.File;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
@@ -27,7 +28,6 @@ public class ValveJettyServerBuilder {
     private String configurationPathAndFile = "";
     private final SslConfiguration sslConfiguration;
     private final String connectionFramework;
-    private PowerApiContextManager contextManager;
     private final boolean insecure;
 
     public ValveJettyServerBuilder(String configurationPathAndFile, List<Port> ports, SslConfiguration sslConfiguration, String connectionFramework, boolean insecure) {
@@ -78,7 +78,7 @@ public class ValveJettyServerBuilder {
         sslConnector.setPort(port.getPort());
         SslContextFactory cf = sslConnector.getSslContextFactory();
 
-        cf.setKeyStore(configurationPathAndFile + "/" + sslConfiguration.getKeystoreFilename());
+        cf.setKeyStore(configurationPathAndFile + File.separator + sslConfiguration.getKeystoreFilename());
         cf.setKeyStorePassword(sslConfiguration.getKeystorePassword());
         cf.setKeyManagerPassword(sslConfiguration.getKeyPassword());
 
@@ -93,7 +93,7 @@ public class ValveJettyServerBuilder {
         
 
         try {
-            contextManager = PowerApiContextManager.class.newInstance();
+            PowerApiContextManager contextManager = PowerApiContextManager.class.newInstance();
             contextManager.setPorts(ports);
             servletContext.addEventListener(contextManager);
         } catch (InstantiationException e) {

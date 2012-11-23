@@ -55,21 +55,21 @@ public class JettyServerBuilder {
       return servletInstance;
    }
 
-   public void start() throws Exception {
+   public void start() throws JettyException {
       try {
          server.start();
       } catch (Exception ex) {
          LOG.error("error occurred in start", ex);
-         throw ex;
+         throw new JettyException("Error starting Jetty", ex);
       }
    }
 
-   public void stop() throws Exception {
+   public void stop() throws JettyException {
       try {
          server.stop();
       } catch (Exception ex) {
          LOG.error("error occurred in stop", ex);
-         throw ex;
+         throw new JettyException("Error stopping Jetty", ex);
       }
    }
 }

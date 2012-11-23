@@ -8,14 +8,14 @@ import java.util.Map;
 @XmlRootElement(name = "nastCredentials")
 public class NastCredentialsWrapper extends CredentialsWrapper<NastCredentials> {
 
-   private static final String[] fields = {"nastId", "key"};
+   private static final String[] FIELDS = {"nastId", "key"};
    
    public NastCredentialsWrapper() {
-      super(fields);
+      super(FIELDS);
    }
    
    public NastCredentialsWrapper(Map map) {
-      super(fields);
+      super(FIELDS);
       validate(map);
       
       NastCredentials credentials = new NastCredentials();

@@ -4,7 +4,6 @@ import com.rackspace.papi.http.proxy.common.AbstractRequestProcessor;
 import java.io.IOException;
 import java.util.Enumeration;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.http.HttpHost;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.InputStreamEntity;
@@ -16,11 +15,9 @@ import org.apache.http.entity.InputStreamEntity;
  */
 class HttpComponentRequestProcessor extends AbstractRequestProcessor {
     private final HttpServletRequest sourceRequest;
-    private final HttpHost targetHost;
 
-    public HttpComponentRequestProcessor(HttpServletRequest request, HttpHost host) {
+    public HttpComponentRequestProcessor(HttpServletRequest request) {
       this.sourceRequest = request;
-      this.targetHost = host;
     }
 
     /**
