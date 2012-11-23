@@ -108,69 +108,55 @@
     <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
     <chapter xml:id="Introduction-000">
         <title>Introduction to the Translation Component of &PRODNAME;</title>
-        <para> Rate limiting controls the flow of traffic. You can use
-            &PRODNAME;'s rate limiting filter to manage the flow of
-            traffic into your service so that it does not exceed the
-            service's actual capacity. In addition to allowing you to
-            manage legitimate workloads, this allows you to prevent
-            overload due to abuse of your system. </para>
-        <para> To understand how &PRODNAME; handles rate limiting, you
-            must understand the relationship between &PRODNAME; and an
-            origin service. An origin service is the service for which
-            &PRODNAME; is performing a function. For example, if
-            &PRODNAME; is used to provide rate limiting to a
-            load-balancing service, then the load-balancing service is
-            &PRODNAME;'s origin service. Requests are sent to
-            &PRODNAME; as the proxy for the origin service, not to the
-            server where the origin service lives. &PRODNAME;
-            functions as a reverse proxy, in that it acts on behalf of
-            the origin service rather than on behalf of the client.
-            &PRODNAME; passes client requests to the origin service
-            only after those requests have been examined and processed
-            by the &PRODNAME; filters configured for that origin
-            service. </para>
-        <para> &PRODNAME;'s rate limiting filter protects the origin
-            service from being bombarded by client requests. It
-            accomplishes this by specifying limits for the number of
-            times a client may request a given resource. When a client
-            has exceeded the number of requests permitted during the
-            current time period, no further requests from that client
-            are delivered to the origin service until a new time
-            period begins. This provides essential protection to any
-            public-facing API. </para>
-        <para>
-            A client's current limits may include the
-            client's absolute limits. Absolute limits are specific to a service domain and are
-            therefore only provided by the origin service. 
-            However, &PRODABBREV; will integrate absolute and current limits as they apply to a client.
+        <para> Translation changes the format of a request or response so that it meets the expectations of the service or client that receives it.
+            You can use
+            &PRODNAME;'s translation filter to transform XML into JSON. 
+            You can also use
+            &PRODNAME;'s translation filter to transform JSON into JSONx, which is formatted like XML.
+            Whether or not you transform the body of the message into another format, you can use the translation filter to remove elements that are invalid for the receiver
+            or to add elements that are required by the receiver. 
+            This means you can choose components to combine in a stack based on their core features; 
+            without the &PRODNAME; translation filter, incompatible standards for output and input might make some otherwise-beneficial combinations impractical. 
         </para>
-        <para> &PRODABBREV; does not enforce absolute limits, but it
-            does inform the origin service of those limits. You can
-            learn more about absolute limits at <xref
-                linkend="Absolute-d1e631"/>. </para>
         <para>
-            The &PRODNAME; rate limiting component performs two categories of behavior:
-            <itemizedlist>
+            To use &PRODNAME; for translation, you must add the translation component as a filter in your &PRODNAME; configuration. 
+            You can learn more about customizing your &PRODNAME; configuration 
+            by reading the 
+            <link xlink:href="http://openrepose.org/documentation/repose-deploy/content/Introduction-000.html">Repose Deployment Handbook</link>
+            and by examining a  
+            <link xlink:href="https://github.com/rackspace/repose/blob/master/project-set/core/core-lib/src/main/resources/META-INF/schema/examples/system-model.cfg.xml">basic system model configuration</link>
+            in GitHub.
+        </para>
+        <para> 
+            &PRODNAME; performs translation by applying 
+           <link xlink:href="http://www.w3.org/TR/xslt20/">XSLT 2.0 stylesheets</link>
+            to requests and responses. 
+            In addition to adding the translation filter to your configuration, 
+            you must customize your stylesheets to define the changes you wish the translation filter to perform.
+        </para>
+         <para> The &PRODNAME; translation component performs two
+            categories of behavior: <itemizedlist>
                 <listitem>
                     <para>
-                      <link linkend="Querying_Limits-d1e531">querying for limits</link> 
-                    </para>
+                        <link linkend="Change_Format-d1e105"
+                            >changing the format of a message</link>
+                        (translating between JSON and XML)</para>
                 </listitem>
                 <listitem>
                     <para>
-                        <link linkend="Tracking_Requests-d1e431">tracking limits</link>
-                    </para>
+                        <link linkend="Change_Content-d1e125"
+                            >changing the content of a message</link>
+                        (adding or deleting elements)</para>
                 </listitem>
             </itemizedlist>
         </para>
         <tip>
             <para> Rate limits are controlled by
-                    <code>rate-limiting.cfg.xml</code>; to change your
+                    <code>translation.cfg.xml</code>; to change your
                 rate limiting configuration, edit
-                    <code>rate-limiting.cfg.xml</code>. You can see an
-                annotated example of
-                    <code>rate-limiting.cfg.xml</code> in <xref
-                    linkend="Configuration-d1e365"/>. </para>
+                    <code>translation.cfg.xml</code>. You can see an
+                annotated example of <code>translation.cfg.xml</code>
+                in <xref linkend="Configuration-d1e365"/>. </para>
         </tip>
     </chapter>
     <chapter xml:id="Configuration-d1e365">
@@ -816,6 +802,18 @@
                     component's performance and throughput. </para>
             </note>
         </section>
+    </chapter>
+    <chapter xml:id="Change_Format-d1e105">
+        <title>Changing a Message's Format</title>
+        <para> 
+            Explain it all here. 
+        </para>
+    </chapter>
+    <chapter xml:id="Change_Content-d1e125">
+        <title>Changing a Message's Content</title>
+        <para> 
+            Explain it all here. 
+        </para>
     </chapter>
     <xi:include href="chapters/afterword.xml"/>
 </book>

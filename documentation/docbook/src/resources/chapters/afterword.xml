@@ -115,9 +115,8 @@
                     <link xlink:href="http://wiki.openstack.org/openstack-authn">http://wiki.openstack.org/openstack-authn</link>
                 </title>   
                 <abstract>
-                    <para>
-                        &PRODNAME;'s Authentication component complies with this specification.
-                    </para>
+                    <para> &PRODNAME;'s authentication component
+                        complies with this specification. </para>
                 </abstract>
             </biblioentry>
             <biblioentry xml:id="EAIPATTERNS">
@@ -213,9 +212,9 @@
                     <link xlink:href="http://tools.ietf.org/html/rfc2046/">http://tools.ietf.org/html/rfc2046/</link>
                 </title>
                 <abstract>
-                    <para>
-                        The Versioning component uses MIME types to describe the media types associated with version mappings.
-                    </para>
+                    <para> The versioning component uses MIME types to
+                        describe the media types associated with
+                        version mappings. </para>
                 </abstract>
             </biblioentry>
             <biblioentry xml:id="OSLIMIT">
@@ -233,9 +232,9 @@
                     <link xlink:href="http://docs.openstack.org/api/openstack-compute/2/content/ProgramaticLimits.html">http://docs.openstack.org/api/openstack-compute/2/content/ProgramaticLimits.html</link>
                 </title>
                 <abstract>
-                    <para>
-                        The Rate Limiting component can use absolute limits provided by an origin service, such as the absolute limits shown here.
-                    </para>
+                    <para> The rate limiting component can use
+                        absolute limits provided by an origin service,
+                        such as the absolute limits shown here. </para>
                 </abstract>
             </biblioentry>
             <biblioentry xml:id="REGEX">
@@ -253,8 +252,8 @@
                     <link xlink:href="http://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html">http://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html</link>
                 </title>
                 <abstract>
-                    <para> The Rate Limiting component uses
-                        <code>java.util.regex.Pattern</code>,
+                    <para> The rate limiting component uses
+                            <code>java.util.regex.Pattern</code>,
                         defined here, to match character sequences
                         against patterns specified by regular
                         expressions. </para>
@@ -340,6 +339,26 @@
                     <para>
                         This knowledge base is maintained by the Repose project team. 
                         Its contents include general background information, release notes, an FAQ, notes on components and utilities, and instructions to contributors.
+                    </para>
+                </abstract>
+            </biblioentry>
+            <biblioentry xml:id="XSLT">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    W3C
+                </orgname>
+                <title>XSL Transformations (XSLT) Version 2.0
+                    <link xlink:href="http://www.w3.org/TR/xslt20/">http://www.w3.org/TR/xslt20/</link>
+                </title>    
+                <abstract>
+                    <para>
+                        The translation component uses XSLT 2.0 stylesheets to reformat requests and responses.
                     </para>
                 </abstract>
             </biblioentry>
