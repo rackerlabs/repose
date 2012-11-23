@@ -48,6 +48,9 @@
                                 <para>Rate Limiting</para>
                             </listitem>
                             <listitem>
+                                <para>Translation</para>
+                            </listitem>
+                            <listitem>
                                 <para>Versioning</para>
                             </listitem>
                         </itemizedlist>
