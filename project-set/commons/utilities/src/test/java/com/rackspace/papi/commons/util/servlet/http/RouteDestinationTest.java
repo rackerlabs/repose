@@ -53,9 +53,16 @@ public class RouteDestinationTest {
       
       @Test
       public void shouldCompareDestinationsWithUri(){
-         Integer compared = routeDst1.compareTo(routeDst4);
+         int compared = routeDst1.compareTo(routeDst4);
          
          assertTrue(compared < 0);
+      }
+      
+      @Test
+      public void shouldHaveDifferentHashPerDestination(){
+         Integer h1 = routeDst1.hashCode();
+         Integer h2 = routeDst2.hashCode();
+         assertFalse(h1.equals(h2));
       }
    }
 }
