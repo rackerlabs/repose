@@ -127,13 +127,15 @@
             <link xlink:href="https://github.com/rackspace/repose/blob/master/project-set/core/core-lib/src/main/resources/META-INF/schema/examples/system-model.cfg.xml">basic system model configuration</link>
             in GitHub.
         </para>
-        <para> 
-            &PRODNAME; performs translation by applying 
-           <link xlink:href="http://www.w3.org/TR/xslt20/">XSLT 2.0 stylesheets</link>
-            to requests and responses. 
-            In addition to adding the translation filter to your configuration, 
-            you must customize your stylesheets to define the changes you wish the translation filter to perform.
-        </para>
+        <para> &PRODNAME; uses 
+            <link xlink:href="http://saxon.sourceforge.net/">Saxon 9.3</link>
+            to perform translation by
+            applying <link xlink:href="http://www.w3.org/TR/xslt20/"
+                >XSLT 2.0 stylesheets</link> to requests and
+            responses. In addition to adding the translation filter to
+            your configuration, you must create and customize your
+            stylesheets to define the changes you wish the translation
+            filter to perform. </para>
          <para> The &PRODNAME; translation component performs two
             categories of behavior: <itemizedlist>
                 <listitem>
@@ -186,7 +188,7 @@
             Your translation configuration in <code>translation.cfg.xml</code> will resemble the following example:
         </para>
         <example>
-            <title>Translation Configuration: XML</title>
+            <title>Translation Configuration</title>
             <programlistingco>
                 <areaspec>
                     <area xml:id="cfg.xml.request-endpoint"
@@ -307,6 +309,110 @@
                 <para>
                     A valid stylesheet resembles the following example:
                 </para>
+                <example>
+                    <title>Translation Configuration</title>
+                    <programlistingco>
+                        <areaspec>
+                            <area xml:id="cfg.xml.request-endpoint"
+                                units="linecolumn" coords="5 22"/>
+                            <area xml:id="cfg.xml.uri-regex"
+                                units="linecolumn" coords="5 32"/>
+                            <area xml:id="cfg.xml.include-absolute-limits"
+                                units="linecolumn" coords="6 32"/>
+                            <area xml:id="cfg.xml.limit-group"
+                                units="linecolumn" coords="8 17"/>
+                            <area xml:id="cfg.xml.id" units="linecolumn"
+                                coords="8 21"/>
+                            <area xml:id="cfg.xml.groups" units="linecolumn"
+                                coords="9 15"/>
+                            <area xml:id="cfg.xml.default" units="linecolumn"
+                                coords="9 35"/>
+                            <area xml:id="cfg.xml.limit" units="linecolumn"
+                                coords="10 15"/>
+                        </areaspec>
+                        <programlisting language="xml">
+<xi:include href="samples/repose-translation-identity.xsl" parse="text"/>
+            </programlisting>
+                    </programlistingco>
+                </example>
+                <para> Key elements of the preceding example are labeled with
+                    callouts and explained below: </para>
+                <calloutlist>
+                    <callout arearefs="cfg.xml.request-endpoint">
+                        <para> The <code>request-endpoint</code> configuration
+                            element must specify a regular expression that
+                            identifies client requests for the client's
+                            current limits. </para>
+                        <para>This element is
+                            <emphasis>required</emphasis>.</para>
+                        <para> </para>
+                    </callout>
+                    <callout arearefs="cfg.xml.uri-regex">
+                        <para> The <code>uri-regex</code> attribute of the
+                            <code>request-endpoint</code> configuration
+                            element must be a regular expression. It should
+                            match all representations of the request resource
+                            that the rate limiting component should answer. </para>
+                        <para>This attribute is
+                            <emphasis>required</emphasis>.</para>
+                        <para> </para>
+                    </callout>
+                    <callout arearefs="cfg.xml.include-absolute-limits">
+                        <para> The <code>include-absolute-limits</code>
+                            attribute of the <code>request-endpoint</code>
+                            configuration element is a Boolean attribute that
+                            can be used to switch on or off integration with
+                            the origin service's absolute limits. </para>
+                        <para>This attribute is
+                            <emphasis>optional</emphasis>.</para>
+                        <para>Acceptable values are <code>TRUE</code>,
+                            <code>FALSE</code>.</para>
+                        <para> </para>
+                    </callout>
+                    <callout arearefs="cfg.xml.limit-group">
+                        <para> One or more specifications of
+                            <code>limit-group</code> may be associated
+                            with a single specification of
+                            <code>request-endpoint</code>. </para>
+                        <para> Limit groups identify a group of related rate
+                            limits and bind them to a series of names. The
+                            names can be used to limit incoming requests using
+                            the <code>X-PP-Groups</code> header. </para>
+                        <para> </para>
+                    </callout>
+                    <callout arearefs="cfg.xml.id">
+                        <para> An <code>id</code> uniquely identifies each
+                            <code>limit-group</code>.</para>
+                        <para> </para>
+                    </callout>
+                    <callout arearefs="cfg.xml.groups">
+                        <para> Specifying <code>groups</code> for a
+                            <code>limit-group</code> associates it with
+                            recognizable workloads. In this example, one
+                            <code>limit-group</code> relates to customers
+                            and another relates to administrators. </para>
+                        <para> </para>
+                    </callout>
+                    <callout arearefs="cfg.xml.default">
+                        <para> A single <code>limit-group</code> may be
+                            identified as the <code>default</code> group. The
+                            <code>default</code> group will handle any
+                            requests that cannot be matched on the basis of a
+                            group name to any of the groups identified in the
+                            <code>X-PP-Groups</code> header. In this
+                            example, the limits defined for
+                            <code>groups="customer"</code> will be applied
+                            to requests that cannot be explicitly matched to a
+                            group. </para>
+                        <para> </para>
+                    </callout>
+                    <callout arearefs="cfg.xml.limit">
+                        <para>
+                            <code>limit</code> and its attributes are
+                            discussed in somewhere. </para>
+                        <para> </para>
+                    </callout>
+                </calloutlist>
         </section>
     </chapter>
     <chapter xml:id="Change_Format-d1e105">

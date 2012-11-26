@@ -359,7 +359,31 @@
                 <abstract>
                     <para>
                         This knowledge base is maintained by the Repose project team. 
-                        Its contents include general background information, release notes, an FAQ, notes on components and utilities, and instructions to contributors.
+                        Its contents include release notes, an FAQ, 
+                        notes on components and utilities, general background information, and instructions to contributors. 
+                        Wiki pages are informal source material for 
+                        <link xlink:href="http://openrepose.org/documentation.html">formal documentation</link>; 
+                        the wiki is most likely to include recent changes while the formal documentation is most likely to include expanded explanations and examples.
+                    </para>
+                </abstract>
+            </biblioentry>
+            <biblioentry xml:id="SAXON">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    SourceForge
+                </orgname>
+                <title>SAXON: The XSLT and XQuery Processor
+                    <link xlink:href="http://saxon.sourceforge.net/">http://saxon.sourceforge.net/</link>
+                </title>    
+                <abstract>
+                    <para>
+                        The translation component uses Saxon 9.3, and open-source tool, to process XSLT 2.0 stylesheets.
                     </para>
                 </abstract>
             </biblioentry>
