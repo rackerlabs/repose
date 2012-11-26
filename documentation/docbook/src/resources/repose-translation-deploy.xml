@@ -292,8 +292,20 @@
         </section>
             <section xml:id="Customizing_Translation_Stylesheet-d1e385">
                 <title>Customizing a Translation Stylesheet</title>
+                <para> 
+                    The &PRODNAME; translation component uses 
+                    <link xlink:href="http://www.w3.org/TR/xslt20/">XSLT 2.0 stylesheets</link> to process messages. 
+                    One place to learn the basics of XLST is the 
+                    <link xlink:href="http://www.w3schools.com/xsl/xsl_w3celementref.asp">XSLT Elements Reference</link>.
+                </para>
                 <para>
-                    tell it
+                    You can create and combine multiple stylesheets to accomplish the translation you require.
+                    To make stylesheets active within your &PRODNAME; 
+                    configuration, specify them in <code>translation.cfg.xml</code> as shown at 
+                    <xref linkend="Customizing_Translation_Configuration-d1e375"></xref>
+                </para>
+                <para>
+                    A valid stylesheet resembles the following example:
                 </para>
         </section>
     </chapter>

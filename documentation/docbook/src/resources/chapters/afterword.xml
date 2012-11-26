@@ -363,7 +363,7 @@
                     </para>
                 </abstract>
             </biblioentry>
-            <biblioentry xml:id="XSLT">
+            <biblioentry xml:id="XSLTSPEC">
                 <author>
                     <personname>
                         <firstname></firstname>
@@ -380,6 +380,27 @@
                 <abstract>
                     <para>
                         The translation component uses XSLT 2.0 stylesheets to reformat requests and responses.
+                    </para>
+                </abstract>
+            </biblioentry>
+            <biblioentry xml:id="XSLTREF">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    W3 Schools
+                </orgname>
+                <title>XSLT Elements Reference
+                    <link xlink:href="http://www.w3schools.com/xsl/xsl_w3celementref.asp">http://www.w3schools.com/xsl/xsl_w3celementref.asp</link>
+                </title>    
+                <abstract>
+                    <para>
+                        The translation component uses XSLT 2.0 stylesheets to reformat requests and responses.
+                        This is a formatted explanation of each element as of the XSLT 1.0 spec.
                     </para>
                 </abstract>
             </biblioentry>
