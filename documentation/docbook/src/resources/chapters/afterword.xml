@@ -177,6 +177,27 @@
                     </para>
                 </abstract>
             </biblioentry>
+            <biblioentry xml:id="JSONX">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    IBM
+                </orgname>
+                <title>JSONx conversion rules<link
+                    xlink:href="http://publib.boulder.ibm.com/infocenter/wsdatap/v3r8m1/index.jsp?topic=%2Fxs40%2Fconvertingbetweenjsonandjsonx06.htm"
+                    >http://publib.boulder.ibm.com/infocenter/wsdatap/v3r8m1/index.jsp?topic=%2Fxs40%2Fconvertingbetweenjsonandjsonx06.htm</link>
+                </title>   
+                <abstract>
+                    <para>
+                        The translation component converts messages from XML to JSON and from JSON to JSONx-flavored XML. The rules conversion from JSON to JSONx are defined here.
+                    </para>
+                </abstract>
+            </biblioentry>
             <biblioentry xml:id="JEE6">
                 <author>
                     <personname>
