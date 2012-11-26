@@ -1,21 +1,15 @@
 package com.rackspace.papi.components.ratelimit;
 
-import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
-
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
+import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
+import java.io.IOException;
+import javax.servlet.*;
 import org.slf4j.Logger;
 
-import javax.servlet.*;
-import java.io.IOException;
-
-/**
- *
- * @author jhopper
- */
 public class RateLimitingFilter implements Filter {
 
     private static final String DEFAULT_CONFIG = "rate-limiting.cfg.xml";

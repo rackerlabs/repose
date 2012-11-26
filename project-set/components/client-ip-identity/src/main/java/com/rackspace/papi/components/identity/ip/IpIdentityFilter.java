@@ -6,9 +6,8 @@ import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
-
-import javax.servlet.*;
 import java.io.IOException;
+import javax.servlet.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
