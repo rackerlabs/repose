@@ -191,20 +191,28 @@
             <title>Translation Configuration</title>
             <programlistingco>
                 <areaspec>
-                    <area xml:id="cfg.xml.uri-regex"
-                        units="linecolumn" coords="5 32"/>
-                    <area xml:id="cfg.xml.include-absolute-limits"
-                        units="linecolumn" coords="6 32"/>
-                    <area xml:id="cfg.xml.limit-group"
-                        units="linecolumn" coords="8 17"/>
-                    <area xml:id="cfg.xml.id" units="linecolumn"
-                        coords="8 21"/>
-                    <area xml:id="cfg.xml.groups" units="linecolumn"
-                        coords="9 15"/>
-                    <area xml:id="cfg.xml.default" units="linecolumn"
-                        coords="9 35"/>
-                    <area xml:id="cfg.xml.limit" units="linecolumn"
-                        coords="10 15"/>
+                    <area xml:id="cfg.content-type"
+                        units="linecolumn" coords="7 13"/>
+                    <area xml:id="cfg.accept"
+                        units="linecolumn" coords="8 13"/>
+                    <area xml:id="cfg.translated-content-type"
+                        units="linecolumn" coords="9 13"/>
+                    <area xml:id="cfg.style-sheets" units="linecolumn"
+                        coords="10 13"/>
+                    <area xml:id="cfg.style" units="linecolumn"
+                        coords="11 17"/>
+                    <area xml:id="cfg.id" units="linecolumn"
+                        coords="12 21"/>
+                    <area xml:id="cfg.href" units="linecolumn"
+                        coords="13 21"/>
+                    <area xml:id="cfg.code-regex" units="linecolumn"
+                        coords="18 13"/>
+                    <area xml:id="cfg.param" units="linecolumn"
+                        coords="28 21"/>
+                    <area xml:id="cfg.name" units="linecolumn"
+                        coords="29 25"/>
+                    <area xml:id="cfg.value" units="linecolumn"
+                        coords="30 25"/>
                 </areaspec>
                 <programlisting language="xml">
 <xi:include href="samples/repose-translation.cfg.xml" parse="text"/>
@@ -214,69 +222,57 @@
         <para> Key elements of the preceding example are labeled with
             callouts and explained below: </para>
         <calloutlist>
-            <callout arearefs="cfg.xml.uri-regex">
-                <para> The <code>uri-regex</code> attribute of the
-                        <code>request-endpoint</code> configuration
-                    element must be a regular expression. It should
-                    match all representations of the request resource
-                    that the rate limiting component should answer. </para>
-                <para>This attribute is
-                    <emphasis>required</emphasis>.</para>
+            <callout arearefs="cfg.content-type">
+                <para> Content type specifies the response content types to which this style sheet chain should be applied.</para>
                 <para> </para>
             </callout>
-            <callout arearefs="cfg.xml.include-absolute-limits">
-                <para> The <code>include-absolute-limits</code>
-                    attribute of the <code>request-endpoint</code>
-                    configuration element is a Boolean attribute that
-                    can be used to switch on or off integration with
-                    the origin service's absolute limits. </para>
-                <para>This attribute is
-                    <emphasis>optional</emphasis>.</para>
-                <para>Acceptable values are <code>TRUE</code>,
-                        <code>FALSE</code>.</para>
+            <callout arearefs="cfg.accept">
+                <para><code>accept</code>
+                    Specifies the Accept type to which this chain should be applied. </para>
                 <para> </para>
             </callout>
-            <callout arearefs="cfg.xml.limit-group">
-                <para> One or more specifications of
-                        <code>limit-group</code> may be associated
-                    with a single specification of
-                        <code>request-endpoint</code>. </para>
-                <para> Limit groups identify a group of related rate
-                    limits and bind them to a series of names. The
-                    names can be used to limit incoming requests using
-                    the <code>X-PP-Groups</code> header. </para>
+            <callout arearefs="cfg.translated-content-type">
+                <para> Specifies the content-type to be output by this chain. The response content-type is set to this if the style sheets are applied successfully.
+                    </para>
                 <para> </para>
             </callout>
-            <callout arearefs="cfg.xml.id">
-                <para> An <code>id</code> uniquely identifies each
-                        <code>limit-group</code>.</para>
+            <callout arearefs="cfg.style-sheets">
+                <para> This element contains the list of style sheets to be applied for this translation chain.</para>
                 <para> </para>
             </callout>
-            <callout arearefs="cfg.xml.groups">
-                <para> Specifying <code>groups</code> for a
-                        <code>limit-group</code> associates it with
-                    recognizable workloads. In this example, one
-                        <code>limit-group</code> relates to customers
-                    and another relates to administrators. </para>
+            <callout arearefs="cfg.style">
+                <para> This element specifies one style sheet within the chain. </para>
                 <para> </para>
             </callout>
-            <callout arearefs="cfg.xml.default">
-                <para> A single <code>limit-group</code> may be
-                    identified as the <code>default</code> group. The
-                        <code>default</code> group will handle any
-                    requests that cannot be matched on the basis of a
-                    group name to any of the groups identified in the
-                        <code>X-PP-Groups</code> header. In this
-                    example, the limits defined for
-                        <code>groups="customer"</code> will be applied
-                    to requests that cannot be explicitly matched to a
-                    group. </para>
+            <callout arearefs="cfg.id">
+                <para> This is a unique identifier for this style sheet.</para>
                 <para> </para>
             </callout>
-            <callout arearefs="cfg.xml.limit">
+            <callout arearefs="cfg.href">
+                <para> This is a URI which specifies the location of the style sheet. 
+                    If a relative path is specified, then this will be relative to the &PRODNAME; configuration directory. </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.code-regex">
                 <para>
-                    <code>limit</code> and its attributes are
-                    discussed in somewhere. </para>
+                    <code>code-regex</code> is a regular express (regex) specifying the response codes to which this style sheet chain should be applied. 
+                    For example, <code>4[\d]{2}</code> matches all response codes in the range from 400 to 499.</para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.param">
+                <para>
+                    A style sheet can accept any number of parameters. 
+                    These parameters will be passed into the transform associated with the style sheet. </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.name">
+                <para>
+                    This is the name of a parameter to be passed in. </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.value">
+                <para>
+                    This is the value of a parameter to be passed in. </para>
                 <para> </para>
             </callout>
         </calloutlist>
@@ -295,12 +291,13 @@
                     configuration, specify them in <code>translation.cfg.xml</code> as shown at 
                     <xref linkend="Customizing_Translation_Configuration-d1e375"></xref>
                 </para>
-                <para>
-                    A valid stylesheet resembles the following example:
-                </para>
+                <para> A valid stylesheet resembles the following
+                example (or a more complex &amp; interesting example
+                but I need help to build it): </para>
                 <example>
                     <title>Translation Configuration</title>
-                    <programlistingco>
+                    <programlistingco security="writeronly">
+                        <!-- lay callouts on better example when we have one -->
                         <areaspec>
                             <area xml:id="cfg.xml.demo1"
                                 units="linecolumn" coords="5 22"/>
@@ -312,9 +309,10 @@
             </programlisting>
                     </programlistingco>
                 </example>
-                <para> Key elements of the preceding example are labeled with
+                <para security="writeronly"> Key elements of the preceding example are labeled with
                     callouts and explained below: </para>
-                <calloutlist>
+                <calloutlist security="writeronly">
+                    <!-- lay callouts on better example when we have one -->
                     <callout arearefs="cfg.xml.demo1">
                         <para> The <code>request-endpoint</code> configuration
                             element must specify a regular expression that
@@ -401,7 +399,8 @@
                 <table border="1" frame="box">
                     <?dbfo keep-together="always"?>
                     <caption>Stylesheet Applied by Translation
-                        Configuration</caption>
+                        Configuration: Translating JSON to
+                        JSONx</caption>
                     <thead>
                         <tr>
                             <th>Stylesheet: identity.xsl</th>
@@ -454,7 +453,102 @@
             <title>Adding Content to a Message</title>
             <para> You can use the &PRODNAME; translation component to
                 add an element to a copy of an incoming message so
-                that element is included when the copy is forwarded. </para>
+                that element is included when the copy is forwarded. 
+                <table border="1" frame="box">
+                    <?dbfo keep-together="always"?>
+                    <caption>XML Input Becomes Shorter XML
+                        Output</caption>
+                    <thead>
+                        <tr>
+                            <th>Input: Original XML Message</th>
+                            <th>Translation</th>
+                            <th>Output: Shortened XML Message</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <programlisting language="javascript">
+<![CDATA[        
+<a>Stuff</a>
+]]>
+</programlisting>
+                            </td>
+                            <td>Apply stylesheets as defined in
+                                translation configuration.</td>
+                            <td>
+                                <!-- if no CDATA here, DocBook tries & fails to interpret <json:object> as markup -->
+                                <programlisting language="xml">
+<![CDATA[    
+<add-me><a>Stuff</a></add-me>
+]]>
+</programlisting>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </para>
+            <para> To make this possible, create stylesheets to define
+                the transformations, and call for those stylesheets in
+                your translation configuration,
+                <code>translation.cfg.xml</code>. To create the
+                result shown above, deleting the
+                <code>remove-me</code> element, create a
+                stylesheet asking for a complete copy,
+                (<code>identify.xsl</code>), another stylesheet
+                asking for addition of specific content to the copy
+                (<code>add-element.xsl</code>), and a
+                translation configuration that includes both
+                stylesheets as shown below: <table border="1"
+                    frame="box">
+                    <?dbfo keep-together="always"?>
+                    <caption>Stylesheets Applied by Translation
+                        Configuration: Adding Content to an XML
+                        Message</caption>
+                    <thead>
+                        <tr>
+                            <th>Stylesheets: identity.xsl +
+                                add-element.xsl</th>
+                            <th>Translation Configuration:
+                                translation.cfg.xml</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <programlisting language="xml">
+<xi:include href="samples/repose-translation-identity.xsl" parse="text"/>
+</programlisting>
+                                <programlisting language="xml">
+<xi:include href="samples/repose-translation-add-element.xsl" parse="text"/>
+</programlisting>
+                            </td>
+                            <td>
+                                <programlisting language="xml">
+<xi:include href="samples/repose-translation-cfg-add.xml" parse="text"/>
+</programlisting>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </para>
+            <para> In the <code>identify.xsl</code> stylesheet,
+                    <code>&lt;xsl:copy-of select="."/&gt;</code> asks
+                for a copy of the entire document. In the
+                    <code>add-element.xsl</code> stylesheet,
+                    <code>add-me</code> asls for anything marked with
+                that wrapper to be added to the message as another
+                wrapper around the entire message. In the translation
+                configuration, the stylesheets are called for by their
+                names (<code>identity.xsl</code> and
+                    <code>add-element.xsl</code>);
+                    <code>content-type</code> identifies the expected
+                input as XHTML+XML and
+                    <code>translated-content-type</code> identifies
+                the expected output as XML;
+                    <code>code-regex="2[\d]{2}</code> applies this
+                stylesheet chain only to responses with a status code
+                in the range of 2xx.</para>
             <para>
                 You can use cURL to confirm
                 that you have the stylesheet and the translation configuration set up correctly; if they are correct,
@@ -520,8 +614,9 @@
                 stylesheets as shown below: <table border="1"
                     frame="box">
                     <?dbfo keep-together="always"?>
-                    <caption>Stylesheet Applied by Translation
-                        Configuration</caption>
+                    <caption>Stylesheets Applied by Translation
+                        Configuration: Deleting Content from an XML
+                        Message</caption>
                     <thead>
                         <tr>
                             <th>Stylesheets: identity.xsl +

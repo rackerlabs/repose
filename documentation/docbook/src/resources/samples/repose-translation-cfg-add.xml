@@ -1,0 +1,9 @@
+<response-translation code-regex="2[\d]{2}"  
+    content-type="application/xhtml+xml" 
+    accept="application/xml" 
+    translated-content-type="application/xml">
+    <style-sheets>
+        <style id="1" href="identity.xsl" />
+        <style id="3" href="add-element.xsl" />
+    </style-sheets>
+</response-translation>
