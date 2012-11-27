@@ -287,46 +287,13 @@
                 </para>
                 <para> A valid stylesheet resembles the following
                 example (or a more complex &amp; interesting example
-                but I need help to build it): </para>
+                but I need help to build it and &amp; lay callouts on it): </para>
                 <example>
                     <title>Translation Configuration</title>
-                    <programlistingco security="writeronly">
-                        <!-- lay callouts on better example when we have one -->
-                        <areaspec>
-                            <area xml:id="cfg.xml.demo1"
-                                units="linecolumn" coords="5 22"/>
-                            <area xml:id="cfg.xml.demo2"
-                                units="linecolumn" coords="5 32"/>
-                        </areaspec>
-                        <programlisting language="xml">
+<programlisting language="xml">
 <xi:include href="samples/repose-translation-identity.xsl" parse="text"/>
-            </programlisting>
-                    </programlistingco>
+</programlisting>
                 </example>
-                <para security="writeronly"> Key elements of the preceding example are labeled with
-                    callouts and explained below: </para>
-                <calloutlist security="writeronly">
-                    <!-- lay callouts on better example when we have one -->
-                    <callout arearefs="cfg.xml.demo1">
-                        <para> The <code>request-endpoint</code> configuration
-                            element must specify a regular expression that
-                            identifies client requests for the client's
-                            current limits. </para>
-                        <para>This element is
-                            <emphasis>required</emphasis>.</para>
-                        <para> </para>
-                    </callout>
-                    <callout arearefs="cfg.xml.demo2">
-                        <para> The <code>uri-regex</code> attribute of the
-                            <code>request-endpoint</code> configuration
-                            element must be a regular expression. It should
-                            match all representations of the request resource
-                            that the rate limiting component should answer. </para>
-                        <para>This attribute is
-                            <emphasis>required</emphasis>.</para>
-                        <para> </para>
-                    </callout>
-                </calloutlist>
         </section>
     </chapter>
     <chapter xml:id="Change_Format-d1e105">

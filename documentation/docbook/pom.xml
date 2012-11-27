@@ -22,7 +22,7 @@
                 <artifactId>clouddocs-maven-plugin</artifactId>
                 <!-- this <version> relates only to the *plugin* used for document formatting -->
                 <!-- the version of the *API* that is the subject of the document is indicated within each document -->
-                <version>1.6.1-SNAPSHOT</version>
+                <version>1.6.0</version>
                 <executions>
                     <execution>
                         <id>g1</id>
@@ -44,12 +44,13 @@
                             <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic>
                             <!-- look here for the .xml and everything to include such as samples and figures -->
                             <sourceDirectory>src/resources</sourceDirectory>
-                            <!-- build fails complaining of malformed example but oXygen says all source is green; ignore build's complaints for now -->
-                            <failOnValidationError>no</failOnValidationError>
+                            <!-- if Maven build fails but oXygen says all source is green, use <failOnValidationError>no</failOnValidationError> to ignore Maven's complaints 
+                            <failOnValidationError>no</failOnValidationError> -->
                             <glossaryCollection>${project.build.directory}/../src/resources/repose-glossary.xml</glossaryCollection>
                             <!-- use <includes> to specify one book to build (saves time & OutOfMemoryError) -->
-                            <!-- to build everything found in <sourceDirectory>, comment out includes -->
+                            <!-- to build everything found in <sourceDirectory>, comment out includes 
                             <includes>repose-translation-deploy.xml</includes>
+                            -->
                         </configuration>
                     </execution>
                 </executions>
