@@ -109,15 +109,24 @@ public class RateLimitingServiceImplTest {
          rateLimitingService.trackLimits("user", groups, "/loadbalancer/something", "GET");
       }
       
-      @Test(expected = OverLimitException.class)
+      @Test
       public void shouldThrowOverLimits() throws IOException, OverLimitException{
          List<String> groups = new ArrayList<String>();
          groups.add("configure-limit-group");
+         
+         Date nextAvail = new Date();
 
          when(cache.updateLimit(any(HttpMethod.class), any(String.class), any(String.class),
-                 any(ConfiguredRatelimit.class))).thenReturn(new NextAvailableResponse(false, new Date(), 10));
+                 any(ConfiguredRatelimit.class))).thenReturn(new NextAvailableResponse(false, nextAvail, 0));
          
-         rateLimitingService.trackLimits("user", groups, "/loadbalancer/something", "GET");
+         try{
+            rateLimitingService.trackLimits("user", groups, "/loadbalancer/something", "GET");
+         }catch(OverLimitException e){
+            assertEquals("User should be returned",e.getUser(), "user");
+            assertTrue("Next available time should be returned",e.getNextAvailableTime().compareTo(nextAvail)==0);
+            assertTrue("Configured limits should be returned",e.getConfiguredLimit().contains("value=20"));
+            assertEquals(e.getCurrentLimitAmount(), 0);
+         }
       }
       
       @Test(expected = IllegalArgumentException.class)

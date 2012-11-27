@@ -21,10 +21,7 @@ import org.junit.runner.RunWith;
 import static org.mockito.Mockito.*;
 import org.omg.PortableServer.REQUEST_PROCESSING_POLICY_ID;
 
-/**
- *
- * @author malconis
- */
+
 @RunWith(Enclosed.class)
 public class ViaRequestHeaderBuilderTest {
 
