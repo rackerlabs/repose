@@ -7,9 +7,8 @@ import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
-
-import javax.servlet.*;
 import java.io.IOException;
+import javax.servlet.*;
 import org.slf4j.Logger;
 
 /**
@@ -43,7 +42,7 @@ public class VersioningFilter implements Filter {
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
         handlerFactory = new VersioningHandlerFactory(ports);
-        configurationManager = ServletContextHelper.getInstance().getPowerApiContext(servletContext).configurationService();
+        configurationManager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
         configurationManager.subscribeTo("system-model.cfg.xml", handlerFactory, SystemModel.class);
         configurationManager.subscribeTo(config, handlerFactory, ServiceVersionMappingList.class);
     }

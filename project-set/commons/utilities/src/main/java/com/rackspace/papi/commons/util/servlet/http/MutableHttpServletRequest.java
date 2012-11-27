@@ -18,7 +18,7 @@ import java.util.*;
  */
 // This class is non-final so that we can mock it in unit tests.  We cannot
 // mock classes that are marked as final.
-@SuppressWarnings("CHECKSTYLE.com.puppycrawl.tools.checkstyle.checks.design.FinalClassCheck")
+@SuppressWarnings("com.puppycrawl.tools.checkstyle.checks.design.FinalClassCheck")
 public class MutableHttpServletRequest extends HttpServletRequestWrapper {
 
     public static MutableHttpServletRequest wrap(HttpServletRequest request) {

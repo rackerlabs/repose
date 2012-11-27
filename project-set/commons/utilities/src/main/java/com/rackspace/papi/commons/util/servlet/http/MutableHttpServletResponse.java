@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 
 // This class is non-final so that we can mock it in unit tests.  We cannot
 // mock classes that are marked as final.
-@SuppressWarnings("CHECKSTYLE.com.puppycrawl.tools.checkstyle.checks.design.FinalClassCheck")
+@SuppressWarnings("com.puppycrawl.tools.checkstyle.checks.design.FinalClassCheck")
 public class MutableHttpServletResponse extends HttpServletResponseWrapper implements ReadableHttpServletResponse {
 
     public static MutableHttpServletResponse wrap(HttpServletRequest request, HttpServletResponse response) {
