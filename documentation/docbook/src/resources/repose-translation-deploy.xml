@@ -153,9 +153,9 @@
             </itemizedlist>
         </para>
         <tip>
-            <para> Rate limits are controlled by
+            <para> Translation processing is controlled by
                     <code>translation.cfg.xml</code>; to change your
-                rate limiting configuration, edit
+                translation configuration, edit
                     <code>translation.cfg.xml</code>. You can see an
                 annotated example of <code>translation.cfg.xml</code>
                 in <xref linkend="Configuration-d1e365"/>. </para>
@@ -171,7 +171,7 @@
                     xlink:href="hhttp://openrepose.org/documentation/repose-intro/content/Introduction-000.html"
                     >Getting Started</link> document. </para>
         </tip>
-        <para> The rate limiting component obtains its configuration,
+        <para> The translation component obtains its configuration,
             including its API endpoint, from a file named
                 <code>translation.cfg.xml</code>. We have included an
             annotated example of a valid

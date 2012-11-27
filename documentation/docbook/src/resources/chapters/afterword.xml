@@ -152,9 +152,8 @@
                     <link xlink:href="http://www.w3.org/Style/XSL/">http://www.w3.org/Style/XSL/</link>
                 </title>
                 <abstract>
-                    <para>
-                        The Rate Limiting component uses this method to convert between XML and JSON.
-                    </para>
+                    <para> The rate limiting component uses this
+                        method to convert between XML and JSON. </para>
                 </abstract>
             </biblioentry>
             <biblioentry xml:id="RFC2616">
@@ -193,9 +192,10 @@
                     >http://publib.boulder.ibm.com/infocenter/wsdatap/v3r8m1/index.jsp?topic=%2Fxs40%2Fconvertingbetweenjsonandjsonx06.htm</link>
                 </title>   
                 <abstract>
-                    <para>
-                        The translation component converts messages from XML to JSON and from JSON to JSONx-flavored XML. The rules conversion from JSON to JSONx are defined here.
-                    </para>
+                    <para> The translation component converts messages
+                        from XML to JSON and from JSON to
+                        JSONx-flavored XML. The rules for conversion
+                        from JSON to JSONx are defined here. </para>
                 </abstract>
             </biblioentry>
             <biblioentry xml:id="JEE6">
@@ -273,11 +273,10 @@
                     <link xlink:href="http://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html">http://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html</link>
                 </title>
                 <abstract>
-                    <para> The rate limiting component uses
-                            <code>java.util.regex.Pattern</code>,
+                    <para> &PRODNAME; uses <code>java.util.regex.Pattern</code>,
                         defined here, to match character sequences
                         against patterns specified by regular
-                        expressions. </para>
+                        expressions. The rate limiting and translation components match against regular expressions to determine what actions to take. </para>
                 </abstract>
             </biblioentry>
             <biblioentry xml:id="RAXCAUTH">
