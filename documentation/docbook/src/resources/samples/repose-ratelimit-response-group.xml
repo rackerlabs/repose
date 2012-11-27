@@ -1,0 +1,8 @@
+<limits xmlns="http://docs.openstack.org/common/api/v1.0">
+    <rates>
+        <rate regex="/something/(.*)" uri="*">
+            <limit next-available="2012-06-22T15:38:17.956Z" unit="MINUTE" remaining="10" value="10" verb="PUT"/>
+            <limit next-available="2012-06-22T15:38:17.956Z" unit="MINUTE" remaining="10" value="10" verb="GET"/>
+        </rate>
+    </rates>
+</limits>

@@ -38,16 +38,17 @@
                         <para>&PRODNAME; Component Deployments:</para>
                         <itemizedlist>
                             <listitem>
-                                <para>Authentication</para>
-                            </listitem>
-                            <listitem>
-                                <para>Authorization</para>
+                                <para>Authentication and
+                                   Authorization</para>
                             </listitem>
                             <listitem>
                                 <para>Logging</para>
                             </listitem>
                             <listitem>
                                 <para>Rate Limiting</para>
+                            </listitem>
+                            <listitem>
+                                <para>Translation</para>
                             </listitem>
                             <listitem>
                                 <para>Versioning</para>

@@ -115,9 +115,8 @@
                     <link xlink:href="http://wiki.openstack.org/openstack-authn">http://wiki.openstack.org/openstack-authn</link>
                 </title>   
                 <abstract>
-                    <para>
-                        &PRODNAME;'s Authentication component complies with this specification.
-                    </para>
+                    <para> &PRODNAME;'s authentication component
+                        complies with this specification. </para>
                 </abstract>
             </biblioentry>
             <biblioentry xml:id="EAIPATTERNS">
@@ -137,6 +136,24 @@
                     <para>
                         &PRODNAME; uses integration patterns defined here.
                     </para>
+                </abstract>
+            </biblioentry>
+            <biblioentry xml:id="XSL">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                </orgname>
+                <title>Extensible Stylesheet Language Family (XSL), The 
+                    <link xlink:href="http://www.w3.org/Style/XSL/">http://www.w3.org/Style/XSL/</link>
+                </title>
+                <abstract>
+                    <para> The rate limiting component uses this
+                        method to convert between XML and JSON. </para>
                 </abstract>
             </biblioentry>
             <biblioentry xml:id="RFC2616">
@@ -159,6 +176,28 @@
                     </para>
                 </abstract>
             </biblioentry>
+            <biblioentry xml:id="JSONX">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    IBM
+                </orgname>
+                <title>JSONx conversion rules<link
+                    xlink:href="http://publib.boulder.ibm.com/infocenter/wsdatap/v3r8m1/index.jsp?topic=%2Fxs40%2Fconvertingbetweenjsonandjsonx06.htm"
+                    >http://publib.boulder.ibm.com/infocenter/wsdatap/v3r8m1/index.jsp?topic=%2Fxs40%2Fconvertingbetweenjsonandjsonx06.htm</link>
+                </title>   
+                <abstract>
+                    <para> The translation component converts messages
+                        from XML to JSON and from JSON to
+                        JSONx-flavored XML. The rules for conversion
+                        from JSON to JSONx are defined here. </para>
+                </abstract>
+            </biblioentry>
             <biblioentry xml:id="JEE6">
                 <author>
                     <personname>
@@ -179,7 +218,7 @@
                     </para>
                 </abstract>
             </biblioentry>
-            <biblioentry xml:id="RFC2046">
+              <biblioentry xml:id="RFC2046">
                 <author>
                     <personname>
                         <firstname>R.</firstname>
@@ -194,9 +233,50 @@
                     <link xlink:href="http://tools.ietf.org/html/rfc2046/">http://tools.ietf.org/html/rfc2046/</link>
                 </title>
                 <abstract>
-                    <para>
-                        The Versioning component uses MIME types to describe the media types associated with version mappings.
-                    </para>
+                    <para> The versioning component uses MIME types to
+                        describe the media types associated with
+                        version mappings. </para>
+                </abstract>
+            </biblioentry>
+            <biblioentry xml:id="OSLIMIT">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    OpenStack
+                </orgname>
+                <title>OpenStack Compute Developer Guide: Determining Limits Programmatically
+                    <link xlink:href="http://docs.openstack.org/api/openstack-compute/2/content/ProgramaticLimits.html">http://docs.openstack.org/api/openstack-compute/2/content/ProgramaticLimits.html</link>
+                </title>
+                <abstract>
+                    <para> The rate limiting component can use
+                        absolute limits provided by an origin service,
+                        such as the absolute limits shown here. </para>
+                </abstract>
+            </biblioentry>
+            <biblioentry xml:id="REGEX">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    Oracle Corporation
+                </orgname>
+                <title>Pattern (Java Platform SE 7)
+                    <link xlink:href="http://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html">http://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html</link>
+                </title>
+                <abstract>
+                    <para> &PRODNAME; uses <code>java.util.regex.Pattern</code>,
+                        defined here, to match character sequences
+                        against patterns specified by regular
+                        expressions. The rate limiting and translation components match against regular expressions to determine what actions to take. </para>
                 </abstract>
             </biblioentry>
             <biblioentry xml:id="RAXCAUTH">
@@ -278,7 +358,72 @@
                 <abstract>
                     <para>
                         This knowledge base is maintained by the Repose project team. 
-                        Its contents include general background information, release notes, an FAQ, notes on components and utilities, and instructions to contributors.
+                        Its contents include release notes, an FAQ, 
+                        notes on components and utilities, general background information, and instructions to contributors. 
+                        Wiki pages are informal source material for 
+                        <link xlink:href="http://openrepose.org/documentation.html">formal documentation</link>; 
+                        the wiki is most likely to include recent changes while the formal documentation is most likely to include expanded explanations and examples.
+                    </para>
+                </abstract>
+            </biblioentry>
+            <biblioentry xml:id="SAXON">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    SourceForge
+                </orgname>
+                <title>SAXON: The XSLT and XQuery Processor
+                    <link xlink:href="http://saxon.sourceforge.net/">http://saxon.sourceforge.net/</link>
+                </title>    
+                <abstract>
+                    <para>
+                        The translation component uses Saxon 9.3, and open-source tool, to process XSLT 2.0 stylesheets.
+                    </para>
+                </abstract>
+            </biblioentry>
+            <biblioentry xml:id="XSLTSPEC">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    W3C
+                </orgname>
+                <title>XSL Transformations (XSLT) Version 2.0
+                    <link xlink:href="http://www.w3.org/TR/xslt20/">http://www.w3.org/TR/xslt20/</link>
+                </title>    
+                <abstract>
+                    <para>
+                        The translation component uses XSLT 2.0 stylesheets to reformat requests and responses.
+                    </para>
+                </abstract>
+            </biblioentry>
+            <biblioentry xml:id="XSLTREF">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    W3 Schools
+                </orgname>
+                <title>XSLT Elements Reference
+                    <link xlink:href="http://www.w3schools.com/xsl/xsl_w3celementref.asp">http://www.w3schools.com/xsl/xsl_w3celementref.asp</link>
+                </title>    
+                <abstract>
+                    <para>
+                        The translation component uses XSLT 2.0 stylesheets to reformat requests and responses.
+                        This is a formatted explanation of each element as of the XSLT 1.0 spec.
                     </para>
                 </abstract>
             </biblioentry>
