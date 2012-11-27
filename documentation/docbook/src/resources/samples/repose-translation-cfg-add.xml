@@ -3,7 +3,7 @@
     accept="application/xml" 
     translated-content-type="application/xml">
     <style-sheets>
-        <style id="1" href="identity.xsl" />
-        <style id="3" href="add-element.xsl" />
+        <style href="identity.xsl" />
+        <style href="add-element.xsl" />
     </style-sheets>
 </response-translation>

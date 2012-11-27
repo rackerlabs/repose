@@ -2,10 +2,10 @@
     content-type="application/xml" accept="application/xml" 
     translated-content-type="application/xml">
     <style-sheets>
-        <style id="1" href="identity.xsl" >
+        <style href="identity.xsl" >
                   <param name="my-param" value="my-value"/>
                   <param name="my-param2" value="my-value2"/>
                 </style>
-        <style id="2" href="remove-element.xsl" />
+        <style href="remove-element.xsl" />
     </style-sheets>
 </response-translation>

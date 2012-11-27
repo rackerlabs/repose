@@ -7,29 +7,27 @@
             accept="application/xml" 
             translated-content-type="application/xml">
             <style-sheets>
-                <style 
-                    id="1" 
-                    href="identity.xsl" />
-                <style id="2" href="remove-element.xsl" />
+                <style href="identity.xsl" />
+                <style href="remove-element.xsl" />
             </style-sheets>
         </response-translation>
         <response-translation     
             code-regex="4[\d]{2}"
             content-type="application/xhtml+xml" accept="application/xml" translated-content-type="application/xml">
             <style-sheets>
-                <style id="1" href="identity.xsl" />
-                <style id="3" href="add-element.xsl" />
+                <style href="identity.xsl" />
+                <style href="add-element.xsl" />
             </style-sheets>
         </response-translation>
         <response-translation content-type="application/json" accept="application/json" translated-content-type="application/json">
             <style-sheets>
-                <style id="1" href="identity.xsl" >
+                <style href="identity.xsl" >
                     <param 
                         name="my-param" 
                         value="my-value"/>
                     <param name="my-param2" value="my-value2"/>
                 </style>
-                <style id="2" href="jsonx2json.xsl" />
+                <style href="jsonx2json.xsl" />
             </style-sheets>
         </response-translation>
     </response-translations>
