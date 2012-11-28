@@ -84,6 +84,12 @@ public class HttpLogFormatter {
             case REQUEST_HEADER:
                 formatter.setLogic(new RequestHeaderHandler(extractor.getVariable(), extractor.getArguments()));
                 break;
+            case REQUEST_LINE:
+                formatter.setLogic(new RequestLineHandler());
+                break;
+            case REQUEST_PROTOCOL:
+                formatter.setLogic(new RequestProtocolHandler());
+                break;
             case RESPONSE_HEADER:
                 formatter.setLogic(new ResponseHeaderHandler(extractor.getVariable(), extractor.getArguments()));
                 break;
@@ -117,7 +123,7 @@ public class HttpLogFormatter {
             case RESPONSE_BYTES:
                 formatter.setLogic(new ResponseBytesHandler());
                 break;
-            case TIME_RECIEVED:
+            case TIME_RECEIVED:
                 formatter.setLogic(new TimeReceivedHandler());
                 break;
             case URL_REQUESTED:

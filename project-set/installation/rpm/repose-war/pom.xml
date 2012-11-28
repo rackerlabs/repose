@@ -42,7 +42,7 @@
 
                             <mappings>
                                 <mapping>
-                                    <directory>/var/lib/tomcat7/webapps</directory>
+                                    <directory>/var/lib/tomcat/webapps</directory>
                                     <username>tomcat</username>
                                     <groupname>tomcat</groupname>
                                     <filemode>755</filemode>
@@ -95,7 +95,7 @@
 
                             <requires>
                                 <require>java-1.6.0-openjdk</require>
-                                <require>tomcat7</require>
+                                <require>tomcat >= 7.0</require>
                             </requires>
                         </configuration>
                     </plugin>
