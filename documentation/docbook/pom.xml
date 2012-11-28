@@ -22,7 +22,7 @@
                 <artifactId>clouddocs-maven-plugin</artifactId>
                 <!-- this <version> relates only to the *plugin* used for document formatting -->
                 <!-- the version of the *API* that is the subject of the document is indicated within each document -->
-                <version>1.6.1-SNAPSHOT</version>
+                <version>1.6.0</version>
                 <executions>
                     <execution>
                         <id>g1</id>
@@ -31,7 +31,7 @@
                         </goals>
                         <phase>generate-sources</phase>
                         <configuration>
-                            <!-- set branding to OPENSTACK or RACKSPACE -->
+                            <!-- set branding to OPENSTACK or RACKSPACE or REPOSE -->
                             <branding>repose</branding>
                             <!-- for WebHelp: -->
                             <!-- enableDisqus turns on Disqus feature for feedback if any value other than 0; "intranet" for posting on our internal docs-beta.rackspace.com for internal review --> 
@@ -44,7 +44,13 @@
                             <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic>
                             <!-- look here for the .xml and everything to include such as samples and figures -->
                             <sourceDirectory>src/resources</sourceDirectory>
+                            <!-- if Maven build fails but oXygen says all source is green, use <failOnValidationError>no</failOnValidationError> to ignore Maven's complaints 
+                            <failOnValidationError>no</failOnValidationError> -->
                             <glossaryCollection>${project.build.directory}/../src/resources/repose-glossary.xml</glossaryCollection>
+                            <!-- use <includes> to specify one book to build (saves time & OutOfMemoryError) -->
+                            <!-- to build everything found in <sourceDirectory>, comment out includes 
+                            <includes>repose-translation-deploy.xml</includes>
+                            -->
                         </configuration>
                     </execution>
                 </executions>

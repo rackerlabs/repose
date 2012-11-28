@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
+    <repose-cluster id="repose-service">
+        <nodes>
+            <node id="proxy-n01" hostname="localhost" http-port="8088"  />
+        </nodes>
+
+        <filters>
+            <filter name="translation" />
+            <filter name="default-router" />
+        </filters>
+        <destinations>
+            <endpoint id="mocks" protocol="http" hostname="50.57.189.15" port="8080" root-path="/" default="true" />
+        </destinations>
+    </repose-cluster>
+</system-model>

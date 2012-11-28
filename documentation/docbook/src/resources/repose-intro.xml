@@ -241,7 +241,7 @@
             is configured so that &PRODNAME; processes the client request first.
         </para>
         <figure xml:id="Proxy-Server">
-            <title>Repose as a proxy between a client request and the
+            <title>&PRODNAME; as a proxy between a client request and the
                 origin service</title>
             <mediaobject>
                 <imageobject>

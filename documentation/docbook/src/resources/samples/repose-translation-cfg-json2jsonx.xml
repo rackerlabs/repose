@@ -1,0 +1,8 @@
+<response-translation 
+    content-type="application/json" 
+    accept="application/xml" 
+    translated-content-type="application/xml">
+    <style-sheets>
+        <style href="identity.xsl" />
+    </style-sheets>
+</response-translation>

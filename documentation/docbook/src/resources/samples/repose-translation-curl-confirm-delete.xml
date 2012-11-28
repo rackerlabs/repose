@@ -1,0 +1,1 @@
+curl -X POST -H "content-type: application/xml" -H "accept: application/xml" http://localhost:8088/echobody -d "<a><remove-me>test</remove-me>Stuff</a>" -v
