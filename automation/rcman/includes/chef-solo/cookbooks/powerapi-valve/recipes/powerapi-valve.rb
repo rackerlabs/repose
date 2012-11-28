@@ -34,6 +34,15 @@ script "getVersionAndBuildNumbers" do
 
 end
 
+script "getJolokia" do
+    interpreter "bash"
+    code <<-EOH
+    wget http://labs.consol.de/maven/repository/org/jolokia/jolokia-jvm/1.0.6/jolokia-jvm-1.0.6-agent.jar -O /root/jolokia-jvm.jar
+    EOH
+end
+
+      
+
 package "papiCore" do
    action :install
    source "/root/repose-valve.deb"
