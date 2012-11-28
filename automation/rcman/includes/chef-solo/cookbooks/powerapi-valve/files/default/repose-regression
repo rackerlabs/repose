@@ -1,20 +1,21 @@
 #!/bin/bash
-# description: Tomcat Start Stop Restart
-# processname: tomcat
 # chkconfig: 234 20 80
 CONFIG_DIRECTORY=/etc/repose
 
 LOG_PATH=/var/powerapi/logs
 JAR_DIRECTORY=/usr/share/lib/repose
+JAVA=/usr/bin/java
+PID_FILE=/var/run/repose-valve
 
 
 startRepose()
 {
+    START_ARGS="--start --quiet --oknodo --make-pidfile --pidfile ${PID_FILE}.$3.pid"
     if [ $1 -eq '8888' ]
     then
-       java -jar $JAR_DIRECTORY/repose-valve.jar START -k -p $1 -s $2  -c $CONFIG_DIRECTORY/node$3 > $LOG_PATH/node$3/current.log 2>&1 &
+       start-stop-daemon $START_ARGS --exec $JAVA -- -jar $JAR_DIRECTORY/repose-valve.jar START -k -p $1 -s $2 -c $CONFIG_DIRECTORY/node$3 > $LOG_PATH/node$3/current.log 2>&1 &
     else
-       java -jar $JAR_DIRECTORY/repose-valve.jar START -p $1 -s $2  -c $CONFIG_DIRECTORY/node$3 > $LOG_PATH/node$3/current.log 2>&1 &
+       start-stop-daemon $START_ARGS --exec $JAVA -- -jar $JAR_DIRECTORY/repose-valve.jar START -p $1 -s $2 -c $CONFIG_DIRECTORY/node$3 > $LOG_PATH/node$3/current.log 2>&1 &
     fi
 }
 
