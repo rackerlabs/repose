@@ -18,6 +18,7 @@ import org.openrepose.components.apivalidator.servlet.config.ValidatorConfigurat
 import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.Element;
 
 public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerFactory<ApiValidatorHandler> {
 
@@ -30,13 +31,15 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     private final ApiValidatorWadlListener wadlListener;
     private final Object lock;
     private final String configRoot;
-    private boolean multiRoleMatch=false;
+    private boolean multiRoleMatch = false;
+    private final String config;
 
-    public ApiValidatorHandlerFactory(ConfigurationService manager, String configurationRoot) {
+    public ApiValidatorHandlerFactory(ConfigurationService manager, String configurationRoot, String config) {
         this.manager = manager;
         wadlListener = new ApiValidatorWadlListener();
         lock = new Object();
         this.configRoot = configurationRoot;
+        this.config = config;
     }
 
     private void unsubscribeAll() {
@@ -83,7 +86,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                 boolean found = false;
 
                 for (ValidatorInfo info : validators) {
-                    if (getNormalizedPath(info.getUri()).equals(config.name())) {
+                    if (info.getUri() != null && getNormalizedPath(info.getUri()).equals(config.name())) {
                         info.reinitValidator();
                         found = true;
                     }
@@ -93,7 +96,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                     // If we couldn't match the particular config... be safe and clear 
                     // all fo the validators
                     for (ValidatorInfo info : validators) {
-                       info.reinitValidator();
+                        info.reinitValidator();
                     }
                 }
             }
@@ -101,16 +104,18 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
     }
 
     private void addListener(String wadl) {
+        if (wadl == null) {
+            return;
+        }
+        
         LOG.info("Watching WADL: " + wadl);
         manager.subscribeTo(wadl, wadlListener, new GenericResourceConfigurationParser());
     }
 
-    String getWadlPath(String wadl) {
-       File file = new File(configRoot, wadl);
-       
-        return !wadl.contains("://") ? StringUtilities.join("file://", file.getAbsolutePath()) : wadl;
+    String getWadlPath(String uri) {
+        return !uri.contains("://") ? StringUtilities.join("file://", new File(configRoot, uri).getAbsolutePath()) : uri;
     }
-    
+
     void initialize() {
         synchronized (lock) {
             if (initialized || validatorConfiguration == null) {
@@ -119,13 +124,16 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
 
             validators = new ArrayList<ValidatorInfo>(validatorConfiguration.getValidator().size());
             defaultValidator = null;
-            multiRoleMatch=validatorConfiguration.isMultiRoleMatch();
+            multiRoleMatch = validatorConfiguration.isMultiRoleMatch();
 
             for (ValidatorItem validatorItem : validatorConfiguration.getValidator()) {
                 Config config = new ValidatorConfigurator(validatorItem, multiRoleMatch, configRoot).getConfiguration();
-                ValidatorInfo validator = new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), config);
+                ValidatorInfo validator = 
+                        validatorItem.getAny() != null?
+                        new ValidatorInfo(validatorItem.getRole(), (Element)validatorItem.getAny(), getWadlPath(this.config), config):
+                        new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), config);
 
-                validators.add (validator);
+                validators.add(validator);
                 if (validatorItem.isDefault() && defaultValidator == null) {
                     defaultValidator = validator;
                 }
