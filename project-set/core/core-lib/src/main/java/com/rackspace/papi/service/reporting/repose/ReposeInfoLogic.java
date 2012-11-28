@@ -42,13 +42,17 @@ public class ReposeInfoLogic implements ReposeInfo {
 
     @Override
     public long getTotalStatusCode(int statusCode) {
-        Long count = dataStore.getStatusCodeCounts().get(statusCode);
 
-        if (count != null) {
-            return count;
-        } else {
-            return LONG_ZERO;
-        }
+       Long count = LONG_ZERO;
+       
+       for(Integer code: dataStore.getStatusCodeCounts().keySet()){
+          
+          if(code%statusCode < 100){
+             count += dataStore.getStatusCodeCounts().get(code);
+          }
+       }
+       
+       return count;
     }
 
     @Override

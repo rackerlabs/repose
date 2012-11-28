@@ -42,7 +42,7 @@ public class ApiValidatorFilter implements Filter {
         manager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
-        handlerFactory = new ApiValidatorHandlerFactory(manager, configurationRoot);
+        handlerFactory = new ApiValidatorHandlerFactory(manager, configurationRoot, config);
         manager.subscribeTo(config, handlerFactory, ValidatorConfiguration.class);
     }
 }
