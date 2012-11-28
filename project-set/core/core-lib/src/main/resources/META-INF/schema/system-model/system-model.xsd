@@ -141,6 +141,14 @@
             </xs:documentation>
         </xs:annotation>
 
+        <xs:attribute name="id" type="xs:ID" use="optional">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines the filters id</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
         <xs:attribute name="name" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
