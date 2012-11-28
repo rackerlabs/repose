@@ -55,6 +55,8 @@ repose()
         esac
         sleep 1
       done
+      sleep 10
+      java -jar /root/jolokia-jvm.jar start `cat ${PID_FILE}.3.pid`
 }
 
 case $1 in
