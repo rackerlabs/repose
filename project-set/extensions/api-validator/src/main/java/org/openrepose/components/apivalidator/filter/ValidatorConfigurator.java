@@ -77,7 +77,7 @@ public class ValidatorConfigurator {
         config.setXSLEngine(validatorItem.getXslEngine().value());
         config.setJoinXPathChecks(validatorItem.isJoinXpathChecks());
         config.setCheckHeaders(validatorItem.isCheckHeaders());
-        config.setEnableIgnoreXSDExtension(validatorItem.isIgnoreXsdExtension());
+        config.setEnableIgnoreXSDExtension(validatorItem.isEnableIgnoreXsdExtension());
 
         return config;
     }
