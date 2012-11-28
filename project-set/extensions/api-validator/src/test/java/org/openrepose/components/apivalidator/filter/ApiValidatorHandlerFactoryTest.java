@@ -8,9 +8,7 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -49,7 +47,7 @@ public class ApiValidatorHandlerFactoryTest {
             
             configService = mock(ConfigurationService.class);
             URL resource = this.getClass().getClassLoader().getResource("");
-            instance = new ApiValidatorHandlerFactory(configService, resource.getPath());
+            instance = new ApiValidatorHandlerFactory(configService, resource.getPath(), "");
             
             instance.setValidatorCOnfiguration(config);
             instance.initialize();
@@ -100,7 +98,7 @@ public class ApiValidatorHandlerFactoryTest {
             
             configService = mock(ConfigurationService.class);
             URL resource = this.getClass().getClassLoader().getResource(wadl);
-            instance = new ApiValidatorHandlerFactory(configService, resource.getPath());
+            instance = new ApiValidatorHandlerFactory(configService, resource.getPath(), "");
 
             List<ValidatorInfo> validators = new ArrayList<ValidatorInfo>();
             info1 = mock(ValidatorInfo.class);
