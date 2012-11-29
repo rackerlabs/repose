@@ -98,7 +98,7 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
         final FilterDirector filterDirector = new FilterDirectorImpl();
         filterDirector.setFilterAction(FilterAction.PASS);
         MediaType contentType = getContentType(response.getHeader("content-type"));
-        List<MediaType> acceptValues = getAcceptValues(request.getPreferredHeaderValues("Accept", DEFAULT_TYPE));
+        List<MediaType> acceptValues = getAcceptValues(request.getPreferredHeaders("Accept", DEFAULT_TYPE));
         XmlChainPool pool = getHandlerChainPool("", contentType, acceptValues, String.valueOf(response.getStatus()), responseProcessors);
 
         if (pool != null) {
@@ -134,7 +134,7 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
         MutableHttpServletRequest request = MutableHttpServletRequest.wrap(httpRequest);
         FilterDirector filterDirector = new FilterDirectorImpl();
         MediaType contentType = getContentType(request.getHeader("content-type"));
-        List<MediaType> acceptValues = getAcceptValues(request.getPreferredHeaderValues("Accept", DEFAULT_TYPE));
+        List<MediaType> acceptValues = getAcceptValues(request.getPreferredHeaders("Accept", DEFAULT_TYPE));
         XmlChainPool pool = getHandlerChainPool(request.getMethod(), contentType, acceptValues, "", requestProcessors);
 
         if (pool != null) {

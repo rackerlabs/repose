@@ -16,6 +16,7 @@ import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.repose.service.ratelimit.exception.CacheException;
 import com.rackspace.repose.service.ratelimit.exception.OverLimitException;
+import java.util.List;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -42,9 +43,13 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
     public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
         final FilterDirector director = new FilterDirectorImpl();
         MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
-        MediaRangeProcessor processor = new MediaRangeProcessor(mutableRequest.getPreferredHeaderValues(CommonHttpHeader.ACCEPT.toString(), DEFAULT_TYPE));
+        MediaRangeProcessor processor = new MediaRangeProcessor(mutableRequest.getPreferredHeaders(CommonHttpHeader.ACCEPT.toString(), DEFAULT_TYPE));
 
-        originalPreferredAccept = processor.process().get(0);
+        
+        List<MediaType>  mediaTypes=processor.process();
+                 
+            
+        originalPreferredAccept = getPreferredMediaType(mediaTypes);
         MediaType preferredMediaType = originalPreferredAccept;
 
         if (requestHasExpectedHeaders(request)) {
@@ -161,5 +166,27 @@ public class RateLimitingHandler extends AbstractFilterLogicHandler {
         }
 
         return director;
+    }
+    
+  
+    public MediaType getPreferredMediaType(List<MediaType> mediaTypes){
+      
+      
+         
+        for(MediaType mediaType:mediaTypes){
+            
+           if(mediaType.getMimeType()==MimeType.APPLICATION_XML){
+                
+                return mediaType;
+            }
+            else if(mediaType.getMimeType()==MimeType.APPLICATION_JSON){
+               
+                return mediaType;
+            }
+            
+        }
+        
+        return mediaTypes.get(0);
+       
     }
 }

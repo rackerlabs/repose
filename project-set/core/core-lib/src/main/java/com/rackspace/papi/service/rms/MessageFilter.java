@@ -35,4 +35,33 @@ public final class MessageFilter {
 
       return wildcard;
    }
+   
+     public static Message filterByMediaType(List<Message> messages,List<MediaType> mediaTypes) {
+      Message wildcard = null;
+
+      if (messages != null && mediaTypes != null) {
+         
+         for(MediaType mediaType: mediaTypes) {
+         
+          for (Message message : messages) {
+            final String messageMediaType = message.getMediaType();
+            
+           
+            
+            if (StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, mediaType.getValue())) {
+               return message;
+            }
+
+            // A configured wildcard (*/*) will be returned if an exact match is not found
+            if (wildcard==null && StringUtilities.nullSafeEqualsIgnoreCase(messageMediaType, MimeType.WILDCARD.getMimeType()) ) {
+               wildcard = message;
+            }
+                
+         }
+      }
+      }    
+   
+      return wildcard;
+  
+   }
 }

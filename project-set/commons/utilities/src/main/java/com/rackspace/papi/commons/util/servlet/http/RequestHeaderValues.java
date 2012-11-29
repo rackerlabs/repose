@@ -14,7 +14,7 @@ public interface RequestHeaderValues {
 
     Enumeration<String> getHeaders(String name);
 
-    List<HeaderValue> getPreferedHeaders(String name);
+    List<HeaderValue> getPreferredHeaders(String name, HeaderValue defaultValue);
 
     List<HeaderValue> getPreferredHeaderValues(String name, HeaderValue defaultValue);
 

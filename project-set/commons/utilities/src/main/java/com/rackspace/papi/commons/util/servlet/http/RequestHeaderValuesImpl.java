@@ -123,7 +123,7 @@ public final class RequestHeaderValuesImpl implements RequestHeaderValues {
     }
 
     @Override
-    public List<HeaderValue> getPreferedHeaders(String name) {
+    public List<HeaderValue> getPreferredHeaders(String name, HeaderValue defaultValue) {
 
         HeaderFieldParser parser = new HeaderFieldParser(headers.get(name.toLowerCase()));
         List<HeaderValue> headerValues = parser.parse();
@@ -149,6 +149,10 @@ public final class RequestHeaderValuesImpl implements RequestHeaderValues {
             headerValues.addAll(groupedHeaderValues.get(quality));
         }
 
+        if (headerValues.isEmpty() && defaultValue != null) {
+            headerValues.add(defaultValue);
+        }
+        
         return headerValues;
     }
 }

@@ -44,11 +44,19 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
       
       final StatusCodeMatcher matchedCode = getMatchingStatusCode(String.valueOf(response.getStatus()));
       final MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
-      MediaRangeProcessor processor = new MediaRangeProcessor(mutableRequest.getPreferredHeaderValues("Accept", DEFAULT_TYPE));
+      MediaRangeProcessor processor = new MediaRangeProcessor(mutableRequest.getPreferredHeaders("Accept", DEFAULT_TYPE));
 
       if (matchedCode != null) {
-         final MediaType preferredMediaType = processor.process().get(0);
-         final HttpLogFormatter formatter = getHttpLogFormatter(matchedCode, preferredMediaType);
+          
+         HttpLogFormatter formatter = null;
+         Message message=null;
+         List<MediaType>  mediaTypes=processor.process();
+         
+      
+            message = MessageFilter.filterByMediaType(matchedCode.getMessage(), mediaTypes);
+            formatter=getHttpLogFormatter(matchedCode, message.getMediaType());
+          
+        
 
          if (formatter != null) {
 
@@ -56,7 +64,6 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
 
                final String formattedOutput = formatter.format("", request, response).trim();
 
-               final Message message = MessageFilter.filterByMediaType(matchedCode.getMessage(), preferredMediaType);
                overwriteResponseBody(response, formattedOutput, message.getContentType());
             }
          } else{
@@ -77,16 +84,16 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
       }
    }
 
-   private HttpLogFormatter getHttpLogFormatter(StatusCodeMatcher matchedCode, MediaType preferredMediaType) {
+   private HttpLogFormatter getHttpLogFormatter(StatusCodeMatcher matchedCode, String preferredMediaType) {
       HttpLogFormatter httpLogFormatter = null;
 
       if (matchedCode != null && preferredMediaType != null) {
-         final Message message = MessageFilter.filterByMediaType(matchedCode.getMessage(), preferredMediaType);
+        
 
          configurationLock.lock(readKey);
 
          try {
-            httpLogFormatter = immutableFormatTemplates.getMatchingLogFormatter(matchedCode.getId(), message.getMediaType());
+            httpLogFormatter = immutableFormatTemplates.getMatchingLogFormatter(matchedCode.getId(), preferredMediaType);
          } finally {
             configurationLock.unlock(readKey);
          }

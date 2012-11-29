@@ -246,8 +246,9 @@ public class MutableHttpServletRequestTest {
 
         @Test
         public void shouldReturnPreferedOrderListofHeaders() {
+            final HeaderValue defaultValue = new HeaderValueImpl("default", -1);
             
-            List<HeaderValue> list = wrappedRequest.getPreferedHeaders("header1");
+            List<HeaderValue> list = wrappedRequest.getPreferredHeaders("header1", defaultValue);
             assertEquals("First Element should be first occurrence of the highest quality value",list.get(0).getValue(),"val1.1");
             assertEquals("Second Element should be the second occurrence of the highest quality value",list.get(1).getValue(), "val1.5");
             assertEquals(list.get(4).getValue(), "val1.3");

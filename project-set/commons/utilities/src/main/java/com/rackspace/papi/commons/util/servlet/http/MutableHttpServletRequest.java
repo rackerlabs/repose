@@ -171,7 +171,7 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
 
     // Method to retrieve a list of a specified headers values
     // Order of values are determined first by quality then by order as they were passed to the request.
-    public List<HeaderValue> getPreferedHeaders(String name) {
-        return values.getHeaders().getPreferedHeaders(name);
+    public List<HeaderValue> getPreferredHeaders(String name,HeaderValue defaultValue) {
+        return values.getHeaders().getPreferredHeaders(name,defaultValue);
     }
 }
