@@ -10,6 +10,7 @@ public class ReposeInfoLogic implements ReposeInfo {
     private static final long LONG_ONE = 1l;
     private static final int INT_ONE = 1;
     private static final double DOUBLE_ZERO = 0.0d;
+    private static final int RESPONSE_CODE_SEPERATOR = 100;
     private ReposeInfoStore dataStore;
 
     public ReposeInfoLogic() {
@@ -47,7 +48,7 @@ public class ReposeInfoLogic implements ReposeInfo {
        
        for(Integer code: dataStore.getStatusCodeCounts().keySet()){
           
-          if(code%statusCode < 100){
+          if(code%statusCode < RESPONSE_CODE_SEPERATOR){
              count += dataStore.getStatusCodeCounts().get(code);
           }
        }

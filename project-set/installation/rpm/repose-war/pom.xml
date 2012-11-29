@@ -42,6 +42,7 @@
 
                             <mappings>
                                 <mapping>
+				  <!-- This is the location of tomcat as installed by jpackage -->
                                     <directory>/var/lib/tomcat7/webapps</directory>
                                     <username>tomcat</username>
                                     <groupname>tomcat</groupname>
@@ -95,7 +96,7 @@
 
                             <requires>
                                 <require>java-1.6.0-openjdk</require>
-                                <require>tomcat7</require>
+                                <require>tomcat >= 7.0</require>
                             </requires>
                         </configuration>
                     </plugin>
