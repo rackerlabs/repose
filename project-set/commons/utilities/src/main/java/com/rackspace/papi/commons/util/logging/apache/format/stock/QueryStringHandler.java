@@ -9,6 +9,6 @@ public class QueryStringHandler implements FormatterLogic {
 
     @Override
     public String handle(HttpServletRequest request, HttpServletResponse response) {
-        return request.getQueryString();
+        return request.getQueryString() == null ? "" : request.getQueryString();
     }
 }
