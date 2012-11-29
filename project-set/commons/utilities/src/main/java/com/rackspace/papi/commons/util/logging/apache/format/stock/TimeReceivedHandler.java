@@ -11,6 +11,6 @@ public class TimeReceivedHandler implements FormatterLogic {
 
     @Override
     public String handle(HttpServletRequest request, HttpServletResponse response) {
-        return new SimpleDateFormat("dd-MM-yyyy-hh:mm:ss.SSS").format(Calendar.getInstance().getTime());
+        return new SimpleDateFormat("dd-MM-yyyy-HH:mm:ss.SSS").format(Calendar.getInstance().getTime());
     }
 }

@@ -5,10 +5,14 @@ import com.rackspace.papi.commons.util.logging.apache.format.FormatterLogic;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class QueryStringHandler implements FormatterLogic {
+public class RequestLineHandler implements FormatterLogic {
+    private final static char SPACE = ' ';
 
     @Override
     public String handle(HttpServletRequest request, HttpServletResponse response) {
-        return request.getQueryString() == null ? "" : request.getQueryString();
+        return new StringBuilder(request.getMethod()).append(SPACE)
+                .append(request.getRequestURI()).append(SPACE)
+                .append(request.getProtocol()).toString();
     }
 }
+
