@@ -83,7 +83,7 @@
       check-xsd-grammar="true"
       check-elements="true"
       use-saxon="false"
-      ignore-xsd-extension="false" />
+      enable-ignore-xsd-extension="false" />
    <validator
       role="default"
       default="true"
