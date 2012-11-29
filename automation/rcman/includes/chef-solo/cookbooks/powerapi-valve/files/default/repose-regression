@@ -1,21 +1,36 @@
 #!/bin/bash
-# description: Tomcat Start Stop Restart
-# processname: tomcat
 # chkconfig: 234 20 80
 CONFIG_DIRECTORY=/etc/repose
 
 LOG_PATH=/var/powerapi/logs
 JAR_DIRECTORY=/usr/share/lib/repose
+JAVA=/usr/bin/java
+PID_FILE=/var/run/repose-valve
+JMX="-Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
 
 
 startRepose()
 {
-    if [ $1 -eq '8888' ]
-    then
-       java -jar $JAR_DIRECTORY/repose-valve.jar START -k -p $1 -s $2  -c $CONFIG_DIRECTORY/node$3 > $LOG_PATH/node$3/current.log 2>&1 &
-    else
-       java -jar $JAR_DIRECTORY/repose-valve.jar START -p $1 -s $2  -c $CONFIG_DIRECTORY/node$3 > $LOG_PATH/node$3/current.log 2>&1 &
-    fi
+    START_ARGS="--start --quiet --oknodo --make-pidfile --pidfile ${PID_FILE}.$3.pid"
+#    if [ $1 -eq '8888' ]
+#    then
+#       start-stop-daemon $START_ARGS --exec $JAVA -- -jar $JAR_DIRECTORY/repose-valve.jar START -k -p $1 -s $2 -c $CONFIG_DIRECTORY/node$3 > $LOG_PATH/node$3/current.log 2>&1 &
+#    else
+#       start-stop-daemon $START_ARGS --exec $JAVA -- -jar $JAR_DIRECTORY/repose-valve.jar START -p $1 -s $2 -c $CONFIG_DIRECTORY/node$3 > $LOG_PATH/node$3/current.log 2>&1 &
+#    fi
+    case "$1" in
+        8888)
+            start-stop-daemon $START_ARGS --exec $JAVA -- -jar $JAR_DIRECTORY/repose-valve.jar START -k -p $1 -s $2 -c $CONFIG_DIRECTORY/node$3 > $LOG_PATH/node$3/current.log 2>&1 &
+            ;;
+        8889)
+            start-stop-daemon $START_ARGS --exec $JAVA -- $JMX -jar $JAR_DIRECTORY/repose-valve.jar START -p $1 -s $2 -c $CONFIG_DIRECTORY/node$3 > $LOG_PATH/node$3/current.log 2>&1 &
+            ;;
+        *)
+            start-stop-daemon $START_ARGS --exec $JAVA -- -jar $JAR_DIRECTORY/repose-valve.jar START -p $1 -s $2 -c $CONFIG_DIRECTORY/node$3 > $LOG_PATH/node$3/current.log 2>&1 &
+            ;;
+    esac
+
+        
 }
 
 stopRepose()
@@ -40,6 +55,8 @@ repose()
         esac
         sleep 1
       done
+      sleep 10
+      java -jar /root/jolokia-jvm.jar start `cat ${PID_FILE}.3.pid`
 }
 
 case $1 in

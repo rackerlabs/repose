@@ -42,6 +42,10 @@
     </xs:simpleType>
 
     <xs:complexType name="ValidatorItem">
+        <xs:sequence>
+            <xs:any minOccurs="0"/>
+        </xs:sequence>
+
         <xs:attribute name="role" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
@@ -180,7 +184,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="ignore-xsd-extension" type="xs:boolean" use="optional" default="false">
+        <xs:attribute name="enable-ignore-xsd-extension" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -188,5 +192,6 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        
     </xs:complexType>
 </xs:schema>
