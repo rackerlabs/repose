@@ -74,6 +74,9 @@ public class HttpLogFormatter {
 
     @SuppressWarnings("PMD.NcssMethodCount")
     public static void setLogic(final LogArgumentGroupExtractor extractor, final LogArgumentFormatter formatter) {
+        if (LogFormatArgument.fromString(extractor.getEntity()) == null) {
+            throw new IllegalArgumentException("Unsupported log format entity: " + extractor.getEntity());
+        }
         switch (LogFormatArgument.fromString(extractor.getEntity())) {
             case RESPONSE_TIME_MICROSECONDS:
                 formatter.setLogic(new ResponseTimeHandler(RESPONSE_TIME_MULTIPLIER_MICROSEC));
