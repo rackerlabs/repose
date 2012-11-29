@@ -42,7 +42,8 @@
 
                             <mappings>
                                 <mapping>
-                                    <directory>/var/lib/tomcat/webapps</directory>
+				  <!-- This is the location of tomcat as installed by jpackage -->
+                                    <directory>/var/lib/tomcat7/webapps</directory>
                                     <username>tomcat</username>
                                     <groupname>tomcat</groupname>
                                     <filemode>755</filemode>
