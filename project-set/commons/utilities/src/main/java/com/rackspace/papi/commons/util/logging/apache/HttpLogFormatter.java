@@ -74,6 +74,9 @@ public class HttpLogFormatter {
 
     @SuppressWarnings("PMD.NcssMethodCount")
     public static void setLogic(final LogArgumentGroupExtractor extractor, final LogArgumentFormatter formatter) {
+        if (LogFormatArgument.fromString(extractor.getEntity()) == null) {
+            throw new IllegalArgumentException("Unsupported log format entity: " + extractor.getEntity());
+        }
         switch (LogFormatArgument.fromString(extractor.getEntity())) {
             case RESPONSE_TIME_MICROSECONDS:
                 formatter.setLogic(new ResponseTimeHandler(RESPONSE_TIME_MULTIPLIER_MICROSEC));
@@ -83,6 +86,12 @@ public class HttpLogFormatter {
                 break;
             case REQUEST_HEADER:
                 formatter.setLogic(new RequestHeaderHandler(extractor.getVariable(), extractor.getArguments()));
+                break;
+            case REQUEST_LINE:
+                formatter.setLogic(new RequestLineHandler());
+                break;
+            case REQUEST_PROTOCOL:
+                formatter.setLogic(new RequestProtocolHandler());
                 break;
             case RESPONSE_HEADER:
                 formatter.setLogic(new ResponseHeaderHandler(extractor.getVariable(), extractor.getArguments()));
@@ -117,7 +126,7 @@ public class HttpLogFormatter {
             case RESPONSE_BYTES:
                 formatter.setLogic(new ResponseBytesHandler());
                 break;
-            case TIME_RECIEVED:
+            case TIME_RECEIVED:
                 formatter.setLogic(new TimeReceivedHandler());
                 break;
             case URL_REQUESTED:

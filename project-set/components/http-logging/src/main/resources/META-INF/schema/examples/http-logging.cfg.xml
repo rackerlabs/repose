@@ -4,7 +4,7 @@
         <!-- The id attribute is to help the user easily identify the log -->
         <!-- The format includes what will be logged.  The arguments with % are a subset of the apache mod_log_config
              found at http://httpd.apache.org/docs/2.2/mod/mod_log_config.html#formats -->
-        <http-log id="my-special-log" format="Response Time=%T seconds\tResponse Time=%D microseconds\tResponse Code Modifiers=%200,201U\tModifier Negation=%!401a\tRemote IP=%a\tLocal IP=%A\tResponse Size(bytes)=%b\tRemote Host=%h\tRequest Method=%m\tServer Port=%p\tQuery String=%q\tTime Request Received=%t\tStatus=%s\tRemote User=%u\tURL Path Requested=%U\n">
+        <http-log id="my-special-log" format="Response Time=%T seconds\tResponse Time=%D microseconds\tResponse Code Modifiers=%200,201U\tModifier Negation=%!401a\tRemote IP=%a\tLocal IP=%A\tResponse Size(bytes)=%b\tRemote Host=%hRequest Line=&quot;%r&quot;\tRequest Method=%m\tRequest Protocol=%H\tServer Port=%p\tQuery String=%q\tTime Request Received=%t\tStatus=%s\tRemote User=%u\tURL Path Requested=%U\n">
             <targets>
                 <!-- The actual log file -->
                 <file location="/usr/local/logs/repose.log"/>
