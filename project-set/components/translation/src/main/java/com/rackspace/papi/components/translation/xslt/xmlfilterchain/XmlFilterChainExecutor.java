@@ -19,6 +19,7 @@ import javax.xml.transform.URIResolver;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
 import org.apache.xalan.transformer.TrAXFilter;
+import org.slf4j.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
@@ -27,6 +28,7 @@ import org.xml.sax.helpers.XMLReaderFactory;
 
 public class XmlFilterChainExecutor {
 
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(XmlFilterChainExecutor.class);
     private final XmlFilterChain chain;
     private final Properties format = new Properties();
 
@@ -94,6 +96,8 @@ public class XmlFilterChainExecutor {
                     TrAXFilter traxFilter = (TrAXFilter)filter.getFilter();
                     transformer = traxFilter.getTransformer();
                     setInputParameters(filter.getId(), transformer, inputs);
+                } else {
+                    LOG.warn("Unable to set stylesheet parameters.  Unsupported xml filter type used: " + filter.getFilter().getClass().getCanonicalName());
                 }
             }
 
