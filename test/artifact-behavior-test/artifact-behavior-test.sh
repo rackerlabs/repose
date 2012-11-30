@@ -90,7 +90,7 @@ checkFilters "NotEmpty"
 echo "4) Introduce an ear file with filter B. This ear file replaces the previous ear.  This filter simply response with "B" Assert that list of filters contains B."
 rm $ART_DIR/filter-a.ear
 cp $FILTER_B_BUNDLE/*.ear $ART_DIR/filter-b.ear
-sleep 20
+sleep 40
 sendRequest
 
 echo "#5) Remove filter from system model."
