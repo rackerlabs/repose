@@ -146,6 +146,7 @@
     <xs:complexType name="StyleSheet">
         <xs:sequence>
             <xs:element name="param" type="trans-config:StyleParam" minOccurs="0" maxOccurs="unbounded"/>
+            <xs:element name="xsl" type="trans-config:Xsl" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
 
         <xs:attribute name="id" type="xs:ID">
@@ -159,6 +160,12 @@
             </xs:annotation>
         </xs:attribute>
         
+    </xs:complexType>
+    
+    <xs:complexType name="Xsl">
+        <xs:sequence>
+            <xs:any maxOccurs="1" minOccurs="0"/>
+        </xs:sequence>        
     </xs:complexType>
 
     <xs:complexType name="StyleParam">

@@ -74,7 +74,9 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
     private void addStyleSheetsToWatchList(final TranslationBase translation) {
         if (translation.getStyleSheets() != null) {
             for (StyleSheet sheet : translation.getStyleSheets().getStyle()) {
-                xslListener.addToWatchList(sheet.getHref());
+                if (sheet.getHref() != null) {
+                    xslListener.addToWatchList(sheet.getHref());
+                }
             }
         }
     }
