@@ -7,6 +7,7 @@ import com.rackspace.papi.components.translation.config.TranslationBase;
 import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;
 import java.util.ArrayList;
 import java.util.List;
+import org.w3c.dom.Node;
 
 public class XmlFilterChainFactory implements ConstructionStrategy<XmlFilterChain> {
 
@@ -29,7 +30,11 @@ public class XmlFilterChainFactory implements ConstructionStrategy<XmlFilterChai
         List<StyleSheetInfo> stylesheets = new ArrayList<StyleSheetInfo>();
         if (translation.getStyleSheets() != null) {
             for (StyleSheet sheet : translation.getStyleSheets().getStyle()) {
-                stylesheets.add(new StyleSheetInfo(sheet.getId(), getAbsoluteXslPath(sheet.getHref())));
+                if (sheet.getXsl() != null && sheet.getXsl().getAny() != null) {
+                    stylesheets.add(new StyleSheetInfo(sheet.getId(), (Node)sheet.getXsl().getAny()));
+                } else {
+                    stylesheets.add(new StyleSheetInfo(sheet.getId(), getAbsoluteXslPath(sheet.getHref())));
+                }
             }
         }
 

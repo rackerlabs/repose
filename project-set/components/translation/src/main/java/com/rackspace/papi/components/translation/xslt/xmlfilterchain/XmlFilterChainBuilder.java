@@ -8,16 +8,24 @@ import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;
 import com.rackspace.papi.components.translation.xslt.XsltException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
+import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
@@ -48,7 +56,7 @@ public class XmlFilterChainBuilder {
             XMLReader lastReader = getSaxReader();
 
             for (StyleSheetInfo resource : stylesheets) {
-                StreamSource source = getStylesheetSource(resource);
+                Source source = getStylesheetSource(resource);
                 // Wire the output of the reader to filter1 (see Note #3)
                 // and the output of filter1 to filter2
                 XMLFilter filter = factory.newXMLFilter(source);
@@ -78,17 +86,46 @@ public class XmlFilterChainBuilder {
         throw new XsltException("Unable to load stylesheet " + path);
     }
 
-    protected StreamSource getStylesheetSource(StyleSheetInfo stylesheet) {
+    private StreamSource nodeToStreamSource(Node node) {
+        try {
+            // Create dom source for the document
+            DOMSource domSource = new DOMSource(node);
 
-        if (stylesheet.getUri().startsWith(CLASSPATH_PREFIX)) {
-            return getClassPathResource(stylesheet.getUri());
-        } else {
-            try {
-                return new StreamSource(new URL(stylesheet.getUri()).openStream());
-            } catch (IOException ex) {
-                throw new XsltException("Unable to load stylesheet: " + stylesheet.getUri(), ex);
+            // Create a string writer
+            StringWriter stringWriter = new StringWriter();
+
+            // Create the result stream for the transform
+            StreamResult result = new StreamResult(stringWriter);
+
+            // Create a Transformer to serialize the document
+            Transformer transformer = factory.newTransformer();
+
+            // Transform the document to the result stream
+            transformer.transform(domSource, result);
+            StringReader reader = new StringReader(stringWriter.toString());
+            return new StreamSource(reader);
+        } catch (TransformerException ex) {
+            throw new XsltException(ex);
+        }
+    }
+
+    protected Source getStylesheetSource(StyleSheetInfo stylesheet) {
+
+        if (stylesheet.getXsl() != null) {
+            return nodeToStreamSource(stylesheet.getXsl());
+        } else if (stylesheet.getUri() != null) {
+            if (stylesheet.getUri().startsWith(CLASSPATH_PREFIX)) {
+                return getClassPathResource(stylesheet.getUri());
+            } else {
+                try {
+                    return new StreamSource(new URL(stylesheet.getUri()).openStream());
+                } catch (IOException ex) {
+                    throw new XsltException("Unable to load stylesheet: " + stylesheet.getUri(), ex);
+                }
             }
         }
+
+        throw new IllegalArgumentException("No stylesheet specified for " + stylesheet.getId());
     }
 
     protected XMLReader getSaxReader() throws ParserConfigurationException, SAXException {
