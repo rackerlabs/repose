@@ -34,7 +34,7 @@ public class TranslationHandlerFactoryTest {
         @Before
         public void setUp() {
             manager = mock(ConfigurationService.class);
-            factory = new TranslationHandlerFactory(manager, new XmlFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), "");
+            factory = new TranslationHandlerFactory(manager, new XmlFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), "", "");
         }
         
         @Test

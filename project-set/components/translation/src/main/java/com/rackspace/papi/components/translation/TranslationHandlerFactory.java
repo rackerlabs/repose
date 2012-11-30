@@ -30,12 +30,14 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
     private final String configurationRoot;
     private final Object lock = new Object();
     private final XslUpdateListener xslListener;
+    private final String config;
 
-    public TranslationHandlerFactory(ConfigurationService configService, XmlFilterChainBuilder builder, String configurationRoot) {
+    public TranslationHandlerFactory(ConfigurationService configService, XmlFilterChainBuilder builder, String configurationRoot, String config) {
         xsltChainBuilder = builder;
         requestProcessorPools = new ArrayList<XmlChainPool>();
         responseProcessorPools = new ArrayList<XmlChainPool>();
         this.configurationRoot = configurationRoot;
+        this.config = config;
         xslListener = new XslUpdateListener(this, configService, configurationRoot);
     }
 
@@ -68,7 +70,7 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
     }
 
     private Pool<XmlFilterChain> buildChainPool(final TranslationBase translation) {
-        return new GenericBlockingResourcePool<XmlFilterChain>(new XmlFilterChainFactory(xsltChainBuilder, translation, configurationRoot));
+        return new GenericBlockingResourcePool<XmlFilterChain>(new XmlFilterChainFactory(xsltChainBuilder, translation, configurationRoot, config));
     }
 
     private void addStyleSheetsToWatchList(final TranslationBase translation) {

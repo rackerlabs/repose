@@ -3,8 +3,8 @@ package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 import com.rackspace.papi.components.translation.resolvers.ClassPathUriResolver;
 import com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver;
 import com.rackspace.papi.components.translation.resolvers.SourceUriResolverChain;
-import com.rackspace.papi.components.translation.xslt.XsltParameter;
 import com.rackspace.papi.components.translation.xslt.XsltException;
+import com.rackspace.papi.components.translation.xslt.XsltParameter;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
@@ -18,6 +18,7 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
+import org.apache.xalan.transformer.TrAXFilter;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
@@ -83,9 +84,17 @@ public class XmlFilterChainExecutor {
         try {
             for (XmlFilterReference filter : chain.getFilters()) {
                 // pass the input stream to all transforms as a param inputstream
-                net.sf.saxon.Filter saxonFilter = (net.sf.saxon.Filter) filter.getFilter();
-                Transformer transformer = saxonFilter.getTransformer();
-                setInputParameters(filter.getId(), transformer, inputs);
+
+                Transformer transformer;
+                if (filter.getFilter() instanceof net.sf.saxon.Filter) {
+                    net.sf.saxon.Filter saxonFilter = (net.sf.saxon.Filter) filter.getFilter();
+                    transformer = saxonFilter.getTransformer();
+                    setInputParameters(filter.getId(), transformer, inputs);
+                } else if (filter.getFilter() instanceof TrAXFilter) {
+                    TrAXFilter traxFilter = (TrAXFilter)filter.getFilter();
+                    transformer = traxFilter.getTransformer();
+                    setInputParameters(filter.getId(), transformer, inputs);
+                }
             }
 
             Transformer transformer = chain.getFactory().newTransformer();

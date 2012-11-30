@@ -14,11 +14,13 @@ public class XmlFilterChainFactory implements ConstructionStrategy<XmlFilterChai
     private final XmlFilterChainBuilder builder;
     private final TranslationBase translation;
     private final String configRoot;
+    private final String config;
 
-    public XmlFilterChainFactory(final XmlFilterChainBuilder xsltChainBuilder, final TranslationBase translation, final String configRoot) {
+    public XmlFilterChainFactory(final XmlFilterChainBuilder xsltChainBuilder, final TranslationBase translation, final String configRoot, final String config) {
         this.builder = xsltChainBuilder;
         this.translation = translation;
         this.configRoot = configRoot;
+        this.config = config;
     }
 
     private String getAbsoluteXslPath(String xslPath) {
@@ -31,7 +33,7 @@ public class XmlFilterChainFactory implements ConstructionStrategy<XmlFilterChai
         if (translation.getStyleSheets() != null) {
             for (StyleSheet sheet : translation.getStyleSheets().getStyle()) {
                 if (sheet.getXsl() != null && sheet.getXsl().getAny() != null) {
-                    stylesheets.add(new StyleSheetInfo(sheet.getId(), (Node)sheet.getXsl().getAny()));
+                    stylesheets.add(new StyleSheetInfo(sheet.getId(), (Node)sheet.getXsl().getAny(), getAbsoluteXslPath(config)));
                 } else {
                     stylesheets.add(new StyleSheetInfo(sheet.getId(), getAbsoluteXslPath(sheet.getHref())));
                 }
