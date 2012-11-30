@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+   <parent>
+      <groupId>com.rackspace.papi.external</groupId>
+     <artifactId>external-lib-support</artifactId>
+      <version>2.4.2-SNAPSHOT</version>
+      <relativePath>../../pom.xml</relativePath>
+   </parent>
+
+    <groupId>com.rackspace.papi.external.dummy-filters</groupId>
+    <artifactId>dummy-filters</artifactId>
+    
+    <name>Repose External - Dummy Filters For Test</name>
+    <packaging>pom</packaging>
+   
+    <modules>
+        <module>dummy-filter-a</module>
+        <module>dummy-filter-b</module>
+    </modules>
+    
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.rackspace.papi.core</groupId>
+                <artifactId>core-lib</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.commons</groupId>
+                <artifactId>configuration</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.commons</groupId>
+                <artifactId>utilities</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.commons</groupId>
+                <artifactId>jetty-container</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.commons</groupId>
+                <artifactId>classloader</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>log4j</groupId>
+                <artifactId>log4j</artifactId>
+                <version>1.2.16</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.4</version>
+            </dependency>
+
+            <dependency>
+                <groupId>net.sf.ehcache</groupId>
+                <artifactId>ehcache-core</artifactId>
+                <version>2.6.0</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+</project>

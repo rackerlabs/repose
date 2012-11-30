@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<web-fragment xmlns="http://java.sun.com/xml/ns/javaee">
+    <filter>
+        <filter-name>filter-a</filter-name>
+        <filter-class>com.rackspace.papi.external.testing.dummyfilter.filtera.FilterA</filter-class>
+    </filter>
+</web-fragment>
