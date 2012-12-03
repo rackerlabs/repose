@@ -86,10 +86,10 @@ public class XmlFilterChainBuilder {
         throw new XsltException("Unable to load stylesheet " + path);
     }
 
-    private StreamSource nodeToStreamSource(Node node) {
+    private StreamSource nodeToStreamSource(Node node, String systemId) {
         try {
             // Create dom source for the document
-            DOMSource domSource = new DOMSource(node);
+            DOMSource domSource = new DOMSource(node, systemId);
 
             // Create a string writer
             StringWriter stringWriter = new StringWriter();
@@ -112,7 +112,7 @@ public class XmlFilterChainBuilder {
     protected Source getStylesheetSource(StyleSheetInfo stylesheet) {
 
         if (stylesheet.getXsl() != null) {
-            return nodeToStreamSource(stylesheet.getXsl());
+            return nodeToStreamSource(stylesheet.getXsl(), stylesheet.getSystemId());
         } else if (stylesheet.getUri() != null) {
             if (stylesheet.getUri().startsWith(CLASSPATH_PREFIX)) {
                 return getClassPathResource(stylesheet.getUri());

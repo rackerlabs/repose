@@ -54,7 +54,7 @@ public class TranslationHandlerTest {
         @Before
         public void setup() {
             manager = mock(ConfigurationService.class);
-            factory = new TranslationHandlerFactory(manager, new XmlFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), "");
+            factory = new TranslationHandlerFactory(manager, new XmlFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), "", "");
             TranslationConfig config = new TranslationConfig();
 
             RequestTranslations requestTranslations = new RequestTranslations();
@@ -202,7 +202,7 @@ public class TranslationHandlerTest {
         @Before
         public void setup() {
             manager = mock(ConfigurationService.class);
-            factory = new TranslationHandlerFactory(manager, new XmlFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), "");
+            factory = new TranslationHandlerFactory(manager, new XmlFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), "", "");
             TranslationConfig config = new TranslationConfig();
 
             RequestTranslations requestTranslations = new RequestTranslations();

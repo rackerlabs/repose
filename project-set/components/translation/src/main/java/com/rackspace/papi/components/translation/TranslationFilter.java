@@ -42,7 +42,7 @@ public class TranslationFilter implements Filter {
         final ConfigurationService configurationService = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
 
 
-        handlerFactory = new TranslationHandlerFactory(configurationService, new XmlFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null)), configurationRoot);
+        handlerFactory = new TranslationHandlerFactory(configurationService, new XmlFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null)), configurationRoot, config);
         configurationManager = ServletContextHelper.getInstance().getPowerApiContext(servletContext).configurationService();
         configurationManager.subscribeTo(config, handlerFactory, TranslationConfig.class);
     }
