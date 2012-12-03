@@ -74,7 +74,7 @@ checkFilters()
 
 }
 
-
+cp /etc/repose/system-model.cfg.xml $DROP_CONFIGS/old-system-model.cfg.xml
 
 echo "1) Start repose with no ear artifacts at all.  Pass through system model. List available filters (see XXXX), confirm that list is empty."
 ### This test assumes that Repose is currently running with a blank filter list and no ears in the artifact directory
@@ -115,4 +115,4 @@ sendRequest
 
 
 #rm $ART_DIR/*.ear
-cp $DROP_CONFIGS/system-model-pass-thru.xml /etc/repose/system-model.cfg.xml
+mv $DROP_CONFIGS/old-system-model.cfg.xml /etc/repose/system-model.cfg.xml 
