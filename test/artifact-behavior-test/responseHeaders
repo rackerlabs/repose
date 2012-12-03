@@ -1,6 +1,0 @@
-HTTP/1.1 503 Service Unavailable
-X-route-Time: 0ms
-Via: 1.1 ReposeSomething (Repose/${reposeVersion})
-Content-Length: 0
-Server: Jetty(8.0.1.v20110908)
-

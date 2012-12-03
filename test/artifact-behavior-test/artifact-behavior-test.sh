@@ -42,25 +42,34 @@ sendRequest()
     echo "Response Code: $RESPONSE"
     if [ ! $RESPONSE -eq 200 ]
     then
-        echo "Response Code: $RESPONSE"
         echo "ERROR"
     #    cat $RESPONSE_BODY
 #    else
 #        echo "PASS"
+    fi
+
+    if [ -f $RESPONSE_BODY ]
+    then
+        rm $RESPONSE_BODY
     fi
 }
 
 checkFilters()
 {
     NUMFILTERS=`awk '/X\-.+Time:/{n++}; END {print n}' responseHeaders`
+    NUMFILTERS=$(expr $NUMFILTERS - 1)
     echo "Number of filters: $NUMFILTERS"
-    if [ $NUMFILTERS != "1" ] && [ $1 == "Empty" ]
+    if [ $NUMFILTERS != "0" ] && [ $1 == "Empty" ]
     then
-        echo "Number of filters: $NUMFILTERS"
         echo "ERROR"
     #    cat $DIR/responseHeaders
   #  else
   #      echo "PASS"
+    fi
+
+    if [ -f $DIR/responseHeaders ]
+    then
+        rm $DIR/responseHeaders
     fi
 
 }
@@ -105,5 +114,5 @@ sendRequest
 
 
 
-rm $ART_DIR/*.ear
+#rm $ART_DIR/*.ear
 cp $DROP_CONFIGS/system-model-pass-thru.xml /etc/repose/system-model.cfg.xml
