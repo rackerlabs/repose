@@ -1,0 +1,7 @@
+<response-messaging>
+    <status-code id="404" code-regex="404" overwrite="ALWAYS">
+        <message media-type="*/*">Error Message: %M</message>
+        <message media-type="application/xml"><![CDATA[<error-message>%M</error-message>]]></message>
+        <message media-type="application/json"><![CDATA[{"error-message": "%M"}]]> </message>
+    </status-code>
+</response-messaging>

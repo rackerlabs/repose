@@ -107,33 +107,27 @@
     </chapter>
     <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
     <chapter xml:id="Introduction-000">
-        <title>Introduction to the Validation Component of &PRODNAME;</title>
-        <para> Translation changes the format of a request or response so that it meets the expectations of the service or client that receives it.
-            You can use
-            &PRODNAME;'s translation filter to transform XML into JSON. 
-            You can also use
-            &PRODNAME;'s translation filter to transform JSON into JSONx, which is formatted like XML.
-            Whether or not you transform the body of the message into another format, you can use the translation filter to remove elements that are invalid for the receiver
-            or to add elements that are required by the receiver. 
-            This means you can choose components to combine in a stack based on their core features; 
-            without the &PRODNAME; translation filter, incompatible standards for output and input might make some otherwise-beneficial combinations impractical. 
-        </para>
-        <para>
-            To use &PRODNAME; for translation, you must add the translation component as a filter in your &PRODNAME; configuration. 
-            You can learn more about customizing your &PRODNAME; configuration 
-            by reading the 
-            <link xlink:href="http://openrepose.org/documentation/repose-deploy/content/Introduction-000.html">Repose Deployment Handbook</link>
-            and by examining a  
-            <link xlink:href="https://github.com/rackspace/repose/blob/master/project-set/core/core-lib/src/main/resources/META-INF/schema/examples/system-model.cfg.xml">basic system model configuration</link>
-            in GitHub.
-        </para>
-        <para> &PRODNAME; uses 
-            <link xlink:href="http://saxon.sourceforge.net/">Saxon 9.3</link>
-            to perform translation by
-            applying <link xlink:href="http://www.w3.org/TR/xslt20/"
-                >XSLT 2.0 stylesheets</link> to requests and
-            responses. In addition to adding the translation filter to
-            your configuration, you must create and customize your
+        <title>Introduction to the API Validation Component of
+            &PRODNAME;</title>
+        <para> API validation examines an API request and confirms
+            that it is constructed correctly before forwarding it to
+            its destination. </para>
+        <para> To use &PRODNAME; for API validation, you must add the
+            API validation component as a filter in your &PRODNAME;
+            configuration. You can learn more about customizing your
+            &PRODNAME; configuration by reading the <link
+                xlink:href="http://openrepose.org/documentation/repose-deploy/content/Introduction-000.html"
+                >Repose Deployment Handbook</link> and by examining a
+                <link
+                xlink:href="https://github.com/rackspace/repose/blob/master/project-set/core/core-lib/src/main/resources/META-INF/schema/examples/system-model.cfg.xml"
+                >basic system model configuration</link> in GitHub. </para>
+        <para> &PRODNAME; uses <link
+                xlink:href="http://saxon.sourceforge.net/">Saxon
+                9.3</link> to perform validation by applying <link
+                xlink:href="http://www.w3.org/TR/xslt20/">XSLT 2.0
+                stylesheets</link> to requests and responses. In
+            addition to adding the translation filter to your
+            configuration, you must create and customize your
             stylesheets to define the changes you wish the translation
             filter to perform. </para>
          <para> The &PRODNAME; translation component performs two
@@ -153,42 +147,38 @@
             </itemizedlist>
         </para>
         <tip>
-            <para> Translation processing is controlled by
-                    <code>translation.cfg.xml</code>; to change your
-                translation configuration, edit
-                    <code>translation.cfg.xml</code>. You can see an
-                annotated example of <code>translation.cfg.xml</code>
-                in <xref linkend="Configuration-d1e365"/>. </para>
+            <para> API validation processing is controlled by
+                    <code>validator.cfg.xml</code>; to change your
+                validation configuration, edit
+                    <code>validator.cfg.xml</code>. You can see an
+                annotated example of <code>validator.cfg.xml</code> in
+                    <xref linkend="Configuration-d1e365"/>. </para>
         </tip>
     </chapter>
     <chapter xml:id="Configuration-d1e365">
         <title>Configuration</title>
         <tip>
-            <para> Before attempting to customize your translation
+            <para> Before attempting to customize your validation
                 configuration and its stylesheets, familiarize
                 yourself with the basic &PRODNAME; concepts and
                 deployment methods in our <link
                     xlink:href="hhttp://openrepose.org/documentation/repose-intro/content/Introduction-000.html"
                     >Getting Started</link> document. </para>
         </tip>
-        <para> The translation component obtains its configuration,
+        <para> The API validation component obtains its configuration,
             including its API endpoint, from a file named
-                <code>translation.cfg.xml</code>. We have included an
+                <code>validator.cfg.xml</code>. We have included an
             annotated example of a valid
-                <code>translation.cfg.xml</code> in this
-            chapter.</para>
-        <para> To change your translation configuration, edit
-                <code>translation.cfg.xml</code> at any time. Within
-                <code>translation.cfg.xml</code>, you can specify
-            which stylesheets are to be applied under what
-            circumstances; as with the translation configuration, you can edit your stylesheets to make changes at runtime. </para> 
+                <code>validator.cfg.xml</code> in this chapter.</para>
+        <para> To change your validation configuration, edit
+                <code>validator.cfg.xml</code> at any time. </para> 
         <section xml:id="Customizing_Translation_Configuration-d1e375">
-        <title>Customizing a Translation Configuration</title>
-        <para>
-            Your translation configuration in <code>translation.cfg.xml</code> will resemble the following example:
-        </para>
+        <title>Customizing a Validation Configuration</title>
+        <para> Your validation configuration in
+                    <code>validator.cfg.xml</code> will resemble the
+                following example: </para>
         <example>
-            <title>Translation Configuration</title>
+            <title>Validation Configuration</title>
             <programlistingco>
                 <areaspec>
                     <area xml:id="cfg.content-type"
@@ -213,7 +203,7 @@
                         coords="28 25"/>
                 </areaspec>
                 <programlisting language="xml">
-<xi:include href="samples/repose-translation.cfg.xml" parse="text"/>
+<xi:include href="samples/repose-apivalidation-validator.cfg.xml" parse="text"/>
             </programlisting>
             </programlistingco>
         </example>
@@ -291,7 +281,7 @@
                 <example>
                     <title>Translation Configuration</title>
 <programlisting language="xml">
-<xi:include href="samples/repose-translation-identity.xsl" parse="text"/>
+<xi:include href="samples/repose-apivalidation-response-messaging.cfg.xml" parse="text"/>
 </programlisting>
                 </example>
         </section>
