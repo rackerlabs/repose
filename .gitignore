@@ -41,3 +41,5 @@ hosts.csv
 automation/rcman/files/*
 log.txt
 /test/JavaApplication1/nbproject/private/
+/test/artifact-behavior-test/responseBody
+/test/artifact-behavior-test/responseHeaders
