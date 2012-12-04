@@ -38,6 +38,9 @@
                         <para>&PRODNAME; Component Deployments:</para>
                         <itemizedlist>
                             <listitem>
+                                <para>API Validation</para>
+                            </listitem>
+                            <listitem>
                                 <para>Authentication and
                                    Authorization</para>
                             </listitem>

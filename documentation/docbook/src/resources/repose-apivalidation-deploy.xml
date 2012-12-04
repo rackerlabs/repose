@@ -1,0 +1,638 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+<!ENTITY PRODNAME "Repose">
+<!ENTITY PRODABBREV "Repose">
+<!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
+    <!-- Some useful entities borrowed from HTML -->
+    <!ENTITY ndash  "&#x2013;">
+    <!ENTITY mdash  "&#x2014;">
+    <!ENTITY hellip "&#x2026;">
+
+    <!-- Useful for describing APIs -->
+    <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
+    <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
+    <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
+    <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
+
+    <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Check_mark_23x20_02.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+
+    <!ENTITY ARROW  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Arrow_east.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+]>
+<!-- in BOOK below, add status="draft" to set watermark on cover and left margin -->
+<book version="5.0" xmlns="http://docbook.org/ns/docbook"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:svg="http://www.w3.org/2000/svg"
+      xmlns:m="http://www.w3.org/1998/Math/MathML"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      xmlns:db="http://docbook.org/ns/docbook" 
+      xml:id="Repose-Ratelimiting-Deployment-Guide">
+    <?rax pdf.url="../../repose-ratelimiting-deploy.pdf"?>
+    <title>&PRODNAME; API Validation Component Deployment
+        Handbook</title>
+    <!-- set watermark on cover and left margin 
+        <?rax status.bar.text="CONFIDENTIAL"?>
+    -->
+    <?rax title.font.size="35px" subtitle.font.size="16px"?>
+    <titleabbrev>&PRODABBREV; Translation Deployment</titleabbrev>
+    <info>
+        <author>
+            <personname>
+                <firstname/>
+                <surname/>
+            </personname>
+            <affiliation>
+                <orgname>Rackspace Cloud</orgname>
+            </affiliation>
+        </author>
+        <copyright>
+            <year>2010</year>
+            <year>2011</year>
+            <year>2012</year>
+            <holder>Rackspace US, Inc.</holder>
+        </copyright>
+        <releaseinfo>v2.4.1</releaseinfo>
+        <productname>&PRODNAME;</productname>
+        <pubdate>2012-12-04</pubdate>
+        <legalnotice role="apache2">
+            <annotation>
+                <remark>Copyright details are filled in by the template.</remark>
+            </annotation>
+        </legalnotice>
+        <abstract>
+            <para>This document is intended for systems administrators
+                interested in configuring their service to use the
+                API Validation component of the &PRODEXPAND;. </para>
+        </abstract>
+        <revhistory>
+            <revision>
+                <date>2012-12-04</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem><para>Initial release as internal draft.</para></listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
+        </revhistory>
+    </info>
+    <chapter xml:id="Overview-d1e85">
+        <title>About This Document</title>
+            <para> 
+                The purpose of this handbook is to facilitate deployment of &PRODNAME;'s API Validation component. This handbook is not a tutorial. It provides basic information
+                that will help you understand and deploy this &PRODNAME; component, but you must
+                adapt this information to suit your own configuration. 
+            </para>  
+            <para>
+                This handbook is focused on one &PRODNAME; component.
+                Other &PRODNAME; components are documented in companion handbooks.
+            </para>
+        <section xml:id="Document_Change_History-d1e102">
+            <title>Document Change History</title>
+            <para>This version of the handbook replaces and obsoletes all previous versions.
+            The most recent changes are described in the table below: </para>
+            <?rax revhistory?>
+        </section>
+        <xi:include href="chapters/available-doc.xml"/>
+    </chapter>
+    <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
+    <chapter xml:id="Introduction-000">
+        <title>Introduction to the Validation Component of &PRODNAME;</title>
+        <para> Translation changes the format of a request or response so that it meets the expectations of the service or client that receives it.
+            You can use
+            &PRODNAME;'s translation filter to transform XML into JSON. 
+            You can also use
+            &PRODNAME;'s translation filter to transform JSON into JSONx, which is formatted like XML.
+            Whether or not you transform the body of the message into another format, you can use the translation filter to remove elements that are invalid for the receiver
+            or to add elements that are required by the receiver. 
+            This means you can choose components to combine in a stack based on their core features; 
+            without the &PRODNAME; translation filter, incompatible standards for output and input might make some otherwise-beneficial combinations impractical. 
+        </para>
+        <para>
+            To use &PRODNAME; for translation, you must add the translation component as a filter in your &PRODNAME; configuration. 
+            You can learn more about customizing your &PRODNAME; configuration 
+            by reading the 
+            <link xlink:href="http://openrepose.org/documentation/repose-deploy/content/Introduction-000.html">Repose Deployment Handbook</link>
+            and by examining a  
+            <link xlink:href="https://github.com/rackspace/repose/blob/master/project-set/core/core-lib/src/main/resources/META-INF/schema/examples/system-model.cfg.xml">basic system model configuration</link>
+            in GitHub.
+        </para>
+        <para> &PRODNAME; uses 
+            <link xlink:href="http://saxon.sourceforge.net/">Saxon 9.3</link>
+            to perform translation by
+            applying <link xlink:href="http://www.w3.org/TR/xslt20/"
+                >XSLT 2.0 stylesheets</link> to requests and
+            responses. In addition to adding the translation filter to
+            your configuration, you must create and customize your
+            stylesheets to define the changes you wish the translation
+            filter to perform. </para>
+         <para> The &PRODNAME; translation component performs two
+            categories of behavior: <itemizedlist>
+                <listitem>
+                    <para>
+                        <link linkend="Change_Format-d1e105"
+                            >changing the format of a message</link>
+                        (translating between JSON and XML)</para>
+                </listitem>
+                <listitem>
+                    <para>
+                        <link linkend="Change_Content-d1e125"
+                            >changing the content of a message</link>
+                        (adding or deleting elements)</para>
+                </listitem>
+            </itemizedlist>
+        </para>
+        <tip>
+            <para> Translation processing is controlled by
+                    <code>translation.cfg.xml</code>; to change your
+                translation configuration, edit
+                    <code>translation.cfg.xml</code>. You can see an
+                annotated example of <code>translation.cfg.xml</code>
+                in <xref linkend="Configuration-d1e365"/>. </para>
+        </tip>
+    </chapter>
+    <chapter xml:id="Configuration-d1e365">
+        <title>Configuration</title>
+        <tip>
+            <para> Before attempting to customize your translation
+                configuration and its stylesheets, familiarize
+                yourself with the basic &PRODNAME; concepts and
+                deployment methods in our <link
+                    xlink:href="hhttp://openrepose.org/documentation/repose-intro/content/Introduction-000.html"
+                    >Getting Started</link> document. </para>
+        </tip>
+        <para> The translation component obtains its configuration,
+            including its API endpoint, from a file named
+                <code>translation.cfg.xml</code>. We have included an
+            annotated example of a valid
+                <code>translation.cfg.xml</code> in this
+            chapter.</para>
+        <para> To change your translation configuration, edit
+                <code>translation.cfg.xml</code> at any time. Within
+                <code>translation.cfg.xml</code>, you can specify
+            which stylesheets are to be applied under what
+            circumstances; as with the translation configuration, you can edit your stylesheets to make changes at runtime. </para> 
+        <section xml:id="Customizing_Translation_Configuration-d1e375">
+        <title>Customizing a Translation Configuration</title>
+        <para>
+            Your translation configuration in <code>translation.cfg.xml</code> will resemble the following example:
+        </para>
+        <example>
+            <title>Translation Configuration</title>
+            <programlistingco>
+                <areaspec>
+                    <area xml:id="cfg.content-type"
+                        units="linecolumn" coords="7 13"/>
+                    <area xml:id="cfg.accept"
+                        units="linecolumn" coords="8 13"/>
+                    <area xml:id="cfg.translated-content-type"
+                        units="linecolumn" coords="9 13"/>
+                    <area xml:id="cfg.style-sheets" units="linecolumn"
+                        coords="10 13"/>
+                    <area xml:id="cfg.style" units="linecolumn"
+                        coords="11 17"/>
+                    <area xml:id="cfg.href" units="linecolumn"
+                        coords="11 24"/>
+                    <area xml:id="cfg.code-regex" units="linecolumn"
+                        coords="16 13"/>
+                    <area xml:id="cfg.param" units="linecolumn"
+                        coords="26 21"/>
+                    <area xml:id="cfg.name" units="linecolumn"
+                        coords="27 25"/>
+                    <area xml:id="cfg.value" units="linecolumn"
+                        coords="28 25"/>
+                </areaspec>
+                <programlisting language="xml">
+<xi:include href="samples/repose-translation.cfg.xml" parse="text"/>
+            </programlisting>
+            </programlistingco>
+        </example>
+        <para> Key elements of the preceding example are labeled with
+            callouts and explained below: </para>
+        <calloutlist>
+            <callout arearefs="cfg.content-type">
+                <para> Content type specifies the response content types to which this style sheet chain should be applied.</para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.accept">
+                <para><code>accept</code>
+                    Specifies the Accept type to which this chain should be applied. </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.translated-content-type">
+                <para> Specifies the content-type to be output by this chain. The response content-type is set to this if the style sheets are applied successfully.
+                    </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.style-sheets">
+                <para> This element contains the list of style sheets to be applied for this translation chain.</para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.style">
+                <para> This element specifies one style sheet within the chain. </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.href">
+                <para> This is a URI which specifies the location of the style sheet. 
+                    If a relative path is specified, then this will be relative to the &PRODNAME; configuration directory. </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.code-regex">
+                <para>
+                    <code>code-regex</code> is a regular express (regex) specifying the response codes to which this style sheet chain should be applied. 
+                    For example, <code>4[\d]{2}</code> matches all response codes in the range from 400 to 499.</para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.param">
+                <para>
+                    A style sheet can accept any number of parameters. 
+                    These parameters will be passed into the transform associated with the style sheet. </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.name">
+                <para>
+                    This is the name of a parameter to be passed in. </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.value">
+                <para>
+                    This is the value of a parameter to be passed in. </para>
+                <para> </para>
+            </callout>
+        </calloutlist>
+        </section>
+            <section xml:id="Customizing_Translation_Stylesheet-d1e385">
+                <title>Customizing a Translation Stylesheet</title>
+                <para> 
+                    The &PRODNAME; translation component uses 
+                    <link xlink:href="http://www.w3.org/TR/xslt20/">XSLT 2.0 stylesheets</link> to process messages. 
+                    One place to learn the basics of XLST is the 
+                    <link xlink:href="http://www.w3schools.com/xsl/xsl_w3celementref.asp">XSLT Elements Reference</link>.
+                </para>
+                <para>
+                    You can create and combine multiple stylesheets to accomplish the translation you require.
+                    To make stylesheets active within your &PRODNAME; 
+                    configuration, specify them in <code>translation.cfg.xml</code> as shown at 
+                    <xref linkend="Customizing_Translation_Configuration-d1e375"></xref>
+                </para>
+                <para> A valid stylesheet resembles the following
+                example (or a more complex &amp; interesting example
+                but I need help to build it and &amp; lay callouts on it): </para>
+                <example>
+                    <title>Translation Configuration</title>
+<programlisting language="xml">
+<xi:include href="samples/repose-translation-identity.xsl" parse="text"/>
+</programlisting>
+                </example>
+        </section>
+    </chapter>
+    <chapter xml:id="Change_Format-d1e105">
+        <title>Changing a Message's Format</title>
+        <para> 
+            You can translate a message from XML to JSON or from JSON to JSONx, which resembles XML.
+        </para>
+        <section xml:id="Translate_XML2JSON-d1e115">
+            <title>Translating XML to JSON</title>
+            <para> how? wiki shows JSON 2 JSONx 2 JSON. can I start
+                with straight XML?</para>
+        </section>
+        <section xml:id="Translate_JSON2JSONx-d1e125">
+            <title>Translating JSON to JSONx</title>
+            <para> 
+                You can use the 
+                &PRODNAME; translation component to turn all elements found in JSON input into XML-shaped JSONx output.            
+                <table border="1" frame="box">
+                    <?dbfo keep-together="always"?>
+                    <caption>JSON Input Becomes JSONx Output</caption>
+                    <thead>
+                        <tr>
+                            <th>Input: JSON</th>
+                            <th>Translation</th>
+                            <th>Output: JSONx</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <programlisting language="javascript">
+<![CDATA[        
+{"field1": "value1", "field2": "value2"}
+]]>
+</programlisting>
+                            </td>
+                            <td>Apply stylesheet as
+                                defined in translation
+                                configuration.</td>
+                            <td>
+                                <!-- if no CDATA here, DocBook tries & fails to interpret <json:object> as markup -->
+                                <programlisting language="xml">
+<![CDATA[    
+<json:object xmlns:json="http://www.ibm.com/xmlns/prod/2009/jsonx" 
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+   <json:string name="field1">value1</json:string>
+   <json:string name="field2">value2</json:string>
+</json:object>
+]]>
+</programlisting>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </para>
+            <para> To make this possible, create a stylesheet to
+                define the transformation, and call for that
+                stylesheet in your translation configuration,
+                    <code>translation.cfg.xml</code>. To create the
+                result shown above, fully translating JSON input to
+                JSONx output, create a stylesheet and a translation
+                configuration that includes the stylesheet as shown
+                below: 
+                <table border="1" frame="box">
+                    <?dbfo keep-together="always"?>
+                    <caption>Stylesheet Applied by Translation
+                        Configuration: Translating JSON to
+                        JSONx</caption>
+                    <thead>
+                        <tr>
+                            <th>Stylesheet: identity.xsl</th>
+                            <th>Translation Configuration:
+                                translation.cfg.xml</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+<programlisting language="xml">
+<xi:include href="samples/repose-translation-identity.xsl" parse="text"/>
+</programlisting>
+                            </td>
+                            <td>
+<programlisting language="xml">
+<xi:include href="samples/repose-translation-cfg-json2jsonx.xml" parse="text"/>
+</programlisting>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </para>
+            <para> In the stylesheet, <code>&lt;xsl:copy-of
+                    select="."/&gt;</code> asks for a copy of the
+                entire document. In the translation configuration, the
+                stylesheet is called for by its name
+                    (<code>identity.xsl</code>) ;
+                    <code>content-type</code> identifies the expected
+                input as JSON and <code>translated-content-type</code>
+                identifies the expected output as XML.</para>
+            <para>
+                You can use cURL to confirm
+                that you have the stylesheet and the translation configuration set up correctly; if they are correct,
+                the JSON input you provide will be echoed as JSONx. 
+                <example>
+                    <title>cURL Confirming Translation from JSON to JSONx</title>
+<programlisting language="xml">
+<xi:include href="samples/repose-translation-curl-confirm-json2jsonx.xml" parse="text"/>
+</programlisting>
+                </example>
+            </para>
+        </section>
+    </chapter>
+    <chapter xml:id="Change_Content-d1e125">
+        <title>Changing a Message's Content</title>
+        <para> You can use the translation component to rewrite the
+            same message with some content added or removed. </para>
+        <section xml:id="Adding_Content-d1e127">
+            <title>Adding Content to a Message</title>
+            <para> You can use the &PRODNAME; translation component to
+                add an element to a copy of an incoming message so
+                that element is included when the copy is forwarded. 
+                <table border="1" frame="box">
+                    <?dbfo keep-together="always"?>
+                    <caption>XML Input Becomes Shorter XML
+                        Output</caption>
+                    <thead>
+                        <tr>
+                            <th>Input: Original XML Message</th>
+                            <th>Translation</th>
+                            <th>Output: Shortened XML Message</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <programlisting language="javascript">
+<![CDATA[        
+<a>Stuff</a>
+]]>
+</programlisting>
+                            </td>
+                            <td>Apply stylesheets as defined in
+                                translation configuration.</td>
+                            <td>
+                                <!-- if no CDATA here, DocBook tries & fails to interpret <json:object> as markup -->
+                                <programlisting language="xml">
+<![CDATA[    
+<add-me><a>Stuff</a></add-me>
+]]>
+</programlisting>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </para>
+            <para> To make this possible, create stylesheets to define
+                the transformations, and call for those stylesheets in
+                your translation configuration,
+                <code>translation.cfg.xml</code>. To create the
+                result shown above, deleting the
+                <code>remove-me</code> element, create a
+                stylesheet asking for a complete copy,
+                (<code>identify.xsl</code>), another stylesheet
+                asking for addition of specific content to the copy
+                (<code>add-element.xsl</code>), and a
+                translation configuration that includes both
+                stylesheets as shown below: <table border="1"
+                    frame="box">
+                    <?dbfo keep-together="always"?>
+                    <caption>Stylesheets Applied by Translation
+                        Configuration: Adding Content to an XML
+                        Message</caption>
+                    <thead>
+                        <tr>
+                            <th>Stylesheets: identity.xsl +
+                                add-element.xsl</th>
+                            <th>Translation Configuration:
+                                translation.cfg.xml</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <programlisting language="xml">
+<xi:include href="samples/repose-translation-identity.xsl" parse="text"/>
+</programlisting>
+                                <programlisting language="xml">
+<xi:include href="samples/repose-translation-add-element.xsl" parse="text"/>
+</programlisting>
+                            </td>
+                            <td>
+                                <programlisting language="xml">
+<xi:include href="samples/repose-translation-cfg-add.xml" parse="text"/>
+</programlisting>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </para>
+            <para> In the <code>identify.xsl</code> stylesheet,
+                    <code>&lt;xsl:copy-of select="."/&gt;</code> asks
+                for a copy of the entire document. In the
+                    <code>add-element.xsl</code> stylesheet,
+                    <code>add-me</code> asls for anything marked with
+                that wrapper to be added to the message as another
+                wrapper around the entire message. In the translation
+                configuration, the stylesheets are called for by their
+                names (<code>identity.xsl</code> and
+                    <code>add-element.xsl</code>);
+                    <code>content-type</code> identifies the expected
+                input as XHTML+XML and
+                    <code>translated-content-type</code> identifies
+                the expected output as XML;
+                    <code>code-regex="2[\d]{2}</code> applies this
+                stylesheet chain only to responses with a status code
+                in the range of 2xx.</para>
+            <para>
+                You can use cURL to confirm
+                that you have the stylesheet and the translation configuration set up correctly; if they are correct,
+                the element you asked to add will be echoed in the output. 
+                <example>
+                    <title>cURL Confirming Addition to Message</title>
+                    <programlisting language="xml">
+<xi:include href="samples/repose-translation-curl-confirm-add.xml" parse="text"/>
+</programlisting>
+                </example>
+            </para>
+        </section>
+        <section xml:id="Deleting_Content-d1e129">
+            <title>Deleting Content from a Message</title>
+            <para> You can use the &PRODNAME; translation component to
+                delete an element from a copy of an incoming message
+                so that element is omitted when the copy is forwarded. 
+            <table border="1" frame="box">
+                <?dbfo keep-together="always"?>
+                <caption>XML Input Becomes Shorter XML
+                        Output</caption>
+                <thead>
+                    <tr>
+                        <th>Input: Original XML Message</th>
+                        <th>Translation</th>
+                        <th>Output: Shortened XML Message</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <programlisting language="javascript">
+<![CDATA[        
+<a><remove-me>test</remove-me>Stuff</a>
+]]>
+</programlisting>
+                        </td>
+                        <td>Apply stylesheets as defined in
+                                translation configuration.</td>
+                        <td>
+                            <!-- if no CDATA here, DocBook tries & fails to interpret <json:object> as markup -->
+                            <programlisting language="xml">
+<![CDATA[    
+<a>Stuff</a>
+]]>
+</programlisting>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            </para>
+            <para> To make this possible, create stylesheets to define
+                the transformations, and call for those stylesheets in
+                your translation configuration,
+                    <code>translation.cfg.xml</code>. To create the
+                result shown above, deleting the
+                    <code>remove-me</code> element, create a
+                stylesheet asking for a complete copy,
+                    (<code>identify.xsl</code>), another stylesheet
+                asking for removal of specific content from the copy
+                    (<code>remove-element.xsl</code>), and a
+                translation configuration that includes both
+                stylesheets as shown below: <table border="1"
+                    frame="box">
+                    <?dbfo keep-together="always"?>
+                    <caption>Stylesheets Applied by Translation
+                        Configuration: Deleting Content from an XML
+                        Message</caption>
+                    <thead>
+                        <tr>
+                            <th>Stylesheets: identity.xsl +
+                                remove-element.xsl</th>
+                            <th>Translation Configuration:
+                                translation.cfg.xml</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <programlisting language="xml">
+<xi:include href="samples/repose-translation-identity.xsl" parse="text"/>
+</programlisting>
+                                <programlisting language="xml">
+<xi:include href="samples/repose-translation-remove-element.xsl" parse="text"/>
+</programlisting>
+                            </td>
+                            <td>
+                                <programlisting language="xml">
+<xi:include href="samples/repose-translation-cfg-remove.xml" parse="text"/>
+</programlisting>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </para>
+            <para> In the <code>identify.xsl</code> stylesheet,
+                    <code>&lt;xsl:copy-of select="."/&gt;</code> asks
+                for a copy of the entire document. In the
+                    <code>remove-element.xsl</code> stylesheet,
+                    <code>remove-me</code> asls for anything marked
+                with that wrapper to be deleted. In the translation
+                configuration, the stylesheets are called for by their
+                names (<code>identity.xsl</code> and
+                    <code>remove-element.xsl</code>);
+                    <code>content-type</code> identifies the expected
+                input as XML and <code>translated-content-type</code>
+                identifies the expected output as XML;
+                    <code>code-regex="2[\d]{2}</code> applies this
+                stylesheet chain only to responses with a status code
+                in the range of 2xx.</para>
+            <para>
+                You can use cURL to confirm
+                that you have the stylesheet and the translation configuration set up correctly; if they are correct,
+                the element you asked to remove will be missing from the output. 
+                <example>
+                    <title>cURL Confirming Deletion from
+                        Message</title>
+                    <programlisting language="xml">
+<xi:include href="samples/repose-translation-curl-confirm-delete.xml" parse="text"/>
+</programlisting>
+                </example>
+            </para>
+        </section>
+    </chapter>
+    <xi:include href="chapters/afterword.xml"/>
+</book>
