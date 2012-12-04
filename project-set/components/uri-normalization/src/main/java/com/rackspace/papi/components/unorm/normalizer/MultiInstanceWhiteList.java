@@ -21,6 +21,10 @@ public class MultiInstanceWhiteList implements ParameterFilter {
 
       instanceMap = new HashMap<String, Long>();
    }
+   
+   HttpUriParameterList getParameterList() {
+       return parameterList;
+   }
 
    @Override
    public boolean shouldAccept(String name) {
