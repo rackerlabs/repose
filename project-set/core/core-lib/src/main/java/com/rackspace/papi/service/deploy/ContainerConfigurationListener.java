@@ -34,7 +34,7 @@ public class ContainerConfigurationListener implements UpdateListener<ContainerC
 
    @Required
    @Resource(name = "eventManager")
-   public void setEventService(EventService eventManagerReference) {
+   public synchronized void setEventService(EventService eventManagerReference) {
       dirWatcher = new ArtifactDirectoryWatcher(eventManagerReference);
       dirWatcher.updateArtifactDirectoryLocation(deploymentDirectory);
       unpacker = null;
