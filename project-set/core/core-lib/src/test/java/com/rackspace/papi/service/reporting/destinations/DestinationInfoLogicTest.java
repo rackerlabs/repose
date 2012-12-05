@@ -1,13 +1,13 @@
 package com.rackspace.papi.service.reporting.destinations;
 
+import com.rackspace.papi.service.reporting.StatusCodeResponseStore;
+import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotSame;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
 
 
 @RunWith(Enclosed.class)
@@ -38,10 +38,11 @@ public class DestinationInfoLogicTest {
 
         @Test
         public void shouldIncrementStatusCodeCount() {
-            destinationInfoLogic.incrementStatusCodeCount(400);
-            destinationInfoLogic.incrementStatusCodeCount(400);
+            destinationInfoLogic.incrementStatusCodeCount(400, 10);
+            destinationInfoLogic.incrementStatusCodeCount(400, 20);
 
             assertEquals(2, destinationInfoLogic.getTotalStatusCode(400));
+            assertEquals(30, destinationInfoLogic.getTotalResponseTime(400));
         }
 
         @Test
@@ -121,11 +122,11 @@ public class DestinationInfoLogicTest {
 
         @Test
         public void shouldCopy() {
-            destinationInfoLogic.getStatusCodeCounts().put(200, 7l);
+            destinationInfoLogic.getStatusCodeCounts().put(200, new StatusCodeResponseStore(7l, 0));
 
             DestinationInfo copy = destinationInfoLogic.copy();
 
-            destinationInfoLogic.incrementStatusCodeCount(200);
+            destinationInfoLogic.incrementStatusCodeCount(200, 10);
 
             assertNotSame(copy.getTotalStatusCode(200), destinationInfoLogic.getTotalStatusCode(200));
         }
@@ -142,7 +143,7 @@ public class DestinationInfoLogicTest {
         @Test
         public void shouldEqualUnmodifiedCopy() {
             destinationInfoLogic.incrementRequestCount();
-            destinationInfoLogic.getStatusCodeCounts().put(400, 5l);
+            destinationInfoLogic.getStatusCodeCounts().put(400, new StatusCodeResponseStore(5l, 0));
 
             DestinationInfo copy = destinationInfoLogic.copy();
 
@@ -152,10 +153,10 @@ public class DestinationInfoLogicTest {
         @Test
         public void shouldProduceDifferentHashcodes() {
             destinationInfoLogic.incrementRequestCount();
-            destinationInfoLogic.getStatusCodeCounts().put(400, 5l);
+            destinationInfoLogic.getStatusCodeCounts().put(400, new StatusCodeResponseStore(5l, 0));
 
             DestinationInfo copy = destinationInfoLogic.copy();
-            destinationInfoLogic.getStatusCodeCounts().put(500, 5l);
+            destinationInfoLogic.getStatusCodeCounts().put(500, new StatusCodeResponseStore(5l, 0));
 
             assertTrue(copy.hashCode() != destinationInfoLogic.hashCode());
         }

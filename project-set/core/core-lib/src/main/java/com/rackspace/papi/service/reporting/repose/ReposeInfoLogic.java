@@ -1,6 +1,7 @@
 package com.rackspace.papi.service.reporting.repose;
 
 import com.google.common.base.Objects;
+import com.rackspace.papi.service.reporting.StatusCodeResponseStore;
 
 import java.util.Map;
 
@@ -37,7 +38,7 @@ public class ReposeInfoLogic implements ReposeInfo {
         return dataStore.getAccumulatedResponseSize();
     }
 
-    public Map<Integer, Long> getStatusCodeCounts() {
+    public Map<Integer, StatusCodeResponseStore> getStatusCodeCounts() {
         return dataStore.getStatusCodeCounts();
     }
 
@@ -49,7 +50,7 @@ public class ReposeInfoLogic implements ReposeInfo {
        for(Integer code: dataStore.getStatusCodeCounts().keySet()){
           
           if(code%statusCode < RESPONSE_CODE_SEPERATOR){
-             count += dataStore.getStatusCodeCounts().get(code);
+             count += dataStore.getStatusCodeCounts().get(code).getTotalCount();
           }
        }
        
@@ -57,13 +58,13 @@ public class ReposeInfoLogic implements ReposeInfo {
     }
 
     @Override
-    public void incrementStatusCodeCount(int statusCode) {
-        Long value = dataStore.getStatusCodeCounts().get(statusCode);
+    public void incrementStatusCodeCount(int statusCode, long time) {
+        StatusCodeResponseStore value = dataStore.getStatusCodeCounts().get(statusCode);
 
         if (value != null) {
-            dataStore.getStatusCodeCounts().put(statusCode, ++value);
+            dataStore.getStatusCodeCounts().put(statusCode, value.update(1, time));
         } else {
-            dataStore.getStatusCodeCounts().put(statusCode, LONG_ONE);
+            dataStore.getStatusCodeCounts().put(statusCode, new StatusCodeResponseStore(1, time));
         }
     }
 
@@ -76,37 +77,15 @@ public class ReposeInfoLogic implements ReposeInfo {
     public void incrementResponseCount() {
         dataStore.setTotalResponses(dataStore.getTotalResponses() + INT_ONE);
     }
-
+    
     @Override
-    public void accumulateRequestSize(long requestSize) {
-        dataStore.setAccumulatedRequestSize(dataStore.getAccumulatedRequestSize() + requestSize);
+    public void processRequestSize(long requestSize) {
+        dataStore.processRequestSize(requestSize);
     }
 
     @Override
-    public void accumulateResponseSize(long responseSize) {
-        dataStore.setAccumulatedResponseSize(dataStore.getAccumulatedResponseSize() + responseSize);
-    }
-
-    @Override
-    public void updateMinMaxRequestSize(long requestSize) {
-        if (dataStore.getMinRequestSize() == 0 || requestSize < dataStore.getMinRequestSize()) {
-            dataStore.setMinRequestSize(requestSize);
-        }
-
-        if (requestSize > dataStore.getMaxRequestSize()) {
-            dataStore.setMaxRequestSize(requestSize);
-        }
-    }
-
-    @Override
-    public void updateMinMaxResponseSize(long responseSize) {
-        if (dataStore.getMinResponseSize() == 0 || responseSize < dataStore.getMinResponseSize()) {
-            dataStore.setMinResponseSize(responseSize);
-        }
-
-        if (responseSize > dataStore.getMaxResponseSize()) {
-            dataStore.setMaxResponseSize(responseSize);
-        }
+    public void processResponseSize(long responseSize) {
+        dataStore.processResponseSize(responseSize);
     }
 
     @Override

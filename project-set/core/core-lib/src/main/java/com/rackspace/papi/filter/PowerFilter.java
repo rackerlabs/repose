@@ -157,7 +157,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         }
     }
 
-    private PowerFilterChain getRequestFilterChain(MutableHttpServletRequest mutableHttpRequest, MutableHttpServletResponse mutableHttpResponse, FilterChain chain) throws ServletException {
+    private PowerFilterChain getRequestFilterChain(MutableHttpServletResponse mutableHttpResponse, FilterChain chain) throws ServletException {
         PowerFilterChain requestFilterChain = null;
         try {
             synchronized (internalLock) {
@@ -178,13 +178,14 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
+        final long startTime = System.currentTimeMillis();
         HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
         int streamLimit = papiContext.containerConfigurationService().getContentBodyReadLimit();
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request, streamLimit);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
 
         try {
-            final PowerFilterChain requestFilterChain = getRequestFilterChain(mutableHttpRequest, mutableHttpResponse, chain);
+            final PowerFilterChain requestFilterChain = getRequestFilterChain(mutableHttpResponse, chain);
             if (requestFilterChain != null) {
                 requestFilterChain.startFilterChain(mutableHttpRequest, mutableHttpResponse);
             }
@@ -205,7 +206,8 @@ public class PowerFilter extends ApplicationContextAwareFilter {
             } catch (IOException ex) {
                 LOG.error("Error committing output stream", ex);
             }
-            reportingService.incrementReposeStatusCodeCount(((HttpServletResponse) response).getStatus());
+            final long stopTime = System.currentTimeMillis();
+            reportingService.incrementReposeStatusCodeCount(((HttpServletResponse) response).getStatus(), stopTime - startTime);
         }
     }
 }

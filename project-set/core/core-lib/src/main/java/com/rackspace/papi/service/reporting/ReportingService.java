@@ -14,15 +14,18 @@ public interface ReportingService {
 
     DestinationInfo getDestinationInfo(String destinationId);
     List<DestinationInfo> getDestinations();
+    void recordServiceResponse(String destinationId, int statusCode, long responseTime);
     void incrementRequestCount(String destinationId);
-    void incrementResponseCount(String destinationId);
-    void incrementDestinationStatusCodeCount(String destinationId, int statusCode);
-    void accumulateResponseTime(String destinationId, long responseTime);   
+    //void incrementResponseCount(String destinationId);
+    //void incrementDestinationStatusCodeCount(String destinationId, int statusCode);
+    //void accumulateResponseTime(String destinationId, long responseTime);   
 
     ReposeInfo getReposeInfo();
-    void incrementReposeStatusCodeCount(int statusCode);
+    void incrementReposeStatusCodeCount(int statusCode, long time);
     void incrementReposeRequestCount();
     void incrementReposeResponseCount();
-    void accumulateReposeRequestSize(long requestSize);
-    void accumulateReposeResponseSize(long responseSize);
+    void processReposeRequestSize(long requestSize);
+    void processReposeResponseSize(long responseSize);
+    //void accumulateReposeRequestSize(long requestSize);
+    //void accumulateReposeResponseSize(long responseSize);
 }

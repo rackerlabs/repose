@@ -2,14 +2,14 @@ package com.rackspace.papi.service.reporting.repose;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
-
+import com.rackspace.papi.service.reporting.StatusCodeResponseStore;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ReposeInfoStore {
 
     private static final long LONG_ZERO = 0l;
-    private Map<Integer, Long> statusCodeCounts = new HashMap<Integer, Long>();
+    private Map<Integer, StatusCodeResponseStore> statusCodeCounts = new HashMap<Integer, StatusCodeResponseStore>();
     private long totalRequests = LONG_ZERO;
     private long totalResponses = LONG_ZERO;
     private long accumulatedRequestSize = LONG_ZERO;
@@ -26,11 +26,16 @@ public class ReposeInfoStore {
         this.statusCodeCounts = deepCopyStatusCodeCounts(reposeInfoStore.statusCodeCounts);
     }
 
-    private Map<Integer, Long> deepCopyStatusCodeCounts(Map<Integer, Long> statusCodeCounts) {
-        return ImmutableMap.copyOf(statusCodeCounts);
+    private Map<Integer, StatusCodeResponseStore> deepCopyStatusCodeCounts(Map<Integer, StatusCodeResponseStore> statusCodeCounts) {
+        Map<Integer, StatusCodeResponseStore> copy = new HashMap<Integer, StatusCodeResponseStore>();
+        for (Map.Entry<Integer, StatusCodeResponseStore> entry: statusCodeCounts.entrySet()) {
+            copy.put(entry.getKey(), new StatusCodeResponseStore(entry.getValue()));
+        }
+        
+        return copy;
     }
 
-    public Map<Integer, Long> getStatusCodeCounts() {
+    public Map<Integer, StatusCodeResponseStore> getStatusCodeCounts() {
         return statusCodeCounts;
     }
 
@@ -73,29 +78,25 @@ public class ReposeInfoStore {
     protected void setTotalResponses(long totalResponses) {
         this.totalResponses = totalResponses;
     }
-
-    protected void setAccumulatedRequestSize(long accumulatedRequestSize) {
-        this.accumulatedRequestSize = accumulatedRequestSize;
+    
+    protected void processRequestSize(long requestSize) {
+        this.accumulatedRequestSize += requestSize;
+        if (requestSize < minRequestSize || minRequestSize == 0) {
+            minRequestSize = requestSize;
+        }
+        if (requestSize > maxRequestSize) {
+            maxRequestSize = requestSize;
+        }
     }
 
-    protected void setAccumulatedResponseSize(long accumulatedResponseSize) {
-        this.accumulatedResponseSize = accumulatedResponseSize;
-    }
-
-    protected void setMinRequestSize(long minRequestSize) {
-        this.minRequestSize = minRequestSize;
-    }
-
-    protected void setMaxRequestSize(long maxRequestSize) {
-        this.maxRequestSize = maxRequestSize;
-    }
-
-    protected void setMinResponseSize(long minResponseSize) {
-        this.minResponseSize = minResponseSize;
-    }
-
-    protected void setMaxResponseSize(long maxResponseSize) {
-        this.maxResponseSize = maxResponseSize;
+    protected void processResponseSize(long responseSize) {
+        this.accumulatedResponseSize += responseSize;
+        if (responseSize < minResponseSize || minResponseSize == 0) {
+            minResponseSize = responseSize;
+        }
+        if (responseSize > maxResponseSize) {
+            maxResponseSize = responseSize;
+        }
     }
 
     @Override

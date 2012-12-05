@@ -4,16 +4,15 @@ import com.rackspace.papi.service.reporting.destinations.DestinationInfo;
 import com.rackspace.papi.service.reporting.destinations.DestinationInfoLogic;
 import com.rackspace.papi.service.reporting.repose.ReposeInfo;
 import com.rackspace.papi.service.reporting.repose.ReposeInfoLogic;
-import org.springframework.stereotype.Component;
-
 import java.util.*;
+import org.springframework.stereotype.Component;
 
 @Component("reportingService")
 public class ReportingServiceImpl implements ReportingService {
 
     private static final String TIMER_THREAD_NAME = "Repose JMX Reset Timer Thread";
     private static final int ONE_THOUSAND = 1000;
-    private Map<String, DestinationInfo> destinations = new HashMap<String, DestinationInfo>();
+    private final Map<String, DestinationInfo> destinations = new HashMap<String, DestinationInfo>();
     private ReposeInfo reposeInfo;
     private Date lastReset;
     private Timer timer;
@@ -28,19 +27,20 @@ public class ReportingServiceImpl implements ReportingService {
     public synchronized Date getLastReset() {
         return lastReset;
     }
-    
+
+    @Override
     public void shutdown() {
         timer.cancel();
     }
 
     @Override
     public synchronized void updateConfiguration(List<String> destinationIds, int seconds) {
+
         destinations.clear();
         for (String id : destinationIds) {
             final DestinationInfo destinationInfo = new DestinationInfoLogic(id);
             destinations.put(id, destinationInfo);
         }
-
         reposeInfo = new ReposeInfoLogic();
 
         manageTimer(seconds);
@@ -63,13 +63,11 @@ public class ReportingServiceImpl implements ReportingService {
     }
 
     @Override
-    public List<DestinationInfo> getDestinations() {
+    public synchronized List<DestinationInfo> getDestinations() {
         final List<DestinationInfo> newDestinations = new ArrayList<DestinationInfo>();
 
-        synchronized (destinations) {
-            for (Map.Entry<String, DestinationInfo> entry : destinations.entrySet()) {
-                newDestinations.add(entry.getValue().copy());
-            }
+        for (Map.Entry<String, DestinationInfo> entry : destinations.entrySet()) {
+            newDestinations.add(entry.getValue().copy());
         }
 
         return newDestinations;
@@ -83,36 +81,24 @@ public class ReportingServiceImpl implements ReportingService {
     }
 
     @Override
-    public synchronized void incrementResponseCount(String destinationId) {
+    public synchronized void recordServiceResponse(String destinationId, int statusCode, long responseTime) {
+        incrementReposeResponseCount();
         if (destinations.get(destinationId) != null) {
-            destinations.get(destinationId).incrementResponseCount();
+            DestinationInfo destination = destinations.get(destinationId);
+            destination.incrementResponseCount();
+            destination.incrementStatusCodeCount(statusCode, responseTime);
+            destination.accumulateResponseTime(responseTime);
         }
     }
-
-    @Override
-    public synchronized void incrementDestinationStatusCodeCount(String destinationId, int statusCode) {
-
-        if (destinations.get(destinationId) != null) {
-            destinations.get(destinationId).incrementStatusCodeCount(statusCode);
-        }
-    }
-
-    @Override
-    public synchronized void accumulateResponseTime(String destinationId, long responseTime) {
-        
-        if (destinations.get(destinationId) != null) {
-            destinations.get(destinationId).accumulateResponseTime(responseTime);
-        }
-    }
-
+    
     @Override
     public synchronized ReposeInfo getReposeInfo() {
         return reposeInfo.copy();
     }
 
     @Override
-    public synchronized void incrementReposeStatusCodeCount(int statusCode) {
-        reposeInfo.incrementStatusCodeCount(statusCode);
+    public synchronized void incrementReposeStatusCodeCount(int statusCode, long time) {
+        reposeInfo.incrementStatusCodeCount(statusCode, time);
     }
 
     @Override
@@ -126,13 +112,13 @@ public class ReportingServiceImpl implements ReportingService {
     }
 
     @Override
-    public synchronized void accumulateReposeRequestSize(long requestSize) {
-        reposeInfo.accumulateRequestSize(requestSize);
+    public synchronized void processReposeRequestSize(long requestSize) {
+        reposeInfo.processRequestSize(requestSize);
     }
 
     @Override
-    public synchronized void accumulateReposeResponseSize(long responseSize) {
-        reposeInfo.accumulateResponseSize(responseSize);
+    public synchronized void processReposeResponseSize(long responseSize) {
+        reposeInfo.processResponseSize(responseSize);
     }
 
     private synchronized void reset() {
@@ -146,9 +132,10 @@ public class ReportingServiceImpl implements ReportingService {
         }
 
         destinations.clear();
-        destinations = newDestinations;
+        destinations.putAll(newDestinations);
 
         reposeInfo = new ReposeInfoLogic();
+        lastReset = new Date(System.currentTimeMillis());
     }
 
     private class ReportingTimerTask extends TimerTask {
@@ -156,7 +143,6 @@ public class ReportingServiceImpl implements ReportingService {
         @Override
         public void run() {
             reset();
-            lastReset = new Date(System.currentTimeMillis());
         }
     }
 }

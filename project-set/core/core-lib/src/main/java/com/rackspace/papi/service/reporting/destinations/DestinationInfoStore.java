@@ -1,8 +1,7 @@
 package com.rackspace.papi.service.reporting.destinations;
 
 import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableMap;
-
+import com.rackspace.papi.service.reporting.StatusCodeResponseStore;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,7 +12,7 @@ public class DestinationInfoStore {
     private final long startTime;
     private long totalRequests = LONG_ZERO;
     private long totalResponses = LONG_ZERO;
-    private Map<Integer, Long> statusCodeCounts = new HashMap<Integer, Long>();
+    private Map<Integer, StatusCodeResponseStore> statusCodeCounts = new HashMap<Integer, StatusCodeResponseStore>();
     private long accumulatedResponseTime = LONG_ZERO;
 
     public DestinationInfoStore(String destinationId) {
@@ -28,7 +27,7 @@ public class DestinationInfoStore {
     }
 
     private DestinationInfoStore(String destinationId, long startTime, long totalRequests, long totalResponses,
-                                 Map<Integer, Long> statusCodeCounts, long accumulatedResponseTime) {
+                                 Map<Integer, StatusCodeResponseStore> statusCodeCounts, long accumulatedResponseTime) {
         this.destinationId = destinationId;
         this.startTime = startTime;
         this.totalRequests = totalRequests;
@@ -37,8 +36,13 @@ public class DestinationInfoStore {
         this.accumulatedResponseTime = accumulatedResponseTime;
     }
     
-    private static Map<Integer, Long> deepCopyStatusCodeCounts(Map<Integer, Long> statusCodeCounts) {
-        return ImmutableMap.copyOf(statusCodeCounts);
+    private static Map<Integer, StatusCodeResponseStore> deepCopyStatusCodeCounts(Map<Integer, StatusCodeResponseStore> statusCodeCounts) {
+        Map<Integer, StatusCodeResponseStore> copy = new HashMap<Integer, StatusCodeResponseStore>();
+        for (Map.Entry<Integer, StatusCodeResponseStore> entry: statusCodeCounts.entrySet()) {
+            copy.put(entry.getKey(), new StatusCodeResponseStore(entry.getValue()));
+        }
+        
+        return copy;
     }
 
     public String getDestinationId() {
@@ -65,7 +69,7 @@ public class DestinationInfoStore {
         this.totalResponses = totalResponses;
     }
 
-    protected Map<Integer, Long> getStatusCodeCounts() {
+    protected Map<Integer, StatusCodeResponseStore> getStatusCodeCounts() {
         return statusCodeCounts;
     }
 

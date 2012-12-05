@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.reporting.repose;
 
+import com.rackspace.papi.service.reporting.StatusCodeResponseStore;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
@@ -22,7 +23,7 @@ public class ReposeInfoLogicTest {
 
         @Test
         public void shouldIncrementStatusCode() {
-            reposeInfoLogic.incrementStatusCodeCount(400);
+            reposeInfoLogic.incrementStatusCodeCount(400, 10);
 
             assertEquals(1, reposeInfoLogic.getTotalStatusCode(400));
         }
@@ -43,21 +44,21 @@ public class ReposeInfoLogicTest {
 
         @Test
         public void shouldAccumulateRequestSize() {
-            reposeInfoLogic.accumulateRequestSize(105l);
+            reposeInfoLogic.processRequestSize(105l);
 
             assertEquals(105l, reposeInfoLogic.getAccumulatedRequestSize());
         }
 
         @Test
         public void shouldAccumulateResponseSize() {
-            reposeInfoLogic.accumulateResponseSize(107l);
+            reposeInfoLogic.processResponseSize(107l);
 
             assertEquals(107l, reposeInfoLogic.getAccumulatedResponseSize());
         }
 
         @Test
         public void shouldUpdateRequestMinMax() {
-            reposeInfoLogic.updateMinMaxRequestSize(85l);
+            reposeInfoLogic.processRequestSize(85l);
 
             assertEquals(85l, reposeInfoLogic.getMinimumRequestSize());
             assertEquals(85l, reposeInfoLogic.getMaximumRequestSize());
@@ -65,7 +66,7 @@ public class ReposeInfoLogicTest {
 
         @Test
         public void shouldUpdateResponseMinMax() {
-            reposeInfoLogic.updateMinMaxResponseSize(55l);
+            reposeInfoLogic.processResponseSize(55l);
 
             assertEquals(55l, reposeInfoLogic.getMinimumResponseSize());
             assertEquals(55l, reposeInfoLogic.getMaximumResponseSize());
@@ -90,7 +91,7 @@ public class ReposeInfoLogicTest {
                 reposeInfoLogic.incrementRequestCount();
             }
 
-            reposeInfoLogic.accumulateRequestSize(requestSize);
+            reposeInfoLogic.processRequestSize(requestSize);
 
             assertEquals(expectedAverageRequestSize, reposeInfoLogic.getAverageRequestSize(), 0.1);
         }
@@ -110,7 +111,7 @@ public class ReposeInfoLogicTest {
                 reposeInfoLogic.incrementResponseCount();
             }
 
-            reposeInfoLogic.accumulateResponseSize(responseSize);
+            reposeInfoLogic.processResponseSize(responseSize);
 
             assertEquals(expectedAverageResponseSize, reposeInfoLogic.getAverageResponseSize(), 0.1);
         }
@@ -131,11 +132,11 @@ public class ReposeInfoLogicTest {
 
         @Test
         public void shouldCopy(){
-            reposeInfoLogic.incrementStatusCodeCount(200);
+            reposeInfoLogic.incrementStatusCodeCount(200, 10);
 
             ReposeInfo copy = reposeInfoLogic.copy();
 
-            reposeInfoLogic.incrementStatusCodeCount(200);
+            reposeInfoLogic.incrementStatusCodeCount(200, 20);
             
             assertNotSame(copy.getTotalStatusCode(200), reposeInfoLogic.getTotalStatusCode(200));
         }
@@ -151,7 +152,7 @@ public class ReposeInfoLogicTest {
 
         @Test
         public void shouldEqualUnmodifiedCopy() {
-            reposeInfoLogic.getStatusCodeCounts().put(400, 5l);
+            reposeInfoLogic.getStatusCodeCounts().put(400, new StatusCodeResponseStore(5l, 0));
 
             ReposeInfo copy = reposeInfoLogic.copy();
 
@@ -160,10 +161,10 @@ public class ReposeInfoLogicTest {
 
         @Test
         public void shouldProduceDifferentHashcodes() {
-            reposeInfoLogic.getStatusCodeCounts().put(400, 5l);
+            reposeInfoLogic.getStatusCodeCounts().put(400, new StatusCodeResponseStore(5l, 0));
 
             ReposeInfo copy = reposeInfoLogic.copy();
-            reposeInfoLogic.getStatusCodeCounts().put(500, 5l);
+            reposeInfoLogic.getStatusCodeCounts().put(500, new StatusCodeResponseStore(5l, 0));
 
             assertTrue(copy.hashCode() != reposeInfoLogic.hashCode());
         }

@@ -2,6 +2,7 @@ package com.rackspace.papi.filter;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
+import com.rackspace.papi.commons.util.io.stream.ReadLimitReachedException;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.commons.util.servlet.http.RouteDestination;
@@ -130,20 +131,16 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                     LOG.debug("Request URI: " + ((HttpServletRequest) servletRequest).getRequestURI());
                     LOG.debug("Context path = " + targetContext.getContextPath());
 
+                    final long startTime = System.currentTimeMillis();
+                    int responseCode = 0;
                     try {
                         reportingService.incrementRequestCount(routingDestination.getDestinationId());
-                        final long startTime = System.currentTimeMillis();
                         dispatcher.forward(servletRequest, servletResponse);
-
                         final long stopTime = System.currentTimeMillis();
-                        reportingService.accumulateResponseTime(routingDestination.getDestinationId(), (stopTime - startTime));
-                        reportingService.incrementResponseCount(routingDestination.getDestinationId());
-                        reportingService.incrementDestinationStatusCodeCount(routingDestination.getDestinationId(), servletResponse.getStatus());
-
-
+                        reportingService.recordServiceResponse(routingDestination.getDestinationId(), servletResponse.getStatus(), (stopTime - startTime));
                         responseHeaderService.fixLocationHeader(originalRequest, servletResponse, routingDestination, location.getUri().toString(), rootPath);
                     } catch (ClientHandlerException e) {
-                        if ("ReadLimitReachedException".equals(e.getCause().getClass().getSimpleName())) {
+                        if (e.getCause() instanceof ReadLimitReachedException) {
                             LOG.error("Error reading request content", e);
                             servletResponse.sendError(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE.intValue(), "Error reading request content");
                             servletResponse.setLastException(e);
@@ -152,6 +149,7 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                             ((HttpServletResponse) servletResponse).setStatus(HttpStatusCode.SERVICE_UNAVAIL.intValue());
                         }
                     }
+
                 }
             }
         }
