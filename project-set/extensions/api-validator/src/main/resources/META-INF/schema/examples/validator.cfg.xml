@@ -24,8 +24,9 @@
       role="embedded"
       default="false"
       check-well-formed="false"
-      check-xsd-grammer="true"
+      check-xsd-grammar="true"
       check-elements="true"
+      check-headers="true"
       use-saxon="false">
         <application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
            xmlns:xs="http://www.w3.org/2001/XMLSchema" 
