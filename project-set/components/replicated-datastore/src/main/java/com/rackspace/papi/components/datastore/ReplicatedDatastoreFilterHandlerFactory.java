@@ -30,6 +30,7 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
     private final DatastoreService service;
     private final CacheManager ehCacheManager;
     private ReplicatedDatastoreConfiguration configuration;
+    private final Object lock = new Object();
 
     public ReplicatedDatastoreFilterHandlerFactory(DatastoreService service, CacheManager ehCacheManager) {
         this.service = service;
@@ -65,36 +66,40 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
     }
 
     public void stopDatastore() {
-        if (replicatedDatastoreManager != null) {
-            ReplicatedDatastore datastore = (ReplicatedDatastoreImpl) replicatedDatastoreManager.getDatastore();
-            datastore.leaveGroup();
-            LOG.info("Unregistering datastore " + ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED);
-            service.unregisterDatastoreManager(ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED);
+        synchronized (lock) {
+            if (replicatedDatastoreManager != null) {
+                ReplicatedDatastore datastore = (ReplicatedDatastoreImpl) replicatedDatastoreManager.getDatastore();
+                datastore.leaveGroup();
+                LOG.info("Unregistering datastore " + ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED);
+                service.unregisterDatastoreManager(ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED);
+            }
         }
     }
 
-    private synchronized void createDistributedDatastore() {
-        if (systemModel == null || ports == null) {
-            return;
-        }
-
-        if (!ports.isEmpty()) {
-            SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
-            ReposeCluster serviceDomain = interrogator.getLocalServiceDomain(systemModel);
-            Node localHost = interrogator.getLocalHost(systemModel);
-            
-            int maxQueueSize = 0;
-            if (configuration != null) {
-                maxQueueSize = configuration.getQueueSizeLimit();
+    private void createDistributedDatastore() {
+        synchronized (lock) {
+            if (systemModel == null || ports == null) {
+                return;
             }
 
-            if (replicatedDatastoreManager == null) {
-                LOG.info("Registering datastore " + ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED);
-                replicatedDatastoreManager = new ReplicatedCacheDatastoreManager(ehCacheManager, getDatastoreNodes(serviceDomain), localHost.getHostname(), getPort(localHost), maxQueueSize);
-                service.registerDatastoreManager(ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED, replicatedDatastoreManager);
-            } else {
-                replicatedDatastoreManager.setMaxQueueSize(maxQueueSize);
-                replicatedDatastoreManager.updateSubscribers(getDatastoreNodes(serviceDomain));
+            if (!ports.isEmpty()) {
+                SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
+                ReposeCluster serviceDomain = interrogator.getLocalServiceDomain(systemModel);
+                Node localHost = interrogator.getLocalHost(systemModel);
+
+                int maxQueueSize = 0;
+                if (configuration != null) {
+                    maxQueueSize = configuration.getQueueSizeLimit();
+                }
+
+                if (replicatedDatastoreManager == null) {
+                    LOG.info("Registering datastore " + ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED);
+                    replicatedDatastoreManager = new ReplicatedCacheDatastoreManager(ehCacheManager, getDatastoreNodes(serviceDomain), localHost.getHostname(), getPort(localHost), maxQueueSize);
+                    service.registerDatastoreManager(ReplicatedCacheDatastoreManager.REPLICATED_DISTRIBUTED, replicatedDatastoreManager);
+                } else {
+                    replicatedDatastoreManager.setMaxQueueSize(maxQueueSize);
+                    replicatedDatastoreManager.updateSubscribers(getDatastoreNodes(serviceDomain));
+                }
             }
         }
     }
@@ -107,7 +112,9 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
                 return;
             }
 
-            systemModel = config;
+            synchronized (lock) {
+                systemModel = config;
+            }
             createDistributedDatastore();
         }
     }
@@ -133,16 +140,20 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
         @Override
         public void configurationUpdated(ContainerConfiguration configurationObject) {
             DeploymentConfiguration deployConfig = configurationObject.getDeploymentConfig();
-            ports = determinePorts(deployConfig);
+            synchronized (lock) {
+                ports = determinePorts(deployConfig);
+            }
             createDistributedDatastore();
         }
     }
-    
+
     private class ConfigListener implements UpdateListener<ReplicatedDatastoreConfiguration> {
 
         @Override
         public void configurationUpdated(ReplicatedDatastoreConfiguration config) {
-            configuration = config;
+            synchronized (lock) {
+                configuration = config;
+            }
             createDistributedDatastore();
         }
     }
