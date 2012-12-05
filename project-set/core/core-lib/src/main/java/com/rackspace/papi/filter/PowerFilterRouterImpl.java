@@ -132,7 +132,6 @@ public class PowerFilterRouterImpl implements PowerFilterRouter {
                     LOG.debug("Context path = " + targetContext.getContextPath());
 
                     final long startTime = System.currentTimeMillis();
-                    int responseCode = 0;
                     try {
                         reportingService.incrementRequestCount(routingDestination.getDestinationId());
                         dispatcher.forward(servletRequest, servletResponse);
