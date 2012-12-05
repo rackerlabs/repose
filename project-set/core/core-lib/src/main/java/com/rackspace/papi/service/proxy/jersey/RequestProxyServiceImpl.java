@@ -18,6 +18,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.sun.jersey.client.urlconnection.URLConnectionClientHandler;
+import java.util.Map.Entry;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -101,12 +103,13 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
     private WebResource.Builder setHeaders(WebResource.Builder builder, Map<String, String> headers) {
         WebResource.Builder newBuilder = builder;
-
-        for (String key : headers.keySet()) {
-            newBuilder = newBuilder.header(key, headers.get(key));
+        
+        final Set<Entry<String, String>> entries = headers.entrySet();
+        for(Entry<String,String> entry: entries){
+           newBuilder = newBuilder.header(entry.getKey(), entry.getValue());
         }
-
-        return builder;
+        
+        return newBuilder;
     }
 
     @Override

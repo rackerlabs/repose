@@ -10,6 +10,9 @@ import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
 
 class JerseyResponseProcessor extends AbstractResponseProcessor {
 
@@ -25,10 +28,13 @@ class JerseyResponseProcessor extends AbstractResponseProcessor {
     @Override
     protected void setResponseHeaders() throws IOException {
         MultivaluedMap<String, String> headers = clientResponse.getHeaders();
-        for (String headerName : headers.keySet()) {
-            for (String value : headers.get(headerName)) {
-                addHeader(headerName, value);
-            }
+        
+        final Set<Entry<String,List<String>>> entries = headers.entrySet();
+        
+        for(Entry<String,List<String>> entry: entries){
+           for(String value: entry.getValue()){
+              addHeader(entry.getKey(), value);
+           }
         }
     }
 

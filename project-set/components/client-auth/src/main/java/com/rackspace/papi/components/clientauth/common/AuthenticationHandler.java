@@ -205,7 +205,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
       try {
          long ttl = userCacheTtl > 0 ? Math.min(userCacheTtl, user.tokenTtl().intValue()) : user.tokenTtl().intValue();
-         cache.storeToken(key, user, new Long(ttl).intValue());
+         cache.storeToken(key, user, Long.valueOf(ttl).intValue());
       } catch (IOException ex) {
          LOG.warn("Unable to cache user token information: " + user.getUserId() + " Reason: " + ex.getMessage(), ex);
       }

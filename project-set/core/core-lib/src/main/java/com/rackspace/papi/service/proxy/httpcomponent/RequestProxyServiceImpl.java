@@ -14,6 +14,7 @@ import java.io.InputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Map;
+import java.util.Set;
 import javax.net.ssl.SSLContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -154,8 +155,10 @@ public class RequestProxyServiceImpl implements RequestProxyService {
    }
    
    private void setHeaders(HttpRequestBase base, Map<String, String> headers) {
-      for (String header: headers.keySet()) {
-         base.addHeader(header, headers.get(header));
+ 
+      final Set<Map.Entry<String, String>> entries = headers.entrySet();
+      for(Map.Entry<String,String> entry : entries){
+         base.addHeader(entry.getKey(), entry.getValue());
       }
    }
    

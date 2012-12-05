@@ -14,6 +14,7 @@ import com.rackspace.papi.service.proxy.TargetHostInfo;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import javax.net.ssl.SSLContext;
 import javax.servlet.http.HttpServletRequest;
@@ -101,11 +102,11 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     }
 
     private BoundRequestBuilder setHeader(BoundRequestBuilder builder, Map<String, String> headers) {
-        for (String header : headers.keySet()) {
-            String value = headers.get(header);
-            builder.addHeader(header, value);
+       
+       final Set<Map.Entry<String, String>> entries = headers.entrySet();
+        for(Map.Entry<String,String> entry: entries){
+           builder.addHeader(entry.getKey(), entry.getValue());
         }
-
         return builder;
     }
 
