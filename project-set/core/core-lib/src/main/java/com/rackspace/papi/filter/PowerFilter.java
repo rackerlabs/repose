@@ -31,6 +31,7 @@ import org.slf4j.LoggerFactory;
 public class PowerFilter extends ApplicationContextAwareFilter {
 
     private static final Logger LOG = LoggerFactory.getLogger(PowerFilter.class);
+    private final Object internalLock = new Object();
     private final EventListener<ApplicationDeploymentEvent, List<String>> applicationDeploymentListener;
     private final UpdateListener<SystemModel> systemModelConfigurationListener;
     private ServicePorts ports;
@@ -76,8 +77,6 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
     private class SystemModelConfigListener implements UpdateListener<SystemModel> {
 
-        private final Object internalLock = new Object();
-
         // TODO:Review - There's got to be a better way of initializing PowerFilter. Maybe the app management service could be queryable.
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
@@ -109,20 +108,22 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     // existing filterChain.  If that is the case we create a new one for the deployment
     // update but the old list stays in memory as the garbage collector won't clean
     // it up until all RequestFilterChainState objects are no longer referencing it.
-    private synchronized void updateFilterChainBuilder(List<FilterContext> newFilterChain) {
-        if (powerFilterChainBuilder != null) {
-            papiContext.filterChainGarbageCollectorService().reclaimDestroyable(powerFilterChainBuilder, powerFilterChainBuilder.getResourceConsumerMonitor());
-        }
-        try {
-            String dftDst = "";
-
-            if (defaultDst != null) {
-                dftDst = defaultDst.getId();
+    private void updateFilterChainBuilder(List<FilterContext> newFilterChain) {
+        synchronized (internalLock) {
+            if (powerFilterChainBuilder != null) {
+                papiContext.filterChainGarbageCollectorService().reclaimDestroyable(powerFilterChainBuilder, powerFilterChainBuilder.getResourceConsumerMonitor());
             }
-            powerFilterChainBuilder = papiContext.filterChainBuilder();
-            powerFilterChainBuilder.initialize(serviceDomain, localHost, newFilterChain, filterConfig.getServletContext(), dftDst);
-        } catch (PowerFilterChainException ex) {
-            LOG.error("Unable to initialize filter chain builder", ex);
+            try {
+                String dftDst = "";
+
+                if (defaultDst != null) {
+                    dftDst = defaultDst.getId();
+                }
+                powerFilterChainBuilder = papiContext.filterChainBuilder();
+                powerFilterChainBuilder.initialize(serviceDomain, localHost, newFilterChain, filterConfig.getServletContext(), dftDst);
+            } catch (PowerFilterChainException ex) {
+                LOG.error("Unable to initialize filter chain builder", ex);
+            }
         }
     }
 
@@ -149,9 +150,30 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
     @Override
     public void destroy() {
-        if (powerFilterChainBuilder != null) {
-            powerFilterChainBuilder.destroy();
+        synchronized (internalLock) {
+            if (powerFilterChainBuilder != null) {
+                powerFilterChainBuilder.destroy();
+            }
         }
+    }
+
+    private PowerFilterChain getRequestFilterChain(MutableHttpServletRequest mutableHttpRequest, MutableHttpServletResponse mutableHttpResponse, FilterChain chain) throws ServletException {
+        PowerFilterChain requestFilterChain = null;
+        try {
+            synchronized (internalLock) {
+                if (powerFilterChainBuilder == null) {
+                    mutableHttpResponse.sendError(HttpStatusCode.INTERNAL_SERVER_ERROR.intValue(), "Filter chain has not been initialized");
+                } else {
+                    requestFilterChain = powerFilterChainBuilder.newPowerFilterChain(chain);
+                }
+            }
+        } catch (PowerFilterChainException ex) {
+            LOG.warn("Error creating filter chain", ex);
+            mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Error creating filter chain");
+            mutableHttpResponse.setLastException(ex);
+        }
+
+        return requestFilterChain;
     }
 
     @Override
@@ -161,18 +183,11 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request, streamLimit);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
 
-        if (powerFilterChainBuilder == null) {
-            responseHeaderService.setVia(mutableHttpRequest, mutableHttpResponse);
-            throw new ServletException("Filter chain has not been initialized");
-        }
-
         try {
-            final PowerFilterChain requestFilterChainState = powerFilterChainBuilder.newPowerFilterChain(chain);
-            requestFilterChainState.startFilterChain(mutableHttpRequest, mutableHttpResponse);
-        } catch (PowerFilterChainException ex) {
-            LOG.warn("Error creating filter chain", ex);
-            mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Error creating filter chain");
-            mutableHttpResponse.setLastException(ex);
+            final PowerFilterChain requestFilterChain = getRequestFilterChain(mutableHttpRequest, mutableHttpResponse, chain);
+            if (requestFilterChain != null) {
+                requestFilterChain.startFilterChain(mutableHttpRequest, mutableHttpResponse);
+            }
         } catch (Exception ex) {
             LOG.error("Exception encountered while processing filter chain. Reason: " + ex.getMessage(), ex);
             mutableHttpResponse.sendError(HttpStatusCode.BAD_GATEWAY.intValue(), "Error processing request");
