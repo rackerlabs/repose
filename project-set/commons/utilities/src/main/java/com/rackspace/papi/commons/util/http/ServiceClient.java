@@ -16,6 +16,8 @@ import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBElement;
 
 import com.sun.jersey.client.urlconnection.HTTPSProperties;
+import java.util.Map.Entry;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,11 +83,13 @@ public class ServiceClient {
     private WebResource.Builder setHeaders(WebResource.Builder builder, Map<String, String> headers) {
         WebResource.Builder newBuilder = builder;
 
-        for (String key : headers.keySet()) {
-            newBuilder = newBuilder.header(key, headers.get(key));
+        final Set<Entry<String, String>> entries = headers.entrySet();
+        
+        for(Entry<String, String> entry: entries){
+           newBuilder = newBuilder.header(entry.getKey(), entry.getValue());
         }
-
-        return builder;
+        
+        return newBuilder;
     }
 
     public ServiceClientResponse post(String uri, JAXBElement body, MediaType contentType) {

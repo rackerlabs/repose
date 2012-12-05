@@ -33,9 +33,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
 
    public ApiValidatorHandler(ValidatorInfo defaultValidator, List<ValidatorInfo> validators, boolean multiRoleMatch) {
       this.validators = new ArrayList<ValidatorInfo>(validators.size());
-      if (validators != null) {
-         this.validators.addAll(validators);
-      }
+      this.validators.addAll(validators);
       this.multiRoleMatch = multiRoleMatch;
       this.defaultValidator = defaultValidator;
 

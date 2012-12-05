@@ -32,7 +32,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private ClientWrapper client;
     private Integer connectionTimeout = Integer.valueOf(0);
     private Integer readTimeout = Integer.valueOf(0);
-    private Integer proxyThreadPool = Integer.valueOf(DEFAULT_THREADPOOL_SIZE);
+    private Integer proxyThreadPool = DEFAULT_THREADPOOL_SIZE;
     private final Object clientLock = new Object();
     private boolean requestLogging;
 
