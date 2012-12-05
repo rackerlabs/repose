@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class RequestLineHandler implements FormatterLogic {
-    private final static char SPACE = ' ';
+    private static final char SPACE = ' ';
 
     @Override
     public String handle(HttpServletRequest request, HttpServletResponse response) {
