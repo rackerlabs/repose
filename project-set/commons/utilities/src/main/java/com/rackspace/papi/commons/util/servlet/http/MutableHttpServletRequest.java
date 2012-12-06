@@ -97,8 +97,8 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
                     inputStream = new ServletInputStreamWrapper((InputStream) new LimitedReadInputStream(streamLimit, super.getInputStream()));
                 }
             }
+            return inputStream;
         }
-        return inputStream;
     }
 
     public void setInputStream(ServletInputStream inputStream) {
