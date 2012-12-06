@@ -88,8 +88,8 @@ public class ReplicatedCacheDatastoreManager implements DatastoreManager {
                     datastore = new ReplicatedDatastoreImpl(subscribers, address, port, cacheManagerInstance.getCache(cacheName), maxQueueSize);
                     datastore.joinGroup();
                 }
+                return datastore;
             }
-            return datastore;
         } catch (UnknownHostException ex) {
             LOG.error("Error creating redundant datastore", ex);
         } catch (IOException ex) {

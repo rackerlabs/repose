@@ -21,13 +21,19 @@ public final class TimeUnitConverter {
 
         switch (timeUnit) {
             case DAY:
-                time *= DAY_UNIT;
+                time *= DAY_UNIT * HOUR_UNIT * MINUTE_UNIT * SECOND_UNIT;
+                break;
             case HOUR:
-                time *= HOUR_UNIT;
+                time *= HOUR_UNIT * MINUTE_UNIT * SECOND_UNIT;
+                break;
             case MINUTE:
-                time *= MINUTE_UNIT;
+                time *= MINUTE_UNIT * SECOND_UNIT;
+                break;
             case SECOND:
                 time *= SECOND_UNIT;
+                break;
+            default:
+                throw new IllegalArgumentException("Time unit: " + timeUnit.toString() + " is not supported");
         }
 
         return time;
