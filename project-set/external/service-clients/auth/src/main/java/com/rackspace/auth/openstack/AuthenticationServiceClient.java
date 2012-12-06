@@ -65,7 +65,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
         OpenStackToken token = null;
 
-        ServiceClientResponse<AuthenticateResponse> serviceResponse = validateUser(userToken);
+        ServiceClientResponse<AuthenticateResponse> serviceResponse = validateUser(userToken, false);
 
         switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
             case OK:
@@ -79,9 +79,8 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
             case UNAUTHORIZED:
                 LOG.warn("Unable to validate token for tenant: " + serviceResponse.getStatusCode() + " :admin token expired. Retrieving new admin token and retrying token validation...");
-                currentAdminToken = null;
 
-                serviceResponse = validateUser(userToken);
+                serviceResponse = validateUser(userToken, true);
 
                 if (serviceResponse.getStatusCode() == HttpStatusCode.OK.intValue()) {
                     token = getOpenStackToken(tenant, serviceResponse);
@@ -100,12 +99,12 @@ public class AuthenticationServiceClient implements AuthenticationService {
         return token;
     }
 
-    private ServiceClientResponse<AuthenticateResponse> validateUser(String userToken) {
+    private ServiceClientResponse<AuthenticateResponse> validateUser(String userToken, boolean force) {
         ServiceClientResponse<AuthenticateResponse> serviceResponse;
 
         final Map<String, String> headers = new HashMap<String, String>();
         headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
-        headers.put(AUTH_TOKEN_HEADER, getAdminToken());
+        headers.put(AUTH_TOKEN_HEADER, getAdminToken(force));
         serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, headers);
 
         return serviceResponse;
@@ -132,7 +131,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
         final Map<String, String> headers = new HashMap<String, String>();
 
         headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
-        headers.put(AUTH_TOKEN_HEADER, getAdminToken());
+        headers.put(AUTH_TOKEN_HEADER, getAdminToken(false));
 
         ServiceClientResponse<EndpointList> endpointListResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken + "/endpoints", headers);
         List<Endpoint> endpointList = new ArrayList<Endpoint>();
@@ -144,9 +143,8 @@ public class AuthenticationServiceClient implements AuthenticationService {
                 break;
             case UNAUTHORIZED:
                 LOG.warn("Unable to get endpoints for user: " + endpointListResponse.getStatusCode() + " :admin token expired. Retrieving new admin token and retrying endpoints retrieval...");
-                currentAdminToken = null;
 
-                headers.put(AUTH_TOKEN_HEADER, getAdminToken());
+                headers.put(AUTH_TOKEN_HEADER, getAdminToken(true));
                 endpointListResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken + "/endpoints", headers);
 
                 if (endpointListResponse.getStatusCode() == HttpStatusCode.ACCEPTED.intValue()) {
@@ -181,7 +179,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
         final Map<String, String> headers = new HashMap<String, String>();
 
         headers.put(ACCEPT_HEADER, MediaType.APPLICATION_XML);
-        headers.put(AUTH_TOKEN_HEADER, getAdminToken());
+        headers.put(AUTH_TOKEN_HEADER, getAdminToken(false));
 
         ServiceClientResponse<Groups> serviceResponse = serviceClient.get(targetHostUri + "/users/" + userId + "/RAX-KSGRP", headers);
         AuthGroups authGroups = null;
@@ -192,9 +190,8 @@ public class AuthenticationServiceClient implements AuthenticationService {
                 break;
             case UNAUTHORIZED:
                 LOG.warn("Unable to get groups for user: " + serviceResponse.getStatusCode() + " :admin token expired. Retrieving new admin token and retrying groups retrieval...");
-                currentAdminToken = null;
 
-                headers.put(AUTH_TOKEN_HEADER, getAdminToken());
+                headers.put(AUTH_TOKEN_HEADER, getAdminToken(true));
 
                 serviceResponse = serviceClient.get(targetHostUri + "/users/" + userId + "/RAX-KSGRP", headers);
 
@@ -232,8 +229,9 @@ public class AuthenticationServiceClient implements AuthenticationService {
         }
     }
 
-    private synchronized String getAdminToken() {
-        String adminToken = currentAdminToken != null && currentAdminToken.isValid() ? currentAdminToken.getToken() : null;
+    private synchronized String getAdminToken(boolean force) {
+
+        String adminToken = !force && currentAdminToken != null && currentAdminToken.isValid() ? currentAdminToken.getToken() : null;
 
         if (adminToken == null) {
             final ServiceClientResponse<AuthenticateResponse> serviceResponse = serviceClient.post(targetHostUri + "/tokens", jaxbRequest, MediaType.APPLICATION_XML_TYPE);
@@ -249,6 +247,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
                 default:
                     LOG.error("Unable to get admin token.  Verify admin credentials. " + serviceResponse.getStatusCode());
+                    currentAdminToken = null;
                     break;
             }
         }
