@@ -16,7 +16,7 @@ public final class ArchiveEntryDescriptorBuilder {
 
       final int extensionIndex = resourceName.lastIndexOf('.');
 
-      ArchiveEntryDescriptor archiveEntryDescriptor = null;
+      ArchiveEntryDescriptor archiveEntryDescriptor;
 
       if (extensionIndex > 0) {
          final String simpleName = resourceName.substring(0, extensionIndex);
