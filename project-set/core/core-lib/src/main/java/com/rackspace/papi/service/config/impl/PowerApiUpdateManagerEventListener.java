@@ -44,7 +44,7 @@ public class PowerApiUpdateManagerEventListener implements EventListener<Configu
     public synchronized Map<Integer, ParserListenerPair> getListenerMap(String resourceName) {
         final Map<Integer, ParserListenerPair> mapReference = new HashMap<Integer, ParserListenerPair>(listenerMap.get(resourceName));
 
-        return Collections.unmodifiableMap(mapReference != null ? mapReference : Collections.EMPTY_MAP);
+        return Collections.unmodifiableMap(mapReference);
     }
 
     private void configUpdate(UpdateListener upd, Object cfg) {

@@ -42,7 +42,7 @@ public class EarUnpacker {
 
          while (nextJarEntry != null) {
             final ArchiveEntryDescriptor entryDescriptor = ArchiveEntryDescriptorBuilder.build(currentStackElement.getArchiveName(), nextJarEntry.getName());
-            final EntryAction actionToTake = entryDescriptor != null ? entryListener.nextJarEntry(entryDescriptor) : EntryAction.SKIP;
+            final EntryAction actionToTake = entryListener.nextJarEntry(entryDescriptor);
 
             if (actionToTake.processingAction() != ProcessingAction.SKIP) {
                final ArchiveEntryProcessor archiveEntryProcessor = new ArchiveEntryProcessor(entryDescriptor, deploymentDirectory, entryListener);
