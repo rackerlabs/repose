@@ -60,19 +60,23 @@ public class ReplicatedCacheDatastoreManager implements DatastoreManager {
 
         cacheManagerInstance.removeCache(cacheName);
     }
-    
+
     public void setMaxQueueSize(int maxQueueSize) {
-        if (datastore ==  null) {
-            this.maxQueueSize = maxQueueSize;
-        } else {
-            LOG.warn("Datastore has been created.  Changing max queue size is not possible");
+        synchronized (this) {
+            if (datastore == null) {
+                this.maxQueueSize = maxQueueSize;
+            } else {
+                LOG.warn("Datastore has been created.  Changing max queue size is not possible");
+            }
         }
     }
-    
+
     public void updateSubscribers(Set<Subscriber> subscribers) {
         this.subscribers.addAll(subscribers);
-        if (datastore !=  null) {
-            datastore.addSubscribers(subscribers);
+        synchronized (this) {
+            if (datastore != null) {
+                datastore.addSubscribers(subscribers);
+            }
         }
     }
 

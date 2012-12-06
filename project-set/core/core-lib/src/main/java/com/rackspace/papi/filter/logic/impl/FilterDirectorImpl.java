@@ -9,12 +9,11 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.HeaderManager;
 import com.rackspace.papi.model.Destination;
-
-import javax.servlet.http.HttpServletResponse;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import javax.servlet.http.HttpServletResponse;
 
 public class FilterDirectorImpl implements FilterDirector {
 
@@ -67,7 +66,7 @@ public class FilterDirectorImpl implements FilterDirector {
     }
 
     @Override
-    public synchronized void applyTo(MutableHttpServletRequest request) {
+    public void applyTo(MutableHttpServletRequest request) {
         if (requestHeaderManager().hasHeaders()) {
             requestHeaderManager().applyTo(request);
         }
@@ -90,7 +89,7 @@ public class FilterDirectorImpl implements FilterDirector {
     }
 
     @Override
-    public synchronized void applyTo(HttpServletResponse response) throws IOException {
+    public void applyTo(HttpServletResponse response) throws IOException {
         if (responseHeaderManager().hasHeaders()) {
             responseHeaderManager().applyTo(response);
         }

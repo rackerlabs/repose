@@ -4,13 +4,12 @@ import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.io.BufferedServletInputStream;
 import com.rackspace.papi.commons.util.io.stream.LimitedReadInputStream;
 import com.rackspace.papi.commons.util.io.stream.ServletInputStreamWrapper;
-
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 
 /**
  *
@@ -24,10 +23,10 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
     public static MutableHttpServletRequest wrap(HttpServletRequest request) {
         return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request);
     }
-     public static MutableHttpServletRequest wrap(HttpServletRequest request, int streamLimit ) {
-        return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request,streamLimit);
+
+    public static MutableHttpServletRequest wrap(HttpServletRequest request, int streamLimit) {
+        return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request, streamLimit);
     }
-    
     private ServletInputStream inputStream;
     private final RequestValues values;
     private final int streamLimit;
@@ -36,14 +35,14 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
         super(request);
 
         this.values = new RequestValuesImpl(request);
-        streamLimit=-1;
+        streamLimit = -1;
     }
-    
-    private MutableHttpServletRequest(HttpServletRequest request,int streamLimit) {
+
+    private MutableHttpServletRequest(HttpServletRequest request, int streamLimit) {
         super(request);
 
         this.values = new RequestValuesImpl(request);
-        this.streamLimit=streamLimit;
+        this.streamLimit = streamLimit;
     }
 
     public void addDestination(String id, String uri, float quality) {
@@ -91,19 +90,21 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
     public ServletInputStream getInputStream() throws IOException {
         synchronized (this) {
             if (inputStream == null) {
-                
-               if(streamLimit <=0){
+
+                if (streamLimit <= 0) {
                     inputStream = new BufferedServletInputStream(super.getInputStream());
-               }else{
-                  inputStream =new ServletInputStreamWrapper((InputStream) new LimitedReadInputStream(streamLimit, super.getInputStream()));
-               }
+                } else {
+                    inputStream = new ServletInputStreamWrapper((InputStream) new LimitedReadInputStream(streamLimit, super.getInputStream()));
+                }
             }
         }
         return inputStream;
     }
-    
+
     public void setInputStream(ServletInputStream inputStream) {
-        this.inputStream = inputStream;
+        synchronized (this) {
+            this.inputStream = inputStream;
+        }
     }
 
     @Override
@@ -171,7 +172,7 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
 
     // Method to retrieve a list of a specified headers values
     // Order of values are determined first by quality then by order as they were passed to the request.
-    public List<HeaderValue> getPreferredHeaders(String name,HeaderValue defaultValue) {
-        return values.getHeaders().getPreferredHeaders(name,defaultValue);
+    public List<HeaderValue> getPreferredHeaders(String name, HeaderValue defaultValue) {
+        return values.getHeaders().getPreferredHeaders(name, defaultValue);
     }
 }
