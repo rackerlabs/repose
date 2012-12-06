@@ -68,34 +68,54 @@
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.jmeter</groupId>
-                <artifactId>papi-maven-jmeter-plugin</artifactId>
-
-                <executions>
-                    <execution>
-                        <id>jmeter-tests</id>
-                        <phase>verify</phase>
-
-                        <goals>
-                            <goal>jmeter</goal>
-                        </goals>
-                    </execution>
-                </executions>
-
-                <configuration>
-                    <reportDir>${project.build.directory}/jmeter-reports</reportDir>
-                    <jmeterhome>/usr/share/jmeter</jmeterhome>
-                    <jmeterPreserveIncludeOrder>true</jmeterPreserveIncludeOrder>
-                    <excludes>
-                   	<exclude>Performance Test - Distributed Data Store.jmx</exclude>
-			<exclude>Power API - Content-Normalization Test.jmx</exclude>
-                        <exclude>Repose_GA_Performance.jmx</exclude>
-                    </excludes>
-                </configuration>
-            </plugin>
+          <plugin>
+            <groupId>com.lazerycode.jmeter</groupId>
+            <artifactId>jmeter-maven-plugin</artifactId>
+            <version>1.5.0</version>
+            <executions>
+              <execution>
+                <id>jmeter-tests</id>
+                <phase>verify</phase>
+                <goals>
+                  <goal>jmeter</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>   
+              <propertiesUser>
+                <some.property.name>value</some.property.name>
+              </propertiesUser>
+              <reportConfig>
+                <enable>true</enable> 
+                <xsltFile>functional-report.xsl</xsltFile>
+              </reportConfig>
+            </configuration>
+          </plugin>
         </plugins>
-    </build>
+      </build>
+        <profiles>
+
+    <profile>
+      <id>custom-suffix</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.lazerycode.jmeter</groupId>
+            <artifactId>jmeter-maven-plugin</artifactId>
+            <version>1.5.0</version>
+            <configuration>   
+              <reportConfig>
+                <enable>true</enable> 
+                <xsltFile>functional-report.xsl</xsltFile>
+                <postfix>-${suffix}-report.html</postfix>
+              </reportConfig>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+  </profiles>
 
 </project>
 
