@@ -221,7 +221,7 @@ public class CyclicByteBuffer implements ByteBuffer, Cloneable {
    }
 
    @Override
-   protected Object clone() throws CloneNotSupportedException {
+   public Object clone() throws CloneNotSupportedException {
       return copy();
    }
 }

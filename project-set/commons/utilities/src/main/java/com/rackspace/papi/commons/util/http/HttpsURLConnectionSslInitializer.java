@@ -52,7 +52,7 @@ public class HttpsURLConnectionSslInitializer {
      * Implementation of the X509TrustManager that does not check any certificates.  WARNING: This
      * should only be used in a development environment!!!
      */
-    private class TrustingX509TrustManager implements X509TrustManager {
+    private static class TrustingX509TrustManager implements X509TrustManager {
 
         @Override
         public void checkClientTrusted(X509Certificate[] x509Certificates, String s) throws CertificateException {
