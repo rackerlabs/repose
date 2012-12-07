@@ -171,6 +171,10 @@
                 <code>validator.cfg.xml</code> in this chapter.</para>
         <para> To change your validation configuration, edit
                 <code>validator.cfg.xml</code> at any time. </para> 
+        <para>
+            The validation component uses your validation configuration to recognize whether an API request is valid. 
+            If an API request is not valid, the validation component handles it as specified in your response messaging configuration at <code>response-messaging.cfg.xml</code>. 
+        </para>
         <section xml:id="Customizing_Validation_Configuration-d1e375">
         <title>Customizing a Validation Configuration</title>
         <para> Your validation configuration in
@@ -262,27 +266,33 @@
         </section>
             <section xml:id="Customizing_Response_Messaging-d1e385">
                 <title>Customizing a Response Messaging Configuration</title>
-                <para> 
-                    The &PRODNAME; translation component uses 
-                    <link xlink:href="http://www.w3.org/TR/xslt20/">XSLT 2.0 stylesheets</link> to process messages. 
-                    One place to learn the basics of XLST is the 
-                    <link xlink:href="http://www.w3schools.com/xsl/xsl_w3celementref.asp">XSLT Elements Reference</link>.
-                </para>
                 <para>
-                    You can create and combine multiple stylesheets to accomplish the translation you require.
-                    To make stylesheets active within your &PRODNAME; 
-                    configuration, specify them in <code>validator.cfg.xml</code> as shown at 
-                    <xref linkend="Customizing_Validation_Configuration-d1e375"></xref>
+                    If a request fails validation, then an appropriate <link xlink:href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html">HTTP response code</link> is returned.  
+                    For example:
+                    <itemizedlist>
+                        <listitem><para>If the validator determines that the URI is invalid, a 404 is returned.</para></listitem>
+                        <listitem><para>If the validator determines that the URI is valid but the method is not appropriate for the URI, then a 405 is returned.</para></listitem>
+                    </itemizedlist>
+                    You can provide an appropriate error message along with the response code by configuring the response messaging service.
                 </para>
-                <para> A valid stylesheet resembles the following
-                example (or a more complex &amp; interesting example
-                but I need help to build it and &amp; lay callouts on it): </para>
+                <para> 
+                    The &PRODNAME; API validation component processes invalid requests based on the response messaging configuration at <code>response-messaging.cfg.xml</code>.
+                    To change the response messaging configuration, edit <code>response-messaging.cfg.xml</code> at any time.
+                </para>
+                <para> A valid response messaging configuration resembles the following
+                example: </para>
                 <example>
                     <title>Response Messaging Configuration</title>
 <programlisting language="xml">
 <xi:include href="samples/repose-apivalidation-response-messaging.cfg.xml" parse="text"/>
 </programlisting>
-                </example>
+                </example>    
+                <para>
+                    In this example, 
+                    only status code 404 receives additional message handling. 
+                    In the case of a 404 only, an XML response is formatted as XML (<code><![CDATA[<error-message>%M</error-message>]]></code>)
+                    and a JSON response is formatted as JSON (<code><![CDATA[{"error-message": "%M"}]]></code>).
+                </para>
         </section>
     </chapter>
     <chapter xml:id="Deployment-d1e105">

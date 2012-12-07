@@ -38,8 +38,8 @@
         <application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:xs="http://www.w3.org/2001/XMLSchema"
             xmlns="http://wadl.dev.java.net/2009/02"
-            xmlns:test="http://test.openrespose/test/v1.1"
-            xsi:schemaLocation="http://test.openrespose/test/v1.1
+            xmlns:test="http://test.openrepose/test/v1.1"
+            xsi:schemaLocation="http://test.openrepose/test/v1.1
             test.xsd"   >
             <grammars>
                 <include href="test.xsd" />
