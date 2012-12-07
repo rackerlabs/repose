@@ -1,6 +1,5 @@
 package com.rackspace.papi.service.reporting.repose;
 
-import com.google.common.base.Objects;
 import com.rackspace.papi.service.reporting.StatusCodeResponseStore;
 
 import java.util.Map;
@@ -135,24 +134,4 @@ public class ReposeInfoLogic implements ReposeInfo {
         return new ReposeInfoLogic(this);
     }
 
-    @Override
-    public boolean equals(Object o) {
-
-        if (this == o) {
-            return true;
-        }
-
-        if (o instanceof ReposeInfoLogic) {
-            ReposeInfoLogic other = (ReposeInfoLogic) o;
-
-            return Objects.equal(this.dataStore, other.dataStore);
-        }
-
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(dataStore);
-    }
 }
