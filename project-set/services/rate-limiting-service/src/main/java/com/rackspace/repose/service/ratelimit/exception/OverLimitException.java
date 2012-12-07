@@ -13,7 +13,7 @@ public class OverLimitException extends Exception {
    public OverLimitException(String msg, String user, Date nextAvailableTime, int currentLimitAmount, String configuredLimit) {
       super(msg);
       this.user = user;
-      this.nextAvailableTime = nextAvailableTime;
+      this.nextAvailableTime = (Date)nextAvailableTime.clone();
       this.currentLimitAmount = currentLimitAmount;
       this.configuredLimit = configuredLimit;
    }
@@ -23,7 +23,7 @@ public class OverLimitException extends Exception {
    }
 
    public Date getNextAvailableTime() {
-      return nextAvailableTime;
+      return (Date)nextAvailableTime.clone();
    }
 
    public int getCurrentLimitAmount() {
