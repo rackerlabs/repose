@@ -298,13 +298,26 @@
     <chapter xml:id="Deployment-d1e105">
         <title>Deployment</title>
         <para> 
-            fdasf
+            The validation filter is packaged in the extensions filter bundle.  
+            When you initially deploy &PRODNAME;, your filter directory should contain <code>filter-bundle-&lt;version&gt;.ear</code>.
+            Copy <code>extensions-filter-bundle-&lt;version&gt;.ear</code> to the same directory.
+            Then update your <code>system-model.cfg.xml</code> to add &lt;filter name="api-validator"/&gt; to your filter chain. 
+        </para>
+        <para>
+            Once <code>validator.cfg.xml</code> is in place, the EAR file is deployed, and the filter is added to the filter chain list, 
+            the filter will begin validating requests against the configured WADLs.
+        </para>
+        <para>
+            The validation filter is dependent upon third party libraries. 
+            When running on a servlet container such as Tomcat or Glassfish, you should increase the servlet container's <code>PermGen</code> memory size to accommodate the additional libraries used by the validator.
+            The ideal value depends upon your configuration; 
+            <code>export JAVA_OPTS="$JAVA_OPTS -XX:MaxPermSize=256m"</code> may be sufficient 
         </para>
     </chapter>
     <chapter xml:id="Optimization-d1e107">
         <title>Optimization</title>
         <para> 
-            fdasf
+            Talk about how to use all the .dot drawings here.
         </para>
     </chapter>
     <xi:include href="chapters/afterword.xml"/>
