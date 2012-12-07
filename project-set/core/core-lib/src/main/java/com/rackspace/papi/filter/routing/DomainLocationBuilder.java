@@ -29,6 +29,9 @@ public class DomainLocationBuilder implements LocationBuilder {
 
     @Override
     public DestinationLocation build(Destination destination, String uri, HttpServletRequest request) throws MalformedURLException, URISyntaxException {
+        if (!(destination instanceof DestinationCluster)) {
+            throw new IllegalArgumentException("Destination must be of type DestinationCluster");
+        }
         DestinationCluster domain = (DestinationCluster) destination;
         Node node = routingService.getRoutableNode(domain.getId());
         if (node == null) {

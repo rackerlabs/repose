@@ -28,7 +28,7 @@ public class TargetHostInfo {
     }
 
     private URL asUri(URI host) {
-        if (host.getScheme() == null || host.getHost() == null) {
+        if (host == null || host.getScheme() == null || host.getHost() == null) {
             return null;
         }
         try {
