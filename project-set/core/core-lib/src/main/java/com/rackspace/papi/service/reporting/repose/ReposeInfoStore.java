@@ -1,7 +1,5 @@
 package com.rackspace.papi.service.reporting.repose;
 
-import com.google.common.base.Objects;
-import com.google.common.collect.ImmutableMap;
 import com.rackspace.papi.service.reporting.StatusCodeResponseStore;
 import java.util.HashMap;
 import java.util.Map;
@@ -99,34 +97,4 @@ public class ReposeInfoStore {
         }
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-
-        if (o instanceof ReposeInfoStore) {
-            ReposeInfoStore other = (ReposeInfoStore) o;
-
-            return Objects.equal(this.maxRequestSize, other.maxRequestSize) &&
-                   Objects.equal(this.maxResponseSize, other.maxResponseSize) &&
-                   Objects.equal(this.minRequestSize, other.minRequestSize) &&
-                   Objects.equal(this.minResponseSize, other.minResponseSize) &&
-                   Objects.equal(this.accumulatedRequestSize, other.accumulatedRequestSize) &&
-                   Objects.equal(this.accumulatedResponseSize, other.accumulatedResponseSize) &&
-                   Objects.equal(this.totalRequests, other.totalRequests) &&
-                   Objects.equal(this.totalResponses, other.totalResponses) &&
-                   Objects.equal(this.statusCodeCounts, other.statusCodeCounts);
-        }
-
-        return false;
-    }
-
-    @Override
-    public int hashCode() {
-
-        return Objects.hashCode(maxRequestSize, maxResponseSize, minRequestSize, minResponseSize,
-                                accumulatedRequestSize, accumulatedResponseSize, totalRequests,
-                                totalResponses, statusCodeCounts);        
-    }
 }
