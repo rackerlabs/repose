@@ -42,7 +42,7 @@ class JerseyPropertiesConfigurator {
         return cc;
     }
 
-    private class ReposeHostnameVerifier implements HostnameVerifier {
+    private static class ReposeHostnameVerifier implements HostnameVerifier {
 
         @Override
         public boolean verify(String hostname, SSLSession sslSession) {

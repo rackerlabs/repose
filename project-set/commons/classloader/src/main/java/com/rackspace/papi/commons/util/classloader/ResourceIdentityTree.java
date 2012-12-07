@@ -56,7 +56,7 @@ public class ResourceIdentityTree implements ResourceRegistry, Cloneable {
 
    @SuppressWarnings({"CloneDoesntCallSuperClone"})
    @Override
-   protected Object clone() throws CloneNotSupportedException {
+   public Object clone() throws CloneNotSupportedException {
       return new ResourceIdentityTree(this);
    }
 }
