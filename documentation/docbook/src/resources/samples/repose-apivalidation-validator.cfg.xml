@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<validators multi-role-match="true" xmlns='http://openrepose.org/repose/validator/v1.0'>
+<validators 
+    multi-role-match="true" 
+    xmlns='http://openrepose.org/repose/validator/v1.0'>
     <!-- validate 3 WADLs: 2 external and 1 internal -->
     <!-- -->
     <!-- VALIDATOR 1: validate an external WADL defined at wadl= and specify preferences -->

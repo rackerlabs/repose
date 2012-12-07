@@ -143,15 +143,19 @@
         </tip>
         <section xml:id="Intro_API-000">
             <title>Understanding APIs and the API Validation Component of &PRODNAME;</title>
-            <para>fdaf</para>
+            <para>Explain the scope of what we can validate: only REST
+                API requests.</para>
         </section>
         <section xml:id="Intro_WADL-000">
             <title>Understanding WADL and the API Validation Component of &PRODNAME;</title>
-            <para>fdaf</para>
+            <para>Explain how we use WADL to describe what we are
+                validating.</para>
         </section>        
         <section xml:id="Intro_stylesheet-000">
             <title>Understanding Stylesheets and the API Validation Component of &PRODNAME;</title>
-            <para>fdaf</para>
+            <para>Explain how we use stylesheets to recognize what is
+                and is not valid and possibly to make the invalid
+                valid.</para>
         </section>
     </chapter>
     <chapter xml:id="Configuration-d1e365">
@@ -184,12 +188,12 @@
             <title>Validation Configuration</title>
             <programlistingco>
                 <areaspec>
-                    <area xml:id="cfg.content-type"
-                        units="linecolumn" coords="7 13"/>
-                    <area xml:id="cfg.accept"
-                        units="linecolumn" coords="8 13"/>
-                    <area xml:id="cfg.translated-content-type"
-                        units="linecolumn" coords="9 13"/>
+                    <area xml:id="cfg.validators"
+                        units="linecolumn" coords="3 1"/>
+                    <area xml:id="cfg.multi-role-match"
+                        units="linecolumn" coords="4 5"/>
+                    <area xml:id="cfg.validator"
+                        units="linecolumn" coords="9 5"/>
                     <area xml:id="cfg.style-sheets" units="linecolumn"
                         coords="10 13"/>
                     <area xml:id="cfg.style" units="linecolumn"
@@ -213,17 +217,21 @@
         <para> Key elements of the preceding example are labeled with
             callouts and explained below: </para>
         <calloutlist>
-            <callout arearefs="cfg.content-type">
-                <para> Content type specifies the response content types to which this style sheet chain should be applied.</para>
+            <callout arearefs="cfg.validators">
+                <para> Multiple validators can be defined within this <code>&lt;validators&gt;</code> wrapper.</para>
                 <para> </para>
             </callout>
-            <callout arearefs="cfg.accept">
-                <para><code>accept</code>
-                    Specifies the Accept type to which this chain should be applied. </para>
+            <callout arearefs="cfg.multi-role-match">
+                <para>
+                    When set to <code>true</code>, validation is attempted for the <code>X-Roles</code> header; validation is attempted for every match until one is valid.
+                </para>
+                <para>
+                    When set to <code>false</code> or not set, validation is attempted for the <code>X-Roles</code> header; validation is attempted for only the first match.
+                </para>
                 <para> </para>
             </callout>
-            <callout arearefs="cfg.translated-content-type">
-                <para> Specifies the content-type to be output by this chain. The response content-type is set to this if the style sheets are applied successfully.
+            <callout arearefs="cfg.validator">
+                <para> One validator is be defined within this <code>&lt;validator&gt;</code> wrapper.
                     </para>
                 <para> </para>
             </callout>
