@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <validators multi-role-match="true" xmlns='http://openrepose.org/repose/validator/v1.0'>
+    <!-- validate 3 WADLs: 2 external and 1 internal -->
+    <!-- -->
+    <!-- VALIDATOR 1: validate an external WADL defined at wadl= and specify preferences -->
     <validator
         role="default"
         default="true"
@@ -19,13 +22,18 @@
         use-saxon="false"
         enable-ignore-xsd-extension="false"
         join-xpath-checks="false"/>
+    <!-- -->
+    <!-- VALIDATOR 2: validate an external WADL defined at wadl= and accept defaults -->
     <validator role="other" default="false" wadl="file://a/different/wadl/file.wadl"/>
+    <!-- -->
+    <!-- VALIDATOR 3: validate a WADL included here within <application> and specify prefences -->
     <validator
         role="embedded"
         default="false"
         check-well-formed="false"
-        check-xsd-grammer="true"
+        check-xsd-grammar="true"
         check-elements="true"
+        check-header="true"
         use-saxon="false">
         <application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:xs="http://www.w3.org/2001/XMLSchema"

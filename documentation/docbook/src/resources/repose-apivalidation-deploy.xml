@@ -64,7 +64,7 @@
         </copyright>
         <releaseinfo>v2.4.1</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2012-12-04</pubdate>
+        <pubdate>2012-12-11</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -77,10 +77,13 @@
         </abstract>
         <revhistory>
             <revision>
-                <date>2012-12-04</date>
+                <date>2012-12-11</date>
                 <revdescription>
                     <itemizedlist spacing="compact">
-                        <listitem><para>Initial release as internal draft.</para></listitem>
+                        <listitem>
+                            <para>Initial release as internal
+                                draft.</para>
+                        </listitem>
                     </itemizedlist>
                 </revdescription>
             </revision>
@@ -121,29 +124,13 @@
                 <link
                 xlink:href="https://github.com/rackspace/repose/blob/master/project-set/core/core-lib/src/main/resources/META-INF/schema/examples/system-model.cfg.xml"
                 >basic system model configuration</link> in GitHub. </para>
-        <para> &PRODNAME; uses <link
-                xlink:href="http://saxon.sourceforge.net/">Saxon
-                9.3</link> to perform validation by applying <link
-                xlink:href="http://www.w3.org/TR/xslt20/">XSLT 2.0
-                stylesheets</link> to requests and responses. In
-            addition to adding the translation filter to your
-            configuration, you must create and customize your
-            stylesheets to define the changes you wish the translation
-            filter to perform. </para>
-         <para> The &PRODNAME; translation component performs two
-            categories of behavior: <itemizedlist>
-                <listitem>
-                    <para>
-                        <link linkend="Change_Format-d1e105"
-                            >changing the format of a message</link>
-                        (translating between JSON and XML)</para>
-                </listitem>
-                <listitem>
-                    <para>
-                        <link linkend="Change_Content-d1e125"
-                            >changing the content of a message</link>
-                        (adding or deleting elements)</para>
-                </listitem>
+        <para> 
+            To understand the &PRODNAME; API validation filter,
+            you should understand several related concepts:
+            <itemizedlist>
+                <listitem><para>Application Programming Interface (API)</para></listitem>
+                <listitem><para>Web Application Description Language (WADL)</para></listitem>
+                <listitem><para>stylesheets</para></listitem>
             </itemizedlist>
         </para>
         <tip>
@@ -154,6 +141,18 @@
                 annotated example of <code>validator.cfg.xml</code> in
                     <xref linkend="Configuration-d1e365"/>. </para>
         </tip>
+        <section xml:id="Intro_API-000">
+            <title>Understanding APIs and the API Validation Component of &PRODNAME;</title>
+            <para>fdaf</para>
+        </section>
+        <section xml:id="Intro_WADL-000">
+            <title>Understanding WADL and the API Validation Component of &PRODNAME;</title>
+            <para>fdaf</para>
+        </section>        
+        <section xml:id="Intro_stylesheet-000">
+            <title>Understanding Stylesheets and the API Validation Component of &PRODNAME;</title>
+            <para>fdaf</para>
+        </section>
     </chapter>
     <chapter xml:id="Configuration-d1e365">
         <title>Configuration</title>
@@ -172,7 +171,7 @@
                 <code>validator.cfg.xml</code> in this chapter.</para>
         <para> To change your validation configuration, edit
                 <code>validator.cfg.xml</code> at any time. </para> 
-        <section xml:id="Customizing_Translation_Configuration-d1e375">
+        <section xml:id="Customizing_Validation_Configuration-d1e375">
         <title>Customizing a Validation Configuration</title>
         <para> Your validation configuration in
                     <code>validator.cfg.xml</code> will resemble the
@@ -261,8 +260,8 @@
             </callout>
         </calloutlist>
         </section>
-            <section xml:id="Customizing_Translation_Stylesheet-d1e385">
-                <title>Customizing a Translation Stylesheet</title>
+            <section xml:id="Customizing_Response_Messaging-d1e385">
+                <title>Customizing a Response Messaging Configuration</title>
                 <para> 
                     The &PRODNAME; translation component uses 
                     <link xlink:href="http://www.w3.org/TR/xslt20/">XSLT 2.0 stylesheets</link> to process messages. 
@@ -272,357 +271,31 @@
                 <para>
                     You can create and combine multiple stylesheets to accomplish the translation you require.
                     To make stylesheets active within your &PRODNAME; 
-                    configuration, specify them in <code>translation.cfg.xml</code> as shown at 
-                    <xref linkend="Customizing_Translation_Configuration-d1e375"></xref>
+                    configuration, specify them in <code>validator.cfg.xml</code> as shown at 
+                    <xref linkend="Customizing_Validation_Configuration-d1e375"></xref>
                 </para>
                 <para> A valid stylesheet resembles the following
                 example (or a more complex &amp; interesting example
                 but I need help to build it and &amp; lay callouts on it): </para>
                 <example>
-                    <title>Translation Configuration</title>
+                    <title>Response Messaging Configuration</title>
 <programlisting language="xml">
 <xi:include href="samples/repose-apivalidation-response-messaging.cfg.xml" parse="text"/>
 </programlisting>
                 </example>
         </section>
     </chapter>
-    <chapter xml:id="Change_Format-d1e105">
-        <title>Changing a Message's Format</title>
+    <chapter xml:id="Deployment-d1e105">
+        <title>Deployment</title>
         <para> 
-            You can translate a message from XML to JSON or from JSON to JSONx, which resembles XML.
+            fdasf
         </para>
-        <section xml:id="Translate_XML2JSON-d1e115">
-            <title>Translating XML to JSON</title>
-            <para> how? wiki shows JSON 2 JSONx 2 JSON. can I start
-                with straight XML?</para>
-        </section>
-        <section xml:id="Translate_JSON2JSONx-d1e125">
-            <title>Translating JSON to JSONx</title>
-            <para> 
-                You can use the 
-                &PRODNAME; translation component to turn all elements found in JSON input into XML-shaped JSONx output.            
-                <table border="1" frame="box">
-                    <?dbfo keep-together="always"?>
-                    <caption>JSON Input Becomes JSONx Output</caption>
-                    <thead>
-                        <tr>
-                            <th>Input: JSON</th>
-                            <th>Translation</th>
-                            <th>Output: JSONx</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <programlisting language="javascript">
-<![CDATA[        
-{"field1": "value1", "field2": "value2"}
-]]>
-</programlisting>
-                            </td>
-                            <td>Apply stylesheet as
-                                defined in translation
-                                configuration.</td>
-                            <td>
-                                <!-- if no CDATA here, DocBook tries & fails to interpret <json:object> as markup -->
-                                <programlisting language="xml">
-<![CDATA[    
-<json:object xmlns:json="http://www.ibm.com/xmlns/prod/2009/jsonx" 
-             xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-   <json:string name="field1">value1</json:string>
-   <json:string name="field2">value2</json:string>
-</json:object>
-]]>
-</programlisting>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </para>
-            <para> To make this possible, create a stylesheet to
-                define the transformation, and call for that
-                stylesheet in your translation configuration,
-                    <code>translation.cfg.xml</code>. To create the
-                result shown above, fully translating JSON input to
-                JSONx output, create a stylesheet and a translation
-                configuration that includes the stylesheet as shown
-                below: 
-                <table border="1" frame="box">
-                    <?dbfo keep-together="always"?>
-                    <caption>Stylesheet Applied by Translation
-                        Configuration: Translating JSON to
-                        JSONx</caption>
-                    <thead>
-                        <tr>
-                            <th>Stylesheet: identity.xsl</th>
-                            <th>Translation Configuration:
-                                translation.cfg.xml</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-<programlisting language="xml">
-<xi:include href="samples/repose-translation-identity.xsl" parse="text"/>
-</programlisting>
-                            </td>
-                            <td>
-<programlisting language="xml">
-<xi:include href="samples/repose-translation-cfg-json2jsonx.xml" parse="text"/>
-</programlisting>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </para>
-            <para> In the stylesheet, <code>&lt;xsl:copy-of
-                    select="."/&gt;</code> asks for a copy of the
-                entire document. In the translation configuration, the
-                stylesheet is called for by its name
-                    (<code>identity.xsl</code>) ;
-                    <code>content-type</code> identifies the expected
-                input as JSON and <code>translated-content-type</code>
-                identifies the expected output as XML.</para>
-            <para>
-                You can use cURL to confirm
-                that you have the stylesheet and the translation configuration set up correctly; if they are correct,
-                the JSON input you provide will be echoed as JSONx. 
-                <example>
-                    <title>cURL Confirming Translation from JSON to JSONx</title>
-<programlisting language="xml">
-<xi:include href="samples/repose-translation-curl-confirm-json2jsonx.xml" parse="text"/>
-</programlisting>
-                </example>
-            </para>
-        </section>
     </chapter>
-    <chapter xml:id="Change_Content-d1e125">
-        <title>Changing a Message's Content</title>
-        <para> You can use the translation component to rewrite the
-            same message with some content added or removed. </para>
-        <section xml:id="Adding_Content-d1e127">
-            <title>Adding Content to a Message</title>
-            <para> You can use the &PRODNAME; translation component to
-                add an element to a copy of an incoming message so
-                that element is included when the copy is forwarded. 
-                <table border="1" frame="box">
-                    <?dbfo keep-together="always"?>
-                    <caption>XML Input Becomes Shorter XML
-                        Output</caption>
-                    <thead>
-                        <tr>
-                            <th>Input: Original XML Message</th>
-                            <th>Translation</th>
-                            <th>Output: Shortened XML Message</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <programlisting language="javascript">
-<![CDATA[        
-<a>Stuff</a>
-]]>
-</programlisting>
-                            </td>
-                            <td>Apply stylesheets as defined in
-                                translation configuration.</td>
-                            <td>
-                                <!-- if no CDATA here, DocBook tries & fails to interpret <json:object> as markup -->
-                                <programlisting language="xml">
-<![CDATA[    
-<add-me><a>Stuff</a></add-me>
-]]>
-</programlisting>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </para>
-            <para> To make this possible, create stylesheets to define
-                the transformations, and call for those stylesheets in
-                your translation configuration,
-                <code>translation.cfg.xml</code>. To create the
-                result shown above, deleting the
-                <code>remove-me</code> element, create a
-                stylesheet asking for a complete copy,
-                (<code>identify.xsl</code>), another stylesheet
-                asking for addition of specific content to the copy
-                (<code>add-element.xsl</code>), and a
-                translation configuration that includes both
-                stylesheets as shown below: <table border="1"
-                    frame="box">
-                    <?dbfo keep-together="always"?>
-                    <caption>Stylesheets Applied by Translation
-                        Configuration: Adding Content to an XML
-                        Message</caption>
-                    <thead>
-                        <tr>
-                            <th>Stylesheets: identity.xsl +
-                                add-element.xsl</th>
-                            <th>Translation Configuration:
-                                translation.cfg.xml</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <programlisting language="xml">
-<xi:include href="samples/repose-translation-identity.xsl" parse="text"/>
-</programlisting>
-                                <programlisting language="xml">
-<xi:include href="samples/repose-translation-add-element.xsl" parse="text"/>
-</programlisting>
-                            </td>
-                            <td>
-                                <programlisting language="xml">
-<xi:include href="samples/repose-translation-cfg-add.xml" parse="text"/>
-</programlisting>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </para>
-            <para> In the <code>identify.xsl</code> stylesheet,
-                    <code>&lt;xsl:copy-of select="."/&gt;</code> asks
-                for a copy of the entire document. In the
-                    <code>add-element.xsl</code> stylesheet,
-                    <code>add-me</code> asls for anything marked with
-                that wrapper to be added to the message as another
-                wrapper around the entire message. In the translation
-                configuration, the stylesheets are called for by their
-                names (<code>identity.xsl</code> and
-                    <code>add-element.xsl</code>);
-                    <code>content-type</code> identifies the expected
-                input as XHTML+XML and
-                    <code>translated-content-type</code> identifies
-                the expected output as XML;
-                    <code>code-regex="2[\d]{2}</code> applies this
-                stylesheet chain only to responses with a status code
-                in the range of 2xx.</para>
-            <para>
-                You can use cURL to confirm
-                that you have the stylesheet and the translation configuration set up correctly; if they are correct,
-                the element you asked to add will be echoed in the output. 
-                <example>
-                    <title>cURL Confirming Addition to Message</title>
-                    <programlisting language="xml">
-<xi:include href="samples/repose-translation-curl-confirm-add.xml" parse="text"/>
-</programlisting>
-                </example>
-            </para>
-        </section>
-        <section xml:id="Deleting_Content-d1e129">
-            <title>Deleting Content from a Message</title>
-            <para> You can use the &PRODNAME; translation component to
-                delete an element from a copy of an incoming message
-                so that element is omitted when the copy is forwarded. 
-            <table border="1" frame="box">
-                <?dbfo keep-together="always"?>
-                <caption>XML Input Becomes Shorter XML
-                        Output</caption>
-                <thead>
-                    <tr>
-                        <th>Input: Original XML Message</th>
-                        <th>Translation</th>
-                        <th>Output: Shortened XML Message</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>
-                            <programlisting language="javascript">
-<![CDATA[        
-<a><remove-me>test</remove-me>Stuff</a>
-]]>
-</programlisting>
-                        </td>
-                        <td>Apply stylesheets as defined in
-                                translation configuration.</td>
-                        <td>
-                            <!-- if no CDATA here, DocBook tries & fails to interpret <json:object> as markup -->
-                            <programlisting language="xml">
-<![CDATA[    
-<a>Stuff</a>
-]]>
-</programlisting>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-            </para>
-            <para> To make this possible, create stylesheets to define
-                the transformations, and call for those stylesheets in
-                your translation configuration,
-                    <code>translation.cfg.xml</code>. To create the
-                result shown above, deleting the
-                    <code>remove-me</code> element, create a
-                stylesheet asking for a complete copy,
-                    (<code>identify.xsl</code>), another stylesheet
-                asking for removal of specific content from the copy
-                    (<code>remove-element.xsl</code>), and a
-                translation configuration that includes both
-                stylesheets as shown below: <table border="1"
-                    frame="box">
-                    <?dbfo keep-together="always"?>
-                    <caption>Stylesheets Applied by Translation
-                        Configuration: Deleting Content from an XML
-                        Message</caption>
-                    <thead>
-                        <tr>
-                            <th>Stylesheets: identity.xsl +
-                                remove-element.xsl</th>
-                            <th>Translation Configuration:
-                                translation.cfg.xml</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <programlisting language="xml">
-<xi:include href="samples/repose-translation-identity.xsl" parse="text"/>
-</programlisting>
-                                <programlisting language="xml">
-<xi:include href="samples/repose-translation-remove-element.xsl" parse="text"/>
-</programlisting>
-                            </td>
-                            <td>
-                                <programlisting language="xml">
-<xi:include href="samples/repose-translation-cfg-remove.xml" parse="text"/>
-</programlisting>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </para>
-            <para> In the <code>identify.xsl</code> stylesheet,
-                    <code>&lt;xsl:copy-of select="."/&gt;</code> asks
-                for a copy of the entire document. In the
-                    <code>remove-element.xsl</code> stylesheet,
-                    <code>remove-me</code> asls for anything marked
-                with that wrapper to be deleted. In the translation
-                configuration, the stylesheets are called for by their
-                names (<code>identity.xsl</code> and
-                    <code>remove-element.xsl</code>);
-                    <code>content-type</code> identifies the expected
-                input as XML and <code>translated-content-type</code>
-                identifies the expected output as XML;
-                    <code>code-regex="2[\d]{2}</code> applies this
-                stylesheet chain only to responses with a status code
-                in the range of 2xx.</para>
-            <para>
-                You can use cURL to confirm
-                that you have the stylesheet and the translation configuration set up correctly; if they are correct,
-                the element you asked to remove will be missing from the output. 
-                <example>
-                    <title>cURL Confirming Deletion from
-                        Message</title>
-                    <programlisting language="xml">
-<xi:include href="samples/repose-translation-curl-confirm-delete.xml" parse="text"/>
-</programlisting>
-                </example>
-            </para>
-        </section>
+    <chapter xml:id="Optimization-d1e107">
+        <title>Optimization</title>
+        <para> 
+            fdasf
+        </para>
     </chapter>
     <xi:include href="chapters/afterword.xml"/>
 </book>
