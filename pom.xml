@@ -4,7 +4,7 @@
 
     <groupId>com.rackspace.papi</groupId>
     <artifactId>papi</artifactId>
-    <version>2.4.2-SNAPSHOT</version>
+    <version>2.5.1-SNAPSHOT</version>
 
     <name>Repose</name>
 
