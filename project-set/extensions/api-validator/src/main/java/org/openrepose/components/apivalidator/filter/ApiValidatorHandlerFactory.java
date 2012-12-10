@@ -50,7 +50,9 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
             }
 
             for (ValidatorInfo info : validators) {
-                manager.unsubscribeFrom(info.getUri(), wadlListener);
+                if (StringUtilities.isNotBlank(info.getUri())) {
+                    manager.unsubscribeFrom(info.getUri(), wadlListener);
+                }
             }
         }
     }
@@ -107,7 +109,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         if (wadl == null) {
             return;
         }
-        
+
         LOG.info("Watching WADL: " + wadl);
         manager.subscribeTo(wadl, wadlListener, new GenericResourceConfigurationParser());
     }
@@ -128,10 +130,10 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
 
             for (ValidatorItem validatorItem : validatorConfiguration.getValidator()) {
                 Config config = new ValidatorConfigurator(validatorItem, multiRoleMatch, configRoot).getConfiguration();
-                ValidatorInfo validator = 
-                        validatorItem.getAny() != null?
-                        new ValidatorInfo(validatorItem.getRole(), (Element)validatorItem.getAny(), getWadlPath(this.config), config):
-                        new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), config);
+                ValidatorInfo validator =
+                        validatorItem.getAny() != null
+                        ? new ValidatorInfo(validatorItem.getRole(), (Element) validatorItem.getAny(), getWadlPath(this.config), config)
+                        : new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), config);
 
                 validators.add(validator);
                 if (validatorItem.isDefault() && defaultValidator == null) {
