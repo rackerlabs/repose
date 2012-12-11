@@ -18,6 +18,7 @@
     <modules>
         <module>dummy-filter-a</module>
         <module>dummy-filter-b</module>
+        <module>dummy-filter-c</module>
     </modules>
     
     <dependencyManagement>
