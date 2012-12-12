@@ -141,13 +141,10 @@
                 annotated example of <code>validator.cfg.xml</code> in
                     <xref linkend="Configuration-d1e365"/>. </para>
         </tip>
-        <section xml:id="Intro_API-000">
-            <title>Understanding APIs and the API Validation Component of &PRODNAME;</title>
-            <para>Explain the scope of what we can validate: only REST
-                API requests.</para>
-        </section>
         <section xml:id="Intro_WADL-000">
             <title>Understanding WADL and the API Validation Component of &PRODNAME;</title>
+            <para>Explain the scope of what we can validate: only REST
+                API requests.</para>
             <para>Explain how we use WADL to describe what we are
                 validating.</para>
         </section>        
@@ -156,6 +153,7 @@
             <para>Explain how we use stylesheets to recognize what is
                 and is not valid and possibly to make the invalid
                 valid.</para>
+            <para>Explain how the validation component relates to the translation component.</para>
         </section>
     </chapter>
     <chapter xml:id="Configuration-d1e365">
@@ -482,9 +480,22 @@
     </chapter>
     <chapter xml:id="Optimization-d1e107">
         <title>Optimization</title>
-        <para> 
-            Talk about how to use all the .dot drawings here.
+        <para>
+            You can make choices in your validation configuration to optimize performance. 
+            You can use what you learn from the validator to improve the design of your API.
         </para>
+        <section xml:id="Optimizing_Validator_Performance-d1e109">
+            <title>Optimizing Performance of the API Validation Component</title>
+            <para>
+                Talk about the items mentioned as optimizations in the config example.
+            </para>
+        </section>
+        <section xml:id="Optimizing_API_Design-d1e111">
+            <title>Using API Validation Results to Optimize an API</title>
+            <para>
+                Talk about how to use all the .dot drawings to improve the WADL and the API it describes.
+            </para>
+        </section>
     </chapter>
     <xi:include href="chapters/afterword.xml"/>
 </book>
