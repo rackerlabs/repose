@@ -147,6 +147,7 @@
                     </personname>
                 </author>
                 <orgname>
+                    World Wide Web Consortium (W3C)
                 </orgname>
                 <title>Extensible Stylesheet Language Family (XSL), The 
                     <link xlink:href="http://www.w3.org/Style/XSL/">http://www.w3.org/Style/XSL/</link>
@@ -412,6 +413,26 @@
                         incorporates many of the ideas introduced here, 
                         including use of the XML documentation pipeline to validate an API as described by a WADL
                         and generation of a visual representation of the API as a state machine.
+                    </para>
+                </abstract>
+            </biblioentry>
+            <biblioentry xml:id="WADLSPEC">
+                <author>
+                    <personname>
+                        <firstname></firstname>
+                        <surname></surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    World Wide Web Consortium (W3C)
+                </orgname>
+                <title>Web Application Description Language 
+                    <link xlink:href="http://www.w3.org/Submission/wadl/">http://www.w3.org/Submission/wadl/</link>
+                </title>
+                <abstract>
+                    <para> 
+                        The API validation component actually validates a WADL that describes an API.
                     </para>
                 </abstract>
             </biblioentry>
