@@ -386,6 +386,35 @@
                     </para>
                 </abstract>
             </biblioentry>
+            <biblioentry xml:id="VALIDREST">
+                <author>
+                    <personname>
+                        <firstname>Jorge Luis</firstname>
+                        <surname>Williams</surname>
+                        <othername role="mi">L</othername>
+                    </personname>
+                </author>
+                <author>
+                    <personname>
+                        <firstname>David</firstname>
+                        <surname>Cramer</surname>
+                        <othername role="mi"></othername>
+                    </personname>
+                </author>
+                <orgname>
+                    Balisage: The Markup Conference
+                </orgname>
+                <title>Using XProc, XSLT 2.0, and XSD 1.1 to validate RESTful services
+                    <link xlink:href="http://www.balisage.net/Proceedings/vol8/html/Williams01/BalisageVol8-Williams01.html">http://www.balisage.net/Proceedings/vol8/html/Williams01/BalisageVol8-Williams01.html</link>
+                </title>   
+                <abstract>
+                    <para> &PRODNAME;'s API validation component
+                        incorporates many of the ideas introduced here, 
+                        including use of the XML documentation pipeline to validate an API as described by a WADL
+                        and generation of a visual representation of the API as a state machine.
+                    </para>
+                </abstract>
+            </biblioentry>
             <biblioentry xml:id="XSLTSPEC">
                 <author>
                     <personname>
