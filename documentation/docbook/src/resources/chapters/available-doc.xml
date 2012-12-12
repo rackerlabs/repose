@@ -66,14 +66,30 @@
         <para>
             For the latest information about &PRODNAME;, 
             visit 
-            the &PRODNAME; website at <link xlink:href="http://openrepose.org/">http://openrepose.org/</link>
-            and 
             the &PRODNAME; wiki at <link xlink:href="http://wiki.openrepose.org/">http://wiki.openrepose.org/</link>.
         </para>
-        <para> &PRODNAME; is an open-source project. You are
-            welcome to examine and contribute to our GitHub source
-            repository at <link
-                xlink:href="https://github.com/rackspace/repose/"
-                >https://github.com/rackspace/repose/</link>. </para>
+        <para>
+            In the &PRODNAME; wiki, visit <link xlink:href="http://wiki.openrepose.org/display/REPOSE/Release+Notes">Release Notes</link> frequently for updates on new features, fixes, and known issues.
+            If you subscribe to the <link xlink:href="http://openrepose.org/mailing_list.html">&PRODNAME; Announcements list</link>,
+            we will email you a copy of the Release Notes for every new release. 
+        </para>
+        <para>
+            You can ask for automatic notification by email when a wiki page changes. 
+            To set this up, open the page that interests you. 
+            At the upper right of that page, pull down the <code>Tools</code> menu. On the menu, click <code>Watch</code>.
+        </para>
     </tip>
+    <para>
+        The &PRODNAME; website at <link xlink:href="http://openrepose.org/">http://openrepose.org/</link>
+        offers links to the full <link xlink:href="http://openrepose.org/documentation.html">&PRODNAME; documentation set</link>. 
+        It also offers a <link xlink:href="http://openrepose.org/download.html">downloadable tutorial</link>
+        and links to <link xlink:href="http://openrepose.org/news.html">&PRODNAME;-related blog postings</link>.
+    </para>
+    <para> 
+        &PRODNAME; is an open-source project. You are
+        welcome to examine and contribute to our GitHub source
+        repository at <link
+            xlink:href="https://github.com/rackspace/repose/"
+            >https://github.com/rackspace/repose/</link>. 
+    </para>
 </section>

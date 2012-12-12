@@ -308,10 +308,13 @@
                 <para> </para>
             </callout>
             <callout arearefs="cfg.check-xsd-grammar">
-                <para>
-                    When set to <code>true</code>, <code>check-xsd-grammar</code> requires validation that the specified WADL's conforms to the XSD grammar specified within the WADL.
-                    In this example, in the validator labeled "VALIDATOR 3", you can see a grammar stylesheet specified within the embedded WADL.
-                </para>
+                <para> When set to <code>true</code>,
+                            <code>check-xsd-grammar</code> requires
+                        validation that the specified WADL conforms to
+                        the XSD grammar specified within the WADL. In
+                        this example, in the validator labeled
+                        "VALIDATOR 3", you can see a grammar
+                        stylesheet specified within the embedded WADL. </para>
                 <para> </para>
             </callout>
             <callout arearefs="cfg.check-plain-params">
