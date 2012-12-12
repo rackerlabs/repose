@@ -28,14 +28,14 @@
     <!-- VALIDATOR 2: validate an external WADL defined at wadl= and accept defaults -->
     <validator role="other" default="false" wadl="file://a/different/wadl/file.wadl"/>
     <!-- -->
-    <!-- VALIDATOR 3: validate a WADL included here within <application> and specify prefences -->
+    <!-- VALIDATOR 3: validate a WADL included here within <application> and specify preferences -->
     <validator
         role="embedded"
         default="false"
         check-well-formed="false"
         check-xsd-grammar="true"
         check-elements="true"
-        check-header="true"
+        check-headers="true"
         use-saxon="false">
         <application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns:xs="http://www.w3.org/2001/XMLSchema"

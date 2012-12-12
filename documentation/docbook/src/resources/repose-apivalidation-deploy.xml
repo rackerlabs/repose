@@ -189,25 +189,47 @@
             <programlistingco>
                 <areaspec>
                     <area xml:id="cfg.validators"
-                        units="linecolumn" coords="3 1"/>
+                        units="linecolumn" coords="4 1"/>
                     <area xml:id="cfg.multi-role-match"
-                        units="linecolumn" coords="4 5"/>
+                        units="linecolumn" coords="5 5"/>
                     <area xml:id="cfg.validator"
-                        units="linecolumn" coords="9 5"/>
-                    <area xml:id="cfg.style-sheets" units="linecolumn"
-                        coords="10 13"/>
-                    <area xml:id="cfg.style" units="linecolumn"
-                        coords="11 17"/>
-                    <area xml:id="cfg.href" units="linecolumn"
-                        coords="11 24"/>
-                    <area xml:id="cfg.code-regex" units="linecolumn"
-                        coords="16 13"/>
-                    <area xml:id="cfg.param" units="linecolumn"
-                        coords="26 21"/>
-                    <area xml:id="cfg.name" units="linecolumn"
-                        coords="27 25"/>
-                    <area xml:id="cfg.value" units="linecolumn"
-                        coords="28 25"/>
+                        units="linecolumn" coords="10 5"/>
+                    <area xml:id="cfg.role" 
+                        units="linecolumn" coords="11 9"/>
+                    <area xml:id="cfg.default" 
+                        units="linecolumn" coords="12 9"/>
+                    <area xml:id="cfg.wadl" 
+                        units="linecolumn" coords="13 9"/>
+                    <area xml:id="cfg.dot-output" 
+                        units="linecolumn" coords="14 9"/>
+                    <area xml:id="cfg.check-well-formed" 
+                        units="linecolumn" coords="15 9"/>
+                    <area xml:id="cfg.check-xsd-grammar" 
+                        units="linecolumn" coords="16 9"/>
+                    <area xml:id="cfg.check-elements" 
+                        units="linecolumn" coords="17 9"/>
+                    <area xml:id="cfg.check-plain-params" 
+                        units="linecolumn" coords="18 9"/>
+                    <area xml:id="cfg.do-xsd-grammar-transform" 
+                        units="linecolumn" coords="19 9"/>
+                    <area xml:id="cfg.enable-pre-process-extension" 
+                        units="linecolumn" coords="20 9"/>
+                    <area xml:id="cfg.remove-dups" 
+                        units="linecolumn" coords="21 9"/>
+                    <area xml:id="cfg.xpath-version" 
+                        units="linecolumn" coords="22 9"/>
+                    <area xml:id="cfg.validate-checker" 
+                        units="linecolumn" coords="23 9"/>
+                    <area xml:id="cfg.xsl-engine" 
+                        units="linecolumn" coords="24 9"/>
+                    <area xml:id="cfg.use-saxon" 
+                        units="linecolumn" coords="25 9"/>
+                    <area xml:id="cfg.enable-ignore-xsd-extension" 
+                        units="linecolumn" coords="26 9"/>
+                    <area xml:id="cfg.join-xpath-checks" 
+                        units="linecolumn" coords="27 9"/>
+                    <area xml:id="cfg.check-headers" 
+                        units="linecolumn" coords="39 9"/>
                 </areaspec>
                 <programlisting language="xml">
 <xi:include href="samples/repose-apivalidation-validator.cfg.xml" parse="text"/>
@@ -225,49 +247,176 @@
                 <para>
                     When set to <code>true</code>, validation is attempted for the <code>X-Roles</code> header; validation is attempted for every match until one is valid.
                 </para>
+                <para> Otherwise, validation is attempted for the
+                            <code>X-Roles</code> header and validation is
+                        attempted for only the first match. </para>
                 <para>
-                    When set to <code>false</code> or not set, validation is attempted for the <code>X-Roles</code> header; validation is attempted for only the first match.
+                    If no matches are found, only the validator which specifies <code>default="true"</code> is used.
+                </para>
+                <para>
+                    If matches are found but none of them are valid, only the validator which specifies <code>default="true"</code> is used.
                 </para>
                 <para> </para>
             </callout>
             <callout arearefs="cfg.validator">
-                <para> One validator is be defined within this <code>&lt;validator&gt;</code> wrapper.
+                <para> One validator is defined within this <code>&lt;validator&gt;</code> wrapper.
                     </para>
                 <para> </para>
             </callout>
-            <callout arearefs="cfg.style-sheets">
-                <para> This element contains the list of style sheets to be applied for this translation chain.</para>
+            <callout arearefs="cfg.role">
+                <para> Match this validator to requests according to the <code>X-Roles</code> header with highest quality value.</para>
                 <para> </para>
             </callout>
-            <callout arearefs="cfg.style">
-                <para> This element specifies one style sheet within the chain. </para>
-                <para> </para>
-            </callout>
-            <callout arearefs="cfg.href">
-                <para> This is a URI which specifies the location of the style sheet. 
-                    If a relative path is specified, then this will be relative to the &PRODNAME; configuration directory. </para>
-                <para> </para>
-            </callout>
-            <callout arearefs="cfg.code-regex">
+            <callout arearefs="cfg.default">
+                <para>  When set to <code>true</code>, match this validator to requests which do not pass an <code>X-Roles</code> header. </para>
                 <para>
-                    <code>code-regex</code> is a regular express (regex) specifying the response codes to which this style sheet chain should be applied. 
-                    For example, <code>4[\d]{2}</code> matches all response codes in the range from 400 to 499.</para>
+                    Only one validator can specify <code>default="true"</code>.
+                    In this example, in the validator labeled "VALIDATOR 1", you can see the validator identified as the default.
+                </para>
                 <para> </para>
             </callout>
-            <callout arearefs="cfg.param">
+            <callout arearefs="cfg.wadl">
+                <para> This attribute specifies the location of the WADL to be examined by this validator. 
+                    If a relative path is specified, then this is a URI relative to the &PRODNAME; configuration directory. 
+                    To validate a WADL outside the current file system, specify the URL of that WADL. 
+                </para>
+                <para>This attribute is
+                    <emphasis>optional</emphasis>.</para>
                 <para>
-                    A style sheet can accept any number of parameters. 
-                    These parameters will be passed into the transform associated with the style sheet. </para>
+                    If you do not use the <code>wadl</code> attribute to specify the location of an external WADL, you must embed a WADL within the <code>validator</code> element.
+                    In this example, in the validator labeled "VALIDATOR 3", you can see an embedded WADL beginning at <code>&lt;application&gt;</code>.
+                </para>
                 <para> </para>
             </callout>
-            <callout arearefs="cfg.name">
+            <callout arearefs="cfg.dot-output">
                 <para>
-                    This is the name of a parameter to be passed in. </para>
+                    This attribute specifies the location of a visual representation to be generated by this validator, describing the validated WADL with a drawing in .dot format. 
+                    If a relative path is specified, then this is a URI relative to the &PRODNAME; configuration directory. 
+                    &PRODNAME; must have write access to the location specified by <code>dot-output</code>.
+                </para>
                 <para> </para>
             </callout>
-            <callout arearefs="cfg.value">
+            <callout arearefs="cfg.check-well-formed">
                 <para>
-                    This is the value of a parameter to be passed in. </para>
+                    When set to <code>true</code>, <code>check-well-formed</code> requires validation that the specified WADL's XML is well-formed.</para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.check-xsd-grammar">
+                <para>
+                    When set to <code>true</code>, <code>check-xsd-grammar</code> requires validation that the specified WADL's conforms to the XSD grammar specified within the WADL.
+                    In this example, in the validator labeled "VALIDATOR 3", you can see a grammar stylesheet specified within the embedded WADL.
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.check-plain-params">
+                <para>
+                    When set to <code>true</code>, <code>check-plain-params</code> requires validation of plain parameters.
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.do-xsd-grammar-transform">
+                <para>
+                    When set to <code>true</code>, <code>do-xsd-grammar-transform</code> transforms the WADL's XML after validation. 
+                    One use of this transformation is to fill in values that would otherwise be allowed to default. 
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.enable-pre-process-extension">
+                <para>
+                    When set to <code>true</code>, <code>enable-pre-process-extension</code> enables the pre-process extension for an unknown purpose. 
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.remove-dups">
+                <para>
+                    When set to <code>true</code>, <code>remove-dups</code> prevents duplicate nodes in the (state?) machine. 
+                    When validation encounters a duplicate node, an unknown result occurs. 
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.xpath-version">
+                <para>
+                    <code>xpath-version</code> specifies the XPath implementation used in validating the WADL. 
+                </para>
+                <para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>
+                                When set to <code>1</code>, <code>xpath-version</code> is the Xalan implementation. 
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para>
+                                When set to <code>2</code>, <code>xpath-version</code> is the Saxon implementation. 
+                                To use Saxon with schema awareness, you must have a Saxon license.
+                            </para>
+                        </listitem>
+                    </itemizedlist>
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.validate-checker">
+                <para>
+                    When set to <code>true</code>, <code>validate-checker</code> runs pre-validation code to validate that the validator was generated correctly. 
+                    If the validator was not generated correctly, perhaps the rest of the process stops. 
+                    What would make it be incorrect? 
+                    What if it's incorrect and I didn't say to check for that?
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.xsl-engine">
+                <para>
+                    <code>xsl-engine</code> specifies the XSL 1.0 engine used in validating the WADL. 
+                </para>
+                <para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>
+                                When set to <code>Xalan</code>, the Xalan engine is used. 
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para>
+                                When set to <code>XalanC</code>, the XalanC engine is used. 
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para>
+                                When set to <code>Saxon</code>, the Saxon engine is used. 
+                                Saxon is an XSL 2.0 engine, but it works correctly with most 1.0 XSLs.
+                            </para>
+                        </listitem>
+                    </itemizedlist>
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.use-saxon">
+                <para>
+                    When set to <code>true</code>, <code>use-saxon</code> requires use of Saxon-EE for XSD validation. 
+                    Otherwise, the Xerces validator is used for XSD validation.
+                    To use Saxon for XSD validation, you must have a Saxon license.
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.enable-ignore-xsd-extension">
+                <para>
+                    When set to <code>true</code>, <code>enable-ignore-xsd-extension</code> enables use of the rax:ignoreXSD extension. 
+                    This extension excludes some representations in WADLs from validation against the XSD. 
+                    Where can I learn more about the rax:ignoreXSD extension?
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.join-xpath-checks">
+                <para>
+                    When set to <code>true</code>, <code>join-xpath-checks</code> optimizes performance of the validator
+                    by merging <code>check-well-formed</code> and the multiple-XPath check into a single check. If this is optimal, why shouldn't I always do it?
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.check-headers">
+                <para>
+                    When set to <code>true</code>, <code>join-check-headers</code> requires validation of headers. 
+                </para>
                 <para> </para>
             </callout>
         </calloutlist>

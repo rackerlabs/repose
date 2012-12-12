@@ -249,8 +249,12 @@
             </callout>
             <callout arearefs="cfg.code-regex">
                 <para>
-                    <code>code-regex</code> is a regular express (regex) specifying the response codes to which this style sheet chain should be applied. 
-                    For example, <code>4[\d]{2}</code> matches all response codes in the range from 400 to 499.</para>
+                        <code>code-regex</code> is a regular
+                        expression (regex) specifying the response
+                        codes to which this style sheet chain should
+                        be applied. For example, <code>4[\d]{2}</code>
+                        matches all response codes in the range from
+                        400 to 499.</para>
                 <para> </para>
             </callout>
             <callout arearefs="cfg.param">
