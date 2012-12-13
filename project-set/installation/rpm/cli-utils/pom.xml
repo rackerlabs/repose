@@ -5,12 +5,12 @@
     <parent>
         <groupId>com.rackspace.repose.installation.rpm</groupId>
         <artifactId>rpm</artifactId>
-        <version>2.4.2-SNAPSHOT</version>
+        <version>2.5.1-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.repose.installation.rpm.cli-utils</groupId>
     <artifactId>cli-utils</artifactId>
-    <version>2.4.2-SNAPSHOT</version>
+    <version>2.5.1-SNAPSHOT</version>
 
     <name>Repose - Installation Cloud Integration CLI-Utils RPM</name>
 

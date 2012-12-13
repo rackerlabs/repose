@@ -142,6 +142,7 @@ public class ReposeInfoLogicTest {
         }
     }
 
+    /*
     public static class WhenComparing {
         ReposeInfoLogic reposeInfoLogic;
 
@@ -169,4 +170,5 @@ public class ReposeInfoLogicTest {
             assertTrue(copy.hashCode() != reposeInfoLogic.hashCode());
         }
     }
+    */
 }
