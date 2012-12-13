@@ -4,6 +4,7 @@ import com.rackspace.papi.commons.config.parser.common.AbstractConfigurationObje
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.pooling.GenericBlockingResourcePool;
 import com.rackspace.papi.commons.util.pooling.Pool;
+import java.net.URL;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBElement;
@@ -13,11 +14,11 @@ public class JaxbConfigurationParser <T> extends AbstractConfigurationObjectPars
 
     private final Pool<Unmarshaller> marshallerPool;
 
-    public JaxbConfigurationParser(Class<T> configurationClass, JAXBContext jaxbContext) {
+    public JaxbConfigurationParser(Class<T> configurationClass, JAXBContext jaxbContext, URL xsdStreamSource) {
         super(configurationClass);
 
         marshallerPool = new GenericBlockingResourcePool<Unmarshaller>(
-                new UnmarshallerConstructionStrategy(jaxbContext));
+                new UnmarshallerConstructionStrategy(jaxbContext,xsdStreamSource));
     }
     
     @Override

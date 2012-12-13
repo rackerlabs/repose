@@ -6,6 +6,7 @@ import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import java.io.IOException;
+import java.net.URL;
 import javax.servlet.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +35,7 @@ public class HeaderIdMappingFilter implements Filter {
         LOG.info("Initializing filter using config " + config);
         configurationManager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
         handlerFactory = new HeaderIdMappingHandlerFactory();
-
-        configurationManager.subscribeTo(config, handlerFactory, HeaderIdMappingConfig.class);
+          URL xsdURL = getClass().getResource("/META-INF/schema/config/header-id-mapping-configuration.xsd");
+        configurationManager.subscribeTo(config,xsdURL, handlerFactory, HeaderIdMappingConfig.class);
     }
 }

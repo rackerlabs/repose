@@ -22,7 +22,7 @@ public class JaxbConfigurationParserTest {
         @Test
         public void shouldReadConfigurationResource() throws JAXBException, IOException {
             final JAXBContext jaxbContext = JAXBContext.newInstance(Element.class);
-            ConfigurationParser<Element> parser = new JaxbConfigurationParser<Element>(Element.class, jaxbContext);
+            ConfigurationParser<Element> parser = new JaxbConfigurationParser<Element>(Element.class, jaxbContext, null);
 
             ConfigurationResource cfgResource = mock(ConfigurationResource.class);
             when(cfgResource.newInputStream()).thenReturn(ConfigurationResource.class.getResourceAsStream("/META-INF/test/element.xml"));
@@ -35,7 +35,7 @@ public class JaxbConfigurationParserTest {
         @Test(expected=ClassCastException.class)
         public void shouldThrowClassCastException() throws JAXBException, IOException {
             final JAXBContext jaxbContext = JAXBContext.newInstance(Element.class);
-            ConfigurationParser<String> parser = new JaxbConfigurationParser<String>(String.class, jaxbContext);
+            ConfigurationParser<String> parser = new JaxbConfigurationParser<String>(String.class, jaxbContext , null);
 
             ConfigurationResource cfgResource = mock(ConfigurationResource.class);
             when(cfgResource.newInputStream()).thenReturn(ConfigurationResource.class.getResourceAsStream("/META-INF/test/element.xml"));

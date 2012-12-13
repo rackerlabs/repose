@@ -5,7 +5,7 @@
       role="group1"
       default="false"
       check-well-formed="false"
-      check-xsd-grammer="true"
+      check-xsd-grammar="true"
       check-elements="true"
       use-saxon="false">
         <application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
@@ -72,7 +72,7 @@
       default="false"
       wadl="group2.wadl"
       check-well-formed="false"
-      check-xsd-grammer="true"
+      check-xsd-grammar="true"
       check-elements="true"
       use-saxon="false"/>
    <validator
@@ -89,7 +89,7 @@
       default="true"
       wadl="default.wadl"
       check-well-formed="false"
-      check-xsd-grammer="true"
+      check-xsd-grammar="true"
       check-elements="true"
       check-headers="true"
       use-saxon="false"/>
