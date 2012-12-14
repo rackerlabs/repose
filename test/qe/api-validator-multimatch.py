@@ -13,15 +13,6 @@ parser.add_argument('--print-bad-response', help='Print out the response if it f
 
 args = parser.parse_args()
 
-path = 'multimatch/sspnn'
-roles_and_responses = {
-  'role-0': 403,
-  'role-1': 405,
-  'role-2': 405,
-  'role-3': 200,
-  'role-4': 404,
-  'role-5': 404 
-  }
 
 def run_a_test(path, roles_and_responses):
   url = '%s://%s:%i/%s' % (args.protocol, args.target_addr, args.target_port, path)
@@ -47,8 +38,13 @@ def run_a_test(path, roles_and_responses):
 
   return correct, incorrect
 
-correct, incorrect = run_a_test(path, roles_and_responses)
+total_correct = 0
+total_incorrect = 0
 
-print '%i correct' % correct
-print '%i incorrect' % incorrect
+correct, incorrect = run_a_test('multimatch/sspnn', { 'role-0':403, 'role-1':405, 'role-2':405, 'role-3':200, 'role-4':404, 'role-5':404 })
+total_correct += correct
+total_incorrect += incorrect
+
+print '%i correct' % total_correct
+print '%i incorrect' % total_incorrect
 
