@@ -48,7 +48,46 @@ def run_a_test(path, roles_and_responses, responses=None):
 total_correct = 0
 total_incorrect = 0
 
-results = run_a_test('multimatch/sspnn', { 'role-0':403, 'role-1':405, 'role-2':405, 'role-3':200, 'role-4':404, 'role-5':404 })
+results = run_a_test('multimatch/sspnn', { 'role-0':403,
+                                           'role-1':405,
+                                           'role-2':405,
+                                           'role-3':200,
+                                           'role-4':404,
+                                           'role-5':404,
+                                           'role-2,role-3': 405,
+                                           'role-3,role-4': 200 })
+total_correct += sum([1 for x in results if x])
+total_incorrect += sum([1 for x in results if not x])
+
+results = run_a_test('multimatch/p', { 'role-0':403, 'role-1':200 })
+total_correct += sum([1 for x in results if x])
+total_incorrect += sum([1 for x in results if not x])
+
+results = run_a_test('multimatch/f', { 'role-0':403, 'role-1':405 })
+total_correct += sum([1 for x in results if x])
+total_incorrect += sum([1 for x in results if not x])
+
+results = run_a_test('multimatch/mssfsffpnn', { 'role-0':403,
+                                                'role-1':405,
+                                                'role-2':405,
+                                                'role-3':405,
+                                                'role-4':405,
+                                                'role-5':405,
+                                                'role-6':405,
+                                                'role-7':200,
+                                                'role-8':404,
+                                                'role-9':404,
+                                                'role-3,role-5,role-6,role-7':200,
+                                                'role-3,role-5,role-6':405,
+                                                'role-7,role-8':200 })
+total_correct += sum([1 for x in results if x])
+total_incorrect += sum([1 for x in results if not x])
+
+results = run_a_test('multimatch/mp', { 'role-0':403, 'role-1':200 })
+total_correct += sum([1 for x in results if x])
+total_incorrect += sum([1 for x in results if not x])
+
+results = run_a_test('multimatch/mf', { 'role-0':403, 'role-1':405 })
 total_correct += sum([1 for x in results if x])
 total_incorrect += sum([1 for x in results if not x])
 
