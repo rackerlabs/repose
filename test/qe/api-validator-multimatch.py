@@ -29,16 +29,18 @@ def run_a_test(path, roles_and_responses):
   incorrect = 0
 
   for role, code in sorted(roles_and_responses.items()):
-    print 'Getting "%s" with role "%s", expecting %i' % (url, role, code)
     resp = requests.get(url, headers = { 'X-Roles': role })
     if resp.status_code == code:
       correct += 1
-      print 'CORRECT'
+      c = 'CORRECT'
     else:
       incorrect += 1
-      print 'INCORRECT: got %i instead' % resp.status_code
-      if args.print_bad_response:
-        print resp.content
+      c = 'INCORRECT'
+
+    print 'Get %s with role "%s": expected %s, got %i -> %s' % (url, role, code, resp.status_code, c)
+
+    if c == 'INCORRECT' and args.print_bad_response:
+      print resp.content
 
   return correct, incorrect
 
