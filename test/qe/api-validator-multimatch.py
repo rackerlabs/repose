@@ -57,42 +57,36 @@ def count_false(*iterables):
     return c
 
 res = []
-results = run_a_test('multimatch/sspnn', { 'role-0':403,
-                                           'role-1':405,
-                                           'role-2':405,
-                                           'role-3':200,
-                                           'role-4':404,
-                                           'role-5':404,
-                                           'role-2,role-3': 405,
-                                           'role-3,role-4': 200 })
-res.append(results)
+res.append(run_a_test('multimatch/sspnn', { 'role-0':403,
+                                            'role-1':405,
+                                            'role-2':405,
+                                            'role-3':200,
+                                            'role-4':404,
+                                            'role-5':404,
+                                            'role-2,role-3': 405,
+                                            'role-3,role-4': 200 }))
 
-results = run_a_test('multimatch/p', { 'role-0':403, 'role-1':200 })
-res.append(results)
+res.append(run_a_test('multimatch/p', { 'role-0':403, 'role-1':200 }))
 
-results = run_a_test('multimatch/f', { 'role-0':403, 'role-1':405 })
-res.append(results)
+res.append(run_a_test('multimatch/f', { 'role-0':403, 'role-1':405 }))
 
-results = run_a_test('multimatch/mssfsffpnn', { 'role-0':403,
-                                                'role-1':405,
-                                                'role-2':405,
-                                                'role-3':405,
-                                                'role-4':405,
-                                                'role-5':405,
-                                                'role-6':405,
-                                                'role-7':200,
-                                                'role-8':404,
-                                                'role-9':404,
-                                                'role-3,role-5,role-6,role-7':200,
-                                                'role-3,role-5,role-6':405,
-                                                'role-7,role-8':200 })
-res.append(results)
+res.append(run_a_test('multimatch/mssfsffpnn', { 'role-0':403,
+                                                 'role-1':405,
+                                                 'role-2':405,
+                                                 'role-3':405,
+                                                 'role-4':405,
+                                                 'role-5':405,
+                                                 'role-6':405,
+                                                 'role-7':200,
+                                                 'role-8':404,
+                                                 'role-9':404,
+                                                 'role-3,role-5,role-6,role-7':200,
+                                                 'role-3,role-5,role-6':405,
+                                                 'role-7,role-8':200 }))
 
-results = run_a_test('multimatch/mp', { 'role-0':403, 'role-1':200 })
-res.append(results)
+res.append(run_a_test('multimatch/mp', { 'role-0':403, 'role-1':200 }))
 
-results = run_a_test('multimatch/mf', { 'role-0':403, 'role-1':405 })
-res.append(results)
+res.append(run_a_test('multimatch/mf', { 'role-0':403, 'role-1':405 }))
 
 total_correct = count_true(*res)
 total_incorrect = count_false(*res)
