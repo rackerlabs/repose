@@ -22,22 +22,27 @@ roles_and_responses = {
   'role-5': 404 
   }
 
-url = '%s://%s:%i/%s' % (args.protocol, args.target_addr, args.target_port, path)
+def run_a_test(path, roles_and_responses):
+  url = '%s://%s:%i/%s' % (args.protocol, args.target_addr, args.target_port, path)
 
-correct = 0
-incorrect = 0
+  correct = 0
+  incorrect = 0
 
-for role, code in sorted(roles_and_responses.items()):
-  print 'Getting "%s" with role "%s", expecting %i' % (url, role, code)
-  resp = requests.get(url, headers = { 'X-Roles': role })
-  if resp.status_code == code:
-    correct += 1
-    print 'CORRECT'
-  else:
-    incorrect += 1
-    print 'INCORRECT: got %i instead' % resp.status_code
-    if args.print_bad_response:
-      print resp.content
+  for role, code in sorted(roles_and_responses.items()):
+    print 'Getting "%s" with role "%s", expecting %i' % (url, role, code)
+    resp = requests.get(url, headers = { 'X-Roles': role })
+    if resp.status_code == code:
+      correct += 1
+      print 'CORRECT'
+    else:
+      incorrect += 1
+      print 'INCORRECT: got %i instead' % resp.status_code
+      if args.print_bad_response:
+        print resp.content
+
+  return correct, incorrect
+
+correct, incorrect = run_a_test(path, roles_and_responses)
 
 print '%i correct' % correct
 print '%i incorrect' % incorrect
