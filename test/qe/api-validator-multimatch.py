@@ -14,11 +14,12 @@ parser.add_argument('--print-bad-response', help='Print out the response if it f
 args = parser.parse_args()
 
 
-def run_a_test(path, roles_and_responses):
+def run_a_test(path, roles_and_responses, responses=None):
   url = '%s://%s:%i/%s' % (args.protocol, args.target_addr, args.target_port, path)
 
   correct = 0
   incorrect = 0
+  results = []
 
   for role, code in sorted(roles_and_responses.items()):
 
@@ -27,23 +28,29 @@ def run_a_test(path, roles_and_responses):
     if re.match(str(code), str(resp.status_code)) == None:
       incorrect += 1
       c = 'INCORRECT'
+      is_correct = False
     else:
       correct += 1
       c = 'CORRECT'
+      is_correct = True
 
     print 'Get %s with role "%s": expected %s, got %i -> %s' % (url, role, code, resp.status_code, c)
 
-    if c == 'INCORRECT' and args.print_bad_response:
+    if not is_correct and args.print_bad_response:
       print resp.content
 
-  return correct, incorrect
+    results.append(is_correct)
+    if responses != None:
+      responses.append(resp)
+
+  return results
 
 total_correct = 0
 total_incorrect = 0
 
-correct, incorrect = run_a_test('multimatch/sspnn', { 'role-0':403, 'role-1':405, 'role-2':405, 'role-3':200, 'role-4':404, 'role-5':404 })
-total_correct += correct
-total_incorrect += incorrect
+results = run_a_test('multimatch/sspnn', { 'role-0':403, 'role-1':405, 'role-2':405, 'role-3':200, 'role-4':404, 'role-5':404 })
+total_correct += sum([1 for x in results if x])
+total_incorrect += sum([1 for x in results if not x])
 
 print '%i correct' % total_correct
 print '%i incorrect' % total_incorrect
