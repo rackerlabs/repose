@@ -15,35 +15,35 @@ args = parser.parse_args()
 
 
 def run_a_test(path, roles_and_responses, responses=None):
-  url = '%s://%s:%i/%s' % (args.protocol, args.target_addr, args.target_port, path)
+    url = '%s://%s:%i/%s' % (args.protocol, args.target_addr, args.target_port, path)
 
-  correct = 0
-  incorrect = 0
-  results = []
+    correct = 0
+    incorrect = 0
+    results = []
 
-  for role, code in sorted(roles_and_responses.items()):
+    for role, code in sorted(roles_and_responses.items()):
 
-    resp = requests.get(url, headers = { 'X-Roles': role })
+        resp = requests.get(url, headers = { 'X-Roles': role })
 
-    if re.match(str(code), str(resp.status_code)) == None:
-      incorrect += 1
-      c = 'INCORRECT'
-      is_correct = False
-    else:
-      correct += 1
-      c = 'CORRECT'
-      is_correct = True
+        if re.match(str(code), str(resp.status_code)) == None:
+            incorrect += 1
+            c = 'INCORRECT'
+            is_correct = False
+        else:
+            correct += 1
+            c = 'CORRECT'
+            is_correct = True
 
-    print 'Get %s with role "%s": expected %s, got %i -> %s' % (url, role, code, resp.status_code, c)
+        print 'Get %s with role "%s": expected %s, got %i -> %s' % (url, role, code, resp.status_code, c)
 
-    if not is_correct and args.print_bad_response:
-      print resp.content
+        if not is_correct and args.print_bad_response:
+            print resp.content
 
-    results.append(is_correct)
-    if responses != None:
-      responses.append(resp)
+        results.append(is_correct)
+        if responses != None:
+            responses.append(resp)
 
-  return results
+    return results
 
 total_correct = 0
 total_incorrect = 0
