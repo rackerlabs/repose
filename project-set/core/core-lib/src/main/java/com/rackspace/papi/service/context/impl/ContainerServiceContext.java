@@ -127,7 +127,7 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
    @Override
    public void contextInitialized(ServletContextEvent servletContextEvent) {
       this.servletContext = servletContextEvent.getServletContext();
-      URL xsdURL = getClass().getResource("/META-INF/schema/config/container-configuration.xsd");
+      URL xsdURL = getClass().getResource("/META-INF/schema/container/container-configuration.xsd");
       configurationManager.subscribeTo("container.cfg.xml",xsdURL, configurationListener, ContainerConfiguration.class);
       register();
    }

@@ -40,7 +40,7 @@ public class ResponseMessageServiceContext implements ServiceContext<ResponseMes
 
    @Override
    public void contextInitialized(ServletContextEvent sce) {
-       URL xsdURL = getClass().getResource("/META-INF/schema/config/response-messaging.xsd");
+       URL xsdURL = getClass().getResource("/META-INF/schema/response-messaging/response-messaging.xsd");
       configurationService.subscribeTo("response-messaging.cfg.xml",xsdURL, configListener, ResponseMessagingConfiguration.class);
       register();
    }
