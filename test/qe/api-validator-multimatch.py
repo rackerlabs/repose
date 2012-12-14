@@ -56,9 +56,7 @@ def count_false(*iterables):
     for x in itertools.ifilterfalse(None, itertools.chain(*iterables)): c += 1
     return c
 
-total_correct = 0
-total_incorrect = 0
-
+res = []
 results = run_a_test('multimatch/sspnn', { 'role-0':403,
                                            'role-1':405,
                                            'role-2':405,
@@ -67,16 +65,13 @@ results = run_a_test('multimatch/sspnn', { 'role-0':403,
                                            'role-5':404,
                                            'role-2,role-3': 405,
                                            'role-3,role-4': 200 })
-total_correct += count_true(results)
-total_incorrect += count_false(results)
+res.append(results)
 
 results = run_a_test('multimatch/p', { 'role-0':403, 'role-1':200 })
-total_correct += count_true(results)
-total_incorrect += count_false(results)
+res.append(results)
 
 results = run_a_test('multimatch/f', { 'role-0':403, 'role-1':405 })
-total_correct += count_true(results)
-total_incorrect += count_false(results)
+res.append(results)
 
 results = run_a_test('multimatch/mssfsffpnn', { 'role-0':403,
                                                 'role-1':405,
@@ -91,16 +86,16 @@ results = run_a_test('multimatch/mssfsffpnn', { 'role-0':403,
                                                 'role-3,role-5,role-6,role-7':200,
                                                 'role-3,role-5,role-6':405,
                                                 'role-7,role-8':200 })
-total_correct += count_true(results)
-total_incorrect += count_false(results)
+res.append(results)
 
 results = run_a_test('multimatch/mp', { 'role-0':403, 'role-1':200 })
-total_correct += count_true(results)
-total_incorrect += count_false(results)
+res.append(results)
 
 results = run_a_test('multimatch/mf', { 'role-0':403, 'role-1':405 })
-total_correct += count_true(results)
-total_incorrect += count_false(results)
+res.append(results)
+
+total_correct = count_true(*res)
+total_incorrect = count_false(*res)
 
 print '%i correct' % total_correct
 print '%i incorrect' % total_incorrect
