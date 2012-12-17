@@ -19,7 +19,7 @@ public class NextAvailableResponse {
    }
 
    public Date getResetTime() {
-      return resetTime;
+      return (Date)resetTime.clone();
    }
 
    public boolean hasRequestsRemaining() {

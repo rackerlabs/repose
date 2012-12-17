@@ -88,7 +88,7 @@ public class IpAddressRange {
    }
 
    public byte[] getIp() {
-      return network;
+      return (byte[])network.clone();
    }
 
    public int getMask() {
