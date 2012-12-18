@@ -6,9 +6,11 @@ import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import java.io.IOException;
+import java.net.URL;
 import javax.servlet.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.util.logging.resources.logging;
 
 /**
  *
@@ -38,6 +40,7 @@ public class HttpLoggingFilter implements Filter {
         LOG.info("Initializing filter using config " + config);
         handlerFactory = new HttpLoggingHandlerFactory();
         manager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
-        manager.subscribeTo(config, handlerFactory, HttpLoggingConfig.class);
+        URL xsdURL = getClass().getResource("/META-INF/schema/config/http-logging-configuration.xsd");
+        manager.subscribeTo(config,xsdURL, handlerFactory, HttpLoggingConfig.class);
     }
 }

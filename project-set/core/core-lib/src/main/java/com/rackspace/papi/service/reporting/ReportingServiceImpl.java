@@ -25,7 +25,7 @@ public class ReportingServiceImpl implements ReportingService {
 
     @Override
     public synchronized Date getLastReset() {
-        return lastReset;
+        return (Date)lastReset.clone();
     }
 
     @Override

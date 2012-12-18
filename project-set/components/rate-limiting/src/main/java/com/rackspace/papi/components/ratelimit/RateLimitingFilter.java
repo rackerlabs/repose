@@ -7,6 +7,7 @@ import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.repose.service.ratelimit.config.RateLimitingConfiguration;
 import java.io.IOException;
+import java.net.URL;
 import javax.servlet.*;
 import org.slf4j.Logger;
 
@@ -36,6 +37,7 @@ public class RateLimitingFilter implements Filter {
 
         handlerFactory = new RateLimitingHandlerFactory(ctx.datastoreService());
         configurationManager = ctx.configurationService();
-        configurationManager.subscribeTo(config, handlerFactory, RateLimitingConfiguration.class);
+        URL xsdURL = getClass().getResource("/META-INF/schema/config/rate-limiting-configuration.xsd");
+        configurationManager.subscribeTo(config,xsdURL, handlerFactory, RateLimitingConfiguration.class);
     }
 }

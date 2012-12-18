@@ -15,6 +15,7 @@ import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
 import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Collection;
 import javax.servlet.*;
 import org.openrepose.components.datastore.config.DistributedDatastoreConfiguration;
@@ -80,9 +81,10 @@ public class DistributedDatastoreFilter implements Filter {
 
         handlerFactory = new DatastoreFilterLogicHandlerFactory(clusterView, hashRingDatastore);
         configurationManager = contextAdapter.configurationService();
-
+        
         configurationManager.subscribeTo("system-model.cfg.xml", handlerFactory, SystemModel.class);
-        configurationManager.subscribeTo(config, handlerFactory, DistributedDatastoreConfiguration.class);
+         URL xsdURL = getClass().getResource("/META-INF/schema/config/dist-datastore-configuration.xsd");
+        configurationManager.subscribeTo(config,xsdURL, handlerFactory, DistributedDatastoreConfiguration.class);
     }
 
     @Override

@@ -5,7 +5,7 @@
       role="group1"
       default="false"
       check-well-formed="false"
-      check-xsd-grammer="true"
+      check-xsd-grammar="true"
       check-elements="true"
       use-saxon="false">
 

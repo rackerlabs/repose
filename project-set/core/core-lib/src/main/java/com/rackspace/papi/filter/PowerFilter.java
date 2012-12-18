@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.rackspace.papi.service.headers.response.ResponseHeaderService;
 import com.rackspace.papi.service.reporting.ReportingService;
+import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -140,7 +141,8 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         papiContext = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext());
 
         papiContext.eventService().listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
-        papiContext.configurationService().subscribeTo("system-model.cfg.xml", systemModelConfigurationListener, SystemModel.class);
+        URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
+        papiContext.configurationService().subscribeTo("system-model.cfg.xml",xsdURL, systemModelConfigurationListener, SystemModel.class);
 
         filterConfig.getServletContext().setAttribute("powerFilter", this);
 

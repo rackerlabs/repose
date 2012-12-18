@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletContextEvent;
+import javax.xml.transform.stream.StreamSource;
 
 /**
  * Created by IntelliJ IDEA.
@@ -63,8 +64,7 @@ public class ManagementServiceContext implements ServiceContext<ManagementServic
     public void contextInitialized(ServletContextEvent sce) {
         getManagementPort();
         getManagementContext();
-
-        configurationService.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);
+        configurationService.subscribeTo("container.cfg.xml",configurationListener, ContainerConfiguration.class);
         register();
     }
 

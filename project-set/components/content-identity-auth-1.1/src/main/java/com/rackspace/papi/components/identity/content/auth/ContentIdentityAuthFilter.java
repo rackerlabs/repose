@@ -7,6 +7,7 @@ import org.openrepose.rackspace.auth.content_identity.config.ContentIdentityAuth
 
 import javax.servlet.*;
 import java.io.IOException;
+import java.net.URL;
 
 public class ContentIdentityAuthFilter implements Filter {
 
@@ -27,7 +28,7 @@ public class ContentIdentityAuthFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         configurationManager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
         handlerFactory = new ContentIdentityAuthHandlerFactory();
-
-        configurationManager.subscribeTo("content-identity-auth-1-1.cfg.xml", handlerFactory, ContentIdentityAuthConfig.class);
+        URL xsdURL = getClass().getResource("/META-INF/schema/config/content-identity-auth-1.1-configuration.xsd");
+        configurationManager.subscribeTo("content-identity-auth-1-1.cfg.xml",xsdURL, handlerFactory, ContentIdentityAuthConfig.class);
     }
 }

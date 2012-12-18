@@ -8,6 +8,7 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.servlet.InitParameter;
 import java.io.IOException;
+import java.net.URL;
 import javax.servlet.*;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.sax.SAXTransformerFactory;
@@ -44,6 +45,7 @@ public class TranslationFilter implements Filter {
 
         handlerFactory = new TranslationHandlerFactory(configurationService, new XmlFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null)), configurationRoot, config);
         configurationManager = ServletContextHelper.getInstance().getPowerApiContext(servletContext).configurationService();
-        configurationManager.subscribeTo(config, handlerFactory, TranslationConfig.class);
+        URL xsdURL = getClass().getResource("/META-INF/schema/config/translation-configuration.xsd");
+        configurationManager.subscribeTo(config,xsdURL, handlerFactory, TranslationConfig.class);
     }
 }

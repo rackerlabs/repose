@@ -51,7 +51,7 @@ public class ReplicatedDatastoreFilter implements Filter {
         configurationManager = contextAdapter.configurationService();
         configurationManager.subscribeTo("container.cfg.xml", handlerFactory, ContainerConfiguration.class);
         configurationManager.subscribeTo("system-model.cfg.xml", handlerFactory, SystemModel.class);
-        configurationManager.subscribeTo(config, handlerFactory, ReplicatedDatastoreConfiguration.class);
+        configurationManager.subscribeTo(config,handlerFactory, ReplicatedDatastoreConfiguration.class);
     }
 
     @Override
