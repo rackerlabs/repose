@@ -12,6 +12,7 @@ import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.container.ContainerConfigurationService;
 import com.rackspace.papi.service.context.container.ContainerConfigurationServiceImpl;
 import com.rackspace.papi.servlet.InitParameter;
+import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,7 +127,8 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
    @Override
    public void contextInitialized(ServletContextEvent servletContextEvent) {
       this.servletContext = servletContextEvent.getServletContext();
-      configurationManager.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);
+      URL xsdURL = getClass().getResource("/META-INF/schema/container/container-configuration.xsd");
+      configurationManager.subscribeTo("container.cfg.xml",xsdURL, configurationListener, ContainerConfiguration.class);
       register();
    }
 

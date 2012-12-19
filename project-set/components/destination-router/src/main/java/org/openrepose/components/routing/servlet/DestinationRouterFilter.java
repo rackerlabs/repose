@@ -9,6 +9,7 @@ import org.openrepose.components.routing.servlet.config.DestinationRouterConfigu
 
 import javax.servlet.*;
 import java.io.IOException;
+import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +37,8 @@ public class DestinationRouterFilter implements Filter {
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
         handlerFactory = new DestinationRouterHandlerFactory();
-        
+        URL xsdURL = getClass().getResource("/META-INF/schema/config/destination-router-configuration.xsd");
         manager.subscribeTo("system-model.cfg.xml", handlerFactory, SystemModel.class);
-        manager.subscribeTo(config, handlerFactory, DestinationRouterConfiguration.class);
+        manager.subscribeTo(config,xsdURL, handlerFactory, DestinationRouterConfiguration.class);
     }
 }

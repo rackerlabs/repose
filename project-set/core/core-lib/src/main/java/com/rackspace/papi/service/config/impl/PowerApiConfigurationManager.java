@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.FileNotFoundException;
 import java.lang.ref.WeakReference;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,10 +49,18 @@ public class PowerApiConfigurationManager implements ConfigurationService {
     public void setUpdateManager(ConfigurationUpdateManager updateManager) {
         this.updateManager = updateManager;
     }
+    
+      @Override
+    public <T> void subscribeTo(String configurationName,  UpdateListener<T> listener, Class<T> configurationClass) {
+        subscribeTo(configurationName, listener, getPooledJaxbConfigurationParser(configurationClass, null),true);
+       
+    }
 
     @Override
-    public <T> void subscribeTo(String configurationName, UpdateListener<T> listener, Class<T> configurationClass) {
-        subscribeTo(configurationName, listener, getPooledJaxbConfigurationParser(configurationClass));
+    public <T> void subscribeTo(String configurationName, URL xsdStreamSource, UpdateListener<T> listener, Class<T> configurationClass) {
+        subscribeTo(configurationName, listener, getPooledJaxbConfigurationParser(configurationClass, xsdStreamSource),true);
+       
+        
     }
 
     @Override
@@ -72,7 +81,7 @@ public class PowerApiConfigurationManager implements ConfigurationService {
 
                 // TODO:Refactor - Introduce a helper method so that this logic can be centralized and reused
                 if (ex.getCause() instanceof FileNotFoundException) {
-                    LOG.error("An I/O error has occured while processing resource " + configurationName + " - Reason: " + ex.getCause().getMessage());
+                    LOG.error("An I/O error has occured while processing resource " + configurationName + " that is used by filter specified in system-model.cfg.xml - Reason: " + ex.getCause().getMessage());
                 } else {
                     LOG.error("Configuration update error. Reason: " + ex.getMessage(), ex);
                 }
@@ -85,13 +94,13 @@ public class PowerApiConfigurationManager implements ConfigurationService {
         updateManager.unregisterListener(listener, resourceResolver.resolve(configurationName));
     }
 
-    public <T> ConfigurationParser<T> getPooledJaxbConfigurationParser(Class<T> configurationClass) {
+    public <T> ConfigurationParser<T> getPooledJaxbConfigurationParser(Class<T> configurationClass, URL xsdStreamSource) {
         final WeakReference<ConfigurationParser> parserReference = parserLookaside.get(configurationClass);
         ConfigurationParser<T> parser = parserReference != null ? parserReference.get() : null;
 
         if (parser == null) {
             try {
-                parser = ConfigurationParserFactory.getXmlConfigurationParser(configurationClass);
+                parser = ConfigurationParserFactory.getXmlConfigurationParser(configurationClass, xsdStreamSource);
             } catch (ConfigurationResourceException cre) {
                 throw new ConfigurationServiceException("Failed to create a JAXB context for a configuration parser. Reason: " + cre.getMessage(), cre);
             }

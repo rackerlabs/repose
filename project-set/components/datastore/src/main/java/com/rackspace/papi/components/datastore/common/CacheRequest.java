@@ -128,7 +128,7 @@ public class CacheRequest {
    }
 
    public byte[] getPayload() {
-      return payload;
+      return (byte[])payload.clone();
    }
 
    public boolean hasPayload() {

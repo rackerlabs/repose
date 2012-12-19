@@ -109,7 +109,7 @@
         <xs:complexContent>
             <xs:extension base="trans-config:TranslationBase">
 
-                <xs:attribute name="code-regex" type="xs:string" use="required">
+                <xs:attribute name="code-regex" type="xs:string" use="optional" >
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>Defines a regular expression that will be used to match status codes against this declaration</html:p>

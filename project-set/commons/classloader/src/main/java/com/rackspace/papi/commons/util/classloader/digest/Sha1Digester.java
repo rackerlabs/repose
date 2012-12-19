@@ -40,6 +40,6 @@ public final class Sha1Digester {
     }
 
     public byte[] getDigest() {
-        return digest;
+        return (byte[])digest.clone();
     }
 }

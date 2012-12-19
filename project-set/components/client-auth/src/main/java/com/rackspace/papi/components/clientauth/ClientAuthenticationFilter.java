@@ -9,6 +9,7 @@ import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import java.io.IOException;
+import java.net.URL;
 import javax.servlet.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,7 @@ public class ClientAuthenticationFilter implements Filter {
         LOG.info("Initializing filter using config " + config);
         handlerFactory = new ClientAuthenticationHandlerFactory(getDatastore(ctx.datastoreService()));
         configurationManager = ctx.configurationService();
-        configurationManager.subscribeTo(config, handlerFactory, ClientAuthConfig.class);
+        URL xsdURL = getClass().getResource("/META-INF/schema/config/client-auth-n-configuration.xsd");
+        configurationManager.subscribeTo(config,xsdURL , handlerFactory, ClientAuthConfig.class);
     }
 }

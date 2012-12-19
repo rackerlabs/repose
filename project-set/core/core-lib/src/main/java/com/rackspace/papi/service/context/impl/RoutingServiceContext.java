@@ -60,7 +60,7 @@ public class RoutingServiceContext implements ServiceContext<RoutingService> {
 
    @Override
    public void contextInitialized(ServletContextEvent servletContextEvent) {
-      configurationManager.subscribeTo("system-model.cfg.xml", configListener, SystemModel.class);
+      configurationManager.subscribeTo("system-model.cfg.xml",configListener, SystemModel.class);
       register();
    }
 

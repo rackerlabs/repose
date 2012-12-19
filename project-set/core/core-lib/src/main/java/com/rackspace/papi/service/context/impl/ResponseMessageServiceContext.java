@@ -6,6 +6,7 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.rms.ResponseMessageService;
 import com.rackspace.papi.service.rms.config.ResponseMessagingConfiguration;
+import java.net.URL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
@@ -39,7 +40,8 @@ public class ResponseMessageServiceContext implements ServiceContext<ResponseMes
 
    @Override
    public void contextInitialized(ServletContextEvent sce) {
-      configurationService.subscribeTo("response-messaging.cfg.xml", configListener, ResponseMessagingConfiguration.class);
+       URL xsdURL = getClass().getResource("/META-INF/schema/response-messaging/response-messaging.xsd");
+      configurationService.subscribeTo("response-messaging.cfg.xml",xsdURL, configListener, ResponseMessagingConfiguration.class);
       register();
    }
 

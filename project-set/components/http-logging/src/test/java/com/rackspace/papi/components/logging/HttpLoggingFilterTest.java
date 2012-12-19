@@ -21,6 +21,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.net.URL;
 import java.util.Hashtable;
 
 import static org.mockito.Mockito.*;
@@ -66,7 +67,8 @@ public class HttpLoggingFilterTest {
       @Test
       public void shouldSubscribeToConfigFile() throws ServletException {
          filter.init(filterConfig);
-         verify(configService).subscribeTo(eq("http-logging.cfg.xml"), any(HttpLoggingHandlerFactory.class), any(Class.class));
+         URL xsdURL = getClass().getResource("/META-INF/schema/config/http-logging-configuration.xsd");
+         verify(configService).subscribeTo(eq("http-logging.cfg.xml"),eq(xsdURL), any(HttpLoggingHandlerFactory.class), any(Class.class));
       }
    }
 

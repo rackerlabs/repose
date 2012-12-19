@@ -7,6 +7,7 @@ import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import java.io.IOException;
+import java.net.URL;
 import javax.servlet.*;
 import org.openrepose.components.authz.rackspace.config.RackspaceAuthorization;
 import org.slf4j.Logger;
@@ -39,7 +40,7 @@ public class RackspaceAuthorizationFilter implements Filter {
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
         handlerFactory = new RequestAuthorizationHandlerFactory(defaultLocal.getDatastore());
-
-        configurationService.subscribeTo(config, handlerFactory, RackspaceAuthorization.class);
+        URL xsdURL = getClass().getResource("/META-INF/schema/config/openstack-authorization-configuration.xsd");
+        configurationService.subscribeTo(config,xsdURL, handlerFactory, RackspaceAuthorization.class);
     }
 }

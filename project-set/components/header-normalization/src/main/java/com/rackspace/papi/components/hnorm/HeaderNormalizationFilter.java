@@ -8,6 +8,7 @@ import com.rackspacecloud.api.docs.repose.header_normalization.v1.HeaderNormaliz
 
 import javax.servlet.*;
 import java.io.IOException;
+import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +36,7 @@ public class HeaderNormalizationFilter implements Filter {
         LOG.info("Initializing filter using config " + config);
         configurationManager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
         handlerFactory = new HeaderNormalizationHandlerFactory();
-        configurationManager.subscribeTo(config, handlerFactory, HeaderNormalizationConfig.class);
+        URL xsdURL = getClass().getResource("/META-INF/schema/config/header-normalization-configuration.xsd");
+        configurationManager.subscribeTo(config,xsdURL, handlerFactory, HeaderNormalizationConfig.class);
     }
 }

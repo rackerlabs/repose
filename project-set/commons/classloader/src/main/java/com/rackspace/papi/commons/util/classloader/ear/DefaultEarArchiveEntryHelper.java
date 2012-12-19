@@ -41,8 +41,8 @@ public class DefaultEarArchiveEntryHelper implements EarArchiveEntryHelper {
         try {
             final JAXBContext jaxbContext = JAXBContext.newInstance(ObjectFactory.class);
 
-            applicationXmlParser = new JaxbConfigurationParser<ApplicationType>(ApplicationType.class, jaxbContext);
-            webFragmentXmlParser = new JaxbConfigurationParser<WebFragmentType>(WebFragmentType.class, jaxbContext);
+            applicationXmlParser = new JaxbConfigurationParser<ApplicationType>(ApplicationType.class, jaxbContext, null);
+            webFragmentXmlParser = new JaxbConfigurationParser<WebFragmentType>(WebFragmentType.class, jaxbContext, null);
         } catch (JAXBException jaxbe) {
             LOG.error("Fatal error while trying to stand up the Ear Classloader JAXB parsers", jaxbe);
         }

@@ -16,6 +16,7 @@
         </xs:annotation>
 
         <xs:sequence>
+            <xs:element name="service-root" type="vers-config:ServiceRootContext" />
             <xs:element name="version-mapping" type="vers-config:ServiceVersionMapping" minOccurs="1" maxOccurs="unbounded" />
         </xs:sequence>
     </xs:complexType>

@@ -9,6 +9,7 @@ import com.rackspace.papi.service.context.ServletContextHelper;
 
 import javax.servlet.*;
 import java.io.IOException;
+import java.net.URL;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +37,7 @@ public class UriIdentityFilter implements Filter {
         LOG.info("Initializing filter using config " + config);
         configurationManager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
         handlerFactory = new UriIdentityHandlerFactory();
-
-        configurationManager.subscribeTo(config, handlerFactory, UriIdentityConfig.class);
+        URL xsdURL = getClass().getResource("/META-INF/schema/config/uri-identity-configuration.xsd");
+        configurationManager.subscribeTo(config,xsdURL, handlerFactory, UriIdentityConfig.class);
     }
 }
