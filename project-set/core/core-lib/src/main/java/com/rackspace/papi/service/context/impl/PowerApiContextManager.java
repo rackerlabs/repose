@@ -109,6 +109,7 @@ public class PowerApiContextManager implements ServletContextListener {
         
         //Allows Repose to set any header to pass to the origin service. Namely the "Via" header
         System.setProperty("sun.net.http.allowRestrictedHeaders","true");
+        System.setProperty("http.maxConnections", "100");
 
         // Most bootstrap steps require or will try to load some kind of
         // configuration so we need to set our naming context in the servlet context
