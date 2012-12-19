@@ -184,7 +184,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="enable-ignore-xsd-extension" type="xs:boolean" use="optional" default="false">
+        <xs:attribute name="enable-ignore-xsd-extension" type="xs:boolean" use="optional" default="true">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
