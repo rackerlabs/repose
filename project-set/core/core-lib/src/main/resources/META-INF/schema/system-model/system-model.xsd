@@ -8,6 +8,7 @@
            xmlns:xerces="http://xerces.apache.org"
            xmlns:saxon="http://saxon.sf.net/"
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
            jaxb:version="2.1">
 
     <xs:element name="system-model" type="mod:SystemModel" />
@@ -82,7 +83,7 @@
         <xs:sequence>
             <xs:element name="node" type="mod:Node" minOccurs="1" maxOccurs="unbounded" />
         </xs:sequence>
-        <xs:assert test="count(distinct-values(mod:node/@id)) = count(mod:node/@id)"
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(mod:node/@id)) = count(mod:node/@id)"
                    xerces:message="Each node should have a unique id"
                    saxon:message="Each node should have a unique id">
         </xs:assert>
@@ -132,11 +133,11 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:assert test="if (not(@https-port)) then @http-port else true()"
+        <xs:assert vc:minVersion="1.1" test="if (not(@https-port)) then @http-port else true()"
             xerces:message="You must specify an http-port and/or an https-port"
             saxon:message="You must specify an http-port and/or an https-port">
         </xs:assert>
-        <xs:assert test="if (not(@http-port)) then @https-port else true()"
+        <xs:assert vc:minVersion="1.1" test="if (not(@http-port)) then @https-port else true()"
             xerces:message="You must specify an http-port and/or an https-port"
             saxon:message="You must specify an http-port and/or an https-port">
         </xs:assert>
@@ -152,7 +153,7 @@
         <xs:sequence>
             <xs:element name="filter" type="mod:Filter" minOccurs="0" maxOccurs="unbounded" />
         </xs:sequence>
-        <xs:assert test="count(distinct-values(mod:filter/@id)) = count(mod:filter/@id)"
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(mod:filter/@id)) = count(mod:filter/@id)"
                     xerces:message="Filters must have ids unique within their containing filter list"
                     saxon:message="Filters must have ids unique within their containing filter list">
         </xs:assert>
@@ -205,19 +206,27 @@
             </xs:documentation>
         </xs:annotation>
       
-        <xs:all>
+        <xs:all vc:minVersion="1.1">
             <xs:element name="endpoint" type="mod:DestinationEndpoint" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="target" type="mod:DestinationCluster" minOccurs="0" maxOccurs="unbounded" />
         </xs:all>
-        <xs:assert test="(count(mod:endpoint)+count(mod:target)) gt 0"
+        <!--
+            Order matters in 1.0 land :-(
+        -->
+        <xs:sequence vc:minVersion="1.0" vc:maxVersion="1.1">
+            <xs:element name="endpoint" type="mod:DestinationEndpoint" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="target" type="mod:DestinationCluster" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+
+        <xs:assert vc:minVersion="1.1" test="(count(mod:endpoint)+count(mod:target)) gt 0"
             xerces:message="Must have at least one destination defined."
             saxon:message="Must have at least one destination defined.">
         </xs:assert>
-        <xs:assert test="count(mod:*[xs:boolean(@default) = true()]) le 1"
+        <xs:assert vc:minVersion="1.1" test="count(mod:*[xs:boolean(@default) = true()]) le 1"
             xerces:message="There should only be one default destination"
             saxon:message="There should only be one default destination">
         </xs:assert>
-        <xs:assert test="count(distinct-values(mod:*/@id)) = count(mod:*/@id)"
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(mod:*/@id)) = count(mod:*/@id)"
             xerces:message="Destinations must have ids unique within their containing list"
             saxon:message="Destinations must have ids unique within their containing list">
         </xs:assert>
