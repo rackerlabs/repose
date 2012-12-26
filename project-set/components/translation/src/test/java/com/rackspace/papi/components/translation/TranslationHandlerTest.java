@@ -88,10 +88,7 @@ public class TranslationHandlerTest {
             
             config.setRequestTranslations(requestTranslations);
             config.setResponseTranslations(responseTranslations);
-            Map<Class, UpdateListener<?>> listeners = factory.getListeners();
-            Iterator<Map.Entry<Class, UpdateListener<?>>> iterator = listeners.entrySet().iterator();
-            UpdateListener<TranslationConfig> listener = (UpdateListener<TranslationConfig>) iterator.next().getValue();
-            listener.configurationUpdated(config);
+            factory.configurationUpdated(config);
             handler = factory.buildHandler();
 
             mockedRequest = mock(HttpServletRequest.class);
@@ -236,10 +233,7 @@ public class TranslationHandlerTest {
             
             config.setRequestTranslations(requestTranslations);
             config.setResponseTranslations(responseTranslations);
-            Map<Class, UpdateListener<?>> listeners = factory.getListeners();
-            Iterator<Map.Entry<Class, UpdateListener<?>>> iterator = listeners.entrySet().iterator();
-            UpdateListener<TranslationConfig> listener = (UpdateListener<TranslationConfig>) iterator.next().getValue();
-            listener.configurationUpdated(config);
+            factory.configurationUpdated(config);
             handler = factory.buildHandler();
 
             mockedRequest = mock(HttpServletRequest.class);

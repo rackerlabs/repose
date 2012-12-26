@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.unorm;
 
 
+import com.rackspace.papi.components.uri.normalization.config.UriNormalizationConfig;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,6 +28,10 @@ public class UriNormalizationHandlerFactoryTest {
     
     @Test
     public void shouldCreateNewInstanceOfContentNormalizationHandler() {
+     
+       UriNormalizationConfig config=new UriNormalizationConfig();
+       instance.configurationUpdated(config);
+       
         UriNormalizationHandler handler = instance.buildHandler();
         assertNotNull("Instance of Content Normalization Handler should not be null", handler);
     }
