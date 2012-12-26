@@ -32,14 +32,27 @@ public class HeaderIdentityHandlerFactory extends AbstractConfiguredFilterHandle
 
    private class HeaderIdentityConfigurationListener implements UpdateListener<HeaderIdentityConfig> {
 
+       boolean isIntialized=false;
+      
+       
       @Override
       public void configurationUpdated(HeaderIdentityConfig configurationObject) {
           sourceHeaders = configurationObject.getSourceHeaders().getHeader();
+           isIntialized=true;
       }
+      
+     @Override
+      public boolean isInitialized(){
+          return isIntialized;
+      }
+      
    }
 
    @Override
    protected HeaderIdentityHandler buildHandler() {
+    if( !this.isInitialized()){
+           return null;
+     } 
       return new HeaderIdentityHandler(sourceHeaders);
    }
 }

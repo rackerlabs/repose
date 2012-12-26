@@ -37,23 +37,7 @@ public class TranslationHandlerFactoryTest {
             factory = new TranslationHandlerFactory(manager, new XmlFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), "", "");
         }
         
-        @Test
-        public void shouldBuildHandler() {
-            TranslationHandler handler = factory.buildHandler();
-            
-            assertNotNull("Should return a handler", handler);
-        }
-
-        @Test
-        public void shouldPassProcessorsToHandler() {
-            TranslationHandler handler = factory.buildHandler();
-            
-            assertNotNull("Should return a handler", handler);
-            assertNotNull("Should have request processors list", handler.getRequestProcessors());
-            assertNotNull("Should have response processors list", handler.getResponseProcessors());
-            assertTrue(handler.getRequestProcessors().isEmpty());
-            assertTrue(handler.getResponseProcessors().isEmpty());
-        }
+   
         
         @Test
         public void shouldCreateProcessorPoolsOnConfigUpdate() {
@@ -85,12 +69,7 @@ public class TranslationHandlerFactoryTest {
             
             config.setRequestTranslations(requestTranslations);
             config.setResponseTranslations(responseTranslations);
-            Map<Class, UpdateListener<?>> listeners = factory.getListeners();
-            assertFalse(listeners.isEmpty());
-            
-            Iterator<Entry<Class, UpdateListener<?>>> iterator = listeners.entrySet().iterator();
-            UpdateListener<TranslationConfig> listener = (UpdateListener<TranslationConfig>) iterator.next().getValue();
-            listener.configurationUpdated(config);
+            factory.configurationUpdated(config);
             TranslationHandler handler = factory.buildHandler();
             assertNotNull(handler);
             assertEquals(1, handler.getRequestProcessors().size());

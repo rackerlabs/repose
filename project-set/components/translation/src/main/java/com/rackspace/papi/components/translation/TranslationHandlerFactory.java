@@ -52,6 +52,10 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
     @Override
     protected TranslationHandler buildHandler() {
+        
+       if( !this.isInitialized()){
+           return null;
+       } 
         synchronized (lock) {
             return new TranslationHandler(new ArrayList<XmlChainPool>(requestProcessorPools), new ArrayList<XmlChainPool>(responseProcessorPools));
         }
@@ -129,6 +133,10 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
     class TranslationConfigurationListener implements UpdateListener<TranslationConfig> {
 
+       private boolean isInitialized=false;
+ 
+        
+        
         @Override
         public void configurationUpdated(TranslationConfig newConfig) {
             synchronized (lock) {
@@ -137,6 +145,13 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
                 buildProcessorPools();
                 xslListener.listen();
             }
+             isInitialized=true;
         }
+        
+    @Override
+    public boolean isInitialized(){
+    return isInitialized;
+  
+    }
     }
 }

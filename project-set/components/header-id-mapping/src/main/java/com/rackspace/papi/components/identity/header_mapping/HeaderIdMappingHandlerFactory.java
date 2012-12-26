@@ -22,6 +22,7 @@ public class HeaderIdMappingHandlerFactory extends AbstractConfiguredFilterHandl
 
    @Override
    protected Map<Class, UpdateListener<?>> getListeners() {
+       
       return new HashMap<Class, UpdateListener<?>>() {
 
          {
@@ -31,16 +32,29 @@ public class HeaderIdMappingHandlerFactory extends AbstractConfiguredFilterHandl
    }
 
    private class HeaderIdMappingConfigurationListener implements UpdateListener<HeaderIdMappingConfig> {
-
+       boolean isIntialized=false;
+       
+       
       @Override
       public void configurationUpdated(HeaderIdMappingConfig configurationObject) {
           
           sourceHeaders = configurationObject.getSourceHeaders().getHeader();
+           isIntialized=true;
       }
+      
+    @Override
+      public boolean isInitialized(){
+          return isIntialized;
+      }
+      
+
    }
 
    @Override
    protected HeaderIdMappingHandler buildHandler() {
+      if(!this.isInitialized()){
+           return null;
+       } 
       return new HeaderIdMappingHandler(sourceHeaders);
    }
 }

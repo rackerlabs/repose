@@ -46,6 +46,9 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
    private class SystemModelConfigurationListener implements UpdateListener<SystemModel> {
 
+       boolean isIntialized=false;
+       boolean isError=false;
+       
       @Override
       public void configurationUpdated(SystemModel configurationObject) {
          SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
@@ -58,11 +61,24 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
          for (Destination powerApiHost : destinations) {
             configuredHosts.put(powerApiHost.getId(), powerApiHost);
          }
+         
+          isIntialized=true;
+          
+        
       }
+      
+    @Override
+    public boolean isInitialized(){
+      return isIntialized;
+    }
+
    }
 
    private class VersioningConfigurationListener implements UpdateListener<ServiceVersionMappingList> {
 
+      boolean isIntialized=false;
+      boolean isError=false;
+      
       @Override
       public void configurationUpdated(ServiceVersionMappingList mappings) {
          configuredMappings.clear();
@@ -70,12 +86,25 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
          for (ServiceVersionMapping mapping : mappings.getVersionMapping()) {
             configuredMappings.put(mapping.getId(), mapping);
          }
+         
+      isIntialized=true;
 
       }
+      
+     @Override
+      public boolean isInitialized(){
+          return isIntialized;
+      }
+
    }
 
    @Override
    protected VersioningHandler buildHandler() {
+       
+      if (!this.isInitialized()){
+           return null;
+       } 
+       
       final Map<String, ServiceVersionMapping> copiedVersioningMappings = new HashMap<String, ServiceVersionMapping>(configuredMappings);
       final Map<String, Destination> copiedHostDefinitions = new HashMap<String, Destination>(configuredHosts);
 

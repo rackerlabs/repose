@@ -80,6 +80,9 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
 
    private class DistributedDatastoreConfigurationListener implements UpdateListener<DistributedDatastoreConfiguration> {
 
+       boolean isIntialized=false;
+      
+       
       @Override
       public void configurationUpdated(DistributedDatastoreConfiguration configurationObject) {
          if (configurationObject.getAllowedHosts() != null) {
@@ -104,11 +107,23 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
 
             hostACL = new DatastoreAccessControl(newHostList, allowAll);
          }
+         
+        isIntialized=true;
       }
-   }
+      
 
+    @Override
+    public boolean isInitialized(){
+     return isIntialized;
+    }
+
+   }
+ 
    private class SystemModelUpdateListener implements UpdateListener<SystemModel> {
 
+       boolean isIntialized=false;
+      
+       
       @Override
       public void configurationUpdated(SystemModel configurationObject) {
          if (configurationObject == null) {
@@ -117,11 +132,22 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
          }
 
          updateClusterMembers(configurationObject);
+         isIntialized=true;
       }
+      
+    @Override
+    public boolean isInitialized(){
+      return isIntialized;
+    }
+
    }
 
    @Override
    protected DatastoreFilterLogicHandler buildHandler() {
+       
+     if(!this.isInitialized()){
+           return null;
+       } 
       return new DatastoreFilterLogicHandler(UUIDEncodingProvider.getInstance(), hashRingDatastore, hostACL);
    }
 }

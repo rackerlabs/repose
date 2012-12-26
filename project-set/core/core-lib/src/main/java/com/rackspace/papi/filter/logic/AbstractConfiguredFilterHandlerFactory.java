@@ -14,6 +14,7 @@ public abstract class AbstractConfiguredFilterHandlerFactory<T extends FilterLog
    private final Map<Class, UpdateListener<?>> listeners;
    private final KeyedStackLock configurationLock;
    private final Object readKey, updateKey;
+   
 
    public AbstractConfiguredFilterHandlerFactory() {
       configurationLock = new KeyedStackLock();
@@ -55,5 +56,19 @@ public abstract class AbstractConfiguredFilterHandlerFactory<T extends FilterLog
       }
 
    }
-;
+
+   @Override
+   public boolean isInitialized(){
+       
+       for(UpdateListener<?> listener:listeners.values()){
+           if(!listener.isInitialized())
+           return false;
+       }
+       
+       return true;
+   }
+   
+
+   
+   
 }

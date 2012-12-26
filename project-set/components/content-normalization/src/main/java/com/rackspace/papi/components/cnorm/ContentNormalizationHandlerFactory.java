@@ -29,6 +29,10 @@ public class ContentNormalizationHandlerFactory extends AbstractConfiguredFilter
    }
 
    private class ContentNormalizationConfigurationListener implements UpdateListener<ContentNormalizationConfig> {
+       
+       boolean isInitialized=false;
+     
+       
       @Override
       public void configurationUpdated(ContentNormalizationConfig configurationObject) {
          final HeaderFilterList headerList = configurationObject.getHeaderFilters();
@@ -42,11 +46,23 @@ public class ContentNormalizationHandlerFactory extends AbstractConfiguredFilter
          if (mediaTypeList != null) {
             mediaTypeNormalizer = new MediaTypeNormalizer(mediaTypeList.getMediaType());
          }
+          isInitialized=true;
       }
+      
+        @Override
+      public boolean isInitialized(){
+          return isInitialized;
+      }
+
    }
    
    @Override
    protected ContentNormalizationHandler buildHandler() {
+     
+      if( !this.isInitialized()){
+           return null;
+       }  
+              
       return new ContentNormalizationHandler(headerNormalizer, mediaTypeNormalizer);
    }
    

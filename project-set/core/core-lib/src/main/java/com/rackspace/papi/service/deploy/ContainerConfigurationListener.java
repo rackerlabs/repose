@@ -22,6 +22,8 @@ public class ContainerConfigurationListener implements UpdateListener<ContainerC
    private File deploymentDirectory;
    private EarUnpacker unpacker;
    private boolean autoClean = false;
+   private boolean isIntialized=false;
+  
 
    public ContainerConfigurationListener() {
    }
@@ -59,8 +61,16 @@ public class ContainerConfigurationListener implements UpdateListener<ContainerC
             unpacker = new EarUnpacker(deploymentDirectory);
          }
       }
+       isIntialized=true;
+
    }
 
+   
+     @Override
+      public boolean isInitialized(){
+          return isIntialized;
+      }
+  
    public synchronized void validateDeploymentDirectory() {
       if (deploymentDirectory == null) {
          throw new IllegalStateException("The Power API configured deployment directory is null.  Please check the Power API configuration file.");

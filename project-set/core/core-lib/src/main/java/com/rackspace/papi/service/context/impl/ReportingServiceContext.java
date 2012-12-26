@@ -75,6 +75,9 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
      * Listens for updates to the container.cfg.xml file which holds the jmx-reset-time.
      */
     private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
+        
+       boolean isIntialized=false;
+       
 
         @Override
         public void configurationUpdated(ContainerConfiguration configurationObject) {
@@ -87,7 +90,16 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
 
                 reportingService.updateConfiguration(destinationIds, jmxResetTime);
             }
+            isIntialized=true;
+
         }
+        
+    @Override
+     public boolean isInitialized(){
+         return isIntialized;
+     }
+
+    
     }
 
     /**
@@ -95,6 +107,8 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
      */
     private class SystemModelListener implements UpdateListener<SystemModel> {
 
+       boolean isIntialized=false;
+      
         @Override
         public void configurationUpdated(SystemModel systemModel) {
 
@@ -112,6 +126,7 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
                     endpointIds.add(destinationCluster.getId());
                 }
             }
+            
 
             synchronized (destinationIds) {
                 destinationIds.clear();
@@ -119,6 +134,16 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
             }
 
             reportingService.updateConfiguration(destinationIds, jmxResetTime);
+            isIntialized=true;
         }
+    
+    @Override
+    public boolean isInitialized(){
+        return isIntialized;
+    }
+
+ 
+        
+
     }
 }

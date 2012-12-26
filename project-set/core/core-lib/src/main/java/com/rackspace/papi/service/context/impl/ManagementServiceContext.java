@@ -84,6 +84,8 @@ public class ManagementServiceContext implements ServiceContext<ManagementServic
 
     private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
 
+       boolean isIntialized=false;
+     
         @Override
         public void configurationUpdated(ContainerConfiguration configurationObject) {
 
@@ -93,6 +95,12 @@ public class ManagementServiceContext implements ServiceContext<ManagementServic
 
                 managementService.start(managementPort, artifactDirectory, managementContext);
             }
+             isIntialized=true;
         }
+        @Override
+    public boolean isInitialized(){
+        return isIntialized;
+    }
+
     }
 }

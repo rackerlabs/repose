@@ -52,6 +52,8 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
 
    private class ClientAuthConfigurationListener implements UpdateListener<ClientAuthConfig> {
 
+       boolean isIntialized=false;
+      
       @Override
       public void configurationUpdated(ClientAuthConfig modifiedConfig) {
 
@@ -74,7 +76,17 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
          } else {
             LOG.error("Authentication module is not understood or supported. Please check your configuration.");
          }
+         
+          isIntialized=true;
+
       }
+      
+     @Override
+      public boolean isInitialized(){
+          return isIntialized;
+      }
+      
+  
    }
 
    private void updateUriMatcher(WhiteList whiteList) {
@@ -99,6 +111,9 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
 
    @Override
    protected AuthenticationHandler buildHandler() {
+    if(!this.isInitialized()){
+           return null;
+       } 
       return authenticationModule;
    }
 }
