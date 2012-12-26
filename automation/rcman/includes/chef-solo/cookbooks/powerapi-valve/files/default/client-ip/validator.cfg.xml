@@ -93,6 +93,5 @@
       check-xsd-grammar="true"
       check-elements="true"
       check-headers="true"
-      use-saxon="false"
-      enable-ignore-xsd-extension="true"  />
+      use-saxon="false" />
 </validators>

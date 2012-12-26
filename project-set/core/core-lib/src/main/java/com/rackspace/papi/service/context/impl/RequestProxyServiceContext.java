@@ -30,7 +30,7 @@ public class RequestProxyServiceContext implements ServiceContext<RequestProxySe
         this.proxyService = proxyService;
         this.configurationManager = configurationManager;
         this.registry = registry;
-        configListener = new ContainerConfigListener();
+        this.configListener = new ContainerConfigListener();
     }
 
     public void register() {
