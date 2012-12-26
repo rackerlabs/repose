@@ -40,9 +40,9 @@
       xml:id="Repose-Versioning-Deploy">
     <?rax pdf.url="../../repose-versioning-deploy.pdf"?>
     <title>&PRODNAME; Versioning Component Deployment Handbook</title>
-    <!-- set watermark on cover and left margin 
-        <?rax status.bar.text="CONFIDENTIAL"?>
-    -->
+    <!-- set watermark on cover and left margin -->
+    <?rax status.bar.text.font.size="40px" status.bar.text="DRAFT"?>
+    <!-- size line1 & line2 of title on PDF cover -->
     <?rax title.font.size="35px" subtitle.font.size="16px"?>
     <titleabbrev>&PRODABBREV; Versioning Deployment</titleabbrev>
     <info>

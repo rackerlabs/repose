@@ -49,7 +49,9 @@
                             <glossaryCollection>${project.build.directory}/../src/resources/repose-glossary.xml</glossaryCollection>
                             <!-- use <includes> to specify one book to build (saves time & OutOfMemoryError) -->
                             <!-- to build everything found in <sourceDirectory>, comment out includes -->
-                            <includes>repose-apivalidation-deploy.xml</includes>
+                            <includes>
+                                repose-translation-deploy.xml
+                            </includes>
                         </configuration>
                     </execution>
                 </executions>
