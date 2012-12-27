@@ -19,8 +19,12 @@ public class UriNormalizationHandlerFactory extends AbstractConfiguredFilterHand
    private Collection<QueryParameterNormalizer> queryStringNormalizers;
    private MediaTypeNormalizer mediaTypeNormalizer;
 
-   private class UriNormalizationConfigurationListener implements UpdateListener<UriNormalizationConfig> {
 
+ 
+   private class UriNormalizationConfigurationListener implements UpdateListener<UriNormalizationConfig> {
+       boolean isIntialized=false;
+ 
+       
       @Override
       public void configurationUpdated(UriNormalizationConfig configurationObject) {
          final UriFilterList uriFilterList = configurationObject.getUriFilters();
@@ -48,8 +52,18 @@ public class UriNormalizationHandlerFactory extends AbstractConfiguredFilterHand
          }
 
          queryStringNormalizers = newNormalizers.values();
+         if(configurationObject.getMediaVariants()!=null){
          mediaTypeNormalizer = new MediaTypeNormalizer(configurationObject.getMediaVariants().getMediaType());
+         }
+         isIntialized=true;
       }
+      
+     @Override
+      public boolean isInitialized(){
+          return isIntialized;
+      }
+      
+      
    }
 
    @Override
@@ -62,6 +76,11 @@ public class UriNormalizationHandlerFactory extends AbstractConfiguredFilterHand
 
    @Override
    protected UriNormalizationHandler buildHandler() {
-      return new UriNormalizationHandler(queryStringNormalizers, mediaTypeNormalizer);
+       if(!this.isInitialized()){
+           return null;
+       } 
+       
+         return new UriNormalizationHandler(queryStringNormalizers, mediaTypeNormalizer);
+       
    }
 }

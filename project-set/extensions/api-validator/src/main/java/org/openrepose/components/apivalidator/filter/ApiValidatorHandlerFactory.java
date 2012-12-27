@@ -67,6 +67,8 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
 
     class ApiValidatorWadlListener implements UpdateListener<ConfigurationResource> {
 
+       boolean isIntialized=false;
+       
         private String getNormalizedPath(String uri) {
             String path = uri;
             try {
@@ -102,7 +104,15 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                     }
                 }
             }
+             isIntialized=true;
         }
+          
+       @Override
+      public boolean isInitialized(){
+          return isIntialized;
+      }
+      
+  
     }
 
     private void addListener(String wadl) {
@@ -151,22 +161,34 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
 
     private class ApiValidationConfigurationListener implements UpdateListener<ValidatorConfiguration> {
 
+       boolean isIntialized=false;
+       
+        
         @Override
         public void configurationUpdated(ValidatorConfiguration configurationObject) {
             validatorConfiguration = configurationObject;
             unsubscribeAll();
             initialize();
+            isIntialized=true;
         }
+        
+        @Override
+        public boolean isInitialized(){
+            return isIntialized;
+        }
+
+      
     }
 
     void setValidatorCOnfiguration(ValidatorConfiguration configurationObject) {
         validatorConfiguration = configurationObject;
     }
+    
 
     @Override
     protected ApiValidatorHandler buildHandler() {
         initialize();
-        if (!initialized) {
+        if (!initialized || !this.isInitialized()) {
             return null;
         }
         return new ApiValidatorHandler(defaultValidator, validators, multiRoleMatch);

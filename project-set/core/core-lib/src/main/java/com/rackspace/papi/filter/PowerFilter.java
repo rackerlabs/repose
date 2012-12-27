@@ -78,6 +78,9 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
     private class SystemModelConfigListener implements UpdateListener<SystemModel> {
 
+       boolean isIntialized=false;
+       
+        
         // TODO:Review - There's got to be a better way of initializing PowerFilter. Maybe the app management service could be queryable.
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
@@ -102,7 +105,15 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                     updateFilterChainBuilder(newFilterChain);
                 }
             }
+            isIntialized=true;
         }
+
+    @Override
+    public boolean isInitialized(){
+    return isIntialized;
+    }
+
+
     }
 
     // This is written like this in case requests are already processing against the

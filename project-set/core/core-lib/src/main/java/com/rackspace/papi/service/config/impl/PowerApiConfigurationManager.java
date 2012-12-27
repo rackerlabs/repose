@@ -82,8 +82,10 @@ public class PowerApiConfigurationManager implements ConfigurationService {
                 // TODO:Refactor - Introduce a helper method so that this logic can be centralized and reused
                 if (ex.getCause() instanceof FileNotFoundException) {
                     LOG.error("An I/O error has occured while processing resource " + configurationName + " that is used by filter specified in system-model.cfg.xml - Reason: " + ex.getCause().getMessage());
+                 
                 } else {
                     LOG.error("Configuration update error. Reason: " + ex.getMessage(), ex);
+                  
                 }
             }
         }

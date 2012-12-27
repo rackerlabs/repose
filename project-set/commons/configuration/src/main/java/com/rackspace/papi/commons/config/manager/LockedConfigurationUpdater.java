@@ -11,6 +11,9 @@ public abstract class LockedConfigurationUpdater<T> implements UpdateListener<T>
     private final KeyedStackLock updateLock;
     private final Object updateKey;
 
+    boolean isIntialized=false;
+   
+    
     public LockedConfigurationUpdater(KeyedStackLock updateLock, Object updateKey) {
         this.updateLock = updateLock;
         this.updateKey = updateKey;
@@ -25,7 +28,15 @@ public abstract class LockedConfigurationUpdater<T> implements UpdateListener<T>
         } finally {
             updateLock.unlock(updateKey);
         }
+          isIntialized=true;
     }
+
+    @Override
+    public boolean isInitialized(){
+     return isIntialized;
+    }
+
+  
 
     protected abstract void onConfigurationUpdated(T configurationObject);
 }

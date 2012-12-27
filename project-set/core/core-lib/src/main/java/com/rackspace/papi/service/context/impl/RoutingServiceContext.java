@@ -50,12 +50,23 @@ public class RoutingServiceContext implements ServiceContext<RoutingService> {
    }
 
    private class PowerApiConfigListener implements UpdateListener<SystemModel> {
+       
+       boolean isIntialized=false;
+      
 
       @Override
       public void configurationUpdated(SystemModel configurationObject) {
          config = configurationObject;
          service.setSystemModel(config);
+          isIntialized=true;
       }
+      
+    @Override
+    public boolean isInitialized(){
+      return isIntialized;
+    }
+
+   
    }
 
    @Override

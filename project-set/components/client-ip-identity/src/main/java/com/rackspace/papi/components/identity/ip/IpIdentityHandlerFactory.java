@@ -33,6 +33,10 @@ public class IpIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
    private class ClientIpIdentityConfigurationListener implements UpdateListener<IpIdentityConfig> {
 
+       boolean isIntialized=false;
+     
+       
+       
       @Override
       public void configurationUpdated(IpIdentityConfig configurationObject) {
          config = configurationObject;
@@ -46,11 +50,22 @@ public class IpIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFac
                }
             }
          }
+        isIntialized=true;
       }
+      
+        @Override
+      public boolean isInitialized(){
+          return isIntialized;
+      }
+ 
    }
 
    @Override
    protected IpIdentityHandler buildHandler() {
+    
+      if(!this.isInitialized()){
+           return null;
+       } 
       return new IpIdentityHandler(config, whitelist);
    }
 }

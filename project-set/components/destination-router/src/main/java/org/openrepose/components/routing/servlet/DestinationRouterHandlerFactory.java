@@ -22,6 +22,9 @@ public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHan
 
     private class RoutingConfigurationListener implements UpdateListener<DestinationRouterConfiguration> {
 
+       boolean isIntialized=false;
+     
+       
         @Override
         public void configurationUpdated(DestinationRouterConfiguration configurationObject) {
 
@@ -34,7 +37,16 @@ public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHan
 
                 determineQuality();
             }
+            
+             isIntialized=true;
         }
+        
+        
+        @Override
+        public boolean isInitialized(){
+        return isIntialized;
+        }
+
 
         private void determineQuality() {
             if (target.isSetQuality()) {
@@ -49,6 +61,9 @@ public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHan
 
     @Override
     protected RoutingTagger buildHandler() {
+      if( !this.isInitialized()){
+           return null;
+       } 
         return new RoutingTagger(target.getId(), quality);
     }
 

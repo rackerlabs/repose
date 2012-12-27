@@ -1,6 +1,8 @@
 package com.rackspace.papi.components.cnorm;
 
 
+import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.components.normalization.config.ContentNormalizationConfig;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,7 +29,12 @@ public class ContentNormalizationHandlerFactoryTest {
     
     @Test
     public void shouldCreateNewInstanceOfContentNormalizationHandler() {
+     
+       ContentNormalizationConfig config=new ContentNormalizationConfig();
+        instance.configurationUpdated(config);
+        
         ContentNormalizationHandler handler = instance.buildHandler();
+        
         assertNotNull("Instance of Content Normalization Handler should not be null", handler);
     }
 }
