@@ -119,6 +119,14 @@
             <artifactId>jetty-servlet</artifactId>
             <version>8.0.1.v20110908</version>
          </dependency>
+         <!--
+        <dependency>
+            <groupId>com.rackspace.papi.core</groupId>
+            <artifactId>valve</artifactId>
+            <version>2.5.1-SNAPSHOT</version>
+            <type>jar</type>
+        </dependency>
+        -->
     </dependencies>
 
     <build>

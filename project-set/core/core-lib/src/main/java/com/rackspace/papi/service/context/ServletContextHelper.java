@@ -48,6 +48,10 @@ public final class ServletContextHelper {
     public ContextAdapter getPowerApiContext(ServletContext ctx) {
         return adapterProvider.newInstance(null);
     }
+    
+    public ContextAdapter getPowerApiContext() {
+        return adapterProvider.newInstance(null);
+    }
 
     public void setPowerApiContext(ServletContext ctx, ApplicationContext applicationContext) {
         ctx.setAttribute(SPRING_APPLICATION_CONTEXT_ATTRIBUTE_NAME, applicationContext);

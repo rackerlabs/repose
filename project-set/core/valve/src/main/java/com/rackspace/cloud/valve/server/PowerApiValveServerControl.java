@@ -1,5 +1,6 @@
 package com.rackspace.cloud.valve.server;
 
+import com.rackspace.cloud.valve.jetty.ValveControllerServerBuilder;
 import com.rackspace.cloud.valve.jetty.ValveJettyServerBuilder;
 import com.rackspace.papi.commons.config.ConfigurationResourceException;
 import com.rackspace.papi.commons.config.parser.ConfigurationParserFactory;
@@ -83,32 +84,46 @@ public class PowerApiValveServerControl {
    public void startPowerApiValve() {
       Server serverInstance = null;
       
-      try {
-
-         serverInstance = new ValveJettyServerBuilder(commandLineArgs.getConfigDirectory(), ports, validateSsl(), commandLineArgs.getConnectionFramework(), commandLineArgs.getInsecure()).newServer();
-         serverInstance.setStopAtShutdown(true);
+      try{
+         serverInstance = new ValveControllerServerBuilder(commandLineArgs.getConfigDirectory(), ports, validateSsl(), commandLineArgs.getConnectionFramework(), commandLineArgs.getInsecure()).newServer();
          serverInstance.start();
-         final Thread monitor = new MonitorThread(serverInstance, commandLineArgs.getStopPort(), LOCALHOST_IP);
-         monitor.start();
-
-         for (Port p : ports) {
-            if (p != null) {
-               LOG.info("Repose running and listening on " + p.getProtocol().toLowerCase() + " port: " + p.getPort());   
+      }catch (Exception e){
+         LOG.error("Unable to build controller server: "+ e.getMessage(), e);
+         if(serverInstance != null){
+            try{
+            serverInstance.stop();
+            }catch(Exception ex){
+               LOG.error("Unable to stop controller server: " + ex.getMessage(), ex);
             }
          }
-
-      } catch (Exception e) {
-         LOG.error("Repose could not be started. Reason: " + e.getMessage(), e);
-         LOG.error("Repose will now stop.");
-
-         if (serverInstance != null) {
-             try {
-                serverInstance.stop();
-             } catch(Exception ex) {
-                 LOG.error("Error stopping server", ex);
-             }
-         }
       }
+      
+//      try {
+//
+//         serverInstance = new ValveJettyServerBuilder(commandLineArgs.getConfigDirectory(), ports, validateSsl(), commandLineArgs.getConnectionFramework(), commandLineArgs.getInsecure()).newServer();
+//         serverInstance.setStopAtShutdown(true);
+//         serverInstance.start();
+//         final Thread monitor = new MonitorThread(serverInstance, commandLineArgs.getStopPort(), LOCALHOST_IP);
+//         monitor.start();
+//
+//         for (Port p : ports) {
+//            if (p != null) {
+//               LOG.info("Repose running and listening on " + p.getProtocol().toLowerCase() + " port: " + p.getPort());   
+//            }
+//         }
+//
+//      } catch (Exception e) {
+//         LOG.error("Repose could not be started. Reason: " + e.getMessage(), e);
+//         LOG.error("Repose will now stop.");
+//
+//         if (serverInstance != null) {
+//             try {
+//                serverInstance.stop();
+//             } catch(Exception ex) {
+//                 LOG.error("Error stopping server", ex);
+//             }
+//         }
+//      }
    }
 
    public void stopPowerApiValve() {
