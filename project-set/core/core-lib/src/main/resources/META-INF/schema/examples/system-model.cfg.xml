@@ -6,17 +6,13 @@
       <node id="node1" hostname="localhost" http-port="8088"/>
     </nodes>
     <filters>
-      <filter name="foo" id="foo"/>
+      <!--
+      <filter name="http-logging" />
+      <filter name="header-id-mapping" />
+      -->
     </filters>
     <destinations>
       <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80" default="true"/>
-      <target id="foo" protocol="http" cluster="foo"/>
     </destinations>
   </repose-cluster>
-  <service-cluster id="foo">
-    <nodes>
-      <node id="node2" hostname="localhost" http-port="9091"/>
-      <node id="node3" hostname="localhost" http-port="9091"/>
-    </nodes>
-  </service-cluster>
 </system-model>
