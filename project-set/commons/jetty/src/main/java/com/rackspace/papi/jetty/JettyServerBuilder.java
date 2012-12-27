@@ -32,31 +32,31 @@ public class JettyServerBuilder {
       return rootContext;
    }
 
-   public void addContextInitParameter(String name, String value) {
-      rootContext.getInitParams().put(name, value);
-   }
+          public void addContextInitParameter(String name, String value) {
+              rootContext.getInitParams().put(name, value);
+          }
 
-   public void addContextListener(Class<? extends ServletContextListener> contextListener)
-           throws IllegalAccessException, InstantiationException {
-      rootContext.addEventListener(contextListener.newInstance());
-   }
+       public void addContextListener(Class<? extends ServletContextListener> contextListener)
+       throws IllegalAccessException, InstantiationException {
+           rootContext.addEventListener(contextListener.newInstance());
+       }
 
-   public FilterHolder addFilter(Class<? extends Filter> filterClass, String pathspec) {
-      final FilterHolder filterInstasnce = new FilterHolder(filterClass);
-      rootContext.addFilter(filterInstasnce, pathspec, EnumSet.allOf(DispatcherType.class));
+       public FilterHolder addFilter(Class<? extends Filter> filterClass, String pathspec) {
+           final FilterHolder filterInstasnce = new FilterHolder(filterClass);
+           rootContext.addFilter(filterInstasnce, pathspec, EnumSet.allOf(DispatcherType.class));
 
-      return filterInstasnce;
-   }
+           return filterInstasnce;
+       }
 
-   public ServletHolder addServlet(Class<? extends Servlet> servletClass, String pathspec) {
-      final ServletHolder servletInstance = new ServletHolder(servletClass);
-      rootContext.addServlet(servletInstance, pathspec);
+       public ServletHolder addServlet(Class<? extends Servlet> servletClass, String pathspec) {
+           final ServletHolder servletInstance = new ServletHolder(servletClass);
+           rootContext.addServlet(servletInstance, pathspec);
 
-      return servletInstance;
-   }
+           return servletInstance;
+       }
 
-   public void start() throws JettyException {
-      try {
+       public void start() throws JettyException {
+           try {
          server.start();
       } catch (Exception ex) {
          LOG.error("error occurred in start", ex);
