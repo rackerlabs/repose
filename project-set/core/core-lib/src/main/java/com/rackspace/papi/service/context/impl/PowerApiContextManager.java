@@ -13,6 +13,7 @@ import com.rackspace.papi.service.deploy.ArtifactManagerServiceContext;
 import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
 import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.spring.SpringConfiguration;
+import java.util.UUID;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -21,6 +22,8 @@ import net.sf.ehcache.CacheManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.config.ConstructorArgumentValues;
+import org.springframework.beans.factory.support.GenericBeanDefinition;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 public class PowerApiContextManager implements ServletContextListener {
@@ -104,6 +107,15 @@ public class PowerApiContextManager implements ServletContextListener {
             LOG.info("Using default connection framework: " + DEFAULT_CONNECTION_FRAMEWORK);
             applicationContext.registerAlias(DEFAULT_CONNECTION_FRAMEWORK, "requestProxyService");
         }
+        
+        GenericBeanDefinition beanDef = new GenericBeanDefinition();
+        ConstructorArgumentValues args = new ConstructorArgumentValues();
+        args.addIndexedArgumentValue(0, UUID.randomUUID().toString(), "java.lang.String");
+        beanDef.setConstructorArgumentValues(args);
+        beanDef.setBeanClass(String.class);
+        
+        applicationContext.registerBeanDefinition("reposeId", beanDef);
+        applicationContext.getBean("exporter");
 
         configurePorts();
         
