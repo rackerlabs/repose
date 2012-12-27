@@ -32,6 +32,7 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
    private final SystemModelConfigurationListener systemModelConfigurationListener;
    private String configDir;
    private Set<String> curNodes  = new HashSet<String>();
+   private boolean initialized = false;
 
    @Autowired
    public ReposeValveControllerContext(
@@ -91,6 +92,12 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
          
          curNodes = controllerService.getManagedInstances();
          controllerService.updateManagedInstances(getNodesToStart(updatedSystem),getNodesToShutdown(updatedSystem));
+         initialized = true;
+      }
+
+      @Override
+      public boolean isInitialized() {
+         return initialized;
       }
    }
    
