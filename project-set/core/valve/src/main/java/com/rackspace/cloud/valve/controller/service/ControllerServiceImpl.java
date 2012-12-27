@@ -18,6 +18,7 @@ public class ControllerServiceImpl implements ControllerService {
    private Map<String, Server> managedServers = new HashMap<String, Server>();
    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ControllerServiceImpl.class);
    private String configDir;
+   private String connectionFramework;
 
    @Override
    public Set<String> getManagedInstances() {
@@ -79,9 +80,19 @@ public class ControllerServiceImpl implements ControllerService {
    public void setConfigDirectory(String directory) {
       this.configDir = directory;
    }
+   
+   @Override
+   public void setConnectionFramework(String framework){
+      this.connectionFramework = framework;
+   }
 
    @Override
    public String getConfigDirectory() {
       return this.configDir;
+   }
+   
+   @Override
+   public String getConnectionFramework(){
+      return this.connectionFramework;
    }
 }

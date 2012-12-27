@@ -18,5 +18,9 @@ public interface ControllerService {
    
    void setConfigDirectory(String directory);
    
+   void setConnectionFramework(String framework);
+   
    String getConfigDirectory();
+   
+   String getConnectionFramework();
 }
