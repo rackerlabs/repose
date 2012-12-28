@@ -2,6 +2,17 @@
 
 import argparse
 import validator
+import itertools
+
+def count_true(*iterables):
+    c = 0
+    for x in itertools.ifilter(None, itertools.chain(*iterables)): c += 1
+    return c
+
+def count_false(*iterables):
+    c = 0
+    for x in itertools.ifilterfalse(None, itertools.chain(*iterables)): c += 1
+    return c
 
 parser = argparse.ArgumentParser()
 parser.add_argument(metavar='target-addr', dest='target_addr', help='Hostname or IP address of the target Repose node')
@@ -96,8 +107,8 @@ def check_mf(protocol, host, port, path, pbr):
 
 res.append(check_mf(protocol, host, port, 'multimatch/mf', pbr))
 
-total_correct = validator.count_true(*res)
-total_incorrect = validator.count_false(*res)
+total_correct = count_true(*res)
+total_incorrect = count_false(*res)
 
 print '%i correct' % total_correct
 print '%i incorrect' % total_incorrect

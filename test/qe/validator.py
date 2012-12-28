@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 
 import requests
-import sys
 import re
-import itertools
 
 def check_responses(host, path, roles_and_responses, responses=None, protocol='http', port='8080', print_bad_responses=False):
     url = '%s://%s:%i/%s' % (protocol, host, port, path)
@@ -35,14 +33,4 @@ def check_responses(host, path, roles_and_responses, responses=None, protocol='h
             responses.append(resp)
 
     return results
-
-def count_true(*iterables):
-    c = 0
-    for x in itertools.ifilter(None, itertools.chain(*iterables)): c += 1
-    return c
-
-def count_false(*iterables):
-    c = 0
-    for x in itertools.ifilterfalse(None, itertools.chain(*iterables)): c += 1
-    return c
 
