@@ -87,8 +87,14 @@ def check_mp(protocol, host, port, path, pbr):
 
 res.append(check_mp(protocol, host, port, 'multimatch/mp', pbr))
 
-res.append(validator.check_responses(host, 'multimatch/mf', { 'role-0':403, 'role-1':405 },
-                                                                 protocol=protocol, port=port, print_bad_responses=pbr))
+
+def check_mf(protocol, host, port, path, pbr):
+    return validator.check_responses(host, path,
+                                     {'role-0': 403, 'role-1': 405},
+                                     protocol=protocol, port=port,
+                                     print_bad_responses=pbr)
+
+res.append(check_mf(protocol, host, port, 'multimatch/mf', pbr))
 
 total_correct = validator.count_true(*res)
 total_incorrect = validator.count_false(*res)
