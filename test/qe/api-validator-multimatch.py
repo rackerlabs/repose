@@ -4,21 +4,32 @@ import argparse
 import multimatch
 import itertools
 
+
 def count_true(*iterables):
     c = 0
-    for x in itertools.ifilter(None, itertools.chain(*iterables)): c += 1
+    for x in itertools.ifilter(None, itertools.chain(*iterables)):
+        c += 1
     return c
+
 
 def count_false(*iterables):
     c = 0
-    for x in itertools.ifilterfalse(None, itertools.chain(*iterables)): c += 1
+    for x in itertools.ifilterfalse(None, itertools.chain(*iterables)):
+        c += 1
     return c
 
 parser = argparse.ArgumentParser()
-parser.add_argument(metavar='target-addr', dest='target_addr', help='Hostname or IP address of the target Repose node')
-parser.add_argument(metavar='target-port', dest='target_port', help='Port of the target Repose node', type=int, default=8080, nargs='?')
-parser.add_argument('protocol', help='Protocol to use to connect to the Repose node', choices=['http','https'], default='http', nargs='?')
-parser.add_argument('--print-bad-response', help='Print out the response if it fails.', action='store_true')
+parser.add_argument(metavar='target-addr', dest='target_addr',
+                    help='Hostname or IP address of the target Repose node')
+parser.add_argument(metavar='target-port', dest='target_port',
+                    help='Port of the target Repose node', type=int,
+                    default=8080, nargs='?')
+parser.add_argument('protocol',
+                    help='Protocol to use to connect to the Repose node',
+                    choices=['http', 'https'], default='http', nargs='?')
+parser.add_argument('--print-bad-response',
+                    help='Print out the response if it fails.',
+                    action='store_true')
 
 args = parser.parse_args()
 
@@ -46,4 +57,3 @@ total_incorrect = count_false(*res)
 
 print '%i correct' % total_correct
 print '%i incorrect' % total_incorrect
-

@@ -12,7 +12,7 @@ def check_sspnn(protocol, host, port, pbr):
         'role-5': 404,
         'role-2,role-3': 405,
         'role-3,role-4': 200
-        }
+    }
     return validator.check_responses(host, 'multimatch/sspnn',
                                      roles_and_responses,
                                      protocol=protocol, port=port,
@@ -48,7 +48,7 @@ def check_mssfsffpnn(protocol, host, port, pbr):
         'role-3,role-5,role-6,role-7': 200,
         'role-3,role-5,role-6': 405,
         'role-7,role-8': 200
-        }
+    }
     return validator.check_responses(host, 'multimatch/mssfsffpnn',
                                      roles_and_responses,
                                      protocol=protocol, port=port,
