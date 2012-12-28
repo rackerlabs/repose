@@ -30,6 +30,10 @@ parser.add_argument('protocol',
 parser.add_argument('--print-bad-response',
                     help='Print out the response if it fails.',
                     action='store_true')
+parser.add_argument('--test', help='Select the test case to run',
+                    choices=['all', 'sspnn', 'f', 'p', 'mssfsffpnn', 'mf',
+                             'mp'],
+                    default='all')
 
 args = parser.parse_args()
 
@@ -38,19 +42,27 @@ host = args.target_addr
 port = args.target_port
 pbr = args.print_bad_response
 
+test = args.test
+
 res = []
 
-res.append(multimatch.check_sspnn(protocol, host, port, pbr))
+if test == 'all' or test == 'sspnn':
+    res.append(multimatch.check_sspnn(protocol, host, port, pbr))
 
-res.append(multimatch.check_p(protocol, host, port, pbr))
+if test == 'all' or test == 'p':
+    res.append(multimatch.check_p(protocol, host, port, pbr))
 
-res.append(multimatch.check_f(protocol, host, port, pbr))
+if test == 'all' or test == 'f':
+    res.append(multimatch.check_f(protocol, host, port, pbr))
 
-res.append(multimatch.check_mssfsffpnn(protocol, host, port, pbr))
+if test == 'all' or test == 'mssfsffpnn':
+    res.append(multimatch.check_mssfsffpnn(protocol, host, port, pbr))
 
-res.append(multimatch.check_mp(protocol, host, port, pbr))
+if test == 'all' or test == 'mp':
+    res.append(multimatch.check_mp(protocol, host, port, pbr))
 
-res.append(multimatch.check_mf(protocol, host, port, pbr))
+if test == 'all' or test == 'mf':
+    res.append(multimatch.check_mf(protocol, host, port, pbr))
 
 total_correct = count_true(*res)
 total_incorrect = count_false(*res)
