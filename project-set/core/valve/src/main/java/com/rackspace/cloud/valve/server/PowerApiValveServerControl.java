@@ -86,7 +86,16 @@ public class PowerApiValveServerControl {
       
       try{
          serverInstance = new ValveControllerServerBuilder(commandLineArgs.getConfigDirectory(), ports, validateSsl(), commandLineArgs.getConnectionFramework(), commandLineArgs.getInsecure()).newServer();
+         serverInstance.setStopAtShutdown(true);
          serverInstance.start();
+         final Thread monitor = new MonitorThread(serverInstance, commandLineArgs.getStopPort(), LOCALHOST_IP);
+         monitor.start();
+
+         for (Port p : ports) {
+            if (p != null) {
+               LOG.info("Repose Controller Server running and listening on " + p.getProtocol().toLowerCase() + " port: " + p.getPort());   
+            }
+         }
       }catch (Exception e){
          LOG.error("Unable to build controller server: "+ e.getMessage(), e);
          if(serverInstance != null){
@@ -97,33 +106,6 @@ public class PowerApiValveServerControl {
             }
          }
       }
-      
-//      try {
-//
-//         serverInstance = new ValveJettyServerBuilder(commandLineArgs.getConfigDirectory(), ports, validateSsl(), commandLineArgs.getConnectionFramework(), commandLineArgs.getInsecure()).newServer();
-//         serverInstance.setStopAtShutdown(true);
-//         serverInstance.start();
-//         final Thread monitor = new MonitorThread(serverInstance, commandLineArgs.getStopPort(), LOCALHOST_IP);
-//         monitor.start();
-//
-//         for (Port p : ports) {
-//            if (p != null) {
-//               LOG.info("Repose running and listening on " + p.getProtocol().toLowerCase() + " port: " + p.getPort());   
-//            }
-//         }
-//
-//      } catch (Exception e) {
-//         LOG.error("Repose could not be started. Reason: " + e.getMessage(), e);
-//         LOG.error("Repose will now stop.");
-//
-//         if (serverInstance != null) {
-//             try {
-//                serverInstance.stop();
-//             } catch(Exception ex) {
-//                 LOG.error("Error stopping server", ex);
-//             }
-//         }
-//      }
    }
 
    public void stopPowerApiValve() {
@@ -137,7 +119,7 @@ public class PowerApiValveServerControl {
          out.flush();
          s.close();
       } catch (IOException ioex) {
-         LOG.error("An error occurred while attempting to stop Repose. Reason: " + ioex.getMessage());
+         LOG.error("An error occurred while attempting to stop Repose Controller. Reason: " + ioex.getMessage());
       }
    }
 }

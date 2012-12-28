@@ -12,7 +12,7 @@ public interface ControllerService {
    
    Set<String> getManagedInstances();
    
-   void updateManagedInstances(Map<String, Node> nodesToStart, List<String> nodesToStop);
+   void updateManagedInstances(Map<String, Node> nodesToStart, Set<String> nodesToStop);
    
    Boolean reposeInstancesInitialized();
    

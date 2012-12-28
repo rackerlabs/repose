@@ -49,6 +49,12 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
       this.controllerService = controllerService;
       this.systemModelConfigurationListener = new SystemModelConfigurationListener();
    }
+   
+   public void register(){
+      if (registry != null) {
+            registry.addService(this);
+        }
+   }
 
    @Override
    public String getServiceName() {
@@ -67,13 +73,15 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
       controllerService.setConfigDirectory(configDir);
       URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
       configurationManager.subscribeTo("system-model.cfg.xml", xsdURL, systemModelConfigurationListener, SystemModel.class);
-
+      register();
 
    }
 
    @Override
    public void contextDestroyed(ServletContextEvent sce) {
       configurationManager.unsubscribeFrom("system-model.cfg.xml", systemModelConfigurationListener);
+      Set<String> curNodes = controllerService.getManagedInstances();
+      controllerService.updateManagedInstances(null, curNodes);
    }
 
    private class SystemModelConfigurationListener implements UpdateListener<SystemModel> {
@@ -115,7 +123,7 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
          for (ReposeCluster cluster : systemModel.getReposeCluster()) {
             for (Node node : cluster.getNodes().getNode()) {
                if (NetUtilities.isLocalHost(node.getHostname())) {
-                  updatedSystem.put(cluster.getId() + node.getId(), node);
+                  updatedSystem.put(cluster.getId() + node.getId() + node.getHostname() + node.getHttpPort(), node);
                }
             }
          }
@@ -123,9 +131,9 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
          return updatedSystem;
    }
    
-   private List<String> getNodesToShutdown(Map<String, Node> nodes) {
+   private Set<String> getNodesToShutdown(Map<String, Node> nodes) {
 
-      List<String> shutDownNodes = new LinkedList<String>();
+      Set<String> shutDownNodes = new HashSet<String>();
 
       for (String key : curNodes) {
          if (!nodes.containsKey(key)) {
