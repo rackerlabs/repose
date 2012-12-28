@@ -17,18 +17,34 @@ port = args.target_port
 pbr = args.print_bad_response
 
 res = []
-res.append(validator.check_responses(host, 'multimatch/sspnn', { 'role-0':403,
-                                                                 'role-1':405,
-                                                                 'role-2':405,
-                                                                 'role-3':200,
-                                                                 'role-4':404,
-                                                                 'role-5':404,
-                                                                 'role-2,role-3': 405,
-                                                                 'role-3,role-4': 200 },
-                                                                 protocol=protocol, port=port, print_bad_responses=pbr))
 
-res.append(validator.check_responses(host, 'multimatch/p', { 'role-0':403, 'role-1':200 },
-                                                                 protocol=protocol, port=port, print_bad_responses=pbr))
+
+def check_sspnn(protocol, host, port, path, pbr):
+    roles_and_responses = {
+        'role-0': 403,
+        'role-1': 405,
+        'role-2': 405,
+        'role-3': 200,
+        'role-4': 404,
+        'role-5': 404,
+        'role-2,role-3': 405,
+        'role-3,role-4': 200
+        }
+    return validator.check_responses(host, path,
+                                     roles_and_responses,
+                                     protocol=protocol, port=port,
+                                     print_bad_responses=pbr)
+
+res.append(check_sspnn(protocol, host, port, 'multimatch/sspnn', pbr))
+
+
+def check_p(protocol, host, port, path, pbr):
+    return validator.check_responses(host, path,
+                                     {'role-0': 403, 'role-1': 200},
+                                     protocol=protocol, port=port,
+                                     print_bad_responses=pbr)
+
+res.append(check_p(protocol, host, port, 'multimatch/p', pbr))
 
 res.append(validator.check_responses(host, 'multimatch/f', { 'role-0':403, 'role-1':405 },
                                                                  protocol=protocol, port=port, print_bad_responses=pbr))
