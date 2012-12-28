@@ -46,8 +46,14 @@ def check_p(protocol, host, port, path, pbr):
 
 res.append(check_p(protocol, host, port, 'multimatch/p', pbr))
 
-res.append(validator.check_responses(host, 'multimatch/f', { 'role-0':403, 'role-1':405 },
-                                                                 protocol=protocol, port=port, print_bad_responses=pbr))
+
+def check_f(protocol, host, port, path, pbr):
+    return validator.check_responses(host, path,
+                                     {'role-0': 403, 'role-1': 405},
+                                     protocol=protocol, port=port,
+                                     print_bad_responses=pbr)
+
+res.append(check_f(protocol, host, port, 'multimatch/f', pbr))
 
 res.append(validator.check_responses(host, 'multimatch/mssfsffpnn', { 'role-0':403,
                                                                       'role-1':405,
