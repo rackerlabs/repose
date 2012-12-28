@@ -29,17 +29,17 @@ pbr = args.print_bad_response
 
 res = []
 
-res.append(multimatch.check_sspnn(protocol, host, port, 'multimatch/sspnn', pbr))
+res.append(multimatch.check_sspnn(protocol, host, port, pbr))
 
-res.append(multimatch.check_p(protocol, host, port, 'multimatch/p', pbr))
+res.append(multimatch.check_p(protocol, host, port, pbr))
 
-res.append(multimatch.check_f(protocol, host, port, 'multimatch/f', pbr))
+res.append(multimatch.check_f(protocol, host, port, pbr))
 
-res.append(multimatch.check_mssfsffpnn(protocol, host, port, 'multimatch/mssfsffpnn', pbr))
+res.append(multimatch.check_mssfsffpnn(protocol, host, port, pbr))
 
-res.append(multimatch.check_mp(protocol, host, port, 'multimatch/mp', pbr))
+res.append(multimatch.check_mp(protocol, host, port, pbr))
 
-res.append(multimatch.check_mf(protocol, host, port, 'multimatch/mf', pbr))
+res.append(multimatch.check_mf(protocol, host, port, pbr))
 
 total_correct = count_true(*res)
 total_incorrect = count_false(*res)
