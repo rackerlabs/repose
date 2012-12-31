@@ -1,0 +1,72 @@
+#!/bin/bash
+# chkconfig: 234 20 80
+
+CONFIG_DIRECTORY=/etc/repose
+
+LOG_PATH=/var/log/repose
+JAR_DIRECTORY=/usr/share/lib/repose
+JAVA=/usr/bin/java
+PID_FILE=/var/run/repose-valve
+JMX="-Dcom.sun.management.jmxremote.port=9999 -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.ssl=false"
+
+
+startRepose()
+{
+    PORT=$1
+    STOP_PORT=$2
+    NODE_NUMBER=$3
+
+    START_ARGS="--start --quiet --oknodo --make-pidfile --pidfile ${PID_FILE}.$NODE_NUMBER.pid"
+
+    start-stop-daemon $START_ARGS --exec $JAVA -- -jar $JAR_DIRECTORY/repose-valve.jar START -p $PORT -s $STOP_PORT -c $CONFIG_DIRECTORY/node$NODE_NUMBER > $LOG_PATH/node$NODE_NUMBER/current.log 2>&1 &
+}
+
+stopRepose()
+{
+    PORT=$1
+    STOP_PORT=$2
+    NODE_NUMBER=$3
+
+    java -jar $JAR_DIRECTORY/repose-valve.jar STOP -p $PORT -s $STOP_PORT -c $CONFIG_DIRECTORY/node$NODE_NUMBER > $LOG_PATH/node$NODE_NUMBER/current.log 2>&1 &
+}
+
+repose()
+{
+   for ID in {7..12}
+      do
+	PORT=`expr $ID + 8886`
+	STOP_PORT=`expr $ID + 8817`
+	echo "$1 repose on port $PORT"
+	case $1 in
+           start)
+	      startRepose $PORT $STOP_PORT $ID
+	   ;;
+           stop)
+	      stopRepose  $PORT $STOP_PORT $ID
+           ;;
+        esac
+        sleep 1
+      done
+      #sleep 10
+      #java -jar /root/jolokia-jvm.jar start `cat ${PID_FILE}.3.pid`
+}
+
+case $1 in
+   start)
+      repose $1
+     
+      ;;
+
+   stop)
+     repose $1
+      ;;
+
+   restart)
+     repose stop
+     sleep 4
+     repose start
+      ;;
+esac
+
+exit 0
+

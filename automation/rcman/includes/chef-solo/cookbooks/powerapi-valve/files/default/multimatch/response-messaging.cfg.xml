@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- http://wiki.openrepose.org/display/REPOSE/Response+Messaging+Service -->
+<!-- The Response Messaging Service (RMS) allows you to configure the HTTP response returned to the client
+     for specific HTTP status codes. -->
+<response-messaging xmlns="http://docs.rackspacecloud.com/repose/response-messaging/v1.0">
+
+
+</response-messaging>
