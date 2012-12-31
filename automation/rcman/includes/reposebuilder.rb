@@ -103,6 +103,10 @@ module ReposeBuilder
         executeCommand(server,"/usr/sbin/service repose-regression #{command}")
     end
 
+    def valveNodes2(server,command)
+        executeCommand(server,"/usr/sbin/service repose-regression2 #{command}")
+    end
+
     def tomcatNodes(server,command)
         executeCommand(server,"/usr/sbin/service tomcat7 #{command}")
     end
