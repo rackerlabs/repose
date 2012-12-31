@@ -77,6 +77,7 @@ module ReposeBuilder
         installRepose(server,"papi_node2")
 
         puts "Starting repose..."
+        valveNodes2(server, "start")
         tomcatNodes(server,"restart")
 
         logger.info("Repose instance built: #{server.ip} : #{server.password} : #{server.getId}")
