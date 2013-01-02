@@ -34,6 +34,9 @@ public class UriIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
    private class UriIdentityConfigurationListener implements UpdateListener<UriIdentityConfig> {
 
+       boolean isIntialized=false;
+      
+       
       @Override
       public void configurationUpdated(UriIdentityConfig configurationObject) {
 
@@ -47,11 +50,22 @@ public class UriIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
          quality = determineQuality();
          group = StringUtilities.getNonBlankValue(group, DEFAULT_GROUP);
+         
+          isIntialized=true;
       }
+      
+        @Override
+      public boolean isInitialized(){
+          return isIntialized;
+      }
+  
    }
 
    @Override
    protected UriIdentityHandler buildHandler() {
+    if(!this.isInitialized()){
+           return null;
+       } 
       return new UriIdentityHandler(patterns, group, quality);
    }
 

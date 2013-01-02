@@ -34,6 +34,9 @@ public class PowerApiUpdateManagerEventListener implements EventListener<Configu
                 currentThread.setContextClassLoader(parserListener.getClassLoader());
                 try {
                     configUpdate(updateListener, parserListener.getParser().read(e.payload()));
+                }catch(Exception ex){
+                    LOG.error("Configuration update error. Reason: " + ex.getMessage(), ex);
+                   
                 } finally {
                     currentThread.setContextClassLoader(previousClassLoader);
                 }

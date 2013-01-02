@@ -33,6 +33,9 @@ public class HeaderNormalizationHandlerFactory extends AbstractConfiguredFilterH
     }
 
     private class ContentNormalizationConfigurationListener implements UpdateListener<HeaderNormalizationConfig> {
+        
+       boolean isIntialized=false;
+       
 
         @Override
         public void configurationUpdated(HeaderNormalizationConfig configurationObject) {
@@ -54,11 +57,23 @@ public class HeaderNormalizationHandlerFactory extends AbstractConfiguredFilterH
             }else{
                 LOG.warn("No Header List Configured for Header Normalizer Filter");
             }
+            
+             isIntialized=true;
         }
+
+        @Override
+        public boolean isInitialized(){
+        return isIntialized;
+        }
+
+      
     }
 
     @Override
     protected HeaderNormalizationHandler buildHandler() {
+     if(!this.isInitialized()){
+           return null;
+       } 
         return new HeaderNormalizationHandler(compiledTargetList);
     }
 }

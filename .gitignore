@@ -3,6 +3,7 @@
 *.iml
 *.iws
 *.ipr
+*.lic
 target
 */target
 */*/target

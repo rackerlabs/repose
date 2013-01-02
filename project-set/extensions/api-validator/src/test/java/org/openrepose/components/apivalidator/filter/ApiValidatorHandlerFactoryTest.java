@@ -1,5 +1,6 @@
 package org.openrepose.components.apivalidator.filter;
 
+import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.config.parser.generic.GenericResourceConfigurationParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
@@ -48,16 +49,19 @@ public class ApiValidatorHandlerFactoryTest {
             configService = mock(ConfigurationService.class);
             URL resource = this.getClass().getClassLoader().getResource("");
             instance = new ApiValidatorHandlerFactory(configService, resource.getPath(), "");
-            
-            instance.setValidatorCOnfiguration(config);
-            instance.initialize();
+            ;
+            instance.configurationUpdated(config);
             
             roles = new ArrayList<HeaderValue>();
             roles.add(new HeaderValueImpl(role));
+            
         }
         
        @Test
         public void shouldBuildValidatorListAndSubscribeToWadl() {
+              
+             
+         
             ApiValidatorHandler handler = instance.buildHandler();
             assertNotNull("Should build handler", handler);
 

@@ -28,6 +28,8 @@ public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilter
 
    private class RoutingConfigurationListener implements UpdateListener<RackspaceAuthorization> {
 
+       boolean isIntialized=false;
+      
       @Override
       public void configurationUpdated(RackspaceAuthorization configurationObject) {
          authorizationConfiguration = configurationObject;
@@ -39,11 +41,25 @@ public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilter
          } else {
             LOG.error("Errors detected in rackspace authorization configuration. Please check configurations.");
          }
+         
+          isIntialized=true;
       }
+      
+        @Override
+      public boolean isInitialized(){
+          return isIntialized;
+      }
+      
+ 
    }
 
    @Override
    protected RequestAuthorizationHandler buildHandler() {
+       
+      if(!this.isInitialized()){
+           return null;
+       } 
+       
       if (authenticationService == null) {
          LOG.error("Component has not been initialized yet. Please check your configurations.");
          throw new IllegalStateException("Component has not been initialized yet");

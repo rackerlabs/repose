@@ -76,6 +76,9 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
 
     private class RateLimitingConfigurationListener implements UpdateListener<RateLimitingConfiguration> {
 
+       boolean isIntialized=false;
+      
+        
         @Override
         public void configurationUpdated(RateLimitingConfiguration configurationObject) {
             
@@ -87,11 +90,24 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
 
             rateLimitingConfig = configurationObject;
             
+             isIntialized=true;
+            
            }
+        
+        @Override
+        public boolean isInitialized(){
+              return isIntialized;
+        }
+
+    
     }
 
     @Override
     protected RateLimitingHandler buildHandler() {
+        
+      if( !this.isInitialized()){
+           return null;
+       } 
 
         final ActiveLimitsWriter activeLimitsWriter = new ActiveLimitsWriter();
         final CombinedLimitsWriter combinedLimitsWriter = new CombinedLimitsWriter();

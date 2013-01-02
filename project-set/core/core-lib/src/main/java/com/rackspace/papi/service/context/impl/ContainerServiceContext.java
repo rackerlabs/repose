@@ -68,6 +68,9 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
      */
    private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
 
+       boolean isIntialized=false;
+      
+
       private ServicePorts determinePorts(DeploymentConfiguration deployConfig) {
          ServicePorts ports = new ServicePorts();
 
@@ -120,9 +123,18 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
                servicePorts.addAll(ports);
             }
          }
-         
+          isIntialized=true;
       }
+        @Override
+          public boolean isInitialized(){
+              return isIntialized;
+          }
+
+      
+
    }
+   
+   
 
    @Override
    public void contextInitialized(ServletContextEvent servletContextEvent) {

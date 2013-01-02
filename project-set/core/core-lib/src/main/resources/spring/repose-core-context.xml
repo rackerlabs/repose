@@ -10,7 +10,22 @@
 
     <context:component-scan base-package="com.rackspace"/>
     <context:annotation-config/>
-    <context:mbean-export/>
+    <!-- <context:mbean-export/> -->
+    
+    <bean id="exporter" class="org.springframework.jmx.export.annotation.AnnotationMBeanExporter" lazy-init="true">
+        <property name="namingStrategy" ref="reposeJmxNamingStrategy"/>
+    </bean>
+
+    <!--
+    <bean id="namingStrategy" class="com.rackspace.papi.spring.ReposeJmxNamingStrategy">
+        <property name="attributeSource" ref="attributeSource"/>
+    </bean>
+
+    <bean id="jmxAttributeSource"
+        class="org.springframework.jmx.export.metadata.JmxAttributeSource"/>    
+    -->
+    <bean id="jmxAttributeSource"
+        class="org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource"/>    
     
     <bean name="reposeVersion" class="java.lang.String">
         <constructor-arg type="java.lang.String" value="${reposeVersion}"/>

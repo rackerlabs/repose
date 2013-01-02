@@ -61,10 +61,19 @@ public class ResponseMessageServiceContext implements ServiceContext<ResponseMes
    }
 
    private class ResponseMessagingServiceListener implements UpdateListener<ResponseMessagingConfiguration> {
-
+       boolean isIntialized=false;
+      
+       
       @Override
       public void configurationUpdated(ResponseMessagingConfiguration configurationObject) {
          messageService.updateConfiguration(configurationObject.getStatusCode());
+          isIntialized=true;
       }
+      
+    @Override
+    public boolean isInitialized(){
+      return isIntialized;
+    }
+
    }
 }
