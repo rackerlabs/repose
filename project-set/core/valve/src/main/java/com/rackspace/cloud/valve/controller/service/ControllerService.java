@@ -1,6 +1,7 @@
 
 package com.rackspace.cloud.valve.controller.service;
 
+import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.model.Node;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +13,7 @@ public interface ControllerService {
    
    Set<String> getManagedInstances();
    
-   void updateManagedInstances(Map<String, Node> nodesToStart, Set<String> nodesToStop);
+   void updateManagedInstances(Map<String, ExtractorResult<Node>> nodesToStart, Set<String> nodesToStop);
    
    Boolean reposeInstancesInitialized();
    
@@ -23,4 +24,8 @@ public interface ControllerService {
    String getConfigDirectory();
    
    String getConnectionFramework();
+   
+   void setIsInsecure(boolean isInsecure);
+   
+   Boolean isInsecure();
 }

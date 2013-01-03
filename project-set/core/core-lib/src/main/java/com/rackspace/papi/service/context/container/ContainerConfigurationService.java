@@ -1,11 +1,11 @@
 package com.rackspace.papi.service.context.container;
 
 import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.domain.ServicePorts;
 
 import java.util.List;
 
 public interface ContainerConfigurationService {
-   List<Port> getPorts();
    
    String getVia();
    
@@ -14,4 +14,7 @@ public interface ContainerConfigurationService {
    int getContentBodyReadLimit();
    
    void setContentBodyReadLimit(int value);
+   
+   ServicePorts getServicePorts();
+   
 }

@@ -10,6 +10,8 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.cloud.valve.controller.service.ControllerService;
 import com.rackspace.papi.commons.util.net.NetUtilities;
+import com.rackspace.papi.commons.util.regex.ExtractorResult;
+import com.rackspace.papi.servlet.InitParameter;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,6 +38,7 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
    private final SystemModelConfigurationListener systemModelConfigurationListener;
    private String configDir;
    private String connectionFramework;
+   private boolean isInsecure;
    private Set<String> curNodes = new HashSet<String>();
    private boolean initialized = false;
 
@@ -68,8 +71,9 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
 
    @Override
    public void contextInitialized(ServletContextEvent sce) {
-      this.configDir = sce.getServletContext().getInitParameter("powerapi-config-directory");
-      this.connectionFramework = sce.getServletContext().getInitParameter("connection-framework");
+      this.configDir = sce.getServletContext().getInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName());
+      this.connectionFramework = sce.getServletContext().getInitParameter(InitParameter.CONNECTION_FRAMEWORK.getParameterName());
+      this.isInsecure = Boolean.getBoolean(sce.getServletContext().getInitParameter(InitParameter.INSECURE.getParameterName()));
       controllerService.setConfigDirectory(configDir);
       URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
       configurationManager.subscribeTo("system-model.cfg.xml", xsdURL, systemModelConfigurationListener, SystemModel.class);
@@ -98,10 +102,12 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
          if (StringUtilities.isBlank(controllerService.getConnectionFramework())) {
             controllerService.setConnectionFramework(connectionFramework);
          }
+         
+         controllerService.setIsInsecure(isInsecure);
 
          systemModel = configurationObject;
 
-         Map<String, Node> updatedSystem = getLocalReposeInstances(systemModel);
+         Map<String, ExtractorResult<Node>> updatedSystem = getLocalReposeInstances(systemModel);
          
          
          controllerService.updateManagedInstances(getNodesToStart(updatedSystem), getNodesToShutdown(updatedSystem));
@@ -116,14 +122,14 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
       }
    }
 
-   private Map<String, Node> getLocalReposeInstances(SystemModel systemModel){
+   private Map<String, ExtractorResult<Node>> getLocalReposeInstances(SystemModel systemModel){
       
-      Map<String, Node> updatedSystem = new HashMap<String, Node>();
+      Map<String, ExtractorResult<Node>> updatedSystem = new HashMap<String, ExtractorResult<Node>>();
 
          for (ReposeCluster cluster : systemModel.getReposeCluster()) {
             for (Node node : cluster.getNodes().getNode()) {
                if (NetUtilities.isLocalHost(node.getHostname())) {
-                  updatedSystem.put(cluster.getId() + node.getId() + node.getHostname() + node.getHttpPort(), node);
+                  updatedSystem.put(cluster.getId() + node.getId() + node.getHostname() + node.getHttpPort() + node.getHttpsPort(), new ExtractorResult<Node>(cluster.getId(), node));
                }
             }
          }
@@ -131,7 +137,7 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
          return updatedSystem;
    }
    
-   private Set<String> getNodesToShutdown(Map<String, Node> nodes) {
+   private Set<String> getNodesToShutdown(Map<String, ExtractorResult<Node>> nodes) {
 
       Set<String> shutDownNodes = new HashSet<String>();
 
@@ -144,8 +150,8 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
       return shutDownNodes;
    }
 
-   private Map<String, Node> getNodesToStart(Map<String, Node> newModel) {
-      Map<String, Node> startUps = new HashMap<String, Node>();
+   private Map<String, ExtractorResult<Node>> getNodesToStart(Map<String, ExtractorResult<Node>> newModel) {
+      Map<String, ExtractorResult<Node>> startUps = new HashMap<String, ExtractorResult<Node>>();
 
       for (String key : newModel.keySet()) {
          if (!curNodes.contains(key)) {

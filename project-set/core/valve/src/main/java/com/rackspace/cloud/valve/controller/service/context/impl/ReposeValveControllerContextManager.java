@@ -10,7 +10,6 @@ import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.impl.EventManagerServiceContext;
 import com.rackspace.papi.service.context.impl.LoggingServiceContext;
 import com.rackspace.papi.service.context.impl.ReportingServiceContext;
-import com.rackspace.papi.service.context.impl.RoutingServiceContext;
 import com.rackspace.papi.service.context.spring.SpringContextAdapterProvider;
 import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
 import com.rackspace.papi.servlet.InitParameter;

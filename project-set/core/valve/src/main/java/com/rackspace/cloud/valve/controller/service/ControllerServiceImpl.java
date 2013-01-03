@@ -1,8 +1,18 @@
 package com.rackspace.cloud.valve.controller.service;
 
 import com.rackspace.cloud.valve.jetty.ValveJettyServerBuilder;
+import com.rackspace.papi.commons.config.ConfigurationResourceException;
+import com.rackspace.papi.commons.config.parser.ConfigurationParserFactory;
+import com.rackspace.papi.commons.config.parser.jaxb.JaxbConfigurationParser;
+import com.rackspace.papi.commons.config.resource.impl.BufferedURLConfigurationResource;
+import com.rackspace.papi.commons.util.regex.ExtractorResult;
+import com.rackspace.papi.container.config.ContainerConfiguration;
+import com.rackspace.papi.container.config.SslConfiguration;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.model.Node;
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,6 +32,7 @@ public class ControllerServiceImpl implements ControllerService {
    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ControllerServiceImpl.class);
    private String configDir;
    private String connectionFramework;
+   private boolean isInsecure;
 
    @Override
    public Set<String> getManagedInstances() {
@@ -30,10 +41,7 @@ public class ControllerServiceImpl implements ControllerService {
    }
 
    @Override
-   public synchronized void updateManagedInstances(Map<String, Node> updatedInstances, Set<String> nodesToStop) {
-
-      LOG.info("Here are the new nodes");
-
+   public synchronized void updateManagedInstances(Map<String, ExtractorResult<Node>> updatedInstances, Set<String> nodesToStop) {
 
       if (!nodesToStop.isEmpty()) {
          stopServers(nodesToStop);
@@ -43,18 +51,19 @@ public class ControllerServiceImpl implements ControllerService {
       }
    }
 
-   private void startValveServers(Map<String, Node> updatedInstances) {
+   private void startValveServers(Map<String, ExtractorResult<Node>> updatedInstances) {
 
-      final Set<Entry<String, Node>> entrySet = updatedInstances.entrySet();
+      final Set<Entry<String, ExtractorResult<Node>>> entrySet = updatedInstances.entrySet();
 
-      for (Entry<String, Node> entry : entrySet) {
+      for (Entry<String, ExtractorResult<Node>> entry : entrySet) {
 
-         Node curNode = entry.getValue();
+         Node curNode = entry.getValue().getKey();
 
          List<Port> ports = getNodePorts(curNode);
 
 
-         Server serverInstance = new ValveJettyServerBuilder(configDir, ports, null, "", true).newServer();
+
+         Server serverInstance = new ValveJettyServerBuilder(configDir, ports, validateSsl(curNode), connectionFramework, true, entry.getValue().getResult(), curNode.getId()).newServer();
          try {
             serverInstance.start();
             serverInstance.setStopAtShutdown(true);
@@ -122,5 +131,58 @@ public class ControllerServiceImpl implements ControllerService {
       }
 
       return ports;
+   }
+
+   @Override
+   public void setIsInsecure(boolean isInsecure) {
+      this.isInsecure = isInsecure;
+   }
+
+   @Override
+   public Boolean isInsecure() {
+      return isInsecure;
+   }
+
+   private SslConfiguration validateSsl(Node node) {
+      SslConfiguration sslConfiguration = null;
+
+      if (node.getHttpsPort() != 0) {
+
+         try{
+         sslConfiguration = readSslConfiguration(configDir);
+         }catch(MalformedURLException e){
+            LOG.error("Unable to build path to SSL configuration: " + e.getMessage(), e);
+         }
+
+         if (sslConfiguration == null) {
+            throw new ConfigurationResourceException("Repose node "+ node.getId() + " is configured to run on https but the ssl configuration is not in container.cfg.xml.");
+         }
+
+         if (sslConfiguration.getKeystoreFilename() == null) {
+            throw new ConfigurationResourceException("Repose node "+ node.getId() + " is configured to run on https but the ssl keystore filename is not in container.cfg.xml.");
+         }
+
+         if (sslConfiguration.getKeystorePassword() == null) {
+            throw new ConfigurationResourceException("Repose node "+ node.getId() + " is configured to run on https but the ssl keystore password is not in container.cfg.xml.");
+         }
+
+         if (sslConfiguration.getKeyPassword() == null) {
+            throw new ConfigurationResourceException("Repose node "+ node.getId() + " is configured to run on https but the ssl key password is not in container.cfg.xml.");
+         }
+      }
+
+      return sslConfiguration;
+   }
+
+   private SslConfiguration readSslConfiguration(String cfgRoot) throws MalformedURLException {
+      final URL configurationLocation = new URL("file://" + cfgRoot + File.separator + "c.cfg.xml");
+      final JaxbConfigurationParser<ContainerConfiguration> containerConfigParser = ConfigurationParserFactory.getXmlConfigurationParser(ContainerConfiguration.class, null);
+      final ContainerConfiguration cfg = containerConfigParser.read(new BufferedURLConfigurationResource(configurationLocation));
+
+      if (cfg != null && cfg.getDeploymentConfig() != null) {
+         return cfg.getDeploymentConfig().getSslConfiguration();
+      }
+
+      throw new ConfigurationResourceException("Container configuration is not valid. Please check your configuration.");
    }
 }
