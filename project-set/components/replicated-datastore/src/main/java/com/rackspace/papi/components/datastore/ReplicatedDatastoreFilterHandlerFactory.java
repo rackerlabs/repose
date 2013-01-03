@@ -10,6 +10,7 @@ import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
+import com.rackspace.papi.service.context.container.ContainerConfigurationService;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.impl.replicated.ReplicatedDatastore;
 import com.rackspace.papi.service.datastore.impl.replicated.data.Subscriber;
@@ -32,16 +33,16 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
     private ReplicatedDatastoreConfiguration configuration;
     private final Object lock = new Object();
 
-    public ReplicatedDatastoreFilterHandlerFactory(DatastoreService service, CacheManager ehCacheManager) {
+    public ReplicatedDatastoreFilterHandlerFactory(DatastoreService service, CacheManager ehCacheManager, ServicePorts ports) {
         this.service = service;
         this.ehCacheManager = ehCacheManager;
+        this.ports = ports;
     }
 
     @Override
     protected Map<Class, UpdateListener<?>> getListeners() {
         final Map<Class, UpdateListener<?>> listeners = new HashMap<Class, UpdateListener<?>>();
         listeners.put(SystemModel.class, new SystemModelUpdateListener());
-        listeners.put(ContainerConfiguration.class, new ContainerConfigurationListener());
         listeners.put(ReplicatedDatastoreConfiguration.class, new ConfigListener());
 
         return listeners;
@@ -127,46 +128,6 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
     }
 
 
-    }
-
-    private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
-
-       boolean isIntialized=false;
-       
-
-        private ServicePorts determinePorts(DeploymentConfiguration deployConfig) {
-            ServicePorts servicePorts = new ServicePorts();
-
-            if (deployConfig != null) {
-                if (deployConfig.getHttpPort() != null) {
-                    servicePorts.add(new Port("http", deployConfig.getHttpPort()));
-                }
-
-                if (deployConfig.getHttpsPort() != null) {
-                    servicePorts.add(new Port("https", deployConfig.getHttpsPort()));
-                }
-            }
-
-            return servicePorts;
-            
-        }
-
-        @Override
-        public void configurationUpdated(ContainerConfiguration configurationObject) {
-            DeploymentConfiguration deployConfig = configurationObject.getDeploymentConfig();
-            synchronized (lock) {
-                ports = determinePorts(deployConfig);
-            }
-            createDistributedDatastore();
-            isIntialized=true;
-        }
-        
-    @Override
-    public boolean isInitialized(){
-      return isIntialized;
-    }
-
-   
     }
 
     private class ConfigListener implements UpdateListener<ReplicatedDatastoreConfiguration> {

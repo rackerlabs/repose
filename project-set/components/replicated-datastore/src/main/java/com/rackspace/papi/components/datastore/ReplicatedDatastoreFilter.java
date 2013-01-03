@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.datastore;
 
-import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.model.SystemModel;
@@ -47,9 +46,8 @@ public class ReplicatedDatastoreFilter implements Filter {
 
         ehCacheManager = CacheManager.newInstance(defaultConfiguration);
         
-        handlerFactory = new ReplicatedDatastoreFilterHandlerFactory(contextAdapter.datastoreService(), ehCacheManager);
+        handlerFactory = new ReplicatedDatastoreFilterHandlerFactory(contextAdapter.datastoreService(), ehCacheManager, contextAdapter.containerConfigurationService().getServicePorts());
         configurationManager = contextAdapter.configurationService();
-        configurationManager.subscribeTo("container.cfg.xml", handlerFactory, ContainerConfiguration.class);
         configurationManager.subscribeTo("system-model.cfg.xml", handlerFactory, SystemModel.class);
         configurationManager.subscribeTo(config,handlerFactory, ReplicatedDatastoreConfiguration.class);
     }
