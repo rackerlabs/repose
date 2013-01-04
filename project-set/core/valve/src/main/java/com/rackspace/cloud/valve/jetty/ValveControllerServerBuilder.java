@@ -1,12 +1,10 @@
 package com.rackspace.cloud.valve.jetty;
 
+import com.rackspace.cloud.valve.controller.service.context.impl.ReposeValveControllerContextManager;
 import com.rackspace.cloud.valve.jetty.servlet.ControllerServlet;
-import com.rackspace.cloud.valve.jetty.servlet.ProxyServlet;
 import com.rackspace.papi.container.config.SslConfiguration;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ServicePorts;
-import com.rackspace.papi.service.context.impl.PowerApiContextManager;
-import com.rackspace.cloud.valve.controller.service.context.impl.ReposeValveControllerContextManager;
 import com.rackspace.papi.servlet.InitParameter;
 import java.util.ArrayList;
 import java.util.List;

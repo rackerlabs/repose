@@ -40,7 +40,7 @@ public class ReposeValveControllerContextManager implements ServletContextListen
       ca.getContext(EventManagerServiceContext.class).contextInitialized(sce);
       ca.getContext(ConfigurationServiceContext.class).contextInitialized(sce);
       ca.getContext(LoggingServiceContext.class).contextInitialized(sce);
-  //    ca.getContext(ReportingServiceContext.class).contextInitialized(sce);
+      ca.getContext(ReportingServiceContext.class).contextInitialized(sce);
       PapiBanner.print(LOG);
 
       ca.getContext(ReposeValveControllerContext.class).contextInitialized(sce);
