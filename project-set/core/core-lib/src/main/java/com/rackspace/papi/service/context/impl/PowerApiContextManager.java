@@ -56,7 +56,6 @@ public class PowerApiContextManager implements ServletContextListener {
         ServletContextHelper helper = ServletContextHelper.getInstance();
         ContextAdapter ca = helper.getPowerApiContext(sce.getServletContext());
 
-        LOG.info("******* init parameters: " + sce.getServletContext().getInitParameterNames().toString());
         ca.getContext(ThreadingServiceContext.class).contextInitialized(sce);
         ca.getContext(EventManagerServiceContext.class).contextInitialized(sce);
         ca.getContext(ConfigurationServiceContext.class).contextInitialized(sce);

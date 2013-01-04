@@ -13,7 +13,6 @@ import com.rackspace.papi.model.Node;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +88,7 @@ public class ControllerServiceImpl implements ControllerService {
             serverInstance.stop();
             managedServers.remove(key);
          } catch (Exception e) {
-            LOG.error("Unable to shutdown server: " + key);
+            LOG.error("Unable to shutdown server: " + key + ": " + e.getMessage(), e);
          }
       }
    }

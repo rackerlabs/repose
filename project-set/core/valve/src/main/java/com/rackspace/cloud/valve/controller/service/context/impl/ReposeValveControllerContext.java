@@ -73,7 +73,7 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
    public void contextInitialized(ServletContextEvent sce) {
       this.configDir = sce.getServletContext().getInitParameter(InitParameter.POWER_API_CONFIG_DIR.getParameterName());
       this.connectionFramework = sce.getServletContext().getInitParameter(InitParameter.CONNECTION_FRAMEWORK.getParameterName());
-      this.isInsecure = Boolean.getBoolean(sce.getServletContext().getInitParameter(InitParameter.INSECURE.getParameterName()));
+      this.isInsecure = Boolean.parseBoolean(sce.getServletContext().getInitParameter(InitParameter.INSECURE.getParameterName()));
       controllerService.setConfigDirectory(configDir);
       URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
       configurationManager.subscribeTo("system-model.cfg.xml", xsdURL, systemModelConfigurationListener, SystemModel.class);
@@ -84,8 +84,9 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
    @Override
    public void contextDestroyed(ServletContextEvent sce) {
       configurationManager.unsubscribeFrom("system-model.cfg.xml", systemModelConfigurationListener);
-      Set<String> curNodes = controllerService.getManagedInstances();
-      controllerService.updateManagedInstances(null, curNodes);
+      Set<String> instances = controllerService.getManagedInstances();
+      controllerService.updateManagedInstances(null, instances);
+      curNodes.clear();
    }
 
    private class SystemModelConfigurationListener implements UpdateListener<SystemModel> {
