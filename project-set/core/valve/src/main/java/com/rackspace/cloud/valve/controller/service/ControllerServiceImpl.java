@@ -62,7 +62,7 @@ public class ControllerServiceImpl implements ControllerService {
 
 
 
-         Server serverInstance = new ValveJettyServerBuilder(configDir, ports, validateSsl(curNode), connectionFramework, true, entry.getValue().getResult(), curNode.getId()).newServer();
+         Server serverInstance = new ValveJettyServerBuilder(configDir, ports, validateSsl(curNode), connectionFramework, isInsecure, entry.getValue().getResult(), curNode.getId()).newServer();
          try {
             serverInstance.start();
             serverInstance.setStopAtShutdown(true);
