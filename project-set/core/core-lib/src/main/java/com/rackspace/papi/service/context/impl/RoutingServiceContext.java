@@ -3,6 +3,7 @@ package com.rackspace.papi.service.context.impl;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.container.config.DeploymentConfiguration;
 import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
@@ -33,13 +34,15 @@ public class RoutingServiceContext implements ServiceContext<RoutingService> {
    private final ServiceRegistry registry;
    private final ServicePorts servicePorts;
    private String clusterId, nodeId;
+   private ReposeInstanceInfo instanceInfo;
 
    @Autowired
    public RoutingServiceContext(
            @Qualifier("routingService") RoutingService service,
            @Qualifier("serviceRegistry") ServiceRegistry registry,
            @Qualifier("configurationManager") ConfigurationService configurationManager,
-           @Qualifier("servicePorts") ServicePorts servicePorts) {
+           @Qualifier("servicePorts") ServicePorts servicePorts,
+           @Qualifier("reposeInstanceInfo") ReposeInstanceInfo instanceInfo) {
       this.service = service;
       configListener = new PowerApiConfigListener();
       this.registry = registry;
@@ -134,6 +137,13 @@ public class RoutingServiceContext implements ServiceContext<RoutingService> {
 
       clusterId = System.getProperty(clusterIdParam, ctx.getInitParameter(clusterIdParam));
       nodeId = System.getProperty(nodeIdParam, ctx.getInitParameter(nodeIdParam));
+
+      if (instanceInfo == null) {
+         instanceInfo = new ReposeInstanceInfo(clusterId, nodeId);
+      } else {
+         instanceInfo.setClusterId(clusterId);
+         instanceInfo.setNodeId(nodeId);
+      }
 
       configurationManager.subscribeTo("system-model.cfg.xml", configListener, SystemModel.class);
       register();
