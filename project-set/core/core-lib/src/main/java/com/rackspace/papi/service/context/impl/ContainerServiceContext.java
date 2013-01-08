@@ -97,13 +97,13 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
          ServicePorts currentPorts = ServletContextHelper.getInstance().getServerPorts(servletContext);
          ServicePorts ports = determinePorts(deployConfig);
          String via = deployConfig.getVia();
-         int maxResponseContentSize=deployConfig.getContentBodyReadLimit().intValue();
+         Long maxResponseContentSize = deployConfig.getContentBodyReadLimit();
          
          if (currentPorts.isEmpty()) {
             // No port has been set into the servlet context
 
             if (!ports.isEmpty()) {
-               containerConfigurationService = new ContainerConfigurationServiceImpl(ports,via,maxResponseContentSize);
+               containerConfigurationService = new ContainerConfigurationServiceImpl(ports, via, maxResponseContentSize);
                servicePorts.clear();
                servicePorts.addAll(ports);
                LOG.info("Setting " + InitParameter.PORT.getParameterName() + " to " + ports);

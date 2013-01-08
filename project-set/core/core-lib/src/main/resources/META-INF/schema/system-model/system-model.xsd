@@ -5,7 +5,10 @@
            xmlns:mod="http://docs.rackspacecloud.com/repose/system-model/v2.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
            xmlns:jaxb="http://java.sun.com/xml/ns/jaxb"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
            jaxb:version="2.1">
 
     <xs:element name="system-model" type="mod:SystemModel" />
@@ -19,7 +22,7 @@
 
         <xs:sequence>
             <xs:element name="repose-cluster" type="mod:ReposeCluster" minOccurs="1" maxOccurs="unbounded" />
-            <xs:element name="service-cluster" type="mod:Cluster" minOccurs="1" maxOccurs="unbounded" />
+            <xs:element name="service-cluster" type="mod:Cluster" minOccurs="0" maxOccurs="unbounded" />
         </xs:sequence>
     </xs:complexType>
 
@@ -62,7 +65,7 @@
             <xs:extension base="mod:Cluster">
                 <xs:sequence>
                     <xs:element name="filters" type="mod:FilterList" minOccurs="0" maxOccurs="1" />
-                    <xs:element name="destinations" type="mod:DestinationList" minOccurs="0" maxOccurs="1" />
+                    <xs:element name="destinations" type="mod:DestinationList" minOccurs="1" maxOccurs="1" />
                 </xs:sequence>
             </xs:extension>
         </xs:complexContent>
@@ -80,6 +83,10 @@
         <xs:sequence>
             <xs:element name="node" type="mod:Node" minOccurs="1" maxOccurs="unbounded" />
         </xs:sequence>
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(mod:node/@id)) = count(mod:node/@id)"
+                   xerces:message="Each node should have a unique id"
+                   saxon:message="Each node should have a unique id">
+        </xs:assert>
     </xs:complexType>
 
     <xs:complexType name="Node">
@@ -108,7 +115,10 @@
         <xs:attribute name="http-port" type="xs:int" use="optional" default="0">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Port number of the http service of the host</html:p>
+                    <html:p>
+                        Port number of the http service of the host. If the port is 0,
+                        then Repose will not listen to the HTTP port at all.
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -116,10 +126,21 @@
         <xs:attribute name="https-port" type="xs:int" use="optional" default="0">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Port number of the https service of the host</html:p>
+                    <html:p>
+                        Port number of the https service of the host. If port is 0,
+                        then Repose will not listen to HTTPs port at all.
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        <xs:assert vc:minVersion="1.1" test="if (not(@https-port)) then @http-port else true()"
+            xerces:message="You must specify an http-port and/or an https-port"
+            saxon:message="You must specify an http-port and/or an https-port">
+        </xs:assert>
+        <xs:assert vc:minVersion="1.1" test="if (not(@http-port)) then @https-port else true()"
+            xerces:message="You must specify an http-port and/or an https-port"
+            saxon:message="You must specify an http-port and/or an https-port">
+        </xs:assert>
     </xs:complexType>
 
     <xs:complexType name="FilterList">
@@ -132,6 +153,10 @@
         <xs:sequence>
             <xs:element name="filter" type="mod:Filter" minOccurs="0" maxOccurs="unbounded" />
         </xs:sequence>
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(mod:filter/@id)) = count(mod:filter/@id)"
+                    xerces:message="Filters must have ids unique within their containing filter list"
+                    saxon:message="Filters must have ids unique within their containing filter list">
+        </xs:assert>
     </xs:complexType>
 
     <xs:complexType name="Filter">
@@ -141,7 +166,7 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:attribute name="id" type="xs:ID" use="optional">
+        <xs:attribute name="id" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Defines the filters id</html:p>
@@ -181,10 +206,30 @@
             </xs:documentation>
         </xs:annotation>
       
-        <xs:sequence>
+        <xs:all vc:minVersion="1.1">
+            <xs:element name="endpoint" type="mod:DestinationEndpoint" minOccurs="0" maxOccurs="unbounded" />
+            <xs:element name="target" type="mod:DestinationCluster" minOccurs="0" maxOccurs="unbounded" />
+        </xs:all>
+        <!--
+            Order matters in 1.0 land :-(
+        -->
+        <xs:sequence vc:minVersion="1.0" vc:maxVersion="1.1">
             <xs:element name="endpoint" type="mod:DestinationEndpoint" minOccurs="0" maxOccurs="unbounded" />
             <xs:element name="target" type="mod:DestinationCluster" minOccurs="0" maxOccurs="unbounded" />
         </xs:sequence>
+
+        <xs:assert vc:minVersion="1.1" test="(count(mod:endpoint)+count(mod:target)) gt 0"
+            xerces:message="Must have at least one destination defined."
+            saxon:message="Must have at least one destination defined.">
+        </xs:assert>
+        <xs:assert vc:minVersion="1.1" test="count(mod:*[xs:boolean(@default) = true()]) le 1"
+            xerces:message="There should only be one default destination"
+            saxon:message="There should only be one default destination">
+        </xs:assert>
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(mod:*/@id)) = count(mod:*/@id)"
+            xerces:message="Destinations must have ids unique within their containing list"
+            saxon:message="Destinations must have ids unique within their containing list">
+        </xs:assert>
     </xs:complexType>
 
     <xs:complexType name="Destination">
@@ -198,7 +243,10 @@
         <xs:attribute name="protocol" use="optional">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Defines the endpoint's protocol. Current protocols permitted are http and https.</html:p>
+                    <html:p>
+                        Defines the endpoint's protocol. Current protocols permitted are http and https.
+                        If the protocol is not specified then internal dispatch is assumed.
+                    </html:p>
                 </xs:documentation>
             </xs:annotation>
          
@@ -243,7 +291,7 @@
                 <xs:attribute name="port" type="xs:int" use="optional" default="0">
                     <xs:annotation>
                         <xs:documentation>
-                            <html:p>Defines the endpoint's port. Optional. If not specified, internal dispatch is assumed.</html:p>
+                            <html:p>Defines the endpoint's port. Optional. If not specified (or 0), internal dispatch is assumed.</html:p>
                         </xs:documentation>
                     </xs:annotation>
                 </xs:attribute>
