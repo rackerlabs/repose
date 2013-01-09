@@ -42,8 +42,8 @@ repose()
 {
    for i in {1..6}
       do
-	START=`expr $i + 8886`
-	STOP=`expr $i + 8817`
+	START=`expr $i + 9886`
+	STOP=`expr $i + 9817`
 	echo "$1 repose on port $START"
 	case $1 in
            start)
