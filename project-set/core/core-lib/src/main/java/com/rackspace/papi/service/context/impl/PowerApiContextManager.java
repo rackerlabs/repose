@@ -2,6 +2,7 @@ package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpsURLConnectionSslInitializer;
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.context.ContextAdapter;
@@ -28,133 +29,154 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 
 public class PowerApiContextManager implements ServletContextListener {
 
-    private static final Logger LOG = LoggerFactory.getLogger(PowerApiContextManager.class);
-    private static final String DEFAULT_CONNECTION_FRAMEWORK = "jerseyRequestProxyService";
-    private AnnotationConfigApplicationContext applicationContext;
-    private ServicePorts ports;
-    private boolean contextInitialized = false;
+   private static final Logger LOG = LoggerFactory.getLogger(PowerApiContextManager.class);
+   private static final String DEFAULT_CONNECTION_FRAMEWORK = "jerseyRequestProxyService";
+   private AnnotationConfigApplicationContext applicationContext;
+   private ServicePorts ports;
+   private boolean contextInitialized = false;
+   private ReposeInstanceInfo instanceInfo;
 
-    public PowerApiContextManager() {
-    }
+   public PowerApiContextManager() {
+   }
 
-    public PowerApiContextManager setPorts(ServicePorts ports) {
-        this.ports = ports;
-        configurePorts();
-        return this;
-    }
+   public PowerApiContextManager setPorts(ServicePorts ports, ReposeInstanceInfo instanceInfo) {
+      this.ports = ports;
+      this.instanceInfo = instanceInfo;
+      configurePorts();
+      configureReposeInfo();
+      return this;
+   }
 
-    private void configurePorts() {
-        if (ports == null || applicationContext == null) {
-            return;
-        }
-        ServicePorts servicePorts = applicationContext.getBean("servicePorts", ServicePorts.class);
-        servicePorts.clear();
-        servicePorts.addAll(ports);
-    }
+   private void configurePorts() {
+      if (ports == null || applicationContext == null) {
+         return;
+      }
+      ServicePorts servicePorts = applicationContext.getBean("servicePorts", ServicePorts.class);
+      servicePorts.clear();
+      servicePorts.addAll(ports);
+   }
 
-    private void intializeServices(ServletContextEvent sce) {
-        ServletContextHelper helper = ServletContextHelper.getInstance();
-        ContextAdapter ca = helper.getPowerApiContext(sce.getServletContext());
+   private void configureReposeInfo() {
+      if (instanceInfo == null) {
 
-        ca.getContext(ThreadingServiceContext.class).contextInitialized(sce);
-        ca.getContext(EventManagerServiceContext.class).contextInitialized(sce);
-        ca.getContext(ConfigurationServiceContext.class).contextInitialized(sce);
-        ca.getContext(ContainerServiceContext.class).contextInitialized(sce);
-        ca.getContext(RoutingServiceContext.class).contextInitialized(sce);
-        ca.getContext(LoggingServiceContext.class).contextInitialized(sce);
-        PapiBanner.print(LOG);
-        ca.getContext(ResponseMessageServiceContext.class).contextInitialized(sce);
-        // TODO:Refactor - This service should be bound to a fitler-chain specific JNDI context
-        ca.getContext(DatastoreServiceContext.class).contextInitialized(sce);
-        ca.getContext(ClassLoaderServiceContext.class).contextInitialized(sce);
-        ca.getContext(ArtifactManagerServiceContext.class).contextInitialized(sce);
-        ca.getContext(FilterChainGCServiceContext.class).contextInitialized(sce);
-        ca.getContext(RequestProxyServiceContext.class).contextInitialized(sce);
-        ca.getContext(ReportingServiceContext.class).contextInitialized(sce);
-        ca.getContext(RequestHeaderServiceContext.class).contextInitialized(sce);
-        ca.getContext(ResponseHeaderServiceContext.class).contextInitialized(sce);
+         String clusterId = System.getProperty("repose-cluster-id");
+         String nodeId = System.getProperty("repose-node-id");
+         instanceInfo = new ReposeInstanceInfo(clusterId, nodeId);
+      }
+      if (applicationContext == null) {
+         return;
+      }
 
-        // Start management server
-        if (isManagementServerEnabled()) {
-            ca.getContext(ManagementServiceContext.class).contextInitialized(sce);
-        }
-    }
 
-    private boolean isManagementServerEnabled() {
-        return System.getProperty(InitParameter.MANAGEMENT_PORT.getParameterName()) != null;
-    }
+      ReposeInstanceInfo reposeInstanceInfo = applicationContext.getBean("reposeInstanceInfo", ReposeInstanceInfo.class);
+      reposeInstanceInfo.setClusterId(instanceInfo.getClusterId());
+      reposeInstanceInfo.setNodeId(instanceInfo.getNodeId());
+   }
 
-    @Override
-    public void contextInitialized(ServletContextEvent sce) {
-        final ServletContext servletContext = sce.getServletContext();
+   private void intializeServices(ServletContextEvent sce) {
+      ServletContextHelper helper = ServletContextHelper.getInstance();
+      ContextAdapter ca = helper.getPowerApiContext(sce.getServletContext());
 
-        final String insecureProp = InitParameter.INSECURE.getParameterName();
-        final String insecure = System.getProperty(insecureProp, servletContext.getInitParameter(insecureProp));
+      ca.getContext(ThreadingServiceContext.class).contextInitialized(sce);
+      ca.getContext(EventManagerServiceContext.class).contextInitialized(sce);
+      ca.getContext(ConfigurationServiceContext.class).contextInitialized(sce);
+      ca.getContext(ContainerServiceContext.class).contextInitialized(sce);
+      ca.getContext(RoutingServiceContext.class).contextInitialized(sce);
+      ca.getContext(LoggingServiceContext.class).contextInitialized(sce);
+      PapiBanner.print(LOG);
+      ca.getContext(ResponseMessageServiceContext.class).contextInitialized(sce);
+      // TODO:Refactor - This service should be bound to a fitler-chain specific JNDI context
+      ca.getContext(DatastoreServiceContext.class).contextInitialized(sce);
+      ca.getContext(ClassLoaderServiceContext.class).contextInitialized(sce);
+      ca.getContext(ArtifactManagerServiceContext.class).contextInitialized(sce);
+      ca.getContext(FilterChainGCServiceContext.class).contextInitialized(sce);
+      ca.getContext(RequestProxyServiceContext.class).contextInitialized(sce);
+      ca.getContext(ReportingServiceContext.class).contextInitialized(sce);
+      ca.getContext(RequestHeaderServiceContext.class).contextInitialized(sce);
+      ca.getContext(ResponseHeaderServiceContext.class).contextInitialized(sce);
 
-        if (StringUtilities.nullSafeEqualsIgnoreCase(insecure, "true")) {
-            new HttpsURLConnectionSslInitializer().allowAllServerCerts();
-        }
+      // Start management server
+      if (isManagementServerEnabled()) {
+         ca.getContext(ManagementServiceContext.class).contextInitialized(sce);
+      }
+   }
 
-        final String connectionFrameworkProp = InitParameter.CONNECTION_FRAMEWORK.getParameterName();
-        final String connectionFramework = System.getProperty(connectionFrameworkProp, servletContext.getInitParameter(connectionFrameworkProp));
-        final String beanName = StringUtilities.isNotBlank(connectionFramework) ? connectionFramework + "RequestProxyService" : null;
+   private boolean isManagementServerEnabled() {
+      return System.getProperty(InitParameter.MANAGEMENT_PORT.getParameterName()) != null;
+   }
 
-        applicationContext = new AnnotationConfigApplicationContext(SpringConfiguration.class);
-        if (StringUtilities.isNotBlank(beanName) && applicationContext.containsBean(beanName)) {
-            LOG.info("Using connection framework: " + beanName);
-            applicationContext.registerAlias(beanName, "requestProxyService");
-        } else {
-            LOG.info("Using default connection framework: " + DEFAULT_CONNECTION_FRAMEWORK);
-            applicationContext.registerAlias(DEFAULT_CONNECTION_FRAMEWORK, "requestProxyService");
-        }
-        
-        GenericBeanDefinition beanDef = new GenericBeanDefinition();
-        ConstructorArgumentValues args = new ConstructorArgumentValues();
-        args.addIndexedArgumentValue(0, UUID.randomUUID().toString(), "java.lang.String");
-        beanDef.setConstructorArgumentValues(args);
-        beanDef.setBeanClass(String.class);
-        
-        applicationContext.registerBeanDefinition("reposeId", beanDef);
-        applicationContext.getBean("exporter");
+   @Override
+   public void contextInitialized(ServletContextEvent sce) {
+      final ServletContext servletContext = sce.getServletContext();
 
-        configurePorts();
-        
-        //Allows Repose to set any header to pass to the origin service. Namely the "Via" header
-        System.setProperty("sun.net.http.allowRestrictedHeaders","true");
-        System.setProperty("http.maxConnections", "100");
+      final String insecureProp = InitParameter.INSECURE.getParameterName();
+      final String insecure = System.getProperty(insecureProp, servletContext.getInitParameter(insecureProp));
 
-        // Most bootstrap steps require or will try to load some kind of
-        // configuration so we need to set our naming context in the servlet context
-        // first before anything else
-        ServletContextHelper.configureInstance(
-                new SpringContextAdapterProvider(applicationContext),
-                servletContext,
-                applicationContext);
+      if (StringUtilities.nullSafeEqualsIgnoreCase(insecure, "true")) {
+         new HttpsURLConnectionSslInitializer().allowAllServerCerts();
+      }
 
-        intializeServices(sce);
-        servletContext.setAttribute("powerApiContextManager", this);
-        contextInitialized = true;
-    }
+      final String connectionFrameworkProp = InitParameter.CONNECTION_FRAMEWORK.getParameterName();
+      final String connectionFramework = System.getProperty(connectionFrameworkProp, servletContext.getInitParameter(connectionFrameworkProp));
+      final String beanName = StringUtilities.isNotBlank(connectionFramework) ? connectionFramework + "RequestProxyService" : null;
 
-    public boolean isContextInitialized() {
-        return contextInitialized;
-    }
+      applicationContext = new AnnotationConfigApplicationContext(SpringConfiguration.class);
+      if (StringUtilities.isNotBlank(beanName) && applicationContext.containsBean(beanName)) {
+         LOG.info("Using connection framework: " + beanName);
+         applicationContext.registerAlias(beanName, "requestProxyService");
+      } else {
+         LOG.info("Using default connection framework: " + DEFAULT_CONNECTION_FRAMEWORK);
+         applicationContext.registerAlias(DEFAULT_CONNECTION_FRAMEWORK, "requestProxyService");
+      }
 
-    @Override
-    public void contextDestroyed(ServletContextEvent sce) {
-        contextInitialized = false;
-        ServiceRegistry registry = applicationContext.getBean("serviceRegistry", ServiceRegistry.class);
-        for (ServiceContext ctx : registry.getServices()) {
-            ctx.contextDestroyed(sce);
-        }
-        
-        LOG.info("Shutting down Spring application context");
-        applicationContext.close();
-        
-        CacheManager instance = CacheManager.getInstance();
-        if (instance != null) {
-            LOG.info("Stopping EH Cache Manager");
-            instance.shutdown();
-        }
-    }
+      GenericBeanDefinition beanDef = new GenericBeanDefinition();
+      ConstructorArgumentValues args = new ConstructorArgumentValues();
+      args.addIndexedArgumentValue(0, UUID.randomUUID().toString(), "java.lang.String");
+      beanDef.setConstructorArgumentValues(args);
+      beanDef.setBeanClass(String.class);
+
+      applicationContext.registerBeanDefinition("reposeId", beanDef);
+      applicationContext.getBean("exporter");
+
+      configurePorts();
+      configureReposeInfo();
+
+      //Allows Repose to set any header to pass to the origin service. Namely the "Via" header
+      System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
+      System.setProperty("http.maxConnections", "100");
+
+      // Most bootstrap steps require or will try to load some kind of
+      // configuration so we need to set our naming context in the servlet context
+      // first before anything else
+      ServletContextHelper.configureInstance(
+              new SpringContextAdapterProvider(applicationContext),
+              servletContext,
+              applicationContext);
+
+      intializeServices(sce);
+      servletContext.setAttribute("powerApiContextManager", this);
+      contextInitialized = true;
+   }
+
+   public boolean isContextInitialized() {
+      return contextInitialized;
+   }
+
+   @Override
+   public void contextDestroyed(ServletContextEvent sce) {
+      contextInitialized = false;
+      ServiceRegistry registry = applicationContext.getBean("serviceRegistry", ServiceRegistry.class);
+      for (ServiceContext ctx : registry.getServices()) {
+         ctx.contextDestroyed(sce);
+      }
+
+      LOG.info("Shutting down Spring application context");
+      applicationContext.close();
+
+      CacheManager instance = CacheManager.getInstance();
+      if (instance != null) {
+         LOG.info("Stopping EH Cache Manager");
+         instance.shutdown();
+      }
+   }
 }

@@ -1,11 +1,8 @@
 package com.rackspace.papi.service.context.container;
 
-import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ServicePorts;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Component("containerConfigurationService")
 public class ContainerConfigurationServiceImpl implements ContainerConfigurationService {

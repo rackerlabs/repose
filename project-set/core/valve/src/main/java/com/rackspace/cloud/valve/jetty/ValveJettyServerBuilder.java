@@ -3,6 +3,7 @@ package com.rackspace.cloud.valve.jetty;
 import com.rackspace.cloud.valve.jetty.servlet.ProxyServlet;
 import com.rackspace.papi.container.config.SslConfiguration;
 import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.filter.ValvePowerFilter;
 import com.rackspace.papi.service.context.impl.PowerApiContextManager;
@@ -98,10 +99,10 @@ public class ValveJettyServerBuilder {
         servletContext.getInitParams().put(InitParameter.REPOSE_CLUSTER_ID.getParameterName(), clusterId);
         servletContext.getInitParams().put(InitParameter.REPOSE_NODE_ID.getParameterName(), nodeId);
         
-
+        ReposeInstanceInfo instanceInfo = new ReposeInstanceInfo(clusterId, nodeId);
         try {
             PowerApiContextManager contextManager = PowerApiContextManager.class.newInstance();
-            contextManager.setPorts(ports);
+            contextManager.setPorts(ports,instanceInfo);
             servletContext.addEventListener(contextManager);
         } catch (InstantiationException e) {
             throw new PowerAppException("Unable to instantiate PowerApiContextManager", e);

@@ -1,8 +1,10 @@
 package com.rackspace.papi.filter;
 
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.filter.resource.ResourceConsumerCounter;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
+import com.rackspace.papi.service.reporting.repose.ReposeInfo;
 import java.util.List;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;
@@ -27,12 +29,15 @@ public class PowerFilterChainBuilderImpl implements PowerFilterChainBuilder {
     private List<FilterContext> currentFilterChain;
     private ReposeCluster domain;
     private Node localhost;
+    private ReposeInstanceInfo instanceInfo;
 
     @Autowired
-    public PowerFilterChainBuilderImpl(@Qualifier("powerFilterRouter") PowerFilterRouter router) {
+    public PowerFilterChainBuilderImpl(@Qualifier("powerFilterRouter") PowerFilterRouter router, @Qualifier("reposeInstanceInfo") ReposeInstanceInfo instanceInfo) {
+       Thread.currentThread().setName(instanceInfo.toString());
         LOG.info("Creating filter chain builder");
         this.router = router;
         this.resourceConsumerMonitor = new ResourceConsumerCounter();
+        this.instanceInfo = instanceInfo;
     }
     
     @Override
