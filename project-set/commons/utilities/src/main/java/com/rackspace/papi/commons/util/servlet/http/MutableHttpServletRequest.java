@@ -24,12 +24,12 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
         return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request);
     }
 
-    public static MutableHttpServletRequest wrap(HttpServletRequest request, int streamLimit) {
+    public static MutableHttpServletRequest wrap(HttpServletRequest request, long streamLimit) {
         return request instanceof MutableHttpServletRequest ? (MutableHttpServletRequest) request : new MutableHttpServletRequest(request, streamLimit);
     }
     private ServletInputStream inputStream;
     private final RequestValues values;
-    private final int streamLimit;
+    private final long streamLimit;
 
     private MutableHttpServletRequest(HttpServletRequest request) {
         super(request);
@@ -38,7 +38,7 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
         streamLimit = -1;
     }
 
-    private MutableHttpServletRequest(HttpServletRequest request, int streamLimit) {
+    private MutableHttpServletRequest(HttpServletRequest request, long streamLimit) {
         super(request);
 
         this.values = new RequestValuesImpl(request);

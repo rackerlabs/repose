@@ -132,12 +132,43 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>xml-maven-plugin</artifactId>
+
+                <configuration>
+                    <transformationSets>
+                        <transformationSet>
+                            <dir>src/main/resources/META-INF/schema/system-model</dir>
+                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <outputDir>${project.build.directory}/generated-resources/xml/xslt/system-model</outputDir>
+                        </transformationSet>
+                        <transformationSet>
+                            <dir>src/main/resources/META-INF/schema/container</dir>
+                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <outputDir>${project.build.directory}/generated-resources/xml/xslt/container</outputDir>
+                        </transformationSet>
+                        <transformationSet>
+                            <dir>src/main/resources/META-INF/schema/httpx</dir>
+                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <outputDir>${project.build.directory}/generated-resources/xml/xslt/httpx</outputDir>
+                        </transformationSet>
+                        <transformationSet>
+                            <dir>src/main/resources/META-INF/schema/response-messaging</dir>
+                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <outputDir>${project.build.directory}/generated-resources/xml/xslt/response-messaging</outputDir>
+                        </transformationSet>
+                    </transformationSets>
+                </configuration>
+            </plugin>
+            
+            <plugin>
                 <groupId>org.jvnet.jaxb2.maven2</groupId>
                 <artifactId>maven-jaxb2-plugin</artifactId>
 
                 <configuration>
 
-                    <specVersion>2.1</specVersion>
+                    <specVersion>2.2</specVersion>
+                    <schemaDirectory>${project.build.directory}/generated-resources/xml/xslt</schemaDirectory>
 
                     <schemaIncludes>
                         <include>**/*.xsd</include>
@@ -145,7 +176,6 @@
                     <bindingIncludes>
                         <include>**/*.xjb</include>
                     </bindingIncludes>
-
                     <strict>true</strict>
                     <verbose>false</verbose>
 

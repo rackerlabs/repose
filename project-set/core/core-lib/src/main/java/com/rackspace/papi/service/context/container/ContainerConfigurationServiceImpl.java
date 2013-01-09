@@ -9,12 +9,13 @@ public class ContainerConfigurationServiceImpl implements ContainerConfiguration
 
     private final ServicePorts ports = new ServicePorts();
     private String viaValue;
-    private int contentBodyReadLimit;
+    private Long contentBodyReadLimit;
 
     public ContainerConfigurationServiceImpl() {
     }
 
-    public ContainerConfigurationServiceImpl(String via, int contentBodyReadLimit, ServicePorts ports) {
+    public ContainerConfigurationServiceImpl(String via, Long contentBodyReadLimit, ServicePorts ports) {
+
         this.ports.addAll(ports);
         this.viaValue = via;
         this.contentBodyReadLimit = contentBodyReadLimit;
@@ -32,16 +33,16 @@ public class ContainerConfigurationServiceImpl implements ContainerConfiguration
     }
 
     @Override
-    public int getContentBodyReadLimit() {
-        if (contentBodyReadLimit <= 1) {
-            return 0;
+    public Long getContentBodyReadLimit() {
+        if (contentBodyReadLimit == null) {
+            return new Long(0);
         } else {
             return contentBodyReadLimit;
         }
     }
 
     @Override
-    public void setContentBodyReadLimit(int value) {
+    public void setContentBodyReadLimit(Long value) {
         this.contentBodyReadLimit = value;
     }
 

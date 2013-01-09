@@ -11,10 +11,9 @@ public interface ContainerConfigurationService {
    
    void setVia(String via);
    
-   int getContentBodyReadLimit();
-   
-   void setContentBodyReadLimit(int value);
+   Long getContentBodyReadLimit();
    
    ServicePorts getServicePorts();
    
+   void setContentBodyReadLimit(Long value);
 }

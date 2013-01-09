@@ -68,11 +68,11 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
       public void configurationUpdated(ContainerConfiguration configurationObject) {
          DeploymentConfiguration deployConfig = configurationObject.getDeploymentConfig();
          String via = deployConfig.getVia();
-         int maxResponseContentSize = deployConfig.getContentBodyReadLimit().intValue();
-
+         
+         Long maxResponseContentSize = deployConfig.getContentBodyReadLimit();
          if (!isIntialized) {
             containerConfigurationService = new ContainerConfigurationServiceImpl(via, maxResponseContentSize, servicePorts);
-         } else {
+         }else{
             containerConfigurationService.setVia(via);
             containerConfigurationService.setContentBodyReadLimit(maxResponseContentSize);
          }
