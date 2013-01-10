@@ -40,7 +40,7 @@ stopRepose()
 
 repose()
 {
-   for i in {1..6}
+   for i in {1..4}
       do
 	START=`expr $i + 9886`
 	STOP=`expr $i + 9817`

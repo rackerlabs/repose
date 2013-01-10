@@ -70,7 +70,7 @@ directory "/var/powerapi" do
    group "root"
 end
 
-for nodeNumber in 1..6
+for nodeNumber in 1..4
    directory "/etc/repose/node#{nodeNumber}" do
       mode 0775
       owner "root"
@@ -172,7 +172,7 @@ for nodeNumber in 1..6
       end
       via=""
 
-   when 4..6
+   when 4
       #Distirubted Datastore
       ["add-element.xsl", "identity.xsl", "remove-element.xsl", "translation.cfg.xml", "translation-request.cfg.xml", "ip-identity.cfg.xml","ip-identity2.cfg.xml","client-auth-n.cfg.xml"].each do |config|
          cookbook_file "/etc/repose/node#{nodeNumber}/#{config}" do
