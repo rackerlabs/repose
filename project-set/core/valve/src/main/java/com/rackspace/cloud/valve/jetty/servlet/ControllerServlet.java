@@ -1,5 +1,6 @@
 package com.rackspace.cloud.valve.jetty.servlet;
 
+import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import java.io.IOException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -16,6 +17,6 @@ public class ControllerServlet extends HttpServlet {
    @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
   
-      resp.sendError(501, "Controller Server Not Yet Implemented");
+      resp.sendError(HttpStatusCode.NOT_IMPLEMENTED.intValue(), "Controller Server Not Yet Implemented");
    }
 }

@@ -48,6 +48,7 @@ public class RoutingServiceContext implements ServiceContext<RoutingService> {
       this.registry = registry;
       this.configurationManager = configurationManager;
       this.servicePorts = servicePorts;
+      this.instanceInfo = instanceInfo;
    }
 
    public void register() {

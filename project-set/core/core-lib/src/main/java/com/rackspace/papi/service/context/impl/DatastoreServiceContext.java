@@ -66,7 +66,6 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
     public void contextInitialized(ServletContextEvent sce) {
         // Init our local default cache and a new service object to hold it
         Configuration defaultConfiguration = new Configuration();
-        String nodeId = sce.getServletContext().getInitParameter("repose-node-id");
         defaultConfiguration.setName(instanceInfo.toString()+CACHE_MANAGER_NAME);
         defaultConfiguration.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
         defaultConfiguration.setUpdateCheck(false);
