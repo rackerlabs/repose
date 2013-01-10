@@ -105,7 +105,7 @@
     <status-code id="333" code-regex="333" overwrite="ALWAYS">
         <message media-type="application/xml"><![CDATA[<outer><groups>%{X-PP-Groups}i</groups><somedate>%{MYDATE DATE ISO_8601}i</somedate></outer>]]>
         </message>
-        <message prepend-origin="false" media-type="application/json"><![CDATA[{ "groups": "%{X-PP-Groups}i", "mydate": "%{MYDATE DATE ISO_8601 RFC_1123}i" }]]>
+        <message media-type="application/json"><![CDATA[{ "groups": "%{X-PP-Groups}i", "mydate": "%{MYDATE DATE ISO_8601 RFC_1123}i" }]]>
         </message>
         <message media-type="*/*">
 	    X-PP-Groups: %{X-PP-Groups}i
@@ -117,7 +117,7 @@
         <message media-type="application/xml">
             XML Not Authorized... Syntax highlighting is magical.
         </message>
-        <message prepend-origin="false" media-type="application/json">
+        <message  media-type="application/json">
             JSON Not Authorized... The brackets are too confusing.
         </message>
         <message media-type="*/*">

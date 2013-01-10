@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import javax.servlet.ServletContextEvent;
 import org.slf4j.Logger;
@@ -29,8 +30,8 @@ import org.springframework.stereotype.Component;
 @Component("reposeValveControllerContext")
 public class ReposeValveControllerContext implements ServiceContext<ControllerService> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ReposeValveControllerContext.class);
-   protected SystemModel systemModel;
+   private static final Logger LOG = LoggerFactory.getLogger(ReposeValveControllerContext.class);
+   private SystemModel systemModel;
    private static final String SERVICE_NAME = "powerapi:/services/controller";
    private final ControllerService controllerService;
    private final ConfigurationService configurationManager;
@@ -52,11 +53,11 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
       this.controllerService = controllerService;
       this.systemModelConfigurationListener = new SystemModelConfigurationListener();
    }
-   
-   public void register(){
+
+   public void register() {
       if (registry != null) {
-            registry.addService(this);
-        }
+         registry.addService(this);
+      }
    }
 
    @Override
@@ -93,9 +94,9 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
 
       @Override
       public void configurationUpdated(SystemModel configurationObject) {
-         
+
          curNodes = controllerService.getManagedInstances();
-         
+
          if (StringUtilities.isBlank(controllerService.getConfigDirectory())) {
             controllerService.setConfigDirectory(configDir);
          }
@@ -103,16 +104,16 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
          if (StringUtilities.isBlank(controllerService.getConnectionFramework())) {
             controllerService.setConnectionFramework(connectionFramework);
          }
-         
+
          controllerService.setIsInsecure(isInsecure);
 
          systemModel = configurationObject;
 
          Map<String, ExtractorResult<Node>> updatedSystem = getLocalReposeInstances(systemModel);
-         
-         
+
+
          controllerService.updateManagedInstances(getNodesToStart(updatedSystem), getNodesToShutdown(updatedSystem));
-         
+
          checkDeployment();
          initialized = true;
       }
@@ -123,21 +124,21 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
       }
    }
 
-   private Map<String, ExtractorResult<Node>> getLocalReposeInstances(SystemModel systemModel){
-      
+   private Map<String, ExtractorResult<Node>> getLocalReposeInstances(SystemModel systemModel) {
+
       Map<String, ExtractorResult<Node>> updatedSystem = new HashMap<String, ExtractorResult<Node>>();
 
-         for (ReposeCluster cluster : systemModel.getReposeCluster()) {
-            for (Node node : cluster.getNodes().getNode()) {
-               if (NetUtilities.isLocalHost(node.getHostname())) {
-                  updatedSystem.put(cluster.getId() + node.getId() + node.getHostname() + node.getHttpPort() + node.getHttpsPort(), new ExtractorResult<Node>(cluster.getId(), node));
-               }
+      for (ReposeCluster cluster : systemModel.getReposeCluster()) {
+         for (Node node : cluster.getNodes().getNode()) {
+            if (NetUtilities.isLocalHost(node.getHostname())) {
+               updatedSystem.put(cluster.getId() + node.getId() + node.getHostname() + node.getHttpPort() + node.getHttpsPort(), new ExtractorResult<Node>(cluster.getId(), node));
             }
          }
-         
-         return updatedSystem;
+      }
+
+      return updatedSystem;
    }
-   
+
    private Set<String> getNodesToShutdown(Map<String, ExtractorResult<Node>> nodes) {
 
       Set<String> shutDownNodes = new HashSet<String>();
@@ -154,22 +155,24 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
    private Map<String, ExtractorResult<Node>> getNodesToStart(Map<String, ExtractorResult<Node>> newModel) {
       Map<String, ExtractorResult<Node>> startUps = new HashMap<String, ExtractorResult<Node>>();
 
-      for (String key : newModel.keySet()) {
-         if (!curNodes.contains(key)) {
-            startUps.put(key, newModel.get(key));
+
+      Set<Entry<String, ExtractorResult<Node>>> entrySet = newModel.entrySet();
+      for (Entry<String, ExtractorResult<Node>> entry : entrySet) {
+         if (!curNodes.contains(entry.getKey())) {
+            startUps.put(entry.getKey(), entry.getValue());
          }
       }
 
       return startUps;
    }
-   
-   private void checkDeployment(){
-      
+
+   private void checkDeployment() {
+
       //no repose instances
-      if(controllerService.getManagedInstances().isEmpty()){
+      if (controllerService.getManagedInstances().isEmpty()) {
          LOG.warn("No Repose Instances started. Waiting for suitable update");
       }
-      
-      
+
+
    }
 }

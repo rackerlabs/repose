@@ -61,7 +61,7 @@
             </xs:annotation>
         </xs:attribute>
         <!-- Check to make sure we really need this to be a Name -->
-        <xs:attribute name="via" type="xs:Name" use="optional">
+        <xs:attribute name="via" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>An identifing string that will be returned in the Via header.</html:p>

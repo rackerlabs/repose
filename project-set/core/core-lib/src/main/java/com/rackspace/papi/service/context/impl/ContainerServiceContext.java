@@ -20,7 +20,6 @@ import org.springframework.stereotype.Component;
 @Component("containerServiceContext")
 public class ContainerServiceContext implements ServiceContext<ContainerConfigurationService> {
 
-   private static final Logger LOG = LoggerFactory.getLogger(ContainerServiceContext.class);
    public static final String SERVICE_NAME = "powerapi:/services/container";
    private final ContainerConfigurationListener configurationListener;
    private ContainerConfigurationService containerConfigurationService;
