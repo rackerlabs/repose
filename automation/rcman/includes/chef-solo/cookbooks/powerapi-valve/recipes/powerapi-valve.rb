@@ -194,7 +194,6 @@ for nodeNumber in 1..6
          source "#{config}.erb"
          mode 0644
          variables({
-            :port => 8886 + nodeNumber,
             :via => via,
             :cbrl => cbrl
          })

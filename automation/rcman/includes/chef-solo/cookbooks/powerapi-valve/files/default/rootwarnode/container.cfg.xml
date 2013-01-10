@@ -1,5 +1,5 @@
 <repose-container xmlns='http://docs.rackspacecloud.com/repose/container/v2.0'>
-    <deployment-config  http-port="8080">
+    <deployment-config  >
         <deployment-directory auto-clean="false">/var/powerapi</deployment-directory>
         <artifact-directory check-interval="60000">/usr/share/repose/filters</artifact-directory>
     </deployment-config>
