@@ -129,6 +129,9 @@ public class PowerApiContextManager implements ServletContextListener {
          applicationContext.registerAlias(DEFAULT_CONNECTION_FRAMEWORK, "requestProxyService");
       }
 
+      configurePorts();
+      configureReposeInfo();
+      
       GenericBeanDefinition beanDef = new GenericBeanDefinition();
       ConstructorArgumentValues args = new ConstructorArgumentValues();
       args.addIndexedArgumentValue(0, UUID.randomUUID().toString(), "java.lang.String");
@@ -138,8 +141,7 @@ public class PowerApiContextManager implements ServletContextListener {
       applicationContext.registerBeanDefinition("reposeId", beanDef);
       applicationContext.getBean("exporter");
 
-      configurePorts();
-      configureReposeInfo();
+      
 
       //Allows Repose to set any header to pass to the origin service. Namely the "Via" header
       System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
