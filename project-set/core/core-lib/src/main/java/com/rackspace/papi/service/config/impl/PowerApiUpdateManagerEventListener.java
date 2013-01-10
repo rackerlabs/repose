@@ -26,11 +26,18 @@ public class PowerApiUpdateManagerEventListener implements EventListener<Configu
     public void onEvent(Event<ConfigurationEvent, ConfigurationResource> e) {
         final Thread currentThread = Thread.currentThread();
         final ClassLoader previousClassLoader = currentThread.getContextClassLoader();
+        final String payloadName = e.payload().name();
+        Map<Integer, ParserListenerPair> listeners = getListenerMap(payloadName);
+        
+        LOG.info("Configuration event triggered for: " + payloadName);
+        LOG.info("Notifying " + listeners.values().size() + " listeners");
 
-        for (ParserListenerPair parserListener : getListenerMap(e.payload().name()).values()) {
+        for (ParserListenerPair parserListener : listeners.values()) {
             UpdateListener updateListener = parserListener.getListener();
 
             if (updateListener != null) {
+                LOG.info("Notifying " + updateListener.getClass().getName());
+                
                 currentThread.setContextClassLoader(parserListener.getClassLoader());
                 try {
                     configUpdate(updateListener, parserListener.getParser().read(e.payload()));
@@ -40,6 +47,8 @@ public class PowerApiUpdateManagerEventListener implements EventListener<Configu
                 } finally {
                     currentThread.setContextClassLoader(previousClassLoader);
                 }
+            } else {
+                LOG.warn("Update listener is null for " + payloadName);
             }
         }
     }

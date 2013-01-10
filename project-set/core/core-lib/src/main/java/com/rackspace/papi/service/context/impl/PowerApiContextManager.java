@@ -7,6 +7,7 @@ import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServiceContext;
+import com.rackspace.papi.service.context.ServletContextAware;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.banner.PapiBanner;
 import com.rackspace.papi.service.context.spring.SpringContextAdapterProvider;
@@ -14,7 +15,7 @@ import com.rackspace.papi.service.deploy.ArtifactManagerServiceContext;
 import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
 import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.spring.SpringConfiguration;
-import java.util.UUID;
+import java.util.Map;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
@@ -23,15 +24,15 @@ import net.sf.ehcache.CacheManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.config.ConstructorArgumentValues;
-import org.springframework.beans.factory.support.GenericBeanDefinition;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.context.support.AbstractApplicationContext;
 
 public class PowerApiContextManager implements ServletContextListener {
 
    private static final Logger LOG = LoggerFactory.getLogger(PowerApiContextManager.class);
    private static final String DEFAULT_CONNECTION_FRAMEWORK = "jerseyRequestProxyService";
-   private AnnotationConfigApplicationContext applicationContext;
+   private AbstractApplicationContext applicationContext;
    private ServicePorts ports;
    private boolean contextInitialized = false;
    private ReposeInstanceInfo instanceInfo;
@@ -42,33 +43,65 @@ public class PowerApiContextManager implements ServletContextListener {
    public PowerApiContextManager setPorts(ServicePorts ports, ReposeInstanceInfo instanceInfo) {
       this.ports = ports;
       this.instanceInfo = instanceInfo;
-      configurePorts();
-      configureReposeInfo();
+      configurePorts(applicationContext);
+      configureReposeInfo(applicationContext);
       return this;
    }
+   
+   private AbstractApplicationContext initApplicationContext(ServletContext servletContext) {
+      final String connectionFrameworkProp = InitParameter.CONNECTION_FRAMEWORK.getParameterName();
+      final String connectionFramework = System.getProperty(connectionFrameworkProp, servletContext.getInitParameter(connectionFrameworkProp));
+      final String beanName = StringUtilities.isNotBlank(connectionFramework) ? connectionFramework + "RequestProxyService" : null;
 
-   private void configurePorts() {
-      if (ports == null || applicationContext == null) {
+      AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(SpringConfiguration.class);
+      if (StringUtilities.isNotBlank(beanName) && context.containsBean(beanName)) {
+         LOG.info("Using connection framework: " + beanName);
+         context.registerAlias(beanName, "requestProxyService");
+      } else {
+         LOG.info("Using default connection framework: " + DEFAULT_CONNECTION_FRAMEWORK);
+         context.registerAlias(DEFAULT_CONNECTION_FRAMEWORK, "requestProxyService");
+      }
+
+      /*
+      GenericBeanDefinition beanDef = new GenericBeanDefinition();
+      ConstructorArgumentValues args = new ConstructorArgumentValues();
+      args.addIndexedArgumentValue(0, UUID.randomUUID().toString(), "java.lang.String");
+      beanDef.setConstructorArgumentValues(args);
+      beanDef.setBeanClass(String.class);
+
+      applicationContext.registerBeanDefinition("reposeId", beanDef);
+      */
+
+      configurePorts(context);
+      configureReposeInfo(context);
+      context.getBean("exporter");
+      
+      return context;
+       
+   }
+
+   private void configurePorts(ApplicationContext context) {
+      if (ports == null || context == null) {
          return;
       }
-      ServicePorts servicePorts = applicationContext.getBean("servicePorts", ServicePorts.class);
+      ServicePorts servicePorts = context.getBean("servicePorts", ServicePorts.class);
       servicePorts.clear();
       servicePorts.addAll(ports);
    }
 
-   private void configureReposeInfo() {
+   private void configureReposeInfo(ApplicationContext context) {
       if (instanceInfo == null) {
 
          String clusterId = System.getProperty("repose-cluster-id");
          String nodeId = System.getProperty("repose-node-id");
          instanceInfo = new ReposeInstanceInfo(clusterId, nodeId);
       }
-      if (applicationContext == null) {
+      if (context == null) {
          return;
       }
 
 
-      ReposeInstanceInfo reposeInstanceInfo = applicationContext.getBean("reposeInstanceInfo", ReposeInstanceInfo.class);
+      ReposeInstanceInfo reposeInstanceInfo = context.getBean("reposeInstanceInfo", ReposeInstanceInfo.class);
       reposeInstanceInfo.setClusterId(instanceInfo.getClusterId());
       reposeInstanceInfo.setNodeId(instanceInfo.getNodeId());
    }
@@ -99,6 +132,13 @@ public class PowerApiContextManager implements ServletContextListener {
       if (isManagementServerEnabled()) {
          ca.getContext(ManagementServiceContext.class).contextInitialized(sce);
       }
+      
+      Map<String, ServletContextAware> contextAwareBeans = applicationContext.getBeansOfType(ServletContextAware.class);
+      
+      for (ServletContextAware bean: contextAwareBeans.values()) {
+          bean.contextInitialized(sce);
+      }
+      
    }
 
    private boolean isManagementServerEnabled() {
@@ -116,32 +156,7 @@ public class PowerApiContextManager implements ServletContextListener {
          new HttpsURLConnectionSslInitializer().allowAllServerCerts();
       }
 
-      final String connectionFrameworkProp = InitParameter.CONNECTION_FRAMEWORK.getParameterName();
-      final String connectionFramework = System.getProperty(connectionFrameworkProp, servletContext.getInitParameter(connectionFrameworkProp));
-      final String beanName = StringUtilities.isNotBlank(connectionFramework) ? connectionFramework + "RequestProxyService" : null;
-
-      applicationContext = new AnnotationConfigApplicationContext(SpringConfiguration.class);
-      if (StringUtilities.isNotBlank(beanName) && applicationContext.containsBean(beanName)) {
-         LOG.info("Using connection framework: " + beanName);
-         applicationContext.registerAlias(beanName, "requestProxyService");
-      } else {
-         LOG.info("Using default connection framework: " + DEFAULT_CONNECTION_FRAMEWORK);
-         applicationContext.registerAlias(DEFAULT_CONNECTION_FRAMEWORK, "requestProxyService");
-      }
-
-      configurePorts();
-      configureReposeInfo();
-      
-      GenericBeanDefinition beanDef = new GenericBeanDefinition();
-      ConstructorArgumentValues args = new ConstructorArgumentValues();
-      args.addIndexedArgumentValue(0, UUID.randomUUID().toString(), "java.lang.String");
-      beanDef.setConstructorArgumentValues(args);
-      beanDef.setBeanClass(String.class);
-
-      applicationContext.registerBeanDefinition("reposeId", beanDef);
-      applicationContext.getBean("exporter");
-
-      
+      applicationContext = initApplicationContext(servletContext);
 
       //Allows Repose to set any header to pass to the origin service. Namely the "Via" header
       System.setProperty("sun.net.http.allowRestrictedHeaders", "true");
@@ -167,6 +182,13 @@ public class PowerApiContextManager implements ServletContextListener {
    @Override
    public void contextDestroyed(ServletContextEvent sce) {
       contextInitialized = false;
+
+      Map<String, ServletContextAware> contextAwareBeans = applicationContext.getBeansOfType(ServletContextAware.class);
+      
+      for (ServletContextAware bean: contextAwareBeans.values()) {
+          bean.contextDestroyed(sce);
+      }
+      
       ServiceRegistry registry = applicationContext.getBean("serviceRegistry", ServiceRegistry.class);
       for (ServiceContext ctx : registry.getServices()) {
          ctx.contextDestroyed(sce);
