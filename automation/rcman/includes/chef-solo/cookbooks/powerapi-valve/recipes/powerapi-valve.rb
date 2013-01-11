@@ -99,7 +99,7 @@ for valveGroup in 1..3
 
       ["versioning.cfg.xml", "system-model.cfg.xml"].each do |config|
         template "/etc/repose/valveGroup1/#{config}" do
-          source "#{config}.erb"
+          source "valveGroup1/#{config}.erb"
           mode 0644
         end
       end
