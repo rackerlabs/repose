@@ -108,9 +108,10 @@ for valveGroup in 1..3
       ["client-auth-keystone.cfg.xml", "client-auth-v1.1.cfg.xml"].each do |config|
         cookbook_file "/etc/repose/valveGroup1/#{config}" do
           source "/valveGroup1/#{config}"
+          mode 0644
         end
 
-        mode 0644
+
       end
 
       ["header-normalization.cfg.xml", "uri-normalization.cfg.xml"].each do |config|
