@@ -99,7 +99,7 @@ for valveGroup in 1..3
 
       ["versioning.cfg.xml", "system-model.cfg.xml"].each do |config|
         template "/etc/repose/valveGroup1/#{config}" do
-          source "/#{config}.erb"
+          source "#{config}.erb"
           mode 0644
         end
       end
@@ -116,7 +116,7 @@ for valveGroup in 1..3
 
       ["header-normalization.cfg.xml", "uri-normalization.cfg.xml"].each do |config|
         cookbook_file "/etc/repose/valveGroup1/#{config}" do
-          source "/#{config}"
+          source "#{config}"
           mode 0644
         end
       end
