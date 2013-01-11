@@ -70,14 +70,14 @@ directory "/var/powerapi" do
    group "root"
 end
 
-for nodeNumber in 1..4
-   directory "/etc/repose/node#{nodeNumber}" do
+for valveGroup in 1..3
+   directory "/etc/repose/valveGroup#{valveGroup}" do
       mode 0775
       owner "root"
       group "root"
    end
 
-   directory "/var/powerapi/logs/node#{nodeNumber}" do
+   directory "/var/powerapi/logs/valveGroup#{valveGroup}" do
       mode 0775
       owner "root"
       group "root"
@@ -86,7 +86,7 @@ for nodeNumber in 1..4
 
 
    ["rate-limiting.cfg.xml", "content-normalization.cfg.xml"].each do |config|
-      cookbook_file "/etc/repose/node#{nodeNumber}/#{config}" do
+      cookbook_file "/etc/repose/valveGroup#{valveGroup}/#{config}" do
          source config
          mode 0644
       end
@@ -95,94 +95,54 @@ for nodeNumber in 1..4
    via=""
    cbrl=""
 
-   case nodeNumber
-   when 1
-      #Client Auth for RS Cloud Auth 1.1
-      template "/etc/repose/node#{nodeNumber}/versioning.cfg.xml" do
-         source "versioning.cfg.xml.erb"
-         mode 0644
-      end
+   case valveGroup
+     when 1
 
-      template "/etc/repose/node#{nodeNumber}/system-model.cfg.xml" do
-         source "system-model.cfg.xml.erb"
+       ["versioning.cfg.xml", "system-model.cfg.xml"].each do |config|
+         source "/#{config}.erb"
          mode 0644
-      end
+       end
+      #Client Auth for RS Cloud Auth 1.1 And Client Auth for OpenStack Identity
 
-      cookbook_file "/etc/repose/node1/client-auth-n.cfg.xml" do
-         source "/auth1.1/client-auth-n.cfg.xml"
+       ["client-auth-keystone.cfg.xml","client-auth-v1.1.cfg.xml"].each do |config|
+         source "/valveGroup1/#{config}"
          mode 0644
-      end
+       end
 
-      cookbook_file "/etc/repose/node1/header-normalization.cfg.xml" do
-         source "/header-normalization.cfg.xml"
-         mode 0644
-      end
-
-      cookbook_file "/etc/repose/node1/uri-normalization.cfg.xml" do
-         source "/uri-normalization.cfg.xml"
-         mode 0644
-      end
+       ["header-normalization.cfg.xml", "uri-normalization.cfg.xml"].each do |config|
+         source "/#{config}"
+       end
       via="via=\"Repose (Cloud Integration)\""
 
    when 2
-      #Client Auth for OpenStack Identity
-      template "/etc/repose/node#{nodeNumber}/versioning.cfg.xml" do
-         source "versioning.cfg.xml.erb"
-         mode 0644
-      end
-
-      template "/etc/repose/node#{nodeNumber}/system-model.cfg.xml" do
-         source "system-model.cfg.xml.erb"
-         mode 0644
-      end
-
-     cookbook_file "/etc/repose/node2/client-auth-n.cfg.xml" do
-         source "/keystone/client-auth-n.cfg.xml"
-         mode 0644
-      end
-
-      cookbook_file "/etc/repose/node2/openstack-authorization.cfg.xml" do
-         source "openstack-authorization.cfg.xml"
-         mode 0644
-      end
-
-      cookbook_file "/etc/repose/node2/header-normalization.cfg.xml" do
-         source "/header-normalization.cfg.xml"
-         mode 0644
-      end
-
-      cookbook_file "/etc/repose/node2/uri-normalization.cfg.xml" do
-         source "/uri-normalization.cfg.xml"
-         mode 0644
-      end
-      via="via=\"\""
-
-   when 3
       #Client IP Identity Node
-      ["uri-identity.cfg.xml", "content-normalization.cfg.xml", "response-messaging.cfg.xml", "ip-identity.cfg.xml", "header-identity.cfg.xml", "rate-limiting.cfg.xml", "rate-limiting-2.cfg.xml", "dist-datastore.cfg.xml", "responsefor5xx", "content-identity-auth-1-1.cfg.xml", "header-id-mapping.cfg.xml", "default.wadl", "group1.wadl", "group2.wadl", "test.xsd", "validator.cfg.xml","keystone-auth.cfg.xml"].each do |config|
-         cookbook_file "/etc/repose/node3/#{config}" do
-            source "/client-ip/#{config}"
+      ["uri-identity.cfg.xml", "content-normalization.cfg.xml", "response-messaging.cfg.xml", "ip-identity.cfg.xml",
+       "header-identity.cfg.xml", "rate-limiting.cfg.xml", "rate-limiting-2.cfg.xml", "dist-datastore.cfg.xml",
+       "responsefor5xx", "content-identity-auth-1-1.cfg.xml", "header-id-mapping.cfg.xml", "default.wadl",
+       "group1.wadl", "group2.wadl", "test.xsd", "validator.cfg.xml","keystone-auth.cfg.xml"].each do |config|
+         cookbook_file "/etc/repose/valveGroup2/#{config}" do
+            source "/valveGroup2/#{config}"
             mode 0644
          end
       end
 
-      template "/etc/repose/node3/system-model.cfg.xml" do
-         source "client-ip/system-model.cfg.xml.erb"
+      template "/etc/repose/valveGroup2/system-model.cfg.xml" do
+         source "valveGroup2/system-model.cfg.xml.erb"
          mode 0644
       end
       via=""
 
-   when 4
+   when 3
       #Distirubted Datastore
       ["add-element.xsl", "identity.xsl", "remove-element.xsl", "translation.cfg.xml", "translation-request.cfg.xml", "ip-identity.cfg.xml","ip-identity2.cfg.xml","client-auth-n.cfg.xml"].each do |config|
-         cookbook_file "/etc/repose/node#{nodeNumber}/#{config}" do
-            source "/dist-datastore/#{config}"
+         cookbook_file "/etc/repose/valveGroup3/#{config}" do
+            source "/valveGroup3/#{config}"
             mode 0644
          end
       end
 
-      template "/etc/repose/node#{nodeNumber}/system-model.cfg.xml" do
-         source "dist-datastore/system-model.cfg.xml.erb"
+      template "/etc/repose/valveGroup3/system-model.cfg.xml" do
+         source "valveGroup3/system-model.cfg.xml.erb"
          mode 0644
       end
       via=""
@@ -190,7 +150,7 @@ for nodeNumber in 1..4
    end
 
    ["container.cfg.xml"].each do |config|
-      template "/etc/repose/node#{nodeNumber}/#{config}" do
+      template "/etc/repose/valveGroup#{valveGroup}/#{config}" do
          source "#{config}.erb"
          mode 0644
          variables({

@@ -46,7 +46,7 @@ case arg
             logger.info("Repose instance 1 built: #{server1.ip} : #{server1.password} : #{server1.getId}")
             rsInstances.push(server1.getId)
         }
-
+=begin
         t2 = Thread.new {
             puts "building server 2..."
             server2 = buildReposeBox2
@@ -54,9 +54,10 @@ case arg
             logger.info("Repose instance 2 built: #{server2.ip} : #{server2.password} : #{server2.getId}")
             rsInstances.push(server2.getId)
         }
+=end
 
         t1.join()
-        t2.join()
+   #     t2.join()
         writeToFile("/tmp/rsInstances",rsInstances.join(",")) 
 
     when "--delete-cluster"
