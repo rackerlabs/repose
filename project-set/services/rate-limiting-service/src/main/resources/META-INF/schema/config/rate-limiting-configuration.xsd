@@ -98,7 +98,7 @@
         </xs:annotation>
 
         <xs:sequence>
-            <xs:element name="limit" type="rl:ConfiguredRatelimit" minOccurs="1" maxOccurs="unbounded"/>
+            <xs:element name="limit" type="rl:ConfiguredRatelimit" minOccurs="0" maxOccurs="unbounded"/>
         </xs:sequence>
 
         <xs:attribute name="id" type="xs:string" use="required">
