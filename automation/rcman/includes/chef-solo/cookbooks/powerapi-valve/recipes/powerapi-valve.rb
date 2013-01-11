@@ -1,174 +1,181 @@
 directory "/usr/share/lib" do
-   owner "root"
-   group "root"
-   action :create
+  owner "root"
+  group "root"
+  action :create
 end
 
 cookbook_file "/etc/init.d/repose-regression" do
-   source "repose-regression"
-   mode 0744
+  source "repose-regression"
+  mode 0744
 end
 
 script "getVersionAndBuildNumbers" do
-   interpreter "ruby"
+  interpreter "ruby"
 
-    latestUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/valve/repose-valve/maven-metadata.xml"
-    latest = `wget -qO- '#{latestUrl}'`.split(/<\/?version>/).select{|v| v=~ /SNAPSHOT/}.pop
+  latestUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/valve/repose-valve/maven-metadata.xml"
+  latest = `wget -qO- '#{latestUrl}'`.split(/<\/?version>/).select { |v| v=~ /SNAPSHOT/ }.pop
 
 
-    valveUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/valve/repose-valve/#{latest}"
-    filterBundleUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/filters/repose-filter-bundle/#{latest}"
-    eFilterBundleUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/papi/components/extensions/extensions-filter-bundle/#{latest}"
+  valveUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/valve/repose-valve/#{latest}"
+  filterBundleUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/repose/installation/deb/filters/repose-filter-bundle/#{latest}"
+  eFilterBundleUrl = "http://maven.research.rackspacecloud.com/content/repositories/snapshots/com/rackspace/papi/components/extensions/extensions-filter-bundle/#{latest}"
 
-    vTimeStamp= `wget -qO- "#{valveUrl}/maven-metadata.xml"`.split(/<\/?value>/)
-    fTimeStamp= `wget -qO- "#{filterBundleUrl}/maven-metadata.xml"`.split(/<\/?value>/)
-    eTimeStamp= `wget -qO- "#{eFilterBundleUrl}/maven-metadata.xml"`.split(/<\/?value>/)
+  vTimeStamp= `wget -qO- "#{valveUrl}/maven-metadata.xml"`.split(/<\/?value>/)
+  fTimeStamp= `wget -qO- "#{filterBundleUrl}/maven-metadata.xml"`.split(/<\/?value>/)
+  eTimeStamp= `wget -qO- "#{eFilterBundleUrl}/maven-metadata.xml"`.split(/<\/?value>/)
 
-    vValue= vTimeStamp[vTimeStamp.size-2]
-    fValue= fTimeStamp[fTimeStamp.size-2]
-    eValue= eTimeStamp[eTimeStamp.size-2]
+  vValue= vTimeStamp[vTimeStamp.size-2]
+  fValue= fTimeStamp[fTimeStamp.size-2]
+  eValue= eTimeStamp[eTimeStamp.size-2]
 
-    `wget #{valveUrl}/repose-valve-#{vValue}.deb -O /root/repose-valve.deb`
-    `wget #{filterBundleUrl}/repose-filter-bundle-#{fValue}.deb -O /root/filterBundle.deb`
-    `wget #{eFilterBundleUrl}/extensions-filter-bundle-#{eValue}.ear -O /root/extensions-filter-bundle.ear`
+  `wget #{valveUrl}/repose-valve-#{vValue}.deb -O /root/repose-valve.deb`
+  `wget #{filterBundleUrl}/repose-filter-bundle-#{fValue}.deb -O /root/filterBundle.deb`
+  `wget #{eFilterBundleUrl}/extensions-filter-bundle-#{eValue}.ear -O /root/extensions-filter-bundle.ear`
 
 end
 
 script "getJolokia" do
-    interpreter "bash"
-    code <<-EOH
+  interpreter "bash"
+  code <<-EOH
     wget http://labs.consol.de/maven/repository/org/jolokia/jolokia-jvm/1.0.6/jolokia-jvm-1.0.6-agent.jar -O /root/jolokia-jvm.jar
-    EOH
+  EOH
 end
 
-      
 
 package "papiCore" do
-   action :install
-   source "/root/repose-valve.deb"
-   provider Chef::Provider::Package::Dpkg
-   options "--force-all"
+  action :install
+  source "/root/repose-valve.deb"
+  provider Chef::Provider::Package::Dpkg
+  options "--force-all"
 end
 
 package "filterBundle" do
-   action :install
-   source "/root/filterBundle.deb"
-   provider Chef::Provider::Package::Dpkg
-   options "--force-all"
+  action :install
+  source "/root/filterBundle.deb"
+  provider Chef::Provider::Package::Dpkg
+  options "--force-all"
 end
 
 script "placeExtensionsFb" do
-   interpreter "bash"
-   code <<-EOH
+  interpreter "bash"
+  code <<-EOH
    mv /root/extensions-filter-bundle.ear /usr/share/repose/filters/
-   EOH
+  EOH
 end
 
 directory "/var/powerapi" do
-   mode 770
-   owner "root"
-   group "root"
+  mode 770
+  owner "root"
+  group "root"
 end
 
 for valveGroup in 1..3
-   directory "/etc/repose/valveGroup#{valveGroup}" do
-      mode 0775
-      owner "root"
-      group "root"
-   end
+  directory "/etc/repose/valveGroup#{valveGroup}" do
+    mode 0775
+    owner "root"
+    group "root"
+  end
 
-   directory "/var/powerapi/logs/valveGroup#{valveGroup}" do
-      mode 0775
-      owner "root"
-      group "root"
-      recursive true
-   end
+  directory "/var/powerapi/logs/valveGroup#{valveGroup}" do
+    mode 0775
+    owner "root"
+    group "root"
+    recursive true
+  end
 
 
-   ["rate-limiting.cfg.xml", "content-normalization.cfg.xml"].each do |config|
-      cookbook_file "/etc/repose/valveGroup#{valveGroup}/#{config}" do
-         source config
-         mode 0644
+  ["rate-limiting.cfg.xml", "content-normalization.cfg.xml"].each do |config|
+    cookbook_file "/etc/repose/valveGroup#{valveGroup}/#{config}" do
+      source config
+      mode 0644
+    end
+  end
+
+  via=""
+  cbrl=""
+
+  case valveGroup
+    when 1
+
+      ["versioning.cfg.xml", "system-model.cfg.xml"].each do |config|
+        template "/etc/repose/valveGroup1/#{config}" do
+          source "/#{config}.erb"
+          mode 0644
+        end
       end
-   end
-
-   via=""
-   cbrl=""
-
-   case valveGroup
-     when 1
-
-       ["versioning.cfg.xml", "system-model.cfg.xml"].each do |config|
-         source "/#{config}.erb"
-         mode 0644
-       end
       #Client Auth for RS Cloud Auth 1.1 And Client Auth for OpenStack Identity
 
-       ["client-auth-keystone.cfg.xml","client-auth-v1.1.cfg.xml"].each do |config|
-         source "/valveGroup1/#{config}"
-         mode 0644
-       end
+      ["client-auth-keystone.cfg.xml", "client-auth-v1.1.cfg.xml"].each do |config|
+        cookbook_file "/etc/repose/valveGroup1/#{config}" do
+          source "/valveGroup1/#{config}"
+        end
 
-       ["header-normalization.cfg.xml", "uri-normalization.cfg.xml"].each do |config|
-         source "/#{config}"
-       end
+        mode 0644
+      end
+
+      ["header-normalization.cfg.xml", "uri-normalization.cfg.xml"].each do |config|
+        cookbook_file "/etc/repose/valveGroup1/#{config}" do
+          source "/#{config}"
+          mode 0644
+        end
+      end
       via="via=\"Repose (Cloud Integration)\""
 
-   when 2
+    when 2
       #Client IP Identity Node
       ["uri-identity.cfg.xml", "content-normalization.cfg.xml", "response-messaging.cfg.xml", "ip-identity.cfg.xml",
        "header-identity.cfg.xml", "rate-limiting.cfg.xml", "rate-limiting-2.cfg.xml", "dist-datastore.cfg.xml",
        "responsefor5xx", "content-identity-auth-1-1.cfg.xml", "header-id-mapping.cfg.xml", "default.wadl",
-       "group1.wadl", "group2.wadl", "test.xsd", "validator.cfg.xml","keystone-auth.cfg.xml"].each do |config|
-         cookbook_file "/etc/repose/valveGroup2/#{config}" do
-            source "/valveGroup2/#{config}"
-            mode 0644
-         end
+       "group1.wadl", "group2.wadl", "test.xsd", "validator.cfg.xml", "keystone-auth.cfg.xml"].each do |config|
+        cookbook_file "/etc/repose/valveGroup2/#{config}" do
+          source "/valveGroup2/#{config}"
+          mode 0644
+        end
       end
 
       template "/etc/repose/valveGroup2/system-model.cfg.xml" do
-         source "valveGroup2/system-model.cfg.xml.erb"
-         mode 0644
+        source "valveGroup2/system-model.cfg.xml.erb"
+        mode 0644
       end
       via=""
 
-   when 3
+    when 3
       #Distirubted Datastore
-      ["add-element.xsl", "identity.xsl", "remove-element.xsl", "translation.cfg.xml", "translation-request.cfg.xml", "ip-identity.cfg.xml","ip-identity2.cfg.xml","client-auth-n.cfg.xml"].each do |config|
-         cookbook_file "/etc/repose/valveGroup3/#{config}" do
-            source "/valveGroup3/#{config}"
-            mode 0644
-         end
+      ["add-element.xsl", "identity.xsl", "remove-element.xsl", "translation.cfg.xml", "translation-request.cfg.xml", "ip-identity.cfg.xml", "ip-identity2.cfg.xml", "client-auth-n.cfg.xml"].each do |config|
+        cookbook_file "/etc/repose/valveGroup3/#{config}" do
+          source "/valveGroup3/#{config}"
+          mode 0644
+        end
       end
 
       template "/etc/repose/valveGroup3/system-model.cfg.xml" do
-         source "valveGroup3/system-model.cfg.xml.erb"
-         mode 0644
+        source "valveGroup3/system-model.cfg.xml.erb"
+        mode 0644
       end
       via=""
       cbrl="content-body-read-limit=\"256\""
-   end
+  end
 
-   ["container.cfg.xml"].each do |config|
-      template "/etc/repose/valveGroup#{valveGroup}/#{config}" do
-         source "#{config}.erb"
-         mode 0644
-         variables({
-            :via => via,
-            :cbrl => cbrl
-         })
-      end
-   end
+  ["container.cfg.xml"].each do |config|
+    template "/etc/repose/valveGroup#{valveGroup}/#{config}" do
+      source "#{config}.erb"
+      mode 0644
+      variables({
+                    :via => via,
+                    :cbrl => cbrl
+                })
+    end
+  end
 end
 
 if node["powerapi-valve"]["image"] == "rhel"
-   script "flushIptables" do
-      interpreter "bash"
-      code <<-EOH
+  script "flushIptables" do
+    interpreter "bash"
+    code <<-EOH
          /sbin/iptables -P INPUT ACCEPT
          /sbin/iptables -P OUTPUT ACCEPT
          /sbin/iptables -F
-      EOH
-   end
+    EOH
+  end
 end
 
