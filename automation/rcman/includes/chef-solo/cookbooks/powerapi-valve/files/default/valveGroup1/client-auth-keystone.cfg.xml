@@ -8,8 +8,8 @@
          <client-mapping id-regex="/([a-zA-Z\-][a-zA-Z\-]+\d+)[^\w]/?"/>
     </openstack-auth>
     <white-list>
-        <uri-pattern uri-id="wadl" uri-regex="/v1/application\.wadl" />
-        <uri-pattern uri-id="wadl" uri-regex="/v2/application\.wadl" />
-        <uri-pattern uri-id="wadl" uri-regex="/v3/application\.wadl" />
+        <uri-pattern  uri-regex="/v1/application\.wadl" />
+        <uri-pattern  uri-regex="/v2/application\.wadl" />
+        <uri-pattern  uri-regex="/v3/application\.wadl" />
     </white-list>
 </client-auth>
