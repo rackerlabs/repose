@@ -9,7 +9,7 @@ import java.util.List;
  */
 public class QueryParameter implements Comparable<QueryParameter> {
 
-    private final static int HASH = 7 * 23;
+    private static final int HASH = 7 * 23;
     private final String name;
     private final List<String> values;
 
