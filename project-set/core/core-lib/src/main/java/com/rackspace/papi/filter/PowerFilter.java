@@ -78,9 +78,8 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
     private class SystemModelConfigListener implements UpdateListener<SystemModel> {
 
-       boolean isIntialized=false;
-       
-        
+        private boolean isIntialized = false;
+
         // TODO:Review - There's got to be a better way of initializing PowerFilter. Maybe the app management service could be queryable.
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
@@ -105,15 +104,13 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                     updateFilterChainBuilder(newFilterChain);
                 }
             }
-            isIntialized=true;
+            isIntialized = true;
         }
 
-    @Override
-    public boolean isInitialized(){
-    return isIntialized;
-    }
-
-
+        @Override
+        public boolean isInitialized() {
+            return isIntialized;
+        }
     }
 
     // This is written like this in case requests are already processing against the
@@ -153,7 +150,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
         papiContext.eventService().listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
         URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
-        papiContext.configurationService().subscribeTo("system-model.cfg.xml",xsdURL, systemModelConfigurationListener, SystemModel.class);
+        papiContext.configurationService().subscribeTo("system-model.cfg.xml", xsdURL, systemModelConfigurationListener, SystemModel.class);
 
         filterConfig.getServletContext().setAttribute("powerFilter", this);
 

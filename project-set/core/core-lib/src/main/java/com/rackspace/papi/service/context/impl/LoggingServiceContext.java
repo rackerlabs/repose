@@ -54,12 +54,13 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
     }
 
     /**
-     * Listens for updates to the container.cfg.xml file which holds the location of the log properties file.
+     * Listens for updates to the container.cfg.xml file which holds the
+     * location of the log properties file.
      */
     private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
-         
-        boolean isIntialized=false;
-        
+
+        private boolean isIntialized = false;
+
         @Override
         public void configurationUpdated(ContainerConfiguration configurationObject) {
 
@@ -72,15 +73,13 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
                     updateLogConfigFileSubscription(loggingConfigurationConfig, newLoggingConfig);
                 }
             }
-             isIntialized=true;
+            isIntialized = true;
         }
 
         @Override
-        public boolean isInitialized(){
-        return isIntialized;
+        public boolean isInitialized() {
+            return isIntialized;
         }
-
-      
     }
 
     /**
@@ -88,7 +87,8 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
      */
     private class LoggingConfigurationListener implements UpdateListener<Properties> {
 
-       boolean isIntialized=false;
+        private boolean isIntialized = false;
+
         @Override
         public void configurationUpdated(Properties configurationObject) {
             loggingService.updateLoggingConfiguration(configurationObject);
@@ -98,14 +98,13 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
             LOG.info("INFO LEVEL LOG STATEMENT");
             LOG.debug("DEBUG LEVEL LOG STATEMENT");
             LOG.trace("TRACE LEVEL LOG STATEMENT");
-           isIntialized=true;
-        }
-        
-        @Override
-        public boolean isInitialized(){
-        return isIntialized;
+            isIntialized = true;
         }
 
+        @Override
+        public boolean isInitialized() {
+            return isIntialized;
+        }
     }
 
     private void updateLogConfigFileSubscription(String currentLoggingConfig, String loggingConfig) {

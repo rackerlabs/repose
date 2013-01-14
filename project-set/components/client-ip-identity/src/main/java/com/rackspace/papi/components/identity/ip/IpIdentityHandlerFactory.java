@@ -14,58 +14,54 @@ import java.util.Map;
 
 public class IpIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFactory<IpIdentityHandler> {
 
-   private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(IpIdentityHandlerFactory.class);
-   private IpIdentityConfig config;
-   private List<IpAddressRange> whitelist;
+    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(IpIdentityHandlerFactory.class);
+    private IpIdentityConfig config;
+    private List<IpAddressRange> whitelist;
 
-   public IpIdentityHandlerFactory() {
-   }
+    public IpIdentityHandlerFactory() {
+    }
 
-   @Override
-   protected Map<Class, UpdateListener<?>> getListeners() {
-      return new HashMap<Class, UpdateListener<?>>() {
-
-         {
-            put(IpIdentityConfig.class, new ClientIpIdentityConfigurationListener());
-         }
-      };
-   }
-
-   private class ClientIpIdentityConfigurationListener implements UpdateListener<IpIdentityConfig> {
-
-       boolean isIntialized=false;
-     
-       
-       
-      @Override
-      public void configurationUpdated(IpIdentityConfig configurationObject) {
-         config = configurationObject;
-         whitelist = new ArrayList<IpAddressRange>();
-         if (config.getWhiteList() != null) {
-            for (String address : config.getWhiteList().getIpAddress()) {
-               try {
-                  whitelist.add(new IpAddressRange(address));
-               } catch (UnknownHostException ex) {
-                  LOG.warn("Invalid IP address specified in white list: " + address);
-               }
+    @Override
+    protected Map<Class, UpdateListener<?>> getListeners() {
+        return new HashMap<Class, UpdateListener<?>>() {
+            {
+                put(IpIdentityConfig.class, new ClientIpIdentityConfigurationListener());
             }
-         }
-        isIntialized=true;
-      }
-      
-        @Override
-      public boolean isInitialized(){
-          return isIntialized;
-      }
- 
-   }
+        };
+    }
 
-   @Override
-   protected IpIdentityHandler buildHandler() {
-    
-      if(!this.isInitialized()){
-           return null;
-       } 
-      return new IpIdentityHandler(config, whitelist);
-   }
+    private class ClientIpIdentityConfigurationListener implements UpdateListener<IpIdentityConfig> {
+
+        private boolean isIntialized = false;
+
+        @Override
+        public void configurationUpdated(IpIdentityConfig configurationObject) {
+            config = configurationObject;
+            whitelist = new ArrayList<IpAddressRange>();
+            if (config.getWhiteList() != null) {
+                for (String address : config.getWhiteList().getIpAddress()) {
+                    try {
+                        whitelist.add(new IpAddressRange(address));
+                    } catch (UnknownHostException ex) {
+                        LOG.warn("Invalid IP address specified in white list: " + address);
+                    }
+                }
+            }
+            isIntialized = true;
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isIntialized;
+        }
+    }
+
+    @Override
+    protected IpIdentityHandler buildHandler() {
+
+        if (!this.isInitialized()) {
+            return null;
+        }
+        return new IpIdentityHandler(config, whitelist);
+    }
 }

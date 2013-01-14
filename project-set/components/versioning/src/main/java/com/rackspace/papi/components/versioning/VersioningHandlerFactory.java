@@ -20,96 +20,88 @@ import java.util.Map;
 
 public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFactory<VersioningHandler> {
 
-   private final Map<String, ServiceVersionMapping> configuredMappings = new HashMap<String, ServiceVersionMapping>();
-   private final Map<String, Destination> configuredHosts = new HashMap<String, Destination>();
-   private final ContentTransformer transformer;
-   private final ServicePorts ports;
-   private ReposeCluster localDomain;
-   private Node localHost;
+    private final Map<String, ServiceVersionMapping> configuredMappings = new HashMap<String, ServiceVersionMapping>();
+    private final Map<String, Destination> configuredHosts = new HashMap<String, Destination>();
+    private final ContentTransformer transformer;
+    private final ServicePorts ports;
+    private ReposeCluster localDomain;
+    private Node localHost;
 
-   public VersioningHandlerFactory(ServicePorts ports) {
-      this.ports = ports;
+    public VersioningHandlerFactory(ServicePorts ports) {
+        this.ports = ports;
 
-      transformer = new ContentTransformer();
-   }
-
-   @Override
-   protected Map<Class, UpdateListener<?>> getListeners() {
-      return new HashMap<Class, UpdateListener<?>>() {
-
-         {
-            put(ServiceVersionMappingList.class, new VersioningConfigurationListener());
-            put(SystemModel.class, new SystemModelConfigurationListener());
-         }
-      };
-   }
-
-   private class SystemModelConfigurationListener implements UpdateListener<SystemModel> {
-
-       boolean isIntialized=false;
-       boolean isError=false;
-       
-      @Override
-      public void configurationUpdated(SystemModel configurationObject) {
-         SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
-         localDomain = interrogator.getLocalServiceDomain(configurationObject);
-         localHost = interrogator.getLocalHost(configurationObject);
-         List<Destination> destinations = new ArrayList<Destination>();
-
-         destinations.addAll(localDomain.getDestinations().getEndpoint());
-         destinations.addAll(localDomain.getDestinations().getTarget());
-         for (Destination powerApiHost : destinations) {
-            configuredHosts.put(powerApiHost.getId(), powerApiHost);
-         }
-         
-          isIntialized=true;
-          
-        
-      }
-      
-    @Override
-    public boolean isInitialized(){
-      return isIntialized;
+        transformer = new ContentTransformer();
     }
 
-   }
+    @Override
+    protected Map<Class, UpdateListener<?>> getListeners() {
+        return new HashMap<Class, UpdateListener<?>>() {
+            {
+                put(ServiceVersionMappingList.class, new VersioningConfigurationListener());
+                put(SystemModel.class, new SystemModelConfigurationListener());
+            }
+        };
+    }
 
-   private class VersioningConfigurationListener implements UpdateListener<ServiceVersionMappingList> {
+    private class SystemModelConfigurationListener implements UpdateListener<SystemModel> {
 
-      boolean isIntialized=false;
-      boolean isError=false;
-      
-      @Override
-      public void configurationUpdated(ServiceVersionMappingList mappings) {
-         configuredMappings.clear();
+        private boolean isIntialized = false;
 
-         for (ServiceVersionMapping mapping : mappings.getVersionMapping()) {
-            configuredMappings.put(mapping.getId(), mapping);
-         }
-         
-      isIntialized=true;
+        @Override
+        public void configurationUpdated(SystemModel configurationObject) {
+            SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
+            localDomain = interrogator.getLocalServiceDomain(configurationObject);
+            localHost = interrogator.getLocalHost(configurationObject);
+            List<Destination> destinations = new ArrayList<Destination>();
 
-      }
-      
-     @Override
-      public boolean isInitialized(){
-          return isIntialized;
-      }
+            destinations.addAll(localDomain.getDestinations().getEndpoint());
+            destinations.addAll(localDomain.getDestinations().getTarget());
+            for (Destination powerApiHost : destinations) {
+                configuredHosts.put(powerApiHost.getId(), powerApiHost);
+            }
 
-   }
+            isIntialized = true;
+        }
 
-   @Override
-   protected VersioningHandler buildHandler() {
-       
-      if (!this.isInitialized()){
-           return null;
-       } 
-       
-      final Map<String, ServiceVersionMapping> copiedVersioningMappings = new HashMap<String, ServiceVersionMapping>(configuredMappings);
-      final Map<String, Destination> copiedHostDefinitions = new HashMap<String, Destination>(configuredHosts);
+        @Override
+        public boolean isInitialized() {
+            return isIntialized;
+        }
+    }
 
-      final ConfigurationData configData = new ConfigurationData(localDomain, localHost, copiedHostDefinitions, copiedVersioningMappings);
+    private class VersioningConfigurationListener implements UpdateListener<ServiceVersionMappingList> {
 
-      return new VersioningHandler(configData, transformer);
-   }
+        private boolean isIntialized = false;
+
+        @Override
+        public void configurationUpdated(ServiceVersionMappingList mappings) {
+            configuredMappings.clear();
+
+            for (ServiceVersionMapping mapping : mappings.getVersionMapping()) {
+                configuredMappings.put(mapping.getId(), mapping);
+            }
+
+            isIntialized = true;
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isIntialized;
+        }
+    }
+
+    @Override
+    protected VersioningHandler buildHandler() {
+
+        if (!this.isInitialized()) {
+            return null;
+        }
+
+        final Map<String, ServiceVersionMapping> copiedVersioningMappings = new HashMap<String, ServiceVersionMapping>(configuredMappings);
+        final Map<String, Destination> copiedHostDefinitions = new HashMap<String, Destination>(configuredHosts);
+
+        final ConfigurationData configData = new ConfigurationData(localDomain, localHost, copiedHostDefinitions, copiedVersioningMappings);
+
+        return new VersioningHandler(configData, transformer);
+    }
 }
