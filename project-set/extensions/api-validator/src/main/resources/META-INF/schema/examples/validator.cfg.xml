@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<validators multi-role-match="true" xmlns='http://openrepose.org/repose/validator/v1.0'>
+<validators multi-role-match="true" 
+            xmlns='http://openrepose.org/repose/validator/v1.0'
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+            xsi:schemaLocation="http://openrepose.org/repose/validator/v1.0 https://raw.github.com/rackspace/repose/master/project-set/extensions/api-validator/src/main/resources/META-INF/schema/config/validator-configuration.xsd" >
    <validator 
       role="default"
       default="true"

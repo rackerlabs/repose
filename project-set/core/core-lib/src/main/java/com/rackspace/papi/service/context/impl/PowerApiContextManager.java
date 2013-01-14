@@ -197,10 +197,12 @@ public class PowerApiContextManager implements ServletContextListener {
       LOG.info("Shutting down Spring application context");
       applicationContext.close();
 
+      /*
       CacheManager instance = CacheManager.getInstance();
       if (instance != null) {
          LOG.info("Stopping EH Cache Manager");
          instance.shutdown();
       }
+      */
    }
 }

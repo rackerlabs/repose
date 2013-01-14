@@ -1,16 +1,12 @@
 package com.rackspace.papi.components.datastore;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.container.config.ContainerConfiguration;
-import com.rackspace.papi.container.config.DeploymentConfiguration;
-import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
-import com.rackspace.papi.service.context.container.ContainerConfigurationService;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.impl.replicated.ReplicatedDatastore;
 import com.rackspace.papi.service.datastore.impl.replicated.data.Subscriber;

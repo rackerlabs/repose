@@ -14,7 +14,6 @@ import org.slf4j.Logger;
 
 import javax.servlet.ServletContextEvent;
 import java.io.File;
-import javax.xml.transform.stream.StreamSource;
 
 public class ArtifactManagerServiceContext implements ServiceContext<ArtifactManager> {
 

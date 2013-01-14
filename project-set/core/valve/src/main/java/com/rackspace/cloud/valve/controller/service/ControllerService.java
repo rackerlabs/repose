@@ -3,7 +3,6 @@ package com.rackspace.cloud.valve.controller.service;
 
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.model.Node;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 

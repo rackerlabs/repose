@@ -3,6 +3,7 @@ package com.rackspace.papi.components.datastore.integration;
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
 import com.rackspace.papi.components.datastore.hash.HashRingDatastoreManager;
 import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
@@ -63,9 +64,10 @@ public class SingleKeyContentionInserter {
    }
 
    public static void main(String[] args) throws Exception {
+      final ReposeInstanceInfo instanceInfo = new ReposeInstanceInfo("SingleKeyContentionInserter", "node");
       final MutableClusterView view = new ThreadSafeClusterView(getHttpPortList(20000));
       final EHCacheDatastoreManager localManager = new EHCacheDatastoreManager(new CacheManager());
-      final HashRingDatastoreManager remoteManager = new HashRingDatastoreManager(new RequestProxyServiceImpl(), "", UUIDEncodingProvider.getInstance(), MD5MessageDigestFactory.getInstance(), view, localManager.getDatastore());
+      final HashRingDatastoreManager remoteManager = new HashRingDatastoreManager(new RequestProxyServiceImpl(instanceInfo), "", UUIDEncodingProvider.getInstance(), MD5MessageDigestFactory.getInstance(), view, localManager.getDatastore());
       final Datastore datastore = remoteManager.getDatastore();
 
       view.updateMembers(new InetSocketAddress[]{
