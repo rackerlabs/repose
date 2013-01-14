@@ -1,6 +1,7 @@
 package com.rackspace.papi.service.proxy.jersey;
 
 import com.rackspace.papi.commons.util.logging.jersey.LoggingFilter;
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import java.util.UUID;
@@ -25,9 +26,11 @@ public class ClientWrapper {
     private CacheManager cacheManager;
     private Cache shortCache;
     private Cache longCache;
+    private final ReposeInstanceInfo instanceInfo;
 
-    public ClientWrapper(Client client, boolean requestLogging) {
+    public ClientWrapper(Client client, boolean requestLogging, ReposeInstanceInfo instanceInfo) {
         this.client = client;
+        this.instanceInfo = instanceInfo;
         
         if (requestLogging) {
             LOG.warn("Enabling info logging of jersey client requests");
@@ -54,7 +57,7 @@ public class ClientWrapper {
 
     private void initCache() {
         final Configuration config = new Configuration();
-        config.setName(CACHE_MANAGER_NAME + "-" + UUID.randomUUID());
+        config.setName((instanceInfo != null? instanceInfo.toString() + ":": "") + CACHE_MANAGER_NAME);
         config.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
         config.setUpdateCheck(false);
         cacheManager = CacheManager.newInstance(config);

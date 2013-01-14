@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.datastore;
 
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.model.SystemModel;
@@ -36,11 +37,12 @@ public class ReplicatedDatastoreFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         final ContextAdapter contextAdapter = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext());
+        ReposeInstanceInfo reposeInstanceInfo = ServletContextHelper.getInstance().getReposeInstanceInfo(filterConfig.getServletContext());
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter");
 
         Configuration defaultConfiguration = new Configuration();
-        defaultConfiguration.setName(CACHE_MANAGER_NAME);
+        defaultConfiguration.setName(reposeInstanceInfo.toString() + ":" + CACHE_MANAGER_NAME);
         defaultConfiguration.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
         defaultConfiguration.setUpdateCheck(false);
 

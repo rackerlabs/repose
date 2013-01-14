@@ -1,7 +1,6 @@
 package com.rackspace.papi.jmx;
 
 import com.rackspace.papi.service.reporting.jmx.*;
-import com.rackspace.papi.service.reporting.destinations.DestinationInfo;
 
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;

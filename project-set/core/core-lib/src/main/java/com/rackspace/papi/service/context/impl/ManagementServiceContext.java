@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletContextEvent;
-import javax.xml.transform.stream.StreamSource;
 
 /**
  * Created by IntelliJ IDEA.

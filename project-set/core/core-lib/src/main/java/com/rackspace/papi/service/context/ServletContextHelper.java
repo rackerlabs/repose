@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.context;
 
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +49,7 @@ public final class ServletContextHelper {
     public ContextAdapter getPowerApiContext(ServletContext ctx) {
         return adapterProvider.newInstance(null);
     }
-    
+
     public ContextAdapter getPowerApiContext() {
         return adapterProvider.newInstance(null);
     }
@@ -59,5 +60,10 @@ public final class ServletContextHelper {
 
     public ServicePorts getServerPorts(ServletContext ctx) {
         return getApplicationContext(ctx).getBean("servicePorts", ServicePorts.class);
+    }
+
+    public ReposeInstanceInfo getReposeInstanceInfo(ServletContext ctx) {
+        return getApplicationContext(ctx).getBean("reposeInstanceInfo", ReposeInstanceInfo.class);
+
     }
 }

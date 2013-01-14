@@ -1,7 +1,6 @@
 package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.container.config.DeploymentConfiguration;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;

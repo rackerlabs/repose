@@ -4,7 +4,6 @@ import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.filter.resource.ResourceConsumerCounter;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
-import com.rackspace.papi.service.reporting.repose.ReposeInfo;
 import java.util.List;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletContext;

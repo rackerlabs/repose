@@ -1,7 +1,6 @@
 package com.rackspace.cloud.valve.server;
 
 import com.rackspace.cloud.valve.jetty.ValveControllerServerBuilder;
-import com.rackspace.cloud.valve.jetty.ValveJettyServerBuilder;
 import com.rackspace.papi.commons.config.ConfigurationResourceException;
 import com.rackspace.papi.commons.config.parser.ConfigurationParserFactory;
 import com.rackspace.papi.commons.config.parser.jaxb.JaxbConfigurationParser;
