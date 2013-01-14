@@ -34,7 +34,7 @@ public class ValidatorConfigurator {
           file = new File(configRoot, path);
        }
        
-       return file.exists() ? file.getAbsolutePath() : path;
+       return file.getAbsolutePath();
     }
 
     private DispatchHandler getHandlers(ValidatorItem validatorItem) {
