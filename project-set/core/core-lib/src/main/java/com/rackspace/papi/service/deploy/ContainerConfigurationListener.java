@@ -21,7 +21,7 @@ public class ContainerConfigurationListener implements UpdateListener<ContainerC
    private File deploymentDirectory;
    private EarUnpacker unpacker;
    private boolean autoClean = false;
-   private boolean isIntialized=false;
+   private boolean isIntialized = false;
   
 
    public ContainerConfigurationListener() {

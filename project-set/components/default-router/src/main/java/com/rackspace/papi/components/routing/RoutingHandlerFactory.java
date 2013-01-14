@@ -31,7 +31,7 @@ public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactor
 
     private class RoutingConfigurationListener implements UpdateListener<SystemModel> {
 
-       boolean isIntialized=false;
+        private boolean isIntialized = false;
     
        
         @Override

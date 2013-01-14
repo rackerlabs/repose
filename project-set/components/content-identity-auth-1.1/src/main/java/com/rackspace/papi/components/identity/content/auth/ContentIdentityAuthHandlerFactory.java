@@ -18,56 +18,53 @@ import java.util.Map;
 
 public class ContentIdentityAuthHandlerFactory extends AbstractConfiguredFilterHandlerFactory<ContentIdentityAuthHandler> {
 
-   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ContentIdentityAuthHandlerFactory.class);
-   private ContentIdentityAuthConfig config;
-   private JacksonJaxbTransform jsonTranformer;
-   private Transform<InputStream, JAXBElement<Credentials>> xmlTransformer;
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ContentIdentityAuthHandlerFactory.class);
+    private ContentIdentityAuthConfig config;
+    private JacksonJaxbTransform jsonTranformer;
+    private Transform<InputStream, JAXBElement<Credentials>> xmlTransformer;
 
-   public ContentIdentityAuthHandlerFactory() {
-      jsonTranformer = new JacksonJaxbTransform();
+    public ContentIdentityAuthHandlerFactory() {
+        jsonTranformer = new JacksonJaxbTransform();
 
-      try {
-         JAXBContext jaxbContext = JAXBContext.newInstance(com.rackspacecloud.docs.auth.api.v1.ObjectFactory.class);
-         xmlTransformer = new StreamToJaxbTransform(jaxbContext);
-      } catch (JAXBException e) {
-         LOG.error("Error when creating JABXContext for auth credentials. Reason: " + e.getMessage(), e);
-      }
-   }
+        try {
+            JAXBContext jaxbContext = JAXBContext.newInstance(com.rackspacecloud.docs.auth.api.v1.ObjectFactory.class);
+            xmlTransformer = new StreamToJaxbTransform(jaxbContext);
+        } catch (JAXBException e) {
+            LOG.error("Error when creating JABXContext for auth credentials. Reason: " + e.getMessage(), e);
+        }
+    }
 
-   @Override
-   protected Map<Class, UpdateListener<?>> getListeners() {
-      return new HashMap<Class, UpdateListener<?>>() {
+    @Override
+    protected Map<Class, UpdateListener<?>> getListeners() {
+        return new HashMap<Class, UpdateListener<?>>() {
+            {
+                put(ContentIdentityAuthConfig.class, new ContentIdentityAuthConfigurationListener());
+            }
+        };
+    }
 
-         {
-            put(ContentIdentityAuthConfig.class, new ContentIdentityAuthConfigurationListener());
-         }
-      };
-   }
+    private class ContentIdentityAuthConfigurationListener implements UpdateListener<ContentIdentityAuthConfig> {
 
-   private class ContentIdentityAuthConfigurationListener implements UpdateListener<ContentIdentityAuthConfig> {
+        private boolean isIntialized = false;
 
-       boolean isIntialized=false;
-       boolean isError=false;
-       
-      @Override
-      public void configurationUpdated(ContentIdentityAuthConfig configurationObject) {
-         config = configurationObject;
-         LOG.debug("Configuration updated (quality = '" + config.getQuality() + "' group = '" + config.getGroup() + "')");
-          isIntialized=true;
-      }
-      
-     @Override
-      public boolean isInitialized(){
-          return isIntialized;
-      }
+        @Override
+        public void configurationUpdated(ContentIdentityAuthConfig configurationObject) {
+            config = configurationObject;
+            LOG.debug("Configuration updated (quality = '" + config.getQuality() + "' group = '" + config.getGroup() + "')");
+            isIntialized = true;
+        }
 
-   }
+        @Override
+        public boolean isInitialized() {
+            return isIntialized;
+        }
+    }
 
-   @Override
-   protected ContentIdentityAuthHandler buildHandler() {
-    if(!this.isInitialized()){
-           return null;
-       } 
-      return new ContentIdentityAuthHandler(config, jsonTranformer, xmlTransformer);
-   }
+    @Override
+    protected ContentIdentityAuthHandler buildHandler() {
+        if (!this.isInitialized()) {
+            return null;
+        }
+        return new ContentIdentityAuthHandler(config, jsonTranformer, xmlTransformer);
+    }
 }

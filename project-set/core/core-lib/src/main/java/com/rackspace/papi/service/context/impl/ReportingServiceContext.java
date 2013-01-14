@@ -25,15 +25,14 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
     private final ConfigurationService configurationManager;
     private final ServiceRegistry registry;
     private final ReportingService reportingService;
-
     private final Object jmxResetTimeKey = new Object();
     private final List<String> destinationIds = new ArrayList<String>();
     private int jmxResetTime = DEFAULT_JMX_RESET_TIME_SECONDS;
 
     @Autowired
     public ReportingServiceContext(@Qualifier("serviceRegistry") ServiceRegistry registry,
-                                   @Qualifier("configurationManager") ConfigurationService configurationManager,
-                                   @Qualifier("reportingService") ReportingService reportingService) {
+            @Qualifier("configurationManager") ConfigurationService configurationManager,
+            @Qualifier("reportingService") ReportingService reportingService) {
         this.containerConfigurationListener = new ContainerConfigurationListener();
         this.systemModelListener = new SystemModelListener();
         this.registry = registry;
@@ -72,12 +71,12 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
     }
 
     /**
-     * Listens for updates to the container.cfg.xml file which holds the jmx-reset-time.
+     * Listens for updates to the container.cfg.xml file which holds the
+     * jmx-reset-time.
      */
     private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
-        
-       boolean isIntialized=false;
-       
+
+        private boolean isIntialized = false;
 
         @Override
         public void configurationUpdated(ContainerConfiguration configurationObject) {
@@ -90,30 +89,29 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
 
                 reportingService.updateConfiguration(destinationIds, jmxResetTime);
             }
-            isIntialized=true;
+            isIntialized = true;
 
         }
-        
-    @Override
-     public boolean isInitialized(){
-         return isIntialized;
-     }
 
-    
+        @Override
+        public boolean isInitialized() {
+            return isIntialized;
+        }
     }
 
     /**
-     * Listens for updates to the system-model.cfg.xml file which holds the destination ids.
+     * Listens for updates to the system-model.cfg.xml file which holds the
+     * destination ids.
      */
     private class SystemModelListener implements UpdateListener<SystemModel> {
 
-       boolean isIntialized=false;
-      
+        private boolean isIntialized = false;
+
         @Override
         public void configurationUpdated(SystemModel systemModel) {
 
             final List<String> endpointIds = new ArrayList<String>();
-            
+
             for (ReposeCluster reposeCluster : systemModel.getReposeCluster()) {
 
                 final DestinationList destinations = reposeCluster.getDestinations();
@@ -126,7 +124,7 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
                     endpointIds.add(destinationCluster.getId());
                 }
             }
-            
+
 
             synchronized (destinationIds) {
                 destinationIds.clear();
@@ -134,16 +132,12 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
             }
 
             reportingService.updateConfiguration(destinationIds, jmxResetTime);
-            isIntialized=true;
+            isIntialized = true;
         }
-    
-    @Override
-    public boolean isInitialized(){
-        return isIntialized;
-    }
 
- 
-        
-
+        @Override
+        public boolean isInitialized() {
+            return isIntialized;
+        }
     }
 }

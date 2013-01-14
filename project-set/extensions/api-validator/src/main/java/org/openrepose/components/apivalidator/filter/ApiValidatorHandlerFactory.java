@@ -65,9 +65,9 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         this.validators = validators;
     }
 
-    class ApiValidatorWadlListener implements UpdateListener<ConfigurationResource> {
+    public class ApiValidatorWadlListener implements UpdateListener<ConfigurationResource> {
 
-       boolean isIntialized=false;
+       private boolean isIntialized = false;
        
         private String getNormalizedPath(String uri) {
             String path = uri;
@@ -139,11 +139,11 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
             multiRoleMatch = validatorConfiguration.isMultiRoleMatch();
 
             for (ValidatorItem validatorItem : validatorConfiguration.getValidator()) {
-                Config config = new ValidatorConfigurator(validatorItem, multiRoleMatch, configRoot).getConfiguration();
+                Config configuration = new ValidatorConfigurator(validatorItem, multiRoleMatch, configRoot).getConfiguration();
                 ValidatorInfo validator =
                         validatorItem.getAny() != null
-                        ? new ValidatorInfo(validatorItem.getRole(), (Element) validatorItem.getAny(), getWadlPath(this.config), config)
-                        : new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), config);
+                        ? new ValidatorInfo(validatorItem.getRole(), (Element) validatorItem.getAny(), getWadlPath(this.config), configuration)
+                        : new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), configuration);
 
                 validators.add(validator);
                 if (validatorItem.isDefault() && defaultValidator == null) {
@@ -161,7 +161,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
 
     private class ApiValidationConfigurationListener implements UpdateListener<ValidatorConfiguration> {
 
-       boolean isIntialized=false;
+       private boolean isIntialized = false;
        
         
         @Override
