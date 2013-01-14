@@ -114,7 +114,7 @@ for valveGroup in 1..3
 
       end
 
-      ["header-normalization.cfg.xml", "uri-normalization.cfg.xml"].each do |config|
+      ["header-normalization.cfg.xml", "uri-normalization.cfg.xml","openstack-authorization.cfg.xml"].each do |config|
         cookbook_file "/etc/repose/valveGroup1/#{config}" do
           source "#{config}"
           mode 0644
