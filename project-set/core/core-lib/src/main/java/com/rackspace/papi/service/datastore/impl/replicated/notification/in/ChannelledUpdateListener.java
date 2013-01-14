@@ -182,6 +182,10 @@ public class ChannelledUpdateListener implements Runnable, UpdateListener {
                         case REMOVE:
                             removeMessage(value);
                             break;
+                            
+                        default:
+                            
+                            break;
                     }
                 }
             }

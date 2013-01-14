@@ -94,6 +94,10 @@ public class AuthenticationServiceClient implements AuthenticationService {
                 // Internal server error from auth
                 LOG.warn("Internal server error from auth. " + serviceResponse.getStatusCode());
                 break;
+
+            default:
+                LOG.warn("Unexpected response status code: " + serviceResponse.getStatusCode());
+                break;
         }
 
         return token;

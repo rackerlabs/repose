@@ -22,6 +22,10 @@ public class LoggingConfigurationFacadeImpl implements LoggingConfigurationFacad
         switch (logFramework) {
             case LOG4J :
                 PropertyConfigurator.configure(logProperties);
+                break;
+                
+            default:
+                break;
         }
     }
 }

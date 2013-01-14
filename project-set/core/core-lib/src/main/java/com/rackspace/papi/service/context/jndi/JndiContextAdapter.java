@@ -25,7 +25,7 @@ import javax.naming.Context;
 import javax.naming.NamingException;
 
 public class JndiContextAdapter implements ContextAdapter {
-
+    private static final String NOT_SUPPORTED = "Not supported yet.";
     private final Context namingContext;
 
     public JndiContextAdapter(Context namingContext) {
@@ -98,17 +98,17 @@ public class JndiContextAdapter implements ContextAdapter {
 
     @Override
     public <T extends ServiceContext<?>> T getContext(Class<T> clazz) {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(NOT_SUPPORTED);
     }
 
     @Override
     public RequestProxyService requestProxyService() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(NOT_SUPPORTED);
     }
 
     @Override
     public String getReposeVersion() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(NOT_SUPPORTED);
     }
 
     @Override
@@ -123,6 +123,6 @@ public class JndiContextAdapter implements ContextAdapter {
 
     @Override
     public PowerFilterChainBuilder filterChainBuilder() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        throw new UnsupportedOperationException(NOT_SUPPORTED);
     }
 }

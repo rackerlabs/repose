@@ -68,6 +68,10 @@ public class ServiceAuthHandler extends AbstractFilterLogicHandler {
                 }
 
                 break;
+                
+            default:
+                LOG.warn("Unexpected response status code: " + response.getStatus());
+                break;
         }
 
         return myDirector;

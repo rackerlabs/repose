@@ -38,6 +38,10 @@ public class ArchiveEntryProcessor {
          case DESCEND_INTO_JAR_FORMAT_ARCHIVE:
             currentStackElement = descendIntoEntry(entryBytes);
             break;
+             
+         default:
+             LOG.warn("Unexpected processing action: " + actionToTake.processingAction());
+             break;
       }
 
       return currentStackElement;

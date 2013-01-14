@@ -8,12 +8,6 @@ public interface ReposeInfo {
     void incrementResponseCount();
     void processRequestSize(long requestSize);
     void processResponseSize(long responseSize);
-    /*
-    void accumulateRequestSize(long requestSize);
-    void updateMinMaxRequestSize(long requestSize);
-    void accumulateResponseSize(long responseSize);
-    void updateMinMaxResponseSize(long responseSize);
-    */
     long getMinimumRequestSize();
     long getMaximumRequestSize();
     long getMinimumResponseSize();
