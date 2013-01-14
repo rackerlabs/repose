@@ -4,20 +4,20 @@
     <response-translations>
         <response-translation content-type="application/xml" accept="application/xml" translated-content-type="application/xml">
             <style-sheets>
-                <style id="1" href="identity.xsl" />
-                <style id="2" href="remove-element.xsl" />
+                <style id="ss1" href="identity.xsl" />
+                <style id="ss2" href="remove-element.xsl" />
             </style-sheets>
         </response-translation>
         <response-translation content-type="application/xhtml+xml" accept="application/xml" translated-content-type="application/xml">
             <style-sheets>
-                <style id="1" href="identity.xsl" />
-                <style id="3" href="add-element.xsl" />
+                <style id="ss1" href="identity.xsl" />
+                <style id="ss3" href="add-element.xsl" />
             </style-sheets>
         </response-translation>
         <response-translation content-type="application/json" accept="application/xml" translated-content-type="application/xml">
             <style-sheets>
-                <style id="1" href="identity.xsl" />
-                <style id="3">
+                <style id="ss1" href="identity.xsl" />
+                <style id="ss3">
                     <xsl>
                         <xsl:stylesheet version="1.0"
                             xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
