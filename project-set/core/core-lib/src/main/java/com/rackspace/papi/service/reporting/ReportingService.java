@@ -16,9 +16,6 @@ public interface ReportingService {
     List<DestinationInfo> getDestinations();
     void recordServiceResponse(String destinationId, int statusCode, long responseTime);
     void incrementRequestCount(String destinationId);
-    //void incrementResponseCount(String destinationId);
-    //void incrementDestinationStatusCodeCount(String destinationId, int statusCode);
-    //void accumulateResponseTime(String destinationId, long responseTime);   
 
     ReposeInfo getReposeInfo();
     void incrementReposeStatusCodeCount(int statusCode, long time);
@@ -26,6 +23,4 @@ public interface ReportingService {
     void incrementReposeResponseCount();
     void processReposeRequestSize(long requestSize);
     void processReposeResponseSize(long responseSize);
-    //void accumulateReposeRequestSize(long requestSize);
-    //void accumulateReposeResponseSize(long responseSize);
 }
