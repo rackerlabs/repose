@@ -20,7 +20,6 @@ import java.util.Map;
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import net.sf.ehcache.CacheManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,16 +60,6 @@ public class PowerApiContextManager implements ServletContextListener {
          LOG.info("Using default connection framework: " + DEFAULT_CONNECTION_FRAMEWORK);
          context.registerAlias(DEFAULT_CONNECTION_FRAMEWORK, "requestProxyService");
       }
-
-      /*
-      GenericBeanDefinition beanDef = new GenericBeanDefinition();
-      ConstructorArgumentValues args = new ConstructorArgumentValues();
-      args.addIndexedArgumentValue(0, UUID.randomUUID().toString(), "java.lang.String");
-      beanDef.setConstructorArgumentValues(args);
-      beanDef.setBeanClass(String.class);
-
-      applicationContext.registerBeanDefinition("reposeId", beanDef);
-      */
 
       configurePorts(context);
       configureReposeInfo(context);
@@ -197,12 +186,5 @@ public class PowerApiContextManager implements ServletContextListener {
       LOG.info("Shutting down Spring application context");
       applicationContext.close();
 
-      /*
-      CacheManager instance = CacheManager.getInstance();
-      if (instance != null) {
-         LOG.info("Stopping EH Cache Manager");
-         instance.shutdown();
-      }
-      */
    }
 }

@@ -59,7 +59,6 @@ public class ValveControllerServerBuilder {
 
       try {
          ReposeValveControllerContextManager contextManager = ReposeValveControllerContextManager.class.newInstance();
-         //contextManager.setPorts(ports);
          servletContext.addEventListener(contextManager);
       } catch (InstantiationException e) {
          throw new PowerAppException("Unable to instantiate PowerApiContextManager", e);

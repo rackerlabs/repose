@@ -64,6 +64,10 @@ public class AuthenticationServiceClient implements AuthenticationService {
                 // Admin token is bad most likely
                 LOG.warn("Unable to validate token for tenant.  Has the admin token expired? " + serviceResponse.getStatusCode());
                 break;
+
+            default:
+                LOG.warn("Unexpected response status code: " + serviceResponse.getStatusCode());
+                break;
         }
 
         return authToken;

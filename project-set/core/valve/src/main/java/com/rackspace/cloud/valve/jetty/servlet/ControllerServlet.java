@@ -9,14 +9,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 public class ControllerServlet extends HttpServlet {
-   
-   private static final Logger LOG = LoggerFactory.getLogger(ControllerServlet.class);
-   
-   @Override
+
+    private static final Logger LOG = LoggerFactory.getLogger(ControllerServlet.class);
+
+    @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-  
-      resp.sendError(HttpStatusCode.NOT_IMPLEMENTED.intValue(), "Controller Server Not Yet Implemented");
-   }
+        LOG.warn("Controller Server Not Yet Implemented");
+
+        resp.sendError(HttpStatusCode.NOT_IMPLEMENTED.intValue(), "Controller Server Not Yet Implemented");
+    }
 }
