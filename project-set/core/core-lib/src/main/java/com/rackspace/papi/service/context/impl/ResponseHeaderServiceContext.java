@@ -23,13 +23,12 @@ public class ResponseHeaderServiceContext implements ServiceContext<ResponseHead
     private final ServiceRegistry registry;
     private final ConfigurationService configurationManager;
     private final ContainerConfigurationListener configurationListener;
-
     private String reposeVersion = "";
 
     @Autowired
     public ResponseHeaderServiceContext(@Qualifier("responseHeaderService") ResponseHeaderService responseHeaderService,
-                                        @Qualifier("serviceRegistry") ServiceRegistry registry, 
-                                        @Qualifier("configurationManager") ConfigurationService configurationManager) {
+            @Qualifier("serviceRegistry") ServiceRegistry registry,
+            @Qualifier("configurationManager") ConfigurationService configurationManager) {
         this.responseHeaderService = responseHeaderService;
         this.registry = registry;
         this.configurationManager = configurationManager;
@@ -65,13 +64,13 @@ public class ResponseHeaderServiceContext implements ServiceContext<ResponseHead
     }
 
     /**
-     * Listens for updates to the container.cfg.xml file which holds the via header receivedBy value.
+     * Listens for updates to the container.cfg.xml file which holds the via
+     * header receivedBy value.
      */
     private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
 
-       boolean isIntialized=false;
-      
-       
+        private boolean isIntialized = false;
+
         @Override
         public void configurationUpdated(ContainerConfiguration configurationObject) {
 
@@ -82,14 +81,12 @@ public class ResponseHeaderServiceContext implements ServiceContext<ResponseHead
                 final LocationHeaderBuilder locationBuilder = new LocationHeaderBuilder();
                 responseHeaderService.updateConfig(viaBuilder, locationBuilder);
             }
-             isIntialized=true;
+            isIntialized = true;
         }
-        
-    @Override
-    public boolean isInitialized(){
-    return isIntialized;
-    }
 
-    
+        @Override
+        public boolean isInitialized() {
+            return isIntialized;
+        }
     }
 }

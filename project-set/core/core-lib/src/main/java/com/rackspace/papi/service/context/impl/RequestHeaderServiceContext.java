@@ -26,7 +26,6 @@ public class RequestHeaderServiceContext implements ServiceContext<RequestHeader
     private final ConfigurationService configurationManager;
     private final ContainerConfigurationListener configurationListener;
     private final SystemModelListener systemModelListener;
-
     private ServicePorts ports;
     private String reposeVersion = "";
     private String viaReceivedBy = "";
@@ -34,8 +33,8 @@ public class RequestHeaderServiceContext implements ServiceContext<RequestHeader
 
     @Autowired
     public RequestHeaderServiceContext(@Qualifier("requestHeaderService") RequestHeaderService requestHeaderService,
-                                       @Qualifier("serviceRegistry") ServiceRegistry registry,
-                                       @Qualifier("configurationManager") ConfigurationService configurationManager) {
+            @Qualifier("serviceRegistry") ServiceRegistry registry,
+            @Qualifier("configurationManager") ConfigurationService configurationManager) {
         this.requestHeaderService = requestHeaderService;
         this.registry = registry;
         this.configurationManager = configurationManager;
@@ -63,7 +62,7 @@ public class RequestHeaderServiceContext implements ServiceContext<RequestHeader
     public void contextInitialized(ServletContextEvent servletContextEvent) {
         ports = ServletContextHelper.getInstance().getServerPorts(servletContextEvent.getServletContext());
         reposeVersion = ServletContextHelper.getInstance().getPowerApiContext(servletContextEvent.getServletContext()).getReposeVersion();
-        configurationManager.subscribeTo("container.cfg.xml",  configurationListener, ContainerConfiguration.class);
+        configurationManager.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);
         configurationManager.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
         register();
     }
@@ -75,12 +74,13 @@ public class RequestHeaderServiceContext implements ServiceContext<RequestHeader
     }
 
     /**
-     * Listens for updates to the container.cfg.xml file which holds the via header receivedBy value.
+     * Listens for updates to the container.cfg.xml file which holds the via
+     * header receivedBy value.
      */
     private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
 
-       boolean isIntialized=false;
-      
+        private boolean isIntialized = false;
+
         @Override
         public void configurationUpdated(ContainerConfiguration configurationObject) {
 
@@ -90,24 +90,24 @@ public class RequestHeaderServiceContext implements ServiceContext<RequestHeader
                 final ViaRequestHeaderBuilder viaBuilder = new ViaRequestHeaderBuilder(reposeVersion, viaReceivedBy, hostname);
                 requestHeaderService.updateConfig(viaBuilder);
             }
-             isIntialized=true;
+            isIntialized = true;
 
         }
-        
-    @Override
-    public boolean isInitialized(){
-    return isIntialized;
-    }
 
+        @Override
+        public boolean isInitialized() {
+            return isIntialized;
+        }
     }
 
     /**
-     * Listens for updates to the system-model.cfg.xml file which holds the hostname.
+     * Listens for updates to the system-model.cfg.xml file which holds the
+     * hostname.
      */
     private class SystemModelListener implements UpdateListener<SystemModel> {
 
-       boolean isIntialized=false;
-      
+        private boolean isIntialized = false;
+
         @Override
         public void configurationUpdated(SystemModel systemModel) {
 
@@ -117,15 +117,13 @@ public class RequestHeaderServiceContext implements ServiceContext<RequestHeader
 
             final ViaRequestHeaderBuilder viaBuilder = new ViaRequestHeaderBuilder(reposeVersion, viaReceivedBy, hostname);
             requestHeaderService.updateConfig(viaBuilder);
-             isIntialized=true;
+            isIntialized = true;
 
         }
-        
-    @Override
-    public boolean isInitialized(){
-    return isIntialized;
-    }
 
-
+        @Override
+        public boolean isInitialized() {
+            return isIntialized;
+        }
     }
 }

@@ -17,8 +17,8 @@ public class JacksonJaxbTransform {
       mapper = new ObjectMapper();
       
       AnnotationIntrospector introspector = new JaxbAnnotationIntrospector();
-      mapper.getDeserializationConfig().withAnnotationIntrospector(introspector);
-      mapper.getSerializationConfig().withAnnotationIntrospector(introspector);
+      mapper.setDeserializationConfig(mapper.getDeserializationConfig().withAnnotationIntrospector(introspector));
+      mapper.setSerializationConfig(mapper.getSerializationConfig().withAnnotationIntrospector(introspector));
    }
    
    public JacksonJaxbTransform(ObjectMapper mapper) {

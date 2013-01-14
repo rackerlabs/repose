@@ -20,70 +20,67 @@ import java.util.Map;
  */
 public class HttpLoggingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<HttpLoggingHandler> {
 
-   private final List<HttpLoggerWrapper> loggers;
+    private final List<HttpLoggerWrapper> loggers;
 
-   public HttpLoggingHandlerFactory() {
-      loggers = new LinkedList<HttpLoggerWrapper>();
-   }
-
-   @Override
-   protected Map<Class, UpdateListener<?>> getListeners() {
-      return new HashMap<Class, UpdateListener<?>>() {
-
-         {
-            put(HttpLoggingConfig.class, new HttpLoggingConfigurationListener());
-         }
-      };
-   }
-
-   protected List<HttpLoggerWrapper> getLoggers() {
-      return loggers;
-   }
-
-   private class HttpLoggingConfigurationListener implements UpdateListener<HttpLoggingConfig> {
-       
-       boolean isIntialized=false;
-      
-
-      @Override
-      public void configurationUpdated(HttpLoggingConfig modifiedConfig) {
-         //Clean up~
-         destroy();
-
-         for (HttpLog log : modifiedConfig.getHttpLog()) {
-            final HttpLoggerWrapper loggerWrapper = new HttpLoggerWrapper(new HttpLogFormatter(log.getFormat()));
-            final Targets targets = log.getTargets();
-
-            for(FileTarget target: targets.getFile()){
-                loggerWrapper.addLogger(new FileLogger(new File(target.getLocation())));
-            }
-            loggers.add(loggerWrapper);
-         }
-         
-          isIntialized=true;
-      }
-
-      private void destroy() {
-         for (HttpLoggerWrapper loggerWrapper : loggers) {
-            loggerWrapper.destroy();
-         }
-
-         loggers.clear();
-      }
-      
-    @Override
-    public boolean isInitialized(){
-      return isIntialized;
+    public HttpLoggingHandlerFactory() {
+        loggers = new LinkedList<HttpLoggerWrapper>();
     }
 
-   }
+    @Override
+    protected Map<Class, UpdateListener<?>> getListeners() {
+        return new HashMap<Class, UpdateListener<?>>() {
+            {
+                put(HttpLoggingConfig.class, new HttpLoggingConfigurationListener());
+            }
+        };
+    }
 
-   @Override
-   protected HttpLoggingHandler buildHandler() {
-       
-    if( !this.isInitialized()){
-           return null;
-       } 
-      return new HttpLoggingHandler(new LinkedList<HttpLoggerWrapper>(loggers));
-   }
+    protected List<HttpLoggerWrapper> getLoggers() {
+        return loggers;
+    }
+
+    private class HttpLoggingConfigurationListener implements UpdateListener<HttpLoggingConfig> {
+
+        private boolean isIntialized = false;
+
+        @Override
+        public void configurationUpdated(HttpLoggingConfig modifiedConfig) {
+            //Clean up~
+            destroy();
+
+            for (HttpLog log : modifiedConfig.getHttpLog()) {
+                final HttpLoggerWrapper loggerWrapper = new HttpLoggerWrapper(new HttpLogFormatter(log.getFormat()));
+                final Targets targets = log.getTargets();
+
+                for (FileTarget target : targets.getFile()) {
+                    loggerWrapper.addLogger(new FileLogger(new File(target.getLocation())));
+                }
+                loggers.add(loggerWrapper);
+            }
+
+            isIntialized = true;
+        }
+
+        private void destroy() {
+            for (HttpLoggerWrapper loggerWrapper : loggers) {
+                loggerWrapper.destroy();
+            }
+
+            loggers.clear();
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isIntialized;
+        }
+    }
+
+    @Override
+    protected HttpLoggingHandler buildHandler() {
+
+        if (!this.isInitialized()) {
+            return null;
+        }
+        return new HttpLoggingHandler(new LinkedList<HttpLoggerWrapper>(loggers));
+    }
 }

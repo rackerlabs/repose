@@ -10,51 +10,46 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 public class HeaderIdMappingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<HeaderIdMappingHandler> {
 
+    private List<HttpHeader> sourceHeaders;
 
-   private List<HttpHeader> sourceHeaders;
+    public HeaderIdMappingHandlerFactory() {
+        sourceHeaders = new ArrayList<HttpHeader>();
+    }
 
-   public HeaderIdMappingHandlerFactory() {
-       sourceHeaders = new ArrayList<HttpHeader>();
-   }
-
-   @Override
-   protected Map<Class, UpdateListener<?>> getListeners() {
-       
-      return new HashMap<Class, UpdateListener<?>>() {
-
-         {
-            put(HeaderIdMappingConfig.class, new HeaderIdMappingConfigurationListener());
-         }
-      };
-   }
-
-   private class HeaderIdMappingConfigurationListener implements UpdateListener<HeaderIdMappingConfig> {
-       boolean isIntialized=false;
-       
-       
-      @Override
-      public void configurationUpdated(HeaderIdMappingConfig configurationObject) {
-          
-          sourceHeaders = configurationObject.getSourceHeaders().getHeader();
-           isIntialized=true;
-      }
-      
     @Override
-      public boolean isInitialized(){
-          return isIntialized;
-      }
-      
+    protected Map<Class, UpdateListener<?>> getListeners() {
 
-   }
+        return new HashMap<Class, UpdateListener<?>>() {
+            {
+                put(HeaderIdMappingConfig.class, new HeaderIdMappingConfigurationListener());
+            }
+        };
+    }
 
-   @Override
-   protected HeaderIdMappingHandler buildHandler() {
-      if(!this.isInitialized()){
-           return null;
-       } 
-      return new HeaderIdMappingHandler(sourceHeaders);
-   }
+    private class HeaderIdMappingConfigurationListener implements UpdateListener<HeaderIdMappingConfig> {
+
+        private boolean isIntialized = false;
+
+        @Override
+        public void configurationUpdated(HeaderIdMappingConfig configurationObject) {
+
+            sourceHeaders = configurationObject.getSourceHeaders().getHeader();
+            isIntialized = true;
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isIntialized;
+        }
+    }
+
+    @Override
+    protected HeaderIdMappingHandler buildHandler() {
+        if (!this.isInitialized()) {
+            return null;
+        }
+        return new HeaderIdMappingHandler(sourceHeaders);
+    }
 }
