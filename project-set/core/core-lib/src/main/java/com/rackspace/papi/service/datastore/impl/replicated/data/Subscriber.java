@@ -13,7 +13,7 @@ public class Subscriber implements Serializable {
     private final String host;
     private final int port;
     private final int updPort;
-    private Socket socket;
+    private transient Socket socket;
     private InetAddress address;
 
     public Subscriber(String host, int port) {

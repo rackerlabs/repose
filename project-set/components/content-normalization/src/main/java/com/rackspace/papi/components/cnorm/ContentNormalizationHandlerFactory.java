@@ -13,57 +13,54 @@ import java.util.Map;
 
 public class ContentNormalizationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<ContentNormalizationHandler> {
 
-   private HeaderNormalizer headerNormalizer;
-   private MediaTypeNormalizer mediaTypeNormalizer;
+    private HeaderNormalizer headerNormalizer;
+    private MediaTypeNormalizer mediaTypeNormalizer;
 
-   public ContentNormalizationHandlerFactory() {
-   }
+    public ContentNormalizationHandlerFactory() {
+    }
 
-   @Override
-   protected Map<Class, UpdateListener<?>> getListeners() {
-      return new HashMap<Class, UpdateListener<?>>() {
-         {
-            put(ContentNormalizationConfig.class, new ContentNormalizationConfigurationListener());
-         }
-      };
-   }
+    @Override
+    protected Map<Class, UpdateListener<?>> getListeners() {
+        return new HashMap<Class, UpdateListener<?>>() {
+            {
+                put(ContentNormalizationConfig.class, new ContentNormalizationConfigurationListener());
+            }
+        };
+    }
 
-   private class ContentNormalizationConfigurationListener implements UpdateListener<ContentNormalizationConfig> {
-       
-       boolean isInitialized=false;
-     
-       
-      @Override
-      public void configurationUpdated(ContentNormalizationConfig configurationObject) {
-         final HeaderFilterList headerList = configurationObject.getHeaderFilters();
-         final MediaTypeList mediaTypeList = configurationObject.getMediaTypes();
+    private class ContentNormalizationConfigurationListener implements UpdateListener<ContentNormalizationConfig> {
 
-         if (headerList != null) {
-            final boolean isBlacklist = headerList.getBlacklist() != null;
-            headerNormalizer = new HeaderNormalizer(headerList, isBlacklist);
-         }
+        private boolean isInitialized = false;
 
-         if (mediaTypeList != null) {
-            mediaTypeNormalizer = new MediaTypeNormalizer(mediaTypeList.getMediaType());
-         }
-          isInitialized=true;
-      }
-      
         @Override
-      public boolean isInitialized(){
-          return isInitialized;
-      }
+        public void configurationUpdated(ContentNormalizationConfig configurationObject) {
+            final HeaderFilterList headerList = configurationObject.getHeaderFilters();
+            final MediaTypeList mediaTypeList = configurationObject.getMediaTypes();
 
-   }
-   
-   @Override
-   protected ContentNormalizationHandler buildHandler() {
-     
-      if( !this.isInitialized()){
-           return null;
-       }  
-              
-      return new ContentNormalizationHandler(headerNormalizer, mediaTypeNormalizer);
-   }
-   
+            if (headerList != null) {
+                final boolean isBlacklist = headerList.getBlacklist() != null;
+                headerNormalizer = new HeaderNormalizer(headerList, isBlacklist);
+            }
+
+            if (mediaTypeList != null) {
+                mediaTypeNormalizer = new MediaTypeNormalizer(mediaTypeList.getMediaType());
+            }
+            isInitialized = true;
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
+        }
+    }
+
+    @Override
+    protected ContentNormalizationHandler buildHandler() {
+
+        if (!this.isInitialized()) {
+            return null;
+        }
+
+        return new ContentNormalizationHandler(headerNormalizer, mediaTypeNormalizer);
+    }
 }

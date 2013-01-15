@@ -59,7 +59,7 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
     */
    private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
 
-      boolean isIntialized = false;
+      private boolean isIntialized = false;
 
       @Override
       public void configurationUpdated(ContainerConfiguration configurationObject) {

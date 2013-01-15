@@ -68,7 +68,7 @@ public class RoutingServiceContext implements ServiceContext<RoutingService> {
 
    private class PowerApiConfigListener implements UpdateListener<SystemModel> {
 
-      boolean isIntialized = false;
+      private boolean isIntialized = false;
 
       private ServicePorts determinePorts(Node reposeNode) {
          ServicePorts ports = new ServicePorts();

@@ -89,8 +89,6 @@ public class NotificationSender implements Runnable {
             items.add(item);
             queue.drainTo(items);
 
-            Map<Subscriber, Message> messages = consolidateList(items);
-
             final Set<Map.Entry<Subscriber, Message>> entries = consolidateList(items).entrySet();
             for (Map.Entry<Subscriber, Message> entry : entries) {
                Message message = entry.getValue();

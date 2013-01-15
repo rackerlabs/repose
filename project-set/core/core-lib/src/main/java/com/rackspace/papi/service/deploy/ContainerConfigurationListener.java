@@ -18,7 +18,7 @@ import org.springframework.stereotype.Component;
 public class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
 
    private ArtifactDirectoryWatcher dirWatcher;
-   private File deploymentDirectory;
+   private File deploymentDirectory = null;
    private EarUnpacker unpacker;
    private boolean autoClean = false;
    private boolean isIntialized = false;

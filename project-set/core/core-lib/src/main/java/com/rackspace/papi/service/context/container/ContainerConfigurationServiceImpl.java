@@ -35,7 +35,7 @@ public class ContainerConfigurationServiceImpl implements ContainerConfiguration
     @Override
     public Long getContentBodyReadLimit() {
         if (contentBodyReadLimit == null) {
-            return new Long(0);
+            return Long.valueOf(0);
         } else {
             return contentBodyReadLimit;
         }
