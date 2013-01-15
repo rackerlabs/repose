@@ -76,7 +76,7 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
      */
     private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(ContainerConfiguration configurationObject) {
@@ -89,13 +89,13 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
 
                 reportingService.updateConfiguration(destinationIds, jmxResetTime);
             }
-            isIntialized = true;
+            isInitialized = true;
 
         }
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     }
 
@@ -105,7 +105,7 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
      */
     private class SystemModelListener implements UpdateListener<SystemModel> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(SystemModel systemModel) {
@@ -132,12 +132,12 @@ public class ReportingServiceContext implements ServiceContext<ReportingService>
             }
 
             reportingService.updateConfiguration(destinationIds, jmxResetTime);
-            isIntialized = true;
+            isInitialized = true;
         }
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     }
 }

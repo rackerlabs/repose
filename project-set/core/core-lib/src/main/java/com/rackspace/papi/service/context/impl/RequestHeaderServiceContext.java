@@ -79,7 +79,7 @@ public class RequestHeaderServiceContext implements ServiceContext<RequestHeader
      */
     private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(ContainerConfiguration configurationObject) {
@@ -90,13 +90,13 @@ public class RequestHeaderServiceContext implements ServiceContext<RequestHeader
                 final ViaRequestHeaderBuilder viaBuilder = new ViaRequestHeaderBuilder(reposeVersion, viaReceivedBy, hostname);
                 requestHeaderService.updateConfig(viaBuilder);
             }
-            isIntialized = true;
+            isInitialized = true;
 
         }
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     }
 
@@ -106,7 +106,7 @@ public class RequestHeaderServiceContext implements ServiceContext<RequestHeader
      */
     private class SystemModelListener implements UpdateListener<SystemModel> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(SystemModel systemModel) {
@@ -117,13 +117,13 @@ public class RequestHeaderServiceContext implements ServiceContext<RequestHeader
 
             final ViaRequestHeaderBuilder viaBuilder = new ViaRequestHeaderBuilder(reposeVersion, viaReceivedBy, hostname);
             requestHeaderService.updateConfig(viaBuilder);
-            isIntialized = true;
+            isInitialized = true;
 
         }
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     }
 }

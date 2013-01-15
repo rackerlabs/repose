@@ -21,7 +21,7 @@ public class ContainerConfigurationListener implements UpdateListener<ContainerC
    private File deploymentDirectory = null;
    private EarUnpacker unpacker;
    private boolean autoClean = false;
-   private boolean isIntialized = false;
+   private boolean isInitialized = false;
   
 
    public ContainerConfigurationListener() {
@@ -60,14 +60,14 @@ public class ContainerConfigurationListener implements UpdateListener<ContainerC
             unpacker = new EarUnpacker(deploymentDirectory);
          }
       }
-       isIntialized=true;
+       isInitialized=true;
 
    }
 
    
      @Override
       public boolean isInitialized(){
-          return isIntialized;
+          return isInitialized;
       }
   
    public synchronized void validateDeploymentDirectory() {

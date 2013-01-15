@@ -28,7 +28,7 @@ public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilter
 
     private class RoutingConfigurationListener implements UpdateListener<RackspaceAuthorization> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(RackspaceAuthorization configurationObject) {
@@ -42,12 +42,12 @@ public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilter
                 LOG.error("Errors detected in rackspace authorization configuration. Please check configurations.");
             }
 
-            isIntialized = true;
+            isInitialized = true;
         }
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     }
 

@@ -31,7 +31,7 @@ public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactor
 
     private class RoutingConfigurationListener implements UpdateListener<SystemModel> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
     
        
         @Override
@@ -44,12 +44,12 @@ public class RoutingHandlerFactory extends AbstractConfiguredFilterHandlerFactor
                 LOG.warn("No default destination configured for service domain: " + modelInterrogator.getLocalServiceDomain(systemModel).getId());
             }
             
-             isIntialized=true;
+             isInitialized=true;
         }
         
      @Override
      public boolean isInitialized(){
-          return isIntialized;
+          return isInitialized;
       }
 
         

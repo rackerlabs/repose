@@ -51,7 +51,7 @@ public class RequestProxyServiceContext implements ServiceContext<RequestProxySe
 
     private class ContainerConfigListener implements UpdateListener<ContainerConfiguration> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(ContainerConfiguration config) {
@@ -60,12 +60,12 @@ public class RequestProxyServiceContext implements ServiceContext<RequestProxySe
             Integer proxyThreadPool = config.getDeploymentConfig().getProxyThreadPool();
             boolean requestLogging = config.getDeploymentConfig().isClientRequestLogging();
             proxyService.updateConfiguration(connectionTimeout, readTimeout, proxyThreadPool, requestLogging);
-            isIntialized = true;
+            isInitialized = true;
         }
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     }
 

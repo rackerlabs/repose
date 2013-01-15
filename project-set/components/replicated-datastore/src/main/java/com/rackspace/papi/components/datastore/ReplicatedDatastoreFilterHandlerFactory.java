@@ -103,7 +103,7 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
 
     private class SystemModelUpdateListener implements UpdateListener<SystemModel> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(SystemModel config) {
@@ -115,18 +115,18 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
                 systemModel = config;
             }
             createDistributedDatastore();
-            isIntialized = true;
+            isInitialized = true;
         }
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     }
 
     private class ConfigListener implements UpdateListener<ReplicatedDatastoreConfiguration> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(ReplicatedDatastoreConfiguration config) {
@@ -134,12 +134,12 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
                 configuration = config;
             }
             createDistributedDatastore();
-            isIntialized = true;
+            isInitialized = true;
         }
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     }
 

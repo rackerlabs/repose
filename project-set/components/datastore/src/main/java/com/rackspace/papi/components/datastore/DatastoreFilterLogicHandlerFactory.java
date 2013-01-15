@@ -79,10 +79,11 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
 
     private class DistributedDatastoreConfigurationListener implements UpdateListener<DistributedDatastoreConfiguration> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(DistributedDatastoreConfiguration configurationObject) {
+            
             if (configurationObject.getAllowedHosts() != null) {
                 final List<InetAddress> newHostList = new LinkedList<InetAddress>();
 
@@ -106,18 +107,18 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
                 hostACL = new DatastoreAccessControl(newHostList, allowAll);
             }
 
-            isIntialized = true;
+            isInitialized = true;
         }
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     }
 
     private class SystemModelUpdateListener implements UpdateListener<SystemModel> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
@@ -127,12 +128,12 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
             }
 
             updateClusterMembers(configurationObject);
-            isIntialized = true;
+            isInitialized = true;
         }
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     }
 

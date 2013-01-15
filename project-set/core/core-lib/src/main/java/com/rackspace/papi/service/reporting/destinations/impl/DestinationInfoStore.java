@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.reporting.destinations;
+package com.rackspace.papi.service.reporting.destinations.impl;
 
 import com.google.common.base.Objects;
 import com.rackspace.papi.service.reporting.StatusCodeResponseStore;

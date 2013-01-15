@@ -32,7 +32,7 @@ public class IpIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
     private class ClientIpIdentityConfigurationListener implements UpdateListener<IpIdentityConfig> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(IpIdentityConfig configurationObject) {
@@ -47,12 +47,12 @@ public class IpIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFac
                     }
                 }
             }
-            isIntialized = true;
+            isInitialized = true;
         }
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     }
 

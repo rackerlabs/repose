@@ -59,7 +59,7 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
      */
     private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(ContainerConfiguration configurationObject) {
@@ -73,12 +73,12 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
                     updateLogConfigFileSubscription(loggingConfigurationConfig, newLoggingConfig);
                 }
             }
-            isIntialized = true;
+            isInitialized = true;
         }
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     }
 
@@ -87,7 +87,7 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
      */
     private class LoggingConfigurationListener implements UpdateListener<Properties> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(Properties configurationObject) {
@@ -98,12 +98,12 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
             LOG.info("INFO LEVEL LOG STATEMENT");
             LOG.debug("DEBUG LEVEL LOG STATEMENT");
             LOG.trace("TRACE LEVEL LOG STATEMENT");
-            isIntialized = true;
+            isInitialized = true;
         }
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     }
 

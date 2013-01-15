@@ -52,7 +52,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
 
    private class ClientAuthConfigurationListener implements UpdateListener<ClientAuthConfig> {
 
-       private boolean isIntialized = false;
+       private boolean isInitialized = false;
       
       @Override
       public void configurationUpdated(ClientAuthConfig modifiedConfig) {
@@ -77,13 +77,13 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
             LOG.error("Authentication module is not understood or supported. Please check your configuration.");
          }
          
-          isIntialized = true;
+          isInitialized = true;
 
       }
       
      @Override
       public boolean isInitialized(){
-          return isIntialized;
+          return isInitialized;
       }
       
   

@@ -30,18 +30,18 @@ public class HeaderIdMappingHandlerFactory extends AbstractConfiguredFilterHandl
 
     private class HeaderIdMappingConfigurationListener implements UpdateListener<HeaderIdMappingConfig> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(HeaderIdMappingConfig configurationObject) {
 
             sourceHeaders = configurationObject.getSourceHeaders().getHeader();
-            isIntialized = true;
+            isInitialized = true;
         }
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     }
 

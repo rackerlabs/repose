@@ -15,7 +15,7 @@ public class XslUpdateListener implements UpdateListener<ConfigurationResource> 
     private final ConfigurationService configService;
     private final Set<String> watchList;
     private final String configRoot;
-    private boolean isIntialized = false;
+    private boolean isInitialized = false;
 
     public XslUpdateListener(TranslationHandlerFactory factory, ConfigurationService configService, String configRoot) {
         this.factory = factory;
@@ -52,11 +52,11 @@ public class XslUpdateListener implements UpdateListener<ConfigurationResource> 
         LOG.info("XSL file changed: " + config.name());
 
         factory.buildProcessorPools();
-        isIntialized = true;
+        isInitialized = true;
     }
 
     @Override
     public boolean isInitialized() {
-        return isIntialized;
+        return isInitialized;
     }
 }

@@ -69,7 +69,7 @@ public class ResponseHeaderServiceContext implements ServiceContext<ResponseHead
      */
     private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(ContainerConfiguration configurationObject) {
@@ -81,12 +81,12 @@ public class ResponseHeaderServiceContext implements ServiceContext<ResponseHead
                 final LocationHeaderBuilder locationBuilder = new LocationHeaderBuilder();
                 responseHeaderService.updateConfig(viaBuilder, locationBuilder);
             }
-            isIntialized = true;
+            isInitialized = true;
         }
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     }
 }
