@@ -107,8 +107,8 @@ public class SpringContextAdapter implements ContextAdapter {
     }
 
     @Override
-    public PowerFilterChainBuilder filterChainBuilder() {
-        return (PowerFilterChainBuilder) applicationContext.getBean(POWER_FILTER_CHAIN_BUILDER);
+    public <T> T filterChainBuilder() {
+        return (T) applicationContext.getBean(POWER_FILTER_CHAIN_BUILDER);
     }
 
     @Override

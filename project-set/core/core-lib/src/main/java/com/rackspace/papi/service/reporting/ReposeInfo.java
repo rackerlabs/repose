@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.reporting.repose;
+package com.rackspace.papi.service.reporting;
 
 public interface ReposeInfo {
 
