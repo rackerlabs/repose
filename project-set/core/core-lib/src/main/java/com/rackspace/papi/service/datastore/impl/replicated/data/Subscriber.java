@@ -7,7 +7,8 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 
 public class Subscriber implements Serializable {
-    
+    private static final long serialVersionUID = -6454587001725327448L;
+ 
     private static final int TIMEOUT = 1000;
     private static final int HASH = 29;
     private final String host;

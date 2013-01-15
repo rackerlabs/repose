@@ -1,6 +1,5 @@
 package com.rackspace.papi.service.context.jndi;
 
-import com.rackspace.papi.filter.PowerFilterChainBuilder;
 import com.rackspace.papi.service.ServiceUnavailableException;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import com.rackspace.papi.service.config.ConfigurationService;
@@ -122,7 +121,7 @@ public class JndiContextAdapter implements ContextAdapter {
     }
 
     @Override
-    public PowerFilterChainBuilder filterChainBuilder() {
+    public <T> T filterChainBuilder() {
         throw new UnsupportedOperationException(NOT_SUPPORTED);
     }
 }

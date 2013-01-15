@@ -3,7 +3,7 @@ package com.rackspace.papi.service.reporting.impl;
 import com.rackspace.papi.service.reporting.ReportingService;
 import com.rackspace.papi.service.reporting.destinations.DestinationInfo;
 import com.rackspace.papi.service.reporting.destinations.impl.DestinationInfoLogic;
-import com.rackspace.papi.service.reporting.repose.ReposeInfo;
+import com.rackspace.papi.service.reporting.ReposeInfo;
 import com.rackspace.papi.service.reporting.repose.ReposeInfoLogic;
 import java.util.*;
 import org.springframework.stereotype.Component;

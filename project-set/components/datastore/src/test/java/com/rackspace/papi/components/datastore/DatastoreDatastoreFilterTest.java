@@ -2,6 +2,7 @@ package com.rackspace.papi.components.datastore;
 
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.config.ConfigurationService;
+import com.rackspace.papi.service.context.ServiceContextName;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.impl.DatastoreServiceContext;
@@ -55,9 +56,9 @@ public class DatastoreDatastoreFilterTest {
          when(servletContext.getAttribute(ServletContextHelper.SERVLET_CONTEXT_ATTRIBUTE_NAME)).thenReturn(context);
          when(servletContext.getAttribute(ServletContextHelper.SPRING_APPLICATION_CONTEXT_ATTRIBUTE_NAME)).thenReturn(appContext);
 
-         when(appContext.getBean(eq(SpringContextAdapter.CONFIGURATION_SERVICE_CONTEXT))).thenReturn(configurationServiceContext);
-         when(appContext.getBean(eq(SpringContextAdapter.DATASTORE_SERVICE_CONTEXT))).thenReturn(datastoreServiceContext);
-         when(appContext.getBean(eq(SpringContextAdapter.REQUEST_PROXY_SERVICE_CONTEXT))).thenReturn(proxyService);
+         when(appContext.getBean(eq(ServiceContextName.CONFIGURATION_SERVICE_CONTEXT.getServiceContextName()))).thenReturn(configurationServiceContext);
+         when(appContext.getBean(eq(ServiceContextName.DATASTORE_SERVICE_CONTEXT.getServiceContextName()))).thenReturn(datastoreServiceContext);
+         when(appContext.getBean(eq(ServiceContextName.REQUEST_PROXY_SERVICE_CONTEXT.getServiceContextName()))).thenReturn(proxyService);
          when(appContext.getBean(anyString(), eq(ServicePorts.class))).thenReturn(new ServicePorts());
 
          when(configurationServiceContext.getService()).thenReturn(configurationService);
