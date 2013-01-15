@@ -45,7 +45,7 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
 
     private class SystemModelConfigurationListener implements UpdateListener<SystemModel> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(SystemModel configurationObject) {
@@ -60,18 +60,18 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
                 configuredHosts.put(powerApiHost.getId(), powerApiHost);
             }
 
-            isIntialized = true;
+            isInitialized = true;
         }
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     }
 
     private class VersioningConfigurationListener implements UpdateListener<ServiceVersionMappingList> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(ServiceVersionMappingList mappings) {
@@ -81,12 +81,12 @@ public class VersioningHandlerFactory extends AbstractConfiguredFilterHandlerFac
                 configuredMappings.put(mapping.getId(), mapping);
             }
 
-            isIntialized = true;
+            isInitialized = true;
         }
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     }
 

@@ -21,7 +21,7 @@ public class UriNormalizationHandlerFactory extends AbstractConfiguredFilterHand
 
     private class UriNormalizationConfigurationListener implements UpdateListener<UriNormalizationConfig> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(UriNormalizationConfig configurationObject) {
@@ -53,12 +53,12 @@ public class UriNormalizationHandlerFactory extends AbstractConfiguredFilterHand
             if (configurationObject.getMediaVariants() != null) {
                 mediaTypeNormalizer = new MediaTypeNormalizer(configurationObject.getMediaVariants().getMediaType());
             }
-            isIntialized = true;
+            isInitialized = true;
         }
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     }
 

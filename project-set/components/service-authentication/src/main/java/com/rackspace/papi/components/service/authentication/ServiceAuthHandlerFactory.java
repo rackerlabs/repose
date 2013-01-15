@@ -29,7 +29,7 @@ public class ServiceAuthHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
     private class ClientIpIdentityConfigurationListener implements UpdateListener<ServiceAuthenticationConfig> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(ServiceAuthenticationConfig configurationObject) {
@@ -40,7 +40,7 @@ public class ServiceAuthHandlerFactory extends AbstractConfiguredFilterHandlerFa
                 basicAuthCredentials = buildCredentials();
             }
 
-            isIntialized = true;
+            isInitialized = true;
         }
 
         private String buildCredentials() {
@@ -58,7 +58,7 @@ public class ServiceAuthHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     }
 

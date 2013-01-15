@@ -68,7 +68,7 @@ public class RoutingServiceContext implements ServiceContext<RoutingService> {
 
    private class PowerApiConfigListener implements UpdateListener<SystemModel> {
 
-      private boolean isIntialized = false;
+      private boolean isInitialized = false;
 
       private ServicePorts determinePorts(Node reposeNode) {
          ServicePorts ports = new ServicePorts();
@@ -118,12 +118,12 @@ public class RoutingServiceContext implements ServiceContext<RoutingService> {
             servicePorts.clear();
             servicePorts.addAll(ports);
          }
-         isIntialized = true;
+         isInitialized = true;
       }
 
       @Override
       public boolean isInitialized() {
-         return isIntialized;
+         return isInitialized;
       }
    }
 

@@ -59,7 +59,7 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
     */
    private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
 
-      private boolean isIntialized = false;
+      private boolean isInitialized = false;
 
       @Override
       public void configurationUpdated(ContainerConfiguration configurationObject) {
@@ -67,18 +67,18 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
          String via = deployConfig.getVia();
          
          Long maxResponseContentSize = deployConfig.getContentBodyReadLimit();
-         if (!isIntialized) {
+         if (!isInitialized) {
             containerConfigurationService = new ContainerConfigurationServiceImpl(via, maxResponseContentSize, servicePorts);
          }else{
             containerConfigurationService.setVia(via);
             containerConfigurationService.setContentBodyReadLimit(maxResponseContentSize);
          }
-         isIntialized = true;
+         isInitialized = true;
       }
 
       @Override
       public boolean isInitialized() {
-         return isIntialized;
+         return isInitialized;
       }
    }
 

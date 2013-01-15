@@ -41,7 +41,7 @@ public class HttpLoggingHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
     private class HttpLoggingConfigurationListener implements UpdateListener<HttpLoggingConfig> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(HttpLoggingConfig modifiedConfig) {
@@ -58,7 +58,7 @@ public class HttpLoggingHandlerFactory extends AbstractConfiguredFilterHandlerFa
                 loggers.add(loggerWrapper);
             }
 
-            isIntialized = true;
+            isInitialized = true;
         }
 
         private void destroy() {
@@ -71,7 +71,7 @@ public class HttpLoggingHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     }
 

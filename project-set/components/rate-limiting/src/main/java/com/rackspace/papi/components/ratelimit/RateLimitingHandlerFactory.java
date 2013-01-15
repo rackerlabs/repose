@@ -75,7 +75,7 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
 
     private class RateLimitingConfigurationListener implements UpdateListener<RateLimitingConfiguration> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(RateLimitingConfiguration configurationObject) {
@@ -88,13 +88,13 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
 
             rateLimitingConfig = configurationObject;
 
-            isIntialized = true;
+            isInitialized = true;
 
         }
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     }
 

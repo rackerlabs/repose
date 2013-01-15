@@ -22,7 +22,7 @@ public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHan
 
     private class RoutingConfigurationListener implements UpdateListener<DestinationRouterConfiguration> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(DestinationRouterConfiguration configurationObject) {
@@ -37,12 +37,12 @@ public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHan
                 determineQuality();
             }
 
-            isIntialized = true;
+            isInitialized = true;
         }
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
 
         private void determineQuality() {

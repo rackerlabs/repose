@@ -45,18 +45,18 @@ public class ContentIdentityAuthHandlerFactory extends AbstractConfiguredFilterH
 
     private class ContentIdentityAuthConfigurationListener implements UpdateListener<ContentIdentityAuthConfig> {
 
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(ContentIdentityAuthConfig configurationObject) {
             config = configurationObject;
             LOG.debug("Configuration updated (quality = '" + config.getQuality() + "' group = '" + config.getGroup() + "')");
-            isIntialized = true;
+            isInitialized = true;
         }
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     }
 

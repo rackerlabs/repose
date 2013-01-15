@@ -135,18 +135,18 @@ public class PowerApiConfigurationUpdateManagerTest {
         }
     };
     public static final UpdateListener listener = new UpdateListener<String>() {
-        private boolean isIntialized = false;
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(String configurationObject) {
-            isIntialized = true;
+            isInitialized = true;
             throw new UnsupportedOperationException("Not supported yet.");
 
         }
 
         @Override
         public boolean isInitialized() {
-            return isIntialized;
+            return isInitialized;
         }
     };
 }

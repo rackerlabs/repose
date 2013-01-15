@@ -67,7 +67,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
 
     public class ApiValidatorWadlListener implements UpdateListener<ConfigurationResource> {
 
-       private boolean isIntialized = false;
+       private boolean isInitialized = false;
        
         private String getNormalizedPath(String uri) {
             String path = uri;
@@ -104,12 +104,12 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                     }
                 }
             }
-             isIntialized=true;
+             isInitialized=true;
         }
           
        @Override
       public boolean isInitialized(){
-          return isIntialized;
+          return isInitialized;
       }
       
   
@@ -161,7 +161,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
 
     private class ApiValidationConfigurationListener implements UpdateListener<ValidatorConfiguration> {
 
-       private boolean isIntialized = false;
+       private boolean isInitialized = false;
        
         
         @Override
@@ -169,12 +169,12 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
             validatorConfiguration = configurationObject;
             unsubscribeAll();
             initialize();
-            isIntialized=true;
+            isInitialized=true;
         }
         
         @Override
         public boolean isInitialized(){
-            return isIntialized;
+            return isInitialized;
         }
 
       
