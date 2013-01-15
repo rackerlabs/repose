@@ -1,7 +1,8 @@
-package com.rackspace.papi.service.reporting;
+package com.rackspace.papi.service.reporting.impl;
 
+import com.rackspace.papi.service.reporting.ReportingService;
 import com.rackspace.papi.service.reporting.destinations.DestinationInfo;
-import com.rackspace.papi.service.reporting.destinations.DestinationInfoLogic;
+import com.rackspace.papi.service.reporting.destinations.impl.DestinationInfoLogic;
 import com.rackspace.papi.service.reporting.repose.ReposeInfo;
 import com.rackspace.papi.service.reporting.repose.ReposeInfoLogic;
 import java.util.*;

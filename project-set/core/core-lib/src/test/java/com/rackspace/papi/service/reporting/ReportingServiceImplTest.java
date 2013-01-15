@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.reporting;
 
+import com.rackspace.papi.service.reporting.impl.ReportingServiceImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
