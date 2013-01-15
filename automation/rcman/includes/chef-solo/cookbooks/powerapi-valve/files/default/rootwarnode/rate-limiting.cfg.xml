@@ -2,15 +2,15 @@
 
   <request-endpoint include-absolute-limits="false" uri-regex=".*/loadbalancers/limits"/>
 
-  <limit-group default="true" id="admin-limits" roles="Admin">
+  <limit-group default="true" id="admin-limits" groups="Admin">
       <limit uri="/loadbalancers*" http-methods="GET" unit="MINUTE" value="1000" uri-regex="/loadbalancers/([^/]+).*"/>
   </limit-group>
 
-  <limit-group id="customer-limits" roles="customer">
+  <limit-group id="customer-limits" groups="customer">
       <limit uri="/loadbalancers*" http-methods="GET" unit="MINUTE" value="100" uri-regex="/loadbalancers/([^/]+).*"/>
   </limit-group>
 
-  <limit-group id="testing-limits" roles="test">
+  <limit-group id="testing-limits" groups="test">
       <limit uri="/loadbalancers*" http-methods="GET" unit="MINUTE" value="10" uri-regex="/loadbalancers/([^/]+).*"/>
   </limit-group>
 
