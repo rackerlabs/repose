@@ -80,7 +80,6 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
             initialized = false;
 
             SystemModelInterrogator interrogator = new SystemModelInterrogator(ports);
-            Node host = interrogator.getLocalHost(systemModel);
             ReposeCluster cluster = interrogator.getLocalServiceDomain(systemModel);
 
             synchronized (filters) {
