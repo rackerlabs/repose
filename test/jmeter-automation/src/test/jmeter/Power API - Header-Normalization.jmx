@@ -538,16 +538,6 @@
                 <intProp name="Assertion.test_type">2</intProp>
               </ResponseAssertion>
               <hashTree/>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
-                <collectionProp name="Asserion.test_strings">
-                  <stringProp name="1913712201">:8888 (Repose/</stringProp>
-                </collectionProp>
-                <stringProp name="TestPlan.comments">Header normalizer should not affect via header</stringProp>
-                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-                <boolProp name="Assertion.assume_success">false</boolProp>
-                <intProp name="Assertion.test_type">16</intProp>
-              </ResponseAssertion>
-              <hashTree/>
               <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Response Assertion" enabled="true">
                 <collectionProp name="Asserion.test_strings">
                   <stringProp name="85998">Via</stringProp>
@@ -601,16 +591,6 @@
                 <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                 <boolProp name="Assertion.assume_success">false</boolProp>
                 <intProp name="Assertion.test_type">2</intProp>
-              </ResponseAssertion>
-              <hashTree/>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
-                <collectionProp name="Asserion.test_strings">
-                  <stringProp name="1913712201">:8888 (Repose/</stringProp>
-                </collectionProp>
-                <stringProp name="TestPlan.comments">Header normalizer should not affect via header</stringProp>
-                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-                <boolProp name="Assertion.assume_success">false</boolProp>
-                <intProp name="Assertion.test_type">16</intProp>
               </ResponseAssertion>
               <hashTree/>
               <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Response Assertion" enabled="true">
@@ -668,16 +648,6 @@
                 <intProp name="Assertion.test_type">2</intProp>
               </ResponseAssertion>
               <hashTree/>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
-                <collectionProp name="Asserion.test_strings">
-                  <stringProp name="1913712201">:8888 (Repose/</stringProp>
-                </collectionProp>
-                <stringProp name="TestPlan.comments">Header normalizer should not affect via header</stringProp>
-                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-                <boolProp name="Assertion.assume_success">false</boolProp>
-                <intProp name="Assertion.test_type">16</intProp>
-              </ResponseAssertion>
-              <hashTree/>
               <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Response Assertion" enabled="true">
                 <collectionProp name="Asserion.test_strings">
                   <stringProp name="85998">Via</stringProp>
@@ -731,16 +701,6 @@
                 <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                 <boolProp name="Assertion.assume_success">false</boolProp>
                 <intProp name="Assertion.test_type">6</intProp>
-              </ResponseAssertion>
-              <hashTree/>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Assertion" enabled="true">
-                <collectionProp name="Asserion.test_strings">
-                  <stringProp name="1913712201">:8888 (Repose/</stringProp>
-                </collectionProp>
-                <stringProp name="TestPlan.comments">Header normalizer should not affect via header</stringProp>
-                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-                <boolProp name="Assertion.assume_success">false</boolProp>
-                <intProp name="Assertion.test_type">16</intProp>
               </ResponseAssertion>
               <hashTree/>
               <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Via Header Response Assertion" enabled="true">
