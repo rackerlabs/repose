@@ -15,6 +15,8 @@ public class UnmarshallerResourceContext implements ResourceContext<Unmarshaller
       this.cfgResource = cfgResource;
    }
 
+   //Suppressing the warning as the new exception is using the jaxbe error code and message to pass on to the ResourceContextExcepiton
+   @SuppressWarnings("PMD.PreserveStackTrace")
    @Override
    public Object perform(Unmarshaller resource) {
       try {

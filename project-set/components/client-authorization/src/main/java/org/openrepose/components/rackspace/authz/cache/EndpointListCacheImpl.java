@@ -34,7 +34,7 @@ public class EndpointListCacheImpl implements EndpointListCache {
       final String cacheName = getCacheNameForToken(token);
       final StoredElement cacheResult = cacheInstance.get(cacheName);
 
-      return cacheResult.elementIsNull() ? null : cacheResult.elementAs(LinkedList.class);
+      return cacheResult.elementIsNull() ? null : cacheResult.elementAs(List.class);
    }
 
    @Override

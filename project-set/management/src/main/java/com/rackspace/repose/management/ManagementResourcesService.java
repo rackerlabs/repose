@@ -22,6 +22,7 @@ import javax.xml.bind.JAXBException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
+import javax.ws.rs.core.MediaType;
 
 /**
  * Created by IntelliJ IDEA.
@@ -29,6 +30,7 @@ import java.net.URI;
  * Date: Oct 23, 2012
  * Time: 4:32:00 PM
  */
+
 @Path("/management")
 public class ManagementResourcesService {
 
@@ -49,7 +51,7 @@ public class ManagementResourcesService {
 
     @GET
     @Path("/reporting")
-    @Produces({"application/json", "application/xml"})
+    @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
     public Report getReportingData() {
         return new ReposeReportMBeanAdapter().getReportingData(reposeReportingJMXClient);
     }
@@ -95,7 +97,7 @@ public class ManagementResourcesService {
 
     @PUT
     @Path("/config/container")
-    @Consumes("application/xml")
+    @Consumes(MediaType.APPLICATION_XML)
     public Response updateContainerConfiguration(ContainerConfiguration config) {
 
         try {
@@ -111,7 +113,7 @@ public class ManagementResourcesService {
 
     @GET
     @Path("/config/container")
-    @Produces("application/xml")
+    @Produces(MediaType.APPLICATION_XML)
     public JAXBElement<ContainerConfiguration> getContainerConfiguration() throws JAXBException, FileNotFoundException {
 
         JAXBElement<ContainerConfiguration> config = null;
@@ -129,7 +131,7 @@ public class ManagementResourcesService {
 
     @PUT
     @Path("/config/system")
-    @Consumes("application/xml")
+    @Consumes(MediaType.APPLICATION_XML)
     public Response updateSystemModelConfiguration(SystemModel config) {
 
         try {
@@ -145,7 +147,7 @@ public class ManagementResourcesService {
 
     @GET
     @Path("/config/system")
-    @Produces("application/xml")
+    @Produces(MediaType.APPLICATION_XML)
     public JAXBElement<SystemModel> getSystemModelConfiguration() throws JAXBException, FileNotFoundException {
 
         JAXBElement<SystemModel> config = null;
@@ -163,7 +165,7 @@ public class ManagementResourcesService {
 
     @PUT
     @Path("/config/rms")
-    @Consumes("application/xml")
+    @Consumes(MediaType.APPLICATION_XML)
     public Response updateResponseMessagingConfiguration(ResponseMessagingConfiguration config) {
 
         try {
@@ -179,7 +181,7 @@ public class ManagementResourcesService {
 
     @GET
     @Path("/config/rms")
-    @Produces("application/xml")
+    @Produces(MediaType.APPLICATION_XML)
     public JAXBElement<ResponseMessagingConfiguration> getResponseMessagingConfiguration() throws JAXBException, FileNotFoundException {
 
         JAXBElement<ResponseMessagingConfiguration> config = null;
@@ -197,7 +199,7 @@ public class ManagementResourcesService {
 
     @PUT
     @Path("/config/ratelimiting")
-    @Consumes("application/xml")
+    @Consumes(MediaType.APPLICATION_XML)
     public Response updateRateLimitingConfiguration(RateLimitingConfiguration config) {
 
         try {
@@ -213,7 +215,7 @@ public class ManagementResourcesService {
 
     @GET
     @Path("/config/ratelimiting")
-    @Produces("application/xml")
+    @Produces(MediaType.APPLICATION_XML)
     public JAXBElement<RateLimitingConfiguration> getRateLimitingConfiguration() throws JAXBException, FileNotFoundException {
 
         JAXBElement<RateLimitingConfiguration> config = null;
@@ -231,7 +233,7 @@ public class ManagementResourcesService {
 
     @PUT
     @Path("/config/versioning")
-    @Consumes("application/xml")
+    @Consumes(MediaType.APPLICATION_XML)
     public Response updateVersioningConfiguration(ServiceVersionMappingList config) {
 
         try {
@@ -247,7 +249,7 @@ public class ManagementResourcesService {
 
     @GET
     @Path("/config/versioning")
-    @Produces("application/xml")
+    @Produces(MediaType.APPLICATION_XML)
     public JAXBElement<ServiceVersionMappingList> getVersioningConfiguration() throws JAXBException, FileNotFoundException {
 
         JAXBElement<ServiceVersionMappingList> config = null;

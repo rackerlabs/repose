@@ -39,17 +39,14 @@ public class CombinedLimitsTransformer extends AbstractXslTransform implements S
 
             @Override
             public void perform(Transformer resource) {
-                final StreamResult resultWriter = new StreamResult(target);
-                
+                final StreamResult resultWriter = new StreamResult(target);                
                 // The XSL requires a parameter to represent the absolute limits.
                 // This harness cheats and provides the input stream directly.
                 resource.setURIResolver(inputStreamUriParameter);
                 resource.setParameter("absoluteURL", inputStreamUriParameter.getHref());
-
                 try {
                     final Limits limitsObject = new Limits();
                     limitsObject.setRates(source.getRateLimitList());
-                    
                     resource.transform(new JAXBSource(jaxbContext, factory.createLimits(limitsObject)), resultWriter);
                 } catch (Exception e) {
                     throw new XsltTransformationException("Failed while attempting XSLT transformation;. Reason: "

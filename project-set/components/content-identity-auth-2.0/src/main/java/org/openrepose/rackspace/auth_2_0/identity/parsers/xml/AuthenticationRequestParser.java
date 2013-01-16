@@ -15,6 +15,7 @@ import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.sax.SAXSource;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.nio.charset.Charset;
 
 
 public class AuthenticationRequestParser implements AuthContentParser {
@@ -58,6 +59,7 @@ public class AuthenticationRequestParser implements AuthContentParser {
 
    @Override
    public AuthCredentials parse(String content) {
-      return this.parse(new ByteArrayInputStream(content.getBytes()));
+      Charset CHAR_SET = Charset.forName("UTF-8");
+      return this.parse(new ByteArrayInputStream(content.getBytes(CHAR_SET)));
    }
 }
