@@ -73,10 +73,10 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
         }
     }
 
-    private void createDistributedDatastore() {
+    private boolean createDistributedDatastore() {
         synchronized (lock) {
             if (systemModel == null || ports == null) {
-                return;
+                return false;
             }
 
             if (!ports.isEmpty()) {
@@ -97,7 +97,12 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
                     replicatedDatastoreManager.setMaxQueueSize(maxQueueSize);
                     replicatedDatastoreManager.updateSubscribers(getDatastoreNodes(serviceDomain));
                 }
+                return true;
+            } else {
+                LOG.warn("Service Ports are not available");
             }
+            
+            return false;
         }
     }
 
@@ -114,8 +119,7 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
             synchronized (lock) {
                 systemModel = config;
             }
-            createDistributedDatastore();
-            isInitialized = true;
+            isInitialized = createDistributedDatastore();
         }
 
         @Override
@@ -133,8 +137,7 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
             synchronized (lock) {
                 configuration = config;
             }
-            createDistributedDatastore();
-            isInitialized = true;
+            isInitialized = createDistributedDatastore();
         }
 
         @Override
