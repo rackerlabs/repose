@@ -84,7 +84,13 @@ public class PowerApiValveServerControl {
       Server serverInstance = null;
       
       try{
-         serverInstance = new ValveControllerServerBuilder(commandLineArgs.getConfigDirectory(), ports, validateSsl(), commandLineArgs.getConnectionFramework(), commandLineArgs.getInsecure()).newServer();
+         serverInstance = new ValveControllerServerBuilder(
+                 commandLineArgs.getConfigDirectory(), 
+                 ports, 
+                 validateSsl(), 
+                 commandLineArgs.getConnectionFramework(), 
+                 commandLineArgs.getInsecure())
+                 .newServer();
          serverInstance.setStopAtShutdown(true);
          serverInstance.start();
          final Thread monitor = new MonitorThread(serverInstance, commandLineArgs.getStopPort(), LOCALHOST_IP);
