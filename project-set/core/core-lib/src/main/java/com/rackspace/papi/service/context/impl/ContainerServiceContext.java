@@ -3,12 +3,10 @@ package com.rackspace.papi.service.context.impl;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.DeploymentConfiguration;
-import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.context.container.ContainerConfigurationService;
-import com.rackspace.papi.service.context.container.ContainerConfigurationServiceImpl;
 import java.net.URL;
 import javax.servlet.ServletContextEvent;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,18 +20,15 @@ public class ContainerServiceContext implements ServiceContext<ContainerConfigur
     private final ContainerConfigurationListener configurationListener;
     private ContainerConfigurationService containerConfigurationService;
     private ConfigurationService configurationManager;
-    private ServicePorts servicePorts;
     private final ServiceRegistry registry;
 
     @Autowired
     public ContainerServiceContext(
             @Qualifier("containerConfigurationService") ContainerConfigurationService containerConfigurationService,
-            @Qualifier("servicePorts") ServicePorts servicePorts,
             @Qualifier("serviceRegistry") ServiceRegistry registry,
             @Qualifier("configurationManager") ConfigurationService configurationManager) {
         this.containerConfigurationService = containerConfigurationService;
         this.configurationListener = new ContainerConfigurationListener();
-        this.servicePorts = servicePorts;
         this.configurationManager = configurationManager;
         this.registry = registry;
     }
