@@ -23,7 +23,7 @@ public class ProxyServlet extends HttpServlet {
     }
 
     private boolean isRequestFilterChainComplete(HttpServletRequest req) {
-       return Boolean.valueOf((String)req.getAttribute("filterChainAvailableForRequest"));
+       return Boolean.valueOf((Boolean)req.getAttribute("filterChainAvailableForRequest"));
     }
 
     private boolean isPowerApiContextManagerIntiliazed() {
