@@ -30,7 +30,7 @@ public class PowerApiConfigurationUpdateManager implements ConfigurationUpdateMa
    }
 
    public void initialize(ServletContext ctx) {
-      final ThreadingService threadingService = ServletContextHelper.getInstance().getPowerApiContext(ctx).threadingService();
+      final ThreadingService threadingService = ServletContextHelper.getInstance(ctx).getPowerApiContext().threadingService();
       
       // Initialize the resource watcher
       resourceWatcher = new ConfigurationResourceWatcher(eventManager);

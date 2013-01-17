@@ -1,6 +1,5 @@
 package com.rackspace.auth;
 
-import com.rackspace.auth.openstack.AuthenticationServiceClient;
 import com.rackspace.papi.commons.util.pooling.*;
 
 import javax.xml.bind.JAXBContext;
@@ -19,7 +18,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ResponseUnmarshaller {
 
- private static final Logger LOG = LoggerFactory.getLogger(AuthenticationServiceClient.class);
+ private static final Logger LOG = LoggerFactory.getLogger(ResponseUnmarshaller.class);
    private final JAXBContext jaxbContext;
    private final Pool<Unmarshaller> pool;
 

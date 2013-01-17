@@ -40,7 +40,7 @@ public class ApiValidatorFilter implements Filter {
         final String configProp = InitParameter.POWER_API_CONFIG_DIR.getParameterName();
         final ServletContext ctx = filterConfig.getServletContext();
         final String configurationRoot = System.getProperty(configProp, ctx.getInitParameter(configProp));
-        manager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
+        manager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
         handlerFactory = new ApiValidatorHandlerFactory(manager, configurationRoot, config);

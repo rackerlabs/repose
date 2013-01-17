@@ -33,7 +33,7 @@ public class DestinationRouterFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {        
-        manager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
+        manager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
         handlerFactory = new DestinationRouterHandlerFactory();

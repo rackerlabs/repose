@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.datastore;
 
 import com.rackspace.papi.domain.ReposeInstanceInfo;
+import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.model.SystemModel;
@@ -36,8 +37,8 @@ public class ReplicatedDatastoreFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        final ContextAdapter contextAdapter = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext());
-        ReposeInstanceInfo reposeInstanceInfo = ServletContextHelper.getInstance().getReposeInstanceInfo(filterConfig.getServletContext());
+        final ContextAdapter contextAdapter = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext();
+        ReposeInstanceInfo reposeInstanceInfo = ServletContextHelper.getInstance(filterConfig.getServletContext()).getReposeInstanceInfo();
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter");
 
@@ -47,8 +48,10 @@ public class ReplicatedDatastoreFilter implements Filter {
         defaultConfiguration.setUpdateCheck(false);
 
         ehCacheManager = CacheManager.newInstance(defaultConfiguration);
-        
-        handlerFactory = new ReplicatedDatastoreFilterHandlerFactory(contextAdapter.datastoreService(), ehCacheManager, contextAdapter.containerConfigurationService().getServicePorts());
+        ServicePorts servicePorts = contextAdapter.containerConfigurationService().getServicePorts();
+        LOG.info("Repose Instance: " + reposeInstanceInfo);
+        LOG.info("Service Ports: " + servicePorts);
+        handlerFactory = new ReplicatedDatastoreFilterHandlerFactory(contextAdapter.datastoreService(), ehCacheManager, ServletContextHelper.getInstance(filterConfig.getServletContext()).getServerPorts());
         configurationManager = contextAdapter.configurationService();
         configurationManager.subscribeTo("system-model.cfg.xml", handlerFactory, SystemModel.class);
         configurationManager.subscribeTo(config,handlerFactory, ReplicatedDatastoreConfiguration.class);

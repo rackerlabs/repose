@@ -31,7 +31,7 @@ public final class EmptyServlet extends HttpServlet {
       }
 
       initialized = true;
-      
+
       return initialized;
    }
 

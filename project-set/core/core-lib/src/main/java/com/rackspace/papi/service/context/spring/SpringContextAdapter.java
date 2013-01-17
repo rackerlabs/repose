@@ -37,7 +37,7 @@ public class SpringContextAdapter implements ContextAdapter {
     }
 
     public ServiceContext<ClassLoaderManagerService> classLoaderContext() {
-        return getService(ServiceContextName.CLASS_LOADER_SERVICE_CONTEXT);
+        return (ServiceContext<ClassLoaderManagerService>)applicationContext.getBean(ServiceContextName.CLASS_LOADER_SERVICE_CONTEXT.getServiceContextName());
     }
 
     @Override

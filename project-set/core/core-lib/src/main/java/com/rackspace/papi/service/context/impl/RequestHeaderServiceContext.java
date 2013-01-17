@@ -60,8 +60,8 @@ public class RequestHeaderServiceContext implements ServiceContext<RequestHeader
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
-        ports = ServletContextHelper.getInstance().getServerPorts(servletContextEvent.getServletContext());
-        reposeVersion = ServletContextHelper.getInstance().getPowerApiContext(servletContextEvent.getServletContext()).getReposeVersion();
+        ports = ServletContextHelper.getInstance(servletContextEvent.getServletContext()).getServerPorts();
+        reposeVersion = ServletContextHelper.getInstance(servletContextEvent.getServletContext()).getPowerApiContext().getReposeVersion();
         configurationManager.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);
         configurationManager.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
         register();

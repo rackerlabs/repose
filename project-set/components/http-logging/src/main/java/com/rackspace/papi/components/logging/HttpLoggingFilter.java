@@ -39,7 +39,7 @@ public class HttpLoggingFilter implements Filter {
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
         handlerFactory = new HttpLoggingHandlerFactory();
-        manager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
+        manager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/http-logging-configuration.xsd");
         manager.subscribeTo(config,xsdURL, handlerFactory, HttpLoggingConfig.class);
     }
