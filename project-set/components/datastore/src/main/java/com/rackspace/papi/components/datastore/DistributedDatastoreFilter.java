@@ -47,12 +47,12 @@ public class DistributedDatastoreFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        final ContextAdapter contextAdapter = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext());
+        final ContextAdapter contextAdapter = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext();
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
         datastoreService = contextAdapter.datastoreService();
 
-        final MutableClusterView clusterView = new ThreadSafeClusterView(ServletContextHelper.getInstance().getServerPorts(filterConfig.getServletContext()));
+        final MutableClusterView clusterView = new ThreadSafeClusterView(ServletContextHelper.getInstance(filterConfig.getServletContext()).getServerPorts());
         final HashRingDatastore hashRingDatastore;
 
         DatastoreManager localDatastoreManager = datastoreService.defaultDatastore();

@@ -26,7 +26,7 @@ public class ContentIdentityAuthFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        configurationManager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
+        configurationManager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
         handlerFactory = new ContentIdentityAuthHandlerFactory();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/content-identity-auth-1.1-configuration.xsd");
         configurationManager.subscribeTo("content-identity-auth-1-1.cfg.xml",xsdURL, handlerFactory, ContentIdentityAuthConfig.class);

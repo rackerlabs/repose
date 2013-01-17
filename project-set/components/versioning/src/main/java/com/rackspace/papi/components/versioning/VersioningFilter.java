@@ -38,12 +38,12 @@ public class VersioningFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         final ServletContext servletContext = filterConfig.getServletContext();
-        final ServicePorts ports = ServletContextHelper.getInstance().getServerPorts(servletContext);
+        final ServicePorts ports = ServletContextHelper.getInstance(servletContext).getServerPorts();
 
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
         handlerFactory = new VersioningHandlerFactory(ports);
-        configurationManager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
+        configurationManager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
        
         configurationManager.subscribeTo("system-model.cfg.xml", handlerFactory, SystemModel.class);
         URL xsdURL = getClass().getResource("/META-INF/schema/config/versioning-configuration.xsd");

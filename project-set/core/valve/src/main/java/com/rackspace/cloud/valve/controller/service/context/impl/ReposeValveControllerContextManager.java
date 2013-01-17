@@ -10,7 +10,6 @@ import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.impl.EventManagerServiceContext;
 import com.rackspace.papi.service.context.impl.LoggingServiceContext;
 import com.rackspace.papi.service.context.impl.ReportingServiceContext;
-import com.rackspace.papi.service.context.spring.SpringContextAdapterProvider;
 import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
 import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.spring.SpringConfiguration;
@@ -33,8 +32,8 @@ public class ReposeValveControllerContextManager implements ServletContextListen
 
    private void intializeServices(ServletContextEvent sce) {
       final ServletContext servletContext = sce.getServletContext();
-      ServletContextHelper helper = ServletContextHelper.getInstance();
-      ContextAdapter ca = helper.getPowerApiContext(sce.getServletContext());
+      ServletContextHelper helper = ServletContextHelper.getInstance(sce.getServletContext());
+      ContextAdapter ca = helper.getPowerApiContext();
 
       ca.getContext(ThreadingServiceContext.class).contextInitialized(sce);
       ca.getContext(EventManagerServiceContext.class).contextInitialized(sce);
@@ -66,7 +65,6 @@ public class ReposeValveControllerContextManager implements ServletContextListen
          applicationContext.registerAlias(DEFAULT_CONNECTION_FRAMEWORK, "requestProxyService");
       }
       ServletContextHelper.configureInstance(
-              new SpringContextAdapterProvider(applicationContext),
               servletContext,
               applicationContext);
       intializeServices(sce);

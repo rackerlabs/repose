@@ -32,7 +32,7 @@ public class ServiceAuthFilter implements Filter {
     public void init(FilterConfig filterConfig) throws ServletException {
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
-        configurationManager = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
+        configurationManager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
         handlerFactory = new ServiceAuthHandlerFactory();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/service-auth-configuration.xsd");
         configurationManager.subscribeTo(config,xsdURL, handlerFactory, ServiceAuthenticationConfig.class);

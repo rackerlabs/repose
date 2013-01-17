@@ -53,7 +53,7 @@ public class ResponseHeaderServiceContext implements ServiceContext<ResponseHead
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
-        reposeVersion = ServletContextHelper.getInstance().getPowerApiContext(servletContextEvent.getServletContext()).getReposeVersion();
+        reposeVersion = ServletContextHelper.getInstance(servletContextEvent.getServletContext()).getPowerApiContext().getReposeVersion();
         configurationManager.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);
         register();
     }

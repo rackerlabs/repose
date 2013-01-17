@@ -69,7 +69,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                 defaultDst = interrogator.getDefaultDestination(currentSystemModel);
                 final List<FilterContext> newFilterChain = new FilterContextInitializer(
                         filterConfig,
-                        ServletContextHelper.getInstance().getApplicationContext(filterConfig.getServletContext())).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
+                        ServletContextHelper.getInstance(filterConfig.getServletContext()).getApplicationContext()).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
 
                 updateFilterChainBuilder(newFilterChain);
             }
@@ -100,7 +100,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                     defaultDst = interrogator.getDefaultDestination(currentSystemModel);
                     final List<FilterContext> newFilterChain = new FilterContextInitializer(
                             filterConfig,
-                            ServletContextHelper.getInstance().getApplicationContext(filterConfig.getServletContext())).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
+                            ServletContextHelper.getInstance(filterConfig.getServletContext()).getApplicationContext()).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
                     updateFilterChainBuilder(newFilterChain);
                 }
             }
@@ -145,8 +145,8 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         super.init(filterConfig);
         this.filterConfig = filterConfig;
 
-        ports = ServletContextHelper.getInstance().getServerPorts(filterConfig.getServletContext());
-        papiContext = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext());
+        ports = ServletContextHelper.getInstance(filterConfig.getServletContext()).getServerPorts();
+        papiContext = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext();
 
         papiContext.eventService().listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
         URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");

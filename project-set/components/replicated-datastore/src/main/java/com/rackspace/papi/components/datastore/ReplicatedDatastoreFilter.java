@@ -37,8 +37,8 @@ public class ReplicatedDatastoreFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        final ContextAdapter contextAdapter = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext());
-        ReposeInstanceInfo reposeInstanceInfo = ServletContextHelper.getInstance().getReposeInstanceInfo(filterConfig.getServletContext());
+        final ContextAdapter contextAdapter = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext();
+        ReposeInstanceInfo reposeInstanceInfo = ServletContextHelper.getInstance(filterConfig.getServletContext()).getReposeInstanceInfo();
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter");
 
@@ -51,7 +51,7 @@ public class ReplicatedDatastoreFilter implements Filter {
         ServicePorts servicePorts = contextAdapter.containerConfigurationService().getServicePorts();
         LOG.info("Repose Instance: " + reposeInstanceInfo);
         LOG.info("Service Ports: " + servicePorts);
-        handlerFactory = new ReplicatedDatastoreFilterHandlerFactory(contextAdapter.datastoreService(), ehCacheManager, ServletContextHelper.getInstance().getServerPorts(filterConfig.getServletContext()));
+        handlerFactory = new ReplicatedDatastoreFilterHandlerFactory(contextAdapter.datastoreService(), ehCacheManager, ServletContextHelper.getInstance(filterConfig.getServletContext()).getServerPorts());
         configurationManager = contextAdapter.configurationService();
         configurationManager.subscribeTo("system-model.cfg.xml", handlerFactory, SystemModel.class);
         configurationManager.subscribeTo(config,handlerFactory, ReplicatedDatastoreConfiguration.class);
