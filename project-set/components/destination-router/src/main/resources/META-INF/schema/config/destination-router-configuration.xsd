@@ -20,8 +20,6 @@
         </xs:annotation>
 
         <xs:sequence>
-         <!-- TODO:Review - Does 'minOccurs="0"' make sense? -->
-         <!-- Setting this as simple as possible -->
             <xs:element name="target" type="scr:Target" minOccurs="1" maxOccurs="1" />
         </xs:sequence>
     </xs:complexType>
@@ -35,7 +33,7 @@
             </xs:annotation>
         </xs:attribute>
         
-        <xs:attribute name="quality" type="xs:string">
+        <xs:attribute name="quality" type="scr:doubleBetweenZeroandOne">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>Quality of this destination</html:p>
@@ -43,4 +41,10 @@
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
+    <xs:simpleType name="doubleBetweenZeroandOne">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0.0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>

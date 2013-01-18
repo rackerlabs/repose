@@ -4,6 +4,9 @@
            targetNamespace="http://openrepose.org/repose/distributed-datastore/v1.0"
            xmlns:dds="http://openrepose.org/repose/distributed-datastore/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <!-- Configuration Schema Definitions -->
@@ -48,6 +51,9 @@
             </xs:documentation>
          </xs:annotation>
       </xs:attribute>
+      <xs:assert vc:minVersion="1.1" test="if (xs:boolean(@allow-all)) then count(dds:allow) = 0 else true()"
+         xerces:message="If allow-all is true then allow elements not allowed."
+         saxon:message="If allow-all is true then allow elements not allowed."/>
    </xs:complexType>
    
    <xs:complexType name="HostAccessControl">

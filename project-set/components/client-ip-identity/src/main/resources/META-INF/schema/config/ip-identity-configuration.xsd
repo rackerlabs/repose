@@ -4,6 +4,7 @@
            targetNamespace="http://docs.api.rackspacecloud.com/repose/ip-identity/v1.0"
            xmlns:ip-identity="http://docs.api.rackspacecloud.com/repose/ip-identity/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
            xmlns:atom="http://www.w3.org/2005/Atom"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
@@ -13,14 +14,14 @@
     <xs:complexType name="IpIdentityConfig">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>Configuration for IP Idendentity filter.</html:p>
             </xs:documentation>
         </xs:annotation>
 
-        <xs:sequence>            
-            <xs:element name="quality" type="xs:string" minOccurs="0" maxOccurs="1" default="0.1" />
+        <xs:all>
+            <xs:element name="quality" type="ip-identity:doubleBetweenZeroandOne" minOccurs="0" maxOccurs="1" default="0.1" />
             <xs:element name="white-list" type="ip-identity:WhiteList" minOccurs="0" maxOccurs="1"/>
-        </xs:sequence>
+        </xs:all>
 
     </xs:complexType>
 
@@ -35,7 +36,7 @@
             <xs:element name="ip-address" type="xs:string" minOccurs="1" maxOccurs="unbounded" />
         </xs:sequence>
 
-        <xs:attribute name="quality" type="xs:string" use="required">
+        <xs:attribute name="quality" type="ip-identity:doubleBetweenZeroandOne" use="required">
          <xs:annotation>
             <xs:documentation>
                <html:p>The quality used for addresses in the whitelist.</html:p>
@@ -44,4 +45,10 @@
       </xs:attribute>
         
     </xs:complexType>
+    <xs:simpleType name="doubleBetweenZeroandOne">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0.0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>
