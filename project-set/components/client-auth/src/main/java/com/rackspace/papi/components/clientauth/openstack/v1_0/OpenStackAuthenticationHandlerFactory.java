@@ -25,7 +25,9 @@ public final class OpenStackAuthenticationHandlerFactory {
         final Configurables configurables = new Configurables(authConfig.isDelegable(),
                 ids.getUri(),
                 accountRegexExtractor,
-                authConfig.isIncludeQueryParams(), authConfig.isTenanted(), authConfig.getGroupCacheTimeout(), authConfig.getTokenCacheTimeout());
+                authConfig.isTenanted(), 
+                authConfig.getGroupCacheTimeout(), 
+                authConfig.getTokenCacheTimeout());
 
         return new OpenStackAuthenticationHandler(configurables, authService, cache, grpCache, uriMatcher);
     }
