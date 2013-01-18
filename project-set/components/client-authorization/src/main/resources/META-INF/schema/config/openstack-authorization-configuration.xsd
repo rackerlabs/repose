@@ -32,7 +32,7 @@
       <xs:attribute name="username" type="xs:string" use="required">
          <xs:annotation>
             <xs:documentation>
-               <html:p>Username to use (Basic Auth Only)</html:p>
+               <html:p>Username to use</html:p>
             </xs:documentation>
          </xs:annotation>
       </xs:attribute>
@@ -40,7 +40,7 @@
       <xs:attribute name="password" type="xs:string" use="required">
          <xs:annotation>
             <xs:documentation>
-               <html:p>Password to use (Basic Auth Only)</html:p>
+               <html:p>Password to use</html:p>
             </xs:documentation>
          </xs:annotation>
       </xs:attribute>
@@ -48,7 +48,7 @@
       <xs:attribute name="tenantId" type="xs:string" use="optional">
          <xs:annotation>
             <xs:documentation>
-               <html:p>Tenant Id for Auth User</html:p>
+               <html:p>Tenant Id for Auth User, Required if using the OpenStack Keystone implementation.</html:p>
             </xs:documentation>
          </xs:annotation>
       </xs:attribute>
@@ -61,7 +61,7 @@
          </xs:annotation>
       </xs:attribute>
 
-      <xs:attribute name="endpoint-list-ttl" type="xs:int" use="optional" default="300">
+      <xs:attribute name="endpoint-list-ttl" type="rs-auth-z:intGTEZero" use="optional" default="300">
          <xs:annotation>
             <xs:documentation>
                <html:p>Time to live used to cache endpoint list responses from the authentication service. This value is in seconds.</html:p>
@@ -109,4 +109,9 @@
          </xs:annotation>
       </xs:attribute>
    </xs:complexType>
+   <xs:simpleType name="intGTEZero">
+      <xs:restriction base="xs:int">
+         <xs:minInclusive value="0"/>
+      </xs:restriction>
+   </xs:simpleType>
 </xs:schema>
