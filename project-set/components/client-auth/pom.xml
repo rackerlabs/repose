@@ -78,22 +78,22 @@
                     <transformationSets>
                         <transformationSet>
                             <dir>src/main/resources/META-INF/schema/config</dir>
-                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <stylesheet>../xsl/remove-1.1-elements.xsl</stylesheet>
                             <outputDir>${project.build.directory}/generated-resources/xml/xslt/config</outputDir>
                         </transformationSet>
                         <transformationSet>
                             <dir>src/main/resources/META-INF/schema/http-basic</dir>
-                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <stylesheet>../xsl/remove-1.1-elements.xsl</stylesheet>
                             <outputDir>${project.build.directory}/generated-resources/xml/xslt/http-basic</outputDir>
                         </transformationSet>
                         <transformationSet>
                             <dir>src/main/resources/META-INF/schema/openstack-ids-auth</dir>
-                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <stylesheet>../xsl/remove-1.1-elements.xsl</stylesheet>
                             <outputDir>${project.build.directory}/generated-resources/xml/xslt/openstack-ids-auth</outputDir>
                         </transformationSet>
                         <transformationSet>
                             <dir>src/main/resources/META-INF/schema/rackspace-auth-v1.1</dir>
-                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                            <stylesheet>../xsl/remove-1.1-elements.xsl</stylesheet>
                             <outputDir>${project.build.directory}/generated-resources/xml/xslt/rackspace-auth-v1.1</outputDir>
                         </transformationSet>
                     </transformationSets>

@@ -16,7 +16,7 @@ import static org.mockito.Mockito.when;
 public class IpIdentityHandlerFactoryTest {
 
     private static String DEFAULT_IP_VALUE = "10.0.0.1";
-    private static String QUALITY = "0.2";
+    private static Double QUALITY = 0.2;
     private HttpServletRequest request;
     private ReadableHttpServletResponse response;
     private IpIdentityHandler handler;
@@ -43,7 +43,7 @@ public class IpIdentityHandlerFactoryTest {
     @Test
     public void shouldCatchConfigurationUpdate(){
         
-        final String QUALITY2 = "0.6";
+        final Double QUALITY2 = 0.6;
         final String QUALITY2_VALUE = ";q=0.6";
         
         config2 = new IpIdentityConfig();
@@ -79,7 +79,7 @@ public class IpIdentityHandlerFactoryTest {
         final String DEFAULT_QUALITY_VALUE = ";q=0.1";
         
         config2 = new IpIdentityConfig();
-        config2.setQuality("");
+        config2.setQuality(null);
         factory.configurationUpdated(config2);
         handler = factory.buildHandler();
         

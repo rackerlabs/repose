@@ -53,8 +53,8 @@ public class HeaderValueExtractor {
    private String determineQuality(HttpHeader header) {
       String q = DEFAULT_QUALITY;
 
-      if (!StringUtilities.isBlank(header.getQuality())) {
-         q = header.getQuality().trim();
+      if (header.getQuality() != null) {
+         q = header.getQuality().toString();
       }
 
       return ";q=" + q;

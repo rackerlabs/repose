@@ -49,14 +49,14 @@ public class FilterDirectorImpl implements FilterDirector {
     }
 
     @Override
-    public RouteDestination addDestination(String id, String uri, float quality) {
+    public RouteDestination addDestination(String id, String uri, double quality) {
         RouteDestination dest = new RouteDestination(id, uri, quality);
         destinations.add(dest);
         return dest;
     }
 
     @Override
-    public RouteDestination addDestination(Destination dest, String uri, float quality) {
+    public RouteDestination addDestination(Destination dest, String uri, double quality) {
         return addDestination(dest.getId(), uri, quality);
     }
 

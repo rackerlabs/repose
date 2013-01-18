@@ -14,9 +14,9 @@ public class RoutingTagger extends AbstractFilterLogicHandler {
 
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RoutingTagger.class);
     private String id;
-    private float quality;
+    private double quality;
 
-    public RoutingTagger(String id, float quality) {
+    public RoutingTagger(String id, double quality) {
         this.quality = quality;
         this.id = id;
     }

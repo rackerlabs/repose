@@ -92,7 +92,7 @@ public class IpIdentityHandler extends AbstractFilterLogicHandler {
    private String determineQuality() {
       String q = DEFAULT_QUALITY;
 
-      if (config != null) {
+      if (config != null && config.getQuality() != null) {
          q = config.getQuality().toString();
       }
 

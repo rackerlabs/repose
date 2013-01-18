@@ -31,7 +31,7 @@ public class HeaderIdMappingHandlerTest {
       private static String GROUP_HEADER_1 = "group1";
       private static String USER_HEADER_2 = "user2";
       private static String GROUP_HEADER_2 = "group2";
-      private static String QUALITY = "0.2";
+      private static Double QUALITY = Double.valueOf("0.2");
       private static String QUALITY_VALUE = ";q=0.2";
       private static String DEFAULT_QUALITY_VALUE = ";q=0.1";
       private HttpServletRequest request;

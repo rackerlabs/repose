@@ -5,7 +5,7 @@ public class RouteDestination implements Comparable {
     private final String destinationId;
     private final String uri;
     private String contextRemoved;
-    private final float quality;
+    private final double quality;
 
     @Override
     public int compareTo(Object o) {
@@ -45,11 +45,11 @@ public class RouteDestination implements Comparable {
         int hash = BASE_HASH;
         hash = PRIME * hash + (this.destinationId != null ? this.destinationId.hashCode() : 0);
         hash = PRIME * hash + (this.uri != null ? this.uri.hashCode() : 0);
-        hash = PRIME * hash + Float.floatToIntBits(this.quality);
+        hash = PRIME * hash + (int)Double.doubleToLongBits(this.quality);
         return hash;
     }
 
-    public RouteDestination(String destinationId, String uri, float quality) {
+    public RouteDestination(String destinationId, String uri, double quality) {
         if (destinationId == null) {
             throw new IllegalArgumentException("destinationId cannot be null");
         }
@@ -67,7 +67,7 @@ public class RouteDestination implements Comparable {
         return uri;
     }
 
-    public float getQuality() {
+    public double getQuality() {
         return quality;
     }
 
