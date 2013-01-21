@@ -32,9 +32,9 @@ public class DispatchHandlerTest {
     @Test
     public void shouldCallInitOnEachHandler() {
       Option<Document> option = mock(Option.class);
-      instance.init(option);
-      verify(handler1).init(option);
-      verify(handler2).init(option);
+      instance.init(null,option);
+      verify(handler1).init(null, option);
+      verify(handler2).init(null, option);
     }
     
     @Test
@@ -52,14 +52,14 @@ public class DispatchHandlerTest {
     @Test
     public void shouldHandleNullHandlerList() {
         DispatchHandler instance = new DispatchHandler(null);
-        instance.init(null);
+        instance.init(null,null);
         instance.handle(null, null, null, null);
     }
 
     @Test
     public void shouldHandleEmptyHandlerList() {
         DispatchHandler instance = new DispatchHandler(new ResultHandler[0]);
-        instance.init(null);
+        instance.init(null,null);
         instance.handle(null, null, null, null);
     }
   }
