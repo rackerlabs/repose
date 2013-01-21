@@ -39,7 +39,7 @@
       </xs:annotation>
 
       <xs:sequence>
-         <xs:element name="allow" type="dds:HostAccessControl" minOccurs="1" maxOccurs="unbounded" />
+         <xs:element name="allow" type="dds:HostAccessControl" minOccurs="0" maxOccurs="unbounded" />
       </xs:sequence>
 
       <xs:attribute name="allow-all" type="xs:boolean" use="optional" default="false">
