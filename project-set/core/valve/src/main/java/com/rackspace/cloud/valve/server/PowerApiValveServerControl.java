@@ -98,7 +98,7 @@ public class PowerApiValveServerControl {
 
          for (Port p : ports) {
             if (p != null) {
-               LOG.info("Repose Controller Server running and listening on " + p.getProtocol().toLowerCase() + " port: " + p.getPort());   
+               LOG.info("Repose Controller Server launched");   
             }
          }
       }catch (Exception e){

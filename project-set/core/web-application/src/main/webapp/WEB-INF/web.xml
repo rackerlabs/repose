@@ -16,7 +16,7 @@
     
     <context-param>
         <param-name>repose-node-id</param-name>
-        <param-value>node</param-value>
+        <param-value>repose_node1</param-value>
     </context-param>
     
     <listener>

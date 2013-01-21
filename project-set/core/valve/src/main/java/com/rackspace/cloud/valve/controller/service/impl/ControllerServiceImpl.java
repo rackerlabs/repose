@@ -77,6 +77,7 @@ public class ControllerServiceImpl implements ControllerService {
                }
             }
          }
+         logReposeLaunch(ports);
          managedServers.put(entry.getKey(), serverInstance);
       }
    }
@@ -184,5 +185,13 @@ public class ControllerServiceImpl implements ControllerService {
       }
 
       throw new ConfigurationResourceException("Container configuration is not valid. Please check your configuration.");
+   }
+   
+   private void logReposeLaunch(List<Port> ports){
+      
+      for(Port port: ports){
+         LOG.info("Repose node listening on " + port.getProtocol() + " on port " + port.getPort());
+      }
+      
    }
 }
