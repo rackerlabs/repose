@@ -33,14 +33,6 @@ public class ValveControllerServerBuilder {
    public Server newServer() {
 
       Server server = new Server();
-      List<Connector> connectors = new ArrayList<Connector>();
-      for (Port p : ports) {
-         Connector conn = new SelectChannelConnector();
-         conn.setPort(p.getPort());
-         connectors.add(conn);
-      }
-
-      server.setConnectors(connectors.toArray(new Connector[connectors.size()]));
 
       final ServletContextHandler rootContext = buildRootContext(server);
       final ServletHolder controllerServer = new ServletHolder(new ControllerServlet());
