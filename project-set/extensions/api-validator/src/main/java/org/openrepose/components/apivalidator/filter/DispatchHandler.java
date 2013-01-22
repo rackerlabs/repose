@@ -1,5 +1,6 @@
 package org.openrepose.components.apivalidator.filter;
 
+import com.rackspace.com.papi.components.checker.Validator;
 import com.rackspace.com.papi.components.checker.handler.ResultHandler;
 import com.rackspace.com.papi.components.checker.servlet.CheckerServletRequest;
 import com.rackspace.com.papi.components.checker.servlet.CheckerServletResponse;
@@ -15,14 +16,14 @@ public class DispatchHandler extends ResultHandler {
     public DispatchHandler(ResultHandler... handlers) {
         this.handlers = handlers;
     }
-
+    
     @Override
-    public void init(Option<Document> option) {
-        if (handlers == null) {
+    public void init(Validator vldtr, Option<Document> option) {
+      if (handlers == null) {
           return;
         }
         for (ResultHandler handler : handlers) {
-            handler.init(option);
+            handler.init(vldtr,option);
         }
     }
 
@@ -36,4 +37,6 @@ public class DispatchHandler extends ResultHandler {
             handler.handle(request, response, chain, result);
         }
     }
+
+ 
 }
