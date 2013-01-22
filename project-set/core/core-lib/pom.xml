@@ -1,207 +1,219 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+   <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>com.rackspace.papi.core</groupId>
-        <artifactId>core-support</artifactId>
-        <version>2.5.1-SNAPSHOT</version>
-    </parent>
+   <parent>
+      <groupId>com.rackspace.papi.core</groupId>
+      <artifactId>core-support</artifactId>
+      <version>2.5.1-SNAPSHOT</version>
+   </parent>
 
-    <groupId>com.rackspace.papi.core</groupId>
-    <artifactId>core-lib</artifactId>
+   <groupId>com.rackspace.papi.core</groupId>
+   <artifactId>core-lib</artifactId>
 
-    <name>Repose Core - Power API Core Library</name>
-    <description>TODO</description>
+   <name>Repose Core - Power API Core Library</name>
+   <description>TODO</description>
 
-    <properties>
-        <reposeVersion>${project.version}</reposeVersion>
-    </properties>
+   <properties>
+      <reposeVersion>${project.version}</reposeVersion>
+   </properties>
 
-    <packaging>jar</packaging>
+   <packaging>jar</packaging>
 
-    <dependencies>
-        <dependency>
-            <groupId>net.sf.ehcache</groupId>
-            <artifactId>ehcache-core</artifactId>
-        </dependency>
+   <dependencies>
+      <dependency>
+         <groupId>net.sf.ehcache</groupId>
+         <artifactId>ehcache-core</artifactId>
+      </dependency>
 
-        <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>classloader</artifactId>
-        </dependency>
+      <dependency>
+         <groupId>com.rackspace.papi.commons</groupId>
+         <artifactId>classloader</artifactId>
+      </dependency>
 
-        <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>utilities</artifactId>
-        </dependency>
+      <dependency>
+         <groupId>com.rackspace.papi.commons</groupId>
+         <artifactId>utilities</artifactId>
+      </dependency>
 
-        <dependency>
-            <groupId>com.rackspace.papi.commons</groupId>
-            <artifactId>configuration</artifactId>
-        </dependency>
+      <dependency>
+         <groupId>com.rackspace.papi.commons</groupId>
+         <artifactId>configuration</artifactId>
+      </dependency>
 
-        <dependency>
-            <groupId>org.codehaus.jackson</groupId>
-            <artifactId>jackson-core-lgpl</artifactId>
-            <version>1.9.4</version>
-        </dependency>
+      <dependency>
+         <groupId>org.codehaus.jackson</groupId>
+         <artifactId>jackson-core-lgpl</artifactId>
+         <version>1.9.4</version>
+      </dependency>
 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-core</artifactId>
-        </dependency>
+      <dependency>
+         <groupId>org.springframework</groupId>
+         <artifactId>spring-core</artifactId>
+      </dependency>
 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-        </dependency>
+      <dependency>
+         <groupId>org.springframework</groupId>
+         <artifactId>spring-beans</artifactId>
+      </dependency>
 
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-        </dependency>
+      <dependency>
+         <groupId>org.springframework</groupId>
+         <artifactId>spring-context</artifactId>
+      </dependency>
 
-        <dependency>
-            <groupId>com.ning</groupId>
-            <artifactId>async-http-client</artifactId>
-            <version>1.7.5</version>
-            <type>jar</type>
-        </dependency>
+      <dependency>
+         <groupId>com.ning</groupId>
+         <artifactId>async-http-client</artifactId>
+         <version>1.7.5</version>
+         <type>jar</type>
+      </dependency>
+        
+      <dependency>
+         <groupId>commons-codec</groupId>
+         <artifactId>commons-codec</artifactId>
+         <version>1.7</version>
+      </dependency>
+        
+      <dependency>
+         <groupId>org.apache.httpcomponents</groupId>
+         <artifactId>httpclient</artifactId>
+         <version>4.2</version>
+         <exclusions>
+            <exclusion>
+               <groupId>commons-codec</groupId>
+               <artifactId>commons-codec</artifactId>
+            </exclusion>
+         </exclusions>
+      </dependency>
 
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-            <version>4.2</version>
-        </dependency>
+      <dependency>
+         <groupId>net.sf.saxon</groupId>
+         <artifactId>saxon</artifactId>
+         <version>9.3</version>
+         <scope>test</scope>
+      </dependency>
 
-        <dependency>
-            <groupId>net.sf.saxon</groupId>
-            <artifactId>saxon</artifactId>
-            <version>9.3</version>
-            <scope>test</scope>
-        </dependency>
+      <!-- Required for @Configuration annotation -->
+      <dependency>
+         <groupId>cglib</groupId>
+         <artifactId>cglib-nodep</artifactId>
+         <version>2.2.2</version>
+      </dependency>
 
-        <!-- Required for @Configuration annotation -->
-        <dependency>
-            <groupId>cglib</groupId>
-            <artifactId>cglib-nodep</artifactId>
-            <version>2.2.2</version>
-        </dependency>
+      <dependency>
+         <groupId>xmlunit</groupId>
+         <artifactId>xmlunit</artifactId>
+         <version>1.3</version>
+         <scope>test</scope>
+      </dependency>
 
-        <dependency>
-            <groupId>xmlunit</groupId>
-            <artifactId>xmlunit</artifactId>
-            <version>1.3</version>
-            <scope>test</scope>
-        </dependency>
+      <dependency>
+         <groupId>com.google.guava</groupId>
+         <artifactId>guava</artifactId>
+         <version>12.0</version>
+      </dependency>
 
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>12.0</version>
-        </dependency>
+      <dependency>
+         <groupId>org.eclipse.jetty</groupId>
+         <artifactId>jetty-webapp</artifactId>
+         <version>8.0.1.v20110908</version>
+      </dependency>
 
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-webapp</artifactId>
-            <version>8.0.1.v20110908</version>
-         </dependency>
+      <dependency>
+         <groupId>org.eclipse.jetty</groupId>
+         <artifactId>jetty-server</artifactId>
+         <version>8.0.1.v20110908</version>
+      </dependency>
 
-         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-server</artifactId>
-            <version>8.0.1.v20110908</version>
-         </dependency>
+      <dependency>
+         <groupId>org.eclipse.jetty</groupId>
+         <artifactId>jetty-servlet</artifactId>
+         <version>8.0.1.v20110908</version>
+      </dependency>
+      <!--
+      <dependency>
+          <groupId>com.rackspace.papi.core</groupId>
+          <artifactId>valve</artifactId>
+          <version>2.5.1-SNAPSHOT</version>
+          <type>jar</type>
+      </dependency>
+      -->
+   </dependencies>
 
-         <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-            <version>8.0.1.v20110908</version>
-         </dependency>
-         <!--
-        <dependency>
-            <groupId>com.rackspace.papi.core</groupId>
-            <artifactId>valve</artifactId>
-            <version>2.5.1-SNAPSHOT</version>
-            <type>jar</type>
-        </dependency>
-        -->
-    </dependencies>
+   <build>
+      <plugins>
+         <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>xml-maven-plugin</artifactId>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>xml-maven-plugin</artifactId>
-
-                <configuration>
-                    <transformationSets>
-                        <transformationSet>
-                            <dir>src/main/resources/META-INF/schema/system-model</dir>
-                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
-                            <outputDir>${project.build.directory}/generated-resources/xml/xslt/system-model</outputDir>
-                        </transformationSet>
-                        <transformationSet>
-                            <dir>src/main/resources/META-INF/schema/container</dir>
-                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
-                            <outputDir>${project.build.directory}/generated-resources/xml/xslt/container</outputDir>
-                        </transformationSet>
-                        <transformationSet>
-                            <dir>src/main/resources/META-INF/schema/httpx</dir>
-                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
-                            <outputDir>${project.build.directory}/generated-resources/xml/xslt/httpx</outputDir>
-                        </transformationSet>
-                        <transformationSet>
-                            <dir>src/main/resources/META-INF/schema/response-messaging</dir>
-                            <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
-                            <outputDir>${project.build.directory}/generated-resources/xml/xslt/response-messaging</outputDir>
-                        </transformationSet>
-                    </transformationSets>
-                </configuration>
-            </plugin>
+            <configuration>
+               <transformationSets>
+                  <transformationSet>
+                     <dir>src/main/resources/META-INF/schema/system-model</dir>
+                     <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                     <outputDir>${project.build.directory}/generated-resources/xml/xslt/system-model</outputDir>
+                  </transformationSet>
+                  <transformationSet>
+                     <dir>src/main/resources/META-INF/schema/container</dir>
+                     <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                     <outputDir>${project.build.directory}/generated-resources/xml/xslt/container</outputDir>
+                  </transformationSet>
+                  <transformationSet>
+                     <dir>src/main/resources/META-INF/schema/httpx</dir>
+                     <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                     <outputDir>${project.build.directory}/generated-resources/xml/xslt/httpx</outputDir>
+                  </transformationSet>
+                  <transformationSet>
+                     <dir>src/main/resources/META-INF/schema/response-messaging</dir>
+                     <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                     <outputDir>${project.build.directory}/generated-resources/xml/xslt/response-messaging</outputDir>
+                  </transformationSet>
+               </transformationSets>
+            </configuration>
+         </plugin>
             
-            <plugin>
-                <groupId>org.jvnet.jaxb2.maven2</groupId>
-                <artifactId>maven-jaxb2-plugin</artifactId>
+         <plugin>
+            <groupId>org.jvnet.jaxb2.maven2</groupId>
+            <artifactId>maven-jaxb2-plugin</artifactId>
 
-                <configuration>
+            <configuration>
 
-                    <specVersion>2.2</specVersion>
-                    <schemaDirectory>${project.build.directory}/generated-resources/xml/xslt</schemaDirectory>
+               <specVersion>2.2</specVersion>
+               <schemaDirectory>${project.build.directory}/generated-resources/xml/xslt</schemaDirectory>
 
-                    <schemaIncludes>
-                        <include>**/*.xsd</include>
-                    </schemaIncludes>
-                    <bindingIncludes>
-                        <include>**/*.xjb</include>
-                    </bindingIncludes>
-                    <strict>true</strict>
-                    <verbose>false</verbose>
+               <schemaIncludes>
+                  <include>**/*.xsd</include>
+               </schemaIncludes>
+               <bindingIncludes>
+                  <include>**/*.xjb</include>
+               </bindingIncludes>
+               <strict>true</strict>
+               <verbose>false</verbose>
 
-                </configuration>
-            </plugin>
-        </plugins>
-        <resources>
-            <resource>
-                <directory>src/main/resources/</directory>
-                <filtering>true</filtering>
-            </resource>
-        </resources>
-        <!--
-        <resources>
-            <resource>
-                <directory>src/main/resources/com/rackspace/papi/service/context/banner</directory>
-                <filtering>true</filtering>
-            </resource>
-            <resource>
-                <directory>src/main/resources/META-INF/**</directory>
-                <filtering>false</filtering>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
-        </resources>
-        -->
-    </build>
+            </configuration>
+         </plugin>
+      </plugins>
+      <resources>
+         <resource>
+            <directory>src/main/resources/</directory>
+            <filtering>true</filtering>
+         </resource>
+      </resources>
+      <!--
+      <resources>
+          <resource>
+              <directory>src/main/resources/com/rackspace/papi/service/context/banner</directory>
+              <filtering>true</filtering>
+          </resource>
+          <resource>
+              <directory>src/main/resources/META-INF/**</directory>
+              <filtering>false</filtering>
+              <includes>
+                  <include>**/*</include>
+              </includes>
+          </resource>
+      </resources>
+      -->
+   </build>
 </project>

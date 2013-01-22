@@ -25,7 +25,6 @@
         <module>jee6-schemas</module>
         <module>servlet-api</module>
         <module>service-clients</module>
-        <module>maven-plugins/jmeter-maven-plugin</module>
         <module>testing/test-support</module>
         <module>os-auth-schemas</module>
         <module>rs-auth-schemas</module>
