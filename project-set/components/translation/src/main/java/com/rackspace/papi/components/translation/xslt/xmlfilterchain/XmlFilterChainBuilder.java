@@ -25,13 +25,17 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import org.slf4j.Logger;
 import org.w3c.dom.Node;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
 
 public class XmlFilterChainBuilder {
 
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(XmlFilterChainBuilder.class);
     private static final String CLASSPATH_PREFIX = "classpath://";
     private final SAXTransformerFactory factory;
 
@@ -127,6 +131,22 @@ public class XmlFilterChainBuilder {
 
         throw new IllegalArgumentException("No stylesheet specified for " + stylesheet.getId());
     }
+    
+    private static class ReposeEntityResolver implements EntityResolver {
+        private static EntityResolver parent;
+
+        ReposeEntityResolver(EntityResolver parent) {
+            this.parent = parent;
+        }
+        
+        @Override
+        public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+            LOG.warn("Resolving Entity[publicId='" + publicId + "', systemId='" + systemId + "'");
+            
+            return parent != null? parent.resolveEntity(publicId, systemId): null;
+        }
+        
+    }
 
     protected XMLReader getSaxReader() throws ParserConfigurationException, SAXException {
         SAXParserFactory spf = SAXParserFactory.newInstance();
@@ -134,6 +154,8 @@ public class XmlFilterChainBuilder {
         spf.setNamespaceAware(true);
         SAXParser parser = spf.newSAXParser();
         XMLReader reader = parser.getXMLReader();
+        
+        reader.setEntityResolver(new ReposeEntityResolver(reader.getEntityResolver()));
 
         return reader;
     }
