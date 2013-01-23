@@ -270,37 +270,23 @@ class TestVersioningConfig(TestConfigLoadingReloading, unittest.TestCase):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 def run():
     suite = unittest.TestSuite()
 
     suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestClientAuthNConfig))
-    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestContainerConfig))
-    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestDistDatastoreConfig))
-    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestHeaderIdentityConfig))
-    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestHttpLoggingConfig))
-    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestIpIdentityConfig))
-    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestOpenstackAuthorizationConfig))
-    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestRateLimitingConfig))
-    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestResponseMessagingConfig))
-    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestSystemModelConfig))
-    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestTranslationConfig))
-    #suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestUriIdentityConfig))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestContainerConfig))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestDistDatastoreConfig))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestHeaderIdentityConfig))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestHttpLoggingConfig))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestIpIdentityConfig))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestOpenstackAuthorizationConfig))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestRateLimitingConfig))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestResponseMessagingConfig))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestSystemModelConfig))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestTranslationConfig))
+    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestUriIdentityConfig))
 
     testRunner = _xmlrunner.XMLTestRunner(output='test-reports')
-    #testRunner = unittest.TextTestRunner(verbosity=2)
     result = testRunner.run(suite)
 
 
