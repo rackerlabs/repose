@@ -2,5 +2,4 @@
 
 <distributed-datastore xmlns='http://openrepose.org/repose/distributed-datastore/v1.0'>
     <allowed-hosts allow-all="true"/>
-   </allowed-hosts>
 </distributed-datastore>
