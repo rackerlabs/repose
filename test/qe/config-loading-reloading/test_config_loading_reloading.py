@@ -30,7 +30,8 @@ def setUpModule():
                             destination_path='etc/repose2',
                             params={'port': str(target_port)}, verbose=False)
 
-    # stand up a repose node with no filters and no destinations - will return 200's
+    # stand up a repose node with no filters and no destinations - will return
+    # 200's
     global target_repose
     target_repose = repose.ReposeValve('etc/repose2', stop_port=9894)
     time.sleep(25)
@@ -59,7 +60,8 @@ class TestConfigLoadingReloading:
         return 30
 
     def get_status_code_from_url(self, url):
-        return requests.get(url, timeout=self.get_request_timeout()).status_code
+        timeout = self.get_request_timeout()
+        return requests.get(url, timeout=timeout).status_code
 
     def get_good_response(self):
         return 200
@@ -84,7 +86,7 @@ class TestConfigLoadingReloading:
         finally:
             if r:
                 r.stop()
-    
+
     def test_start_bad(self):
         r = None
         try:
@@ -102,7 +104,7 @@ class TestConfigLoadingReloading:
         finally:
             if r:
                 r.stop()
-    
+
     def test_good_to_bad(self):
         r = None
         try:
@@ -127,7 +129,7 @@ class TestConfigLoadingReloading:
         finally:
             if r:
                 r.stop()
-    
+
     def test_bad_to_good(self):
         r = None
         try:
@@ -269,26 +271,26 @@ class TestVersioningConfig(TestConfigLoadingReloading, unittest.TestCase):
         return 'versioning'
 
 
-
 def run():
     suite = unittest.TestSuite()
 
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestClientAuthNConfig))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestContainerConfig))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestDistDatastoreConfig))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestHeaderIdentityConfig))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestHttpLoggingConfig))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestIpIdentityConfig))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestOpenstackAuthorizationConfig))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestRateLimitingConfig))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestResponseMessagingConfig))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestSystemModelConfig))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestTranslationConfig))
-    suite.addTest(unittest.TestLoader().loadTestsFromTestCase(TestUriIdentityConfig))
+    loader = unittest.TestLoader()
+    suite.addTest(loader.loadTestsFromTestCase(TestClientAuthNConfig))
+    suite.addTest(loader.loadTestsFromTestCase(TestContainerConfig))
+    suite.addTest(loader.loadTestsFromTestCase(TestDistDatastoreConfig))
+    suite.addTest(loader.loadTestsFromTestCase(TestHeaderIdentityConfig))
+    suite.addTest(loader.loadTestsFromTestCase(TestHttpLoggingConfig))
+    suite.addTest(loader.loadTestsFromTestCase(TestIpIdentityConfig))
+    suite.addTest(loader.loadTestsFromTestCase(
+        TestOpenstackAuthorizationConfig))
+    suite.addTest(loader.loadTestsFromTestCase(TestRateLimitingConfig))
+    suite.addTest(loader.loadTestsFromTestCase(TestResponseMessagingConfig))
+    suite.addTest(loader.loadTestsFromTestCase(TestSystemModelConfig))
+    suite.addTest(loader.loadTestsFromTestCase(TestTranslationConfig))
+    suite.addTest(loader.loadTestsFromTestCase(TestUriIdentityConfig))
 
     testRunner = _xmlrunner.XMLTestRunner(output='test-reports')
     result = testRunner.run(suite)
-
 
 
 if __name__ == '__main__':
