@@ -12,11 +12,11 @@ public class CommandLineArguments {
     private static final boolean DEFAULT_INSECURE = false;
 
     @Option(name = "-p", aliases = {"--http-port"},
-            usage = "Repose http port number " + DEFAULT_HTTP_PORT_INFO)
+            usage = "*DEPRECATED* Repose http port number " + DEFAULT_HTTP_PORT_INFO)
     private Integer httpPort;
 
     @Option(name = "-ps", aliases = {"--https-port"},
-            usage = "Repose https port number " + DEFAULT_HTTPS_PORT_INFO)
+            usage = "*DEPRECATED* Repose https port number " + DEFAULT_HTTPS_PORT_INFO)
     private Integer httpsPort;
 
     @Option(name = "-s", aliases = {"--shutdown-port"},
@@ -38,18 +38,22 @@ public class CommandLineArguments {
     @Argument(usage = "Action to take - start | stop", required = true)
     private String action = ACTION_START;
 
+    @Deprecated
     public Integer getHttpPort() {
         return httpPort;
     }
 
+    @Deprecated
     public void setHttpPort(Integer httpPort) {
         this.httpPort = httpPort;
     }
 
+    @Deprecated
     public Integer getHttpsPort() {
         return httpsPort;
     }
 
+    @Deprecated
     public void setHttpsPort(Integer httpsPort) {
         this.httpsPort = httpsPort;
     }
