@@ -1,5 +1,6 @@
 package com.rackspace.papi.filter;
 
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.filter.resource.ResourceMonitor;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.container.ContainerConfigurationService;
@@ -50,7 +51,8 @@ public class RequestFilterChainStateTest {
             ServletContextHelper instance = ServletContextHelper.configureInstance(context, appContext);
             when(context.getAttribute(ServletContextHelper.SERVLET_CONTEXT_HELPER)).thenReturn(instance);
 
-            PowerFilterChain powerFilterChainState = new PowerFilterChain(filterContextList, mockedFilterChain, mock(ResourceMonitor.class), mock(PowerFilterRouter.class));
+            ReposeInstanceInfo instanceInfo = new ReposeInstanceInfo("repose", "node");
+            PowerFilterChain powerFilterChainState = new PowerFilterChain(filterContextList, mockedFilterChain, mock(ResourceMonitor.class), mock(PowerFilterRouter.class),instanceInfo);
 
             HttpServletRequest mockedServletRequest = mock(HttpServletRequest.class);
             HttpServletResponse mockedServletResponse = mock(HttpServletResponse.class);

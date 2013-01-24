@@ -3,6 +3,7 @@ package com.rackspace.papi.filter;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.filter.resource.ResourceMonitor;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -39,14 +40,17 @@ public class PowerFilterChain implements FilterChain {
     private final PowerFilterRouter router;
     private RequestTracer tracer = null;
     private boolean filterChainAvailable;
+    private ReposeInstanceInfo instanceInfo;
 
-    public PowerFilterChain(List<FilterContext> filterChainCopy, FilterChain containerFilterChain, ResourceMonitor resourceMontior, PowerFilterRouter router) throws PowerFilterChainException {
+    public PowerFilterChain(List<FilterContext> filterChainCopy, FilterChain containerFilterChain, ResourceMonitor resourceMontior, PowerFilterRouter router, ReposeInstanceInfo instanceInfo) throws PowerFilterChainException {
 
         this.filterChainCopy = new LinkedList<FilterContext>(filterChainCopy);
         this.containerFilterChain = containerFilterChain;
         this.containerClassLoader = Thread.currentThread().getContextClassLoader();
         this.resourceMonitor = resourceMontior;
         this.router = router;
+        this.instanceInfo = instanceInfo;
+        Thread.currentThread().setName(instanceInfo.toString());
     }
 
     public void startFilterChain(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {

@@ -7,6 +7,7 @@ import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.commons.util.classloader.ear.EarDescriptor;
 import com.rackspace.papi.commons.util.net.NetUtilities;
 import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.model.*;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
@@ -20,6 +21,7 @@ import java.util.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.*;
+import org.springframework.context.ApplicationContext;
 
 /**
  * @author fran
@@ -32,7 +34,11 @@ public class PowerFilterChainBuilderTest {
       @Test
       public void shouldInitialize() {
          FilterConfig mockedFilterConfig = mock(FilterConfig.class);
-         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig, null);
+         ApplicationContext context = mock(ApplicationContext.class);
+         ReposeInstanceInfo info = new ReposeInstanceInfo("cluster", "node");
+         when(context.getBean("reposeInstanceInfo")).thenReturn(info);
+         
+         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig, context);
 
          assertNotNull(powerFilterChainBuilder);
       }
@@ -87,7 +93,10 @@ public class PowerFilterChainBuilderTest {
          Filter mockedFilter = mock(Filter.class);
          when(mockedFilter.getName()).thenReturn("filterName");
 
-         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig, null);
+         ApplicationContext context = mock(ApplicationContext.class);
+         ReposeInstanceInfo info = new ReposeInstanceInfo("cluster", "node");
+         when(context.getBean("reposeInstanceInfo")).thenReturn(info);
+         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig, context);
 
          SystemModel mockedPowerProxy = mock(SystemModel.class);
          List<ReposeCluster> hosts = createTestHosts();
@@ -132,7 +141,10 @@ public class PowerFilterChainBuilderTest {
          Filter mockedFilter = mock(Filter.class);
          when(mockedFilter.getName()).thenReturn("filterName");
 
-         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig, null);
+         ApplicationContext context = mock(ApplicationContext.class);
+         ReposeInstanceInfo info = new ReposeInstanceInfo("cluster", "node");
+         when(context.getBean("reposeInstanceInfo")).thenReturn(info);
+         FilterContextInitializer powerFilterChainBuilder = new FilterContextInitializer(mockedFilterConfig, context);
 
          SystemModel mockedPowerProxy = mock(SystemModel.class);
          List<ReposeCluster> hosts = createTestHosts();

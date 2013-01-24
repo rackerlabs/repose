@@ -62,6 +62,7 @@ public class PowerApiContextManager implements ServletContextListener {
 
       configurePorts(context);
       configureReposeInfo(context);
+      Thread.currentThread().setName(instanceInfo.toString());
       context.getBean("exporter");
       
       return context;
