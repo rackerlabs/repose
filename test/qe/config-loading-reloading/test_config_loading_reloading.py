@@ -302,25 +302,32 @@ class TestVersioningConfig(TestConfigLoadingReloading, unittest.TestCase):
 
 
 def run():
-    suite = unittest.TestSuite()
+    try:
+        create_target()
 
-    loader = unittest.TestLoader()
-    suite.addTest(loader.loadTestsFromTestCase(TestClientAuthNConfig))
-    suite.addTest(loader.loadTestsFromTestCase(TestContainerConfig))
-    suite.addTest(loader.loadTestsFromTestCase(TestDistDatastoreConfig))
-    suite.addTest(loader.loadTestsFromTestCase(TestHeaderIdentityConfig))
-    suite.addTest(loader.loadTestsFromTestCase(TestHttpLoggingConfig))
-    suite.addTest(loader.loadTestsFromTestCase(TestIpIdentityConfig))
-    suite.addTest(loader.loadTestsFromTestCase(
-        TestOpenstackAuthorizationConfig))
-    suite.addTest(loader.loadTestsFromTestCase(TestRateLimitingConfig))
-    suite.addTest(loader.loadTestsFromTestCase(TestResponseMessagingConfig))
-    suite.addTest(loader.loadTestsFromTestCase(TestSystemModelConfig))
-    suite.addTest(loader.loadTestsFromTestCase(TestTranslationConfig))
-    suite.addTest(loader.loadTestsFromTestCase(TestUriIdentityConfig))
+        suite = unittest.TestSuite()
 
-    testRunner = _xmlrunner.XMLTestRunner(output='test-reports')
-    result = testRunner.run(suite)
+        loader = unittest.TestLoader()
+        load_tests = loader.loadTestsFromTestCase
+        suite.addTest(load_tests(TestClientAuthNConfig))
+        suite.addTest(load_tests(TestContainerConfig))
+        suite.addTest(load_tests(TestDistDatastoreConfig))
+        suite.addTest(load_tests(TestHeaderIdentityConfig))
+        suite.addTest(load_tests(TestHttpLoggingConfig))
+        suite.addTest(load_tests(TestIpIdentityConfig))
+        suite.addTest(load_tests(TestOpenstackAuthorizationConfig))
+        suite.addTest(load_tests(TestRateLimitingConfig))
+        suite.addTest(load_tests(TestResponseMessagingConfig))
+        suite.addTest(load_tests(TestSystemModelConfig))
+        suite.addTest(load_tests(TestTranslationConfig))
+        suite.addTest(load_tests(TestUriIdentityConfig))
+
+        testRunner = _xmlrunner.XMLTestRunner(output='test-reports')
+
+        result = testRunner.run(suite)
+
+    finally:
+        destroy_target()
 
 
 if __name__ == '__main__':
