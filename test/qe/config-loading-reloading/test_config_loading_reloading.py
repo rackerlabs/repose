@@ -18,12 +18,14 @@ target_port = 8894
 target_config_folder = 'etc/repose2'
 target_repose = None
 
+
 def create_target():
     # stand up a repose node with no filters and no destinations
     # it will simply return 200's for all requests
 
     global target_repose
-    if target_repose is not None: return
+    if target_repose is not None:
+        return
     logger.debug('Creating target Repose node')
     pathutil.create_folder(target_config_folder)
     conf.process_config_set(config_set_name='simple-node',
@@ -41,7 +43,8 @@ def create_target():
 
 def destroy_target():
     global target_repose
-    if target_repose is None: return
+    if target_repose is None:
+        return
     logger.debug('Destorying target Repose node')
     target_repose.stop()
 
