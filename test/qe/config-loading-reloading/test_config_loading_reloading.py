@@ -18,6 +18,7 @@ target_repose = None
 
 logger = logging.getLogger(__name__)
 
+
 def setUpModule():
     logger.debug('setUpModule')
     repose_conf_folder = 'etc/repose'
@@ -35,8 +36,8 @@ def setUpModule():
                                 'port': str(target_port),
                                 'deploydir': 'var/repose',
                                 'artifactdir': 'usr/share/repose/filters',
-                                'logfile': 'var/log/repose/current2.log'
-                                }, verbose=False)
+                                'logfile': 'var/log/repose/current2.log'},
+                            verbose=False)
 
     # stand up a repose node with no filters and no destinations - will return
     # 200's
