@@ -303,7 +303,7 @@ class TestVersioningConfig(TestConfigLoadingReloading, unittest.TestCase):
 
 def run():
     try:
-        create_target()
+        setUpModule()
 
         suite = unittest.TestSuite()
 
@@ -327,7 +327,7 @@ def run():
         result = testRunner.run(suite)
 
     finally:
-        destroy_target()
+        tearDownModule()
 
 
 if __name__ == '__main__':
