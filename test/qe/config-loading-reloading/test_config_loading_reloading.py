@@ -11,12 +11,39 @@ import unittest
 import xmlrunner as _xmlrunner
 import logging
 
+logger = logging.getLogger(__name__)
+
 target_hostname = 'localhost'
 target_port = 8894
-
+target_config_folder = 'etc/repose2'
 target_repose = None
 
-logger = logging.getLogger(__name__)
+def create_target():
+    # stand up a repose node with no filters and no destinations
+    # it will simply return 200's for all requests
+
+    global target_repose
+    if target_repose is not None: return
+    logger.debug('Creating target Repose node')
+    pathutil.create_folder(target_config_folder)
+    conf.process_config_set(config_set_name='simple-node',
+                            destination_path='etc/repose2',
+                            params={
+                                'port': str(target_port),
+                                'deploydir': 'var/repose',
+                                'artifactdir': 'usr/share/repose/filters',
+                                'logfile': 'var/log/repose/current2.log'},
+                            verbose=False)
+    target_repose = repose.ReposeValve(target_config_folder, stop_port=9894)
+    time.sleep(25)
+    logger.debug('target node started (pid=%i)' % target_repose.proc.pid)
+
+
+def destroy_target():
+    global target_repose
+    if target_repose is None: return
+    logger.debug('Destorying target Repose node')
+    target_repose.stop()
 
 
 def setUpModule():
@@ -29,27 +56,12 @@ def setUpModule():
     pathutil.create_folder('var/repose')
     #install_repose.get_repose(valve_dest='usr/share/repose',
     #                          ear_dest='usr/share/repose/filters')
-    pathutil.create_folder('etc/repose2')
-    conf.process_config_set(config_set_name='simple-node',
-                            destination_path='etc/repose2',
-                            params={
-                                'port': str(target_port),
-                                'deploydir': 'var/repose',
-                                'artifactdir': 'usr/share/repose/filters',
-                                'logfile': 'var/log/repose/current2.log'},
-                            verbose=False)
-
-    # stand up a repose node with no filters and no destinations - will return
-    # 200's
-    global target_repose
-    target_repose = repose.ReposeValve('etc/repose2', stop_port=9894)
-    logger.debug('target node started (pid=%i)' % target_repose.proc.pid)
-    time.sleep(25)
+    create_target()
     logger.debug('setUpModule complete')
 
 
 def tearDownModule():
-    target_repose.stop()
+    destroy_target()
 
 
 class TestConfigLoadingReloading:
