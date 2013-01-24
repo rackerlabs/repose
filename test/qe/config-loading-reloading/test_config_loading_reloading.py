@@ -201,8 +201,8 @@ class TestNonStartingOnBadConfig(TestConfigLoadingReloading):
             r = repose.ReposeValve(self.repose_config_folder,
                                    stop_port=self.repose_stop_port)
             time.sleep(self.sleep_time)
-            with self.assertRaises(requests.ConnectionError):
-                response = requests.get(self.repose_url)
+            self.assertRaises(requests.ConnectionError, requests.get,
+                              self.repose_url)
         finally:
             if r:
                 r.stop()
