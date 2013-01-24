@@ -9,12 +9,16 @@ import javax.xml.bind.Unmarshaller;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author fran
  */
 public class ResponseUnmarshaller {
 
+ private static final Logger LOG = LoggerFactory.getLogger(ResponseUnmarshaller.class);
    private final JAXBContext jaxbContext;
    private final Pool<Unmarshaller> pool;
 
@@ -34,8 +38,14 @@ public class ResponseUnmarshaller {
 
    }
 
-   public <T> T unmarshall(final InputStream data, final Class<T> expectedType) {
-      return pool.use(new UnmarshallerContext<T>(new InputStreamReader(data), expectedType));
+   public <T> T unmarshall(final InputStream data, final Class<T> expectedType)  {
+    try{
+        return pool.use(new UnmarshallerContext<T>(new InputStreamReader(data,"UTF8"), expectedType));
+    }catch(UnsupportedEncodingException e){
+        LOG.error("Error reading Response stream in Response Unmarshaller");
+        
+    }
+    return null;
    }
 
    private static final class UnmarshallerContext<T> implements ResourceContext<Unmarshaller, T> {

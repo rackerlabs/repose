@@ -67,7 +67,7 @@
             </xs:annotation>            
         </xs:attribute>
         
-        <xs:attribute name="quality" type="xs:string">
+        <xs:attribute name="quality" type="header-identity:doubleBetweenZeroandOne">
             <xs:annotation>
                 <xs:documentation>
                     <html:p></html:p>
@@ -75,4 +75,10 @@
             </xs:annotation>            
         </xs:attribute>
     </xs:complexType>
+    <xs:simpleType name="doubleBetweenZeroandOne">
+        <xs:restriction base="xs:double">
+            <xs:minInclusive value="0.0"/>
+            <xs:maxInclusive value="1.0"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>

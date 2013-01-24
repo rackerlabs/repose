@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.reporting.repose;
 
+import com.rackspace.papi.service.reporting.ReposeInfo;
 import com.rackspace.papi.service.reporting.StatusCodeResponseStore;
 
 import java.util.Map;
@@ -7,7 +8,6 @@ import java.util.Map;
 public class ReposeInfoLogic implements ReposeInfo {
 
     private static final long LONG_ZERO = 0l;
-    private static final long LONG_ONE = 1l;
     private static final int INT_ONE = 1;
     private static final double DOUBLE_ZERO = 0.0d;
     private static final int RESPONSE_CODE_SEPERATOR = 100;

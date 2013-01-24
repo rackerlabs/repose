@@ -11,49 +11,60 @@ import java.util.Map;
  */
 public abstract class AbstractConfiguredFilterHandlerFactory<T extends FilterLogicHandler> implements UpdateListener {
 
-   private final Map<Class, UpdateListener<?>> listeners;
-   private final KeyedStackLock configurationLock;
-   private final Object readKey, updateKey;
+    private final Map<Class, UpdateListener<?>> listeners;
+    private final KeyedStackLock configurationLock;
+    private final Object readKey, updateKey;
 
-   public AbstractConfiguredFilterHandlerFactory() {
-      configurationLock = new KeyedStackLock();
+    public AbstractConfiguredFilterHandlerFactory() {
+        configurationLock = new KeyedStackLock();
 
-      readKey = new Object();
-      updateKey = new Object();
-      listeners = getListeners();
-   }
+        readKey = new Object();
+        updateKey = new Object();
+        listeners = getListeners();
+    }
 
-   protected abstract T buildHandler();
+    protected abstract T buildHandler();
 
-   protected abstract Map<Class, UpdateListener<?>> getListeners();
+    protected abstract Map<Class, UpdateListener<?>> getListeners();
 
-   public T newHandler() {
-      configurationLock.lock(readKey);
-      try {
-         return buildHandler();
-      } finally {
-         configurationLock.unlock(readKey);
-      }
-   }
+    public T newHandler() {
+        configurationLock.lock(readKey);
+        try {
+            return buildHandler();
+        } finally {
+            configurationLock.unlock(readKey);
+        }
+    }
 
-   public UpdateListener getListener(Class configClass) {
-      return listeners.get(configClass);
-   }
+    public UpdateListener getListener(Class configClass) {
+        return listeners.get(configClass);
+    }
 
-   @Override
-   public void configurationUpdated(Object configurationObject) {
-      UpdateListener listener = listeners.get(configurationObject.getClass());
-      if (listener != null) {
+    @Override
+    public void configurationUpdated(Object configurationObject) {
+        UpdateListener listener = listeners.get(configurationObject.getClass());
+        if (listener != null) {
 
-         configurationLock.lock(updateKey);
-         try {
-            listener.configurationUpdated(configurationObject);
-         } finally {
-            configurationLock.unlock(updateKey);
-         }
+            configurationLock.lock(updateKey);
+            try {
+                listener.configurationUpdated(configurationObject);
+            } finally {
+                configurationLock.unlock(updateKey);
+            }
 
-      }
+        }
 
-   }
-;
+    }
+
+    @Override
+    public boolean isInitialized() {
+
+        for (UpdateListener<?> listener : listeners.values()) {
+            if (!listener.isInitialized()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

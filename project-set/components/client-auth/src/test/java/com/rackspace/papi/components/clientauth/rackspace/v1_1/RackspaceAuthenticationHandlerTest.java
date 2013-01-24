@@ -77,7 +77,6 @@ public class RackspaceAuthenticationHandlerTest {
             // Setup config
             rackAuthConfig = new RackspaceAuth();
             rackAuthConfig.setDelegable(delegable());
-            rackAuthConfig.setIncludeQueryParams(isIncludeQueryString());
 
             keyedRegexExtractor = new KeyedRegexExtractor();
 
@@ -104,15 +103,12 @@ public class RackspaceAuthenticationHandlerTest {
             whiteListRegexPatterns = new ArrayList<Pattern>();
             whiteListRegexPatterns.add(Pattern.compile("/v1.0/application\\.wadl"));
 
-            Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, isIncludeQueryString(), true, AUTH_GROUP_CACHE_TTL, AUTH_TOKEN_CACHE_TTL);
+            Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, true, AUTH_GROUP_CACHE_TTL, AUTH_TOKEN_CACHE_TTL);
             handler = new RackspaceAuthenticationHandler(configurables, authServiceClient, null, null, new UriMatcher(whiteListRegexPatterns));
         }
 
         protected abstract boolean delegable();
 
-        protected boolean isIncludeQueryString() {
-            return false;
-        }
     }
 
     public static class WhenAuthenticatingDelegableRequests extends TestParent {
@@ -399,24 +395,4 @@ public class RackspaceAuthenticationHandlerTest {
         }
     }
 
-    public static class WhenExtractingUserFromQueryParam extends TestParent {
-
-        @Override
-        protected boolean delegable() {
-            return true;
-        }
-
-        @Override
-        protected boolean isIncludeQueryString() {
-            return true;
-        }
-
-        @Test
-        public void shouldExtractUserFromQueryString() {
-            when(request.getRequestURI()).thenReturn("/v1.0/servers/service");
-            when(request.getQueryString()).thenReturn("crowd=huge&username=usertest1");
-            final FilterDirector requestDirector = handler.handleRequest(request, response);
-            assertTrue(requestDirector.requestHeaderManager().headersToAdd().get("x-authorization").toString().equalsIgnoreCase("[Proxy usertest1]"));
-        }
-    }
 }

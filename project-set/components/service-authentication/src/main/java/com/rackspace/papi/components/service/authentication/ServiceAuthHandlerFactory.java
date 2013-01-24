@@ -21,7 +21,6 @@ public class ServiceAuthHandlerFactory extends AbstractConfiguredFilterHandlerFa
     @Override
     protected Map<Class, UpdateListener<?>> getListeners() {
         return new HashMap<Class, UpdateListener<?>>() {
-
             {
                 put(ServiceAuthenticationConfig.class, new ClientIpIdentityConfigurationListener());
             }
@@ -29,6 +28,8 @@ public class ServiceAuthHandlerFactory extends AbstractConfiguredFilterHandlerFa
     }
 
     private class ClientIpIdentityConfigurationListener implements UpdateListener<ServiceAuthenticationConfig> {
+
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(ServiceAuthenticationConfig configurationObject) {
@@ -38,6 +39,8 @@ public class ServiceAuthHandlerFactory extends AbstractConfiguredFilterHandlerFa
             if (config != null && config.getCredentials() != null) {
                 basicAuthCredentials = buildCredentials();
             }
+
+            isInitialized = true;
         }
 
         private String buildCredentials() {
@@ -52,10 +55,19 @@ public class ServiceAuthHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
             return postHash.toString();
         }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
+        }
     }
 
     @Override
     protected ServiceAuthHandler buildHandler() {
+
+        if (!this.isInitialized()) {
+            return null;
+        }
         return new ServiceAuthHandler(basicAuthCredentials);
     }
 }

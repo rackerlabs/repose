@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<client-auth xmlns="http://docs.rackspacecloud.com/repose/client-auth/v1.0">
+    <openstack-auth delegable="false" xmlns="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0">
+        <identity-service username="auth" password="admin_password" uri="https://50.57.189.15:8181/keystone" />
+
+        <client-mapping id-regex="/v\d/([\w-]+)/?" />
+         <client-mapping id-regex="/([a-zA-Z\-][a-zA-Z\-]+\d+)[^\w]/?"/>
+    </openstack-auth>
+    <white-list>
+        <uri-pattern  uri-regex="/v1/application\.wadl" />
+        <uri-pattern  uri-regex="/v2/application\.wadl" />
+        <uri-pattern  uri-regex="/v3/application\.wadl" />
+    </white-list>
+</client-auth>

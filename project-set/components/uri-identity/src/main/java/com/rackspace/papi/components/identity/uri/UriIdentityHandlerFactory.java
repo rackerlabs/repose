@@ -13,55 +13,66 @@ import java.util.regex.Pattern;
 
 public class UriIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFactory<UriIdentityHandler> {
 
-   public static final String DEFAULT_QUALITY = "0.5";
-   private static final String DEFAULT_GROUP = "User_Standard";
-   private List<Pattern> patterns = new ArrayList<Pattern>();
-   private UriIdentityConfig config;
-   private String quality, group;
+    public static final String DEFAULT_QUALITY = "0.5";
+    private static final String DEFAULT_GROUP = "User_Standard";
+    private List<Pattern> patterns = new ArrayList<Pattern>();
+    private UriIdentityConfig config;
+    private String quality, group;
 
-   public UriIdentityHandlerFactory() {
-   }
+    public UriIdentityHandlerFactory() {
+    }
 
-   @Override
-   protected Map<Class, UpdateListener<?>> getListeners() {
-      return new HashMap<Class, UpdateListener<?>>() {
+    @Override
+    protected Map<Class, UpdateListener<?>> getListeners() {
+        return new HashMap<Class, UpdateListener<?>>() {
+            {
+                put(UriIdentityConfig.class, new UriIdentityConfigurationListener());
+            }
+        };
+    }
 
-         {
-            put(UriIdentityConfig.class, new UriIdentityConfigurationListener());
-         }
-      };
-   }
+    private class UriIdentityConfigurationListener implements UpdateListener<UriIdentityConfig> {
 
-   private class UriIdentityConfigurationListener implements UpdateListener<UriIdentityConfig> {
+        private boolean isInitialized = false;
 
-      @Override
-      public void configurationUpdated(UriIdentityConfig configurationObject) {
+        @Override
+        public void configurationUpdated(UriIdentityConfig configurationObject) {
 
-         config = configurationObject;
-         patterns.clear();
+            config = configurationObject;
+            patterns.clear();
 
 
-         for (IdentificationMapping identificationMapping : config.getIdentificationMappings().getMapping()) {
-            patterns.add(Pattern.compile(identificationMapping.getIdentificationRegex()));
-         }
+            for (IdentificationMapping identificationMapping : config.getIdentificationMappings().getMapping()) {
+                patterns.add(Pattern.compile(identificationMapping.getIdentificationRegex()));
+            }
 
-         quality = determineQuality();
-         group = StringUtilities.getNonBlankValue(group, DEFAULT_GROUP);
-      }
-   }
+            quality = determineQuality();
+            group = StringUtilities.getNonBlankValue(group, DEFAULT_GROUP);
 
-   @Override
-   protected UriIdentityHandler buildHandler() {
-      return new UriIdentityHandler(patterns, group, quality);
-   }
+            isInitialized = true;
+        }
 
-   private String determineQuality() {
-      String q = DEFAULT_QUALITY;
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
+        }
+    }
 
-      if (config != null) {
-         q = StringUtilities.getNonBlankValue(config.getQuality(), DEFAULT_QUALITY);
-      }
+    @Override
+    protected UriIdentityHandler buildHandler() {
+        if (!this.isInitialized()) {
+            return null;
+        }
+        return new UriIdentityHandler(patterns, group, quality);
+    }
 
-      return ";q=" + q;
-   }
+    private String determineQuality() {
+        String q = DEFAULT_QUALITY;
+
+        if (config != null) {
+            q = StringUtilities.getNonBlankValue(config.getQuality(), DEFAULT_QUALITY);
+        }
+
+        return ";q=" + q;
+    }
 }

@@ -110,12 +110,12 @@ public class AbstractFilterDirector implements FilterDirector {
    }
 
    @Override
-   public RouteDestination addDestination(String id, String uri, float quality) {
+   public RouteDestination addDestination(String id, String uri, double quality) {
       throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
    }
 
    @Override
-   public RouteDestination addDestination(Destination dest, String uri, float quality) {
+   public RouteDestination addDestination(Destination dest, String uri, double quality) {
       throw new UnsupportedOperationException(NOT_SUPPORTED_MESSAGE);
    }
 

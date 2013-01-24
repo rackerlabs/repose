@@ -65,8 +65,10 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         this.validators = validators;
     }
 
-    class ApiValidatorWadlListener implements UpdateListener<ConfigurationResource> {
+    public class ApiValidatorWadlListener implements UpdateListener<ConfigurationResource> {
 
+       private boolean isInitialized = false;
+       
         private String getNormalizedPath(String uri) {
             String path = uri;
             try {
@@ -102,7 +104,15 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                     }
                 }
             }
+             isInitialized=true;
         }
+          
+       @Override
+      public boolean isInitialized(){
+          return isInitialized;
+      }
+      
+  
     }
 
     private void addListener(String wadl) {
@@ -129,11 +139,11 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
             multiRoleMatch = validatorConfiguration.isMultiRoleMatch();
 
             for (ValidatorItem validatorItem : validatorConfiguration.getValidator()) {
-                Config config = new ValidatorConfigurator(validatorItem, multiRoleMatch, configRoot).getConfiguration();
+                Config configuration = new ValidatorConfigurator(validatorItem, multiRoleMatch, configRoot).getConfiguration();
                 ValidatorInfo validator =
                         validatorItem.getAny() != null
-                        ? new ValidatorInfo(validatorItem.getRole(), (Element) validatorItem.getAny(), getWadlPath(this.config), config)
-                        : new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), config);
+                        ? new ValidatorInfo(validatorItem.getRole(), (Element) validatorItem.getAny(), getWadlPath(this.config), configuration)
+                        : new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), configuration);
 
                 validators.add(validator);
                 if (validatorItem.isDefault() && defaultValidator == null) {
@@ -151,22 +161,34 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
 
     private class ApiValidationConfigurationListener implements UpdateListener<ValidatorConfiguration> {
 
+       private boolean isInitialized = false;
+       
+        
         @Override
         public void configurationUpdated(ValidatorConfiguration configurationObject) {
             validatorConfiguration = configurationObject;
             unsubscribeAll();
             initialize();
+            isInitialized=true;
         }
+        
+        @Override
+        public boolean isInitialized(){
+            return isInitialized;
+        }
+
+      
     }
 
     void setValidatorCOnfiguration(ValidatorConfiguration configurationObject) {
         validatorConfiguration = configurationObject;
     }
+    
 
     @Override
     protected ApiValidatorHandler buildHandler() {
         initialize();
-        if (!initialized) {
+        if (!initialized || !this.isInitialized()) {
             return null;
         }
         return new ApiValidatorHandler(defaultValidator, validators, multiRoleMatch);

@@ -1,31 +1,33 @@
 package com.rackspace.papi.service.context.container;
 
-import com.rackspace.papi.domain.Port;
+import com.rackspace.papi.domain.ServicePorts;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @Component("containerConfigurationService")
 public class ContainerConfigurationServiceImpl implements ContainerConfigurationService {
 
-    private final List<Port> ports = new ArrayList<Port>();
+    private final ServicePorts ports = new ServicePorts();
     private String viaValue;
-    private int contentBodyReadLimit;
+    private Long contentBodyReadLimit;
 
     public ContainerConfigurationServiceImpl() {
     }
 
-    public ContainerConfigurationServiceImpl(List<Port> ports, String via, int contentBodyReadLimit) {
+    @Autowired
+    public ContainerConfigurationServiceImpl(@Qualifier("servicePorts") ServicePorts ports) {
+        this.ports.addAll(ports);
+    }
+
+    public ContainerConfigurationServiceImpl(String via, Long contentBodyReadLimit, ServicePorts ports) {
+
         this.ports.addAll(ports);
         this.viaValue = via;
         this.contentBodyReadLimit = contentBodyReadLimit;
     }
 
-    @Override
-    public List<Port> getPorts() {
-        return ports;
-    }
 
     @Override
     public String getVia() {
@@ -38,16 +40,21 @@ public class ContainerConfigurationServiceImpl implements ContainerConfiguration
     }
 
     @Override
-    public int getContentBodyReadLimit() {
-        if (contentBodyReadLimit <= 1) {
-            return 0;
+    public Long getContentBodyReadLimit() {
+        if (contentBodyReadLimit == null) {
+            return Long.valueOf(0);
         } else {
             return contentBodyReadLimit;
         }
     }
 
     @Override
-    public void setContentBodyReadLimit(int value) {
+    public void setContentBodyReadLimit(Long value) {
         this.contentBodyReadLimit = value;
     }
+
+   @Override
+   public ServicePorts getServicePorts() {
+      return ports;
+   }
 }

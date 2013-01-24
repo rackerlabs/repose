@@ -20,55 +20,67 @@ import java.util.Map;
  */
 public class HttpLoggingHandlerFactory extends AbstractConfiguredFilterHandlerFactory<HttpLoggingHandler> {
 
-   private final List<HttpLoggerWrapper> loggers;
+    private final List<HttpLoggerWrapper> loggers;
 
-   public HttpLoggingHandlerFactory() {
-      loggers = new LinkedList<HttpLoggerWrapper>();
-   }
+    public HttpLoggingHandlerFactory() {
+        loggers = new LinkedList<HttpLoggerWrapper>();
+    }
 
-   @Override
-   protected Map<Class, UpdateListener<?>> getListeners() {
-      return new HashMap<Class, UpdateListener<?>>() {
-
-         {
-            put(HttpLoggingConfig.class, new HttpLoggingConfigurationListener());
-         }
-      };
-   }
-
-   protected List<HttpLoggerWrapper> getLoggers() {
-      return loggers;
-   }
-
-   private class HttpLoggingConfigurationListener implements UpdateListener<HttpLoggingConfig> {
-
-      @Override
-      public void configurationUpdated(HttpLoggingConfig modifiedConfig) {
-         //Clean up~
-         destroy();
-
-         for (HttpLog log : modifiedConfig.getHttpLog()) {
-            final HttpLoggerWrapper loggerWrapper = new HttpLoggerWrapper(new HttpLogFormatter(log.getFormat()));
-            final Targets targets = log.getTargets();
-
-            for(FileTarget target: targets.getFile()){
-                loggerWrapper.addLogger(new FileLogger(new File(target.getLocation())));
+    @Override
+    protected Map<Class, UpdateListener<?>> getListeners() {
+        return new HashMap<Class, UpdateListener<?>>() {
+            {
+                put(HttpLoggingConfig.class, new HttpLoggingConfigurationListener());
             }
-            loggers.add(loggerWrapper);
-         }
-      }
+        };
+    }
 
-      private void destroy() {
-         for (HttpLoggerWrapper loggerWrapper : loggers) {
-            loggerWrapper.destroy();
-         }
+    protected List<HttpLoggerWrapper> getLoggers() {
+        return loggers;
+    }
 
-         loggers.clear();
-      }
-   }
+    private class HttpLoggingConfigurationListener implements UpdateListener<HttpLoggingConfig> {
 
-   @Override
-   protected HttpLoggingHandler buildHandler() {
-      return new HttpLoggingHandler(new LinkedList<HttpLoggerWrapper>(loggers));
-   }
+        private boolean isInitialized = false;
+
+        @Override
+        public void configurationUpdated(HttpLoggingConfig modifiedConfig) {
+            //Clean up~
+            destroy();
+
+            for (HttpLog log : modifiedConfig.getHttpLog()) {
+                final HttpLoggerWrapper loggerWrapper = new HttpLoggerWrapper(new HttpLogFormatter(log.getFormat()));
+                final Targets targets = log.getTargets();
+
+                for (FileTarget target : targets.getFile()) {
+                    loggerWrapper.addLogger(new FileLogger(new File(target.getLocation())));
+                }
+                loggers.add(loggerWrapper);
+            }
+
+            isInitialized = true;
+        }
+
+        private void destroy() {
+            for (HttpLoggerWrapper loggerWrapper : loggers) {
+                loggerWrapper.destroy();
+            }
+
+            loggers.clear();
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
+        }
+    }
+
+    @Override
+    protected HttpLoggingHandler buildHandler() {
+
+        if (!this.isInitialized()) {
+            return null;
+        }
+        return new HttpLoggingHandler(new LinkedList<HttpLoggerWrapper>(loggers));
+    }
 }

@@ -10,36 +10,44 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 public class HeaderIdentityHandlerFactory extends AbstractConfiguredFilterHandlerFactory<HeaderIdentityHandler> {
 
+    private List<HttpHeader> sourceHeaders;
 
-   private List<HttpHeader> sourceHeaders;
+    public HeaderIdentityHandlerFactory() {
+        sourceHeaders = new ArrayList<HttpHeader>();
+    }
 
-   public HeaderIdentityHandlerFactory() {
-       sourceHeaders = new ArrayList<HttpHeader>();
-   }
+    @Override
+    protected Map<Class, UpdateListener<?>> getListeners() {
+        return new HashMap<Class, UpdateListener<?>>() {
+            {
+                put(HeaderIdentityConfig.class, new HeaderIdentityConfigurationListener());
+            }
+        };
+    }
 
-   @Override
-   protected Map<Class, UpdateListener<?>> getListeners() {
-      return new HashMap<Class, UpdateListener<?>>() {
+    private class HeaderIdentityConfigurationListener implements UpdateListener<HeaderIdentityConfig> {
 
-         {
-            put(HeaderIdentityConfig.class, new HeaderIdentityConfigurationListener());
-         }
-      };
-   }
+        private boolean isInitialized = false;
 
-   private class HeaderIdentityConfigurationListener implements UpdateListener<HeaderIdentityConfig> {
+        @Override
+        public void configurationUpdated(HeaderIdentityConfig configurationObject) {
+            sourceHeaders = configurationObject.getSourceHeaders().getHeader();
+            isInitialized = true;
+        }
 
-      @Override
-      public void configurationUpdated(HeaderIdentityConfig configurationObject) {
-          sourceHeaders = configurationObject.getSourceHeaders().getHeader();
-      }
-   }
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
+        }
+    }
 
-   @Override
-   protected HeaderIdentityHandler buildHandler() {
-      return new HeaderIdentityHandler(sourceHeaders);
-   }
+    @Override
+    protected HeaderIdentityHandler buildHandler() {
+        if (!this.isInitialized()) {
+            return null;
+        }
+        return new HeaderIdentityHandler(sourceHeaders);
+    }
 }

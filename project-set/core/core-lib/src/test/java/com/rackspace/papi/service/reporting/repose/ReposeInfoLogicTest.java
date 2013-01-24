@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.reporting.repose;
 
+import com.rackspace.papi.service.reporting.ReposeInfo;
 import com.rackspace.papi.service.reporting.StatusCodeResponseStore;
 import org.junit.Before;
 import org.junit.Test;

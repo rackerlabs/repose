@@ -17,47 +17,61 @@ import java.util.Map;
 
 public class RequestAuthorizationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<RequestAuthorizationHandler> {
 
-   private static final Logger LOG = LoggerFactory.getLogger(RequestAuthorizationHandlerFactory.class);
-   private final Datastore datastore;
-   private RackspaceAuthorization authorizationConfiguration;
-   private AuthenticationService authenticationService;
+    private static final Logger LOG = LoggerFactory.getLogger(RequestAuthorizationHandlerFactory.class);
+    private final Datastore datastore;
+    private RackspaceAuthorization authorizationConfiguration;
+    private AuthenticationService authenticationService;
 
-   public RequestAuthorizationHandlerFactory(Datastore datastore) {
-      this.datastore = datastore;
-   }
+    public RequestAuthorizationHandlerFactory(Datastore datastore) {
+        this.datastore = datastore;
+    }
 
-   private class RoutingConfigurationListener implements UpdateListener<RackspaceAuthorization> {
+    private class RoutingConfigurationListener implements UpdateListener<RackspaceAuthorization> {
 
-      @Override
-      public void configurationUpdated(RackspaceAuthorization configurationObject) {
-         authorizationConfiguration = configurationObject;
+        private boolean isInitialized = false;
 
-         final AuthenticationServer serverInfo = authorizationConfiguration.getAuthenticationServer();
+        @Override
+        public void configurationUpdated(RackspaceAuthorization configurationObject) {
+            authorizationConfiguration = configurationObject;
 
-         if (serverInfo != null && authorizationConfiguration.getServiceEndpoint() != null) {
-            authenticationService = new AuthenticationServiceFactory().build(serverInfo.getHref(), serverInfo.getUsername(), serverInfo.getPassword(), serverInfo.getTenantId());
-         } else {
-            LOG.error("Errors detected in rackspace authorization configuration. Please check configurations.");
-         }
-      }
-   }
+            final AuthenticationServer serverInfo = authorizationConfiguration.getAuthenticationServer();
 
-   @Override
-   protected RequestAuthorizationHandler buildHandler() {
-      if (authenticationService == null) {
-         LOG.error("Component has not been initialized yet. Please check your configurations.");
-         throw new IllegalStateException("Component has not been initialized yet");
-      }
+            if (serverInfo != null && authorizationConfiguration.getServiceEndpoint() != null) {
+                authenticationService = new AuthenticationServiceFactory().build(serverInfo.getHref(), serverInfo.getUsername(), serverInfo.getPassword(), serverInfo.getTenantId());
+            } else {
+                LOG.error("Errors detected in rackspace authorization configuration. Please check configurations.");
+            }
 
-      final EndpointListCache cache = new EndpointListCacheImpl(datastore, authorizationConfiguration.getAuthenticationServer().getEndpointListTtl());
-      return new RequestAuthorizationHandler(authenticationService, cache, authorizationConfiguration.getServiceEndpoint());
-   }
+            isInitialized = true;
+        }
 
-   @Override
-   protected Map<Class, UpdateListener<?>> getListeners() {
-      final Map<Class, UpdateListener<?>> updateListeners = new HashMap<Class, UpdateListener<?>>();
-      updateListeners.put(RackspaceAuthorization.class, new RoutingConfigurationListener());
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
+        }
+    }
 
-      return updateListeners;
-   }
+    @Override
+    protected RequestAuthorizationHandler buildHandler() {
+
+        if (!this.isInitialized()) {
+            return null;
+        }
+
+        if (authenticationService == null) {
+            LOG.error("Component has not been initialized yet. Please check your configurations.");
+            throw new IllegalStateException("Component has not been initialized yet");
+        }
+
+        final EndpointListCache cache = new EndpointListCacheImpl(datastore, authorizationConfiguration.getAuthenticationServer().getEndpointListTtl());
+        return new RequestAuthorizationHandler(authenticationService, cache, authorizationConfiguration.getServiceEndpoint());
+    }
+
+    @Override
+    protected Map<Class, UpdateListener<?>> getListeners() {
+        final Map<Class, UpdateListener<?>> updateListeners = new HashMap<Class, UpdateListener<?>>();
+        updateListeners.put(RackspaceAuthorization.class, new RoutingConfigurationListener());
+
+        return updateListeners;
+    }
 }

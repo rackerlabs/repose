@@ -23,9 +23,9 @@ public class IpIdentityHandlerTest {
 
    private static String DEFAULT_IP_VALUE = "10.0.0.1";
    private static String WHITELIST_IP_VALUE = "10.0.0.1";
-   private static String WL_QUALITY = "0.2";
+   private static Double WL_QUALITY = 0.2;
    private static String WL_QUALITY_VALUE = ";q=0.2";
-   private static String QUALITY = "0.2";
+   private static Double QUALITY = 0.2;
    private static String QUALITY_VALUE = ";q=0.2";
    private HttpServletRequest request;
    private ReadableHttpServletResponse response;

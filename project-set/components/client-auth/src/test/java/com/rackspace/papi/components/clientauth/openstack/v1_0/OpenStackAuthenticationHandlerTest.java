@@ -76,7 +76,6 @@ public class OpenStackAuthenticationHandlerTest {
 
             osauthConfig = new OpenstackAuth();
             osauthConfig.setDelegable(delegable());
-            osauthConfig.setIncludeQueryParams(includeQueryParams());
             osauthConfig.setTenanted(isTenanted());
 
             keyedRegexExtractor = new KeyedRegexExtractor();
@@ -101,7 +100,7 @@ public class OpenStackAuthenticationHandlerTest {
             whiteListRegexPatterns = new ArrayList<Pattern>();
             whiteListRegexPatterns.add(Pattern.compile("/v1.0/application\\.wadl"));
 
-            Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, includeQueryParams(), isTenanted(), AUTH_GROUP_CACHE_TTL, AUTH_TOKEN_CACHE_TTL);
+            Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, isTenanted(), AUTH_GROUP_CACHE_TTL, AUTH_TOKEN_CACHE_TTL);
             handler = new OpenStackAuthenticationHandler(configurables, authService, null, null, new UriMatcher(whiteListRegexPatterns));
 
 
@@ -114,10 +113,6 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         protected abstract boolean delegable();
-
-        protected boolean includeQueryParams() {
-            return false;
-        }
 
         protected boolean isTenanted() {
             return true;
@@ -534,37 +529,11 @@ public class OpenStackAuthenticationHandlerTest {
         }
     }
 
-    public static class WhenPassingRequestWithUserInQueryParam extends TestParent {
-
-        @Override
-        protected boolean delegable() {
-            return true;
-        }
-
-        @Override
-        protected boolean includeQueryParams() {
-            return true;
-        }
-
-        @Test
-        public void shouldCatchUserNameInQueryParam() {
-            when(request.getRequestURI()).thenReturn("/v1.0/servers/service");
-            when(request.getQueryString()).thenReturn("crowd=huge&username=usertest1");
-            final FilterDirector requestDirector = handler.handleRequest(request, response);
-            assertTrue(requestDirector.requestHeaderManager().headersToAdd().get("x-authorization").toString().equalsIgnoreCase("[Proxy usertest1]"));
-        }
-    }
-
     public static class WhenPassingRequestWithOutUserInQueryParam extends TestParent {
 
         @Override
         protected boolean delegable() {
             return true;
-        }
-
-        @Override
-        protected boolean includeQueryParams() {
-            return false;
         }
 
         @Test

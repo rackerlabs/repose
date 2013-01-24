@@ -96,7 +96,7 @@
 
                             <requires>
                                 <require>java-1.6.0-openjdk</require>
-                                <require>tomcat &gt;= 7.0</require>
+                                <require>tomcat7</require>
                             </requires>
                         </configuration>
                     </plugin>

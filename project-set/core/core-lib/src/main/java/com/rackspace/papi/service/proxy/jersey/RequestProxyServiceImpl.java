@@ -2,6 +2,7 @@ package com.rackspace.papi.service.proxy.jersey;
 
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.http.proxy.HttpException;
 import com.rackspace.papi.http.proxy.common.HttpResponseCodeProcessor;
 import com.rackspace.papi.service.proxy.ProxyRequestException;
@@ -22,6 +23,8 @@ import java.util.Map.Entry;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component("jerseyRequestProxyService")
@@ -35,8 +38,11 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private Integer proxyThreadPool = DEFAULT_THREADPOOL_SIZE;
     private final Object clientLock = new Object();
     private boolean requestLogging;
+    private final ReposeInstanceInfo instanceInfo;
 
-    public RequestProxyServiceImpl() {
+    @Autowired
+    public RequestProxyServiceImpl(@Qualifier("reposeInstanceInfo") ReposeInstanceInfo instanceInfo) {
+        this.instanceInfo = instanceInfo;
     }
 
     @Override
@@ -59,7 +65,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
                 LOG.info("Building Jersey Http Client");
                 JerseyPropertiesConfigurator jerseyPropertiesConfigurator = new JerseyPropertiesConfigurator(connectionTimeout, readTimeout, proxyThreadPool);
                 URLConnectionClientHandler urlConnectionClientHandler = new URLConnectionClientHandler(new ReposeHttpUrlConnectionFactory());
-                client = new ClientWrapper(new Client(urlConnectionClientHandler, jerseyPropertiesConfigurator.configure()), requestLogging);
+                client = new ClientWrapper(new Client(urlConnectionClientHandler, jerseyPropertiesConfigurator.configure()), requestLogging, instanceInfo);
             }
 
             return client;

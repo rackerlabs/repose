@@ -28,6 +28,7 @@ import org.springframework.stereotype.Component;
 public class RequestProxyServiceImpl implements RequestProxyService {
 
     private static final Logger LOG = LoggerFactory.getLogger(RequestProxyServiceImpl.class);
+    private static final String ERROR = "Error processing request.";
     private final Object clientLock = new Object();
     private Integer connectionTimeout = Integer.valueOf(0);
     private Integer readTimeout = Integer.valueOf(0);
@@ -61,10 +62,10 @@ public class RequestProxyServiceImpl implements RequestProxyService {
                 LOG.error("Error reading request content", ex);
                 response.sendError(HttpStatusCode.REQUEST_ENTITY_TOO_LARGE.intValue(), "Error reading request content");
             }else{
-                LOG.error("Error executing request", ex);
+                LOG.error(ERROR, ex);
             }
         } catch (HttpException ex) {
-            LOG.error("Error processing request", ex);
+            LOG.error(ERROR, ex);
         }
         return -1;
     }
@@ -115,11 +116,11 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             Response get = builder.execute().get();
             return new ServiceClientResponse(get.getStatusCode(), get.hasResponseBody() ? get.getResponseBodyAsStream() : null);
         } catch (IOException ex) {
-            LOG.error("Error executing request", ex);
+            LOG.error(ERROR, ex);
         } catch (InterruptedException ex) {
-            LOG.error("Error executing request", ex);
+            LOG.error(ERROR, ex);
         } catch (ExecutionException ex) {
-            LOG.error("Error executing request", ex);
+            LOG.error(ERROR, ex);
         }
 
         return null;

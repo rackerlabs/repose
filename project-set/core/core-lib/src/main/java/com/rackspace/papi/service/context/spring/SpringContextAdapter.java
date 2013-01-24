@@ -1,10 +1,10 @@
 package com.rackspace.papi.service.context.spring;
 
-import com.rackspace.papi.filter.PowerFilterChainBuilder;
 import com.rackspace.papi.service.classloader.ClassLoaderManagerService;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServiceContext;
+import com.rackspace.papi.service.context.ServiceContextName;
 import com.rackspace.papi.service.context.container.ContainerConfigurationService;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.event.common.EventService;
@@ -20,35 +20,24 @@ import com.rackspace.papi.service.threading.ThreadingService;
 import org.springframework.context.ApplicationContext;
 
 public class SpringContextAdapter implements ContextAdapter {
-    public static final String CLASS_LOADER_SERVICE_CONTEXT = "classLoaderServiceContext";
-    public static final String CONFIGURATION_SERVICE_CONTEXT = "configurationServiceContext";
-    public static final String CONTAINER_SERVICE_CONTEXT = "containerServiceContext";
-    public static final String DATASTORE_SERVICE_CONTEXT = "datastoreServiceContext";
-    public static final String EVENT_MANAGER_SERVICE_CONTEXT = "eventManagerServiceContext";
-    public static final String FILTER_CHAIN_GC_SERVICE_CONTEXT = "filterChainGCServiceContext";
-    public static final String LOGGING_SERVICE_CONTEXT = "loggingServiceContext";
-    public static final String RESPONSE_MESSAGE_SERVICE_CONTEXT = "responseMessageServiceContext";
-    public static final String ROUTING_SERVICE_CONTEXT = "routingServiceContext";
-    public static final String THREADING_SERVICE_CONTEXT = "threadingServiceContext";
-    public static final String REQUEST_PROXY_SERVICE_CONTEXT = "requestProxyServiceContext";
-    public static final String REPORTING_SERVICE_CONTEXT = "reportingServiceContext";
-    public static final String REQUEST_HEADER_SERVICE_CONTEXT = "requestHeaderServiceContext";
-    public static final String RESPONSE_HEADER_SERVICE_CONTEXT = "responseHeaderServiceContext";
-    public static final String POWER_FILTER_CHAIN_BUILDER = "powerFilterChainBuilder";
-
+    
     private final ApplicationContext applicationContext;
 
     public SpringContextAdapter(ApplicationContext applicationContext) {
         this.applicationContext = applicationContext;
     }
 
+    public <T> T getService(ServiceContextName context) {
+        return ((ServiceContext<T>) applicationContext.getBean(context.getServiceContextName())).getService();
+    }
+    
     @Override
     public ClassLoaderManagerService classLoader() {
         return classLoaderContext().getService();
     }
 
     public ServiceContext<ClassLoaderManagerService> classLoaderContext() {
-        return (ServiceContext<ClassLoaderManagerService>) applicationContext.getBean(CLASS_LOADER_SERVICE_CONTEXT);
+        return (ServiceContext<ClassLoaderManagerService>)applicationContext.getBean(ServiceContextName.CLASS_LOADER_SERVICE_CONTEXT.getServiceContextName());
     }
 
     @Override
@@ -78,71 +67,71 @@ public class SpringContextAdapter implements ContextAdapter {
 
     @Override
     public ConfigurationService configurationService() {
-        return ((ServiceContext<ConfigurationService>) applicationContext.getBean(CONFIGURATION_SERVICE_CONTEXT)).getService();
+        return getService(ServiceContextName.CONFIGURATION_SERVICE_CONTEXT);
     }
 
     @Override
     public ContainerConfigurationService containerConfigurationService() {
-        return ((ServiceContext<ContainerConfigurationService>) applicationContext.getBean(CONTAINER_SERVICE_CONTEXT)).getService();
+        return getService(ServiceContextName.CONTAINER_SERVICE_CONTEXT);
     }
 
     @Override
     public DatastoreService datastoreService() {
-        return ((ServiceContext<DatastoreService>) applicationContext.getBean(DATASTORE_SERVICE_CONTEXT)).getService();
+        return getService(ServiceContextName.DATASTORE_SERVICE_CONTEXT);
     }
 
     @Override
     public EventService eventService() {
-        return ((ServiceContext<EventService>) applicationContext.getBean(EVENT_MANAGER_SERVICE_CONTEXT)).getService();
+        return getService(ServiceContextName.EVENT_MANAGER_SERVICE_CONTEXT);
     }
 
     @Override
     public GarbageCollectionService filterChainGarbageCollectorService() {
-        return ((ServiceContext<GarbageCollectionService>) applicationContext.getBean(FILTER_CHAIN_GC_SERVICE_CONTEXT)).getService();
+        return getService(ServiceContextName.FILTER_CHAIN_GC_SERVICE_CONTEXT);
     }
 
     @Override
     public LoggingService loggingService() {
-        return ((ServiceContext<LoggingService>) applicationContext.getBean(LOGGING_SERVICE_CONTEXT)).getService();
+        return getService(ServiceContextName.LOGGING_SERVICE_CONTEXT);
     }
 
     @Override
-    public PowerFilterChainBuilder filterChainBuilder() {
-        return (PowerFilterChainBuilder) applicationContext.getBean(POWER_FILTER_CHAIN_BUILDER);
+    public <T> T filterChainBuilder() {
+        return (T) applicationContext.getBean(ServiceContextName.POWER_FILTER_CHAIN_BUILDER.getServiceContextName());
     }
 
     @Override
     public ResponseMessageService responseMessageService() {
-        return ((ServiceContext<ResponseMessageService>) applicationContext.getBean(RESPONSE_MESSAGE_SERVICE_CONTEXT)).getService();
+        return getService(ServiceContextName.RESPONSE_MESSAGE_SERVICE_CONTEXT);
     }
 
     @Override
     public RoutingService routingService() {
-        return ((ServiceContext<RoutingService>) applicationContext.getBean(ROUTING_SERVICE_CONTEXT)).getService();
+        return getService(ServiceContextName.ROUTING_SERVICE_CONTEXT);
     }
 
     @Override
     public ThreadingService threadingService() {
-        return ((ServiceContext<ThreadingService>) applicationContext.getBean(THREADING_SERVICE_CONTEXT)).getService();
+        return getService(ServiceContextName.THREADING_SERVICE_CONTEXT);
     }
 
     @Override
     public RequestProxyService requestProxyService() {
-        return ((ServiceContext<RequestProxyService>) applicationContext.getBean(REQUEST_PROXY_SERVICE_CONTEXT)).getService();
+        return getService(ServiceContextName.REQUEST_PROXY_SERVICE_CONTEXT);
     }
 
     @Override
     public ReportingService reportingService() {
-        return ((ServiceContext<ReportingService>) applicationContext.getBean(REPORTING_SERVICE_CONTEXT)).getService();
+        return getService(ServiceContextName.REPORTING_SERVICE_CONTEXT);
     }
 
     @Override
     public RequestHeaderService requestHeaderService() {
-        return ((ServiceContext<RequestHeaderService>) applicationContext.getBean(REQUEST_HEADER_SERVICE_CONTEXT)).getService();
+        return getService(ServiceContextName.REQUEST_HEADER_SERVICE_CONTEXT);
     }
 
     @Override
     public ResponseHeaderService responseHeaderService() {
-        return ((ServiceContext<ResponseHeaderService>) applicationContext.getBean(RESPONSE_HEADER_SERVICE_CONTEXT)).getService();
+        return getService(ServiceContextName.RESPONSE_HEADER_SERVICE_CONTEXT);
     }
 }

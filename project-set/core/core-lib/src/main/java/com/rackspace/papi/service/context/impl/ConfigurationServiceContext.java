@@ -9,14 +9,13 @@ import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.servlet.PowerApiContextException;
+import javax.servlet.ServletContext;
+import javax.servlet.ServletContextEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
 
 @Component("configurationServiceContext")
 public class ConfigurationServiceContext implements ServiceContext<ConfigurationService> {

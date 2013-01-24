@@ -25,7 +25,6 @@ public class HeaderNormalizationHandlerFactory extends AbstractConfiguredFilterH
     @Override
     protected Map<Class, UpdateListener<?>> getListeners() {
         return new HashMap<Class, UpdateListener<?>>() {
-
             {
                 put(HeaderNormalizationConfig.class, new ContentNormalizationConfigurationListener());
             }
@@ -33,6 +32,8 @@ public class HeaderNormalizationHandlerFactory extends AbstractConfiguredFilterH
     }
 
     private class ContentNormalizationConfigurationListener implements UpdateListener<HeaderNormalizationConfig> {
+
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(HeaderNormalizationConfig configurationObject) {
@@ -42,7 +43,7 @@ public class HeaderNormalizationHandlerFactory extends AbstractConfiguredFilterH
             if (filterList != null) {
                 for (Target target : filterList.getTarget()) {
                     // TODO: Build objects with pre-compiled regexes and pass those to the Handler
-                    
+
                     if (target.getBlacklist().isEmpty()) {
                         compiledRegexAndList = new CompiledRegexAndList(target.getUriRegex(), target.getWhitelist().get(0).getHeader(), target.getHttpMethods(), Boolean.FALSE);
                     } else {
@@ -51,14 +52,24 @@ public class HeaderNormalizationHandlerFactory extends AbstractConfiguredFilterH
                     }
                     compiledTargetList.add(compiledRegexAndList);
                 }
-            }else{
+            } else {
                 LOG.warn("No Header List Configured for Header Normalizer Filter");
             }
+
+            isInitialized = true;
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
         }
     }
 
     @Override
     protected HeaderNormalizationHandler buildHandler() {
+        if (!this.isInitialized()) {
+            return null;
+        }
         return new HeaderNormalizationHandler(compiledTargetList);
     }
 }

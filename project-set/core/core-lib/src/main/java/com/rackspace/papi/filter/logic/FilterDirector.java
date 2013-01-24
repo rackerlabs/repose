@@ -62,9 +62,9 @@ public interface FilterDirector {
 
    void applyTo(HttpServletResponse response) throws IOException;
 
-   RouteDestination addDestination(String id, String uri, float quality);
+   RouteDestination addDestination(String id, String uri, double quality);
 
-   RouteDestination addDestination(Destination dest, String uri, float quality);
+   RouteDestination addDestination(Destination dest, String uri, double quality);
    
    List<RouteDestination> getDestinations();
 }

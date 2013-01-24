@@ -2,7 +2,6 @@ package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
 import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;
 import com.rackspace.papi.components.translation.xslt.XsltParameter;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,7 +31,7 @@ public class XsltFilterChainBuilderTest {
 
         @Before
         public void setUp() {
-            builder = new XmlFilterChainBuilder(factory);
+            builder = new XmlFilterChainBuilder(factory, false);
         }
 
         @Test
@@ -40,7 +39,7 @@ public class XsltFilterChainBuilderTest {
             XmlFilterChain chain = builder.build();
 
             assertNotNull("Should build an empty filter chain", chain);
-            assertEquals("Should have 0 filter", 0, chain.getFilters().size());
+            assertEquals("Should have 1 filter", 1, chain.getFilters().size());
         }
 
         @Test
@@ -67,7 +66,7 @@ public class XsltFilterChainBuilderTest {
 
         @Before
         public void setUp() {
-            builder = new XmlFilterChainBuilder(factory);
+            builder = new XmlFilterChainBuilder(factory, false);
             output = new ByteArrayOutputStream();
             body = getClass().getResourceAsStream("/empty.xml");
         }

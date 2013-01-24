@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.reporting.destinations;
 
+import com.rackspace.papi.service.reporting.destinations.impl.DestinationInfoLogic;
 import com.rackspace.papi.service.reporting.StatusCodeResponseStore;
 import static junit.framework.Assert.assertTrue;
 import static org.junit.Assert.assertEquals;

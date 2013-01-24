@@ -43,7 +43,7 @@
 
     <xs:complexType name="ValidatorItem">
         <xs:sequence>
-            <xs:any minOccurs="0"/>
+            <xs:any minOccurs="0" namespace="##any" processContents="skip"/>
         </xs:sequence>
 
         <xs:attribute name="role" type="xs:string" use="required">
@@ -62,7 +62,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="wadl" type="xs:anyURI" use="required">
+        <xs:attribute name="wadl" type="xs:anyURI" use="optional">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
@@ -184,7 +184,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="enable-ignore-xsd-extension" type="xs:boolean" use="optional" default="false">
+        <xs:attribute name="enable-ignore-xsd-extension" type="xs:boolean" use="optional" default="true">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>

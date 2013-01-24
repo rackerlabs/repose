@@ -4,6 +4,9 @@
            targetNamespace="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0"
            xmlns:os-ids-auth="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">    
 
     <!-- Configuration -->
@@ -15,9 +18,15 @@
                 </xs:documentation>
             </xs:annotation>
 
-            <xs:sequence>
+            <xs:all vc:minVersion="1.1">
                 <xs:element name="identity-service" type="os-ids-auth:OpenStackIdentityService" minOccurs="1" maxOccurs="1" />
-                <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="1" maxOccurs="unbounded" />
+                <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0" maxOccurs="unbounded" />
+            </xs:all>
+            
+            <!-- Order matters in 1.0 land :-( -->
+            <xs:sequence vc:minVersion="1.0" vc:maxVersion="1.1">
+                <xs:element name="identity-service" type="os-ids-auth:OpenStackIdentityService" minOccurs="1" maxOccurs="1" />
+                <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0" maxOccurs="unbounded" />
             </xs:sequence>
 
             <xs:attribute name="delegable" type="xs:boolean" use="optional" default="false">
@@ -28,7 +37,7 @@
                 </xs:annotation>
             </xs:attribute>
 
-            <xs:attribute name="token-cache-timeout" type="xs:long" use="optional" default="0">
+            <xs:attribute name="token-cache-timeout" type="os-ids-auth:longGTEZero" use="optional" default="0">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>Time in milliseconds to cache auth token.</html:p>
@@ -36,18 +45,10 @@
                 </xs:annotation>
             </xs:attribute>
 
-            <xs:attribute name="group-cache-timeout" type="xs:long" use="optional" default="600000">
+            <xs:attribute name="group-cache-timeout" type="os-ids-auth:longGTEZero" use="optional" default="600000">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>Time in milliseconds to cache auth groups.</html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:attribute>
-            
-            <xs:attribute name="include-query-params" type="xs:boolean" use="optional" default="false">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>Option to include the query strings to find extract the client id</html:p>
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
@@ -59,6 +60,10 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
+            <!-- Review assertion -->
+            <xs:assert vc:minVersion="1.1" test="if (xs:boolean(@tenanted)) then os-ids-auth:client-mapping else true()"
+                       xerces:message="If tenanted = true then there should be at least one client mapping."
+                       saxon:message="If tenanted = true then there should be at least one client mapping."/>
         </xs:complexType>
     </xs:element>
 
@@ -72,7 +77,7 @@
         <xs:attribute name="username" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Username to use (Basic Auth Only)</html:p>
+                    <html:p>Username to use</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -80,7 +85,7 @@
         <xs:attribute name="password" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Password to use (Basic Auth Only)</html:p>
+                    <html:p>Password to use</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -95,7 +100,7 @@
         <xs:attribute name="tenantId" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Tenant of User</html:p>
+                    <html:p>The tenantId with admin permission used by the Keystone implementation perform admin tasks.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -116,4 +121,10 @@
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
+    
+    <xs:simpleType name="longGTEZero">
+        <xs:restriction base="xs:long">
+            <xs:minInclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>

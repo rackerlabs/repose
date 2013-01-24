@@ -60,6 +60,11 @@ when "deb"
     provider Chef::Provider::Package::Dpkg
   end
 
+  cookbook_file "/var/lib/tomcat7/conf/context.xml" do
+      source "context.xml"
+      mode 0755
+  end
+
 when "rhel"
 
   cookbook_file "/var/lib/apache-tomcat-7.0.20.tar.gz" do

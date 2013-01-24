@@ -1,9 +1,6 @@
 package com.rackspace.papi.components.datastore;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
-import com.rackspace.papi.container.config.ContainerConfiguration;
-import com.rackspace.papi.container.config.DeploymentConfiguration;
-import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
@@ -32,16 +29,16 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
     private ReplicatedDatastoreConfiguration configuration;
     private final Object lock = new Object();
 
-    public ReplicatedDatastoreFilterHandlerFactory(DatastoreService service, CacheManager ehCacheManager) {
+    public ReplicatedDatastoreFilterHandlerFactory(DatastoreService service, CacheManager ehCacheManager, ServicePorts ports) {
         this.service = service;
         this.ehCacheManager = ehCacheManager;
+        this.ports = ports;
     }
 
     @Override
     protected Map<Class, UpdateListener<?>> getListeners() {
         final Map<Class, UpdateListener<?>> listeners = new HashMap<Class, UpdateListener<?>>();
         listeners.put(SystemModel.class, new SystemModelUpdateListener());
-        listeners.put(ContainerConfiguration.class, new ContainerConfigurationListener());
         listeners.put(ReplicatedDatastoreConfiguration.class, new ConfigListener());
 
         return listeners;
@@ -76,10 +73,10 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
         }
     }
 
-    private void createDistributedDatastore() {
+    private boolean createDistributedDatastore() {
         synchronized (lock) {
             if (systemModel == null || ports == null) {
-                return;
+                return false;
             }
 
             if (!ports.isEmpty()) {
@@ -100,11 +97,18 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
                     replicatedDatastoreManager.setMaxQueueSize(maxQueueSize);
                     replicatedDatastoreManager.updateSubscribers(getDatastoreNodes(serviceDomain));
                 }
+                return true;
+            } else {
+                LOG.warn("Service Ports are not available");
             }
+            
+            return false;
         }
     }
 
     private class SystemModelUpdateListener implements UpdateListener<SystemModel> {
+
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(SystemModel config) {
@@ -115,51 +119,39 @@ public class ReplicatedDatastoreFilterHandlerFactory extends AbstractConfiguredF
             synchronized (lock) {
                 systemModel = config;
             }
-            createDistributedDatastore();
-        }
-    }
-
-    private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
-
-        private ServicePorts determinePorts(DeploymentConfiguration deployConfig) {
-            ServicePorts servicePorts = new ServicePorts();
-
-            if (deployConfig != null) {
-                if (deployConfig.getHttpPort() != null) {
-                    servicePorts.add(new Port("http", deployConfig.getHttpPort()));
-                }
-
-                if (deployConfig.getHttpsPort() != null) {
-                    servicePorts.add(new Port("https", deployConfig.getHttpsPort()));
-                }
-            }
-
-            return servicePorts;
+            isInitialized = createDistributedDatastore();
         }
 
         @Override
-        public void configurationUpdated(ContainerConfiguration configurationObject) {
-            DeploymentConfiguration deployConfig = configurationObject.getDeploymentConfig();
-            synchronized (lock) {
-                ports = determinePorts(deployConfig);
-            }
-            createDistributedDatastore();
+        public boolean isInitialized() {
+            return isInitialized;
         }
     }
 
     private class ConfigListener implements UpdateListener<ReplicatedDatastoreConfiguration> {
+
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(ReplicatedDatastoreConfiguration config) {
             synchronized (lock) {
                 configuration = config;
             }
-            createDistributedDatastore();
+            isInitialized = createDistributedDatastore();
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
         }
     }
 
     @Override
     protected ReplicatedDatastoreFilterHandler buildHandler() {
+
+        if (!this.isInitialized()) {
+            return null;
+        }
         return new ReplicatedDatastoreFilterHandler();
     }
 }

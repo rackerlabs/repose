@@ -5,6 +5,9 @@
            xmlns:cnorm="http://docs.api.rackspacecloud.com/repose/content-normalization/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:atom="http://www.w3.org/2005/Atom"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <!-- Content Normalization Configuration -->
@@ -13,7 +16,7 @@
     <xs:complexType name="ContentNormalizationConfig">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>Configuration  for the content normalization filter.</html:p>
             </xs:documentation>
         </xs:annotation>
         
@@ -27,32 +30,29 @@
     <xs:complexType name="MediaTypeList">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>A mediea type list</html:p>
             </xs:documentation>
         </xs:annotation>
         
         <xs:sequence>
             <xs:element name="media-type" type="cnorm:MediaType" minOccurs="0" maxOccurs="unbounded" />
         </xs:sequence>
+        <xs:assert vc:minVersion="1.1" test="count(cnorm:media-type[xs:boolean(@preferred)]) le 1"
+            xerces:message="Only one media-type should be preferred."
+            saxon:message="Only one media-type should be preferred."/>
     </xs:complexType>
     
     <xs:complexType name="MediaType">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>A Media type</html:p>
             </xs:documentation>
         </xs:annotation>
-        
-        <!-- TODO:Review Not sure if this will ever be something to look at
-        <xs:sequence>
-            <xs:element name="alternate" type="cnorm:MediaTypeAlternate" minOccurs="0" maxOccurs="unbounded" />
-        </xs:sequence>
-        -->
         
         <xs:attribute name="name" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p></html:p>
+                    <html:p>A name for the media type.</html:p>
                 </xs:documentation>
             </xs:annotation>            
         </xs:attribute>
@@ -60,49 +60,24 @@
         <xs:attribute name="variant-extension" type="xs:string" use="optional" default="">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p></html:p>
+                    <html:p>The variant extension</html:p>
                 </xs:documentation>
-            </xs:annotation>            
+            </xs:annotation>
         </xs:attribute>
         
         <xs:attribute name="preferred" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p></html:p>
+                    <html:p>If you don't specify a media type, this on will be used.</html:p>
                 </xs:documentation>
             </xs:annotation>            
         </xs:attribute>
     </xs:complexType>
-    
-    <xs:complexType name="MediaTypeAlternate">
-        <xs:annotation>
-            <xs:documentation>
-                <html:p></html:p>
-            </xs:documentation>
-        </xs:annotation>
-        
-        <xs:attribute name="name" type="xs:string" use="optional" default="">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p></html:p>
-                </xs:documentation>
-            </xs:annotation>            
-        </xs:attribute>
-
-        <xs:attribute name="variant-extension" type="xs:string" use="optional" default="">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p></html:p>
-                </xs:documentation>
-            </xs:annotation>            
-        </xs:attribute>
-    </xs:complexType>
-    
     
     <xs:complexType name="HeaderFilterList">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>The list of header filters.</html:p>
             </xs:documentation>
         </xs:annotation>
         
@@ -115,7 +90,7 @@
     <xs:complexType name="HttpHeaderList">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>A Header List.</html:p>
             </xs:documentation>
         </xs:annotation>
         
@@ -126,7 +101,7 @@
         <xs:attribute name="id" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p></html:p>
+                    <html:p>A string that uniquely identifies the header list.</html:p>
                 </xs:documentation>
             </xs:annotation>            
         </xs:attribute>
@@ -135,14 +110,14 @@
     <xs:complexType name="HttpHeader">
         <xs:annotation>
             <xs:documentation>
-                <html:p></html:p>
+                <html:p>An HTTP header.</html:p>
             </xs:documentation>
         </xs:annotation>
         
         <xs:attribute name="id" type="xs:string" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p></html:p>
+                    <html:p>The unique header name.</html:p>
                 </xs:documentation>
             </xs:annotation>            
         </xs:attribute>

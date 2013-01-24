@@ -46,7 +46,6 @@ case arg
             logger.info("Repose instance 1 built: #{server1.ip} : #{server1.password} : #{server1.getId}")
             rsInstances.push(server1.getId)
         }
-
         t2 = Thread.new {
             puts "building server 2..."
             server2 = buildReposeBox2

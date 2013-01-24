@@ -3,7 +3,10 @@
 <xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
            targetNamespace="http://docs.rackspacecloud.com/repose/container/v2.0"
            xmlns:papic="http://docs.rackspacecloud.com/repose/container/v2.0"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
            xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <xs:element name="repose-container" type="papic:ContainerConfiguration"/>
@@ -11,6 +14,7 @@
     <xs:complexType name="ContainerConfiguration">
         <xs:annotation>
             <xs:documentation>
+                <html:p>Configuration for the container.</html:p>
             </xs:documentation>
         </xs:annotation>
 
@@ -22,20 +26,25 @@
     <xs:complexType name="DeploymentConfiguration">
         <xs:annotation>
             <xs:documentation>
+                <html:p>Contains deployment configuration attributes.</html:p>
             </xs:documentation>
         </xs:annotation>
 
-        <xs:sequence>
+        <xs:all>
             <xs:element name="deployment-directory" type="papic:DeploymentDirectory" minOccurs="1" maxOccurs="1"/>
             <xs:element name="artifact-directory" type="papic:ArtifactDirectory" minOccurs="1" maxOccurs="1"/>
             <xs:element name="logging-configuration" type="papic:LoggingConfiguration" minOccurs="0" maxOccurs="1"/>
             <xs:element name="ssl-configuration" type="papic:SslConfiguration" minOccurs="0" maxOccurs="1"/>
-        </xs:sequence>
+        </xs:all>
 
         <xs:attribute name="http-port" type="xs:int" use="optional">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Http port number on which Repose listens for requests</html:p>
+                    <html:p>
+                        <html:strong>This attribute is depricated it and will be ignored.
+                                     Use the system model to set ports.</html:strong>
+                    </html:p>
+                    <html:p>Http port number on which Repose listens for requests.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -43,28 +52,32 @@
         <xs:attribute name="https-port" type="xs:int" use="optional">
             <xs:annotation>
                 <xs:documentation>
+                    <html:p>
+                        <html:strong>This attribute is depricated it and will be ignored.
+                            Use the system model to set ports.</html:strong>
+                    </html:p>
                     <html:p>Https port number on which Repose listens for requests</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
-        <xs:attribute name="via" type="xs:Name" use="optional">
+        <!-- Check to make sure we really need this to be a Name -->
+        <xs:attribute name="via" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Via header value</html:p>
+                    <html:p>An identifing string that will be returned in the Via header.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
         
-         <xs:attribute  name="content-body-read-limit" type="xs:positiveInteger" use="optional" default="1">
+         <xs:attribute  name="content-body-read-limit" type="papic:longGTZero" use="optional">
          <xs:annotation>
             <xs:documentation>
-               <html:p>Maximum size for request content</html:p>
+               <html:p>Maximum size for request content in bytes.</html:p>
             </xs:documentation>
          </xs:annotation>
       </xs:attribute>
 
-       <xs:attribute name="connection-timeout" type="xs:int" use="optional" default="30000">
+        <xs:attribute name="connection-timeout" type="papic:intGTZero" use="optional" default="30000">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>The number of milliseconds to wait for a connection to an origin service.</html:p>
@@ -72,7 +85,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="read-timeout" type="xs:int" use="optional" default="30000">
+        <xs:attribute name="read-timeout" type="papic:intGTZero" use="optional" default="30000">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>The number of milliseconds to wait when reading from an origin service.</html:p>
@@ -80,10 +93,10 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="proxy-thread-pool" type="xs:int" use="optional" default="20">
+        <xs:attribute name="proxy-thread-pool" type="papic:intGTZero" use="optional" default="20">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Connection thread pool for communicating with end services.</html:p>
+                    <html:p>The number of connection in the thread pool for communicating with end services.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
@@ -91,25 +104,25 @@
         <xs:attribute name="client-request-logging" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>Log client requests</html:p>
+                    <html:p>Logs communication between repose and the end service.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="jmx-reset-time" type="xs:int" use="optional" default="15">
+        <xs:attribute name="jmx-reset-time" type="papic:intGTZero" use="optional" default="15">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>The number of seconds the JMX reporting service keeps data.  The data will be reset after this amount of time.</html:p>
+                    <html:p>The number of seconds the JMX reporting service keeps data.
+                             The data will be reset after this amount of time.</html:p>
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-
     </xs:complexType>
 
     <xs:complexType name="ArtifactDirectory">
         <xs:simpleContent>
             <xs:extension base="xs:string">
-                <xs:attribute name="check-interval" type="xs:int" use="optional" default="15">
+                <xs:attribute name="check-interval" type="papic:intGTZero" use="optional" default="1000">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>Directory check interval in milliseconds</html:p>
@@ -122,13 +135,14 @@
 
     <xs:complexType name="DeploymentDirectory">
         <xs:simpleContent>
-            <xs:extension base="xs:string">
+            <xs:extension base="xs:anyURI">
                 <xs:annotation>
                     <xs:documentation>
+                        <html:p>A string that points the directory where artifacts are extracted.</html:p>
                     </xs:documentation>
                 </xs:annotation>
 
-                <xs:attribute name="auto-clean" type="xs:boolean" use="optional" default="false">
+                <xs:attribute name="auto-clean" type="xs:boolean" use="optional" default="true">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>Clean up undeployed resources</html:p>
@@ -141,8 +155,8 @@
 
     <xs:complexType name="LoggingConfiguration">
         <xs:simpleContent>
-            <xs:extension base="xs:string">
-                <xs:attribute name="href" type="xs:string" use="required">
+            <xs:extension base="papic:EmptyString">
+                <xs:attribute name="href" type="xs:anyURI" use="required">
                     <xs:annotation>
                         <xs:documentation>
                             <html:p>Name of the system state log config</html:p>
@@ -162,30 +176,45 @@
             </xs:documentation>
         </xs:annotation>
 
-        <xs:sequence>
-            <xs:element name="keystore-filename" type="xs:string">
+        <xs:all>
+            <xs:element name="keystore-filename" type="xs:anyURI" minOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>Name of the application keystore file, e.g keystore.repose</html:p>
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="keystore-password" type="xs:string">
+            <xs:element name="keystore-password" type="xs:string" minOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>The password for the entire application keystore.</html:p>
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-            <xs:element name="key-password" type="xs:string">
+            <xs:element name="key-password" type="xs:string" minOccurs="1">
                 <xs:annotation>
                     <xs:documentation>
                         <html:p>The password for the particular application key in the keystore.</html:p>
                     </xs:documentation>
                 </xs:annotation>
             </xs:element>
-        </xs:sequence>
+        </xs:all>
 
     </xs:complexType>
 
+    <xs:simpleType name="intGTZero">
+        <xs:restriction base="xs:int">
+            <xs:minExclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="longGTZero">
+        <xs:restriction base="xs:long">
+            <xs:minExclusive value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="EmptyString">
+        <xs:restriction base="xs:string">
+            <xs:length value="0"/>
+        </xs:restriction>
+    </xs:simpleType>
 </xs:schema>

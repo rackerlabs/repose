@@ -10,24 +10,27 @@ import java.io.Serializable;
  */
 public class RackspaceGroup implements AuthGroup, Serializable {
 
-   private final Group group;
+    private final String id;
+    private final String description;
 
-   public RackspaceGroup(Group group) {
-      this.group = group;
-   }
+    public RackspaceGroup(Group group) {
+        this.id = group.getId();
+        this.description = group.getDescription();
 
-   @Override
-   public String getId() {
-      return group.getId();
-   }
+    }
 
-   @Override
-   public String getDescription() {
-      return group.getDescription();
-   }
+    @Override
+    public String getId() {
+        return id;
+    }
 
-   @Override
-   public String getName() {
-      throw new UnsupportedOperationException("The Rackspace Auth 1.1 Group does not provide a name.");
-   }
+    @Override
+    public String getDescription() {
+        return description;
+    }
+
+    @Override
+    public String getName() {
+        throw new UnsupportedOperationException("The Rackspace Auth 1.1 Group does not provide a name.");
+    }
 }

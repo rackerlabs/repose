@@ -69,7 +69,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                 defaultDst = interrogator.getDefaultDestination(currentSystemModel);
                 final List<FilterContext> newFilterChain = new FilterContextInitializer(
                         filterConfig,
-                        ServletContextHelper.getInstance().getApplicationContext(filterConfig.getServletContext())).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
+                        ServletContextHelper.getInstance(filterConfig.getServletContext()).getApplicationContext()).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
 
                 updateFilterChainBuilder(newFilterChain);
             }
@@ -77,6 +77,8 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     }
 
     private class SystemModelConfigListener implements UpdateListener<SystemModel> {
+
+        private boolean isInitialized = false;
 
         // TODO:Review - There's got to be a better way of initializing PowerFilter. Maybe the app management service could be queryable.
         @Override
@@ -98,10 +100,16 @@ public class PowerFilter extends ApplicationContextAwareFilter {
                     defaultDst = interrogator.getDefaultDestination(currentSystemModel);
                     final List<FilterContext> newFilterChain = new FilterContextInitializer(
                             filterConfig,
-                            ServletContextHelper.getInstance().getApplicationContext(filterConfig.getServletContext())).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
+                            ServletContextHelper.getInstance(filterConfig.getServletContext()).getApplicationContext()).buildFilterContexts(papiContext.classLoader(), serviceDomain, localHost);
                     updateFilterChainBuilder(newFilterChain);
                 }
             }
+            isInitialized = true;
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
         }
     }
 
@@ -137,12 +145,12 @@ public class PowerFilter extends ApplicationContextAwareFilter {
         super.init(filterConfig);
         this.filterConfig = filterConfig;
 
-        ports = ServletContextHelper.getInstance().getServerPorts(filterConfig.getServletContext());
-        papiContext = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext());
+        ports = ServletContextHelper.getInstance(filterConfig.getServletContext()).getServerPorts();
+        papiContext = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext();
 
         papiContext.eventService().listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
         URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
-        papiContext.configurationService().subscribeTo("system-model.cfg.xml",xsdURL, systemModelConfigurationListener, SystemModel.class);
+        papiContext.configurationService().subscribeTo("system-model.cfg.xml", xsdURL, systemModelConfigurationListener, SystemModel.class);
 
         filterConfig.getServletContext().setAttribute("powerFilter", this);
 
@@ -182,7 +190,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         final long startTime = System.currentTimeMillis();
         HttpServletHelper.verifyRequestAndResponse(LOG, request, response);
-        int streamLimit = papiContext.containerConfigurationService().getContentBodyReadLimit();
+        long streamLimit = papiContext.containerConfigurationService().getContentBodyReadLimit();
         final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request, streamLimit);
         final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
 

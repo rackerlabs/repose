@@ -31,10 +31,9 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
     private RateLimitingService service;
     private final DatastoreService datastoreService;
 
-
     public RateLimitingHandlerFactory(DatastoreService datastoreService) {
         this.datastoreService = datastoreService;
-      
+
     }
 
     @Override
@@ -76,22 +75,35 @@ public class RateLimitingHandlerFactory extends AbstractConfiguredFilterHandlerF
 
     private class RateLimitingConfigurationListener implements UpdateListener<RateLimitingConfiguration> {
 
+        private boolean isInitialized = false;
+
         @Override
         public void configurationUpdated(RateLimitingConfiguration configurationObject) {
-            
+
             rateLimitCache = new ManagedRateLimitCache(getDatastore(configurationObject.getDatastore()));
-            
+
             service = RateLimitingServiceFactory.createRateLimitingService(rateLimitCache, configurationObject);
 
             describeLimitsUriRegex = Pattern.compile(configurationObject.getRequestEndpoint().getUriRegex());
 
             rateLimitingConfig = configurationObject;
-            
-           }
+
+            isInitialized = true;
+
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
+        }
     }
 
     @Override
     protected RateLimitingHandler buildHandler() {
+
+        if (!this.isInitialized()) {
+            return null;
+        }
 
         final ActiveLimitsWriter activeLimitsWriter = new ActiveLimitsWriter();
         final CombinedLimitsWriter combinedLimitsWriter = new CombinedLimitsWriter();

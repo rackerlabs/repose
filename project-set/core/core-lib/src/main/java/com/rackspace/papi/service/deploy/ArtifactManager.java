@@ -60,6 +60,10 @@ public class ArtifactManager implements EventListener<ApplicationArtifactEvent, 
                     // Tell the artifact manager that the artifact has been removed
                     e.eventManager().newEvent(ApplicationDeploymentEvent.APPLICATION_DELETED, removeApplicationNameForArtifact(item.getPath()));
                     break;
+                    
+                default:
+                    LOG.warn("Unexpected event: " + item.getEvent());
+                    break;
             }
             if (context != null) {
                 contexts.add(context);

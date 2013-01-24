@@ -26,13 +26,13 @@ public class ClientWrapperTest {
 
         @Test
         public void shouldNotInstallLoggingFilter() {
-            wrapper = new ClientWrapper(client, false);
+            wrapper = new ClientWrapper(client, false, null);
             verify(client, times(0)).addFilter(any(LoggingFilter.class));
         }
 
         @Test
         public void shouldInstallLoggingFilter() {
-            wrapper = new ClientWrapper(client, true);
+            wrapper = new ClientWrapper(client, true, null);
             verify(client, times(1)).addFilter(any(LoggingFilter.class));
         }
     }
@@ -48,7 +48,7 @@ public class ClientWrapperTest {
             client = mock(Client.class);
             resource = mock(WebResource.class);
 
-            wrapper = new ClientWrapper(client, false);
+            wrapper = new ClientWrapper(client, false, null);
         }
 
         @Test

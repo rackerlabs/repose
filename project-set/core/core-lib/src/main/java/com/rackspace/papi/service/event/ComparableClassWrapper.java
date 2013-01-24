@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.event;
 
 public class ComparableClassWrapper<T> implements Comparable<ComparableClassWrapper<T>> {
-    private final static int HASH = 7 * 89;
+    private static final int HASH = 7 * 89;
     private final Class<? extends T> wrappedClass;
 
     public ComparableClassWrapper(Class<? extends T> wrappedClass) {

@@ -16,52 +16,67 @@ import java.util.Map;
 
 public class UriNormalizationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<UriNormalizationHandler> {
 
-   private Collection<QueryParameterNormalizer> queryStringNormalizers;
-   private MediaTypeNormalizer mediaTypeNormalizer;
+    private Collection<QueryParameterNormalizer> queryStringNormalizers;
+    private MediaTypeNormalizer mediaTypeNormalizer;
 
-   private class UriNormalizationConfigurationListener implements UpdateListener<UriNormalizationConfig> {
+    private class UriNormalizationConfigurationListener implements UpdateListener<UriNormalizationConfig> {
 
-      @Override
-      public void configurationUpdated(UriNormalizationConfig configurationObject) {
-         final UriFilterList uriFilterList = configurationObject.getUriFilters();
-         final Map<String, QueryParameterNormalizer> newNormalizers = new HashMap<String, QueryParameterNormalizer>();
+        private boolean isInitialized = false;
 
-         if (uriFilterList != null) {
-            for (Target target : uriFilterList.getTarget()) {
-               boolean alphabetize = target.isAlphabetize();
-               final MultiInstanceWhiteListFactory whiteListFactory = new MultiInstanceWhiteListFactory(target.getWhitelist());
-               final QueryStringNormalizer normalizerInstance = new QueryStringNormalizer(whiteListFactory,alphabetize);
-               if(target.getHttpMethods().isEmpty()){
-                   target.getHttpMethods().add(HttpMethod.ALL);
-               }
-               for (HttpMethod method : target.getHttpMethods()) {
-                  QueryParameterNormalizer methodScopedNormalizer = newNormalizers.get(method.name());
-                  
-                  if (methodScopedNormalizer == null) {
-                     methodScopedNormalizer = new QueryParameterNormalizer(method);
-                     newNormalizers.put(method.name(), methodScopedNormalizer);
-                  }
-                  
-                  methodScopedNormalizer.getUriSelector().addPattern(target.getUriRegex(), normalizerInstance);
-               }
+        @Override
+        public void configurationUpdated(UriNormalizationConfig configurationObject) {
+            final UriFilterList uriFilterList = configurationObject.getUriFilters();
+            final Map<String, QueryParameterNormalizer> newNormalizers = new HashMap<String, QueryParameterNormalizer>();
+
+            if (uriFilterList != null) {
+                for (Target target : uriFilterList.getTarget()) {
+                    boolean alphabetize = target.isAlphabetize();
+                    final MultiInstanceWhiteListFactory whiteListFactory = new MultiInstanceWhiteListFactory(target.getWhitelist());
+                    final QueryStringNormalizer normalizerInstance = new QueryStringNormalizer(whiteListFactory, alphabetize);
+                    if (target.getHttpMethods().isEmpty()) {
+                        target.getHttpMethods().add(HttpMethod.ALL);
+                    }
+                    for (HttpMethod method : target.getHttpMethods()) {
+                        QueryParameterNormalizer methodScopedNormalizer = newNormalizers.get(method.name());
+
+                        if (methodScopedNormalizer == null) {
+                            methodScopedNormalizer = new QueryParameterNormalizer(method);
+                            newNormalizers.put(method.name(), methodScopedNormalizer);
+                        }
+
+                        methodScopedNormalizer.getUriSelector().addPattern(target.getUriRegex(), normalizerInstance);
+                    }
+                }
             }
-         }
 
-         queryStringNormalizers = newNormalizers.values();
-         mediaTypeNormalizer = new MediaTypeNormalizer(configurationObject.getMediaVariants().getMediaType());
-      }
-   }
+            queryStringNormalizers = newNormalizers.values();
+            if (configurationObject.getMediaVariants() != null) {
+                mediaTypeNormalizer = new MediaTypeNormalizer(configurationObject.getMediaVariants().getMediaType());
+            }
+            isInitialized = true;
+        }
 
-   @Override
-   protected Map<Class, UpdateListener<?>> getListeners() {
-      final Map<Class, UpdateListener<?>> listenerMap = new HashMap<Class, UpdateListener<?>>();
-      listenerMap.put(UriNormalizationConfig.class, new UriNormalizationConfigurationListener());
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
+        }
+    }
 
-      return listenerMap;
-   }
+    @Override
+    protected Map<Class, UpdateListener<?>> getListeners() {
+        final Map<Class, UpdateListener<?>> listenerMap = new HashMap<Class, UpdateListener<?>>();
+        listenerMap.put(UriNormalizationConfig.class, new UriNormalizationConfigurationListener());
 
-   @Override
-   protected UriNormalizationHandler buildHandler() {
-      return new UriNormalizationHandler(queryStringNormalizers, mediaTypeNormalizer);
-   }
+        return listenerMap;
+    }
+
+    @Override
+    protected UriNormalizationHandler buildHandler() {
+        if (!this.isInitialized()) {
+            return null;
+        }
+
+        return new UriNormalizationHandler(queryStringNormalizers, mediaTypeNormalizer);
+
+    }
 }

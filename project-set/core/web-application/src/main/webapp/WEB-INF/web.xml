@@ -9,6 +9,15 @@
         <param-name>powerapi-config-directory</param-name>
         <param-value>/etc/repose</param-value>
     </context-param>
+    <context-param>
+        <param-name>repose-cluster-id</param-name>
+        <param-value>repose</param-value>
+    </context-param>
+    
+    <context-param>
+        <param-name>repose-node-id</param-name>
+        <param-value>repose_node1</param-value>
+    </context-param>
     
     <listener>
         <display-name>Repose Context Loader</display-name>

@@ -1,5 +1,6 @@
 package com.rackspace.papi.filter.logic.impl;
 
+import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.HttpServletHelper;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
@@ -38,6 +39,13 @@ public class FilterLogicHandlerDelegate {
 
       final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
       final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
+      
+      if(handler == null){
+           mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Error creating filter chain, check your configuration files.");
+          
+      }
+      
+      else{
       final FilterDirector requestFilterDirector = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
 
       switch (requestFilterDirector.getFilterAction()) {
@@ -63,4 +71,5 @@ public class FilterLogicHandlerDelegate {
             break;
       }
    }
+  }
 }

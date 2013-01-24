@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<client-auth xmlns="http://docs.rackspacecloud.com/repose/client-auth/v1.0">
+    <openstack-auth delegable="false" tenanted="false"  xmlns="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0">
+         <identity-service username="admin" password="secrete" uri="http://198.101.253.115:35357/v2.0" tenantId="8a787c0c0a754b3f901b29094c136393" />
+    </openstack-auth>
+</client-auth>

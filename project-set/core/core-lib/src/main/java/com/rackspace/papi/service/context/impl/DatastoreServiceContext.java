@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.context.impl;
 
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.datastore.DatastoreService;
@@ -25,13 +26,16 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
     private final DatastoreService datastoreService;
     private final ServiceRegistry registry;
     private CacheManager ehCacheManager;
+    private ReposeInstanceInfo instanceInfo;
 
     @Autowired
     public DatastoreServiceContext(
             @Qualifier("datastoreService") DatastoreService datastoreService,
-            @Qualifier("serviceRegistry") ServiceRegistry registry) {
+            @Qualifier("serviceRegistry") ServiceRegistry registry,
+            @Qualifier("reposeInstanceInfo") ReposeInstanceInfo instanceInfo) {
         this.datastoreService = datastoreService;
         this.registry = registry;
+        this.instanceInfo = instanceInfo;
     }
 
     public void register() {
@@ -61,7 +65,7 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
     public void contextInitialized(ServletContextEvent sce) {
         // Init our local default cache and a new service object to hold it
         Configuration defaultConfiguration = new Configuration();
-        defaultConfiguration.setName(CACHE_MANAGER_NAME);
+        defaultConfiguration.setName(instanceInfo.toString() + ":" + CACHE_MANAGER_NAME);
         defaultConfiguration.setDefaultCacheConfiguration(new CacheConfiguration().diskPersistent(false));
         defaultConfiguration.setUpdateCheck(false);
 

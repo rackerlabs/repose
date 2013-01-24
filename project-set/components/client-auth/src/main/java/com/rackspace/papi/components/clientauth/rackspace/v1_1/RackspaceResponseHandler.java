@@ -43,6 +43,9 @@ public class RackspaceResponseHandler {
                     myDirector.setResponseStatus(HttpStatusCode.NOT_IMPLEMENTED);
                 }
                 break;
+                
+            default:
+                break;
         }
 
         return myDirector;

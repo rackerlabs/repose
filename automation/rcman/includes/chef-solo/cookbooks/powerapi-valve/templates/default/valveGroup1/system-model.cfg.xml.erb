@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
+  <repose-cluster id="repose1">
+    <nodes>
+      <node id="proxy-n01" hostname="<%= node[:fqdn]%>" http-port="8887"/>
+    </nodes>
+    <filters>
+        <filter name="dist-datastore" />
+        <filter name="versioning" />
+        <filter name="client-auth" configuration="client-auth-v1.1.cfg.xml" />
+        <filter name="uri-normalization" />
+        <filter name="header-normalization"/>
+    </filters>
+    <destinations>
+      <endpoint id="service1" protocol="http" hostname="50.57.189.15" root-path="/v1" port="8080" default="true"/>
+      <endpoint id="service2" protocol="http" hostname="50.57.189.15" root-path="/v2" port="8080" default="true"/>
+      <endpoint id="service3" protocol="http" hostname="50.57.189.15" root-path="/" port="8080" default="true"/>
+    </destinations>
+  </repose-cluster>
+
+  <repose-cluster id="repose2">
+    <nodes>
+      <node id="proxy-n02" hostname="<%= node[:fqdn]%>" http-port="8888"/>
+    </nodes>
+    <filters>
+        <filter name="dist-datastore" />
+        <filter name="versioning" />
+        <filter name="client-auth" configuration="client-auth-keystone.cfg.xml"/>
+        <filter name="client-authorization" />
+        <filter name="uri-normalization" />
+        <filter name="header-normalization"/>
+    </filters>
+    <destinations>
+      <endpoint id="service1" protocol="https" hostname="50.57.189.15" root-path="/v1" port="8181" default="true"/>
+      <endpoint id="service2" protocol="https" hostname="50.57.189.15" root-path="/v2" port="8181" default="true"/>
+      <endpoint id="service3" protocol="https" hostname="50.57.189.15" root-path="/" port="8181" default="true"/>
+    </destinations>
+  </repose-cluster>
+</system-model>

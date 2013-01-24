@@ -1,7 +1,6 @@
 package com.rackspace.papi.components.translation;
 
 import com.rackspace.papi.components.translation.config.TranslationConfig;
-import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlFilterChainBuilder;
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
@@ -10,8 +9,6 @@ import com.rackspace.papi.servlet.InitParameter;
 import java.io.IOException;
 import java.net.URL;
 import javax.servlet.*;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXTransformerFactory;
 import org.slf4j.Logger;
 
 public class TranslationFilter implements Filter {
@@ -40,11 +37,11 @@ public class TranslationFilter implements Filter {
         final String configProp = InitParameter.POWER_API_CONFIG_DIR.getParameterName();
         final ServletContext ctx = filterConfig.getServletContext();
         final String configurationRoot = System.getProperty(configProp, ctx.getInitParameter(configProp));
-        final ConfigurationService configurationService = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
+        final ConfigurationService configurationService = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
 
 
-        handlerFactory = new TranslationHandlerFactory(configurationService, new XmlFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null)), configurationRoot, config);
-        configurationManager = ServletContextHelper.getInstance().getPowerApiContext(servletContext).configurationService();
+        handlerFactory = new TranslationHandlerFactory(configurationService, configurationRoot, config);
+        configurationManager = ServletContextHelper.getInstance(servletContext).getPowerApiContext().configurationService();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/translation-configuration.xsd");
         configurationManager.subscribeTo(config,xsdURL, handlerFactory, TranslationConfig.class);
     }

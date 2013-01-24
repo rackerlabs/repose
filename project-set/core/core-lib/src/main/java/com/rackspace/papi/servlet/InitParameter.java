@@ -29,7 +29,9 @@ public enum InitParameter {
     CONNECTION_FRAMEWORK("connection-framework"),
     INSECURE("insecure"),
     MANAGEMENT_PORT("com.rackspace.repose.management.port"),
-    MANAGEMENT_CONTEXT("com.rackspace.repose.management.context");
+    MANAGEMENT_CONTEXT("com.rackspace.repose.management.context"),
+    REPOSE_CLUSTER_ID("repose-cluster-id"),
+    REPOSE_NODE_ID("repose-node-id");
 
     private final String initParameterName;
 

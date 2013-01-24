@@ -9,19 +9,20 @@ import com.rackspace.papi.container.config.ArtifactDirectory;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.DeploymentDirectory;
 import com.rackspace.papi.service.event.common.EventService;
+import java.io.File;
+import javax.annotation.Resource;
 import org.springframework.beans.factory.annotation.Required;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.Resource;
-import java.io.File;
 
 @Component("containerConfigurationListener")
 public class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
 
    private ArtifactDirectoryWatcher dirWatcher;
-   private File deploymentDirectory;
+   private File deploymentDirectory = null;
    private EarUnpacker unpacker;
    private boolean autoClean = false;
+   private boolean isInitialized = false;
+  
 
    public ContainerConfigurationListener() {
    }
@@ -59,8 +60,16 @@ public class ContainerConfigurationListener implements UpdateListener<ContainerC
             unpacker = new EarUnpacker(deploymentDirectory);
          }
       }
+       isInitialized=true;
+
    }
 
+   
+     @Override
+      public boolean isInitialized(){
+          return isInitialized;
+      }
+  
    public synchronized void validateDeploymentDirectory() {
       if (deploymentDirectory == null) {
          throw new IllegalStateException("The Power API configured deployment directory is null.  Please check the Power API configuration file.");

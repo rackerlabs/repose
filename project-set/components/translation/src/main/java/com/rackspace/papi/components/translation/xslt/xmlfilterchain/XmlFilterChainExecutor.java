@@ -9,9 +9,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Properties;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -21,10 +18,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.xalan.transformer.TrAXFilter;
 import org.slf4j.Logger;
 import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
-import org.xml.sax.helpers.XMLReaderFactory;
 
 public class XmlFilterChainExecutor {
 
@@ -88,16 +82,16 @@ public class XmlFilterChainExecutor {
                 // pass the input stream to all transforms as a param inputstream
 
                 Transformer transformer;
-                if (filter.getFilter() instanceof net.sf.saxon.Filter) {
-                    net.sf.saxon.Filter saxonFilter = (net.sf.saxon.Filter) filter.getFilter();
+                if (filter.getReader() instanceof net.sf.saxon.Filter) {
+                    net.sf.saxon.Filter saxonFilter = (net.sf.saxon.Filter) filter.getReader();
                     transformer = saxonFilter.getTransformer();
                     setInputParameters(filter.getId(), transformer, inputs);
-                } else if (filter.getFilter() instanceof TrAXFilter) {
-                    TrAXFilter traxFilter = (TrAXFilter)filter.getFilter();
+                } else if (filter.getReader() instanceof TrAXFilter) {
+                    TrAXFilter traxFilter = (TrAXFilter)filter.getReader();
                     transformer = traxFilter.getTransformer();
                     setInputParameters(filter.getId(), transformer, inputs);
                 } else {
-                    LOG.warn("Unable to set stylesheet parameters.  Unsupported xml filter type used: " + filter.getFilter().getClass().getCanonicalName());
+                    LOG.debug("Unable to set stylesheet parameters.  Unsupported xml filter type used: " + filter.getReader().getClass().getCanonicalName());
                 }
             }
 
@@ -114,21 +108,9 @@ public class XmlFilterChainExecutor {
             return new SAXSource(source);
         }
 
-        XMLFilter lastFilter = chain.getFilters().get(chain.getFilters().size() - 1).getFilter();
+        XMLReader lastFilter = chain.getFilters().get(chain.getFilters().size() - 1).getReader();
 
         return new SAXSource(lastFilter, source);
     }
 
-    protected XMLReader getSaxReader() throws ParserConfigurationException, SAXException {
-        SAXParserFactory spf = SAXParserFactory.newInstance();
-        spf.setValidating(true);
-        spf.setNamespaceAware(true);
-        SAXParser parser = spf.newSAXParser();
-        XMLReader reader = parser.getXMLReader();
-        if (reader == null) {
-            reader = XMLReaderFactory.createXMLReader();
-        }
-
-        return reader;
-    }
 }

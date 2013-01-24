@@ -2,12 +2,11 @@ package com.rackspace.papi.components.datastore;
 
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.config.ConfigurationService;
+import com.rackspace.papi.service.context.ServiceContextName;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.context.impl.ConfigurationServiceContext;
 import com.rackspace.papi.service.context.impl.DatastoreServiceContext;
 import com.rackspace.papi.service.context.impl.RequestProxyServiceContext;
-import com.rackspace.papi.service.context.spring.SpringContextAdapter;
-import com.rackspace.papi.service.context.spring.SpringContextAdapterProvider;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import org.junit.Before;
@@ -49,15 +48,16 @@ public class DatastoreDatastoreFilterTest {
          final DatastoreManager localManager = mock(DatastoreManager.class);
          final RequestProxyServiceContext proxyService = mock(RequestProxyServiceContext.class);
 
-         ServletContextHelper.configureInstance(new SpringContextAdapterProvider(appContext), servletContext, mock(ApplicationContext.class));
+         ServletContextHelper instance = ServletContextHelper.configureInstance(servletContext, appContext);
          
          when(mockFilterConfig.getServletContext()).thenReturn(servletContext);
          when(servletContext.getAttribute(ServletContextHelper.SERVLET_CONTEXT_ATTRIBUTE_NAME)).thenReturn(context);
          when(servletContext.getAttribute(ServletContextHelper.SPRING_APPLICATION_CONTEXT_ATTRIBUTE_NAME)).thenReturn(appContext);
+         when(servletContext.getAttribute(ServletContextHelper.SERVLET_CONTEXT_HELPER)).thenReturn(instance);
 
-         when(appContext.getBean(eq(SpringContextAdapter.CONFIGURATION_SERVICE_CONTEXT))).thenReturn(configurationServiceContext);
-         when(appContext.getBean(eq(SpringContextAdapter.DATASTORE_SERVICE_CONTEXT))).thenReturn(datastoreServiceContext);
-         when(appContext.getBean(eq(SpringContextAdapter.REQUEST_PROXY_SERVICE_CONTEXT))).thenReturn(proxyService);
+         when(appContext.getBean(eq(ServiceContextName.CONFIGURATION_SERVICE_CONTEXT.getServiceContextName()))).thenReturn(configurationServiceContext);
+         when(appContext.getBean(eq(ServiceContextName.DATASTORE_SERVICE_CONTEXT.getServiceContextName()))).thenReturn(datastoreServiceContext);
+         when(appContext.getBean(eq(ServiceContextName.REQUEST_PROXY_SERVICE_CONTEXT.getServiceContextName()))).thenReturn(proxyService);
          when(appContext.getBean(anyString(), eq(ServicePorts.class))).thenReturn(new ServicePorts());
 
          when(configurationServiceContext.getService()).thenReturn(configurationService);

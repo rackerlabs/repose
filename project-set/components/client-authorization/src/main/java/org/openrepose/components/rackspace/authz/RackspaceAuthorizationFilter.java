@@ -33,10 +33,10 @@ public class RackspaceAuthorizationFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        final DatastoreService datastoreService = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).datastoreService();
+        final DatastoreService datastoreService = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().datastoreService();
         final DatastoreManager defaultLocal = datastoreService.defaultDatastore();
 
-        configurationService = ServletContextHelper.getInstance().getPowerApiContext(filterConfig.getServletContext()).configurationService();
+        configurationService = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
         config = new FilterConfigHelper(filterConfig).getFilterConfig(DEFAULT_CONFIG);
         LOG.info("Initializing filter using config " + config);
         handlerFactory = new RequestAuthorizationHandlerFactory(defaultLocal.getDatastore());

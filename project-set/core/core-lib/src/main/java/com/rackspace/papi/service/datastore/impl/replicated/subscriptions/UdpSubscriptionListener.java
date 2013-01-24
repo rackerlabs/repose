@@ -179,6 +179,10 @@ public class UdpSubscriptionListener implements SubscriptionListener, Runnable {
             case LEAVING:
                 notifier.removeSubscriber(subscriber);
                 break;
+                
+            default:
+                LOG.warn("Unexpected operation: " + operation);
+                break;
         }
 
         LOG.trace("Received " + operation.name() + " Request From: " + subscriber.getHost() + ":" + subscriber.getPort());

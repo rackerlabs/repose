@@ -13,20 +13,15 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import javax.servlet.ServletContextEvent;
-import javax.xml.transform.stream.StreamSource;
 
 /**
- * Created by IntelliJ IDEA.
- * User: fran
- * Date: Oct 24, 2012
- * Time: 3:31:26 PM
+ * Created by IntelliJ IDEA. User: fran Date: Oct 24, 2012 Time: 3:31:26 PM
  */
 @Component("managementServiceContext")
 public class ManagementServiceContext implements ServiceContext<ManagementService> {
 
     public static final String SERVICE_NAME = "powerapi:/services/management";
     private static final String DEFAULT_MANAGEMENT_CONTEXT = "/repose";
-
     private final ServiceRegistry registry;
     private final ConfigurationService configurationService;
     private final ManagementService managementService;
@@ -34,10 +29,10 @@ public class ManagementServiceContext implements ServiceContext<ManagementServic
     private int managementPort;
     private String managementContext;
 
-    @Autowired    
-    public ManagementServiceContext(@Qualifier("serviceRegistry") ServiceRegistry registry ,
-           @Qualifier("configurationManager") ConfigurationService configurationService,
-           @Qualifier("managementService") ManagementService managementService) {
+    @Autowired
+    public ManagementServiceContext(@Qualifier("serviceRegistry") ServiceRegistry registry,
+            @Qualifier("configurationManager") ConfigurationService configurationService,
+            @Qualifier("managementService") ManagementService managementService) {
         this.registry = registry;
         this.configurationService = configurationService;
         this.managementService = managementService;
@@ -64,7 +59,7 @@ public class ManagementServiceContext implements ServiceContext<ManagementServic
     public void contextInitialized(ServletContextEvent sce) {
         getManagementPort();
         getManagementContext();
-        configurationService.subscribeTo("container.cfg.xml",configurationListener, ContainerConfiguration.class);
+        configurationService.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);
         register();
     }
 
@@ -84,6 +79,8 @@ public class ManagementServiceContext implements ServiceContext<ManagementServic
 
     private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
 
+        private boolean isInitialized = false;
+
         @Override
         public void configurationUpdated(ContainerConfiguration configurationObject) {
 
@@ -93,6 +90,12 @@ public class ManagementServiceContext implements ServiceContext<ManagementServic
 
                 managementService.start(managementPort, artifactDirectory, managementContext);
             }
+            isInitialized = true;
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
         }
     }
 }

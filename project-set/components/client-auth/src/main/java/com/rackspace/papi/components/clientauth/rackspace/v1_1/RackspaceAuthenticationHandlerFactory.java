@@ -27,7 +27,9 @@ public final class RackspaceAuthenticationHandlerFactory {
                 authConfig.getAuthenticationServer().getUri(),
                 accountRegexExtractor,
                 //Auth v1.1 will always check tenant against the passed token.
-                authConfig.isIncludeQueryParams(), true, authConfig.getGroupCacheTimeout(), authConfig.getTokenCacheTimeout()); 
+                true, 
+                authConfig.getGroupCacheTimeout(), 
+                authConfig.getTokenCacheTimeout()); 
 
         return new RackspaceAuthenticationHandler(configurables, serviceClient, cache, grpCache, uriMatcher);
     }

@@ -6,11 +6,10 @@ import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.event.PowerProxyEventKernel;
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.threading.impl.ThreadingServiceContext;
+import javax.servlet.ServletContextEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
-
-import javax.servlet.ServletContextEvent;
 
 @Component("eventManagerServiceContext")
 public class EventManagerServiceContext implements ServiceContext<EventService> {

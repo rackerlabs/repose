@@ -13,7 +13,7 @@ public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHan
 
     private DestinationRouterConfiguration contextRouterConfiguration;
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(RoutingTagger.class);
-    private float quality;
+    private double quality;
     private Target target;
     private static final String DEFAULT_QUALITY = "0.5";
 
@@ -21,6 +21,8 @@ public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHan
     }
 
     private class RoutingConfigurationListener implements UpdateListener<DestinationRouterConfiguration> {
+
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(DestinationRouterConfiguration configurationObject) {
@@ -34,14 +36,21 @@ public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHan
 
                 determineQuality();
             }
+
+            isInitialized = true;
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
         }
 
         private void determineQuality() {
             if (target.isSetQuality()) {
-                quality = Float.valueOf(target.getQuality()).floatValue();
+                quality = Double.valueOf(target.getQuality()).floatValue();
 
             } else {
-                quality = Float.valueOf(DEFAULT_QUALITY).floatValue();
+                quality = Double.valueOf(DEFAULT_QUALITY).floatValue();
             }
 
         }
@@ -49,6 +58,9 @@ public class DestinationRouterHandlerFactory extends AbstractConfiguredFilterHan
 
     @Override
     protected RoutingTagger buildHandler() {
+        if (!this.isInitialized()) {
+            return null;
+        }
         return new RoutingTagger(target.getId(), quality);
     }
 

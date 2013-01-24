@@ -1,5 +1,6 @@
 package com.rackspace.papi.filter;
 
+import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.filter.resource.ResourceConsumerCounter;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
@@ -27,14 +28,17 @@ public class PowerFilterChainBuilderImpl implements PowerFilterChainBuilder {
     private List<FilterContext> currentFilterChain;
     private ReposeCluster domain;
     private Node localhost;
+    private ReposeInstanceInfo instanceInfo;
 
     @Autowired
-    public PowerFilterChainBuilderImpl(@Qualifier("powerFilterRouter") PowerFilterRouter router) {
+    public PowerFilterChainBuilderImpl(@Qualifier("powerFilterRouter") PowerFilterRouter router, @Qualifier("reposeInstanceInfo") ReposeInstanceInfo instanceInfo) {
+        Thread.currentThread().setName(instanceInfo.toString());
         LOG.info("Creating filter chain builder");
         this.router = router;
         this.resourceConsumerMonitor = new ResourceConsumerCounter();
+        this.instanceInfo = instanceInfo;
     }
-    
+
     @Override
     public void initialize(ReposeCluster domain, Node localhost, List<FilterContext> currentFilterChain, ServletContext servletContext, String defaultDst) throws PowerFilterChainException {
         LOG.info("Initializing filter chain builder");
@@ -48,13 +52,13 @@ public class PowerFilterChainBuilderImpl implements PowerFilterChainBuilder {
     public ResourceConsumerCounter getResourceConsumerMonitor() {
         return resourceConsumerMonitor;
     }
-    
+
     @Override
     public PowerFilterChain newPowerFilterChain(FilterChain containerFilterChain) throws PowerFilterChainException {
         if (router == null) {
             throw new PowerFilterChainException("Power Filter Router has not been initialized yet.");
         }
-        return new PowerFilterChain(currentFilterChain, containerFilterChain, resourceConsumerMonitor, router);
+        return new PowerFilterChain(currentFilterChain, containerFilterChain, resourceConsumerMonitor, router, instanceInfo);
     }
 
     @Override

@@ -16,9 +16,7 @@ public final class EmptyServlet extends HttpServlet {
    private boolean initialized = false;
 
    private boolean isRequestFilterChainComplete(HttpServletRequest req) {
-      Boolean complete = (Boolean) req.getAttribute("filterChainAvailableForRequest");
-
-      return complete != null && complete == Boolean.TRUE;
+      return Boolean.valueOf((Boolean)req.getAttribute("filterChainAvailableForRequest"));
    }
 
    private boolean isPowerApiContextManagerIntiliazed() {
@@ -33,7 +31,7 @@ public final class EmptyServlet extends HttpServlet {
       }
 
       initialized = true;
-      
+
       return initialized;
    }
 

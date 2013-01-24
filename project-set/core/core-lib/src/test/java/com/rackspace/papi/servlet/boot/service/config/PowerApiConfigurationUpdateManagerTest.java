@@ -73,7 +73,6 @@ public class PowerApiConfigurationUpdateManagerTest {
 
             updateManger.registerListener(listener, resource,
                     new ConfigurationParser<String>() {
-
                         @Override
                         public String read(ConfigurationResource cr) {
                             throw new UnsupportedOperationException("Not supported yet.");
@@ -98,7 +97,6 @@ public class PowerApiConfigurationUpdateManagerTest {
 
             updateManger.registerListener(listener, resource,
                     new ConfigurationParser<String>() {
-
                         @Override
                         public String read(ConfigurationResource cr) {
                             throw new UnsupportedOperationException("Not supported yet.");
@@ -109,15 +107,13 @@ public class PowerApiConfigurationUpdateManagerTest {
                             throw new UnsupportedOperationException("Not supported yet.");
                         }
                     });
-            
+
             updateManger.unregisterListener(listener, resource);
 
             assertTrue("Set retrieved from update manager should have no listeners after unregistering", updateManger.getPowerApiUpdateManagerEventListener().getListenerMap(resource.name()).isEmpty());
         }
     }
-    
     public static final ConfigurationResource resource = new ConfigurationResource() {
-
         @Override
         public boolean updated() throws IOException {
             throw new UnsupportedOperationException("Not supported yet.");
@@ -138,12 +134,19 @@ public class PowerApiConfigurationUpdateManagerTest {
             throw new UnsupportedOperationException("Not supported yet.");
         }
     };
-    
     public static final UpdateListener listener = new UpdateListener<String>() {
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(String configurationObject) {
+            isInitialized = true;
             throw new UnsupportedOperationException("Not supported yet.");
+
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
         }
     };
 }

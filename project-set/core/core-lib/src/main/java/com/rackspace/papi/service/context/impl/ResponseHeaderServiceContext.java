@@ -23,13 +23,12 @@ public class ResponseHeaderServiceContext implements ServiceContext<ResponseHead
     private final ServiceRegistry registry;
     private final ConfigurationService configurationManager;
     private final ContainerConfigurationListener configurationListener;
-
     private String reposeVersion = "";
 
     @Autowired
     public ResponseHeaderServiceContext(@Qualifier("responseHeaderService") ResponseHeaderService responseHeaderService,
-                                        @Qualifier("serviceRegistry") ServiceRegistry registry, 
-                                        @Qualifier("configurationManager") ConfigurationService configurationManager) {
+            @Qualifier("serviceRegistry") ServiceRegistry registry,
+            @Qualifier("configurationManager") ConfigurationService configurationManager) {
         this.responseHeaderService = responseHeaderService;
         this.registry = registry;
         this.configurationManager = configurationManager;
@@ -54,7 +53,7 @@ public class ResponseHeaderServiceContext implements ServiceContext<ResponseHead
 
     @Override
     public void contextInitialized(ServletContextEvent servletContextEvent) {
-        reposeVersion = ServletContextHelper.getInstance().getPowerApiContext(servletContextEvent.getServletContext()).getReposeVersion();
+        reposeVersion = ServletContextHelper.getInstance(servletContextEvent.getServletContext()).getPowerApiContext().getReposeVersion();
         configurationManager.subscribeTo("container.cfg.xml", configurationListener, ContainerConfiguration.class);
         register();
     }
@@ -65,9 +64,12 @@ public class ResponseHeaderServiceContext implements ServiceContext<ResponseHead
     }
 
     /**
-     * Listens for updates to the container.cfg.xml file which holds the via header receivedBy value.
+     * Listens for updates to the container.cfg.xml file which holds the via
+     * header receivedBy value.
      */
     private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
+
+        private boolean isInitialized = false;
 
         @Override
         public void configurationUpdated(ContainerConfiguration configurationObject) {
@@ -79,6 +81,12 @@ public class ResponseHeaderServiceContext implements ServiceContext<ResponseHead
                 final LocationHeaderBuilder locationBuilder = new LocationHeaderBuilder();
                 responseHeaderService.updateConfig(viaBuilder, locationBuilder);
             }
+            isInitialized = true;
+        }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
         }
     }
 }
