@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<translation xmlns="http://docs.rackspacecloud.com/repose/translation/v1.0" allow-entities="false">
+<translation xmlns="http://docs.rackspacecloud.com/repose/translation/v1.0">
     <request-translations />
         
     <response-translations>

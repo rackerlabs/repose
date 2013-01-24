@@ -143,7 +143,7 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
             synchronized (lock) {
                 configuration = newConfig;
                 xslListener.unsubscribe();
-                xsltChainBuilder = new XmlFilterChainBuilder(transformerFactory, configuration.isAllowEntities());
+                xsltChainBuilder = new XmlFilterChainBuilder(transformerFactory, false);
                 buildProcessorPools();
                 xslListener.listen();
             }
