@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.translation;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.io.BufferedServletInputStream;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
@@ -13,7 +12,6 @@ import com.rackspace.papi.components.translation.config.ResponseTranslations;
 import com.rackspace.papi.components.translation.config.StyleSheet;
 import com.rackspace.papi.components.translation.config.StyleSheets;
 import com.rackspace.papi.components.translation.config.TranslationConfig;
-import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlFilterChainBuilder;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.service.config.ConfigurationService;
@@ -21,15 +19,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.StringTokenizer;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXTransformerFactory;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +48,7 @@ public class TranslationHandlerTest {
         @Before
         public void setup() {
             manager = mock(ConfigurationService.class);
-            factory = new TranslationHandlerFactory(manager, new XmlFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), "", "");
+            factory = new TranslationHandlerFactory(manager, "", "");
             TranslationConfig config = new TranslationConfig();
 
             RequestTranslations requestTranslations = new RequestTranslations();
@@ -199,7 +193,7 @@ public class TranslationHandlerTest {
         @Before
         public void setup() {
             manager = mock(ConfigurationService.class);
-            factory = new TranslationHandlerFactory(manager, new XmlFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), "", "");
+            factory = new TranslationHandlerFactory(manager, "", "");
             TranslationConfig config = new TranslationConfig();
 
             RequestTranslations requestTranslations = new RequestTranslations();
