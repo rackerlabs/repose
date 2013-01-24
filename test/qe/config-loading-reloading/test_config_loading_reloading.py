@@ -9,14 +9,17 @@ import sys
 import unittest
 #import install_repose
 import xmlrunner as _xmlrunner
+import logging
 
 target_hostname = 'localhost'
 target_port = 8894
 
 target_repose = None
 
+logger = logging.getLogger(__name__)
 
 def setUpModule():
+    logger.debug('setUpModule')
     repose_conf_folder = 'etc/repose'
     pathutil.delete_folder(repose_conf_folder)
     pathutil.create_folder(repose_conf_folder)
@@ -39,7 +42,9 @@ def setUpModule():
     # 200's
     global target_repose
     target_repose = repose.ReposeValve('etc/repose2', stop_port=9894)
+    logger.debug('target node started (pid=%i)' % target_repose.proc.pid)
     time.sleep(25)
+    logger.debug('setUpModule complete')
 
 
 def tearDownModule():
@@ -48,6 +53,7 @@ def tearDownModule():
 
 class TestConfigLoadingReloading:
     def setUp(self):
+        logger.debug('setUp (%s)' % self.__class__.__name__)
         name = self.get_name()
         config_base = 'config-load-test-'
         self.config_good = config_base + name + '-good'
@@ -75,6 +81,7 @@ class TestConfigLoadingReloading:
         return 503
 
     def test_start_good(self):
+        logger.debug('test_start_good')
         r = None
         try:
             pathutil.delete_folder(self.repose_config_folder)
@@ -93,6 +100,7 @@ class TestConfigLoadingReloading:
                 r.stop()
 
     def test_start_bad(self):
+        logger.debug('test_start_bad')
         r = None
         try:
             pathutil.delete_folder(self.repose_config_folder)
@@ -111,6 +119,7 @@ class TestConfigLoadingReloading:
                 r.stop()
 
     def test_good_to_bad(self):
+        logger.debug('test_good_to_bad')
         r = None
         try:
             pathutil.delete_folder(self.repose_config_folder)
@@ -136,6 +145,7 @@ class TestConfigLoadingReloading:
                 r.stop()
 
     def test_bad_to_good(self):
+        logger.debug('test_bad_to_good')
         r = None
         try:
             pathutil.delete_folder(self.repose_config_folder)
@@ -163,6 +173,7 @@ class TestConfigLoadingReloading:
 
 class TestNonStartingOnBadConfig(TestConfigLoadingReloading):
     def test_start_bad(self):
+        logger.debug('test_start_bad (2)')
         r = None
         try:
             pathutil.delete_folder(self.repose_config_folder)
@@ -181,6 +192,7 @@ class TestNonStartingOnBadConfig(TestConfigLoadingReloading):
                 r.stop()
 
     def test_bad_to_good(self):
+        logger.debug('test_bad_to_good (2)')
         r = None
         try:
             pathutil.delete_folder(self.repose_config_folder)
