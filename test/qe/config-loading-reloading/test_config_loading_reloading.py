@@ -28,7 +28,12 @@ def setUpModule():
     pathutil.create_folder('etc/repose2')
     conf.process_config_set(config_set_name='simple-node',
                             destination_path='etc/repose2',
-                            params={'port': str(target_port)}, verbose=False)
+                            params={
+                                'port': str(target_port),
+                                'deploydir': 'var/repose',
+                                'artifactdir': 'usr/share/repose/filters',
+                                'logfile': 'var/log/repose/current2.log'
+                                }, verbose=False)
 
     # stand up a repose node with no filters and no destinations - will return
     # 200's
