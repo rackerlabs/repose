@@ -28,6 +28,7 @@ public class PowerFilterChainBuilderImpl implements PowerFilterChainBuilder {
     private List<FilterContext> currentFilterChain;
     private ReposeCluster domain;
     private Node localhost;
+    private ReposeInstanceInfo instanceInfo;
 
     @Autowired
     public PowerFilterChainBuilderImpl(@Qualifier("powerFilterRouter") PowerFilterRouter router, @Qualifier("reposeInstanceInfo") ReposeInstanceInfo instanceInfo) {
@@ -35,6 +36,7 @@ public class PowerFilterChainBuilderImpl implements PowerFilterChainBuilder {
         LOG.info("Creating filter chain builder");
         this.router = router;
         this.resourceConsumerMonitor = new ResourceConsumerCounter();
+        this.instanceInfo = instanceInfo;
     }
 
     @Override
@@ -56,7 +58,7 @@ public class PowerFilterChainBuilderImpl implements PowerFilterChainBuilder {
         if (router == null) {
             throw new PowerFilterChainException("Power Filter Router has not been initialized yet.");
         }
-        return new PowerFilterChain(currentFilterChain, containerFilterChain, resourceConsumerMonitor, router);
+        return new PowerFilterChain(currentFilterChain, containerFilterChain, resourceConsumerMonitor, router, instanceInfo);
     }
 
     @Override
