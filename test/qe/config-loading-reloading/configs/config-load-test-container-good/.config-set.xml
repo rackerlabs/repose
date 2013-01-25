@@ -1,0 +1,5 @@
+<config-set>
+  <folder>
+    <file src="container.cfg.xml" />
+  </folder>
+</config-set>
