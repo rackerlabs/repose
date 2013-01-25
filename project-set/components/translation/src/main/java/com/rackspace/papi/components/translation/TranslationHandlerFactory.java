@@ -20,20 +20,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXTransformerFactory;
 
 public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<TranslationHandler> {
 
-    private TranslationConfig configuration;
-    private final XmlFilterChainBuilder xsltChainBuilder;
+    private final SAXTransformerFactory transformerFactory;
     private final List<XmlChainPool> responseProcessorPools;
     private final List<XmlChainPool> requestProcessorPools;
     private final String configurationRoot;
     private final Object lock = new Object();
     private final XslUpdateListener xslListener;
     private final String config;
+    private TranslationConfig configuration;
+    private XmlFilterChainBuilder xsltChainBuilder;
 
-    public TranslationHandlerFactory(ConfigurationService configService, XmlFilterChainBuilder builder, String configurationRoot, String config) {
-        xsltChainBuilder = builder;
+    public TranslationHandlerFactory(ConfigurationService configService, String configurationRoot, String config) {
+        transformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
         requestProcessorPools = new ArrayList<XmlChainPool>();
         responseProcessorPools = new ArrayList<XmlChainPool>();
         this.configurationRoot = configurationRoot;
@@ -52,10 +55,10 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
     @Override
     protected TranslationHandler buildHandler() {
-        
-       if( !this.isInitialized()){
-           return null;
-       } 
+
+        if (!this.isInitialized()) {
+            return null;
+        }
         synchronized (lock) {
             return new TranslationHandler(new ArrayList<XmlChainPool>(requestProcessorPools), new ArrayList<XmlChainPool>(responseProcessorPools));
         }
@@ -133,25 +136,24 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
     class TranslationConfigurationListener implements UpdateListener<TranslationConfig> {
 
-       private boolean isInitialized=false;
- 
-        
-        
+        private boolean isInitialized = false;
+
         @Override
         public void configurationUpdated(TranslationConfig newConfig) {
             synchronized (lock) {
                 configuration = newConfig;
                 xslListener.unsubscribe();
+                xsltChainBuilder = new XmlFilterChainBuilder(transformerFactory, false);
                 buildProcessorPools();
                 xslListener.listen();
             }
-             isInitialized=true;
+            isInitialized = true;
         }
-        
-    @Override
-    public boolean isInitialized(){
-    return isInitialized;
-  
-    }
+
+        @Override
+        public boolean isInitialized() {
+            return isInitialized;
+
+        }
     }
 }
