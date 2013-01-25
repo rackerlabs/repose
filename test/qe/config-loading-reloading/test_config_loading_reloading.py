@@ -31,6 +31,13 @@ class MockServiceHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         self.end_headers()
         return
 
+    def log_message(self, format, *args):
+        # override the log_message method to prevent the base class from
+        # printing to stderr
+        logger.info("%s - - [%s] %s\n" % (self.client_address[0],
+                                          self.log_date_time_string(),
+                                          format%args))
+
 
 def mock_service_thread():
     logger.debug('thread created for mock service')
