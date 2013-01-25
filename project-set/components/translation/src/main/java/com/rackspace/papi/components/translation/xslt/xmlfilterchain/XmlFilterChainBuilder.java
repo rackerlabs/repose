@@ -6,7 +6,6 @@ import com.rackspace.papi.components.translation.resolvers.SourceUriResolver;
 import com.rackspace.papi.components.translation.resolvers.SourceUriResolverChain;
 import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;
 import com.rackspace.papi.components.translation.xslt.XsltException;
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringReader;
@@ -28,8 +27,6 @@ import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
 import org.slf4j.Logger;
 import org.w3c.dom.Node;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
@@ -143,28 +140,6 @@ public class XmlFilterChainBuilder {
     }
 
     throw new IllegalArgumentException("No stylesheet specified for " + stylesheet.getId());
-  }
-
-  private static class ReposeEntityResolver implements EntityResolver {
-
-    private final EntityResolver parent;
-    private final boolean allowEntities;
-
-    ReposeEntityResolver(EntityResolver parent, boolean allowEntities) {
-      this.parent = parent;
-      this.allowEntities = allowEntities;
-    }
-
-    @Override
-    public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
-      LOG.warn("Resolving Entity[publicId='" + (publicId != null? publicId: "") + "', systemId='" + (systemId != null? systemId: "") + "']");
-
-      if (allowEntities && parent != null) {
-        return parent.resolveEntity(publicId, systemId);
-      }
-
-      return allowEntities ? null : new InputSource(new ByteArrayInputStream("".getBytes()));
-    }
   }
 
   protected XMLReader getSaxReader() throws ParserConfigurationException, SAXException {
