@@ -1,7 +1,5 @@
 <config-set>
   <folder>
-    <file src="system-model.cfg.xml" />
     <file src="container.cfg.xml" />
-    <file src="log4j.properties" />
   </folder>
 </config-set>

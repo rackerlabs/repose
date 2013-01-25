@@ -90,6 +90,7 @@ class TestConfigLoadingReloading:
         config_base = 'config-load-test-'
         self.config_good = config_base + name + '-good'
         self.config_bad = config_base + name + '-bad'
+        self.config_common = config_base + name + '-common'
         self.repose_config_folder = 'etc/repose'
         self.repose_port = 8893
         self.repose_stop_port = 9893
@@ -118,6 +119,11 @@ class TestConfigLoadingReloading:
         try:
             pathutil.delete_folder(self.repose_config_folder)
             pathutil.create_folder(self.repose_config_folder)
+            conf.process_config_set(self.config_common,
+                                    params=self.config_params,
+                                    destination_path=self.repose_config_folder,
+                                    verbose=False)
+
             conf.process_config_set(self.config_good,
                                     params=self.config_params,
                                     destination_path=self.repose_config_folder,
@@ -137,6 +143,11 @@ class TestConfigLoadingReloading:
         try:
             pathutil.delete_folder(self.repose_config_folder)
             pathutil.create_folder(self.repose_config_folder)
+            conf.process_config_set(self.config_common,
+                                    params=self.config_params,
+                                    destination_path=self.repose_config_folder,
+                                    verbose=False)
+
             conf.process_config_set(self.config_bad,
                                     params=self.config_params,
                                     destination_path=self.repose_config_folder,
@@ -156,6 +167,11 @@ class TestConfigLoadingReloading:
         try:
             pathutil.delete_folder(self.repose_config_folder)
             pathutil.create_folder(self.repose_config_folder)
+            conf.process_config_set(self.config_common,
+                                    params=self.config_params,
+                                    destination_path=self.repose_config_folder,
+                                    verbose=False)
+
             conf.process_config_set(self.config_good,
                                     params=self.config_params,
                                     destination_path=self.repose_config_folder,
@@ -182,6 +198,11 @@ class TestConfigLoadingReloading:
         try:
             pathutil.delete_folder(self.repose_config_folder)
             pathutil.create_folder(self.repose_config_folder)
+            conf.process_config_set(self.config_common,
+                                    params=self.config_params,
+                                    destination_path=self.repose_config_folder,
+                                    verbose=False)
+
             conf.process_config_set(self.config_bad,
                                     params=self.config_params,
                                     destination_path=self.repose_config_folder,
@@ -210,6 +231,11 @@ class TestNonStartingOnBadConfig(TestConfigLoadingReloading):
         try:
             pathutil.delete_folder(self.repose_config_folder)
             pathutil.create_folder(self.repose_config_folder)
+            conf.process_config_set(self.config_common,
+                                    params=self.config_params,
+                                    destination_path=self.repose_config_folder,
+                                    verbose=False)
+
             conf.process_config_set(self.config_bad,
                                     params=self.config_params,
                                     destination_path=self.repose_config_folder,
@@ -229,6 +255,11 @@ class TestNonStartingOnBadConfig(TestConfigLoadingReloading):
         try:
             pathutil.delete_folder(self.repose_config_folder)
             pathutil.create_folder(self.repose_config_folder)
+            conf.process_config_set(self.config_common,
+                                    params=self.config_params,
+                                    destination_path=self.repose_config_folder,
+                                    verbose=False)
+
             conf.process_config_set(self.config_bad,
                                     params=self.config_params,
                                     destination_path=self.repose_config_folder,
