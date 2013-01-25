@@ -16,6 +16,7 @@ public abstract class AuthToken implements Serializable {
     public abstract long getExpires();
     public abstract String getImpersonatorTenantId();
     public abstract String getImpersonatorUsername();
+    public abstract String getTenantName();
    
 
     

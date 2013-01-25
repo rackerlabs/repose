@@ -23,7 +23,7 @@ public class OpenStackAuthenticationHeaderManager {
     private static final String X_AUTH_PROXY = "Proxy";
     private final String authToken;
     private final AuthToken cachableToken;
-    private final Boolean isDelegatable;
+    private final Boolean isDelagable;
     private final FilterDirector filterDirector;
     private final String tenantId;
     private final Boolean validToken;
@@ -35,7 +35,7 @@ public class OpenStackAuthenticationHeaderManager {
     public OpenStackAuthenticationHeaderManager(String authToken, AuthToken token, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, List<AuthGroup> groups) {
         this.authToken = authToken;
         this.cachableToken = token;
-        this.isDelegatable = isDelegatable;
+        this.isDelagable = isDelegatable;
         this.filterDirector = filterDirector;
         this.tenantId = tenantId;
         this.validToken = token != null && token.getTokenId() != null;
@@ -53,10 +53,10 @@ public class OpenStackAuthenticationHeaderManager {
             setTenant();
             setImpersonator();
 
-            if (isDelegatable) {
+            if (isDelagable) {
                 setIdentityStatus();
             }
-        } else if (isDelegatable && nullCredentials()) {
+        } else if (isDelagable && nullCredentials()) {
             filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
             setExtendedAuthorization();
             setIdentityStatus();
@@ -104,8 +104,8 @@ public class OpenStackAuthenticationHeaderManager {
     * TENANT
     */
     private void setTenant() {
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.toString(), tenantId);
-        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), tenantId);
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_NAME.toString(), cachableToken.getTenantName());
+        filterDirector.requestHeaderManager().putHeader(OpenStackServiceHeader.TENANT_ID.toString(), cachableToken.getTenantId());
     }
 
     /**

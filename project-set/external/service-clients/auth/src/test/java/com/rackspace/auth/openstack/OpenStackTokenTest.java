@@ -58,7 +58,10 @@ public class OpenStackTokenTest {
             Calendar expires = getCalendarWithOffset(1000);
 
             token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
-
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("tenantId");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
             AuthToken info = new OpenStackToken(null, response);
 
             assertEquals("Expires Calendars should be equivalent", expires.getTimeInMillis(), info.getExpires());
@@ -70,7 +73,10 @@ public class OpenStackTokenTest {
             Calendar expires = getCalendarWithOffset(Calendar.MINUTE, Integer.MAX_VALUE);
 
             token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
-
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("tenantId");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
             AuthToken info = new OpenStackToken(null, response);
 
             assertTrue("Raw Ttl should be actual large value", info.tokenTtl() > Integer.MAX_VALUE);
@@ -82,6 +88,10 @@ public class OpenStackTokenTest {
             token.setExpires(null);
             Token token = new Token();
             token.setExpires(null);
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("tenantId");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
             response.setToken(token);
 
             AuthToken info = new OpenStackToken(null, response);
@@ -92,7 +102,10 @@ public class OpenStackTokenTest {
             Calendar expires = getCalendarWithOffset(1);
 
             token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
-
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("tenantId");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
             AuthToken info = new OpenStackToken(null, response);
 
             // Sleep until we have passed the expiration date.
@@ -130,6 +143,10 @@ public class OpenStackTokenTest {
             user.setRoles(roleList);
             response.setUser(user);
             Token token = new Token();
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("tenantId");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
             token.setExpires(DatatypeFactory.newInstance().newXMLGregorianCalendar());
             response.setToken(token);
 
@@ -154,6 +171,12 @@ public class OpenStackTokenTest {
             user.setRoles(roleList);
             response.setUser(user);
             Token token = new Token();
+            
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("tenantId");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
+            
             token.setExpires(DatatypeFactory.newInstance().newXMLGregorianCalendar());
             response.setToken(token);
 
@@ -167,9 +190,13 @@ public class OpenStackTokenTest {
         public void shouldFormatListWithNullRoles() throws DatatypeConfigurationException {
             response.setUser(user);
             Token token = new Token();
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("tenantId");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
             token.setExpires(DatatypeFactory.newInstance().newXMLGregorianCalendar());
             response.setToken(token);
-
+            
             AuthToken info = new OpenStackToken(null, response);
 
             assertNull(info.getRoles());
@@ -182,6 +209,10 @@ public class OpenStackTokenTest {
             user.setRoles(roleList);
             response.setUser(user);
             Token token = new Token();
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("tenantId");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
             token.setExpires(DatatypeFactory.newInstance().newXMLGregorianCalendar());
             response.setToken(token);
 

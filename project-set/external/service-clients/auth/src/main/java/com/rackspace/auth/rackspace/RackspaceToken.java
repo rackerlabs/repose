@@ -24,9 +24,15 @@ public class RackspaceToken extends AuthToken implements Serializable {
       this.tokenId = token.getId();
       this.expires = token.getExpires().toGregorianCalendar().getTimeInMillis();
    }
+   
 
    @Override
    public String getTenantId() {
+      return accountId;
+   }
+   
+   @Override
+   public String getTenantName(){
       return accountId;
    }
 

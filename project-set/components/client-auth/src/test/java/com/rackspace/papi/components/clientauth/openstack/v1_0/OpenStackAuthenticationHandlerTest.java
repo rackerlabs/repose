@@ -45,6 +45,7 @@ import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
+import org.openstack.docs.identity.api.v2.TenantForAuthenticateResponse;
 
 /**
  * @author zinic
@@ -142,6 +143,8 @@ public class OpenStackAuthenticationHandlerTest {
             when(cti.getTokenId()).thenReturn(tokenId);
             when(cti.getUsername()).thenReturn(username);
             when(cti.getExpires()).thenReturn(expires);
+            when(cti.getTenantName()).thenReturn("tenantName");
+            when(cti.getTenantId()).thenReturn("tenantId");
 
             return cti;
         }
@@ -173,6 +176,10 @@ public class OpenStackAuthenticationHandlerTest {
             Token token = new Token();
             token.setId("tokenId");
             token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("tenantId");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
 
             authResponse.setToken(token);
             authResponse.setUser(userForAuthenticateResponse);
@@ -278,6 +285,10 @@ public class OpenStackAuthenticationHandlerTest {
 
             Token token = new Token();
             token.setId("tokenId");
+            TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+            tenant.setId("tenantId");
+            tenant.setName("tenantName");
+            token.setTenant(tenant);
             token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
 
             authResponse.setToken(token);
