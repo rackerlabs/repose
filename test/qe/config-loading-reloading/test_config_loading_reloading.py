@@ -10,43 +10,59 @@ import unittest
 #import install_repose
 import xmlrunner as _xmlrunner
 import logging
+import SocketServer
+import BaseHTTPServer
+import threading
 
 logger = logging.getLogger(__name__)
 
-target_hostname = 'localhost'
-target_port = 8894
-target_config_folder = 'etc/repose2'
-target_repose = None
+mock_port = 8894
+mock_service = None
+mock_url = 'http://localhost:%i/' % mock_port
 
 
-def create_target():
-    # stand up a repose node with no filters and no destinations
-    # it will simply return 200's for all requests
+class MockService(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
+    pass
 
-    global target_repose
-    if target_repose is not None:
+
+class MockServiceHandler(BaseHTTPServer.BaseHTTPRequestHandler):
+    def do_GET(self):
+        self.send_response(200)
+        self.end_headers()
         return
-    logger.debug('Creating target Repose node')
-    pathutil.create_folder(target_config_folder)
-    conf.process_config_set(config_set_name='simple-node',
-                            destination_path='etc/repose2',
-                            params={
-                                'port': str(target_port),
-                                'deploydir': 'var/repose',
-                                'artifactdir': 'usr/share/repose/filters',
-                                'logfile': 'var/log/repose/current2.log'},
-                            verbose=False)
-    target_repose = repose.ReposeValve(target_config_folder, stop_port=9894)
-    time.sleep(25)
-    logger.debug('target node started (pid=%i)' % target_repose.proc.pid)
 
 
-def destroy_target():
-    global target_repose
-    if target_repose is None:
+def mock_service_thread():
+    logger.debug('thread created for mock service')
+    mock_service.serve_forever()
+
+
+def create_mock():
+    # create a simple HTTP server that returns a 200 response to all requests
+    logger.debug('create_mock')
+    global mock_service
+    if mock_service is not None:
         return
-    logger.debug('Destorying target Repose node')
-    target_repose.stop()
+
+    # create the mock service object, but don't start it yet
+    mock_service = MockService(('localhost', mock_port), MockServiceHandler)
+    logger.debug('mock service created')
+
+    # start the mock server on a separate thread, so that we can make
+    # requests at the same time that i's serving them.
+    t = threading.Thread(target=mock_service_thread)
+    t.daemon = True
+    t.start()
+
+    requests.get(mock_url)
+    logger.debug('mock service is serving requests.')
+
+
+def destroy_mock():
+    global mock_service
+    if mock_service is None:
+        return
+    mock_service.shutdown()
 
 
 def setUpModule():
@@ -59,12 +75,12 @@ def setUpModule():
     pathutil.create_folder('var/repose')
     #install_repose.get_repose(valve_dest='usr/share/repose',
     #                          ear_dest='usr/share/repose/filters')
-    create_target()
+    create_mock()
     logger.debug('setUpModule complete')
 
 
 def tearDownModule():
-    destroy_target()
+    destroy_mock()
 
 
 class TestConfigLoadingReloading:
@@ -79,8 +95,8 @@ class TestConfigLoadingReloading:
         self.repose_stop_port = 9893
         self.repose_url = 'http://localhost:%s' % self.repose_port
         self.config_params = {'port': str(self.repose_port),
-                              'target_hostname': target_hostname,
-                              'target_port': target_port}
+                              'target_hostname': 'localhost',
+                              'target_port': mock_port}
         self.sleep_time = 25
 
     def get_request_timeout(self):
