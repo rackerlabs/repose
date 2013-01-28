@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.translation;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.components.translation.config.RequestTranslation;
 import com.rackspace.papi.components.translation.config.RequestTranslations;
 import com.rackspace.papi.components.translation.config.ResponseTranslation;
@@ -8,13 +7,7 @@ import com.rackspace.papi.components.translation.config.ResponseTranslations;
 import com.rackspace.papi.components.translation.config.StyleSheet;
 import com.rackspace.papi.components.translation.config.StyleSheets;
 import com.rackspace.papi.components.translation.config.TranslationConfig;
-import com.rackspace.papi.components.translation.xslt.xmlfilterchain.XmlFilterChainBuilder;
 import com.rackspace.papi.service.config.ConfigurationService;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Map.Entry;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXTransformerFactory;
 import org.junit.Before;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -34,7 +27,7 @@ public class TranslationHandlerFactoryTest {
         @Before
         public void setUp() {
             manager = mock(ConfigurationService.class);
-            factory = new TranslationHandlerFactory(manager, new XmlFilterChainBuilder((SAXTransformerFactory) TransformerFactory.newInstance()), "", "");
+            factory = new TranslationHandlerFactory(manager, "", "");
         }
         
    

@@ -1,0 +1,5 @@
+<config-set>
+  <folder>
+    <file src="header-identity.cfg.xml" />
+  </folder>
+</config-set>
