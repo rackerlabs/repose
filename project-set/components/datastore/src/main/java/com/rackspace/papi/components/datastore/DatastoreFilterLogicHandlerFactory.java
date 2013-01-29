@@ -40,11 +40,11 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
 
       hostACL = DEFAULT_DATASTORE_ACL;
 
-      LOG.info("By default, the distributed datastore component is configured to "
-              + "start in allow-all mode meaning that any host can access, store "
-              + "and delete cached objects. Please configure this component if "
-              + "you wish to restrict access. This message may be ignored if you "
-              + "have already configured this component.");
+      LOG.info("By default, the distributed datastore component is configured to"
+              + " start in restricted mode. Meaning that only members of the current"
+              + " Repose nodes cluster will be able to access, store, and delete cached objects."
+              + " Please configure this component if you wish to grant access to other hosts. This "
+              + "message may be ignored if you have already configured this component");
    }
 
    @Override
