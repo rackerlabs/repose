@@ -161,6 +161,22 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
       return reposeClusterMembers;
    }
 
+   private List<InetAddress> getConfiguredAllowedHosts() {
+
+      final List<InetAddress> configuredAllowedHosts = new LinkedList<InetAddress>();
+
+      for (HostAccessControl host : curDistributedDatastoreConfiguration.getAllowedHosts().getAllow()) {
+         try {
+            final InetAddress hostAddress = InetAddress.getByName(host.getHost());
+            configuredAllowedHosts.add(hostAddress);
+         } catch (UnknownHostException e) {
+            LOG.warn("Unable to resolve host: " + host.getHost());
+         }
+      }
+
+      return configuredAllowedHosts;
+   }
+
    private synchronized void updateAccessList() {
 
       List<InetAddress> hostAccessList = new LinkedList<InetAddress>();
@@ -171,24 +187,16 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
       if (curDistributedDatastoreConfiguration != null) {
 
          allowAll = curDistributedDatastoreConfiguration.getAllowedHosts().isAllowAll();
-         for (HostAccessControl host : curDistributedDatastoreConfiguration.getAllowedHosts().getAllow()) {
-            try {
-               final InetAddress hostAddress = InetAddress.getByName(host.getHost());
-               hostAccessList.add(hostAddress);
-            } catch (UnknownHostException e) {
-               LOG.warn("Unable to resolve host: " + host.getHost());
-            }
-         }
+         hostAccessList.addAll(getConfiguredAllowedHosts());
       }
 
       if (allowAll) {
          LOG.info("The distributed datastore component is configured in allow-all mode meaning that any host can access, store and delete cached objects.");
       } else {
-         LOG.info("The distributed datastore component has access controls configured meaning that only the configured hosts and cluster members " +
-                 "can access, store and delete cached objects.");
-         LOG.debug("Allowed Hosts: " + hostAccessList.toString());
+         LOG.info("The distributed datastore component has access controls configured meaning that only the configured hosts and cluster members "
+                 + "can access, store and delete cached objects.");
       }
-
+      LOG.debug("Allowed Hosts: " + hostAccessList.toString());
       hostACL = new DatastoreAccessControl(hostAccessList, allowAll);
    }
 }
