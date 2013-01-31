@@ -32,6 +32,7 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
    private ReposeInstanceInfo instanceInfo;
    private SystemModel curSystemModel;
    private DistributedDatastoreConfiguration curDistributedDatastoreConfiguration;
+   private final Object configLock = new Object();
 
    public DatastoreFilterLogicHandlerFactory(MutableClusterView clusterView, HashRingDatastore hashRingDatastore, ReposeInstanceInfo instanceInfo) {
       this.clusterView = clusterView;
@@ -98,7 +99,9 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
       @Override
       public void configurationUpdated(DistributedDatastoreConfiguration configurationObject) {
 
-         curDistributedDatastoreConfiguration = configurationObject;
+         synchronized (configLock) {
+            curDistributedDatastoreConfiguration = configurationObject;
+         }
          updateAccessList();
 
          isInitialized = true;
@@ -117,7 +120,9 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
       @Override
       public void configurationUpdated(SystemModel configurationObject) {
 
-         curSystemModel = configurationObject;
+         synchronized (configLock) {
+            curSystemModel = configurationObject;
+         }
          if (curSystemModel == null) {
             LOG.error("Power Proxy configuration was null - please check your configurations and error logs");
             return;
@@ -140,7 +145,9 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
       if (!this.isInitialized()) {
          return null;
       }
-      return new DatastoreFilterLogicHandler(UUIDEncodingProvider.getInstance(), hashRingDatastore, hostACL);
+      synchronized (configLock) {
+         return new DatastoreFilterLogicHandler(UUIDEncodingProvider.getInstance(), hashRingDatastore, hostACL);
+      }
    }
 
    private List<InetAddress> getClusterMembers() {
@@ -177,26 +184,28 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
       return configuredAllowedHosts;
    }
 
-   private synchronized void updateAccessList() {
+   private void updateAccessList() {
 
-      List<InetAddress> hostAccessList = new LinkedList<InetAddress>();
-      boolean allowAll = false;
-      if (curSystemModel != null) {
-         hostAccessList.addAll(getClusterMembers());
-      }
-      if (curDistributedDatastoreConfiguration != null) {
+      synchronized (configLock) {
+         List<InetAddress> hostAccessList = new LinkedList<InetAddress>();
+         boolean allowAll = false;
+         if (curSystemModel != null) {
+            hostAccessList.addAll(getClusterMembers());
+         }
+         if (curDistributedDatastoreConfiguration != null) {
 
-         allowAll = curDistributedDatastoreConfiguration.getAllowedHosts().isAllowAll();
-         hostAccessList.addAll(getConfiguredAllowedHosts());
-      }
+            allowAll = curDistributedDatastoreConfiguration.getAllowedHosts().isAllowAll();
+            hostAccessList.addAll(getConfiguredAllowedHosts());
+         }
 
-      if (allowAll) {
-         LOG.info("The distributed datastore component is configured in allow-all mode meaning that any host can access, store and delete cached objects.");
-      } else {
-         LOG.info("The distributed datastore component has access controls configured meaning that only the configured hosts and cluster members "
-                 + "can access, store and delete cached objects.");
+         if (allowAll) {
+            LOG.info("The distributed datastore component is configured in allow-all mode meaning that any host can access, store and delete cached objects.");
+         } else {
+            LOG.info("The distributed datastore component has access controls configured meaning that only the configured hosts and cluster members "
+                    + "can access, store and delete cached objects.");
+         }
+         LOG.debug("Allowed Hosts: " + hostAccessList.toString());
+         hostACL = new DatastoreAccessControl(hostAccessList, allowAll);
       }
-      LOG.debug("Allowed Hosts: " + hostAccessList.toString());
-      hostACL = new DatastoreAccessControl(hostAccessList, allowAll);
    }
 }
