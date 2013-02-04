@@ -23,18 +23,18 @@ stop_port = 7777
 
 def setUpModule():
     # Set up folder hierarchy and install repose JAR/EARs if needed
-    logging.debug('')
+    logger.debug('setUpModule')
     pass
 
 
 def get_status_code_from_url(url, timeout=None):
-    logging.debug('')
+    logger.debug('get_status_code_from_url(url="%s")' % url)
     return requests.get(url, timeout=timeout).status_code
 
 
 class TestPortsInContainerHttpSame(unittest.TestCase):
     def setUp(self):
-        logging.debug('')
+        logger.debug('TestPortsInContainerHttpSame.setUp')
         pathutil.clear_folder(config_dir)
         self.sysmod_port = 8888
         params = {
@@ -57,13 +57,18 @@ class TestPortsInContainerHttpSame(unittest.TestCase):
                                          stop_port=stop_port)
 
     def tearDown(self):
-        logging.debug('')
+        logger.debug('TestPortsInContainerHttpSame.tearDown')
         if self.repose is not None:
             self.repose.stop()
 
     def runTest(self):
-        logging.debug('')
-        self.assertEqual(get_status_code_from_url('http://localhost:%i/' % self.sysmod_port))
+        logger.debug('TestPortsInContainerHttpSame.runTest')
+        url = 'http://localhost:%i/' % self.sysmod_port
+        logger.debug('TestPortsInContainerHttpSame.runTest: url = %s' % url)
+        status_code = get_status_code_from_url(url)
+        logger.debug('TestPortsInContainerHttpSame.runTest: status_code = %i' %
+                     status_code)
+        self.assertEqual(status_code, 200)
 
 
 class TestPortsInContainerHttpsSame(unittest.TestCase):
@@ -79,7 +84,7 @@ class TestPortsInContainerNone(unittest.TestCase):
 
 
 def run():
-    logging.debug('')
+    logger.debug('run')
     setUpModule()
 
     suite = unittest.TestSuite()
