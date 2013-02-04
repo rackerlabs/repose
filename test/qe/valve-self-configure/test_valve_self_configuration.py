@@ -6,6 +6,10 @@ import unittest
 import conf
 import pathutil
 import xmlrunner as _xmlrunner
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 target_hostname = '50.'
@@ -19,15 +23,18 @@ stop_port = 7777
 
 def setUpModule():
     # Set up folder hierarchy and install repose JAR/EARs if needed
+    logging.debug('')
     pass
 
 
 def get_status_code_from_url(url, timeout=None):
+    logging.debug('')
     return requests.get(url, timeout=timeout).status_code
 
 
 class TestPortsInContainerHttpSame(unittest.TestCase):
     def setUp(self):
+        logging.debug('')
         pathutil.clear_folder(config_dir)
         self.sysmod_port = 8888
         params = {
@@ -50,10 +57,12 @@ class TestPortsInContainerHttpSame(unittest.TestCase):
                                          stop_port=stop_port)
 
     def tearDown(self):
+        logging.debug('')
         if self.repose is not None:
             self.repose.stop()
 
     def runTest(self):
+        logging.debug('')
         self.assertEqual(get_status_code_from_url('http://localhost:%i/' % self.sysmod_port))
 
 
@@ -70,6 +79,7 @@ class TestPortsInContainerNone(unittest.TestCase):
 
 
 def run():
+    logging.debug('')
     setUpModule()
 
     suite = unittest.TestSuite()
