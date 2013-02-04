@@ -47,11 +47,11 @@ class TestPortsInContainerHttpSame(unittest.TestCase):
             'artifact_dir': artifact_dir,
             'log_file': log_file
         }
-        conf.process_config_set('valve-self-common',
+        conf.process_config_set('valve-self-common', verbose=False,
                                 destination_path=config_dir, params=params)
-        conf.process_config_set('valve-self-1-common',
+        conf.process_config_set('valve-self-1-common', verbose=False,
                                 destination_path=config_dir, params=params)
-        conf.process_config_set('valve-self-1-with-con-port',
+        conf.process_config_set('valve-self-1-with-con-port', verbose=False,
                                 destination_path=config_dir, params=params)
         self.repose = repose.ReposeValve(config_dir=config_dir,
                                          stop_port=stop_port)
