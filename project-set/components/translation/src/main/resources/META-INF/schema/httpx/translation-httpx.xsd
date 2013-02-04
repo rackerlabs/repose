@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:httpx="http://openrepose.org/repose/httpx/v1.0"
+           targetNamespace="http://openrepose.org/repose/httpx/v1.0"
+           attributeFormDefault="unqualified"
+           elementFormDefault="qualified">
+
+  <xs:element name="headers" type="httpx:Headers"/>
+  <xs:element name="parameters" type="httpx:QueryParameters" />
+  
+  <xs:complexType name="Headers">
+    <xs:annotation>
+      <xs:documentation>
+        <html:p>The request/response headers in an xml representation.</html:p>
+      </xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="request" type="httpx:HeaderList" minOccurs="0" />
+      <xs:element name="response" type="httpx:HeaderList" minOccurs="0" />
+    </xs:all>
+  </xs:complexType>
+  
+  <xs:complexType name="HeaderList">
+    <xs:sequence>
+      <xs:element name="header" type="httpx:QualityNameValuePair" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="QualityNameValuePair">
+    <xs:attribute name="name" type="xs:string" />
+    <xs:attribute name="value" type="xs:string" />
+    <xs:attribute name="quality" type="httpx:Quality" use="optional" default="1.0" />
+    <!--
+    <xs:complexContent>
+      <xs:extension base="httpx:NameValuePair">
+        <xs:attribute name="quality" type="httpx:Quality" use="optional" default="1.0" />
+      </xs:extension>
+    </xs:complexContent>
+    -->
+  </xs:complexType>  
+  
+  <xs:simpleType name="Quality">
+    <xs:restriction base="xs:double">
+      <xs:minInclusive value="0" />
+      <xs:maxInclusive value="1.0" />
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:complexType name="NameValuePair">
+    <xs:attribute name="name" type="xs:string" />
+    <xs:attribute name="value" type="xs:string" />
+  </xs:complexType>
+
+  <xs:complexType name="QueryParameters">
+    <xs:annotation>
+      <xs:documentation>
+        <html:p>The request/response headers in an xml representation.</html:p>
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="parameter" type="httpx:NameValuePair" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+      
+</xs:schema>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<headers
+  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+  xmlns='http://openrepose.org/repose/httpx/v1.0'
+  xsi:schemaLocation='http://openrepose.org/repose/httpx/v1.0 ../httpx.xsd'>
+  
+  <request>
+    <header name="HOST" value="blah"/>
+    <header name="X-FORWARDED-FOR" value="127.0.0.1"/>
+    <header name="CONTENT-TYPE" value="application/xml"/>
+    <header name="ACCEPT" value="application/xml" quality="0.5" />
+    <header name="ACCEPT" value="application/json" quality="0.1" />
+  </request>
+  
+  <response>
+    <header name="CONTENT-TYPE" value="application/xml" />
+    <header name="VIA" value="repose" />
+  </response>
+
+</headers>

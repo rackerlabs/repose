@@ -86,7 +86,6 @@ public class PowerApiValveServerControl {
       try{
          serverInstance = new ValveControllerServerBuilder(
                  commandLineArgs.getConfigDirectory(), 
-                 ports, 
                  validateSsl(), 
                  commandLineArgs.getConnectionFramework(), 
                  commandLineArgs.getInsecure())

@@ -1,6 +1,5 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
-import com.rackspace.papi.commons.util.servlet.http.RequestQueryParameters;
 import com.rackspace.papi.commons.util.http.normal.QueryParameter;
 import com.rackspace.papi.commons.util.http.normal.QueryParameterCollection;
 import java.util.*;
@@ -69,4 +68,14 @@ public class RequestQueryParametersImpl implements RequestQueryParameters {
          return queryParameters;
       }
    }
+
+  @Override
+  public String[] removeParameter(String name) {
+    return queryParameters.remove(name);
+  }
+
+  @Override
+  public void clearParameters() {
+    queryParameters.clear();
+  }
 }

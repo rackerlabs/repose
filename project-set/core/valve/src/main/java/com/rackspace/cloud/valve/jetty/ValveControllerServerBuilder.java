@@ -16,14 +16,12 @@ import org.eclipse.jetty.servlet.ServletHolder;
 
 public class ValveControllerServerBuilder {
 
-   private final ServicePorts ports = new ServicePorts();
    private String configurationPathAndFile = "";
    private final SslConfiguration sslConfiguration;
    private final String connectionFramework;
    private final boolean insecure;
 
-   public ValveControllerServerBuilder(String configPath, List<Port> ports, SslConfiguration sslConfiguration, String connectionFramework, boolean insecure) {
-      this.ports.addAll(ports);
+   public ValveControllerServerBuilder(String configPath, SslConfiguration sslConfiguration, String connectionFramework, boolean insecure) {
       this.configurationPathAndFile = configPath;
       this.sslConfiguration = sslConfiguration;
       this.connectionFramework = connectionFramework;

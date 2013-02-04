@@ -78,7 +78,7 @@ public class XsltFilterChainBuilderTest {
             List<XsltParameter<? extends OutputStream>> outputs = new ArrayList<XsltParameter<? extends OutputStream>>();
             
             XmlFilterChain chain = builder.build(new StyleSheetInfo("", "classpath:///style.xsl"));
-            chain.executeChain(body, output, inputs);
+            chain.executeChain(body, output, inputs, null);
             
             String outResult = output.toString();
             

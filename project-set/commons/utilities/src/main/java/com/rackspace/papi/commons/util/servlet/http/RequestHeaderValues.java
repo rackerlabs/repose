@@ -21,4 +21,6 @@ public interface RequestHeaderValues {
     void removeHeader(String name);
 
     void replaceHeader(String name, String value);
+    
+    void clearHeaders();
 }

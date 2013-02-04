@@ -25,10 +25,10 @@ public class XmlFilterChain {
         return filters;
     }
 
-    public void executeChain(InputStream in, OutputStream output, List<XsltParameter> inputs) throws XsltException {
+    public void executeChain(InputStream in, OutputStream output, List<XsltParameter> inputs, List<XsltParameter<? extends OutputStream>> outputs) throws XsltException {
         if (in == null || output == null) {
             return;
         }
-        new XmlFilterChainExecutor(this).executeChain(in, output, inputs);
+        new XmlFilterChainExecutor(this).executeChain(in, output, inputs, outputs);
     }
 }
