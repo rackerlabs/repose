@@ -7,7 +7,7 @@ import conf
 import pathutil
 import xmlrunner as _xmlrunner
 import logging
-
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -55,6 +55,7 @@ class TestPortsInContainerHttpSame(unittest.TestCase):
                                 destination_path=config_dir, params=params)
         self.repose = repose.ReposeValve(config_dir=config_dir,
                                          stop_port=stop_port)
+        time.sleep(20)
 
     def tearDown(self):
         logger.debug('TestPortsInContainerHttpSame.tearDown')
