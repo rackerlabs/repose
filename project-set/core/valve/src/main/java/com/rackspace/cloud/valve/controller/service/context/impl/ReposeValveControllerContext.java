@@ -11,6 +11,8 @@ import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.cloud.valve.controller.service.ControllerService;
 import com.rackspace.papi.commons.util.net.NetUtilities;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
+import com.rackspace.papi.container.config.ContainerConfiguration;
+import com.rackspace.papi.service.deploy.ContainerConfigurationListener;
 import com.rackspace.papi.servlet.InitParameter;
 import java.net.URL;
 import java.util.HashMap;
@@ -35,6 +37,7 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
    private final ConfigurationService configurationManager;
    private final ServiceRegistry registry;
    private final SystemModelConfigurationListener systemModelConfigurationListener;
+   private final ContainerConfigurationListener containerConfigurationListener;
    private String configDir;
    private String connectionFramework;
    private boolean isInsecure;
@@ -50,6 +53,7 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
       this.registry = registry;
       this.controllerService = controllerService;
       this.systemModelConfigurationListener = new SystemModelConfigurationListener();
+      this.containerConfigurationListener = new ContainerConfigurationListener();
    }
 
    public void register() {
@@ -75,6 +79,8 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
       this.isInsecure = Boolean.parseBoolean(sce.getServletContext().getInitParameter(InitParameter.INSECURE.getParameterName()));
       controllerService.setConfigDirectory(configDir);
       URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
+      URL containerXsdURL =  getClass().getResource("/META-INF/schema/container/container-configuration.xsd");
+      configurationManager.subscribeTo("container.cfg.xml", containerXsdURL, containerConfigurationListener, ContainerConfiguration.class);
       configurationManager.subscribeTo("system-model.cfg.xml", xsdURL, systemModelConfigurationListener, SystemModel.class);
       register();
 
@@ -88,32 +94,59 @@ public class ReposeValveControllerContext implements ServiceContext<ControllerSe
       curNodes.clear();
    }
 
+   private class ContainerConfigurationListener implements UpdateListener<ContainerConfiguration> {
+
+      private boolean isInitialized = false;
+
+      @Override
+      public void configurationUpdated(ContainerConfiguration configurationObject) {
+
+         if (configurationObject != null) {
+            this.isInitialized = true;
+
+            if (!systemModelConfigurationListener.isInitialized()) {
+               systemModelConfigurationListener.configurationUpdated(systemModel);
+            }
+         }
+      }
+
+      @Override
+      public boolean isInitialized() {
+         return this.isInitialized;
+      }
+   }
+
    private class SystemModelConfigurationListener implements UpdateListener<SystemModel> {
 
       @Override
       public void configurationUpdated(SystemModel configurationObject) {
 
-         curNodes = controllerService.getManagedInstances();
-
-         if (StringUtilities.isBlank(controllerService.getConfigDirectory())) {
-            controllerService.setConfigDirectory(configDir);
-         }
-
-         if (StringUtilities.isBlank(controllerService.getConnectionFramework())) {
-            controllerService.setConnectionFramework(connectionFramework);
-         }
-
-         controllerService.setIsInsecure(isInsecure);
-
          systemModel = configurationObject;
 
-         Map<String, ExtractorResult<Node>> updatedSystem = getLocalReposeInstances(systemModel);
+         if (containerConfigurationListener.isInitialized() && systemModel != null) {
+
+            curNodes = controllerService.getManagedInstances();
+
+            if (StringUtilities.isBlank(controllerService.getConfigDirectory())) {
+               controllerService.setConfigDirectory(configDir);
+            }
+
+            if (StringUtilities.isBlank(controllerService.getConnectionFramework())) {
+               controllerService.setConnectionFramework(connectionFramework);
+            }
+
+            controllerService.setIsInsecure(isInsecure);
 
 
-         controllerService.updateManagedInstances(getNodesToStart(updatedSystem), getNodesToShutdown(updatedSystem));
 
-         checkDeployment();
-         initialized = true;
+            Map<String, ExtractorResult<Node>> updatedSystem = getLocalReposeInstances(systemModel);
+
+
+            controllerService.updateManagedInstances(getNodesToStart(updatedSystem), getNodesToShutdown(updatedSystem));
+
+            checkDeployment();
+            initialized = true;
+         }
       }
 
       @Override
