@@ -1,0 +1,6 @@
+<config-set>
+  <folder>
+    <file src="log4j.properties" />
+  </folder>
+</config-set>
+
