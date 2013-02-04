@@ -12,7 +12,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-target_hostname = '50.'
+target_hostname = '50.57.189.15'
 target_port = 8080
 config_dir = 'etc/repose'
 deploy_dir = 'var/repose'
