@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.translation.httpx;
 
-import com.sun.xml.internal.bind.marshaller.NamespacePrefixMapper;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -15,7 +14,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.Source;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
@@ -23,6 +21,7 @@ import javax.xml.validation.SchemaFactory;
 import org.openrepose.repose.httpx.v1.Headers;
 import org.openrepose.repose.httpx.v1.ObjectFactory;
 import org.openrepose.repose.httpx.v1.QueryParameters;
+import org.openrepose.repose.httpx.v1.RequestInformation;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -113,6 +112,14 @@ public class HttpxMarshaller {
       throw new HttpxException("Unable to create HTTPX unmarshaller", ex);
     }
   }
+  
+  public RequestInformation unmarshallRequestInformation(String xml) {
+    return unmarshall(xml);
+  }
+
+  public RequestInformation unmarshallRequestInformation(InputStream xml) {
+    return unmarshall(xml);
+  }
 
   public Headers unmarshallHeaders(String xml) {
     return unmarshall(xml);
@@ -156,6 +163,14 @@ public class HttpxMarshaller {
 
   public Document getDocument(Headers headers) {
     return buildDocument(marshall(headers));
+  }
+  
+  public InputStream marshall(RequestInformation request) {
+    return marshall(objectFactory.createRequestInformation(request));
+  }
+  
+  public void marshall(RequestInformation request, OutputStream out) {
+    marshall(objectFactory.createRequestInformation(request), out);
   }
   
   public InputStream marshall(Headers header) {

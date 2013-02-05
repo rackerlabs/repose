@@ -24,8 +24,6 @@ import javax.xml.transform.stream.StreamResult;
 import net.sf.saxon.Controller;
 import net.sf.saxon.lib.OutputURIResolver;
 import org.apache.xalan.transformer.TrAXFilter;
-import org.openrepose.repose.httpx.v1.Headers;
-import org.openrepose.repose.httpx.v1.QueryParameters;
 import org.slf4j.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
@@ -33,6 +31,7 @@ import org.xml.sax.XMLReader;
 public class XmlFilterChainExecutor {
 
   private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(XmlFilterChainExecutor.class);
+  private static final String REQUEST_ID_PARAM = "requestId";
   private final XmlFilterChain chain;
   private final Properties format = new Properties();
   private final HttpxMarshaller marshaller;
@@ -77,6 +76,16 @@ public class XmlFilterChainExecutor {
 
     return null;
   }
+  
+  private String getRequestId(List<XsltParameter> inputs) {
+    for (XsltParameter param: inputs) {
+      if (REQUEST_ID_PARAM.equalsIgnoreCase(param.getName()) && param.getValue() != null) {
+        return param.getValue().toString();
+      }
+    }
+    
+    return UUID.randomUUID().toString();
+  }
 
   protected void setInputParameters(String id, Transformer transformer, List<XsltParameter> inputs) {
 
@@ -85,7 +94,7 @@ public class XmlFilterChainExecutor {
     resolver.clearStreams();
     
     if (inputs != null && inputs.size() > 0) {
-      String uniqueId = UUID.randomUUID().toString();
+      String uniqueId = getRequestId(inputs);
       HttpxUriInputParameterResolver headersResolver = resolverChain.getResolverOfType(HttpxUriInputParameterResolver.class);
       headersResolver.reset();
 
@@ -94,14 +103,6 @@ public class XmlFilterChainExecutor {
           String param = null;
           if (input.getValue() instanceof InputStream) {
             param = resolver.addStream((InputStream) input.getValue());
-            /*
-             } else if (input.getValue() instanceof Headers) {
-             Headers headers = (Headers) input.getValue();
-             param = marshaller.getDocument(headers);
-             } else if (input.getValue() instanceof QueryParameters) {
-             QueryParameters params = (QueryParameters) input.getValue();
-             param = marshaller.getDocument(params);
-             */
           } else if (input.getValue() instanceof HttpServletRequest) {
             headersResolver.setRequest((HttpServletRequest) input.getValue());
           } else if (input.getValue() instanceof HttpServletResponse) {
@@ -117,9 +118,6 @@ public class XmlFilterChainExecutor {
           transformer.setParameter(input.getName(), param);
         }
       }
-
-      transformer.setParameter("headersInputUri", HttpxUriInputParameterResolver.HEADERS_PREFIX + uniqueId);
-      transformer.setParameter("queryInputUri", HttpxUriInputParameterResolver.PARAMS_PREFIX + uniqueId);
     }
 
   }

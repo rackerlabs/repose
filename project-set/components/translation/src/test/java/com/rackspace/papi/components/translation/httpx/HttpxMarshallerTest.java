@@ -12,7 +12,6 @@ import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openrepose.repose.httpx.v1.Headers;
-import org.custommonkey.xmlunit.Diff;
 import org.xml.sax.SAXException;
 
 @RunWith(Enclosed.class)

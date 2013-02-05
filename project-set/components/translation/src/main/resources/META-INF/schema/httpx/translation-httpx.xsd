@@ -9,6 +9,38 @@
 
   <xs:element name="headers" type="httpx:Headers"/>
   <xs:element name="parameters" type="httpx:QueryParameters" />
+  <xs:element name="request-information" type="httpx:RequestInformation" />
+  
+  <xs:complexType name="RequestInformation">
+    <xs:all>
+      <xs:element name="uri" type="xs:string" />
+      <xs:element name="url" type="xs:string" />
+      <xs:element name="informational" type="httpx:ReadOnlyRequestInformation" minOccurs="0" />
+    </xs:all>
+  </xs:complexType>
+  
+  <xs:complexType name="ReadOnlyRequestInformation">
+    <xs:all>
+      <xs:element name="auth-type" type="xs:string" />
+      <xs:element name="context-path" type="xs:string" />
+      <xs:element name="local-addr" type="xs:string" />
+      <xs:element name="local-name" type="xs:string" />
+      <xs:element name="local-port" type="xs:int" />
+      <xs:element name="request-method" type="xs:string" />
+      <xs:element name="path-info" type="xs:string" />
+      <xs:element name="path-translated" type="xs:string" />
+      <xs:element name="protocol" type="xs:string" />
+      <xs:element name="remote-addr" type="xs:string" />
+      <xs:element name="remote-host" type="xs:string" />
+      <xs:element name="remote-port" type="xs:int" />
+      <xs:element name="remote-user" type="xs:string" />
+      <xs:element name="session-id" type="xs:string" />
+      <xs:element name="scheme" type="xs:string" />
+      <xs:element name="server-name" type="xs:string" />
+      <xs:element name="server-port" type="xs:int" />
+      <xs:element name="servlet-path" type="xs:string" />
+    </xs:all>
+  </xs:complexType>
   
   <xs:complexType name="Headers">
     <xs:annotation>
@@ -29,16 +61,11 @@
   </xs:complexType>
 
   <xs:complexType name="QualityNameValuePair">
-    <xs:attribute name="name" type="xs:string" />
-    <xs:attribute name="value" type="xs:string" />
-    <xs:attribute name="quality" type="httpx:Quality" use="optional" default="1.0" />
-    <!--
     <xs:complexContent>
       <xs:extension base="httpx:NameValuePair">
         <xs:attribute name="quality" type="httpx:Quality" use="optional" default="1.0" />
       </xs:extension>
     </xs:complexContent>
-    -->
   </xs:complexType>  
   
   <xs:simpleType name="Quality">

@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.translation.httpx;
 
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import java.util.List;
 import java.util.Map.Entry;
@@ -12,6 +13,8 @@ import org.openrepose.repose.httpx.v1.NameValuePair;
 import org.openrepose.repose.httpx.v1.ObjectFactory;
 import org.openrepose.repose.httpx.v1.QualityNameValuePair;
 import org.openrepose.repose.httpx.v1.QueryParameters;
+import org.openrepose.repose.httpx.v1.ReadOnlyRequestInformation;
+import org.openrepose.repose.httpx.v1.RequestInformation;
 
 public class HttpxProducer {
 
@@ -20,6 +23,7 @@ public class HttpxProducer {
   private final HttpServletResponse response;
   private Headers headers;
   private QueryParameters queryParameters;
+  private RequestInformation requestInformation;
 
   public HttpxProducer(HttpServletRequest request, HttpServletResponse response) {
     this.request = request;
@@ -44,6 +48,38 @@ public class HttpxProducer {
     }
 
     return result;
+  }
+  
+  public RequestInformation getRequestInformation() {
+    if (requestInformation == null) {
+      requestInformation = objectFactory.createRequestInformation();
+      requestInformation.setUri(request.getRequestURI());
+      requestInformation.setUrl(request.getRequestURL().toString());
+      ReadOnlyRequestInformation info = objectFactory.createReadOnlyRequestInformation();
+      
+      info.setAuthType(StringUtilities.getValue(request.getAuthType(), ""));
+      info.setContextPath(StringUtilities.getValue(request.getContextPath(), ""));
+      info.setLocalAddr(StringUtilities.getValue(request.getLocalAddr(), ""));
+      info.setLocalName(StringUtilities.getValue(request.getLocalName(), ""));
+      info.setLocalPort(request.getLocalPort());
+      info.setPathInfo(StringUtilities.getValue(request.getPathInfo(), ""));
+      info.setPathTranslated(StringUtilities.getValue(request.getPathTranslated(), ""));
+      info.setProtocol(StringUtilities.getValue(request.getProtocol(), ""));
+      info.setRemoteAddr(StringUtilities.getValue(request.getRemoteAddr(), ""));
+      info.setRemoteHost(StringUtilities.getValue(request.getRemoteHost(), ""));
+      info.setRemotePort(request.getRemotePort());
+      info.setRemoteUser(StringUtilities.getValue(request.getRemoteUser(), ""));
+      info.setRequestMethod(StringUtilities.getValue(request.getMethod(), ""));
+      info.setScheme(StringUtilities.getValue(request.getScheme(), ""));
+      info.setServerName(StringUtilities.getValue(request.getServerName(), ""));
+      info.setServerPort(request.getServerPort());
+      info.setServletPath(StringUtilities.getValue(request.getServletPath(), ""));
+      info.setSessionId(StringUtilities.getValue(request.getRequestedSessionId(), ""));
+      
+      requestInformation.setInformational(info);
+    }
+    
+    return requestInformation;
   }
 
   public Headers getHeaders() {

@@ -14,6 +14,7 @@ public class HttpxUriInputParameterResolver extends SourceUriResolver {
 
   public static final String HEADERS_PREFIX = "repose:input:headers";
   public static final String PARAMS_PREFIX = "repose:input:query";
+  public static final String REQUEST_INFO_PREFIX = "repose:input:request";
   private HttpServletRequest request;
   private HttpServletResponse response;
   private HttpxProducer producer;
@@ -65,12 +66,14 @@ public class HttpxUriInputParameterResolver extends SourceUriResolver {
       HttpxProducer p = getProducer();
 
       return new StreamSource(marshaller.marshall(producer.getHeaders()));
-      //return new DOMSource(buildDocument(marshaller.marshall(producer.getHeaders())));
+    } else if (href.toLowerCase().startsWith(REQUEST_INFO_PREFIX)) {
+      HttpxProducer p = getProducer();
+
+      return new StreamSource(marshaller.marshall(producer.getRequestInformation()));
     } else if (href.toLowerCase().startsWith(PARAMS_PREFIX)) {
       HttpxProducer p = getProducer();
 
       return new StreamSource(marshaller.marshall(producer.getRequestParameters()));
-      //return new DOMSource(buildDocument(marshaller.marshall(producer.getRequestParameters())));
     }
 
     return super.resolve(href, base);
