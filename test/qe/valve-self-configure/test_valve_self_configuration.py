@@ -8,6 +8,7 @@ import pathutil
 import xmlrunner as _xmlrunner
 import logging
 import time
+import argparse
 
 logger = logging.getLogger(__name__)
 
@@ -85,6 +86,15 @@ class TestPortsInContainerNone(unittest.TestCase):
 
 
 def run():
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--print-log', help="Print the log to STDERR.",
+                        action='store_true')
+    args = parser.parse_args()
+
+    if args.print_log:
+        logging.basicConfig(level=logging.DEBUG)
+
     logger.debug('run')
     setUpModule()
 
