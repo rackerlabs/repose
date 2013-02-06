@@ -10,7 +10,7 @@
 
     <filters>
       <filter name="http-logging" />
-      <filter name="client-auth" uri-regex="/(beaker|cbs)/.*" />
+      <filter name="client-auth" uri-regex=".*/servers/([-|\w]+)/?.*" />
       <!--filter name="api-validator" /-->
       <filter name="default-router"/>
     </filters>
