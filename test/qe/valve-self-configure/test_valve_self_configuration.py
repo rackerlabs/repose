@@ -37,22 +37,22 @@ class TestPortsInContainerHttpSame(unittest.TestCase):
         logger.debug('TestPortsInContainerHttpSame.setUp')
         pathutil.clear_folder(config_dir)
         self.sysmod_port = 8888
-        params = {
+        self.params = {
             'proto': 'http',
-            'sysmod_port': 8888,
+            'sysmod_port': self.sysmod_port,
             'target_hostname': target_hostname,
             'target_port': target_port,
-            'con_port': 8888,
+            'con_port': self.sysmod_port,
             'deploy_dir': deploy_dir,
             'artifact_dir': artifact_dir,
             'log_file': log_file
         }
         conf.process_config_set('valve-self-common', verbose=False,
-                                destination_path=config_dir, params=params)
+                                destination_path=config_dir, params=self.params)
         conf.process_config_set('valve-self-1-common', verbose=False,
-                                destination_path=config_dir, params=params)
+                                destination_path=config_dir, params=self.params)
         conf.process_config_set('valve-self-1-with-con-port', verbose=False,
-                                destination_path=config_dir, params=params)
+                                destination_path=config_dir, params=self.params)
         self.repose = repose.ReposeValve(config_dir=config_dir,
                                          stop_port=stop_port)
         time.sleep(20)
