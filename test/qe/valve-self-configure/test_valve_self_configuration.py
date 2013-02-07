@@ -40,13 +40,16 @@ def apply_config_set(config_set_name, params=None):
                             destination_path=config_dir, params=params)
 
 
-class TestPortsInContainerHttpSame(unittest.TestCase):
+class TestPortsInContainerBase:
     def setUp(self):
         logger.debug('setUp')
+
+        self.init_params()
+
         pathutil.clear_folder(config_dir)
         self.sysmod_port = 8888
         self.params = {
-            'proto': 'http',
+            'proto': self.proto,
             'sysmod_port': self.sysmod_port,
             'target_hostname': target_hostname,
             'target_port': target_port,
@@ -57,7 +60,7 @@ class TestPortsInContainerHttpSame(unittest.TestCase):
         }
         apply_config_set('valve-self-common', params=self.params)
         apply_config_set('valve-self-1-common', params=self.params)
-        apply_config_set('valve-self-1-with-con-port', params=self.params)
+        apply_config_set(self.main_config_set_name, params=self.params)
         self.repose = repose.ReposeValve(config_dir=config_dir,
                                          stop_port=stop_port)
         time.sleep(20)
@@ -75,6 +78,13 @@ class TestPortsInContainerHttpSame(unittest.TestCase):
         logger.debug('runTest: status_code = %i' %
                      status_code)
         self.assertEqual(status_code, 200)
+
+
+class TestPortsInContainerHttpSame(TestPortsInContainerBase,
+                                   unittest.TestCase):
+    def init_params(self):
+        self.proto = 'http'
+        self.main_config_set_name = 'valve-self-1-with-con-port'
 
 
 class TestPortsInContainerHttpsSame(unittest.TestCase):
