@@ -33,6 +33,12 @@ def get_status_code_from_url(url, timeout=None):
     logger.debug('get_status_code_from_url(url="%s")' % url)
     return requests.get(url, timeout=timeout, verify=False).status_code
 
+def apply_config_set(config_set_name, params=None):
+    if params is None:
+        params = {}
+    conf.process_config_set(config_set_name, verbose=False,
+                            destination_path=config_dir, params=params)
+
 
 class TestPortsInContainerHttpSame(unittest.TestCase):
     def setUp(self):
@@ -49,12 +55,9 @@ class TestPortsInContainerHttpSame(unittest.TestCase):
             'artifact_dir': artifact_dir,
             'log_file': log_file
         }
-        conf.process_config_set('valve-self-common', verbose=False,
-                                destination_path=config_dir, params=self.params)
-        conf.process_config_set('valve-self-1-common', verbose=False,
-                                destination_path=config_dir, params=self.params)
-        conf.process_config_set('valve-self-1-with-con-port', verbose=False,
-                                destination_path=config_dir, params=self.params)
+        apply_config_set('valve-self-common', params=self.params)
+        apply_config_set('valve-self-1-common', params=self.params)
+        apply_config_set('valve-self-1-with-con-port', params=self.params)
         self.repose = repose.ReposeValve(config_dir=config_dir,
                                          stop_port=stop_port)
         time.sleep(20)
