@@ -9,16 +9,17 @@ import xmlrunner as _xmlrunner
 import logging
 import time
 import argparse
+import os
 
 logger = logging.getLogger(__name__)
 
 
 target_hostname = '50.57.189.15'
 target_port = 8080
-config_dir = 'etc/repose'
-deploy_dir = 'var/repose'
-artifact_dir = 'usr/share/repose/filters'
-log_file = 'var/log/repose/current.log'
+config_dir = pathutil.join(os.getcwd(), 'etc/repose')
+deploy_dir = pathutil.join(os.getcwd(), 'var/repose')
+artifact_dir = pathutil.join(os.getcwd(), 'usr/share/repose/filters')
+log_file = pathutil.join(os.getcwd(), 'var/log/repose/current.log')
 stop_port = 7777
 
 
