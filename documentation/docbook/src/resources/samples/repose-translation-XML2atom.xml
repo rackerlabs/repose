@@ -1,0 +1,8 @@
+<response-translation 
+    content-type="application/xml" 
+    accept="application/atom+xml" 
+    translated-content-type="application/atom+xml"
+    <style-sheets>
+        <style id="1" href="version-atom.xsl" />
+    </style-sheets>
+</response-translation>

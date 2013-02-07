@@ -1,0 +1,8 @@
+<response-translation 
+    content-type="application/xml" 
+    accept="application/json" 
+    translated-content-type="application/json">
+    <style-sheets>
+        <style id="1" href="limits-json.xsl" />
+    </style-sheets>
+</response-translation>

@@ -190,26 +190,28 @@
             <title>Translation Configuration</title>
             <programlistingco>
                 <areaspec>
+                    <area xml:id="cfg.translations"
+                        units="linecolumn" coords="3 1"/>
                     <area xml:id="cfg.content-type"
-                        units="linecolumn" coords="7 13"/>
+                        units="linecolumn" coords="10 13"/>
                     <area xml:id="cfg.accept"
-                        units="linecolumn" coords="8 13"/>
+                        units="linecolumn" coords="11 13"/>
                     <area xml:id="cfg.translated-content-type"
-                        units="linecolumn" coords="9 13"/>
-                    <area xml:id="cfg.style-sheets" units="linecolumn"
-                        coords="10 13"/>
-                    <area xml:id="cfg.style" units="linecolumn"
-                        coords="11 17"/>
-                    <area xml:id="cfg.href" units="linecolumn"
-                        coords="11 24"/>
-                    <area xml:id="cfg.code-regex" units="linecolumn"
-                        coords="16 13"/>
-                    <area xml:id="cfg.param" units="linecolumn"
-                        coords="26 21"/>
-                    <area xml:id="cfg.name" units="linecolumn"
-                        coords="27 25"/>
-                    <area xml:id="cfg.value" units="linecolumn"
-                        coords="28 25"/>
+                        units="linecolumn" coords="12 13"/>
+                    <area xml:id="cfg.style-sheets" 
+                        units="linecolumn" coords="13 13"/>
+                    <area xml:id="cfg.style" 
+                        units="linecolumn" coords="14 17"/>
+                    <area xml:id="cfg.href" 
+                        units="linecolumn" coords="15 24"/>
+                    <area xml:id="cfg.code-regex" 
+                        units="linecolumn" coords="21 13"/>
+                    <area xml:id="cfg.param" 
+                        units="linecolumn" coords="33 21"/>
+                    <area xml:id="cfg.name" 
+                        units="linecolumn" coords="34 25"/>
+                    <area xml:id="cfg.value" 
+                        units="linecolumn" coords="35 25"/>
                 </areaspec>
                 <programlisting language="xml">
 <xi:include href="samples/repose-translation.cfg.xml" parse="text"/>
@@ -219,6 +221,10 @@
         <para> Key elements of the preceding example are labeled with
             callouts and explained below: </para>
         <calloutlist>
+            <callout arearefs="cfg.translations">
+                <para> Multiple translations can be defined within this <code>&lt;translations&gt;</code> wrapper.</para>
+                <para> </para>
+            </callout>
             <callout arearefs="cfg.content-type">
                 <para> Content type specifies the response content types to which this style sheet chain should be applied.</para>
                 <para> </para>
@@ -242,8 +248,11 @@
                 <para> </para>
             </callout>
             <callout arearefs="cfg.href">
-                <para> This is a URI which specifies the location of the style sheet. 
-                    If a relative path is specified, then this will be relative to the &PRODNAME; configuration directory. </para>
+                <para> This is a URI which specifies the location of
+                        the style sheet. If a relative path is
+                        specified, then this will be relative to the
+                        &PRODNAME; translation configuration,
+                            <code>translation.cfg.xml</code>. </para>
                 <para> </para>
             </callout>
             <callout arearefs="cfg.code-regex">
@@ -306,11 +315,36 @@
         </para>
         <section xml:id="Translate_XML2JSON-d1e115">
             <title>Translating XML to JSON</title>
-            <para> how? wiki shows JSON 2 JSONx 2 JSON. can I start
-                with straight XML?</para>
+            <para> You can translate XML to JSON.</para>
+            <example>
+                <title>Translation from XML to JSON</title>
+                <programlisting language="xml">
+<xi:include href="samples/repose-translation-XML2json.xml" parse="text"/>
+</programlisting>
+            </example>
         </section>
-        <section xml:id="Translate_JSON2JSONx-d1e125">
-            <title>Translating JSON to JSONx</title>
+        <section xml:id="Translate_XML2Atom-d1e117">
+            <title>Translating XML to Atom</title>
+            <para> You can translate XML to Atom.</para>
+            <example>
+                <title>Translation from XML to Atom</title>
+                <programlisting language="xml">
+<xi:include href="samples/repose-translation-XML2atom.xml" parse="text"/>
+</programlisting>
+            </example>
+        </section>
+        <section xml:id="Translate_XML2HTML-d1e119">
+            <title>Translating XML to HTML</title>
+            <para> You can translate XML to HTML.</para>
+            <example>
+                <title>Translation from XML to HTML</title>
+                <programlisting language="xml">
+<xi:include href="samples/repose-translation-XML2html.xml" parse="text"/>
+</programlisting>
+            </example>
+        </section>
+            <section xml:id="xxxxx">
+            <title>?????</title>
             <para> 
                 You can use the 
                 &PRODNAME; translation component to turn all elements found in JSON input into XML-shaped JSONx output.            
@@ -407,7 +441,7 @@
 </programlisting>
                 </example>
             </para>
-        </section>
+            </section>        
     </chapter>
     <chapter xml:id="Change_Content-d1e125">
         <title>Changing a Message's Content</title>

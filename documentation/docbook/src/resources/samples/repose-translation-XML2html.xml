@@ -1,0 +1,8 @@
+<response-translation 
+    content-type="application/xml" 
+    accept="application/xml" 
+    translated-content-type="application/xhtml+xml">
+    <style-sheets>
+        <style id="1" href="version-html.xsl" />
+    </style-sheets>
+</response-translation>
