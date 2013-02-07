@@ -42,7 +42,7 @@ def apply_config_set(config_set_name, params=None):
 
 class TestPortsInContainerHttpSame(unittest.TestCase):
     def setUp(self):
-        logger.debug('TestPortsInContainerHttpSame.setUp')
+        logger.debug('setUp')
         pathutil.clear_folder(config_dir)
         self.sysmod_port = 8888
         self.params = {
@@ -63,16 +63,16 @@ class TestPortsInContainerHttpSame(unittest.TestCase):
         time.sleep(20)
 
     def tearDown(self):
-        logger.debug('TestPortsInContainerHttpSame.tearDown')
+        logger.debug('tearDown')
         if self.repose is not None:
             self.repose.stop()
 
     def runTest(self):
-        logger.debug('TestPortsInContainerHttpSame.runTest')
+        logger.debug('runTest')
         url = '%s://localhost:%i/' % (self.params['proto'], self.sysmod_port)
-        logger.debug('TestPortsInContainerHttpSame.runTest: url = %s' % url)
+        logger.debug('runTest: url = %s' % url)
         status_code = get_status_code_from_url(url)
-        logger.debug('TestPortsInContainerHttpSame.runTest: status_code = %i' %
+        logger.debug('runTest: status_code = %i' %
                      status_code)
         self.assertEqual(status_code, 200)
 
