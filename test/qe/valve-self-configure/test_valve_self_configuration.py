@@ -69,6 +69,8 @@ class TestPortsInContainerBase:
         logger.debug('tearDown')
         if self.repose is not None:
             self.repose.stop()
+            time.sleep(5)
+
 
     def runTest(self):
         logger.debug('runTest')
@@ -87,8 +89,11 @@ class TestPortsInContainerHttpSame(TestPortsInContainerBase,
         self.main_config_set_name = 'valve-self-1-with-con-port'
 
 
-class TestPortsInContainerHttpsSame(unittest.TestCase):
-    pass
+class TestPortsInContainerHttpsSame(TestPortsInContainerBase,
+                                   unittest.TestCase):
+    def init_params(self):
+        self.proto = 'https'
+        self.main_config_set_name = 'valve-self-1-with-con-port'
 
 
 class TestPortsInContainerHttpDiff(unittest.TestCase):
