@@ -20,10 +20,12 @@
                 <style id="ss6" href="add-element.xsl" />
             </style-sheets>
         </request-translation>
+        <!--
         <request-translation http-methods="POST" content-type="application/rss+xml" accept="application/xml" translated-content-type="application/xml">
             <style-sheets>
                 <style id="ss7" href="headers-io.xsl" />
             </style-sheets>
         </request-translation>
+        -->
     </request-translations>
 </translation>
