@@ -142,7 +142,7 @@ for valveGroup in 1..3
 
     when 3
       #Distirubted Datastore
-      ["add-element.xsl", "identity.xsl", "remove-element.xsl", "translation.cfg.xml", "translation-request.cfg.xml", "ip-identity.cfg.xml", "ip-identity2.cfg.xml", "client-auth-n.cfg.xml", "dist-datastore.cfg.xml"].each do |config|
+      ["add-element.xsl", "identity.xsl", "headers-io.xsl", "remove-element.xsl", "translation.cfg.xml", "translation-request.cfg.xml", "ip-identity.cfg.xml", "ip-identity2.cfg.xml", "client-auth-n.cfg.xml", "dist-datastore.cfg.xml"].each do |config|
         cookbook_file "/etc/repose/valveGroup3/#{config}" do
           source "/valveGroup3/#{config}"
           mode 0644
