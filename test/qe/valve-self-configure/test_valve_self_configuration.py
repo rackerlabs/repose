@@ -69,7 +69,7 @@ class TestPortsInContainerHttpSame(unittest.TestCase):
 
     def runTest(self):
         logger.debug('TestPortsInContainerHttpSame.runTest')
-        url = 'http://localhost:%i/' % self.sysmod_port
+        url = '%s://localhost:%i/' % (self.params['proto'], self.sysmod_port)
         logger.debug('TestPortsInContainerHttpSame.runTest: url = %s' % url)
         status_code = get_status_code_from_url(url)
         logger.debug('TestPortsInContainerHttpSame.runTest: status_code = %i' %
