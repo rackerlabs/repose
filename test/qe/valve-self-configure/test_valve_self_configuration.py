@@ -99,7 +99,7 @@ class TestPortsInContainerHttpSame(TestPortsInContainerBase,
 
 
 class TestPortsInContainerHttpsSame(TestPortsInContainerBase,
-                                   unittest.TestCase):
+                                    unittest.TestCase):
     def init_params(self):
         self.proto = 'https'
         self.sysmod_port = 8888
@@ -107,8 +107,28 @@ class TestPortsInContainerHttpsSame(TestPortsInContainerBase,
         self.main_config_set_name = 'valve-self-1-with-con-port'
 
 
-class TestPortsInContainerHttpDiff(unittest.TestCase):
-    pass
+class TestPortsInContainerHttpDiff(TestPortsInContainerBase,
+                                   unittest.TestCase):
+    def init_params(self):
+        self.proto = 'https'
+        self.sysmod_port = 8888
+        self.con_port = 8889
+        self.main_config_set_name = 'valve-self-1-with-con-port'
+
+    def runTest(self):
+        logger.debug('runTest')
+
+        # test port in the system model
+        url = '%s://localhost:%i/' % (self.params['proto'], self.sysmod_port)
+        logger.debug('runTest: sysmod url = %s' % url)
+        status_code = get_status_code_from_url(url)
+        logger.debug('runTest: sysmod status_code = %i' % status_code)
+        self.assertEqual(status_code, 200)
+
+        # test port in the container
+        url = '%s://localhost:%i/' % (self.params['proto'], self.con_port)
+        logger.debug('runTest: con url = %s' % url)
+        self.assertRaises(requests.ConnectionError, get_status_code_from_url, url)
 
 
 class TestPortsInContainerNone(unittest.TestCase):
