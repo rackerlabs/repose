@@ -31,7 +31,7 @@ def setUpModule():
 
 def get_status_code_from_url(url, timeout=None):
     logger.debug('get_status_code_from_url(url="%s")' % url)
-    return requests.get(url, timeout=timeout).status_code
+    return requests.get(url, timeout=timeout, verify=False).status_code
 
 
 class TestPortsInContainerHttpSame(unittest.TestCase):
