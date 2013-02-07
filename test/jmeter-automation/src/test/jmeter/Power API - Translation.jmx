@@ -719,7 +719,7 @@
                   <hashTree/>
                 </hashTree>
               </hashTree>
-              <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Translating application/rss+xml" enabled="false"/>
+              <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="When Translating application/rss+xml" enabled="true"/>
               <hashTree>
                 <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
                   <collectionProp name="HeaderManager.headers">
