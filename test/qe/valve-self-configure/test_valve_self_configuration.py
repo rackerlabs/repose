@@ -83,9 +83,9 @@ class TestPortsInContainerBase:
 
         # test port in the container
         url = '%s://localhost:%i/' % (self.params['proto'], self.con_port)
-        logger.debug('runTest: sysmod url = %s' % url)
+        logger.debug('runTest: con url = %s' % url)
         status_code = get_status_code_from_url(url)
-        logger.debug('runTest: sysmod status_code = %i' % status_code)
+        logger.debug('runTest: con status_code = %i' % status_code)
         self.assertEqual(status_code, 200)
 
 
