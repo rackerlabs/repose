@@ -114,6 +114,35 @@ class TestPortsOnCommandLineHttpsSame(TestPortsOnCommandLineBase,
         self.cmd_line_port = 8888
 
 
+class TestPortsOnCommandLineHttpDiff(TestPortsOnCommandLineBase,
+                                     unittest.TestCase):
+    def start_repose(self):
+        return repose.ReposeValve(config_dir=config_dir,
+                                  port=self.cmd_line_port,
+                                  stop_port=stop_port)
+
+    def init_params(self):
+        self.proto = 'http'
+        self.sysmod_port = 8888
+        self.cmd_line_port = 8889
+
+    def runTest(self):
+        logger.debug('runTest')
+
+        # test port in the system model
+        url = '%s://localhost:%i/' % (self.params['proto'], self.sysmod_port)
+        logger.debug('runTest: sysmod url = %s' % url)
+        status_code = get_status_code_from_url(url)
+        logger.debug('runTest: sysmod status_code = %i' % status_code)
+        self.assertEqual(status_code, 200)
+
+        # test port specified at the command line
+        url = '%s://localhost:%i/' % (self.params['proto'], self.cmd_line_port)
+        logger.debug('runTest: con url = %s' % url)
+        self.assertRaises(requests.ConnectionError, get_status_code_from_url,
+                          url)
+
+
 def run():
     parser = argparse.ArgumentParser()
     parser.add_argument('--print-log', help="Print the log to STDERR.",
@@ -132,6 +161,7 @@ def run():
     load_tests = loader.loadTestsFromTestCase
     suite.addTest(load_tests(TestPortsOnCommandLineHttpSame))
     suite.addTest(load_tests(TestPortsOnCommandLineHttpsSame))
+    suite.addTest(load_tests(TestPortsOnCommandLineHttpDiff))
 
     testRunner = _xmlrunner.XMLTestRunner(output='test-reports')
 
