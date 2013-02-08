@@ -33,6 +33,7 @@ def get_status_code_from_url(url, timeout=None):
     logger.debug('get_status_code_from_url(url="%s")' % url)
     return requests.get(url, timeout=timeout, verify=False).status_code
 
+
 def apply_config_set(config_set_name, params=None):
     if params is None:
         params = {}
@@ -40,7 +41,7 @@ def apply_config_set(config_set_name, params=None):
                             destination_path=config_dir, params=params)
 
 
-class TestPortsOnCommandLineHttpSame(unittest.TestCase):
+class TestPortsOnCommandLineBase:
     def setUp(self):
         logger.debug('setUp')
 
@@ -63,17 +64,11 @@ class TestPortsOnCommandLineHttpSame(unittest.TestCase):
         self.repose = self.start_repose()
         time.sleep(20)
 
-    def start_repose(self):
-        return repose.ReposeValve(config_dir=config_dir,
-                                  port=self.cmd_line_port,
-                                  stop_port=stop_port)
-
     def tearDown(self):
         logger.debug('tearDown')
         if self.repose is not None:
             self.repose.stop()
             time.sleep(5)
-
 
     def runTest(self):
         logger.debug('runTest')
@@ -91,6 +86,14 @@ class TestPortsOnCommandLineHttpSame(unittest.TestCase):
         status_code = get_status_code_from_url(url)
         logger.debug('runTest: con status_code = %i' % status_code)
         self.assertEqual(status_code, 200)
+
+
+class TestPortsOnCommandLineHttpSame(TestPortsOnCommandLineBase,
+                                     unittest.TestCase):
+    def start_repose(self):
+        return repose.ReposeValve(config_dir=config_dir,
+                                  port=self.cmd_line_port,
+                                  stop_port=stop_port)
 
     def init_params(self):
         self.proto = 'http'
