@@ -60,10 +60,13 @@ class TestPortsOnCommandLineHttpSame(unittest.TestCase):
         apply_config_set('valve-self-common', params=self.params)
         apply_config_set('valve-self-1-common', params=self.params)
         apply_config_set('valve-self-1-no-con-port', params=self.params)
-        self.repose = repose.ReposeValve(config_dir=config_dir,
-                                         port=self.cmd_line_port,
-                                         stop_port=stop_port)
+        self.repose = self.start_repose()
         time.sleep(20)
+
+    def start_repose(self):
+        return repose.ReposeValve(config_dir=config_dir,
+                                  port=self.cmd_line_port,
+                                  stop_port=stop_port)
 
     def tearDown(self):
         logger.debug('tearDown')
