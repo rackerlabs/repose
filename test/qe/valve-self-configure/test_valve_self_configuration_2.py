@@ -100,6 +100,18 @@ class TestPortsOnCommandLineHttpSame(TestPortsOnCommandLineBase,
         self.sysmod_port = 8888
         self.cmd_line_port = 8888
 
+class TestPortsOnCommandLineHttpsSame(TestPortsOnCommandLineBase,
+                                     unittest.TestCase):
+    def start_repose(self):
+        return repose.ReposeValve(config_dir=config_dir,
+                                  https_port=self.cmd_line_port,
+                                  stop_port=stop_port)
+
+    def init_params(self):
+        self.proto = 'https'
+        self.sysmod_port = 8888
+        self.cmd_line_port = 8888
+
 
 def run():
     parser = argparse.ArgumentParser()
@@ -118,6 +130,7 @@ def run():
     loader = unittest.TestLoader()
     load_tests = loader.loadTestsFromTestCase
     suite.addTest(load_tests(TestPortsOnCommandLineHttpSame))
+    suite.addTest(load_tests(TestPortsOnCommandLineHttpsSame))
 
     testRunner = _xmlrunner.XMLTestRunner(output='test-reports')
 
