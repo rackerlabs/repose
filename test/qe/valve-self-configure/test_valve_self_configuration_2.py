@@ -100,8 +100,9 @@ class TestPortsOnCommandLineHttpSame(TestPortsOnCommandLineBase,
         self.sysmod_port = 8888
         self.cmd_line_port = 8888
 
+
 class TestPortsOnCommandLineHttpsSame(TestPortsOnCommandLineBase,
-                                     unittest.TestCase):
+                                      unittest.TestCase):
     def start_repose(self):
         return repose.ReposeValve(config_dir=config_dir,
                                   https_port=self.cmd_line_port,

@@ -33,6 +33,7 @@ def get_status_code_from_url(url, timeout=None):
     logger.debug('get_status_code_from_url(url="%s")' % url)
     return requests.get(url, timeout=timeout, verify=False).status_code
 
+
 def apply_config_set(config_set_name, params=None):
     if params is None:
         params = {}
@@ -69,7 +70,6 @@ class TestPortsInContainerBase:
         if self.repose is not None:
             self.repose.stop()
             time.sleep(5)
-
 
     def runTest(self):
         logger.debug('runTest')
@@ -128,7 +128,8 @@ class TestPortsInContainerHttpDiff(TestPortsInContainerBase,
         # test port in the container
         url = '%s://localhost:%i/' % (self.params['proto'], self.con_port)
         logger.debug('runTest: con url = %s' % url)
-        self.assertRaises(requests.ConnectionError, get_status_code_from_url, url)
+        self.assertRaises(requests.ConnectionError, get_status_code_from_url,
+                          url)
 
 
 class TestPortsInContainerNone(TestPortsInContainerBase, unittest.TestCase):
@@ -151,7 +152,8 @@ class TestPortsInContainerNone(TestPortsInContainerBase, unittest.TestCase):
         # test port in the container
         url = '%s://localhost:%i/' % (self.params['proto'], self.con_port)
         logger.debug('runTest: con url = %s' % url)
-        self.assertRaises(requests.ConnectionError, get_status_code_from_url, url)
+        self.assertRaises(requests.ConnectionError, get_status_code_from_url,
+                          url)
 
 
 def run():
