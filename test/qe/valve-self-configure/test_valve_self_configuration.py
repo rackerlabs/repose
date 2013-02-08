@@ -110,7 +110,7 @@ class TestPortsInContainerHttpsSame(TestPortsInContainerBase,
 class TestPortsInContainerHttpDiff(TestPortsInContainerBase,
                                    unittest.TestCase):
     def init_params(self):
-        self.proto = 'https'
+        self.proto = 'http'
         self.sysmod_port = 8888
         self.con_port = 8889
         self.main_config_set_name = 'valve-self-1-with-con-port'
