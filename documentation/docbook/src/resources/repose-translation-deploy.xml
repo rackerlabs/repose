@@ -59,11 +59,12 @@
             <year>2010</year>
             <year>2011</year>
             <year>2012</year>
+            <year>2013</year>
             <holder>Rackspace US, Inc.</holder>
         </copyright>
         <releaseinfo>v2.3.4</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2012-11-26</pubdate>
+        <pubdate>2013-02-11</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -75,6 +76,14 @@
                 Translation component of the &PRODEXPAND;. </para>
         </abstract>
         <revhistory>
+            <revision>
+                <date>2012-02-11</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem><para>Added examples of translating XML to JSON, XML to Atom, and XML to HTML.</para></listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
             <revision>
                 <date>2012-11-23</date>
                 <revdescription>
@@ -310,9 +319,10 @@
     </chapter>
     <chapter xml:id="Change_Format-d1e105">
         <title>Changing a Message's Format</title>
-        <para> 
-            You can translate a message from XML to JSON or from JSON to JSONx, which resembles XML.
-        </para>
+        <para> You can translate an XML message from JSON, Atom, or
+            HTML. You can translate a JSON message to JSONx, which
+            resembles XML; you can also translate a JSONX message to
+            JSON. </para>
         <section xml:id="Translate_XML2JSON-d1e115">
             <title>Translating XML to JSON</title>
             <para> You can translate XML to JSON.</para>
@@ -322,6 +332,38 @@
 <xi:include href="samples/repose-translation-XML2json.xml" parse="text"/>
 </programlisting>
             </example>
+            <para>
+                You can use cURL to confirm
+                that you have the stylesheet and the translation configuration set up correctly; if they are correct,
+                the XML input you provide will be echoed as JSON. 
+                <note>
+                    <para> This cURL example requires a file named
+                            <code>absolute-limits.xml</code>. You can
+                        see an example of
+                            <code>absolute-limits.xml</code> attached
+                        to the translation component's wiki page at
+                            <link
+                            xlink:href="http://wiki.openrepose.org/display/REPOSE/Translation"
+                            >http://wiki.openrepose.org/display/REPOSE/Translation</link>. </para>
+                </note>
+                <example>
+                    <title>cURL Confirming Translation from XML to JSON</title>
+                    <important>
+                        <para> This cURL example requires a file named
+                            <code>absolute-limits.xml</code>. You can
+                            see an example of
+                            <code>absolute-limits.xml</code> attached
+                            to the translation component's wiki page at
+                            <link
+                                xlink:href="http://wiki.openrepose.org/display/REPOSE/Translation"
+                                >http://wiki.openrepose.org/display/REPOSE/Translation</link>; 
+                            that wiki page also explains where to place <code>absolute-limits.xml</code>. </para>
+                    </important>
+                    <programlisting language="xml">
+<xi:include href="samples/repose-translation-curl-confirm-xml2json.xml" parse="text"/>
+</programlisting>
+                </example>
+            </para>
         </section>
         <section xml:id="Translate_XML2Atom-d1e117">
             <title>Translating XML to Atom</title>
@@ -332,6 +374,29 @@
 <xi:include href="samples/repose-translation-XML2atom.xml" parse="text"/>
 </programlisting>
             </example>
+            <para>
+                You can use cURL to confirm
+                that you have the stylesheet and the translation configuration set up correctly; if they are correct,
+                the XML input you provide will be echoed as Atom. 
+                <example>
+                    <title>cURL Confirming Translation from XML to Atom</title>
+                    <important>
+                        <para> This cURL example requires a file named
+                            <code>version.xml</code>. You can
+                            see an example of
+                            <code>version.xml</code> attached
+                            to the translation component's wiki page at
+                            <link
+                                xlink:href="http://wiki.openrepose.org/display/REPOSE/Translation"
+                                >http://wiki.openrepose.org/display/REPOSE/Translation</link>; 
+                            that wiki page also explains where to place <code>version.xml</code>. 
+                        </para>
+                    </important>
+                    <programlisting language="xml">
+<xi:include href="samples/repose-translation-curl-confirm-xml2atom.xml" parse="text"/>
+</programlisting>
+                </example>
+            </para>
         </section>
         <section xml:id="Translate_XML2HTML-d1e119">
             <title>Translating XML to HTML</title>
@@ -342,9 +407,32 @@
 <xi:include href="samples/repose-translation-XML2html.xml" parse="text"/>
 </programlisting>
             </example>
+            <para>
+                You can use cURL to confirm
+                that you have the stylesheet and the translation configuration set up correctly; if they are correct,
+                the XML input you provide will be echoed as HTML. 
+                <example>
+                    <title>cURL Confirming Translation from XML to HTML</title>
+                    <important>
+                        <para> This cURL example requires a file named
+                            <code>version.xml</code>. You can
+                            see an example of
+                            <code>version.xml</code> attached
+                            to the translation component's wiki page at
+                            <link
+                                xlink:href="http://wiki.openrepose.org/display/REPOSE/Translation"
+                                >http://wiki.openrepose.org/display/REPOSE/Translation</link>; 
+                            that wiki page also explains where to place <code>version.xml</code>. 
+                        </para>
+                    </important>
+                    <programlisting language="xml">
+<xi:include href="samples/repose-translation-curl-confirm-xml2html.xml" parse="text"/>
+</programlisting>
+                </example>
+            </para>
         </section>
-            <section xml:id="xxxxx">
-            <title>?????</title>
+        <section xml:id="Translate_JSON2JSONX-d1e123">
+            <title>Translating JSON to JSONx</title>
             <para> 
                 You can use the 
                 &PRODNAME; translation component to turn all elements found in JSON input into XML-shaped JSONx output.            
@@ -441,7 +529,110 @@
 </programlisting>
                 </example>
             </para>
-            </section>        
+            </section>   
+        <section xml:id="Translate_JSON2JSONX2JSON-d1e123">
+            <title>Translating JSON to JSONx to JSON</title>
+            
+            
+            <!--- RESUME HERE -->
+            
+            <para> 
+                You can use the 
+                &PRODNAME; translation component to turn all elements found in JSON input into XML-shaped JSONx output.            
+                <table border="1" frame="box">
+                    <?dbfo keep-together="always"?>
+                    <caption>JSON Input Becomes JSONx Output</caption>
+                    <thead>
+                        <tr>
+                            <th>Input: JSON</th>
+                            <th>Translation</th>
+                            <th>Output: JSONx</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <programlisting language="javascript">
+<![CDATA[        
+{"field1": "value1", "field2": "value2"}
+]]>
+</programlisting>
+                            </td>
+                            <td>Apply stylesheet as
+                                defined in translation
+                                configuration.</td>
+                            <td>
+                                <!-- if no CDATA here, DocBook tries & fails to interpret <json:object> as markup -->
+                                <programlisting language="xml">
+<![CDATA[    
+<json:object xmlns:json="http://www.ibm.com/xmlns/prod/2009/jsonx" 
+             xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+   <json:string name="field1">value1</json:string>
+   <json:string name="field2">value2</json:string>
+</json:object>
+]]>
+</programlisting>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </para>
+            <para> To make this possible, create a stylesheet to
+                define the transformation, and call for that
+                stylesheet in your translation configuration,
+                <code>translation.cfg.xml</code>. To create the
+                result shown above, fully translating JSON input to
+                JSONx output, create a stylesheet and a translation
+                configuration that includes the stylesheet as shown
+                below: 
+                <table border="1" frame="box">
+                    <?dbfo keep-together="always"?>
+                    <caption>Stylesheet Applied by Translation
+                        Configuration: Translating JSON to
+                        JSONx</caption>
+                    <thead>
+                        <tr>
+                            <th>Stylesheet: identity.xsl</th>
+                            <th>Translation Configuration:
+                                translation.cfg.xml</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <programlisting language="xml">
+<xi:include href="samples/repose-translation-identity.xsl" parse="text"/>
+</programlisting>
+                            </td>
+                            <td>
+                                <programlisting language="xml">
+<xi:include href="samples/repose-translation-cfg-json2jsonx.xml" parse="text"/>
+</programlisting>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </para>
+            <para> In the stylesheet, <code>&lt;xsl:copy-of
+                select="."/&gt;</code> asks for a copy of the
+                entire document. In the translation configuration, the
+                stylesheet is called for by its name
+                (<code>identity.xsl</code>) ;
+                <code>content-type</code> identifies the expected
+                input as JSON and <code>translated-content-type</code>
+                identifies the expected output as XML.</para>
+            <para>
+                You can use cURL to confirm
+                that you have the stylesheet and the translation configuration set up correctly; if they are correct,
+                the JSON input you provide will be echoed as JSONx. 
+                <example>
+                    <title>cURL Confirming Translation from JSON to JSONx</title>
+                    <programlisting language="xml">
+<xi:include href="samples/repose-translation-curl-confirm-json2jsonx.xml" parse="text"/>
+</programlisting>
+                </example>
+            </para>
+        </section>
     </chapter>
     <chapter xml:id="Change_Content-d1e125">
         <title>Changing a Message's Content</title>

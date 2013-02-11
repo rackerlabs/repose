@@ -1,0 +1,1 @@
+curl -X POST -H "content-type: application/xml" -H "accept: application/json" -d @absolute-limits.xml  http://localhost:8088/echobody
