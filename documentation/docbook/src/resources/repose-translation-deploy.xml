@@ -300,19 +300,31 @@
                     One place to learn the basics of XLST is the 
                     <link xlink:href="http://www.w3schools.com/xsl/xsl_w3celementref.asp">XSLT Elements Reference</link>.
                 </para>
-                <para>
-                    You can create and combine multiple stylesheets to accomplish the translation you require.
-                    To make stylesheets active within your &PRODNAME; 
-                    configuration, specify them in <code>translation.cfg.xml</code> as shown at 
-                    <xref linkend="Customizing_Translation_Configuration-d1e375"></xref>
-                </para>
+                <para> You can create and combine multiple stylesheets
+                to accomplish the translation you require. To make
+                stylesheets active within your &PRODNAME;
+                configuration, specify the stylesheets in
+                    <code>translation.cfg.xml</code> as shown at <xref
+                    linkend="Customizing_Translation_Configuration-d1e375"
+                /> You can store a stylesheet as a standalone file or
+                you can embed the XSL style specification within
+                    <code>translation.cfg.xml</code>.</para>
                 <para> A valid stylesheet resembles the following
-                example (or a more complex &amp; interesting example
-                but I need help to build it and &amp; lay callouts on it): </para>
+                example: </para>
                 <example>
-                    <title>Translation Configuration</title>
+                    <title>Translation Stylesheet (Standalone)</title>
 <programlisting language="xml">
 <xi:include href="samples/repose-translation-identity.xsl" parse="text"/>
+</programlisting>
+                </example>
+                <para> By using an <code>xsl</code> element within the
+                    <code>style</code> element, you can embed XSL
+                directly into the translation configuration file
+                rather than storing it as an external stylesheet file. </para>
+                <example>
+                    <title>Translation Stylesheet (Embedded)</title>
+                    <programlisting language="xml">
+<xi:include href="samples/repose-translation-stylesheet-embedded.xml" parse="text"/>
 </programlisting>
                 </example>
         </section>
