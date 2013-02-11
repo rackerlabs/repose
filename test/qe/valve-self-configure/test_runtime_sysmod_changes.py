@@ -41,7 +41,7 @@ def apply_config_set(config_set_name, params=None):
                             destination_path=config_dir, params=params)
 
 
-class TestMultiClusterMultiNode(unittest.TestCase):
+class TestRuntimeSysmodChanges(unittest.TestCase):
     def setUp(self):
         logger.debug('setUp')
 
