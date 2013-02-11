@@ -59,7 +59,7 @@ class TestPortsInContainerBase:
             'log_file': log_file
         }
         apply_config_set('valve-self-common', params=self.params)
-        apply_config_set('single-node', params=self.params)
+        apply_config_set('single-node-with-proto', params=self.params)
         apply_config_set(self.main_config_set_name, params=self.params)
         self.repose = repose.ReposeValve(config_dir=config_dir,
                                          stop_port=stop_port)

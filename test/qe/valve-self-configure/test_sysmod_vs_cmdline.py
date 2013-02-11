@@ -59,7 +59,7 @@ class TestPortsOnCommandLineBase:
             'log_file': log_file
         }
         apply_config_set('valve-self-common', params=self.params)
-        apply_config_set('single-node', params=self.params)
+        apply_config_set('single-node-with-proto', params=self.params)
         apply_config_set('container-no-port', params=self.params)
         self.repose = self.start_repose()
         time.sleep(20)

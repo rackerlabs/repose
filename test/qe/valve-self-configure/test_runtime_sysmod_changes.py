@@ -61,7 +61,7 @@ class TestRuntimeSysmodChanges(unittest.TestCase):
         }
         apply_config_set('valve-self-common', params=params)
         apply_config_set('container-no-port', params=params)
-        apply_config_set('single-node', params=params)
+        apply_config_set('single-node-with-proto', params=params)
         self.repose = repose.ReposeValve(config_dir=config_dir,
                                          stop_port=stop_port)
         time.sleep(20)
@@ -128,7 +128,7 @@ class TestRuntimeSysmodChanges(unittest.TestCase):
             'target_port': target_port,
             'sysmod_port' : self.port2,
         }
-        apply_config_set('single-node', params=params)
+        apply_config_set('single-node-with-proto', params=params)
         time.sleep(20)
 
         # test with node two only
