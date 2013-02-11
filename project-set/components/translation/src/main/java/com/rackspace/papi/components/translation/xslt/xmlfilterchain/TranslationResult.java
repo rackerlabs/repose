@@ -13,13 +13,14 @@ import org.openrepose.repose.httpx.v1.NameValuePair;
 import org.openrepose.repose.httpx.v1.QualityNameValuePair;
 import org.openrepose.repose.httpx.v1.QueryParameters;
 import org.openrepose.repose.httpx.v1.RequestInformation;
+import org.slf4j.Logger;
 
 public class TranslationResult {
 
+  private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(TranslationResult.class);
   public static final String HEADERS_OUTPUT = "headers.xml";
   public static final String QUERY_OUTPUT = "query.xml";
   public static final String REQUEST_OUTPUT = "request.xml";
-  
   private final boolean success;
   private final List<XsltParameter<? extends OutputStream>> outputs;
   private final HttpxMarshaller marshaller;
@@ -51,7 +52,7 @@ public class TranslationResult {
 
     return null;
   }
-  
+
   public <T extends OutputStream> T getRequestInfo() {
     return getStream(REQUEST_OUTPUT);
   }
@@ -69,7 +70,7 @@ public class TranslationResult {
     applyQueryParams(director);
     applyRequestInfo(director);
   }
-  
+
   private void applyRequestInfo(final FilterDirector director) {
     ByteArrayOutputStream requestOutput = getRequestInfo();
 
@@ -77,21 +78,25 @@ public class TranslationResult {
       return;
     }
 
-    ByteArrayInputStream input = new ByteArrayInputStream(requestOutput.toByteArray());
+    byte[] requestBytes = requestOutput.toByteArray();
+    if (LOG.isDebugEnabled()) {
+      LOG.info(new String(requestBytes));
+    }
+    ByteArrayInputStream input = new ByteArrayInputStream(requestBytes);
     if (input.available() == 0) {
       return;
     }
 
     RequestInformation requestInfo = marshaller.unmarshallRequestInformation(input);
-    
-    if(StringUtilities.isNotBlank(requestInfo.getUri())) {
+
+    if (StringUtilities.isNotBlank(requestInfo.getUri())) {
       director.setRequestUri(requestInfo.getUri());
     }
-    
+
     if (StringUtilities.isNotBlank(requestInfo.getUrl())) {
       director.setRequestUrl(new StringBuffer(requestInfo.getUrl()));
     }
-    
+
   }
 
   private void applyQueryParams(final FilterDirector director) {
@@ -112,6 +117,10 @@ public class TranslationResult {
       StringBuilder sb = new StringBuilder();
 
       for (NameValuePair param : params.getParameter()) {
+        if (sb.length() > 0) {
+          sb.append("&");
+        }
+
         sb.append(param.getName()).append("=").append(param.getValue() != null ? param.getValue() : "");
       }
 

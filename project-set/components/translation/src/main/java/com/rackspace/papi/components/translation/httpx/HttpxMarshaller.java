@@ -198,7 +198,9 @@ public class HttpxMarshaller {
 
     marshall(o, out);
 
-    LOG.info(new String(out.toByteArray()));
+    if (LOG.isDebugEnabled()) {
+      LOG.debug(new String(out.toByteArray()));
+    }
 
     return new ByteArrayInputStream(out.toByteArray());
   }
