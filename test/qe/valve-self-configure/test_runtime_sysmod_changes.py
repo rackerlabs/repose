@@ -208,7 +208,7 @@ def run():
 
     loader = unittest.TestLoader()
     load_tests = loader.loadTestsFromTestCase
-    suite.addTest(load_tests(TestMultiClusterMultiNode))
+    suite.addTest(load_tests(TestRuntimeSysmodChanges))
 
     testRunner = _xmlrunner.XMLTestRunner(output='test-reports')
 
