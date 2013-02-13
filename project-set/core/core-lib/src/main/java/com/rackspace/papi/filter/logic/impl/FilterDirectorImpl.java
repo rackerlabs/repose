@@ -100,6 +100,7 @@ public class FilterDirectorImpl implements FilterDirector {
 
         if (directorOutputStream.size() > 0) {
             response.setContentLength(directorOutputStream.size());
+            response.setHeader("Content-Length", String.valueOf(directorOutputStream.size()));
             RawInputStreamReader.instance().copyTo(new ByteArrayInputStream(getResponseMessageBodyBytes()), response.getOutputStream());
         }
     }
