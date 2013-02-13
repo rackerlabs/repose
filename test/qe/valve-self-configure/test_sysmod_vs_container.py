@@ -66,7 +66,7 @@ class TestPortsInContainerBase:
         apply_config_set(self.main_config_set_name, params=self.params)
         self.repose = repose.ReposeValve(config_dir=config_dir,
                                          stop_port=stop_port)
-        time.sleep(20)
+        time.sleep(25)
 
     def tearDown(self):
         logger.debug('tearDown')

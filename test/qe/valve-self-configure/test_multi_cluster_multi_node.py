@@ -71,7 +71,7 @@ class TestMultiClusterMultiNode(unittest.TestCase):
         apply_config_set('two-clusters-two-nodes-each', params=self.params)
         self.repose = repose.ReposeValve(config_dir=config_dir,
                                          stop_port=stop_port)
-        time.sleep(20)
+        time.sleep(25)
 
     def tearDown(self):
         logger.debug('tearDown')

@@ -65,7 +65,7 @@ class TestStartWithSingleNonLocalhostNode(unittest.TestCase):
         apply_config_set('one-node', params=params)
         self.repose = repose.ReposeValve(config_dir=config_dir,
                                          stop_port=stop_port)
-        time.sleep(20)
+        time.sleep(25)
 
     def tearDown(self):
         logger.debug('tearDown')
@@ -101,7 +101,7 @@ class TestStartWithSingleNonLocalhostNode(unittest.TestCase):
             'port' : self.port,
         }
         apply_config_set('one-node', params=params)
-        time.sleep(20)
+        time.sleep(25)
 
         url = 'http://localhost:%i/' % (self.port)
         self.make_request_and_assert_status_code(url, 200)
@@ -126,7 +126,7 @@ class TestStartWithZeroNodes(unittest.TestCase):
         apply_config_set('zero-nodes', params=params)
         self.repose = repose.ReposeValve(config_dir=config_dir,
                                          stop_port=stop_port)
-        time.sleep(20)
+        time.sleep(25)
 
     def tearDown(self):
         logger.debug('tearDown')
@@ -162,7 +162,7 @@ class TestStartWithZeroNodes(unittest.TestCase):
             'port' : self.port,
         }
         apply_config_set('one-node', params=params)
-        time.sleep(20)
+        time.sleep(25)
 
         url = 'http://localhost:%i/' % (self.port)
         self.make_request_and_assert_status_code(url, 200)

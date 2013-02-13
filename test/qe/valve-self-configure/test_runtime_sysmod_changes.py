@@ -67,7 +67,7 @@ class TestRuntimeSysmodChanges(unittest.TestCase):
         apply_config_set('single-node-with-proto', params=params)
         self.repose = repose.ReposeValve(config_dir=config_dir,
                                          stop_port=stop_port)
-        time.sleep(20)
+        time.sleep(25)
 
     def tearDown(self):
         logger.debug('tearDown')
@@ -112,7 +112,7 @@ class TestRuntimeSysmodChanges(unittest.TestCase):
             'node2port' : self.port2,
         }
         apply_config_set('two-nodes', params=params)
-        time.sleep(20)
+        time.sleep(25)
 
         # test with nodes one and two
         url = 'http://localhost:%i/' % (self.port1)
@@ -132,7 +132,7 @@ class TestRuntimeSysmodChanges(unittest.TestCase):
             'sysmod_port' : self.port2,
         }
         apply_config_set('single-node-with-proto', params=params)
-        time.sleep(20)
+        time.sleep(25)
 
         # test with node two only
         url = 'http://localhost:%i/' % (self.port1)
@@ -156,7 +156,7 @@ class TestRuntimeSysmodChanges(unittest.TestCase):
             'node3port' : self.port3,
         }
         apply_config_set('three-nodes', params=params)
-        time.sleep(20)
+        time.sleep(25)
 
         # test with all three nodes
         url = 'http://localhost:%i/' % (self.port1)
@@ -180,7 +180,7 @@ class TestRuntimeSysmodChanges(unittest.TestCase):
             'node3port' : self.port3,
         }
         apply_config_set('three-nodes', params=params)
-        time.sleep(20)
+        time.sleep(25)
 
         # test with all three nodes
         url = 'http://localhost:%i/' % (self.port1)

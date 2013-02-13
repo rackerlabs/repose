@@ -65,7 +65,7 @@ class TestPortsOnCommandLineBase:
         apply_config_set('single-node-with-proto', params=self.params)
         apply_config_set('container-no-port', params=self.params)
         self.repose = self.start_repose()
-        time.sleep(20)
+        time.sleep(25)
 
     def tearDown(self):
         logger.debug('tearDown')
