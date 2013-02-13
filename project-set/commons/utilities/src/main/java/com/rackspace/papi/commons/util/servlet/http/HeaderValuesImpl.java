@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
+import com.rackspace.papi.commons.util.http.header.HeaderFieldParser;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
 import com.rackspace.papi.commons.util.http.header.QualityFactorHeaderChooser;
@@ -50,6 +51,12 @@ public final class HeaderValuesImpl implements HeaderValues {
     headers.clear();
     headers.putAll(headerMap);
   }
+  
+  private List<HeaderValue> getHeaderValues(String value) {
+    HeaderFieldParser parser = new HeaderFieldParser(value);
+    
+    return parser.parse();
+  }
 
   @Override
   public void addHeader(String name, String value) {
@@ -60,8 +67,9 @@ public final class HeaderValuesImpl implements HeaderValues {
     if (headerValues == null) {
       headerValues = new LinkedList<HeaderValue>();
     }
+    
 
-    headerValues.add(new HeaderValueImpl(value, 1.0));
+    headerValues.addAll(getHeaderValues(value));
 
     headers.put(lowerCaseName, headerValues);
   }
@@ -70,7 +78,7 @@ public final class HeaderValuesImpl implements HeaderValues {
   public void replaceHeader(String name, String value) {
     final List<HeaderValue> headerValues = new LinkedList<HeaderValue>();
 
-    headerValues.add(new HeaderValueImpl(value, 1.0));
+    headerValues.addAll(getHeaderValues(value));
 
     headers.put(name.toLowerCase(), headerValues);
   }
