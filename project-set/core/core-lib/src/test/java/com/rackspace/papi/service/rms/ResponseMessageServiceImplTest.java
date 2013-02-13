@@ -19,8 +19,11 @@ import org.junit.runner.RunWith;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Vector;
 
 import static junit.framework.Assert.assertTrue;
@@ -48,8 +51,10 @@ public class ResponseMessageServiceImplTest {
       public void setup() {
          acceptValues.addAll(Arrays.asList("application/json"));
          headerValueEnumeration = acceptValues.elements();
+         List<String> headerNames = new ArrayList<String>();
+         headerNames.add("Accept");
+         when(mockedRequest.getHeaderNames()).thenReturn(Collections.enumeration(headerNames));
          when(mockedRequest.getHeaders("Accept")).thenReturn(headerValueEnumeration);
-
          when(mockedResponse.getStatus()).thenReturn(413);
 
          configurationObject.getStatusCode().clear();

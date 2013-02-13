@@ -7,7 +7,9 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import org.openrepose.repose.httpx.v1.Headers;
 import org.openrepose.repose.httpx.v1.NameValuePair;
 import org.openrepose.repose.httpx.v1.QualityNameValuePair;
@@ -21,6 +23,7 @@ public class TranslationResult {
   public static final String HEADERS_OUTPUT = "headers.xml";
   public static final String QUERY_OUTPUT = "query.xml";
   public static final String REQUEST_OUTPUT = "request.xml";
+  private static final Set<String> SINGULAR_RESPONSE_HEADERS = add("content-type");
   private final boolean success;
   private final List<XsltParameter<? extends OutputStream>> outputs;
   private final HttpxMarshaller marshaller;
@@ -33,6 +36,14 @@ public class TranslationResult {
     this.success = success;
     this.outputs = outputs;
     this.marshaller = new HttpxMarshaller();
+  }
+
+  private static Set<String> add(String value) {
+
+    Set<String> result = new HashSet<String>();
+    result.add(value.toLowerCase());
+
+    return result;
   }
 
   public boolean isSuccess() {
@@ -79,12 +90,13 @@ public class TranslationResult {
     }
 
     byte[] requestBytes = requestOutput.toByteArray();
-    if (LOG.isDebugEnabled()) {
-      LOG.info(new String(requestBytes));
-    }
     ByteArrayInputStream input = new ByteArrayInputStream(requestBytes);
     if (input.available() == 0) {
       return;
+    }
+
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("New request info: " + new String(requestBytes));
     }
 
     RequestInformation requestInfo = marshaller.unmarshallRequestInformation(input);
@@ -134,9 +146,14 @@ public class TranslationResult {
       return;
     }
 
-    ByteArrayInputStream input = new ByteArrayInputStream(headersOutput.toByteArray());
+    byte[] out = headersOutput.toByteArray();
+    ByteArrayInputStream input = new ByteArrayInputStream(out);
     if (input.available() == 0) {
       return;
+    }
+
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("New headers: " + new String(out));
     }
 
     Headers headers = marshaller.unmarshallHeaders(input);

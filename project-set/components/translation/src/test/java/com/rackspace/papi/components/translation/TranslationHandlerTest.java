@@ -108,9 +108,11 @@ public class TranslationHandlerTest {
             InputStream response = this.getClass().getResourceAsStream("/empty.xml");
             when(mockedRequest.getAttribute(eq("repose.response.input.stream"))).thenReturn(response);
             when(mockedResponse.getContentType()).thenReturn("application/xml");
+            when(mockedResponse.getHeader(eq("Content-Type"))).thenReturn("application/xml");
 
             mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) mockedRequest);
             mutableHttpResponse = MutableHttpServletResponse.wrap(mockedRequest, mockedResponse);
+            mutableHttpResponse.setHeader("Content-Type", "application/xml");
 
             FilterDirector director = handler.handleResponse(mutableHttpRequest, mutableHttpResponse);
             String actual = director.getResponseMessageBody();
@@ -128,8 +130,10 @@ public class TranslationHandlerTest {
             InputStream response = this.getClass().getResourceAsStream("/remove-me-element.xml");
             when(mockedRequest.getAttribute(eq("repose.response.input.stream"))).thenReturn(response);
             when(mockedResponse.getContentType()).thenReturn("application/xml");
+            when(mockedResponse.getHeader(eq("Content-Type"))).thenReturn("application/xml");
             mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) mockedRequest);
             mutableHttpResponse = MutableHttpServletResponse.wrap(mockedRequest, mockedResponse);
+            mutableHttpResponse.setHeader("Content-Type", "application/xml");
 
             FilterDirector director = handler.handleResponse(mutableHttpRequest, mutableHttpResponse);
             String actual = director.getResponseMessageBody();
@@ -146,8 +150,10 @@ public class TranslationHandlerTest {
 
             when(mockedRequest.getAttribute(eq("repose.response.input.stream"))).thenReturn(null);
             when(mockedResponse.getContentType()).thenReturn("application/xml");
+            when(mockedResponse.getHeader(eq("Content-Type"))).thenReturn("application/xml");
             mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) mockedRequest);
             mutableHttpResponse = MutableHttpServletResponse.wrap(mockedRequest, mockedResponse);
+            mutableHttpResponse.setHeader("Content-Type", "application/xml");
 
             FilterDirector director = handler.handleResponse(mutableHttpRequest, mutableHttpResponse);
             String actual = director.getResponseMessageBody();
@@ -165,8 +171,10 @@ public class TranslationHandlerTest {
             when(mockedRequest.getHeaders(eq("accept"))).thenReturn((Enumeration) new StringTokenizer("application/json"));
             when(mockedRequest.getContentType()).thenReturn("application/xml");
             when(mockedResponse.getContentType()).thenReturn("application/xml");
+            when(mockedResponse.getHeader(eq("Content-Type"))).thenReturn("application/xml");
             mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) mockedRequest);
             mutableHttpResponse = MutableHttpServletResponse.wrap(mockedRequest, mockedResponse);
+            mutableHttpResponse.setHeader("Content-Type", "application/xml");
 
             FilterDirector director = handler.handleResponse(mutableHttpRequest, mutableHttpResponse);
             String actual = new String(RawInputStreamReader.instance().readFully(mutableHttpResponse.getInputStream()));
@@ -254,9 +262,11 @@ public class TranslationHandlerTest {
             ServletInputStream response = new BufferedServletInputStream(this.getClass().getResourceAsStream("/empty.xml"));
             when(mockedRequest.getInputStream()).thenReturn(response);
             when(mockedRequest.getContentType()).thenReturn("application/xml");
+            when(mockedResponse.getHeader(eq("Content-Type"))).thenReturn("application/xml");
 
             mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) mockedRequest);
             mutableHttpResponse = MutableHttpServletResponse.wrap(mockedRequest, mockedResponse);
+            mutableHttpResponse.setHeader("Content-Type", "application/xml");
 
             FilterDirector director = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
             String actual = new String(RawInputStreamReader.instance().readFully(mutableHttpRequest.getInputStream()));
@@ -276,6 +286,7 @@ public class TranslationHandlerTest {
             mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) mockedRequest);
             mutableHttpResponse = MutableHttpServletResponse.wrap(mockedRequest, mockedResponse);
             when(mockedRequest.getContentType()).thenReturn("application/xml");
+            when(mockedResponse.getHeader(eq("Content-Type"))).thenReturn("application/xml");
 
             FilterDirector director = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
             String actual = new String(RawInputStreamReader.instance().readFully(mutableHttpRequest.getInputStream()));
@@ -295,8 +306,10 @@ public class TranslationHandlerTest {
             when(mockedRequest.getHeader(eq("Accept"))).thenReturn("application/other");
             when(mockedRequest.getHeaders(eq("accept"))).thenReturn((Enumeration) new StringTokenizer("application/other"));
             when(mockedRequest.getContentType()).thenReturn("application/other");
+            when(mockedResponse.getHeader(eq("Content-Type"))).thenReturn("application/other");
             mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) mockedRequest);
             mutableHttpResponse = MutableHttpServletResponse.wrap(mockedRequest, mockedResponse);
+            mutableHttpResponse.setHeader("Content-Type", "application/xml");
 
             FilterDirector director = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
             String actual = new String(RawInputStreamReader.instance().readFully(mutableHttpRequest.getInputStream()));

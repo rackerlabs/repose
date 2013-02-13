@@ -1,5 +1,8 @@
 package com.rackspace.papi.components.translation.httpx;
 
+import com.rackspace.papi.commons.util.servlet.http.ResponseHeaderContainer;
+import com.rackspace.papi.commons.util.servlet.http.HeaderContainer;
+import com.rackspace.papi.commons.util.servlet.http.RequestHeaderContainer;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import java.util.List;

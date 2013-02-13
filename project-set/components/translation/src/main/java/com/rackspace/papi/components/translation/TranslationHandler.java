@@ -58,16 +58,29 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
 
     return null;
   }
+  
+  private enum TranslationType {
+    REQUEST,
+    RESPONSE
+  }
 
-  private List<XsltParameter> getInputParameters(final MutableHttpServletRequest request, final MutableHttpServletResponse response) {
+  private List<XsltParameter> getInputParameters(final TranslationType type, final MutableHttpServletRequest request, final MutableHttpServletResponse response) {
     List<XsltParameter> inputs = new ArrayList<XsltParameter>();
     inputs.add(new XsltParameter("request", request));
     inputs.add(new XsltParameter("response", response));
     inputs.add(new XsltParameter("requestId", request.getRequestId()));
+    inputs.add(new XsltParameter("responseId", response.getResponseId()));
+    
+    final String id;
+    if (type == TranslationType.REQUEST) {
+      id = request.getRequestId();
+    } else {
+      id = response.getResponseId();
+    }
     /* Input/Ouput URIs */
-    inputs.add(new XsltParameter("input-headers-uri", "repose:input:headers:" + request.getRequestId()));
-    inputs.add(new XsltParameter("input-query-uri", "repose:input:query:" + request.getRequestId()));
-    inputs.add(new XsltParameter("input-request-uri", "repose:input:request:" + request.getRequestId()));
+    inputs.add(new XsltParameter("input-headers-uri", "repose:input:headers:" + id));
+    inputs.add(new XsltParameter("input-query-uri", "repose:input:query:" + id));
+    inputs.add(new XsltParameter("input-request-uri", "repose:input:request:" + id));
     inputs.add(new XsltParameter("output-headers-uri", "repose:output:headers.xml"));
     inputs.add(new XsltParameter("output-query-uri", "repose:output:query.xml"));
     inputs.add(new XsltParameter("output-request-uri", "repose:output:request.xml"));
@@ -91,7 +104,7 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
     MutableHttpServletResponse response = MutableHttpServletResponse.wrap(httpRequest, httpResponse);
     final FilterDirector filterDirector = new FilterDirectorImpl();
     filterDirector.setFilterAction(FilterAction.PASS);
-    MediaType contentType = getContentType(response.getHeader("content-type"));
+    MediaType contentType = getContentType(response.getHeader("Content-Type"));
     List<MediaType> acceptValues = getAcceptValues(request.getPreferredHeaders("Accept", DEFAULT_TYPE));
     XmlChainPool pool = getHandlerChainPool("", contentType, acceptValues, String.valueOf(response.getStatus()), responseProcessors);
 
@@ -104,11 +117,11 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
             TranslationResult result = pool.executePool(
                     new TranslationPreProcessor(response.getInputStream(), contentType, true).getBodyStream(),
                     filterDirector.getResponseOutputStream(),
-                    getInputParameters(request, response));
+                    getInputParameters(TranslationType.RESPONSE, request, response));
 
             if (result.isSuccess()) {
               result.applyResults(filterDirector);
-              response.setContentType(pool.getResultContentType());
+              filterDirector.responseHeaderManager().putHeader("Content-Type", pool.getResultContentType());
             } else {
               filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
               response.setContentLength(0);
@@ -142,7 +155,7 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
         TranslationResult result = pool.executePool(
                 new TranslationPreProcessor(request.getInputStream(), contentType, true).getBodyStream(),
                 new ByteBufferServletOutputStream(internalBuffer),
-                getInputParameters(request, response));
+                getInputParameters(TranslationType.REQUEST, request, response));
 
         if (result.isSuccess()) {
           request.setInputStream(new ByteBufferInputStream(internalBuffer));

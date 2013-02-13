@@ -7,13 +7,13 @@ public class RequestValuesImpl implements RequestValues {
     private static final String REQUEST_URI_ATTRIBUTE = "repose.request.uri";
     private static final String REQUEST_URL_ATTRIBUTE = "repose.request.url";
     private final HttpServletRequest request;
-    private final RequestHeaderValues headers;
+    private final HeaderValues headers;
     private final RequestDestinations destinations;
     private final RequestQueryParameters parameters;
 
     public RequestValuesImpl(HttpServletRequest request) {
         this.request = request;
-        this.headers = RequestHeaderValuesImpl.extract(request);
+        this.headers = HeaderValuesImpl.extract(request);
         this.destinations = new RequestDestinationsImpl(request);
         this.parameters = new RequestQueryParametersImpl(request);
         request.setAttribute(REQUEST_URI_ATTRIBUTE, request.getRequestURI());
@@ -46,7 +46,7 @@ public class RequestValuesImpl implements RequestValues {
     }
 
     @Override
-    public RequestHeaderValues getHeaders() {
+    public HeaderValues getHeaders() {
         return headers;
     }
 

@@ -1,33 +1,33 @@
-package com.rackspace.papi.components.translation.httpx;
+package com.rackspace.papi.commons.util.servlet.http;
 
 import com.rackspace.papi.commons.util.http.header.HeaderFieldParser;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
-import java.util.Enumeration;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
-public class RequestHeaderContainer implements HeaderContainer {
+public class ResponseHeaderContainer implements HeaderContainer {
 
-  private final HttpServletRequest request;
+  private final HttpServletResponse response;
   private final List<String> headerNames;
   private final Map<String, List<HeaderValue>> headerValues;
 
-  public RequestHeaderContainer(HttpServletRequest request) {
-    this.request = request;
+  public ResponseHeaderContainer(HttpServletResponse response) {
+    this.response = response;
     this.headerNames = extractHeaderNames();
     this.headerValues = extractHeaderValues();
   }
 
   private List<String> extractHeaderNames() {
     List<String> result = new LinkedList<String>();
-    if (request != null) {
-      Enumeration<String> names = request.getHeaderNames();
+    if (response != null) {
+      Collection<String> names = response.getHeaderNames();
 
-      while (names.hasMoreElements()) {
-        result.add(names.nextElement());
+      for (String name : names) {
+        result.add(name.toLowerCase());
       }
     }
 
@@ -37,9 +37,9 @@ public class RequestHeaderContainer implements HeaderContainer {
   private Map<String, List<HeaderValue>> extractHeaderValues() {
     Map<String, List<HeaderValue>> valueMap = new HashMap<String, List<HeaderValue>>();
 
-    if (request != null) {
+    if (response != null) {
       for (String name : getHeaderNames()) {
-        HeaderFieldParser parser = new HeaderFieldParser(request.getHeaders(name));
+        HeaderFieldParser parser = new HeaderFieldParser(response.getHeaders(name));
         valueMap.put(name, parser.parse());
       }
     }
@@ -55,5 +55,16 @@ public class RequestHeaderContainer implements HeaderContainer {
   @Override
   public List<HeaderValue> getHeaderValues(String name) {
     return headerValues.get(name);
+  }
+
+  @Override
+  public boolean containsHeader(String name) {
+    List<HeaderValue> values = getHeaderValues(name);
+    return values != null && !values.isEmpty();
+  }
+
+  @Override
+  public HeaderContainerType getContainerType() {
+    return HeaderContainerType.RESPONSE;
   }
 }

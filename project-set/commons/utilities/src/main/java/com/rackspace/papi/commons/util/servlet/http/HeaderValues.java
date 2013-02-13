@@ -4,7 +4,7 @@ import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import java.util.Enumeration;
 import java.util.List;
 
-public interface RequestHeaderValues {
+public interface HeaderValues {
 
     void addHeader(String name, String value);
 
@@ -23,4 +23,7 @@ public interface RequestHeaderValues {
     void replaceHeader(String name, String value);
     
     void clearHeaders();
+    
+    boolean containsHeader(String name);
+
 }

@@ -8,7 +8,7 @@ public interface RequestValues {
 
     RequestDestinations getDestinations();
 
-    RequestHeaderValues getHeaders();
+    HeaderValues getHeaders();
 
     RequestQueryParameters getQueryParameters();
 
