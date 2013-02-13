@@ -2,6 +2,7 @@ package com.rackspace.papi.commons.util.servlet.http;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
+import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.io.ByteBufferInputStream;
 import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
@@ -13,6 +14,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.UUID;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -174,22 +176,22 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
     request.setAttribute(INPUT_STREAM_ATTRIBUTE, input);
     return currentInputStream;
   }
-  
+
   public void writeHeadersToResponse() {
     Enumeration<String> headerNames = headers.getHeaderNames();
-    
+
     while (headerNames.hasMoreElements()) {
       String header = headerNames.nextElement();
-      Enumeration<String> values = headers.getHeaders(header);
-      
+      List<HeaderValue> values = headers.getHeaderValues(header);
+
       boolean first = true;
-      while (values.hasMoreElements()) {
-        String value = values.nextElement();
+      for (HeaderValue value : values) {
         if (first) {
-        super.setHeader(header, value);
+          super.setHeader(header, value.toString());
         } else {
-          super.addHeader(header, value);
+          super.addHeader(header, value.toString());
         }
+        first = false;
       }
     }
   }
@@ -300,6 +302,7 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
     return error;
   }
 
+  @Override
   public String getMessage() {
     return message;
   }
@@ -312,7 +315,15 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
   public Throwable getLastException() {
     return exception;
   }
+  
+  public void removeAllHeaders() {
+    headers.clearHeaders();
+  }
 
+  public void removeHeader(String name) {
+    headers.removeHeader(name);
+  }
+  
   @Override
   public boolean containsHeader(String name) {
     return headers.containsHeader(name);
@@ -341,12 +352,13 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
 
   @Override
   public void setDateHeader(String name, long date) {
-    throw new NotImplementedException();
+    headers.removeHeader(name);
+    headers.addDateHeader(name, date);
   }
 
   @Override
   public void addDateHeader(String name, long date) {
-    throw new NotImplementedException();
+    headers.addDateHeader(name, date);
   }
 
   @Override
@@ -365,5 +377,4 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
     Enumeration<String> headerNames = headers.getHeaderNames();
     return headerNames != null ? Collections.list(headerNames) : null;
   }
-  
 }

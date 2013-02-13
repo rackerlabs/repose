@@ -2,13 +2,13 @@ package com.rackspace.papi.filter.logic.impl;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.filter.logic.AbstractFilterDirector;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.HeaderManager;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -83,7 +83,7 @@ class EmptyHeaderManager implements HeaderManager {
   }
 
   @Override
-  public void applyTo(HttpServletResponse response) {
+  public void applyTo(MutableHttpServletResponse response) {
   }
 
   @Override
@@ -100,5 +100,9 @@ class EmptyHeaderManager implements HeaderManager {
 
   @Override
   public void removeAllHeaders() {
+  }
+
+  @Override
+  public void appendDateHeader(String key, long value) {
   }
 }

@@ -1,23 +1,21 @@
 package com.rackspace.papi.filter.logic.impl;
 
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.filter.logic.HeaderApplicationLogic;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.Set;
 
 public class ResponseHeaderApplicationLogic implements HeaderApplicationLogic {
 
-  private final HttpServletResponse response;
+  private final MutableHttpServletResponse response;
 
-  public ResponseHeaderApplicationLogic(final HttpServletResponse response) {
+  public ResponseHeaderApplicationLogic(final MutableHttpServletResponse response) {
     this.response = response;
   }
 
   @Override
   public void removeHeader(String headerName) {
-    // NOOP
-    // TODO: Log use of this for consideration of reworking the model
-    response.setHeader(headerName, null);
+    response.removeHeader(headerName);
   }
 
   @Override
@@ -29,6 +27,6 @@ public class ResponseHeaderApplicationLogic implements HeaderApplicationLogic {
 
   @Override
   public void removeAllHeaders() {
-    // TODO Implement!
+    response.removeAllHeaders();
   }
 }

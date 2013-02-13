@@ -1,11 +1,11 @@
 package com.rackspace.papi.filter.logic.impl;
 
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.filter.logic.HeaderApplicationLogic;
 import com.rackspace.papi.filter.logic.HeaderManager;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 
 /**
@@ -46,7 +46,7 @@ public class HeaderManagerImpl implements HeaderManager {
   }
 
   @Override
-  public void applyTo(final HttpServletResponse response) {
+  public void applyTo(final MutableHttpServletResponse response) {
     final ResponseHeaderApplicationLogic applicationLogic = new ResponseHeaderApplicationLogic(response);
     applyTo(applicationLogic);
   }
@@ -126,5 +126,10 @@ public class HeaderManagerImpl implements HeaderManager {
   @Override
   public void removeAllHeaders() {
     removeAllHeaders = true;
+  }
+
+  @Override
+  public void appendDateHeader(String key, long value) {
+    throw new UnsupportedOperationException("Not supported yet.");
   }
 }
