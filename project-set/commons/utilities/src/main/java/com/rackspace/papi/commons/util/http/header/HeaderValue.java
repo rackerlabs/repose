@@ -29,7 +29,7 @@ public interface HeaderValue extends Comparable<HeaderValue> {
     * @return 
     */
    double getQualityFactor();
-
+   
    /**
     * A HeaderValue toString method must return a correctly formatted string
     * representation of the header value and its associated parameters.

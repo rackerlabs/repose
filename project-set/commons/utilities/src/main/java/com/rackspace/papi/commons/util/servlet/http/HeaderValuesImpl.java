@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
+import com.rackspace.papi.commons.util.http.HttpDate;
 import com.rackspace.papi.commons.util.http.header.HeaderFieldParser;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
@@ -52,7 +53,7 @@ public final class HeaderValuesImpl implements HeaderValues {
     headers.putAll(headerMap);
   }
   
-  private List<HeaderValue> getHeaderValues(String value) {
+  private List<HeaderValue> parseHeaderValues(String value) {
     HeaderFieldParser parser = new HeaderFieldParser(value);
     
     return parser.parse();
@@ -67,9 +68,8 @@ public final class HeaderValuesImpl implements HeaderValues {
     if (headerValues == null) {
       headerValues = new LinkedList<HeaderValue>();
     }
-    
 
-    headerValues.addAll(getHeaderValues(value));
+    headerValues.addAll(parseHeaderValues(value));
 
     headers.put(lowerCaseName, headerValues);
   }
@@ -78,7 +78,7 @@ public final class HeaderValuesImpl implements HeaderValues {
   public void replaceHeader(String name, String value) {
     final List<HeaderValue> headerValues = new LinkedList<HeaderValue>();
 
-    headerValues.addAll(getHeaderValues(value));
+    headerValues.addAll(parseHeaderValues(value));
 
     headers.put(name.toLowerCase(), headerValues);
   }
@@ -186,5 +186,32 @@ public final class HeaderValuesImpl implements HeaderValues {
   @Override
   public boolean containsHeader(String name) {
     return headers.containsKey(name);
+  }
+
+  @Override
+  public void addDateHeader(String name, long value) {
+    final String lowerCaseName = name.toLowerCase();
+
+    List<HeaderValue> headerValues = headers.get(lowerCaseName);
+
+    if (headerValues == null) {
+      headerValues = new LinkedList<HeaderValue>();
+    }
+    
+    HttpDate date = new HttpDate(new Date(value));
+    headerValues.add(new HeaderValueImpl(date.toRFC1123()));
+
+    headers.put(lowerCaseName, headerValues);
+  }
+
+  @Override
+  public void replaceDateHeader(String name, long value) {
+    headers.remove(name);
+    addDateHeader(name, value);
+  }
+
+  @Override
+  public List<HeaderValue> getHeaderValues(String name) {
+    return headers.get(name);
   }
 }

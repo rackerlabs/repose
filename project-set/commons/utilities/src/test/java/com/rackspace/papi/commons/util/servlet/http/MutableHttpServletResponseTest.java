@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util.servlet.http;
 
+import com.rackspace.papi.commons.util.http.HttpDate;
 import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
@@ -17,7 +18,6 @@ import javax.servlet.http.HttpServletResponse;
 import static org.junit.Assert.*;
 import org.junit.Before;
 import static org.mockito.Mockito.*;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 @RunWith(Enclosed.class)
 public class MutableHttpServletResponseTest {
@@ -44,11 +44,14 @@ public class MutableHttpServletResponseTest {
       assertEquals(10, Integer.parseInt(mutableResponse.getHeader("intHeader")));
     }
     
-    @Test(expected=NotImplementedException.class)
-    public void shouldSetDataHeader() {
+    @Test
+    public void shouldSetDateHeader() {
       long expected = new Date().getTime();
+      HttpDate httpDate = new HttpDate(new Date(expected));
       
       mutableResponse.setDateHeader("date", expected);
+      assertNotNull(mutableResponse.getHeader("date"));
+      assertEquals(httpDate.toRFC1123(), mutableResponse.getHeader("date"));
     }
     
   }

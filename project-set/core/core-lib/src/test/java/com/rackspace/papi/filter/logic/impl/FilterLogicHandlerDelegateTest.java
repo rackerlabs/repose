@@ -68,7 +68,7 @@ public class FilterLogicHandlerDelegateTest {
          verify(filterLogicHandler, never()).handleResponse(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
          
          verify(filterDirector, never()).applyTo(any(MutableHttpServletRequest.class));
-         verify(filterDirector, never()).applyTo(any(HttpServletResponse.class));
+         verify(filterDirector, never()).applyTo(any(MutableHttpServletResponse.class));
       }
 
       @Test
@@ -82,7 +82,7 @@ public class FilterLogicHandlerDelegateTest {
          verify(filterLogicHandler, never()).handleResponse(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
          
          verify(filterDirector, times(1)).applyTo(any(MutableHttpServletRequest.class));
-         verify(filterDirector, never()).applyTo(any(HttpServletResponse.class));
+         verify(filterDirector, never()).applyTo(any(MutableHttpServletResponse.class));
       }
    }
 
@@ -99,7 +99,7 @@ public class FilterLogicHandlerDelegateTest {
          verify(filterLogicHandler, times(1)).handleResponse(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
 
          verify(filterDirector, times(1)).applyTo(any(MutableHttpServletRequest.class));
-         verify(filterDirector, times(1)).applyTo(any(HttpServletResponse.class));
+         verify(filterDirector, times(1)).applyTo(any(MutableHttpServletResponse.class));
       }
    }
 
@@ -116,7 +116,7 @@ public class FilterLogicHandlerDelegateTest {
          verify(filterLogicHandler, never()).handleResponse(any(MutableHttpServletRequest.class), any(MutableHttpServletResponse.class));
 
          verify(filterDirector, never()).applyTo(any(MutableHttpServletRequest.class));
-         verify(filterDirector, times(1)).applyTo(any(HttpServletResponse.class));
+         verify(filterDirector, times(1)).applyTo(any(MutableHttpServletResponse.class));
       }
    }
 }
