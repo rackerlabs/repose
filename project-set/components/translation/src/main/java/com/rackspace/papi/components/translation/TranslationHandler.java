@@ -125,6 +125,7 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
             } else {
               filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
               response.setContentLength(0);
+              filterDirector.responseHeaderManager().removeHeader("Content-Length");
             }
           }
         }
