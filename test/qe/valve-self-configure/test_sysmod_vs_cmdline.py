@@ -26,6 +26,9 @@ stop_port = 7777
 def setUpModule():
     # Set up folder hierarchy and install repose JAR/EARs if needed
     logger.debug('setUpModule')
+    pathutil.create_folder(config_dir)
+    pathutil.create_folder(deploy_dir)
+    pathutil.create_folder(os.path.dirname(log_file))
     pass
 
 
