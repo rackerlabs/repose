@@ -212,6 +212,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
             }
 
             try {
+                mutableHttpResponse.writeHeadersToResponse();
                 mutableHttpResponse.commitBufferToServletOutputStream();
             } catch (IOException ex) {
                 LOG.error("Error committing output stream", ex);

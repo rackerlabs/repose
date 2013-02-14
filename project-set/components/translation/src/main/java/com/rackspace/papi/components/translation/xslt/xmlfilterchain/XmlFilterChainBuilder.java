@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
 import com.rackspace.papi.components.translation.resolvers.ClassPathUriResolver;
+import com.rackspace.papi.components.translation.resolvers.HttpxUriInputParameterResolver;
 import com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver;
 import com.rackspace.papi.components.translation.resolvers.SourceUriResolver;
 import com.rackspace.papi.components.translation.resolvers.SourceUriResolverChain;
@@ -13,6 +14,7 @@ import java.io.StringWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.XMLConstants;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -25,16 +27,17 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXTransformerFactory;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.stream.StreamSource;
+import net.sf.saxon.lib.FeatureKeys;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
-import javax.xml.XMLConstants;
 
 public class XmlFilterChainBuilder {
 
-  private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(XmlFilterChainBuilder.class);
+  private static final Logger LOG = LoggerFactory.getLogger(XmlFilterChainBuilder.class);
   private static final String CLASSPATH_PREFIX = "classpath://";
   private final SAXTransformerFactory factory;
   private final boolean allowEntities;
@@ -44,6 +47,7 @@ public class XmlFilterChainBuilder {
     this.allowEntities = allowEntities;
     try {
       factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+      factory.setFeature(FeatureKeys.ALLOW_EXTERNAL_FUNCTIONS, new Boolean(true));
     } catch (TransformerConfigurationException ex) {
       LOG.error("Error", ex);
     }
@@ -56,6 +60,7 @@ public class XmlFilterChainBuilder {
       SourceUriResolverChain chain = new SourceUriResolverChain(resolver);
       chain.addResolver(new InputStreamUriParameterResolver());
       chain.addResolver(new ClassPathUriResolver());
+      chain.addResolver(new HttpxUriInputParameterResolver());
       factory.setURIResolver(chain);
     }
   }
@@ -70,7 +75,13 @@ public class XmlFilterChainBuilder {
           Source source = getStylesheetSource(resource);
           // Wire the output of the reader to filter1 (see Note #3)
           // and the output of filter1 to filter2
-          XMLFilter filter = factory.newXMLFilter(source);
+          XMLFilter filter;
+          try {
+            filter = factory.newXMLFilter(source);
+          } catch (TransformerConfigurationException ex) {
+            LOG.error("Error creating XML Filter for " + resource.getUri(), ex);
+            throw new XsltException(ex);
+          }
           filter.setParent(lastReader);
           filters.add(new XmlFilterReference(resource.getId(), filter));
           lastReader = filter;
@@ -80,8 +91,6 @@ public class XmlFilterChainBuilder {
       }
 
       return new XmlFilterChain(factory, filters);
-    } catch (TransformerConfigurationException ex) {
-      throw new XsltException(ex);
     } catch (ParserConfigurationException ex) {
       throw new XsltException(ex);
     } catch (SAXException ex) {

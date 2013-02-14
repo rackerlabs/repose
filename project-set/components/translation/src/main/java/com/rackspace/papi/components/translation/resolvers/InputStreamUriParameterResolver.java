@@ -56,6 +56,10 @@ public class InputStreamUriParameterResolver extends SourceUriResolver {
     public String getHref(String name) {
         return PREFIX + name;
     }
+    
+    public void clearStreams() {
+      streams.clear();
+    }
 
     @Override
     public Source resolve(String href, String base) throws TransformerException {

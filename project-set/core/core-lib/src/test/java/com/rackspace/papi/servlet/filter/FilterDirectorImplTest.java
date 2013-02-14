@@ -61,7 +61,7 @@ public class FilterDirectorImplTest {
         public void shouldAddResponseHeader() throws IOException {
             impl.responseHeaderManager().appendHeader("key", "value");
             impl.applyTo(response);
-            verify(httpResponse).addHeader("key", "value");
+            assertEquals("value", response.getHeader("key"));
         }
 
         @Test

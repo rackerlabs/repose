@@ -4,6 +4,8 @@ import java.util.Collection;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  *
@@ -11,57 +13,65 @@ import java.util.List;
  */
 public class HeaderFieldParser {
 
-   private final List<String> headerValueStrings;
+  Pattern date = Pattern.compile("[^\\d]{3},\\s*[\\d]{2}\\s*[^\\d]{3}\\s*[\\d]{4}\\s*[\\d]{2}:[\\d]{2}:[\\d]{2}\\s*GMT");
+  private final List<String> headerValueStrings;
 
-   private HeaderFieldParser() {
-      headerValueStrings = new LinkedList<String>();
-   }
+  private HeaderFieldParser() {
+    headerValueStrings = new LinkedList<String>();
+  }
 
-   public HeaderFieldParser(String rawHeaderString) {
-      this();
+  public HeaderFieldParser(String rawHeaderString) {
+    this();
 
-      if (rawHeaderString != null) {
-         addValue(rawHeaderString);
+    if (rawHeaderString != null) {
+      addValue(rawHeaderString);
+    }
+  }
+
+  public HeaderFieldParser(Enumeration<String> headerValueEnumeration) {
+    this();
+
+    if (headerValueEnumeration != null) {
+      while (headerValueEnumeration.hasMoreElements()) {
+        addValue(headerValueEnumeration.nextElement());
       }
-   }
+    }
+  }
 
-   public HeaderFieldParser(Enumeration<String> headerValueEnumeration) {
-      this();
+  public HeaderFieldParser(Collection<String> headers) {
+    this();
 
-      if (headerValueEnumeration != null) {
-         while (headerValueEnumeration.hasMoreElements()) {
-            addValue(headerValueEnumeration.nextElement());
-         }
+    if (headers != null) {
+      for (String header : headers) {
+        addValue(header);
       }
-   }
+    }
+  }
 
-   public HeaderFieldParser(Collection<String> headers) {
-      this();
+  private void addValue(String rawHeaderString) {
+    Matcher matcher = date.matcher(rawHeaderString);
+    if (matcher.matches()) {
+      // This is an RFC 1123 date string
+      headerValueStrings.add(rawHeaderString);
+      return;
+    }
+    
+    final String[] splitHeaderValues = rawHeaderString.split(",");
 
-      if (headers != null) {
-         for (String header : headers) {
-            addValue(header);
-         }
+    for (String splitHeaderValue : splitHeaderValues) {
+      if (!splitHeaderValue.isEmpty()) {
+        headerValueStrings.add(splitHeaderValue.trim());
       }
-   }
+    }
+  }
 
-   private void addValue(String rawHeaderString) {
-      final String[] splitHeaderValues = rawHeaderString.split(",");
+  public List<HeaderValue> parse() {
+    final List<HeaderValue> headerValues = new LinkedList<HeaderValue>();
 
-      for (String splitHeaderValue : splitHeaderValues) {
-          if(!splitHeaderValue.isEmpty()){
-            headerValueStrings.add(splitHeaderValue.trim());
-          }
-      }
-   }
+    for (String headerValueString : headerValueStrings) {
+      headerValues.add(new HeaderValueParser(headerValueString).parse());
+    }
 
-   public List<HeaderValue> parse() {
-      final List<HeaderValue> headerValues = new LinkedList<HeaderValue>();
-
-      for (String headerValueString : headerValueStrings) {
-         headerValues.add(new HeaderValueParser(headerValueString).parse());
-      }
-
-      return headerValues;
-   }
+    return headerValues;
+  }
 }

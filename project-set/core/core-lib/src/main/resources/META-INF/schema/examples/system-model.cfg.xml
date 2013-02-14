@@ -2,17 +2,22 @@
 
 <system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
   <repose-cluster id="repose">
+
     <nodes>
-      <node id="node1" hostname="localhost" http-port="8088"/>
+      <node id="node1" hostname="localhost" http-port="8088"/> <!-- localhost service instance will be started on specified port -->
+      <!-- node id="node2" hostname="other-host" http-port="8088"/--> <!-- other hosts are not started, only commmunicated with -->
     </nodes>
+
     <filters>
-      <!--
       <filter name="http-logging" />
-      <filter name="header-id-mapping" />
-      -->
+      <filter name="client-auth" uri-regex=".*/servers/([-|\w]+)/?.*" />
+      <!--filter name="api-validator" /-->
+      <filter name="default-router"/>
     </filters>
+
     <destinations>
       <endpoint id="openrepose" protocol="http" hostname="www.openrepose.org" root-path="/" port="80" default="true"/>
     </destinations>
+
   </repose-cluster>
 </system-model>

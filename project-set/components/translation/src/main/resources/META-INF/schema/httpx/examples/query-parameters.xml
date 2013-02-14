@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<parameters
+  xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'
+  xmlns='http://openrepose.org/repose/httpx/v1.0'
+  xsi:schemaLocation='http://openrepose.org/repose/httpx/v1.0 ../httpx.xsd'>
+
+  <parameter name="belongsTo" value="123456" />
+  <parameter name="x" value="1"></parameter>
+  <parameter name="x" value="2"></parameter>
+  <parameter name="y" value="3"></parameter>
+
+</parameters>

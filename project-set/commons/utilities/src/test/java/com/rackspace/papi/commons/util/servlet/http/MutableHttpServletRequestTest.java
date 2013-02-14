@@ -120,19 +120,19 @@ public class MutableHttpServletRequestTest {
             String expected, actual;
 
             expected = headerValues.get(0);
-            actual = RequestHeaderValuesImpl.fromMap(headers, "header1");
+            actual = HeaderValuesImpl.fromMap(headers, "header1");
 
             assertEquals(expected, actual);
         }
 
         @Test
         public void shouldReturnNullIfNotFound() {
-            assertNull(RequestHeaderValuesImpl.fromMap(headers, "headerZ"));
+            assertNull(HeaderValuesImpl.fromMap(headers, "headerZ"));
         }
 
         @Test
         public void shouldReturnNullHeadersCollectionIsEmpty() {
-            assertNull(RequestHeaderValuesImpl.fromMap(headers, "header2"));
+            assertNull(HeaderValuesImpl.fromMap(headers, "header2"));
         }
     }
 

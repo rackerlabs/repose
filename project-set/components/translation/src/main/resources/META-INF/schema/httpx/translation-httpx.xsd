@@ -1,0 +1,94 @@
+<?xml version="1.0"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:httpx="http://openrepose.org/repose/httpx/v1.0"
+           targetNamespace="http://openrepose.org/repose/httpx/v1.0"
+           attributeFormDefault="unqualified"
+           elementFormDefault="qualified">
+
+  <xs:element name="headers" type="httpx:Headers"/>
+  <xs:element name="parameters" type="httpx:QueryParameters" />
+  <xs:element name="request-information" type="httpx:RequestInformation" />
+  
+  <xs:complexType name="RequestInformation">
+    <xs:all>
+      <xs:element name="uri" type="xs:string" />
+      <xs:element name="url" type="xs:string" />
+      <xs:element name="informational" type="httpx:ReadOnlyRequestInformation" minOccurs="0" />
+    </xs:all>
+  </xs:complexType>
+  
+  <xs:complexType name="ReadOnlyRequestInformation">
+    <xs:all>
+      <xs:element name="auth-type" type="xs:string" />
+      <xs:element name="context-path" type="xs:string" />
+      <xs:element name="local-addr" type="xs:string" />
+      <xs:element name="local-name" type="xs:string" />
+      <xs:element name="local-port" type="xs:int" />
+      <xs:element name="request-method" type="xs:string" />
+      <xs:element name="path-info" type="xs:string" />
+      <xs:element name="path-translated" type="xs:string" />
+      <xs:element name="protocol" type="xs:string" />
+      <xs:element name="remote-addr" type="xs:string" />
+      <xs:element name="remote-host" type="xs:string" />
+      <xs:element name="remote-port" type="xs:int" />
+      <xs:element name="remote-user" type="xs:string" />
+      <xs:element name="session-id" type="xs:string" />
+      <xs:element name="scheme" type="xs:string" />
+      <xs:element name="server-name" type="xs:string" />
+      <xs:element name="server-port" type="xs:int" />
+      <xs:element name="servlet-path" type="xs:string" />
+    </xs:all>
+  </xs:complexType>
+  
+  <xs:complexType name="Headers">
+    <xs:annotation>
+      <xs:documentation>
+        <html:p>The request/response headers in an xml representation.</html:p>
+      </xs:documentation>
+    </xs:annotation>
+    <xs:all>
+      <xs:element name="request" type="httpx:HeaderList" minOccurs="0" />
+      <xs:element name="response" type="httpx:HeaderList" minOccurs="0" />
+    </xs:all>
+  </xs:complexType>
+  
+  <xs:complexType name="HeaderList">
+    <xs:sequence>
+      <xs:element name="header" type="httpx:QualityNameValuePair" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="QualityNameValuePair">
+    <xs:complexContent>
+      <xs:extension base="httpx:NameValuePair">
+        <xs:attribute name="quality" type="httpx:Quality" use="optional" default="1.0" />
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>  
+  
+  <xs:simpleType name="Quality">
+    <xs:restriction base="xs:double">
+      <xs:minInclusive value="0" />
+      <xs:maxInclusive value="1.0" />
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:complexType name="NameValuePair">
+    <xs:attribute name="name" type="xs:string" />
+    <xs:attribute name="value" type="xs:string" />
+  </xs:complexType>
+
+  <xs:complexType name="QueryParameters">
+    <xs:annotation>
+      <xs:documentation>
+        <html:p>The request/response headers in an xml representation.</html:p>
+      </xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="parameter" type="httpx:NameValuePair" minOccurs="0" maxOccurs="unbounded" />
+    </xs:sequence>
+  </xs:complexType>
+      
+</xs:schema>

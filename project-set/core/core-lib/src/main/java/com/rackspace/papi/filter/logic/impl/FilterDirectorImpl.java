@@ -4,6 +4,7 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.commons.util.servlet.http.RouteDestination;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -13,7 +14,6 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import javax.servlet.http.HttpServletResponse;
 
 public class FilterDirectorImpl implements FilterDirector {
 
@@ -89,7 +89,7 @@ public class FilterDirectorImpl implements FilterDirector {
     }
 
     @Override
-    public void applyTo(HttpServletResponse response) throws IOException {
+    public void applyTo(MutableHttpServletResponse response) throws IOException {
         if (responseHeaderManager().hasHeaders()) {
             responseHeaderManager().applyTo(response);
         }
@@ -100,6 +100,7 @@ public class FilterDirectorImpl implements FilterDirector {
 
         if (directorOutputStream.size() > 0) {
             response.setContentLength(directorOutputStream.size());
+            response.setHeader("Content-Length", String.valueOf(directorOutputStream.size()));
             RawInputStreamReader.instance().copyTo(new ByteArrayInputStream(getResponseMessageBodyBytes()), response.getOutputStream());
         }
     }

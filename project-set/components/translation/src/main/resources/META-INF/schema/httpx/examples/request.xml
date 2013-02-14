@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<request xmlns="http://openrepose.org/repose/httpx/v1.0">
+    <uri>/translation/request/</uri>
+    <url>http://127.0.0.1:8088/translation/request/</url>
+    <informational>
+        <auth-type/>
+        <context-path/>
+        <local-addr>127.0.0.1</local-addr>
+        <local-name>127.0.0.1</local-name>
+        <local-port>8088</local-port>
+        <request-method>POST</request-method>
+        <path-info>/translation/request/</path-info>
+        <path-translated/>
+        <protocol>HTTP/1.1</protocol>
+        <remote-addr>127.0.0.1</remote-addr>
+        <remote-host>127.0.0.1</remote-host>
+        <remote-port>51759</remote-port>
+        <remote-user/>
+        <session-id/>
+        <scheme>http</scheme>
+        <server-name>127.0.0.1</server-name>
+        <server-port>8088</server-port>
+        <servlet-path/>
+    </informational>
+</request>
+
