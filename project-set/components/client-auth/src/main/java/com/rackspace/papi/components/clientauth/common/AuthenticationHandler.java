@@ -107,9 +107,13 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
                LOG.error("Failure communicating with the auth service: " + ex.getMessage(), ex);
                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
             } catch (AuthServiceException ex) {
-               LOG.error("Failure in auth: " + ex.getMessage());
+               LOG.error("Failure in Auth-N: " + ex.getMessage());
                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-            } catch (Exception ex) {
+            }catch (IllegalArgumentException ex){
+               LOG.error("Failure in Auth-N: " + ex.getMessage());
+               filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+            } 
+            catch (Exception ex) {
                LOG.error("Failure in auth: " + ex.getMessage(), ex);
                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
             }

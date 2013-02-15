@@ -65,11 +65,11 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
       OpenStackToken token = null;
 
-      ServiceClientResponse<AuthenticateResponse> serviceResponse = validateUser(userToken,tenant, false);
+      ServiceClientResponse<AuthenticateResponse> serviceResponse = validateUser(userToken, tenant, false);
 
       switch (HttpStatusCode.fromInt(serviceResponse.getStatusCode())) {
          case OK:
-            token = getOpenStackToken(tenant, serviceResponse);
+            token = getOpenStackToken(serviceResponse);
             break;
 
          case NOT_FOUND:
@@ -83,7 +83,7 @@ public class AuthenticationServiceClient implements AuthenticationService {
             serviceResponse = validateUser(userToken, tenant, true);
 
             if (serviceResponse.getStatusCode() == HttpStatusCode.OK.intValue()) {
-               token = getOpenStackToken(tenant, serviceResponse);
+               token = getOpenStackToken(serviceResponse);
             } else {
                LOG.warn("Still unable to validate token for tenant: " + serviceResponse.getStatusCode());
                throw new AuthServiceException("Unable to authenticate user with configured Admin credentials");
@@ -112,26 +112,19 @@ public class AuthenticationServiceClient implements AuthenticationService {
       if (StringUtilities.isBlank(tenant)) {
          serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, headers);
       } else {
-         serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, headers,"belongsTo",tenant);
+         serviceResponse = serviceClient.get(targetHostUri + "/tokens/" + userToken, headers, "belongsTo", tenant);
 
       }
 
       return serviceResponse;
    }
 
-   private OpenStackToken getOpenStackToken(String tenant, ServiceClientResponse<AuthenticateResponse> serviceResponse) {
+   private OpenStackToken getOpenStackToken(ServiceClientResponse<AuthenticateResponse> serviceResponse) {
       final AuthenticateResponse authenticateResponse = openStackCoreResponseUnmarshaller.unmarshall(serviceResponse.getData(), AuthenticateResponse.class);
       OpenStackToken token = null;
 
-      if (!StringUtilities.isBlank(tenant)) {
-         if (StringUtilities.nullSafeEqualsIgnoreCase(tenant, authenticateResponse.getToken().getTenant().getId())) {
-            token = new OpenStackToken(tenant, authenticateResponse);
-         }
-      } else {
-         token = new OpenStackToken(authenticateResponse);
-      }
 
-
+      token = new OpenStackToken(authenticateResponse);
       return token;
    }
 
