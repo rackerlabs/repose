@@ -1,6 +1,8 @@
 package com.rackspace.cloud.valve.server;
 
 import com.rackspace.cloud.valve.logging.DefaultLogConfigurator;
+import java.io.File;
+import java.io.IOException;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 import org.slf4j.Logger;
@@ -16,7 +18,7 @@ public final class ProxyApp {
    private static final int UPPER_PORT = 49150;
    private static final int LOWER_PORT = 1024;
 
-   public static void main(String[] args) {
+   public static void main(String[] args) throws IOException {
 
       DefaultLogConfigurator.configure();
 
@@ -73,9 +75,12 @@ public final class ProxyApp {
       return valid;
    }
 
-   private static void validateConfigDirectory(CommandLineArguments commandLineArgs) {
+   private static void validateConfigDirectory(CommandLineArguments commandLineArgs) throws IOException {
       if (commandLineArgs.getConfigDirectory() == null || commandLineArgs.getConfigDirectory().length() <= 0) {
          commandLineArgs.setConfigDirectory(DEFAULT_CFG_DIR);
+      } else {
+         File file = new File(commandLineArgs.getConfigDirectory());
+         commandLineArgs.setConfigDirectory(file.getCanonicalPath());
       }
    }
    
