@@ -110,7 +110,7 @@ public class LoggingServiceContext implements ServiceContext<LoggingService> {
     private void updateLogConfigFileSubscription(String currentLoggingConfig, String loggingConfig) {
 
         configurationManager.unsubscribeFrom(currentLoggingConfig, loggingConfigurationListener);
-        configurationManager.subscribeTo(loggingConfig, loggingConfigurationListener, new PropertiesFileConfigurationParser());
+        configurationManager.subscribeTo("",loggingConfig, loggingConfigurationListener, new PropertiesFileConfigurationParser());
     }
 
     @Override

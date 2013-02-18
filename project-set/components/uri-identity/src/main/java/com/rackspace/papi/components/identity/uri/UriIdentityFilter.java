@@ -38,6 +38,6 @@ public class UriIdentityFilter implements Filter {
         configurationManager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
         handlerFactory = new UriIdentityHandlerFactory();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/uri-identity-configuration.xsd");
-        configurationManager.subscribeTo(config,xsdURL, handlerFactory, UriIdentityConfig.class);
+        configurationManager.subscribeTo(filterConfig.getFilterName(),config,xsdURL, handlerFactory, UriIdentityConfig.class);
     }
 }

@@ -18,12 +18,12 @@ public class ParserListenerPairTest {
 
         @Test
         public void shouldNotVomitWhenGivenNulls() {
-            new ParserListenerPair(null, null);
+            new ParserListenerPair(null, null,null,null);
         }
 
         @Test
         public void shouldNotVomitWhenGettingListener() {
-            pair = new ParserListenerPair(null, null);
+            pair = new ParserListenerPair(null, null,null,null);
 
             pair.getListener();
         }

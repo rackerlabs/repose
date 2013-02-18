@@ -71,7 +71,7 @@ public class ApiValidatorHandlerFactoryTest {
             for(ValidatorInfo validatorForRole : validatorsForRole){
              assertEquals("Should get validator for role", role, validatorForRole.getRole());
             }
-            verify(configService, times(2)).subscribeTo(eq(instance.getWadlPath(wadl)), any(ApiValidatorHandlerFactory.ApiValidatorWadlListener.class), any(GenericResourceConfigurationParser.class));
+            verify(configService, times(2)).subscribeTo(eq("api-validator"),eq(instance.getWadlPath(wadl)), any(ApiValidatorHandlerFactory.ApiValidatorWadlListener.class), any(GenericResourceConfigurationParser.class));
 
 
         }

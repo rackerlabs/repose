@@ -3,6 +3,7 @@ package com.rackspace.papi.components.clientauth;
 import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
 import com.rackspace.papi.filter.FilterConfigHelper;
 import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
+import com.rackspace.papi.jmx.ConfigurationInformation;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ContextAdapter;
 import com.rackspace.papi.service.context.ServletContextHelper;
@@ -10,6 +11,7 @@ import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Date;
 import javax.servlet.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,6 +27,7 @@ public class ClientAuthenticationFilter implements Filter {
     private String config;
     private ClientAuthenticationHandlerFactory handlerFactory;
     private ConfigurationService configurationManager;
+    private ConfigurationInformation configurationInformation;
 
     @Override
     public void destroy() {
@@ -49,6 +52,11 @@ public class ClientAuthenticationFilter implements Filter {
         handlerFactory = new ClientAuthenticationHandlerFactory(getDatastore(ctx.datastoreService()));
         configurationManager = ctx.configurationService();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/client-auth-n-configuration.xsd");
-        configurationManager.subscribeTo(config,xsdURL , handlerFactory, ClientAuthConfig.class);
+        configurationManager.subscribeTo(filterConfig.getFilterName(),config,xsdURL , handlerFactory, ClientAuthConfig.class);
+        
+       if(handlerFactory.isInitialized()){
+        configurationInformation=ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().reposeConfigurationInformation();
+
+       }
     }
 }

@@ -46,4 +46,5 @@ public final class ConfigurationParserFactory {
             throw new ConfigurationResourceException("Failed to create a JAXB context for a configuration parser. Reason: " + jaxbe.getMessage(), jaxbe);
         }
     }
+    
 }

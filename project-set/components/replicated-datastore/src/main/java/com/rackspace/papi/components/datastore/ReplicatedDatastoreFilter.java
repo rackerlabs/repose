@@ -53,8 +53,8 @@ public class ReplicatedDatastoreFilter implements Filter {
         LOG.info("Service Ports: " + servicePorts);
         handlerFactory = new ReplicatedDatastoreFilterHandlerFactory(contextAdapter.datastoreService(), ehCacheManager, ServletContextHelper.getInstance(filterConfig.getServletContext()).getServerPorts());
         configurationManager = contextAdapter.configurationService();
-        configurationManager.subscribeTo("system-model.cfg.xml", handlerFactory, SystemModel.class);
-        configurationManager.subscribeTo(config,handlerFactory, ReplicatedDatastoreConfiguration.class);
+        configurationManager.subscribeTo(filterConfig.getFilterName(),"system-model.cfg.xml", handlerFactory, SystemModel.class);
+        configurationManager.subscribeTo(filterConfig.getFilterName(),config,handlerFactory, ReplicatedDatastoreConfiguration.class);
     }
 
     @Override

@@ -43,6 +43,6 @@ public class TranslationFilter implements Filter {
         handlerFactory = new TranslationHandlerFactory(configurationService, configurationRoot, config);
         configurationManager = ServletContextHelper.getInstance(servletContext).getPowerApiContext().configurationService();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/translation-configuration.xsd");
-        configurationManager.subscribeTo(config,xsdURL, handlerFactory, TranslationConfig.class);
+        configurationManager.subscribeTo(filterConfig.getFilterName(),config,xsdURL, handlerFactory, TranslationConfig.class);
     }
 }

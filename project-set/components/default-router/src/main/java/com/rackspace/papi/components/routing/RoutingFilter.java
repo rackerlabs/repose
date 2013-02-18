@@ -29,7 +29,7 @@ public class RoutingFilter implements Filter, ApplicationContextAware {
         handlerFactory = applicationContext.getBean("routingHandlerFactory", RoutingHandlerFactory.class);
         applicationContext
                 .getBean(ConfigurationService.class)
-                .subscribeTo("system-model.cfg.xml", handlerFactory, SystemModel.class);
+                .subscribeTo(filterConfig.getFilterName(),"system-model.cfg.xml", handlerFactory, SystemModel.class);
     }
 
     @Override
