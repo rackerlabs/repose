@@ -37,6 +37,6 @@ public class HeaderNormalizationFilter implements Filter {
         configurationManager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
         handlerFactory = new HeaderNormalizationHandlerFactory();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/header-normalization-configuration.xsd");
-        configurationManager.subscribeTo(config,xsdURL, handlerFactory, HeaderNormalizationConfig.class);
+        configurationManager.subscribeTo(filterConfig.getFilterName(),config,xsdURL, handlerFactory, HeaderNormalizationConfig.class);
     }
 }

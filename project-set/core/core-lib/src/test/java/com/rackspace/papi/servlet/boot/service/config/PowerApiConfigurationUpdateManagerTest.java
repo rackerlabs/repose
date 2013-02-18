@@ -82,7 +82,7 @@ public class PowerApiConfigurationUpdateManagerTest {
                         public Class<String> configurationClass() {
                             throw new UnsupportedOperationException("Not supported yet.");
                         }
-                    });
+                    },"");
 
             assertNotNull("Update manager should have listener set for resource", updateManger.getPowerApiUpdateManagerEventListener().getListenerMap(resource.name()));
             assertFalse("Set retrieved from update manager should have one listener", updateManger.getPowerApiUpdateManagerEventListener().getListenerMap(resource.name()).isEmpty());
@@ -106,7 +106,7 @@ public class PowerApiConfigurationUpdateManagerTest {
                         public Class<String> configurationClass() {
                             throw new UnsupportedOperationException("Not supported yet.");
                         }
-                    });
+                    },"");
 
             updateManger.unregisterListener(listener, resource);
 

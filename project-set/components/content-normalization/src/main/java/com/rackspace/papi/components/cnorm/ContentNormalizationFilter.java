@@ -36,6 +36,6 @@ public class ContentNormalizationFilter implements Filter {
         configurationManager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
         handlerFactory = new ContentNormalizationHandlerFactory();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/normalization-configuration.xsd");
-        configurationManager.subscribeTo(config, xsdURL,handlerFactory, ContentNormalizationConfig.class);
+        configurationManager.subscribeTo(filterConfig.getFilterName(),config, xsdURL,handlerFactory, ContentNormalizationConfig.class);
     }
 }

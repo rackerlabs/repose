@@ -16,7 +16,6 @@ public class JaxbConfigurationParser <T> extends AbstractConfigurationObjectPars
 
     public JaxbConfigurationParser(Class<T> configurationClass, JAXBContext jaxbContext, URL xsdStreamSource) {
         super(configurationClass);
-
         marshallerPool = new GenericBlockingResourcePool<Unmarshaller>(
                 new UnmarshallerConstructionStrategy(jaxbContext,xsdStreamSource));
     }

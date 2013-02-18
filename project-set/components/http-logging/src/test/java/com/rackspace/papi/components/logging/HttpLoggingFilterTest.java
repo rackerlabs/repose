@@ -68,7 +68,7 @@ public class HttpLoggingFilterTest {
         public void shouldSubscribeToConfigFile() throws ServletException {
             filter.init(filterConfig);
             URL xsdURL = getClass().getResource("/META-INF/schema/config/http-logging-configuration.xsd");
-            verify(configService).subscribeTo(eq("http-logging.cfg.xml"), eq(xsdURL), any(HttpLoggingHandlerFactory.class), any(Class.class));
+            verify(configService).subscribeTo(eq(filterConfig.getFilterName()),eq("http-logging.cfg.xml"), eq(xsdURL), any(HttpLoggingHandlerFactory.class), any(Class.class));
         }
     }
 

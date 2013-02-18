@@ -45,9 +45,9 @@ public class VersioningFilter implements Filter {
         handlerFactory = new VersioningHandlerFactory(ports);
         configurationManager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
        
-        configurationManager.subscribeTo("system-model.cfg.xml", handlerFactory, SystemModel.class);
+        configurationManager.subscribeTo(filterConfig.getFilterName(),"system-model.cfg.xml", handlerFactory, SystemModel.class);
         URL xsdURL = getClass().getResource("/META-INF/schema/config/versioning-configuration.xsd");
                 
-        configurationManager.subscribeTo(config,xsdURL, handlerFactory, ServiceVersionMappingList.class);
+        configurationManager.subscribeTo(filterConfig.getFilterName(),config,xsdURL, handlerFactory, ServiceVersionMappingList.class);
     }
 }

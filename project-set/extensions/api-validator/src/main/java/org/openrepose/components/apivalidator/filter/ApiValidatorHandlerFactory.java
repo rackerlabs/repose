@@ -21,7 +21,8 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 
 public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerFactory<ApiValidatorHandler> {
-
+    
+  
     private static final Logger LOG = LoggerFactory.getLogger(ApiValidatorHandlerFactory.class);
     private ValidatorConfiguration validatorConfiguration;
     private ValidatorInfo defaultValidator;
@@ -121,7 +122,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         }
 
         LOG.info("Watching WADL: " + wadl);
-        manager.subscribeTo(wadl, wadlListener, new GenericResourceConfigurationParser());
+        manager.subscribeTo("api-validator",wadl, wadlListener, new GenericResourceConfigurationParser());
     }
 
     String getWadlPath(String uri) {

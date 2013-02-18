@@ -2,6 +2,7 @@ package com.rackspace.papi.service.rms;
 
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
+import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.media.MediaRangeProcessor;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MimeType;
@@ -30,6 +31,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
    private final KeyedStackLock configurationLock = new KeyedStackLock();
    private final Object updateKey = new Object();
    private final Object readKey = new Object();
+   private boolean initialized=false;
 
    private ImmutableStatusCodes immutableStatusCodes;
    private ImmutableFormatTemplates immutableFormatTemplates;
@@ -38,7 +40,18 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
    public void destroy() {
       // Nothing that a good de-referencing can't clean up.
    }
-
+  
+  @Override
+   public void setInitialized(){
+        this.initialized=true;
+   }
+   
+   
+   @Override
+   public boolean isInitialized(){
+        return initialized;
+   }
+  
    @Override
    public void handle(HttpServletRequest request, HttpServletResponse response) throws IOException {
       
@@ -46,29 +59,40 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
       final MutableHttpServletRequest mutableRequest = MutableHttpServletRequest.wrap(request);
       MediaRangeProcessor processor = new MediaRangeProcessor(mutableRequest.getPreferredHeaders("Accept", DEFAULT_TYPE));
 
-      if (matchedCode != null) {
+      if(!isInitialized()){
+           response.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Error creating Response Messaging service.");
+      }else{
           
-         HttpLogFormatter formatter = null;
-         Message message=null;
-         List<MediaType>  mediaTypes=processor.process();
-         
       
-            message = MessageFilter.filterByMediaType(matchedCode.getMessage(), mediaTypes);
-            formatter=getHttpLogFormatter(matchedCode, message.getMediaType());
-          
-        
+        if (matchedCode != null) {
 
-         if (formatter != null) {
+           HttpLogFormatter formatter = null;
+           Message message=null;
+           List<MediaType>  mediaTypes=processor.process();
 
-            if (!(configSetToIfEmpty(matchedCode) && hasBody(response))) {
 
-               final String formattedOutput = formatter.format("", request, response).trim();
+              message = MessageFilter.filterByMediaType(matchedCode.getMessage(), mediaTypes);
+             
+        if(message!=null){
+              formatter=getHttpLogFormatter(matchedCode, message.getMediaType());
 
-               overwriteResponseBody(response, formattedOutput, message.getContentType());
-            }
-         } else{
-            LOG.info("No formatter found for message code.  Skipping Response Message Service formatting for status code regex " + matchedCode.getCodeRegex());
-         }
+
+
+           if (formatter != null) {
+
+              if (!(configSetToIfEmpty(matchedCode) && hasBody(response))) {
+
+                 final String formattedOutput = formatter.format("", request, response).trim();
+
+                 overwriteResponseBody(response, formattedOutput, message.getContentType());
+              }
+           } else{
+              LOG.info("No formatter found for message code.  Skipping Response Message Service formatting for status code regex " + matchedCode.getCodeRegex());
+           }}else{
+            
+            LOG.info("Message for Matched code is empty. Matched Code is :" + matchedCode.getCodeRegex());
+        }
+       }
       }
    }
 

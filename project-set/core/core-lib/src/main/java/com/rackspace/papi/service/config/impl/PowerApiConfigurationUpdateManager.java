@@ -6,6 +6,7 @@ import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.thread.DestroyableThreadWrapper;
 import com.rackspace.papi.commons.util.thread.Poller;
+import com.rackspace.papi.jmx.ConfigurationInformation;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.service.threading.ThreadingService;
@@ -21,6 +22,7 @@ public class PowerApiConfigurationUpdateManager implements ConfigurationUpdateMa
    private final PowerApiUpdateManagerEventListener powerApiUpdateManagerEventListener;
    private ConfigurationResourceWatcher resourceWatcher;
    private DestroyableThreadWrapper resrouceWatcherThread;
+   private ConfigurationInformation ConfigurationInformation; 
 
    public PowerApiConfigurationUpdateManager(EventService eventManager) {
       this.eventManager = eventManager;
@@ -32,6 +34,7 @@ public class PowerApiConfigurationUpdateManager implements ConfigurationUpdateMa
    public void initialize(ServletContext ctx) {
       final ThreadingService threadingService = ServletContextHelper.getInstance(ctx).getPowerApiContext().threadingService();
       
+      ConfigurationInformation=(ConfigurationInformation)ServletContextHelper.getInstance(ctx).getPowerApiContext().reposeConfigurationInformation();
       // Initialize the resource watcher
       resourceWatcher = new ConfigurationResourceWatcher(eventManager);
       
@@ -56,7 +59,7 @@ public class PowerApiConfigurationUpdateManager implements ConfigurationUpdateMa
    }
 
    @Override
-   public synchronized <T> void registerListener(UpdateListener<T> listener, ConfigurationResource resource, ConfigurationParser<T> parser) {
+   public synchronized <T> void registerListener(UpdateListener<T> listener, ConfigurationResource resource, ConfigurationParser<T> parser, String filterName) {
       Map<Integer, ParserListenerPair> resourceListeners = listenerMap.get(resource.name());
 
       if (resourceListeners == null) {
@@ -66,7 +69,7 @@ public class PowerApiConfigurationUpdateManager implements ConfigurationUpdateMa
          resourceWatcher.watch(resource);
       }
 
-      resourceListeners.put(listener.hashCode(), new ParserListenerPair(listener, parser));
+      resourceListeners.put(listener.hashCode(), new ParserListenerPair(listener, parser,this.ConfigurationInformation,filterName));
    }
 
    @Override

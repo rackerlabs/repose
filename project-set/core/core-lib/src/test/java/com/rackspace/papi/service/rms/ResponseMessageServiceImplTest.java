@@ -61,6 +61,7 @@ public class ResponseMessageServiceImplTest {
          configurationObject.getStatusCode().add(createMatcher(OverwriteType.IF_EMPTY));
 
          rmsImpl.updateConfiguration(configurationObject.getStatusCode());
+         rmsImpl.setInitialized();
       }
 
       private StatusCodeMatcher createMatcher(OverwriteType overwriteType) {
@@ -86,6 +87,7 @@ public class ResponseMessageServiceImplTest {
          final ByteBuffer internalBuffer = new CyclicByteBuffer();
          final ServletOutputStream outputStream = new ByteBufferServletOutputStream(internalBuffer);
          when(mockedResponse.getOutputStream()).thenReturn(outputStream);
+        
 
          rmsImpl.handle(mockedRequest, mockedResponse);
 
@@ -102,7 +104,7 @@ public class ResponseMessageServiceImplTest {
          internalBuffer.put("hello there".getBytes());
          final ServletOutputStream outputStream = new ByteBufferServletOutputStream(internalBuffer);
          when(mockedResponse.getOutputStream()).thenReturn(outputStream);
-
+        
          rmsImpl.handle(mockedRequest, mockedResponse);
 
          String result = InputStreamUtilities.streamToString(new ByteBufferInputStream(internalBuffer));

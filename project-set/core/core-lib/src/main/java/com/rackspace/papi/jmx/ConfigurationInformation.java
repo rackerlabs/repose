@@ -1,6 +1,8 @@
 package com.rackspace.papi.jmx;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.commons.config.resource.ConfigurationResource;
+import com.rackspace.papi.commons.util.digest.impl.SHA1MessageDigester;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.model.Filter;
@@ -8,7 +10,10 @@ import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextAware;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.OpenDataException;
@@ -31,18 +36,33 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
     private final List<FilterInformation> filterChain;
     private SystemModelListener systemModelListener;
 
+ 
+
     public static class FilterInformation {
 
         private final String id;
         private final String name;
         private final String regex;
         private final String configuration;
+        private boolean isConfiguarationLoaded;
+        public HashMap successConfigurationLoadinginformation;
 
-        public FilterInformation(String id, String name, String regex, String configuration) {
+ 
+        public HashMap failedConfigurationLoadingInformation;
+   
+   
+
+        public FilterInformation(String id, String name, String regex, String configuration,Boolean isConfiguarationLoaded,String successConfigLoadTime,String successConfigLoadSHA1,String failedConfigLoadTime,String failedConfigLoadSHA1,String failedConfigLoadError) {
             this.id = id;
             this.name = name;
             this.regex = regex;
             this.configuration = configuration;
+            this.isConfiguarationLoaded=isConfiguarationLoaded;
+            successConfigurationLoadinginformation=new HashMap<String, String[]>();
+            failedConfigurationLoadingInformation=new HashMap<String, String[]>();
+           // hm= new HashMap<String, String[]>();
+            //hm.put("calculus",new String[] {"math","logic"});
+            
         }
 
         public String getId() {
@@ -60,6 +80,31 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
         public String getConfiguration() {
             return configuration;
         }
+        public Boolean getIsConfiguarationLoaded() {
+            return isConfiguarationLoaded;
+        }
+        
+        public void setConfiguarationLoaded(boolean isConfiguarationLoaded) {
+            this.isConfiguarationLoaded=isConfiguarationLoaded;
+        }
+
+        public HashMap<String, String[]> getSuccessConfigurationLoadinginformation() {
+            return successConfigurationLoadinginformation;
+        }
+
+        public void setSuccessConfigurationLoadinginformation(HashMap successConfigurationLoadinginformation) {
+            this.successConfigurationLoadinginformation = successConfigurationLoadinginformation;
+        }
+
+        public HashMap<String, String[]> getFailedConfigurationLoadingInformation() {
+            return failedConfigurationLoadingInformation;
+        }
+
+        public void setFailedConfigurationLoadingInformation(HashMap failedConfigurationLoadingInformation) {
+            this.failedConfigurationLoadingInformation = failedConfigurationLoadingInformation;
+        }
+           
+         
     }
 
     private static class SystemModelListener implements UpdateListener<SystemModel> {
@@ -85,7 +130,7 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
                 filters.clear();
 
                 for (Filter filter : cluster.getFilters().getFilter()) {
-                    filters.add(new FilterInformation(filter.getId(), filter.getName(), filter.getUriRegex(), filter.getConfiguration()));
+                    filters.add(new FilterInformation(filter.getId(), filter.getName(), filter.getUriRegex(), filter.getConfiguration(),false,"","","","",""));
                 }
             }
 
@@ -117,11 +162,11 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
         
         return list;
     }
-
-    @Override
+    
+   @Override
     public void contextInitialized(ServletContextEvent sce) {
         systemModelListener = new SystemModelListener(filterChain, ports);
-        configurationService.subscribeTo("system-model.cfg.xml", systemModelListener, SystemModel.class);
+        configurationService.subscribeTo("","system-model.cfg.xml", systemModelListener, SystemModel.class);
     }
 
     @Override
@@ -129,4 +174,68 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
         configurationService.unsubscribeFrom("system-model.cfg.xml", systemModelListener);
         systemModelListener = null;
     }
+    
+
+    
+    
+   public void setFilterLoadingInformation(String filterName, ConfigurationResource configurationResource)
+   {  
+        synchronized (filterChain) {
+            for (FilterInformation filter: filterChain) {
+                if(filterName.equalsIgnoreCase(filter.getName())){
+                    filter.setConfiguarationLoaded(true);
+                                      
+                    try{
+                    if(configurationResource!=null){
+                        filter.successConfigurationLoadinginformation.put(configurationResource.name(),new String[] {new Date().toString(),byteArrayToHexString(new SHA1MessageDigester().digestStream(configurationResource.newInputStream()))});
+                        if(filter.failedConfigurationLoadingInformation.containsKey(configurationResource.name())){
+                            filter.failedConfigurationLoadingInformation.remove(configurationResource.name());
+                        }
+                      
+                       
+                    }
+                   
+                    }catch(IOException e){
+                        LOG.debug("Error updating Mbean for Filter", e);
+                        
+                    }
+                }
+            }
+        }
+   }
+   
+      public void setFilterLoadingFailedInformation(String filterName,ConfigurationResource configurationResource,String errorInformation){
+     
+        synchronized (filterChain) {
+            for (FilterInformation filter: filterChain) {
+                if(filterName.equalsIgnoreCase(filter.getName())){
+                    
+                    try{
+                    if(configurationResource!=null){
+                        if(filter.failedConfigurationLoadingInformation.containsKey(configurationResource.name())){
+                            filter.failedConfigurationLoadingInformation.remove(configurationResource.name());
+                        }
+                        filter.failedConfigurationLoadingInformation.put(configurationResource.name(),new String[]{new Date().toString(),byteArrayToHexString(new SHA1MessageDigester().digestStream(configurationResource.newInputStream())),errorInformation});
+                                            
+                    }
+                   
+                    }catch(IOException e){
+                        LOG.debug("Error updating Mbean for Filter", e);
+                        
+                    }
+                }
+            }
+        }
+   }
+           
+    
+ public static String byteArrayToHexString(byte[] b) {
+  String result = "";
+  for (int i=0; i < b.length; i++) {
+    result +=
+          Integer.toString( ( b[i] & 0xff ) + 0x100, 16).substring( 1 );
+  }
+  return result;
+ }   
+
 }

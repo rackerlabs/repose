@@ -35,6 +35,6 @@ public class UriNormalizationFilter implements Filter {
         configurationManager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
         handlerFactory = new UriNormalizationHandlerFactory();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/uri-normalization-configuration.xsd");
-        configurationManager.subscribeTo(config,xsdURL, handlerFactory, UriNormalizationConfig.class);
+        configurationManager.subscribeTo(filterConfig.getFilterName(),config,xsdURL, handlerFactory, UriNormalizationConfig.class);
     }
 }

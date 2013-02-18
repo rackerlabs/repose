@@ -35,7 +35,7 @@ public class XslUpdateListener implements UpdateListener<ConfigurationResource> 
     public void listen() {
         for (String xsl : watchList) {
             LOG.info("Watching XSL: " + xsl);
-            configService.subscribeTo(xsl, this, new GenericResourceConfigurationParser(), false);
+            configService.subscribeTo("translation",xsl, this, new GenericResourceConfigurationParser(), false);
         }
     }
 
@@ -50,7 +50,6 @@ public class XslUpdateListener implements UpdateListener<ConfigurationResource> 
     @Override
     public void configurationUpdated(ConfigurationResource config) {
         LOG.info("XSL file changed: " + config.name());
-
         factory.buildProcessorPools();
         isInitialized = true;
     }
@@ -59,4 +58,5 @@ public class XslUpdateListener implements UpdateListener<ConfigurationResource> 
     public boolean isInitialized() {
         return isInitialized;
     }
+  
 }

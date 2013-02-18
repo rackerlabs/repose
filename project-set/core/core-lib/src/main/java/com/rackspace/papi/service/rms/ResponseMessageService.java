@@ -30,6 +30,8 @@ import java.util.List;
  */
 public interface ResponseMessageService extends Destroyable {
     
+   void setInitialized();
+   boolean isInitialized();
    void handle(HttpServletRequest request, HttpServletResponse response) throws IOException;
    void updateConfiguration(List<StatusCodeMatcher> statusCodeMatchers);
 }
