@@ -190,6 +190,8 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
                         filter.successConfigurationLoadinginformation.put(configurationResource.name(),new String[] {new Date().toString(),byteArrayToHexString(new SHA1MessageDigester().digestStream(configurationResource.newInputStream()))});
                         if(filter.failedConfigurationLoadingInformation.containsKey(configurationResource.name())){
                             filter.failedConfigurationLoadingInformation.remove(configurationResource.name());
+                        }else if(configurationService.getResourceResolver().resolve(filter.getConfiguration()).name().equalsIgnoreCase(configurationResource.name())){
+                            filter.failedConfigurationLoadingInformation.clear();
                         }
                       
                        
