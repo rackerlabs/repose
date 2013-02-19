@@ -166,7 +166,7 @@ public class XmlFilterChainExecutor {
 
 
       Transformer transformer = chain.getFactory().newTransformer();
-      transformer.setOutputProperties(format);
+      //transformer.setOutputProperties(format);
       transformer.transform(getSAXSource(new InputSource(in)), new StreamResult(output));
     } catch (TransformerException ex) {
       throw new XsltException(ex);

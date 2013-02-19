@@ -11,6 +11,8 @@ public interface HeaderValues {
     void addDateHeader(String name, long value);
     
     String getHeader(String name);
+    
+    HeaderValue getHeaderValue(String name);
 
     Enumeration<String> getHeaderNames();
 

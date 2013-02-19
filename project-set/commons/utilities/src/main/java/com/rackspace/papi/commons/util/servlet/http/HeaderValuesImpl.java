@@ -99,6 +99,12 @@ public final class HeaderValuesImpl implements HeaderValues {
     return value != null ? value.toString() : null;
   }
 
+  @Override
+  public HeaderValue getHeaderValue(String name) {
+    HeaderValue value = fromMap(headers, name.toLowerCase());
+    return value;
+  }
+
   static <T> T fromMap(Map<String, List<T>> headers, String headerName) {
     final List<T> headerValues = headers.get(headerName);
 

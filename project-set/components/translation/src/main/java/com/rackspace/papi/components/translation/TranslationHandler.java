@@ -93,8 +93,8 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
     return processor.process();
   }
 
-  private MediaType getContentType(String contentType) {
-    MimeType contentMimeType = MimeType.getMatchingMimeType(contentType);
+  private MediaType getContentType(HeaderValue contentType) {
+    MimeType contentMimeType = MimeType.getMatchingMimeType(contentType != null? contentType.getValue(): "");
     return new MediaType(contentMimeType);
   }
 
@@ -104,7 +104,7 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
     MutableHttpServletResponse response = MutableHttpServletResponse.wrap(httpRequest, httpResponse);
     final FilterDirector filterDirector = new FilterDirectorImpl();
     filterDirector.setFilterAction(FilterAction.PASS);
-    MediaType contentType = getContentType(response.getHeader("Content-Type"));
+    MediaType contentType = getContentType(response.getHeaderValue("Content-Type"));
     List<MediaType> acceptValues = getAcceptValues(request.getPreferredHeaders("Accept", DEFAULT_TYPE));
     XmlChainPool pool = getHandlerChainPool("", contentType, acceptValues, String.valueOf(response.getStatus()), responseProcessors);
 
@@ -146,7 +146,7 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
     MutableHttpServletRequest request = MutableHttpServletRequest.wrap(httpRequest);
     MutableHttpServletResponse response = MutableHttpServletResponse.wrap(httpRequest, httpResponse);
     FilterDirector filterDirector = new FilterDirectorImpl();
-    MediaType contentType = getContentType(request.getHeader("content-type"));
+    MediaType contentType = getContentType(request.getHeaderValue("content-type"));
     List<MediaType> acceptValues = getAcceptValues(request.getPreferredHeaders("Accept", DEFAULT_TYPE));
     XmlChainPool pool = getHandlerChainPool(request.getMethod(), contentType, acceptValues, "", requestProcessors);
 

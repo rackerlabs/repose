@@ -22,6 +22,14 @@
         </xs:sequence>
         
         <!-- <xs:attribute name="allow-entities" type="xs:boolean" use="optional" default="false" /> -->
+        <xs:attribute name="allow-doctype-decl" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Allow embedded entity declarations</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
     </xs:complexType>
 
     <xs:complexType name="RequestTranslations">

@@ -31,7 +31,7 @@ public class XsltFilterChainBuilderTest {
 
         @Before
         public void setUp() {
-            builder = new XmlFilterChainBuilder(factory, false);
+            builder = new XmlFilterChainBuilder(factory, false, true);
         }
 
         @Test
@@ -66,7 +66,7 @@ public class XsltFilterChainBuilderTest {
 
         @Before
         public void setUp() {
-            builder = new XmlFilterChainBuilder(factory, false);
+            builder = new XmlFilterChainBuilder(factory, false, true);
             output = new ByteArrayOutputStream();
             body = getClass().getResourceAsStream("/empty.xml");
         }
