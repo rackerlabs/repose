@@ -178,12 +178,12 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
 
     
     
-   public void setFilterLoadingInformation(String filterName, ConfigurationResource configurationResource)
+   public void setFilterLoadingInformation(String filterName, boolean filterInitialized, ConfigurationResource configurationResource)
    {  
         synchronized (filterChain) {
             for (FilterInformation filter: filterChain) {
                 if(filterName.equalsIgnoreCase(filter.getName())){
-                    filter.setConfiguarationLoaded(true);
+                    filter.setConfiguarationLoaded(filterInitialized);
                                       
                     try{
                     if(configurationResource!=null){

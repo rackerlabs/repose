@@ -43,7 +43,7 @@ public class PowerApiUpdateManagerEventListener implements EventListener<Configu
                 try {
                     configUpdate(updateListener, parserListener.getParser().read(e.payload()));
                    if(parserListener.getFilterName()!=null && !parserListener.getFilterName().isEmpty()){
-                    parserListener.getConfigurationInformation().setFilterLoadingInformation(parserListener.getFilterName(), e.payload());
+                    parserListener.getConfigurationInformation().setFilterLoadingInformation(parserListener.getFilterName(),updateListener.isInitialized(), e.payload());
                    }
                 }catch(Exception ex){
                     
