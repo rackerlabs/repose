@@ -196,6 +196,7 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
                     }
                    
                     }catch(IOException e){
+                        filter.failedConfigurationLoadingInformation.put(configurationResource.name(),new String[]{new Date().toString(),"",e.getMessage()});
                         LOG.debug("Error updating Mbean for Filter", e);
                         
                     }
@@ -220,6 +221,7 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
                     }
                    
                     }catch(IOException e){
+                        filter.failedConfigurationLoadingInformation.put(configurationResource.name(),new String[]{new Date().toString(),"",e.getMessage()});
                         LOG.debug("Error updating Mbean for Filter", e);
                         
                     }

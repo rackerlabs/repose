@@ -23,7 +23,7 @@ public class UnmarshallerResourceContext implements ResourceContext<Unmarshaller
       try {
          return resource.unmarshal(cfgResource.newInputStream());
       } catch (JAXBException jaxbe) {
-         throw new ResourceContextException("Failed to unmarshall resource " + cfgResource.name()+jaxbe.getCause()
+         throw new ResourceContextException("Failed to unmarshall resource " + cfgResource.name()+ " - "+jaxbe.getCause()
                  + " - Error code: "
                  + jaxbe.getErrorCode()
                  + " - Reason: "
