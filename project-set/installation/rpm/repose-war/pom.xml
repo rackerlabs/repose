@@ -106,8 +106,7 @@
                                     getent group repose >/dev/null || groupadd -r repose
                                     exit 0
                                 </script>
-                           </preinstalscriptlet>
-               </configuration>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
