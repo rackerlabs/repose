@@ -59,6 +59,19 @@
                                     </sources>
                                 </mapping>
                                 <mapping>
+                                    <directory>/etc/init.d</directory>
+                                    <username>repose</username>
+                                    <groupname>repose</groupname>
+                                    <filemode>755</filemode>
+                                    <directoryIncluded>false</directoryIncluded>
+
+                                    <sources>
+                                        <source>
+                                            <location>src/rpm/etc/init.d/repose-valve</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+                                <mapping>
                                     <directory>/var/log/repose/</directory>
                                     <username>repose</username>
                                     <groupname>repose</groupname>
@@ -76,6 +89,19 @@
                                     <groupname>repose</groupname>
                                     <filemode>750</filemode>
                                 </mapping>
+                                <mapping>
+                                    <directory>/etc/logrotate.d</directory>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <filemode>644</filemode>
+                                    <directoryIncluded>false</directoryIncluded>
+
+                                    <sources>
+                                        <source>
+                                            <location>src/rpm/etc/logrotate.d/repose</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
                             </mappings>
                             <requires>
                                 <require>java &gt;= 1.6.0</require>
@@ -90,15 +116,15 @@
                                 <script>
                                     /sbin/checkconfig --add repose-valve
                                 </script>
-                           </postinstalscriptlet>
-                           <preinstalscriptlet>
+                            </postinstalscriptlet>
+                            <preinstalscriptlet>
                                 <script>
                                     getent group repose >/dev/null || groupadd -r repose
                                     getent passwd repose >/dev/null || \
                                         useradd -r -g repose -s /sbin/nologin -d /usr/share/lib/repose -c "Repose" repose
                                     exit 0
                                 </script>
-                           </preinstalscriptlet>
+                            </preinstalscriptlet>
                         </configuration>
                     </plugin>
                 </plugins>
