@@ -60,8 +60,8 @@
                                 </mapping>
                                 <mapping>
                                     <directory>/etc/init.d</directory>
-                                    <username>repose</username>
-                                    <groupname>repose</groupname>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
                                     <filemode>755</filemode>
                                     <directoryIncluded>false</directoryIncluded>
 
@@ -90,12 +90,23 @@
                                     <filemode>750</filemode>
                                 </mapping>
                                 <mapping>
+                                    <directory>/etc/sysconfig</directory>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <filemode>644</filemode>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <sources>
+                                        <source>
+                                            <location>src/rpm/etc/sysconfig/repose</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+                                <mapping>
                                     <directory>/etc/logrotate.d</directory>
                                     <username>root</username>
                                     <groupname>root</groupname>
                                     <filemode>644</filemode>
                                     <directoryIncluded>false</directoryIncluded>
-
                                     <sources>
                                         <source>
                                             <location>src/rpm/etc/logrotate.d/repose</location>
@@ -119,8 +130,8 @@
                             </postinstalscriptlet>
                             <preinstalscriptlet>
                                 <script>
-                                    getent group repose >/dev/null || groupadd -r repose
-                                    getent passwd repose >/dev/null || \
+                                    getent group repose &gt;dev/null || groupadd -r repose
+                                    getent passwd repose &gt;dev/null || \
                                         useradd -r -g repose -s /sbin/nologin -d /usr/share/lib/repose -c "Repose" repose
                                     exit 0
                                 </script>

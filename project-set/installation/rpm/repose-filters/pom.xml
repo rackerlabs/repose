@@ -33,7 +33,7 @@
                             <mappings>
                                 <mapping>
                                     <directory>/usr/share/repose/filters</directory>
-                                    <username>tomcat</username>
+                                    <username>repose</username>
                                     <groupname>repose</groupname>
                                     <filemode>770</filemode>
                                     <sources>
@@ -44,7 +44,7 @@
                                 </mapping>
                                 <mapping>
                                     <directory>/etc/repose/</directory>
-                                    <username>tomcat</username>
+                                    <username>repose</username>
                                     <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>

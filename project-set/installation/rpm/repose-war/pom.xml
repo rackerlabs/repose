@@ -59,7 +59,7 @@
 
                                 <mapping>
                                     <directory>/etc/repose/</directory>
-                                    <username>tomcat</username>
+                                    <username>repose</username>
                                     <groupname>repose</groupname>
                                     <filemode>770</filemode>
                                     <configuration>noreplace</configuration>
@@ -74,21 +74,21 @@
 
                                 <mapping>
                                     <directory>/var/log/repose/</directory>
-                                    <username>tomcat</username>
+                                    <username>repose</username>
                                     <groupname>repose</groupname>
                                     <filemode>770</filemode>
                                 </mapping>
 
                                 <mapping>
                                     <directory>/var/repose/</directory>
-                                    <username>tomcat</username>
+                                    <username>repose</username>
                                     <groupname>repose</groupname>
                                     <filemode>770</filemode>
                                 </mapping>
 
                                 <mapping>
                                     <directory>/usr/share/repose/filters/</directory>
-                                    <username>tomcat</username>
+                                    <username>repose</username>
                                     <groupname>repose</groupname>
                                     <filemode>770</filemode>
                                 </mapping>
@@ -105,10 +105,15 @@
                             <conflicts>
                                 <conflict>repose-valve</conflict>
                             </conflicts>
+                            <preinstallscriptlet>
                                  <script>
-                                    getent group repose >/dev/null || groupadd -r repose
+                                    getent group repose &gt;dev/null || groupadd -r repose
+                                    getent passwd repose &gt;dev/null || \
+                                        useradd -r -g repose -s /sbin/nologin -d /usr/share/lib/repose -c "Repose" repose
+                                    usermod -G repose tomcat
                                     exit 0
                                 </script>
+                            </preinstallscriptlet>
                         </configuration>
                     </plugin>
                 </plugins>
