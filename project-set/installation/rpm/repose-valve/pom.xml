@@ -116,6 +116,7 @@
                             </mappings>
                             <requires>
                                 <require>java &gt;= 1.6.0</require>
+                                <require>daemonize</require>
                             </requires>
                             <provides>
                                 <provide>repose</provide>
