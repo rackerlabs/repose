@@ -43,8 +43,8 @@
                                 <mapping>
                                     <directory>/usr/share/repose/filters</directory>
                                     <username>tomcat</username>
-                                    <groupname>tomcat</groupname>
-                                    <filemode>755</filemode>
+                                    <groupname>repose</groupname>
+                                    <filemode>770</filemode>
 
                                     <sources>
                                         <source>
@@ -56,10 +56,10 @@
                                 <mapping>
                                     <directory>/etc/repose/</directory>
                                     <username>tomcat</username>
-                                    <groupname>tomcat</groupname>
+                                    <groupname>repose</groupname>
                                     <configuration>noreplace</configuration>
                                     <directoryIncluded>false</directoryIncluded>
-                                    <filemode>755</filemode>
+                                    <filemode>770</filemode>
 
                                     <sources>
                                         <source>
@@ -71,7 +71,7 @@
                             </mappings>
 
                             <requires>
-                                <require>repose-war</require>
+                                <require>repose</require>
                                 <require>repose-filters</require>
                             </requires>
                         </configuration>

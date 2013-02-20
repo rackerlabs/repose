@@ -1,69 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
     <parent>
         <groupId>com.rackspace.repose.installation.rpm</groupId>
         <artifactId>rpm</artifactId>
         <version>2.6.2-SNAPSHOT</version>
     </parent>
-
-    <groupId>com.rackspace.repose.installation.rpm.war</groupId>
-    <artifactId>repose-war</artifactId>
-
-    <name>Repose - Installation ROOT.WAR RPM</name>
-
+    <groupId>com.rackspace.repose.installation.rpm.valve</groupId>
+    <artifactId>repose-valve</artifactId>
+    <name>Repose - Valve Installation RPM</name>
     <description>
-        Module for the ROOT.WAR RPM.
+        Module for the valve RPM.
     </description>
-
     <packaging>pom</packaging>
-
     <profiles>
         <profile>
             <id>build-system-packages</id>
-
             <activation>
                 <property>
-                    <name>Build ROOT Web Application RPM</name>
+                    <name>Build Repose Valve RPM</name>
                 </property>
             </activation>
-
             <build>
                 <plugins>
                     <plugin>
                         <groupId>org.codehaus.mojo</groupId>
                         <artifactId>rpm-maven-plugin</artifactId>
-
                         <configuration>
                             <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer
                                  to this RPM.-->
-                            <name>repose-war</name>
-
+                            <name>repose-valve</name>
                             <mappings>
                                 <mapping>
                                     <!-- This is the location of tomcat as installed by jpackage -->
-                                    <directory>/var/lib/tomcat7/webapps</directory>
-                                    <username>tomcat</username>
+                                    <directory>/usr/share/lib/repose</directory>
+                                    <username>repose</username>
                                     <groupname>repose</groupname>
-                                    <filemode>770</filemode>
-
+                                    <filemode>750</filemode>
                                     <sources>
                                         <source>
                                             <location>
-                                                ${basedir}/../../../core/web-application/target/ROOT.war
+                                                ${basedir}/../../../core/valve/target/repose-valve.jar
                                             </location>
                                         </source>
                                     </sources>
                                 </mapping>
-
                                 <mapping>
                                     <directory>/etc/repose/</directory>
-                                    <username>tomcat</username>
+                                    <username>repose</username>
                                     <groupname>repose</groupname>
-                                    <filemode>770</filemode>
+                                    <filemode>750</filemode>
                                     <configuration>noreplace</configuration>
-
                                     <sources>
                                         <source>
                                             <!-- Grabs all the config files in configs/core -->
@@ -71,43 +58,45 @@
                                         </source>
                                     </sources>
                                 </mapping>
-
                                 <mapping>
                                     <directory>/var/log/repose/</directory>
-                                    <username>tomcat</username>
+                                    <username>repose</username>
                                     <groupname>repose</groupname>
-                                    <filemode>770</filemode>
+                                    <filemode>760</filemode>
                                 </mapping>
-
                                 <mapping>
                                     <directory>/var/repose/</directory>
-                                    <username>tomcat</username>
+                                    <username>repose</username>
                                     <groupname>repose</groupname>
-                                    <filemode>770</filemode>
+                                    <filemode>760</filemode>
                                 </mapping>
-
                                 <mapping>
                                     <directory>/usr/share/repose/filters/</directory>
-                                    <username>tomcat</username>
+                                    <username>repose</username>
                                     <groupname>repose</groupname>
-                                    <filemode>770</filemode>
+                                    <filemode>750</filemode>
                                 </mapping>
                             </mappings>
-
                             <requires>
                                 <require>java &gt;= 1.6.0</require>
-                                <require>servlet &gt;= 3.0</require>
-                                <require>jsp &gt;= 2.2</require>
                             </requires>
                             <provides>
                                 <provide>repose</provide>
                             </provides>
-                                 <script>
+                            <postinstalscriptlet>
+                                <script>
+                                    /sbin/checkconfig --add repose-valve
+                                </script>
+                           </postinstalscriptlet>
+                           <preinstalscriptlet>
+                                <script>
                                     getent group repose >/dev/null || groupadd -r repose
+                                    getent passwd repose >/dev/null || \
+                                        useradd -r -g repose -s /sbin/nologin -d /usr/share/lib/repose -c "Repose" repose
                                     exit 0
                                 </script>
                            </preinstalscriptlet>
-               </configuration>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
