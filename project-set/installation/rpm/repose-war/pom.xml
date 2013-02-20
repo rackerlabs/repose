@@ -102,6 +102,9 @@
                             <provides>
                                 <provide>repose</provide>
                             </provides>
+                            <conflicts>
+                                <conflict>repose-valve</conflict>
+                            </conflicts>
                                  <script>
                                     getent group repose >/dev/null || groupadd -r repose
                                     exit 0

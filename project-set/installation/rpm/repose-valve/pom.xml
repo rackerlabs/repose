@@ -83,6 +83,9 @@
                             <provides>
                                 <provide>repose</provide>
                             </provides>
+                            <conflicts>
+                                <conflict>repose-war</conflict>
+                            </conflicts>
                             <postinstalscriptlet>
                                 <script>
                                     /sbin/checkconfig --add repose-valve
