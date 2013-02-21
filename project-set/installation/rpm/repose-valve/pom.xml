@@ -113,6 +113,18 @@
                                         </source>
                                     </sources>
                                 </mapping>
+                                <mapping>
+                                    <directory>/usr/local/bin</directory>
+                                    <username>repose</username>
+                                    <groupname>repose</groupname>
+                                    <filemode>755</filemode>
+                                    <sources>
+                                        <source>
+                                            <location>${basedir}/../../bash/clean-repose-deploy
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
                             </mappings>
                             <requires>
                                 <require>java &gt;= 1.6.0</require>
@@ -124,19 +136,19 @@
                             <conflicts>
                                 <conflict>repose-war</conflict>
                             </conflicts>
-                            <postinstalscriptlet>
+                            <postinstallScriptlet>
                                 <script>
-                                    /sbin/checkconfig --add repose-valve
+                                    /sbin/chkconfig --add repose-valve
                                 </script>
-                            </postinstalscriptlet>
-                            <preinstalscriptlet>
+                            </postinstallScriptlet>
+                            <preinstallScriptlet>
                                 <script>
-                                    getent group repose &gt;dev/null || groupadd -r repose
-                                    getent passwd repose &gt;dev/null || \
+                                    getent group repose &gt;/dev/null || groupadd -r repose
+                                    getent passwd repose &gt;/dev/null || \
                                         useradd -r -g repose -s /sbin/nologin -d /usr/share/lib/repose -c "Repose" repose
                                     exit 0
                                 </script>
-                            </preinstalscriptlet>
+                            </preinstallScriptlet>
                         </configuration>
                     </plugin>
                 </plugins>

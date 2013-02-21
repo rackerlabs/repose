@@ -18,10 +18,10 @@ NAME=repose-valve
 LOG_PATH=/var/log/repose
 PID_FILE=/var/run/repose-valve.pid
 DAEMON_HOME=/usr/share/lib/repose
-CLEAN=/usr/bin/clean-repose-deploy
+CLEAN=/usr/local/bin/clean-repose-deploy
 
-# Source /etc/repose/repose.conf
-. /etc/repose/repose.conf
+# Source. Previously /etc/repose/repose.conf
+. /etc/sysconfig/repose
 
 if [ ! -d $DAEMON_HOME ]; then
   echo "Unable to find $NAME's directory: $DEAMON_HOME."
@@ -45,7 +45,7 @@ run_opts="-s $SHUTDOWN_PORT -p $RUN_PORT -c $CONFIG_DIRECTORY"
 start()
 {
   echo -n "Starting $NAME: "
-  $CLEAN $CONFIG_DIRECTORY
+  $CLEAN $CONFIG_DIRECTORY > /dev/null 2>&1
   daemon $daemonize $daemonize_opts /usr/bin/java -jar $DAEMON_HOME/$NAME.jar START $run_opts
   echo
 }
