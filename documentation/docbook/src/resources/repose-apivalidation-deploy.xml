@@ -59,11 +59,12 @@
             <year>2010</year>
             <year>2011</year>
             <year>2012</year>
+            <year>2013</year>
             <holder>Rackspace US, Inc.</holder>
         </copyright>
         <releaseinfo>v2.4.1</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2012-12-12</pubdate>
+        <pubdate>2013-02-25</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -75,6 +76,16 @@
                 API Validation component of the &PRODEXPAND;. </para>
         </abstract>
         <revhistory>
+            <revision>
+                <date>2013-02-25</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem>
+                            <para>Incorporated feedback on initial draft.</para>
+                        </listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
             <revision>
                 <date>2012-12-12</date>
                 <revdescription>
@@ -129,46 +140,111 @@
             <itemizedlist>
                 <listitem><para>Application Programming Interface (API)</para></listitem>
                 <listitem><para>Web Application Description Language (WADL)</para></listitem>
+                <listitem><para>XML Schema Definition (XSD)</para></listitem>
                 <listitem><para>stylesheets</para></listitem>
             </itemizedlist>
         </para>
-        <tip>
-            <para> API validation processing is controlled by
+
+        <para>
+            An Application Programming Interface (API) can be written in several alternative styles, notably 
+            Simple Object Access Protocol (SOAP) and REpresentational State Transfer (REST).
+            &PRODNAME;, the &PRODEXPAND;, is designed to work with REST APIs only.
+        </para>
+        <para>
+            You can describe a REST API using Web Application Description Language (WADL); a description written in WADL is also referred to as a WADL.
+            A WADL document is a specialized XML document.
+        </para>
+        <para> 
+            A WADL provides a machine-readable description of
+            an HTTP-based application. For an introduction to
+            WADL, read <link
+            xlink:href="http://www.w3.org/Submission/wadl/"
+            >Web Application Description Language</link>. For
+            a discussion of how WADL can be used for API
+            validation, read the "Background" section of <link
+            xlink:href="http://www.balisage.net/Proceedings/vol8/html/Williams01/BalisageVol8-Williams01.html"
+            >Using XProc, XSLT 2.0, and XSD 1.1 to validate
+            RESTful services</link>. 
+        </para>
+        <para> An XSD formally describes the elements in an XML
+            document such as a WADL. A WADL describes valid requests
+            for an API; an XSD describes valid elements within a WADL.
+            For example, a WADL may describe a valid parameter as
+                <code>&lt;param name="userId" type="xsd:string"
+                style="template" required="true"/&gt;</code>. In this
+            case, <code>type="xsd:string"</code> indicates that this
+            parameter is a string, however <code>string</code> is
+            defined in the XSDs available to that WADL. In the same
+            WADL, <programlisting>
+<![CDATA[
+<application 
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">         
+    <grammars>
+        <include href="../xsd/mytesting.xsd"/>
+    </grammars>
+</application>
+]]>
+            </programlisting> identifies two XSDs as descriptions
+            of the elements within the WADL:
+                <code>http://www.w3.org/2001/XMLSchema</code> is a
+            standard XSD, available to everyone;
+                <code>../xsd/mytesting.xsd</code> is a special-purpose
+            XSD, defining non-standard elements that are valid within
+            this WADL. </para>
+        <para>
+            &PRODNAME; uses XSD 1.1. A good tutorial on XSD 1.1,
+            including a comparison of XSD 1.1 and XSD 1.0, is at <link
+                xlink:href="http://www.xfront.com/xml-schema-1-1/"
+                >http://www.xfront.com/xml-schema-1-1/</link>.
+        </para>
+        <para> To validate a request, the API validation filter
+            component compares the current request to a
+            previously-established description of a valid request.
+            That description is based on one or more WADLs and one or
+            more XSDs. </para>
+        <para> For example, if an authentication service requires a
+            username in the URI for all valid requests, that
+            requirement is defined in the authentication service's
+            WADL and the &PRODNAME; API validation component is
+            configured to compare requests to that WADL. With the
+            &PRODNAME; API validation component in the filter stack,
+            authentication requests that do not include a username are
+            rejected before reaching the authentication service. This
+            protects the authentication service from the workload of
+            identifying and rejecting invalid requests. It also allows
+            the developers of the authentication service to focus on
+            developing that service's core features rather than on
+            general-purpose features such as validation. In addition,
+            the validation process can be configured so that, when a
+            request is rejected, that rejection response can provide
+            detailed information describing what was unacceptable
+            about the request. </para>
+        <tip> 
+            <para>
+                The API validation component is designed somewhat similarly to the translation component; one or the other may be ideal for your purpose.
+                <itemizedlist>
+                    <listitem>
+                        <para>To determine whether an API request is constructed correctly, use the API validation component.</para>
+                    </listitem>
+                    <listitem>
+                        <para>To alter an invalid request so that it becomes a valid API request, use the translation component.</para>
+                    </listitem>
+                </itemizedlist>
+                You can read about the translation component at 
+                <link xlink:href="http://wiki.openrepose.org/display/REPOSE/Translation">
+                http://wiki.openrepose.org/display/REPOSE/Translation</link>.
+            </para>
+            </tip>
+            <tip>
+                <para> 
+                    API validation processing is controlled by
                     <code>validator.cfg.xml</code>; to change your
-                validation configuration, edit
+                    validation configuration, edit
                     <code>validator.cfg.xml</code>. You can see an
-                annotated example of <code>validator.cfg.xml</code> in
-                    <xref linkend="Configuration-d1e365"/>. </para>
+                    annotated example of <code>validator.cfg.xml</code> in
+                    <xref linkend="Configuration-d1e365"/>. 
+                </para>
         </tip>
-        <section xml:id="Intro_WADL-000">
-            <title>Understanding WADL and the API Validation Component of &PRODNAME;</title>
-            <para>
-                An Application Programming Interface (API) can be written in several alternative styles, notably 
-                Simple Object Access Protocol (SOAP) and REpresentational State Transfer (REST).
-                &PRODNAME;, the &PRODEXPAND;, is designed to work with REST APIs only.
-            </para>
-            <para>
-                You can describe a REST API using Web Application Description Language (WADL); a description written in WADL is also referred to as a WADL.
-            </para>
-            <para> A WADL provides a machine-readable description of
-                an HTTP-based application. For an introduction to
-                WADL, read <link
-                    xlink:href="http://www.w3.org/Submission/wadl/"
-                    >Web Application Description Language</link>. For
-                a discussion of how WADL can be used for API
-                validation, read the "Background" section of <link
-                    xlink:href="http://www.balisage.net/Proceedings/vol8/html/Williams01/BalisageVol8-Williams01.html"
-                    >Using XProc, XSLT 2.0, and XSD 1.1 to validate
-                    RESTful services</link>. </para>
-        </section>        
-        <section xml:id="Intro_stylesheet-000">
-            <title>Understanding Stylesheets and the API Validation Component of &PRODNAME;</title>
-            <para>Explain how we use stylesheets to recognize what is
-                and is not valid and possibly to make the invalid
-                valid.</para>
-            <para>Explain how the validation component relates to the translation component.</para>
-            <para>You can read about the translation component at http://wiki.openrepose.org/display/REPOSE/Translation.</para>
-        </section>
     </chapter>
     <chapter xml:id="Configuration-d1e365">
         <title>Configuration</title>

@@ -22,7 +22,7 @@
                 <artifactId>clouddocs-maven-plugin</artifactId>
                 <!-- this <version> relates only to the *plugin* used for document formatting -->
                 <!-- the version of the *software* that is the subject of the document is indicated within each document -->
-                <version>1.7.0</version>
+                <version>1.7.1</version>
                 <executions>
                     <execution>
                         <id>g1</id>
@@ -50,7 +50,7 @@
                             <!-- use <includes> to specify one book to build (saves time & OutOfMemoryError) -->
                             <!-- to build everything found in <sourceDirectory>, comment out includes -->
                             <includes>
-                                repose-translation-deploy.xml
+                                repose-apivalidation-deploy.xml
                             </includes>
                         </configuration>
                     </execution>

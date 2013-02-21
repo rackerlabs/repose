@@ -64,7 +64,7 @@
         </copyright>
         <releaseinfo>v2.3.4</releaseinfo>
         <productname>&PRODNAME;</productname>
-        <pubdate>2013-02-11</pubdate>
+        <pubdate>2013-02-21</pubdate>
         <legalnotice role="apache2">
             <annotation>
                 <remark>Copyright details are filled in by the template.</remark>
@@ -76,6 +76,14 @@
                 Translation component of the &PRODEXPAND;. </para>
         </abstract>
         <revhistory>
+            <revision>
+                <date>2012-02-21</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem><para>Restructured, with separate chapters for changing a request and changing a response.</para></listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
             <revision>
                 <date>2012-02-11</date>
                 <revdescription>
@@ -333,7 +341,7 @@
         </section>
     </chapter>
     <chapter xml:id="Change_Format-d1e105">
-        <title>Changing a Message's Format</title>
+        <title>OLD Changing a Message's Format</title>
         <para> You can translate an XML message from JSON, Atom, or
             HTML. You can translate a JSON message to JSONx, which
             resembles XML; you can also translate a JSONX message to
@@ -569,7 +577,7 @@
         </section>
     </chapter>
     <chapter xml:id="Change_Content-d1e125">
-        <title>Changing a Message's Content</title>
+        <title>OLD Changing a Message's Content</title>
         <para> You can use the translation component to rewrite the
             same message with some content added or removed. </para>
         <section xml:id="Adding_Content-d1e127">
