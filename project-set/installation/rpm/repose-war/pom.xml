@@ -110,7 +110,7 @@
                                     getent group repose &gt;dev/null || groupadd -r repose
                                     getent passwd repose &gt;dev/null || \
                                         useradd -r -g repose -s /sbin/nologin -d /usr/share/lib/repose -c "Repose" repose
-                                    usermod -G repose tomcat
+                                    usermod -a -G repose tomcat
                                     exit 0
                                 </script>
                             </preinstallscriptlet>
