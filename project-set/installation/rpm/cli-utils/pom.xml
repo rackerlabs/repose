@@ -59,8 +59,8 @@
                                 <mapping>
                                     <directory>/etc/repose/</directory>
                                     <username>tomcat</username>
-                                    <groupname>tomcat</groupname>
-                                    <filemode>755</filemode>
+                                    <groupname>repose</groupname>
+                                    <filemode>770</filemode>
 
                                     <sources>
                                         <source>
@@ -74,8 +74,8 @@
                                 <mapping>
                                     <directory>/usr/bin</directory>
                                     <username>tomcat</username>
-                                    <groupname>tomcat</groupname>
-                                    <filemode>755</filemode>
+                                    <groupname>repose</groupname>
+                                    <filemode>770</filemode>
 
                                     <sources>
                                         <source>
@@ -89,7 +89,8 @@
                             </mappings>
 
                             <requires>
-                                <require>java-1.6.0-openjdk</require>
+                                <require>java &gt;= 1.6.0</require>
+                                <require>repose</require>
                             </requires>
                         </configuration>
                     </plugin>

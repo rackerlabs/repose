@@ -1,0 +1,83 @@
+#!/bin/bash
+#
+# Startup script for Repose Valve
+#
+# chkconfig: 345 85 15     - start or stop process definition within the boot process
+# description: Script for starting Repose Valve as a daemon on system startup
+# processname: repose-valve
+
+# Source function library.
+. /etc/rc.d/init.d/functions
+
+RUN_PORT=8774
+SHUTDOWN_PORT=8123
+CONFIG_DIRECTORY=/etc/repose
+
+USER=root
+NAME=repose-valve
+LOG_PATH=/var/log/repose
+PID_FILE=/var/run/repose-valve.pid
+DAEMON_HOME=/usr/share/lib/repose
+CLEAN=/usr/local/bin/clean-repose-deploy
+
+# Source. Previously /etc/repose/repose.conf
+. /etc/sysconfig/repose
+
+if [ ! -d $DAEMON_HOME ]; then
+  echo "Unable to find $NAME's directory: $DEAMON_HOME."
+  exit 1
+fi
+
+if [ ! -d $CONFIG_DIRECTORY ]; then
+  echo "Unable to find $CONFIG_DIRECTORY."
+  exit 1
+fi
+
+if [ ! -d $LOG_PATH ]; then
+  echo "Unable to log to $LOG_PATH."
+  exit 1
+fi
+
+daemonize=/usr/sbin/daemonize
+daemonize_opts="-c $DAEMON_HOME -p $PID_FILE -u $USER -o $LOG_PATH/stdout.log -e $LOG_PATH/stderr.log -l /var/lock/subsys/$NAME"
+run_opts="-s $SHUTDOWN_PORT -p $RUN_PORT -c $CONFIG_DIRECTORY"
+
+start()
+{
+  echo -n "Starting $NAME: "
+  $CLEAN $CONFIG_DIRECTORY > /dev/null 2>&1
+  daemon $daemonize $daemonize_opts /usr/bin/java -jar $DAEMON_HOME/$NAME.jar START $run_opts
+  echo
+}
+
+stop()
+{
+  echo -n "Stopping $NAME: "
+
+  /usr/bin/java -jar $DAEMON_HOME/$NAME.jar STOP $run_opts > /dev/null 2>&1
+  killproc -p $PID_FILE -d 3 $NAME && rm -f /var/lock/subsys/$NAME
+  echo
+}
+
+case "$1" in
+  start)
+    start
+    ;;
+
+  stop)
+    stop
+    ;;
+
+  restart)
+    stop
+    start
+    ;;
+
+  status)
+    status -p $PID_FILE repose-valve
+    ;;
+
+  *)
+    echo "Usage: /etc/init.d/$NAME {start|stop|restart|status}"
+    exit 1
+esac
