@@ -151,6 +151,10 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
         return values.getHeaders().getHeader(name);
     }
 
+    public HeaderValue getHeaderValue(String name) {
+        return values.getHeaders().getHeaderValue(name);
+    }
+
     @Override
     public Enumeration<String> getHeaderNames() {
         return values.getHeaders().getHeaderNames();

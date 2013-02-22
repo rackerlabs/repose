@@ -8,6 +8,8 @@ import org.openstack.docs.identity.api.v2.Role;
 import java.io.Serializable;
 import javax.xml.bind.JAXBElement;
 import org.openstack.docs.identity.api.v2.UserForAuthenticateResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author fran
@@ -23,11 +25,11 @@ public class OpenStackToken extends AuthToken implements Serializable {
    private final String username;
    private final String impersonatorTenantId;
    private final String impersonatorUsername;
+   private static final Logger LOG = LoggerFactory.getLogger(OpenStackToken.class);
 
-   public OpenStackToken(String tenantId, AuthenticateResponse response) {
-      if (response == null || response.getToken() == null || response.getToken().getExpires() == null) {
-         throw new IllegalArgumentException("Invalid token");
-      }
+   public OpenStackToken(AuthenticateResponse response) {
+      
+      checkTokenInfo(response);
 
       this.tenantId = response.getToken().getTenant().getId();
       this.tenantName = response.getToken().getTenant().getName();
@@ -46,8 +48,23 @@ public class OpenStackToken extends AuthToken implements Serializable {
       }
    }
 
-   public OpenStackToken(AuthenticateResponse response) {
-      this(response.getToken().getTenant().getId(), response);
+   private void checkTokenInfo(AuthenticateResponse response) {
+      if (response == null || response.getToken() == null || response.getToken().getExpires() == null) {
+         throw new IllegalArgumentException("Invalid token");
+      }
+
+      if (response.getToken().getTenant() == null) {
+         throw new IllegalArgumentException("Invalid Response from Auth. Token object must have a tenant");
+      }
+
+      if (response.getUser() == null) {
+         throw new IllegalArgumentException("Invalid Response from Auth: Response must have a user object");
+      }
+
+      if (response.getUser().getRoles() == null) {
+         throw new IllegalArgumentException("Invalid Response from Auth: User must have a list of roles");
+      }
+      
    }
 
    @Override
@@ -124,6 +141,8 @@ public class OpenStackToken extends AuthToken implements Serializable {
 
          if (!StringUtilities.isBlank(result.toString())) {
             formattedRoles = result.substring(0, result.length() - 1);
+         }else{
+            LOG.warn("User with userId " + response.getUser().getId() + " is not associated with any role");
          }
       }
 

@@ -45,6 +45,7 @@ import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
+import org.openstack.docs.identity.api.v2.RoleList;
 import org.openstack.docs.identity.api.v2.TenantForAuthenticateResponse;
 
 /**
@@ -173,6 +174,8 @@ public class OpenStackAuthenticationHandlerTest {
             userForAuthenticateResponse.setId("104772");
             userForAuthenticateResponse.setName("user2");
 
+            userForAuthenticateResponse.setRoles(new RoleList());
+            
             Token token = new Token();
             token.setId("tokenId");
             token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
@@ -187,7 +190,7 @@ public class OpenStackAuthenticationHandlerTest {
 
         @Test
         public void shouldCheckCacheForCredentials() throws IOException {
-            final AuthToken user = new OpenStackToken(null, authResponse);
+            final AuthToken user = new OpenStackToken(authResponse);
             byte[] userInfoBytes = ObjectSerializer.instance().writeObject(user);
             when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
@@ -200,7 +203,7 @@ public class OpenStackAuthenticationHandlerTest {
 
         @Test
         public void shouldUseCachedUserInfo() {
-            final AuthToken user = new OpenStackToken(null, authResponse);
+            final AuthToken user = new OpenStackToken(authResponse);
             StoredElement element = mock(StoredElement.class);
             when(element.elementIsNull()).thenReturn(false);
             when(element.elementAs(AuthToken.class)).thenReturn(user);
@@ -217,7 +220,7 @@ public class OpenStackAuthenticationHandlerTest {
 
         @Test
         public void shouldNotUseCachedUserInfoForExpired() throws InterruptedException {
-            final AuthToken user = new OpenStackToken(null, authResponse);
+            final AuthToken user = new OpenStackToken(authResponse);
             StoredElement element = mock(StoredElement.class);
             when(element.elementIsNull()).thenReturn(false);
             when(element.elementAs(AuthToken.class)).thenReturn(user);
@@ -237,7 +240,7 @@ public class OpenStackAuthenticationHandlerTest {
         @Test
         public void shouldNotUseCachedUserInfoForBadTokenId() {
             authResponse.getToken().setId("differentId");
-            final AuthToken user = new OpenStackToken(null, authResponse);
+            final AuthToken user = new OpenStackToken(authResponse);
             StoredElement element = mock(StoredElement.class);
             when(element.elementIsNull()).thenReturn(false);
             when(element.elementAs(AuthToken.class)).thenReturn(user);
@@ -282,6 +285,8 @@ public class OpenStackAuthenticationHandlerTest {
             UserForAuthenticateResponse userForAuthenticateResponse = new UserForAuthenticateResponse();
             userForAuthenticateResponse.setId("104772");
             userForAuthenticateResponse.setName("user2");
+            
+            userForAuthenticateResponse.setRoles(new RoleList());
 
             Token token = new Token();
             token.setId("tokenId");
@@ -297,7 +302,7 @@ public class OpenStackAuthenticationHandlerTest {
 
         @Test
         public void shouldCheckCacheForGroup() throws IOException {
-            final AuthToken user = new OpenStackToken("tenantId", authResponse);
+            final AuthToken user = new OpenStackToken(authResponse);
             when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
@@ -308,7 +313,7 @@ public class OpenStackAuthenticationHandlerTest {
 
         @Test
         public void shouldUseCachedGroupInfo() {
-            final AuthToken user = new OpenStackToken("tenantId", authResponse);
+            final AuthToken user = new OpenStackToken(authResponse);
             when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
             final AuthGroup authGroup = new OpenStackGroup(group);
@@ -331,7 +336,7 @@ public class OpenStackAuthenticationHandlerTest {
 
         @Test
         public void shouldNotUseCachedGroupInfoForExpired() throws InterruptedException {
-            final AuthToken user = new OpenStackToken("tenantId", authResponse);
+            final AuthToken user = new OpenStackToken(authResponse);
             when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
             StoredElement element = mock(StoredElement.class);

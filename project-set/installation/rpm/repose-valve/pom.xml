@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>com.rackspace.repose.installation.rpm</groupId>
+        <artifactId>rpm</artifactId>
+        <version>2.6.4-SNAPSHOT</version>
+    </parent>
+    <groupId>com.rackspace.repose.installation.rpm.valve</groupId>
+    <artifactId>repose-valve</artifactId>
+    <name>Repose - Valve Installation RPM</name>
+    <description>
+        Module for the valve RPM.
+    </description>
+    <packaging>pom</packaging>
+    <profiles>
+        <profile>
+            <id>build-system-packages</id>
+            <activation>
+                <property>
+                    <name>Build Repose Valve RPM</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>rpm-maven-plugin</artifactId>
+                        <configuration>
+                            <!-- WARNING!!!! DON"T EVER CHANGE THIS NAME.  Ops uses this in Puppet to refer
+                                 to this RPM.-->
+                            <name>repose-valve</name>
+                            <mappings>
+                                <mapping>
+                                    <!-- This is the location of tomcat as installed by jpackage -->
+                                    <directory>/usr/share/lib/repose</directory>
+                                    <username>repose</username>
+                                    <groupname>repose</groupname>
+                                    <filemode>750</filemode>
+                                    <sources>
+                                        <source>
+                                            <location>
+                                                ${basedir}/../../../core/valve/target/repose-valve.jar
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+                                <mapping>
+                                    <directory>/etc/repose/</directory>
+                                    <username>repose</username>
+                                    <groupname>repose</groupname>
+                                    <filemode>750</filemode>
+                                    <configuration>noreplace</configuration>
+                                    <sources>
+                                        <source>
+                                            <!-- Grabs all the config files in configs/core -->
+                                            <location>${basedir}/../../configs/core</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+                                <mapping>
+                                    <directory>/etc/init.d</directory>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <filemode>755</filemode>
+                                    <directoryIncluded>false</directoryIncluded>
+
+                                    <sources>
+                                        <source>
+                                            <location>src/rpm/etc/init.d/repose-valve</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+                                <mapping>
+                                    <directory>/var/log/repose/</directory>
+                                    <username>repose</username>
+                                    <groupname>repose</groupname>
+                                    <filemode>760</filemode>
+                                </mapping>
+                                <mapping>
+                                    <directory>/var/repose/</directory>
+                                    <username>repose</username>
+                                    <groupname>repose</groupname>
+                                    <filemode>760</filemode>
+                                </mapping>
+                                <mapping>
+                                    <directory>/usr/share/repose/filters/</directory>
+                                    <username>repose</username>
+                                    <groupname>repose</groupname>
+                                    <filemode>750</filemode>
+                                </mapping>
+                                <mapping>
+                                    <directory>/etc/sysconfig</directory>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <filemode>644</filemode>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <sources>
+                                        <source>
+                                            <location>src/rpm/etc/sysconfig/repose</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+                                <mapping>
+                                    <directory>/etc/logrotate.d</directory>
+                                    <username>root</username>
+                                    <groupname>root</groupname>
+                                    <filemode>644</filemode>
+                                    <directoryIncluded>false</directoryIncluded>
+                                    <sources>
+                                        <source>
+                                            <location>src/rpm/etc/logrotate.d/repose</location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+                                <mapping>
+                                    <directory>/usr/local/bin</directory>
+                                    <username>repose</username>
+                                    <groupname>repose</groupname>
+                                    <filemode>755</filemode>
+                                    <sources>
+                                        <source>
+                                            <location>${basedir}/../../bash/clean-repose-deploy
+                                            </location>
+                                        </source>
+                                    </sources>
+                                </mapping>
+                            </mappings>
+                            <requires>
+                                <require>java &gt;= 1.6.0</require>
+                                <require>daemonize</require>
+                            </requires>
+                            <provides>
+                                <provide>repose</provide>
+                            </provides>
+                            <conflicts>
+                                <conflict>repose-war</conflict>
+                            </conflicts>
+                            <postinstallScriptlet>
+                                <script>
+                                    /sbin/chkconfig --add repose-valve
+                                </script>
+                            </postinstallScriptlet>
+                            <preinstallScriptlet>
+                                <script>
+                                    getent group repose &gt;/dev/null || groupadd -r repose
+                                    getent passwd repose &gt;/dev/null || \
+                                        useradd -r -g repose -s /sbin/nologin -d /usr/share/lib/repose -c "Repose" repose
+                                    exit 0
+                                </script>
+                            </preinstallScriptlet>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

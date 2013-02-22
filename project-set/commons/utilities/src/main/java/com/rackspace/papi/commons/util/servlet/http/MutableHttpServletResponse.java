@@ -315,7 +315,7 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
   public Throwable getLastException() {
     return exception;
   }
-  
+
   public void removeAllHeaders() {
     headers.clearHeaders();
   }
@@ -323,7 +323,7 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
   public void removeHeader(String name) {
     headers.removeHeader(name);
   }
-  
+
   @Override
   public boolean containsHeader(String name) {
     return headers.containsHeader(name);
@@ -359,6 +359,10 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
   @Override
   public void addDateHeader(String name, long date) {
     headers.addDateHeader(name, date);
+  }
+
+  public HeaderValue getHeaderValue(String name) {
+    return headers.getHeaderValue(name);
   }
 
   @Override

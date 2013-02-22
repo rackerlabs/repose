@@ -41,10 +41,12 @@ public class XmlFilterChainBuilder {
   private static final String CLASSPATH_PREFIX = "classpath://";
   private final SAXTransformerFactory factory;
   private final boolean allowEntities;
+  private final boolean allowDtdDeclarations;
 
-  public XmlFilterChainBuilder(SAXTransformerFactory factory, boolean allowEntities) {
+  public XmlFilterChainBuilder(SAXTransformerFactory factory, boolean allowEntities, boolean allowDeclarations) {
     this.factory = factory;
     this.allowEntities = allowEntities;
+    this.allowDtdDeclarations = allowDeclarations;
     try {
       factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
       factory.setFeature(FeatureKeys.ALLOW_EXTERNAL_FUNCTIONS, new Boolean(true));
@@ -152,14 +154,20 @@ public class XmlFilterChainBuilder {
   }
 
   protected XMLReader getSaxReader() throws ParserConfigurationException, SAXException {
+    System.setProperty("entityExpansionLimit","10"); 
     SAXParserFactory spf = SAXParserFactory.newInstance();
     spf.setXIncludeAware(false);
     spf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
     spf.setValidating(true);
     spf.setNamespaceAware(true);
+    spf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", !allowDtdDeclarations);
     SAXParser parser = spf.newSAXParser();
     XMLReader reader = parser.getXMLReader();
     reader.setEntityResolver(new ReposeEntityResolver(reader.getEntityResolver(), allowEntities));
+
+    LOG.info("SAXParserFactory class: " + spf.getClass().getCanonicalName());
+    LOG.info("SAXParser class: " + parser.getClass().getCanonicalName());
+    LOG.info("XMLReader class: " + reader.getClass().getCanonicalName());
 
     return reader;
   }

@@ -39,7 +39,7 @@ public class HeaderValueParserTest {
 
       @Test(expected=MalformedHeaderValueException.class)
       public void shouldFailOnMalformedParameters() {
-         final String headerValueString = "the value; q=0.5; afafeafa ; b= b; c = c";
+         final String headerValueString = "the value; q=0.5; af=af=eafa ; b= b; c = c";
          new HeaderValueParser(headerValueString).parse();
       }
    }

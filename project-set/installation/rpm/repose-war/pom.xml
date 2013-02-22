@@ -5,7 +5,7 @@
     <parent>
         <groupId>com.rackspace.repose.installation.rpm</groupId>
         <artifactId>rpm</artifactId>
-        <version>2.6.2-SNAPSHOT</version>
+        <version>2.6.4-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.repose.installation.rpm.war</groupId>
@@ -42,11 +42,11 @@
 
                             <mappings>
                                 <mapping>
-				  <!-- This is the location of tomcat as installed by jpackage -->
+                                    <!-- This is the location of tomcat as installed by jpackage -->
                                     <directory>/var/lib/tomcat7/webapps</directory>
                                     <username>tomcat</username>
-                                    <groupname>tomcat</groupname>
-                                    <filemode>755</filemode>
+                                    <groupname>repose</groupname>
+                                    <filemode>770</filemode>
 
                                     <sources>
                                         <source>
@@ -59,9 +59,9 @@
 
                                 <mapping>
                                     <directory>/etc/repose/</directory>
-                                    <username>tomcat</username>
-                                    <groupname>tomcat</groupname>
-                                    <filemode>755</filemode>
+                                    <username>repose</username>
+                                    <groupname>repose</groupname>
+                                    <filemode>770</filemode>
                                     <configuration>noreplace</configuration>
 
                                     <sources>
@@ -74,30 +74,46 @@
 
                                 <mapping>
                                     <directory>/var/log/repose/</directory>
-                                    <username>tomcat</username>
-                                    <groupname>tomcat</groupname>
-                                    <filemode>765</filemode>
+                                    <username>repose</username>
+                                    <groupname>repose</groupname>
+                                    <filemode>770</filemode>
                                 </mapping>
 
                                 <mapping>
                                     <directory>/var/repose/</directory>
-                                    <username>tomcat</username>
-                                    <groupname>tomcat</groupname>
-                                    <filemode>765</filemode>
+                                    <username>repose</username>
+                                    <groupname>repose</groupname>
+                                    <filemode>770</filemode>
                                 </mapping>
 
                                 <mapping>
                                     <directory>/usr/share/repose/filters/</directory>
-                                    <username>tomcat</username>
-                                    <groupname>tomcat</groupname>
-                                    <filemode>755</filemode>
+                                    <username>repose</username>
+                                    <groupname>repose</groupname>
+                                    <filemode>770</filemode>
                                 </mapping>
                             </mappings>
 
                             <requires>
-                                <require>java-1.6.0-openjdk</require>
-                                <require>tomcat7</require>
+                                <require>java &gt;= 1.6.0</require>
+                                <require>servlet &gt;= 3.0</require>
+                                <require>jsp &gt;= 2.2</require>
                             </requires>
+                            <provides>
+                                <provide>repose</provide>
+                            </provides>
+                            <conflicts>
+                                <conflict>repose-valve</conflict>
+                            </conflicts>
+                            <preinstallscriptlet>
+                                 <script>
+                                    getent group repose &gt;dev/null || groupadd -r repose
+                                    getent passwd repose &gt;dev/null || \
+                                        useradd -r -g repose -s /sbin/nologin -d /usr/share/lib/repose -c "Repose" repose
+                                    usermod -a -G repose tomcat
+                                    exit 0
+                                </script>
+                            </preinstallscriptlet>
                         </configuration>
                     </plugin>
                 </plugins>
