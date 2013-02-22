@@ -342,7 +342,7 @@
                     If no matches are found, only the validator which specifies <code>default="true"</code> is used.
                 </para>
                 <para>
-                    If matches are found but none of them are valid, only the validator which specifies <code>default="true"</code> is used.
+                    If matches are found but none of them are XXXXXXXXXXXXXXXXXXXXX valid, only the validator which specifies <code>default="true"</code> is used.
                 </para>
                 <para> </para>
             </callout>
@@ -352,11 +352,23 @@
                 <para> </para>
             </callout>
             <callout arearefs="cfg.role">
-                <para> Match this validator to requests according to the <code>X-Roles</code> header with highest quality value.</para>
+                <para> 
+                    When multiple roles are assigned, match this validator to requests according to the <code>X-Roles</code> header with the highest quality value.
+                    Roles are assigned quality values so that preference does not depend on the order in which they are listed.
+                </para>
+                <para>
+                    You can read more about quality values in &PRODNAME; at 
+                    <link xlink:href="http://wiki.openrepose.org/display/REPOSE/Header+Value+Quality">
+                        http://wiki.openrepose.org/display/REPOSE/Header+Value+Quality</link>.
+                </para>
                 <para> </para>
             </callout>
             <callout arearefs="cfg.default">
                 <para>  When set to <code>true</code>, match this validator to requests which do not pass an <code>X-Roles</code> header. </para>
+                <para>
+                    The <code>X-Roles</code> header can be set by the &PRODNAME; authentication component. . 
+                    
+                </para>
                 <para>
                     Only one validator can specify <code>default="true"</code>.
                     In this example, in the validator labeled "VALIDATOR 1", you can see the validator identified as the default.
