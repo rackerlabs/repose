@@ -59,9 +59,9 @@ public class ResponseMessageServiceImplTest {
 
          configurationObject.getStatusCode().clear();
          configurationObject.getStatusCode().add(createMatcher(OverwriteType.IF_EMPTY));
-
-         rmsImpl.updateConfiguration(configurationObject.getStatusCode());
          rmsImpl.setInitialized();
+         rmsImpl.updateConfiguration(configurationObject.getStatusCode());
+         
       }
 
       private StatusCodeMatcher createMatcher(OverwriteType overwriteType) {
