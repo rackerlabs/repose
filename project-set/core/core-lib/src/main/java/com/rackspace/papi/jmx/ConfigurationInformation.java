@@ -13,11 +13,14 @@ import com.rackspace.papi.service.context.ServletContextAware;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.OpenDataException;
 import javax.servlet.ServletContextEvent;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -178,26 +181,39 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
 
     
     
-   public void setFilterLoadingInformation(String filterName, ConfigurationResource configurationResource)
+   public void setFilterLoadingInformation(String filterName, boolean filterInitialized, ConfigurationResource configurationResource)
    {  
+       
+       
         synchronized (filterChain) {
             for (FilterInformation filter: filterChain) {
                 if(filterName.equalsIgnoreCase(filter.getName())){
-                    filter.setConfiguarationLoaded(true);
-                                      
+                    filter.setConfiguarationLoaded(filterInitialized);
+                   try{
+                         GregorianCalendar gcal = new GregorianCalendar();
+                         XMLGregorianCalendar xgcal = DatatypeFactory.newInstance().newXMLGregorianCalendar(gcal);
+                                    
                     try{
                     if(configurationResource!=null){
-                        filter.successConfigurationLoadinginformation.put(configurationResource.name(),new String[] {new Date().toString(),byteArrayToHexString(new SHA1MessageDigester().digestStream(configurationResource.newInputStream()))});
+                      
+                        
+                        
+                        filter.successConfigurationLoadinginformation.put(configurationResource.name(),new String[] {xgcal.toString(),byteArrayToHexString(new SHA1MessageDigester().digestStream(configurationResource.newInputStream()))});
                         if(filter.failedConfigurationLoadingInformation.containsKey(configurationResource.name())){
                             filter.failedConfigurationLoadingInformation.remove(configurationResource.name());
+                        }else if(configurationService.getResourceResolver().resolve(filter.getConfiguration()).name().equalsIgnoreCase(configurationResource.name())){
+                            filter.failedConfigurationLoadingInformation.clear();
                         }
                       
                        
                     }
                    
                     }catch(IOException e){
+                        filter.failedConfigurationLoadingInformation.put(configurationResource.name(),new String[]{xgcal.toString(),"",e.getMessage()});
                         LOG.debug("Error updating Mbean for Filter", e);
                         
+                    }}catch(Exception e){
+                         LOG.debug("Error updating Mbean for Filter", e);
                     }
                 }
             }
@@ -209,19 +225,26 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
         synchronized (filterChain) {
             for (FilterInformation filter: filterChain) {
                 if(filterName.equalsIgnoreCase(filter.getName())){
-                    
+                  try{
+                     GregorianCalendar gcal = new GregorianCalendar();
+                     XMLGregorianCalendar xgcal = DatatypeFactory.newInstance().newXMLGregorianCalendar(gcal);
                     try{
+                    xgcal.getTimezone();
+                     
                     if(configurationResource!=null){
                         if(filter.failedConfigurationLoadingInformation.containsKey(configurationResource.name())){
                             filter.failedConfigurationLoadingInformation.remove(configurationResource.name());
                         }
-                        filter.failedConfigurationLoadingInformation.put(configurationResource.name(),new String[]{new Date().toString(),byteArrayToHexString(new SHA1MessageDigester().digestStream(configurationResource.newInputStream())),errorInformation});
+                        filter.failedConfigurationLoadingInformation.put(configurationResource.name(),new String[]{xgcal.toString(),byteArrayToHexString(new SHA1MessageDigester().digestStream(configurationResource.newInputStream())),errorInformation});
                                             
                     }
                    
                     }catch(IOException e){
+                        filter.failedConfigurationLoadingInformation.put(configurationResource.name(),new String[]{xgcal.toString(),"",e.getMessage()});
                         LOG.debug("Error updating Mbean for Filter", e);
                         
+                    }}catch(Exception e){
+                         LOG.debug("Error updating Mbean for Filter", e);
                     }
                 }
             }

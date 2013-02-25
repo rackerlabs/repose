@@ -89,10 +89,15 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                     return;
                 }
                 boolean found = false;
+                boolean loadedWADL=true;
 
                 for (ValidatorInfo info : validators) {
                     if (info.getUri() != null && getNormalizedPath(info.getUri()).equals(config.name())) {
-                        info.reinitValidator();
+                        if(loadedWADL){
+                          loadedWADL=info.reinitValidator();
+                        }else{
+                           info.reinitValidator(); 
+                        }
                         found = true;
                     }
                 }
@@ -103,9 +108,13 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                     for (ValidatorInfo info : validators) {
                         info.reinitValidator();
                     }
+                }if(!loadedWADL){
+                   isInitialized=false;
+                }else{
+                   isInitialized=true;
                 }
             }
-             isInitialized=true;
+             
         }
           
        @Override

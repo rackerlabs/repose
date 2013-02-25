@@ -111,8 +111,10 @@ public class PowerApiConfigurationManager implements ConfigurationService {
                                           
                 listener.configurationUpdated(customParser.read(resource));
            
-                if(filterName!=null && !filterName.isEmpty()){
-                getConfigurationInformation().setFilterLoadingInformation(filterName, resource);
+                if(filterName!=null && !filterName.isEmpty() && listener.isInitialized()){
+                     getConfigurationInformation().setFilterLoadingInformation(filterName,listener.isInitialized(), resource);
+                }else{
+                       getConfigurationInformation().setFilterLoadingFailedInformation(filterName, resource,"Failed loading File"); 
                 }
                 
                 } catch (Exception ex) {
