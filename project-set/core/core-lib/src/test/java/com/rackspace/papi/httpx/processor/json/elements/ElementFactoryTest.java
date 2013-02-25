@@ -7,6 +7,8 @@ package com.rackspace.papi.httpx.processor.json.elements;
 import com.rackspace.papi.httpx.processor.common.Element;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -15,20 +17,18 @@ import static org.junit.Assert.*;
 public class ElementFactoryTest {
     
 
+     private static final Logger LOG = LoggerFactory.getLogger(ElementFactory.class);
     /**
      * Test of getElement method, of class ElementFactory.
      */
     @Test
     public void testGetElement() {
-        System.out.println("getElement");
-        ElementFactory.getElement("nid","fid");
-        String tokenName = "nid";
+
+        String tokenName = "START_OBJECT";
         String name = "fid";
-       
-      
-        //Element expResult = (Element)ElementFactory.VALUE_STRING.getClass().getConstructors()[0].newInstance("nid","fid");
         Element result = ElementFactory.getElement(tokenName, name);
-        //assertEquals(expResult, result);
+         assertNotNull(result);
+       
      
     }
 
@@ -37,14 +37,14 @@ public class ElementFactoryTest {
      */
     @Test
     public void testGetScalarElement() {
-        System.out.println("getScalarElement");
-        ElementFactory.getScalarElement("nid","fid", "value");
-        String tokenName = "nid";
+   
+     
+        String tokenName = "VALUE_STRING";
         String name = "fid";
         Object value = "value";
-        Element expResult = new ScalarElement<String>("nid", "fid", "value");
+        Element expResult = new ScalarElement<String>("VALUE_STRING", "fid", "value");
         Element result = ElementFactory.getScalarElement(tokenName, name, value);
-        //assertEquals(expResult, result);
+        assertNotNull(result);
    
     }
 }
