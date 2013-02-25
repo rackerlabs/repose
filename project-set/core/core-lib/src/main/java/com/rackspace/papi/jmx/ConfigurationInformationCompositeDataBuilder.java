@@ -29,7 +29,7 @@ public class ConfigurationInformationCompositeDataBuilder extends CompositeDataB
 
     @Override
     public String[] getItemNames() {
-        return new String[]{"id", "name", "regex", "configuration","successfully initialized","successfully loaded Configuration","Loading Failed configuration"};
+        return new String[]{"id", "name", "regex", "configuration","successfully initialized","successfully loaded configurations","loading failed configurations"};
     }
 
     @Override

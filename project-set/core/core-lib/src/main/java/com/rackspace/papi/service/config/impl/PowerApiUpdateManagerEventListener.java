@@ -42,8 +42,10 @@ public class PowerApiUpdateManagerEventListener implements EventListener<Configu
                 currentThread.setContextClassLoader(parserListener.getClassLoader());
                 try {
                     configUpdate(updateListener, parserListener.getParser().read(e.payload()));
-                   if(parserListener.getFilterName()!=null && !parserListener.getFilterName().isEmpty()){
-                    parserListener.getConfigurationInformation().setFilterLoadingInformation(parserListener.getFilterName(), e.payload());
+                   if(parserListener.getFilterName()!=null && !parserListener.getFilterName().isEmpty() && updateListener.isInitialized() ){
+                    parserListener.getConfigurationInformation().setFilterLoadingInformation(parserListener.getFilterName(),updateListener.isInitialized(), e.payload());
+                   }else{
+                       parserListener.getConfigurationInformation().setFilterLoadingFailedInformation(parserListener.getFilterName(), e.payload(), "Failed loading File"); 
                    }
                 }catch(Exception ex){
                     
