@@ -80,7 +80,10 @@ public class LockedConfigurationUpdaterTest {
             t1.start();
             t2.start();
 
-            Thread.sleep(20);
+            //Thread.sleep(20);
+            
+            t1.join();
+            t2.join();
 
             assertEquals("prop2", configProperties.get(0));
         }
