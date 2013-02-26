@@ -9,13 +9,34 @@ import org.junit.runner.RunWith;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
+import java.io.InputStream;
+import org.junit.After;
+import org.junit.AfterClass;
 
 import static org.junit.Assert.assertNotNull;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(Enclosed.class)
 public class JaxbConfigurationParserTest {
+
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+    }
+
+    @AfterClass
+    public static void tearDownClass() throws Exception {
+    }
+
+    @Before
+    public void setUp() throws Exception {
+    }
+
+    @After
+    public void tearDown() throws Exception {
+    }
 
     public static class WhenUsingJaxbConfigurationObjectParser {
 
@@ -33,7 +54,7 @@ public class JaxbConfigurationParserTest {
         }
 
         @Test(expected=ClassCastException.class)
-        public void shouldThrowClassCastException() throws JAXBException, IOException {
+        public void testRead() throws JAXBException, IOException {
             final JAXBContext jaxbContext = JAXBContext.newInstance(Element.class);
             ConfigurationParser<String> parser = new JaxbConfigurationParser<String>(String.class, jaxbContext , null);
 
@@ -42,5 +63,7 @@ public class JaxbConfigurationParserTest {
 
             parser.read(cfgResource);
         }
-    }
+  
+
+   }
 }
