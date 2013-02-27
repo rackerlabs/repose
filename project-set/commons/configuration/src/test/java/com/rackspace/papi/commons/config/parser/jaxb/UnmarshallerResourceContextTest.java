@@ -12,13 +12,33 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import org.junit.After;
+import org.junit.AfterClass;
 
 import static org.junit.Assert.assertNotNull;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @RunWith(Enclosed.class)
 public class UnmarshallerResourceContextTest {
+
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+    }
+
+    @AfterClass
+    public static void tearDownClass() throws Exception {
+    }
+
+    @Before
+    public void setUp() throws Exception {
+    }
+
+    @After
+    public void tearDown() throws Exception {
+    }
 
     public static class WhenUsingUnmarshallerResourceContextTest {
 
@@ -38,7 +58,7 @@ public class UnmarshallerResourceContextTest {
         }
 
         @Test(expected= ResourceContextException.class)
-        public void shouldThrowResourceContextExceptionForNonexistentResource() throws IOException, JAXBException, NoSuchAlgorithmException {
+        public void testPerform() throws IOException, JAXBException, NoSuchAlgorithmException {
             ConfigurationResource cfgResource = mock(ConfigurationResource.class);
             when(cfgResource.newInputStream()).thenReturn(ConfigurationResource.class.getResourceAsStream("/nonexistent_resource"));
 
@@ -50,4 +70,6 @@ public class UnmarshallerResourceContextTest {
             resourceContext.perform(unmarshaller);
         }
     }
+
+
 }

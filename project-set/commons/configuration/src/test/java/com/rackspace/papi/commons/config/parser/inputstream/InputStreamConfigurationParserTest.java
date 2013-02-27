@@ -6,15 +6,35 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
+import org.junit.After;
+import org.junit.AfterClass;
 
 import static org.junit.Assert.assertTrue;
+import org.junit.BeforeClass;
 import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
 public class InputStreamConfigurationParserTest {
+
+    @BeforeClass
+    public static void setUpClass() throws Exception {
+    }
+
+    @AfterClass
+    public static void tearDownClass() throws Exception {
+    }
+
+    @Before
+    public void setUp() throws Exception {
+    }
+
+    @After
+    public void tearDown() throws Exception {
+    }
 
    public static class WhenReadingResource {
       private InputStreamConfigurationParser instance;
@@ -47,5 +67,16 @@ public class InputStreamConfigurationParserTest {
       public void shouldThrowResourceResolutionException() {
          instance.read(badCr);
       }
+ 
+    /**
+     * Test of read method, of class InputStreamConfigurationParser.
+     */
+    @Test
+    public void testRead() {
+        InputStream result = instance.read(cr);
+        assertNotNull(result);
+        // TODO review the generated test code and remove the default call to fail.
+        
+    }
    }
 }
