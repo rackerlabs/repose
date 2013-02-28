@@ -12,10 +12,10 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextAware;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.management.openmbean.CompositeData;
 import javax.management.openmbean.OpenDataException;
 import javax.servlet.ServletContextEvent;
@@ -38,6 +38,7 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
     private ServicePorts ports;
     private final List<FilterInformation> filterChain;
     private SystemModelListener systemModelListener;
+    private static final String filterError="Error updating Mbean for Filter";
 
  
 
@@ -48,14 +49,12 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
         private final String regex;
         private final String configuration;
         private boolean isConfiguarationLoaded;
-        public HashMap successConfigurationLoadinginformation;
-
- 
-        public HashMap failedConfigurationLoadingInformation;
+        private Map successConfigurationLoadinginformation; 
+        private Map failedConfigurationLoadingInformation;
    
    
 
-        public FilterInformation(String id, String name, String regex, String configuration,Boolean isConfiguarationLoaded,String successConfigLoadTime,String successConfigLoadSHA1,String failedConfigLoadTime,String failedConfigLoadSHA1,String failedConfigLoadError) {
+        public FilterInformation(String id, String name, String regex, String configuration,Boolean isConfiguarationLoaded) {
             this.id = id;
             this.name = name;
             this.regex = regex;
@@ -63,8 +62,7 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
             this.isConfiguarationLoaded=isConfiguarationLoaded;
             successConfigurationLoadinginformation=new HashMap<String, String[]>();
             failedConfigurationLoadingInformation=new HashMap<String, String[]>();
-           // hm= new HashMap<String, String[]>();
-            //hm.put("calculus",new String[] {"math","logic"});
+        
             
         }
 
@@ -91,15 +89,15 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
             this.isConfiguarationLoaded=isConfiguarationLoaded;
         }
 
-        public HashMap<String, String[]> getSuccessConfigurationLoadinginformation() {
+        public Map<String, String[]> getSuccessConfigurationLoadinginformation() {
             return successConfigurationLoadinginformation;
         }
 
-        public void setSuccessConfigurationLoadinginformation(HashMap successConfigurationLoadinginformation) {
-            this.successConfigurationLoadinginformation = successConfigurationLoadinginformation;
+        public void setSuccessConfigurationLoadinginformation(Map successConfigurationLoadinginformation) {
+            this.successConfigurationLoadinginformation = (HashMap)successConfigurationLoadinginformation;
         }
 
-        public HashMap<String, String[]> getFailedConfigurationLoadingInformation() {
+        public Map<String, String[]> getFailedConfigurationLoadingInformation() {
             return failedConfigurationLoadingInformation;
         }
 
@@ -133,7 +131,7 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
                 filters.clear();
 
                 for (Filter filter : cluster.getFilters().getFilter()) {
-                    filters.add(new FilterInformation(filter.getId(), filter.getName(), filter.getUriRegex(), filter.getConfiguration(),false,"","","","",""));
+                    filters.add(new FilterInformation(filter.getId(), filter.getName(), filter.getUriRegex(), filter.getConfiguration(),false));
                 }
             }
 
@@ -210,10 +208,10 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
                    
                     }catch(IOException e){
                         filter.failedConfigurationLoadingInformation.put(configurationResource.name(),new String[]{xgcal.toString(),"",e.getMessage()});
-                        LOG.debug("Error updating Mbean for Filter", e);
+                        LOG.debug(filterError, e);
                         
                     }}catch(Exception e){
-                         LOG.debug("Error updating Mbean for Filter", e);
+                         LOG.debug(filterError, e);
                     }
                 }
             }
@@ -241,10 +239,10 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
                    
                     }catch(IOException e){
                         filter.failedConfigurationLoadingInformation.put(configurationResource.name(),new String[]{xgcal.toString(),"",e.getMessage()});
-                        LOG.debug("Error updating Mbean for Filter", e);
+                        LOG.debug(filterError, e);
                         
                     }}catch(Exception e){
-                         LOG.debug("Error updating Mbean for Filter", e);
+                         LOG.debug(filterError, e);
                     }
                 }
             }

@@ -19,17 +19,16 @@ public class HttpxUriInputParameterResolver extends SourceUriResolver {
   private HttpServletResponse response;
   private HttpxProducer producer;
   private final HttpxMarshaller marshaller;
-  private final DocumentBuilderFactory builderFactory;
+ 
 
   public HttpxUriInputParameterResolver() {
     super();
-    builderFactory = DocumentBuilderFactory.newInstance();
+  
     marshaller = new HttpxMarshaller();
   }
 
   public HttpxUriInputParameterResolver(URIResolver parent) {
     super(parent);
-    builderFactory = DocumentBuilderFactory.newInstance();
     marshaller = new HttpxMarshaller();
   }
   
@@ -63,17 +62,11 @@ public class HttpxUriInputParameterResolver extends SourceUriResolver {
     }
 
     if (href.toLowerCase().startsWith(HEADERS_PREFIX)) {
-      HttpxProducer p = getProducer();
-
-      return new StreamSource(marshaller.marshall(producer.getHeaders()));
+       return new StreamSource(marshaller.marshall(producer.getHeaders()));
     } else if (href.toLowerCase().startsWith(REQUEST_INFO_PREFIX)) {
-      HttpxProducer p = getProducer();
-
-      return new StreamSource(marshaller.marshall(producer.getRequestInformation()));
+       return new StreamSource(marshaller.marshall(producer.getRequestInformation()));
     } else if (href.toLowerCase().startsWith(PARAMS_PREFIX)) {
-      HttpxProducer p = getProducer();
-
-      return new StreamSource(marshaller.marshall(producer.getRequestParameters()));
+       return new StreamSource(marshaller.marshall(producer.getRequestParameters()));
     }
 
     return super.resolve(href, base);
