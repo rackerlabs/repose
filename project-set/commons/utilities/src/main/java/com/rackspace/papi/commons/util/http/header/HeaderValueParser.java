@@ -36,14 +36,33 @@ public class HeaderValueParser {
     return new HeaderValueImpl(value.toString().trim(), parameters);
   }
 
+  private String concat(String[] values, int start, String delimiter) {
+    StringBuilder sb = new StringBuilder("");
+    int index = start;
+
+    while (index < values.length) {
+      if (sb.length() > 0) {
+        sb.append(delimiter);
+      }
+      
+      sb.append(values[index++].trim());
+    }
+
+    return sb.toString();
+  }
+
   private void parseParameter(Map<String, String> parameters, String unparsedParameter) throws MalformedHeaderValueException {
     final String[] keyValueSplit = unparsedParameter.split("=");
 
     // For a possible parameter to be valid it must have the '=' character
-    if (keyValueSplit.length == 2) {
-      parameters.put(keyValueSplit[0].trim(), keyValueSplit[1].trim());
-    } else {
-      throw new MalformedHeaderValueException("Valid parameter expected for header. Got: " + unparsedParameter);
+    switch(keyValueSplit.length) {
+      case 2:
+        parameters.put(keyValueSplit[0].trim(), keyValueSplit[1].trim());
+        break;
+      case 0:
+        throw new MalformedHeaderValueException("Valid parameter expected for header. Got: " + unparsedParameter);
+      default:
+        parameters.put(keyValueSplit[0].trim(), concat(keyValueSplit, 1, "="));
     }
   }
 }

@@ -36,11 +36,5 @@ public class HeaderValueParserTest {
          assertEquals("Should parse parameter 'b' correctly", headerValue.getParameters().get("b"), "banana");
          assertEquals("Should parse parameter 'c' correctly", headerValue.getParameters().get("c"), "clementine");
       }
-
-      @Test(expected=MalformedHeaderValueException.class)
-      public void shouldFailOnMalformedParameters() {
-         final String headerValueString = "the value; q=0.5; af=af=eafa ; b= b; c = c";
-         new HeaderValueParser(headerValueString).parse();
-      }
    }
 }

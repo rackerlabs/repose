@@ -11,7 +11,7 @@ import javax.management.openmbean.CompositeType;
 public class ConfigurationInformationCompositeDataBuilder extends CompositeDataBuilder {
 
     private final ConfigurationInformation.FilterInformation filter;
-    private CompositeType compositeType;
+  
 
     public ConfigurationInformationCompositeDataBuilder(ConfigurationInformation.FilterInformation filter) {
         this.filter = filter;
@@ -58,28 +58,28 @@ public class ConfigurationInformationCompositeDataBuilder extends CompositeDataB
         items.add(filter.getRegex());
         items.add(filter.getConfiguration());
         items.add(filter.getIsConfiguarationLoaded());
-        StringBuilder SuccessConfigurationLoading=new StringBuilder();
+        StringBuilder successConfigurationLoading=new StringBuilder();
         for (String key : filter.getSuccessConfigurationLoadinginformation().keySet()){
             String[] successInformation=filter.getSuccessConfigurationLoadinginformation().get(key);
-            SuccessConfigurationLoading.append(key+": ");
-            SuccessConfigurationLoading.append(successInformation[0]+": ");
-            SuccessConfigurationLoading.append(successInformation[1]);
-            SuccessConfigurationLoading.append(System.getProperty("line.separator"));
+            successConfigurationLoading.append(key+": ");
+            successConfigurationLoading.append(successInformation[0]+": ");
+            successConfigurationLoading.append(successInformation[1]);
+            successConfigurationLoading.append(System.getProperty("line.separator"));
         }
         
-        items.add(SuccessConfigurationLoading.toString());
+        items.add(successConfigurationLoading.toString());
         
-         StringBuilder FailedConfigurationLoading=new StringBuilder();;
+         StringBuilder failedConfigurationLoading=new StringBuilder();;
         for (String key : filter.getFailedConfigurationLoadingInformation().keySet()){
             String[] successInformation=filter.getFailedConfigurationLoadingInformation().get(key);
-            FailedConfigurationLoading.append(key+": ");
-            FailedConfigurationLoading.append(successInformation[0]+": ");
-            FailedConfigurationLoading.append(successInformation[1]+": ");
-            FailedConfigurationLoading.append(successInformation[2]);
-            FailedConfigurationLoading.append(System.getProperty("line.separator"));
+            failedConfigurationLoading.append(key+": ");
+            failedConfigurationLoading.append(successInformation[0]+": ");
+            failedConfigurationLoading.append(successInformation[1]+": ");
+            failedConfigurationLoading.append(successInformation[2]);
+            failedConfigurationLoading.append(System.getProperty("line.separator"));
            
         }
-        items.add( FailedConfigurationLoading.toString());
+        items.add( failedConfigurationLoading.toString());
         return items.toArray();
     }
     
