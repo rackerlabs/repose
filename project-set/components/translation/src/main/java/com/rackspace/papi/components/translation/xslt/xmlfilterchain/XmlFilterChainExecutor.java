@@ -39,10 +39,10 @@ public class XmlFilterChainExecutor {
   public XmlFilterChainExecutor(XmlFilterChain chain) {
     this.chain = chain;
     marshaller = new HttpxMarshaller();
-    format.put(OutputKeys.METHOD, "xml");
+    //format.put(OutputKeys.METHOD, "xml");
     format.put(OutputKeys.OMIT_XML_DECLARATION, "yes");
     format.put(OutputKeys.ENCODING, "UTF-8");
-    format.put(OutputKeys.INDENT, "yes");
+    //format.put(OutputKeys.INDENT, "yes");
   }
 
   protected SourceUriResolverChain getResolverChain(Transformer transformer) {
@@ -166,7 +166,7 @@ public class XmlFilterChainExecutor {
 
 
       Transformer transformer = chain.getFactory().newTransformer();
-      //transformer.setOutputProperties(format);
+      transformer.setOutputProperties(format);
       transformer.transform(getSAXSource(new InputSource(in)), new StreamResult(output));
     } catch (TransformerException ex) {
       throw new XsltException(ex);
