@@ -157,8 +157,10 @@ public final class HeaderValuesImpl implements HeaderValues {
      */
     List<HeaderValue> headerValues = headers.get(name.toLowerCase());
 
-    if (headerValues == null) {
-      return new ArrayList<HeaderValue>();
+    if (headerValues == null || headerValues.isEmpty()) {
+      headerValues = new ArrayList<HeaderValue>();
+      headerValues.add(defaultValue);
+      return headerValues;
     }
 
     Map<Double, List<HeaderValue>> groupedHeaderValues = new LinkedHashMap<Double, List<HeaderValue>>();
