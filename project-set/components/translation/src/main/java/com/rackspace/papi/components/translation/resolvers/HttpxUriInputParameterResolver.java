@@ -4,7 +4,6 @@ import com.rackspace.papi.components.translation.httpx.HttpxMarshaller;
 import com.rackspace.papi.components.translation.httpx.HttpxProducer;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
@@ -62,11 +61,11 @@ public class HttpxUriInputParameterResolver extends SourceUriResolver {
     }
 
     if (href.toLowerCase().startsWith(HEADERS_PREFIX)) {
-       return new StreamSource(marshaller.marshall(producer.getHeaders()));
+       return new StreamSource(marshaller.marshall(getProducer().getHeaders()));
     } else if (href.toLowerCase().startsWith(REQUEST_INFO_PREFIX)) {
-       return new StreamSource(marshaller.marshall(producer.getRequestInformation()));
+       return new StreamSource(marshaller.marshall(getProducer().getRequestInformation()));
     } else if (href.toLowerCase().startsWith(PARAMS_PREFIX)) {
-       return new StreamSource(marshaller.marshall(producer.getRequestParameters()));
+       return new StreamSource(marshaller.marshall(getProducer().getRequestParameters()));
     }
 
     return super.resolve(href, base);
