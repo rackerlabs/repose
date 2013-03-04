@@ -11,8 +11,10 @@
     xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0"
     xml:id="Available_Doc-d1e140">
     <title>Available Documentation</title>
-    <para>The following &PRODNAME; documentation is available as of
-        v2.4.1:</para>
+    <para>We publish &PRODNAME; documentation at 
+        <link xlink:href="http://www.openrepose.org/documentation.html">http://www.openrepose.org/documentation.html</link>.
+        The following &PRODNAME; documentation is available as of
+        v2.6.6:</para>
     <itemizedlist>
         <listitem>
             <para>
@@ -63,11 +65,10 @@
         </listitem> 
     </itemizedlist> 
     <tip>
-        <para>
-            For the latest information about &PRODNAME;, 
-            visit 
-            the &PRODNAME; wiki at <link xlink:href="http://wiki.openrepose.org/">http://wiki.openrepose.org/</link>.
-        </para>
+        <para> For the most current information about &PRODNAME;,
+            visit the &PRODNAME; wiki at <link
+                xlink:href="http://wiki.openrepose.org/"
+                >http://wiki.openrepose.org/</link>. </para>
         <para>
             In the &PRODNAME; wiki, visit <link xlink:href="http://wiki.openrepose.org/display/REPOSE/Release+Notes">Release Notes</link> frequently for updates on new features, fixes, and known issues.
             If you subscribe to the <link xlink:href="http://openrepose.org/mailing_list.html">&PRODNAME; Announcements list</link>,
