@@ -52,10 +52,10 @@ public final class HeaderValuesImpl implements HeaderValues {
     headers.clear();
     headers.putAll(headerMap);
   }
-  
+
   private List<HeaderValue> parseHeaderValues(String value) {
     HeaderFieldParser parser = new HeaderFieldParser(value);
-    
+
     return parser.parse();
   }
 
@@ -157,8 +157,12 @@ public final class HeaderValuesImpl implements HeaderValues {
      */
     List<HeaderValue> headerValues = headers.get(name.toLowerCase());
 
-    if (headerValues == null) {
-      return new ArrayList<HeaderValue>();
+    if (headerValues == null || headerValues.isEmpty()) {
+      headerValues = new ArrayList<HeaderValue>();
+      if (defaultValue != null) {
+        headerValues.add(defaultValue);
+      }
+      return headerValues;
     }
 
     Map<Double, List<HeaderValue>> groupedHeaderValues = new LinkedHashMap<Double, List<HeaderValue>>();
@@ -203,7 +207,7 @@ public final class HeaderValuesImpl implements HeaderValues {
     if (headerValues == null) {
       headerValues = new LinkedList<HeaderValue>();
     }
-    
+
     HttpDate date = new HttpDate(new Date(value));
     headerValues.add(new HeaderValueImpl(date.toRFC1123()));
 
