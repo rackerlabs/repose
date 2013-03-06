@@ -1831,7 +1831,7 @@
               <hashTree>
                 <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
                   <collectionProp name="Asserion.test_strings">
-                    <stringProp name="-1295840027">&lt;h1&gt;Servlet version at ${name}/ss</stringProp>
+                    <stringProp name="1712453330">&lt;h1&gt;Servlet version at /${name}/ss</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                   <boolProp name="Assertion.assume_success">true</boolProp>
@@ -1891,7 +1891,7 @@
               <hashTree>
                 <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
                   <collectionProp name="Asserion.test_strings">
-                    <stringProp name="-1295840027">&lt;h1&gt;Servlet version at ${name}/ss</stringProp>
+                    <stringProp name="1712453330">&lt;h1&gt;Servlet version at /${name}/ss</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                   <boolProp name="Assertion.assume_success">true</boolProp>

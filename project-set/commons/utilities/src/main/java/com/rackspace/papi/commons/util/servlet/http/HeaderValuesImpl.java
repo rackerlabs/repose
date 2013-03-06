@@ -5,9 +5,10 @@ import com.rackspace.papi.commons.util.http.header.HeaderFieldParser;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
 import com.rackspace.papi.commons.util.http.header.QualityFactorHeaderChooser;
-import java.util.*;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.*;
 
 public final class HeaderValuesImpl implements HeaderValues {
 
@@ -52,10 +53,10 @@ public final class HeaderValuesImpl implements HeaderValues {
     headers.clear();
     headers.putAll(headerMap);
   }
-  
+
   private List<HeaderValue> parseHeaderValues(String value) {
     HeaderFieldParser parser = new HeaderFieldParser(value);
-    
+
     return parser.parse();
   }
 
@@ -157,8 +158,12 @@ public final class HeaderValuesImpl implements HeaderValues {
      */
     List<HeaderValue> headerValues = headers.get(name.toLowerCase());
 
-    if (headerValues == null) {
-      return new ArrayList<HeaderValue>();
+    if (headerValues == null || headerValues.isEmpty()) {
+      headerValues = new ArrayList<HeaderValue>();
+      if (defaultValue != null) {
+        headerValues.add(defaultValue);
+      }
+      return headerValues;
     }
 
     Map<Double, List<HeaderValue>> groupedHeaderValues = new LinkedHashMap<Double, List<HeaderValue>>();
@@ -203,7 +208,7 @@ public final class HeaderValuesImpl implements HeaderValues {
     if (headerValues == null) {
       headerValues = new LinkedList<HeaderValue>();
     }
-    
+
     HttpDate date = new HttpDate(new Date(value));
     headerValues.add(new HeaderValueImpl(date.toRFC1123()));
 

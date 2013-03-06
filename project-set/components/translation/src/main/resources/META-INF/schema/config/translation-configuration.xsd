@@ -50,7 +50,7 @@
             <xs:element name="style-sheets" type="trans-config:StyleSheets" minOccurs="1" maxOccurs="1"/>
         </xs:sequence>
 
-        <xs:attribute name="content-type" type="xs:string">
+        <xs:attribute name="content-type" type="xs:string" use="optional" default="*/*" >
             <xs:annotation>
                 <xs:documentation>
                     <html:p>The content type of the response body</html:p>
@@ -58,7 +58,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="accept" type="xs:string">
+        <xs:attribute name="accept" type="xs:string" use="optional" default="*/*" >
             <xs:annotation>
                 <xs:documentation>
                     <html:p>The matching accept type to be matched for these style sheets to apply.</html:p>
@@ -66,7 +66,7 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="translated-content-type" type="xs:string">
+        <xs:attribute name="translated-content-type" type="xs:string" use="optional" default="">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>The resulting content type after style sheets have been applied</html:p>

@@ -2,9 +2,10 @@ package com.rackspace.papi.commons.util;
 
 import com.rackspace.papi.commons.util.string.JCharSequence;
 
-import static com.rackspace.papi.commons.util.string.JCharSequenceFactory.jchars;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+
+import static com.rackspace.papi.commons.util.string.JCharSequenceFactory.jchars;
 
 /**
  * This is a simple helper class that can be used to generalize URI related
@@ -49,21 +50,16 @@ public final class StringUriUtilities {
 
         for (String uri : uris) {
             if (StringUtilities.isNotBlank(uri)) {
-                if (!uri.startsWith("/")) {
+                if (!uri.startsWith("/") && !uri.isEmpty()) {
                     builder.append("/");
                 }
 
-                if (uri.endsWith("/")) {
-                    builder.append(uri.substring(0, uri.length() - 1));
-                } else {
+
                     builder.append(uri);
-                }
+
             }
         }
 
-        if (builder.length() == 0) {
-            builder.append("/");
-        }
 
         return builder.toString();
     }

@@ -90,10 +90,10 @@ public class StringUriUtilitiesTest {
       }
 
       @Test
-      public void shouldRemoveExtraSlash() {
+      public void shouldNotRemoveExtraSlash() {
          String uri1 = "one/two/";
          String uri2 = "/three/four/";
-         String expected = "/one/two/three/four";
+         String expected = "/one/two//three/four/";
          
          String actual = StringUriUtilities.concatUris(uri1, uri2);
          
@@ -104,19 +104,19 @@ public class StringUriUtilitiesTest {
       @Test
       public void shouldHandleOneString() {
          String uri1 = "one/two/";
-         String expected = "/one/two";
+         String expected = "/one/two/";
          
          String actual = StringUriUtilities.concatUris(uri1);
          
          assertEquals(expected, actual);
 
       }
-      
+
       @Test
       public void shouldSkipEmptyStrings() {
          String uri1 = "one/two/";
          String uri2 = "/three/four/";
-         String expected = "/one/two/three/four";
+         String expected = "/one/two//three/four/";
          
          String actual = StringUriUtilities.concatUris("", "    ", uri1, " ", "", uri2, "");
          
@@ -128,7 +128,7 @@ public class StringUriUtilitiesTest {
       public void shouldHandleSingle() {
          String uri1 = "/";
          String uri2 = "/";
-         String expected = "/";
+         String expected = "//";
          
          String actual = StringUriUtilities.concatUris(uri1, uri2);
          
