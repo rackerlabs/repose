@@ -21,7 +21,8 @@
       xsl-engine="XalanC"
       use-saxon="false"
       enable-ignore-xsd-extension="false"
-      join-xpath-checks="false"/>
+      join-xpath-checks="false"
+      validator-name="testName"/>
    <validator role="other" default="false" wadl="file://a/different/wadl/file.wadl"/>
    <validator
       role="embedded"
