@@ -289,7 +289,7 @@ public class EndpointLocationBuilderTest {
          assertNotNull(result.getUri());
          assertNotNull(result.getUrl());
          
-         final String expectedUri = "/root" + uri;
+         final String expectedUri = "/root/" + uri;
          final String expectedUrl = "http://localhost:8081" + expectedUri;
          
          assertEquals(expectedUri, result.getUri().getPath());
