@@ -1,20 +1,19 @@
 package org.openrepose.components.apivalidator.filter;
 
-import org.openrepose.components.apivalidator.filter.ValidatorInfo;
-import org.openrepose.components.apivalidator.filter.DispatchHandler;
 import com.rackspace.com.papi.components.checker.Config;
 import com.rackspace.com.papi.components.checker.Validator;
 import com.rackspace.com.papi.components.checker.handler.ResultHandler;
 import com.rackspace.com.papi.components.checker.handler.ServletResultHandler;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 @RunWith(Enclosed.class)
 public class ValidatorInfoTest {
@@ -23,8 +22,10 @@ public class ValidatorInfoTest {
 
         private final String role = "someRole";
         private final String wadl = "default.wadl";
+        private final String name = "testName";
         private Config config;
         private ValidatorInfo instance;
+        private ValidatorInfo instance2;
 
         private DispatchHandler getHandlers() {
             List<ResultHandler> handlers = new ArrayList<ResultHandler>();
@@ -42,7 +43,8 @@ public class ValidatorInfoTest {
             config.setCheckElements(true);
             URL resource = this.getClass().getClassLoader().getResource(wadl);
 
-            this.instance = new ValidatorInfo(role, resource.toExternalForm(), config);
+            this.instance = new ValidatorInfo(role, resource.toExternalForm(), config, null);
+            this.instance2 = new ValidatorInfo(role, resource.toExternalForm(), config, name);
         }
 
         @Test
@@ -58,7 +60,16 @@ public class ValidatorInfoTest {
             Validator validator2 = instance.getValidator();
             assertNotNull(validator2);
             assertTrue("Validator2 should be a new instance after clearing", validator2 != validator);
+        }
 
+        @Test
+        public void shouldGenerateValidatorNameWhenPassedNull() {
+            assertEquals(instance.getName(), instance.getRole());
+        }
+
+        @Test
+        public void shouldGenerateValidatorNameWhenProvided() {
+            assertEquals(instance2.getName(), name);
         }
     }
 }

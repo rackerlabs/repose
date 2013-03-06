@@ -1,23 +1,25 @@
 package org.openrepose.components.apivalidator.filter;
 
-import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.config.parser.generic.GenericResourceConfigurationParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
 import com.rackspace.papi.service.config.ConfigurationService;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import static org.mockito.Mockito.*;
 import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
 import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
 public class ApiValidatorHandlerFactoryTest {
@@ -49,7 +51,7 @@ public class ApiValidatorHandlerFactoryTest {
             configService = mock(ConfigurationService.class);
             URL resource = this.getClass().getClassLoader().getResource("");
             instance = new ApiValidatorHandlerFactory(configService, resource.getPath(), "");
-            ;
+
             instance.configurationUpdated(config);
             
             roles = new ArrayList<HeaderValue>();

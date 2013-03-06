@@ -7,6 +7,12 @@ import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.config.ConfigurationService;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Element;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -14,11 +20,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
 
 public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerFactory<ApiValidatorHandler> {
     
@@ -152,8 +153,10 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                 Config configuration = new ValidatorConfigurator(validatorItem, multiRoleMatch, configRoot).getConfiguration();
                 ValidatorInfo validator =
                         validatorItem.getAny() != null
-                        ? new ValidatorInfo(validatorItem.getRole(), (Element) validatorItem.getAny(), getWadlPath(this.config), configuration)
-                        : new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), configuration);
+                        ? new ValidatorInfo(validatorItem.getRole(), (Element) validatorItem.getAny(), getWadlPath(this.config), configuration,
+                                validatorItem.getValidatorName())
+                        : new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), configuration,
+                                validatorItem.getValidatorName());
 
                 validators.add(validator);
                 if (validatorItem.isDefault() && defaultValidator == null) {
