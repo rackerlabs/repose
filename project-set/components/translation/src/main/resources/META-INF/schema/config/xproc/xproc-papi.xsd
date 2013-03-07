@@ -6,8 +6,6 @@
 
 <xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
            targetNamespace="http://www.w3.org/ns/xproc"
-           xmlns:p="http://www.w3.org/ns/xproc"
-           xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
     <!--<xs:complexType name="pipeline">-->

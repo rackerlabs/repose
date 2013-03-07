@@ -4,14 +4,11 @@
  */
 package com.rackspace.papi.commons.util.string;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.jvnet.jaxb2_commons.locator.ObjectLocator;
-import static org.mockito.Mockito.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 /**
  *

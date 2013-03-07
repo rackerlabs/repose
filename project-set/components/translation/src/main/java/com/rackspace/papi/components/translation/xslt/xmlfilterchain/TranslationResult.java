@@ -4,18 +4,15 @@ import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.components.translation.httpx.HttpxMarshaller;
 import com.rackspace.papi.components.translation.xslt.XsltParameter;
 import com.rackspace.papi.filter.logic.FilterDirector;
+import org.openrepose.repose.httpx.v1.*;
+import org.slf4j.Logger;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import org.openrepose.repose.httpx.v1.Headers;
-import org.openrepose.repose.httpx.v1.NameValuePair;
-import org.openrepose.repose.httpx.v1.QualityNameValuePair;
-import org.openrepose.repose.httpx.v1.QueryParameters;
-import org.openrepose.repose.httpx.v1.RequestInformation;
-import org.slf4j.Logger;
 
 public class TranslationResult {
 

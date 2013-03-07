@@ -8,13 +8,16 @@ import com.rackspace.papi.commons.util.http.header.HeaderValueImpl;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.filter.logic.FilterDirector;
-import java.util.ArrayList;
-import java.util.List;
-import javax.servlet.FilterChain;
-import org.junit.*;
-import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import javax.servlet.FilterChain;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)
@@ -42,15 +45,15 @@ public class ApiValidatorHandlerTest {
             response = mock(MutableHttpServletResponse.class);
 
             defaultValidator = mock(Validator.class);
-            defaultValidatorInfo = new ValidatorInfo("defaultrole", "defaultwadl", null);
+            defaultValidatorInfo = new ValidatorInfo("defaultrole", "defaultwadl", null, null);
             defaultValidatorInfo.setValidator(defaultValidator);
             
             role1Validator = mock(Validator.class);
-            role1ValidatorInfo = new ValidatorInfo("role1", "role1wadl", null);
+            role1ValidatorInfo = new ValidatorInfo("role1", "role1wadl", null, null);
             role1ValidatorInfo.setValidator(role1Validator);
             
             role2Validator = mock(Validator.class);
-            role2ValidatorInfo = new ValidatorInfo("role2", "role2wadl", null);
+            role2ValidatorInfo = new ValidatorInfo("role2", "role2wadl", null, null);
             role2ValidatorInfo.setValidator(role2Validator);
             
             nullValidatorInfo = mock(ValidatorInfo.class);
@@ -59,7 +62,7 @@ public class ApiValidatorHandlerTest {
             
             blowupValidator = mock(Validator.class);
             when(blowupValidator.validate(request, response, chain)).thenThrow(new RuntimeException("Test"));
-            blowupValidatorInfo = new ValidatorInfo("blowupValidator", "blowupWadl", null);
+            blowupValidatorInfo = new ValidatorInfo("blowupValidator", "blowupWadl", null, null);
             blowupValidatorInfo.setValidator(blowupValidator);
 
             List<ValidatorInfo> validators = new ArrayList<ValidatorInfo>();

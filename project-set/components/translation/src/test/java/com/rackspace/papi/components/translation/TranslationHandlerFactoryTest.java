@@ -1,19 +1,15 @@
 package com.rackspace.papi.components.translation;
 
-import com.rackspace.papi.components.translation.config.RequestTranslation;
-import com.rackspace.papi.components.translation.config.RequestTranslations;
-import com.rackspace.papi.components.translation.config.ResponseTranslation;
-import com.rackspace.papi.components.translation.config.ResponseTranslations;
-import com.rackspace.papi.components.translation.config.StyleSheet;
-import com.rackspace.papi.components.translation.config.StyleSheets;
-import com.rackspace.papi.components.translation.config.TranslationConfig;
+import com.rackspace.papi.components.translation.config.*;
 import com.rackspace.papi.service.config.ConfigurationService;
 import org.junit.Before;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
-import static org.mockito.Mockito.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.mockito.Mockito.mock;
 
 @RunWith(Enclosed.class)
 public class TranslationHandlerFactoryTest {

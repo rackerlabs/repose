@@ -1,26 +1,8 @@
 package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
-import com.rackspace.papi.components.translation.httpx.HttpxMarshaller;
-import com.rackspace.papi.components.translation.resolvers.ClassPathUriResolver;
-import com.rackspace.papi.components.translation.resolvers.HttpxUriInputParameterResolver;
-import com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver;
-import com.rackspace.papi.components.translation.resolvers.OutputStreamUriParameterResolver;
-import com.rackspace.papi.components.translation.resolvers.SourceUriResolverChain;
+import com.rackspace.papi.components.translation.resolvers.*;
 import com.rackspace.papi.components.translation.xslt.XsltException;
 import com.rackspace.papi.components.translation.xslt.XsltParameter;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.List;
-import java.util.Properties;
-import java.util.UUID;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.URIResolver;
-import javax.xml.transform.sax.SAXSource;
-import javax.xml.transform.stream.StreamResult;
 import net.sf.saxon.Controller;
 import net.sf.saxon.lib.OutputURIResolver;
 import org.apache.xalan.transformer.TrAXFilter;
@@ -30,6 +12,20 @@ import org.openrepose.repose.httpx.v1.RequestInformation;
 import org.slf4j.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.URIResolver;
+import javax.xml.transform.sax.SAXSource;
+import javax.xml.transform.stream.StreamResult;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Properties;
+import java.util.UUID;
 
 public class XmlFilterChainExecutor {
 
@@ -133,6 +129,8 @@ public class XmlFilterChainExecutor {
       resolver.clearStreams();
 
       if (outputs != null && outputs.size() > 0) {
+
+        String uniqueId = UUID.randomUUID().toString();
 
         for (XsltParameter<? extends OutputStream> output : outputs) {
           

@@ -2,10 +2,11 @@ package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
 import com.rackspace.papi.components.translation.xslt.XsltException;
 import com.rackspace.papi.components.translation.xslt.XsltParameter;
+
+import javax.xml.transform.sax.SAXTransformerFactory;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-import javax.xml.transform.sax.SAXTransformerFactory;
 
 public class XmlFilterChain {
 

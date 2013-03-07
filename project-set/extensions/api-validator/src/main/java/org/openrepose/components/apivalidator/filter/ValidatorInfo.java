@@ -2,13 +2,15 @@ package org.openrepose.components.apivalidator.filter;
 
 import com.rackspace.com.papi.components.checker.Config;
 import com.rackspace.com.papi.components.checker.Validator;
-import javax.xml.transform.Source;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.sax.SAXSource;
+import com.rackspace.papi.commons.util.StringUtilities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
+
+import javax.xml.transform.Source;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.sax.SAXSource;
 
 public class ValidatorInfo {
 
@@ -19,21 +21,32 @@ public class ValidatorInfo {
     private Validator validator;
     private final Node wadl;
     private final String systemId;
+    private final String name;
 
-    public ValidatorInfo(String role, String wadlUri, Config config) {
+    public ValidatorInfo(String role, String wadlUri, Config config, String name) {
         this.uri = wadlUri;
         this.role = role;
         this.config = config;
         this.wadl = null;
         this.systemId = null;
+        if (StringUtilities.isEmpty(name)) {
+            this.name = role;
+        } else {
+            this.name = name;
+        }
     }
 
-    public ValidatorInfo(String role, Node wadl, String systemId, Config config) {
+    public ValidatorInfo(String role, Node wadl, String systemId, Config config, String name) {
         this.role = role;
         this.config = config;
         this.wadl = wadl;
         this.systemId = systemId;
         this.uri = null;
+        if (StringUtilities.isEmpty(name)) {
+            this.name = role;
+        } else {
+            this.name = name;
+        }
     }
 
     private Source getSource() {
@@ -56,7 +69,7 @@ public class ValidatorInfo {
         }
 
         try {
-            validator = Validator.apply(getSource(), config);
+            validator = Validator.apply(name + System.currentTimeMillis(), getSource(), config);
             return true;
         } catch (Throwable ex) {
             LOG.warn("Error loading validator for WADL: " + uri, ex);
@@ -94,5 +107,9 @@ public class ValidatorInfo {
 
     public String getUri() {
         return uri;
+    }
+
+    public String getName() {
+        return name;
     }
 }

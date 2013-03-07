@@ -1,10 +1,10 @@
 package com.rackspace.papi.components.translation.resolvers;
 
-import java.util.ArrayList;
-import java.util.List;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SourceUriResolverChain extends SourceUriResolver {
 

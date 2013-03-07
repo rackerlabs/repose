@@ -1,32 +1,8 @@
 package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
-import com.rackspace.papi.components.translation.resolvers.ClassPathUriResolver;
-import com.rackspace.papi.components.translation.resolvers.HttpxUriInputParameterResolver;
-import com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver;
-import com.rackspace.papi.components.translation.resolvers.SourceUriResolver;
-import com.rackspace.papi.components.translation.resolvers.SourceUriResolverChain;
+import com.rackspace.papi.components.translation.resolvers.*;
 import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;
 import com.rackspace.papi.components.translation.xslt.XsltException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import javax.xml.XMLConstants;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.URIResolver;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.sax.SAXTransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 import net.sf.saxon.lib.FeatureKeys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,6 +10,23 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
+
+import javax.xml.XMLConstants;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 public class XmlFilterChainBuilder {
 

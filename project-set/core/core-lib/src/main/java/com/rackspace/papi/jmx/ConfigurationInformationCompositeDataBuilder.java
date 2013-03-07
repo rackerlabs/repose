@@ -1,12 +1,11 @@
 package com.rackspace.papi.jmx;
 
-import com.rackspace.papi.service.reporting.jmx.*;
+import com.rackspace.papi.service.reporting.jmx.CompositeDataBuilder;
 
 import javax.management.openmbean.OpenType;
 import javax.management.openmbean.SimpleType;
 import java.util.ArrayList;
 import java.util.List;
-import javax.management.openmbean.CompositeType;
 
 public class ConfigurationInformationCompositeDataBuilder extends CompositeDataBuilder {
 
