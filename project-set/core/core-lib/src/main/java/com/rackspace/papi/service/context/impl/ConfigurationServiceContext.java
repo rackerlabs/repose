@@ -2,10 +2,12 @@ package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.commons.config.resource.impl.FileDirectoryResourceResolver;
 import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.jmx.ConfigurationInformation;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.config.impl.PowerApiConfigurationUpdateManager;
 import com.rackspace.papi.service.context.ServiceContext;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.service.event.common.EventService;
 import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.servlet.PowerApiContextException;
@@ -45,6 +47,7 @@ public class ConfigurationServiceContext implements ServiceContext<Configuration
     @Override
     public String getServiceName() {
         return SERVICE_NAME;
+               
     }
 
     @Override
@@ -66,6 +69,7 @@ public class ConfigurationServiceContext implements ServiceContext<Configuration
         }
 
         configurationManager.setResourceResolver(new FileDirectoryResourceResolver(configurationRoot));
+        configurationManager.setConfigurationInformation((ConfigurationInformation)ServletContextHelper.getInstance(ctx).getPowerApiContext().reposeConfigurationInformation());
 
         final PowerApiConfigurationUpdateManager papiUpdateManager = new PowerApiConfigurationUpdateManager(eventService);
         papiUpdateManager.initialize(ctx);

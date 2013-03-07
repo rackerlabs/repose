@@ -150,7 +150,7 @@ public class PowerFilter extends ApplicationContextAwareFilter {
 
         papiContext.eventService().listen(applicationDeploymentListener, ApplicationDeploymentEvent.APPLICATION_COLLECTION_MODIFIED);
         URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
-        papiContext.configurationService().subscribeTo("system-model.cfg.xml", xsdURL, systemModelConfigurationListener, SystemModel.class);
+        papiContext.configurationService().subscribeTo("","system-model.cfg.xml", xsdURL, systemModelConfigurationListener, SystemModel.class);
 
         filterConfig.getServletContext().setAttribute("powerFilter", this);
 

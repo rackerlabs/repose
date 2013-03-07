@@ -41,6 +41,6 @@ public class HttpLoggingFilter implements Filter {
         handlerFactory = new HttpLoggingHandlerFactory();
         manager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/http-logging-configuration.xsd");
-        manager.subscribeTo(config,xsdURL, handlerFactory, HttpLoggingConfig.class);
+        manager.subscribeTo(filterConfig.getFilterName(),config,xsdURL, handlerFactory, HttpLoggingConfig.class);
     }
 }

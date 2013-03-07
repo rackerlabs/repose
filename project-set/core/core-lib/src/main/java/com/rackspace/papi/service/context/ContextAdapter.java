@@ -33,6 +33,7 @@ public interface ContextAdapter {
     RequestHeaderService requestHeaderService();
     ResponseHeaderService responseHeaderService();
     <T> T filterChainBuilder();
+    <T> T  reposeConfigurationInformation();
     
    <T extends ServiceContext<?>> T getContext(Class<T> clazz);
 

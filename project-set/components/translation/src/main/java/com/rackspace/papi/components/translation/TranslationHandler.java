@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.translation;
 
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
 import com.rackspace.papi.commons.util.http.media.MediaRangeProcessor;
@@ -20,11 +21,12 @@ import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import com.rackspace.papi.httpx.processor.TranslationPreProcessor;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 
 public class TranslationHandler extends AbstractFilterLogicHandler {
 
@@ -58,8 +60,9 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
 
     return null;
   }
-  
+
   private enum TranslationType {
+
     REQUEST,
     RESPONSE
   }
@@ -70,7 +73,7 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
     inputs.add(new XsltParameter("response", response));
     inputs.add(new XsltParameter("requestId", request.getRequestId()));
     inputs.add(new XsltParameter("responseId", response.getResponseId()));
-    
+
     final String id;
     if (type == TranslationType.REQUEST) {
       id = request.getRequestId();
@@ -93,8 +96,8 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
     return processor.process();
   }
 
-  private MediaType getContentType(String contentType) {
-    MimeType contentMimeType = MimeType.getMatchingMimeType(contentType);
+  private MediaType getContentType(HeaderValue contentType) {
+    MimeType contentMimeType = MimeType.getMatchingMimeType(contentType != null ? contentType.getValue() : "");
     return new MediaType(contentMimeType);
   }
 
@@ -104,7 +107,7 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
     MutableHttpServletResponse response = MutableHttpServletResponse.wrap(httpRequest, httpResponse);
     final FilterDirector filterDirector = new FilterDirectorImpl();
     filterDirector.setFilterAction(FilterAction.PASS);
-    MediaType contentType = getContentType(response.getHeader("Content-Type"));
+    MediaType contentType = getContentType(response.getHeaderValue("Content-Type"));
     List<MediaType> acceptValues = getAcceptValues(request.getPreferredHeaders("Accept", DEFAULT_TYPE));
     XmlChainPool pool = getHandlerChainPool("", contentType, acceptValues, String.valueOf(response.getStatus()), responseProcessors);
 
@@ -121,7 +124,9 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
 
             if (result.isSuccess()) {
               result.applyResults(filterDirector);
-              filterDirector.responseHeaderManager().putHeader("Content-Type", pool.getResultContentType());
+              if (StringUtilities.isNotBlank(pool.getResultContentType())) {
+                filterDirector.requestHeaderManager().putHeader("content-type", pool.getResultContentType());
+              }
             } else {
               filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
               response.setContentLength(0);
@@ -146,7 +151,7 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
     MutableHttpServletRequest request = MutableHttpServletRequest.wrap(httpRequest);
     MutableHttpServletResponse response = MutableHttpServletResponse.wrap(httpRequest, httpResponse);
     FilterDirector filterDirector = new FilterDirectorImpl();
-    MediaType contentType = getContentType(request.getHeader("content-type"));
+    MediaType contentType = getContentType(request.getHeaderValue("content-type"));
     List<MediaType> acceptValues = getAcceptValues(request.getPreferredHeaders("Accept", DEFAULT_TYPE));
     XmlChainPool pool = getHandlerChainPool(request.getMethod(), contentType, acceptValues, "", requestProcessors);
 
@@ -161,7 +166,9 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
         if (result.isSuccess()) {
           request.setInputStream(new ByteBufferInputStream(internalBuffer));
           result.applyResults(filterDirector);
-          filterDirector.requestHeaderManager().putHeader("content-type", pool.getResultContentType());
+          if (StringUtilities.isNotBlank(pool.getResultContentType())) {
+            filterDirector.requestHeaderManager().putHeader("content-type", pool.getResultContentType());
+          }
           filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
         } else {
           filterDirector.setResponseStatus(HttpStatusCode.BAD_REQUEST);

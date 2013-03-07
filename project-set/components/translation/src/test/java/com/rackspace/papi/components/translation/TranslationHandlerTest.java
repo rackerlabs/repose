@@ -116,7 +116,7 @@ public class TranslationHandlerTest {
 
             FilterDirector director = handler.handleResponse(mutableHttpRequest, mutableHttpResponse);
             String actual = director.getResponseMessageBody();
-            final String expected = "<add-me>\n   <root/>\n</add-me>\n";
+            final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add-me xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><root/></add-me>";
 
             Diff diff1 = new Diff(expected, actual);
 
@@ -137,8 +137,8 @@ public class TranslationHandlerTest {
 
             FilterDirector director = handler.handleResponse(mutableHttpRequest, mutableHttpResponse);
             String actual = director.getResponseMessageBody();
-            final String expected = "<add-me>\n   <root>\n    This is  a test.\n</root>\n</add-me>";
-
+            final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add-me xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><root>\n    This is  a test.\n</root></add-me>";
+            
             Diff diff1 = new Diff(expected, actual);
 
             assertEquals(director.getFilterAction(), FilterAction.PASS);
@@ -270,7 +270,7 @@ public class TranslationHandlerTest {
 
             FilterDirector director = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
             String actual = new String(RawInputStreamReader.instance().readFully(mutableHttpRequest.getInputStream()));
-            final String expected = "<add-me>\n   <root/>\n</add-me>\n";
+            final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add-me><root/></add-me>";
 
             Diff diff1 = new Diff(expected, actual);
 
@@ -290,7 +290,7 @@ public class TranslationHandlerTest {
 
             FilterDirector director = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
             String actual = new String(RawInputStreamReader.instance().readFully(mutableHttpRequest.getInputStream()));
-            final String expected = "<add-me>\n   <root>\n    This is  a test.\n</root>\n</add-me>";
+            final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add-me xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><root>\n    This is  a test.\n</root></add-me>";
 
             Diff diff1 = new Diff(expected, actual);
 

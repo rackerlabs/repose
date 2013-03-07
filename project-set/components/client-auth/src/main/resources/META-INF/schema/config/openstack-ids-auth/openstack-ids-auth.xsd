@@ -61,7 +61,7 @@
                 </xs:annotation>
             </xs:attribute>
             <!-- Review assertion -->
-            <xs:assert vc:minVersion="1.1" test="if (xs:boolean(@tenanted)) then os-ids-auth:client-mapping else true()"
+            <xs:assert vc:minVersion="1.1" test="xs:boolean(@tenanted) eq true() and count(os-ids-auth:client-mapping) > 0 or xs:boolean(@tenanted) eq false()"
                        xerces:message="If tenanted = true then there should be at least one client mapping."
                        saxon:message="If tenanted = true then there should be at least one client mapping."/>
         </xs:complexType>

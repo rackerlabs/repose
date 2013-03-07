@@ -36,6 +36,6 @@ public class HeaderIdMappingFilter implements Filter {
         configurationManager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
         handlerFactory = new HeaderIdMappingHandlerFactory();
           URL xsdURL = getClass().getResource("/META-INF/schema/config/header-id-mapping-configuration.xsd");
-        configurationManager.subscribeTo(config,xsdURL, handlerFactory, HeaderIdMappingConfig.class);
+        configurationManager.subscribeTo(filterConfig.getFilterName(),config,xsdURL, handlerFactory, HeaderIdMappingConfig.class);
     }
 }

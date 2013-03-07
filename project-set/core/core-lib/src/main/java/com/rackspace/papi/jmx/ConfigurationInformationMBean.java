@@ -8,4 +8,5 @@ public interface ConfigurationInformationMBean {
     String OBJECT_NAME = "com.rackspace.papi.jmx:type=ConfigurationInformation";
 
     List<CompositeData> getFilterChain() throws OpenDataException;
+
 }

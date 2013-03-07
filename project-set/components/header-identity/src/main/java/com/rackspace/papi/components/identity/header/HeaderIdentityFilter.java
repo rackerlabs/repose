@@ -37,6 +37,6 @@ public class HeaderIdentityFilter implements Filter {
         configurationManager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
         handlerFactory = new HeaderIdentityHandlerFactory();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/header-identity-configuration.xsd");
-        configurationManager.subscribeTo(config,xsdURL, handlerFactory, HeaderIdentityConfig.class);
+        configurationManager.subscribeTo(filterConfig.getFilterName(),config,xsdURL, handlerFactory, HeaderIdentityConfig.class);
     }
 }

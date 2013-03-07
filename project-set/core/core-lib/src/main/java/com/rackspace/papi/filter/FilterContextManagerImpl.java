@@ -4,6 +4,8 @@ import com.oracle.javaee6.FilterType;
 import com.oracle.javaee6.ParamValueType;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.model.Filter;
+import com.rackspace.papi.service.context.ContextAdapter;
+import com.rackspace.papi.service.context.ServletContextHelper;
 import java.util.*;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;
@@ -98,12 +100,14 @@ public class FilterContextManagerImpl implements FilterContextManager {
         final Thread currentThread = Thread.currentThread();
         final ClassLoader previousClassLoader = currentThread.getContextClassLoader();
         final ClassLoader nextClassLoader = filterClassFactory.getClassLoader();
-
+       
         try {
             currentThread.setContextClassLoader(nextClassLoader);
             final javax.servlet.Filter newFilterInstance = filterClassFactory.newInstance(applicationContext);
 
             newFilterInstance.init(new FilterConfigWrapper(filterConfig, filterClassFactory.getFilterType(), filter.getConfiguration()));
+            
+          
 
             LOG.info("Filter: " + newFilterInstance + " successfully created");
 

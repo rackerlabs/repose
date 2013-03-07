@@ -7,6 +7,7 @@ import com.rackspace.papi.commons.config.parser.ConfigurationParserFactory;
 import com.rackspace.papi.commons.config.parser.common.ConfigurationParser;
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.config.resource.ConfigurationResourceResolver;
+import com.rackspace.papi.jmx.ConfigurationInformation;
 import com.rackspace.papi.service.config.ConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 import java.io.FileNotFoundException;
 import java.lang.ref.WeakReference;
 import java.net.URL;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +29,18 @@ public class PowerApiConfigurationManager implements ConfigurationService {
     private final Map<Class, WeakReference<ConfigurationParser>> parserLookaside;
     private ConfigurationUpdateManager updateManager;
     private ConfigurationResourceResolver resourceResolver;
+    private ConfigurationInformation configurationInformation;
+
+    @Override
+    public ConfigurationInformation getConfigurationInformation() {
+        return configurationInformation;
+    }
+
+    @Override
+    public void setConfigurationInformation(ConfigurationInformation configurationInformation) {
+        this.configurationInformation = configurationInformation;
+    }
+
 
     @Autowired
     public PowerApiConfigurationManager(@Qualifier("reposeVersion") String version) {
@@ -46,40 +60,68 @@ public class PowerApiConfigurationManager implements ConfigurationService {
     }
 
     @Override
+    public ConfigurationResourceResolver getResourceResolver() {
+        return this.resourceResolver;
+    }
+    
+    @Override
     public void setUpdateManager(ConfigurationUpdateManager updateManager) {
         this.updateManager = updateManager;
     }
     
-      @Override
+   @Override
     public <T> void subscribeTo(String configurationName,  UpdateListener<T> listener, Class<T> configurationClass) {
-        subscribeTo(configurationName, listener, getPooledJaxbConfigurationParser(configurationClass, null),true);
+        subscribeTo("",configurationName, listener, getPooledJaxbConfigurationParser(configurationClass, null),true);
        
     }
-
+    
+    @Override
+    public <T> void subscribeTo(String filterName,String configurationName,  UpdateListener<T> listener, Class<T> configurationClass) {
+        subscribeTo(filterName,configurationName, listener, getPooledJaxbConfigurationParser(configurationClass, null),true);
+       
+    }
+   
     @Override
     public <T> void subscribeTo(String configurationName, URL xsdStreamSource, UpdateListener<T> listener, Class<T> configurationClass) {
-        subscribeTo(configurationName, listener, getPooledJaxbConfigurationParser(configurationClass, xsdStreamSource),true);
+        subscribeTo("",configurationName, listener, getPooledJaxbConfigurationParser(configurationClass, xsdStreamSource),true);
        
         
     }
 
     @Override
-    public <T> void subscribeTo(String configurationName, UpdateListener<T> listener, ConfigurationParser<T> customParser) {
-        subscribeTo(configurationName, listener, customParser, true);
+    public <T> void subscribeTo(String filterName,String configurationName, URL xsdStreamSource, UpdateListener<T> listener, Class<T> configurationClass) {
+        subscribeTo(filterName,configurationName, listener, getPooledJaxbConfigurationParser(configurationClass, xsdStreamSource),true);
+       
+        
+    }
+        
+
+    @Override
+    public <T> void subscribeTo(String filterName,String configurationName, UpdateListener<T> listener, ConfigurationParser<T> customParser) {
+        subscribeTo(filterName,configurationName, listener, customParser, true);
     }
 
     @Override
-    public <T> void subscribeTo(String configurationName, UpdateListener<T> listener, ConfigurationParser<T> customParser, boolean sendNotificationNow) {
+    public <T> void subscribeTo(String filterName,String configurationName, UpdateListener<T> listener, ConfigurationParser<T> customParser, boolean sendNotificationNow) {
         final ConfigurationResource resource = resourceResolver.resolve(configurationName);
-        updateManager.registerListener(listener, resource, customParser);
-
+         updateManager.registerListener(listener, resource, customParser,filterName); 
         if (sendNotificationNow) {
             // Initial load of the cfg object
             try {
+                                          
                 listener.configurationUpdated(customParser.read(resource));
-            } catch (Exception ex) {
-
-                // TODO:Refactor - Introduce a helper method so that this logic can be centralized and reused
+           
+                if(filterName!=null && !filterName.isEmpty() && listener.isInitialized()){
+                     getConfigurationInformation().setFilterLoadingInformation(filterName,listener.isInitialized(), resource);
+                }else{
+                       getConfigurationInformation().setFilterLoadingFailedInformation(filterName, resource,"Failed loading File"); 
+                }
+                
+                } catch (Exception ex) {
+                    if(filterName!=null && !filterName.isEmpty()){
+                     getConfigurationInformation().setFilterLoadingFailedInformation(filterName, resource, ex.getMessage()); 
+                    }
+                   // TODO:Refactor - Introduce a helper method so that this logic can be centralized and reused
                 if (ex.getCause() instanceof FileNotFoundException) {
                     LOG.error("An I/O error has occured while processing resource " + configurationName + " that is used by filter specified in system-model.cfg.xml - Reason: " + ex.getCause().getMessage());
                  
@@ -112,4 +154,5 @@ public class PowerApiConfigurationManager implements ConfigurationService {
 
         return parser;
     }
+   
 }

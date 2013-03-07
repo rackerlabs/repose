@@ -29,6 +29,6 @@ public class ContentIdentityAuthFilter implements Filter {
         configurationManager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
         handlerFactory = new ContentIdentityAuthHandlerFactory();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/content-identity-auth-2.0-configuration.xsd");
-        configurationManager.subscribeTo("content-identity-auth-2-0.cfg.xml",xsdURL, handlerFactory, ContentIdentityAuthConfig.class);
+        configurationManager.subscribeTo(filterConfig.getFilterName(),"content-identity-auth-2-0.cfg.xml",xsdURL, handlerFactory, ContentIdentityAuthConfig.class);
     }
 }

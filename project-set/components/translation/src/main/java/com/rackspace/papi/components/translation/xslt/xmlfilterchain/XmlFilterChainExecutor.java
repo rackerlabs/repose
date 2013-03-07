@@ -1,18 +1,15 @@
 package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
-import com.rackspace.papi.components.translation.httpx.HttpxMarshaller;
-import com.rackspace.papi.components.translation.resolvers.ClassPathUriResolver;
-import com.rackspace.papi.components.translation.resolvers.HttpxUriInputParameterResolver;
-import com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver;
-import com.rackspace.papi.components.translation.resolvers.OutputStreamUriParameterResolver;
-import com.rackspace.papi.components.translation.resolvers.SourceUriResolverChain;
+import com.rackspace.papi.components.translation.resolvers.*;
 import com.rackspace.papi.components.translation.xslt.XsltException;
 import com.rackspace.papi.components.translation.xslt.XsltParameter;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.List;
-import java.util.Properties;
-import java.util.UUID;
+import net.sf.saxon.Controller;
+import net.sf.saxon.lib.OutputURIResolver;
+import org.apache.xalan.transformer.TrAXFilter;
+import org.slf4j.Logger;
+import org.xml.sax.InputSource;
+import org.xml.sax.XMLReader;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.transform.OutputKeys;
@@ -21,12 +18,11 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.sax.SAXSource;
 import javax.xml.transform.stream.StreamResult;
-import net.sf.saxon.Controller;
-import net.sf.saxon.lib.OutputURIResolver;
-import org.apache.xalan.transformer.TrAXFilter;
-import org.slf4j.Logger;
-import org.xml.sax.InputSource;
-import org.xml.sax.XMLReader;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.List;
+import java.util.Properties;
+import java.util.UUID;
 
 public class XmlFilterChainExecutor {
 
@@ -34,15 +30,13 @@ public class XmlFilterChainExecutor {
   private static final String REQUEST_ID_PARAM = "requestId";
   private final XmlFilterChain chain;
   private final Properties format = new Properties();
-  private final HttpxMarshaller marshaller;
+ 
 
   public XmlFilterChainExecutor(XmlFilterChain chain) {
     this.chain = chain;
-    marshaller = new HttpxMarshaller();
-    format.put(OutputKeys.METHOD, "xml");
     format.put(OutputKeys.OMIT_XML_DECLARATION, "yes");
     format.put(OutputKeys.ENCODING, "UTF-8");
-    format.put(OutputKeys.INDENT, "yes");
+   
   }
 
   protected SourceUriResolverChain getResolverChain(Transformer transformer) {
@@ -94,7 +88,7 @@ public class XmlFilterChainExecutor {
     resolver.clearStreams();
     
     if (inputs != null && inputs.size() > 0) {
-      String uniqueId = getRequestId(inputs);
+ 
       HttpxUriInputParameterResolver headersResolver = resolverChain.getResolverOfType(HttpxUriInputParameterResolver.class);
       headersResolver.reset();
 
@@ -111,11 +105,9 @@ public class XmlFilterChainExecutor {
             param = input.getValue() != null? input.getValue().toString(): null;
           }
 
-          if (param == null) {
-            continue;
+          if (param != null) {
+                  transformer.setParameter(input.getName(), param);
           }
-
-          transformer.setParameter(input.getName(), param);
         }
       }
     }
@@ -132,7 +124,7 @@ public class XmlFilterChainExecutor {
         String uniqueId = UUID.randomUUID().toString();
 
         for (XsltParameter<? extends OutputStream> output : outputs) {
-          //String paramName = OutputStreamUriParameterResolver.PREFIX + output.getName() + ":" + uniqueId;
+          
           String paramName = resolver.addStream(output.getValue(), output.getName());
           transformer.setParameter("headersOutputUri", paramName);
         }

@@ -7,6 +7,12 @@ import com.rackspace.papi.commons.config.resource.ConfigurationResource;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import com.rackspace.papi.service.config.ConfigurationService;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.w3c.dom.Element;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -14,14 +20,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorConfiguration;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.w3c.dom.Element;
 
 public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerFactory<ApiValidatorHandler> {
-
+    
+  
     private static final Logger LOG = LoggerFactory.getLogger(ApiValidatorHandlerFactory.class);
     private ValidatorConfiguration validatorConfiguration;
     private ValidatorInfo defaultValidator;
@@ -88,10 +90,15 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                     return;
                 }
                 boolean found = false;
+                boolean loadedWADL=true;
 
                 for (ValidatorInfo info : validators) {
                     if (info.getUri() != null && getNormalizedPath(info.getUri()).equals(config.name())) {
-                        info.reinitValidator();
+                        if(loadedWADL){
+                          loadedWADL=info.reinitValidator();
+                        }else{
+                           info.reinitValidator(); 
+                        }
                         found = true;
                     }
                 }
@@ -102,9 +109,13 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                     for (ValidatorInfo info : validators) {
                         info.reinitValidator();
                     }
+                }if(!loadedWADL){
+                   isInitialized=false;
+                }else{
+                   isInitialized=true;
                 }
             }
-             isInitialized=true;
+             
         }
           
        @Override
@@ -121,7 +132,7 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
         }
 
         LOG.info("Watching WADL: " + wadl);
-        manager.subscribeTo(wadl, wadlListener, new GenericResourceConfigurationParser());
+        manager.subscribeTo("api-validator",wadl, wadlListener, new GenericResourceConfigurationParser());
     }
 
     String getWadlPath(String uri) {
@@ -142,8 +153,10 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                 Config configuration = new ValidatorConfigurator(validatorItem, multiRoleMatch, configRoot).getConfiguration();
                 ValidatorInfo validator =
                         validatorItem.getAny() != null
-                        ? new ValidatorInfo(validatorItem.getRole(), (Element) validatorItem.getAny(), getWadlPath(this.config), configuration)
-                        : new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), configuration);
+                        ? new ValidatorInfo(validatorItem.getRole(), (Element) validatorItem.getAny(), getWadlPath(this.config), configuration,
+                                validatorItem.getValidatorName())
+                        : new ValidatorInfo(validatorItem.getRole(), getWadlPath(validatorItem.getWadl()), configuration,
+                                validatorItem.getValidatorName());
 
                 validators.add(validator);
                 if (validatorItem.isDefault() && defaultValidator == null) {

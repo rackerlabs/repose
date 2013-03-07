@@ -97,10 +97,20 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
       if (configuration.getResponseTranslations() != null) {
         for (final ResponseTranslation translation : configuration.getResponseTranslations().getResponseTranslation()) {
+          addStyleSheetsToWatchList(translation);
+        }
+      }
 
+      if (configuration.getRequestTranslations() != null) {
+        for (final RequestTranslation translation : configuration.getRequestTranslations().getRequestTranslation()) {
+          addStyleSheetsToWatchList(translation);
+        }
+      }
+
+      if (configuration.getResponseTranslations() != null) {
+        for (final ResponseTranslation translation : configuration.getResponseTranslations().getResponseTranslation()) {
           List<XsltParameter> params = buildXslParamList(translation);
           Pool<XmlFilterChain> pool = buildChainPool(translation);
-          addStyleSheetsToWatchList(translation);
 
           responseProcessorPools.add(new XmlChainPool(
                   translation.getContentType(),
@@ -118,7 +128,6 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
 
           List<XsltParameter> params = buildXslParamList(translation);
           Pool<XmlFilterChain> pool = buildChainPool(translation);
-          addStyleSheetsToWatchList(translation);
 
           requestProcessorPools.add(new XmlChainPool(
                   translation.getContentType(),
@@ -143,9 +152,12 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
       synchronized (lock) {
         configuration = newConfig;
         xslListener.unsubscribe();
-        xsltChainBuilder = new XmlFilterChainBuilder(transformerFactory, false);
-        buildProcessorPools();
-        xslListener.listen();
+        try {
+          xsltChainBuilder = new XmlFilterChainBuilder(transformerFactory, false, configuration.isAllowDoctypeDecl());
+          buildProcessorPools();
+        } finally {
+          xslListener.listen();
+        }
       }
       isInitialized = true;
     }

@@ -1,9 +1,11 @@
 package com.rackspace.papi.commons.util.classloader.digest;
 
 import com.rackspace.papi.commons.util.pooling.*;
+import java.io.InputStream;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+
 
 /**
  *
@@ -38,6 +40,8 @@ public final class Sha1Digester {
             }
         });
     }
+    
+
 
     public byte[] getDigest() {
         return (byte[])digest.clone();

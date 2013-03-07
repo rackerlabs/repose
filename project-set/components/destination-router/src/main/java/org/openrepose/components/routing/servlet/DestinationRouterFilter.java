@@ -38,7 +38,7 @@ public class DestinationRouterFilter implements Filter {
         LOG.info("Initializing filter using config " + config);
         handlerFactory = new DestinationRouterHandlerFactory();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/destination-router-configuration.xsd");
-        manager.subscribeTo("system-model.cfg.xml", handlerFactory, SystemModel.class);
-        manager.subscribeTo(config,xsdURL, handlerFactory, DestinationRouterConfiguration.class);
+        manager.subscribeTo(filterConfig.getFilterName(),"system-model.cfg.xml", handlerFactory, SystemModel.class);
+        manager.subscribeTo(filterConfig.getFilterName(),config,xsdURL, handlerFactory, DestinationRouterConfiguration.class);
     }
 }

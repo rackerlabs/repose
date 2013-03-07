@@ -7,6 +7,7 @@ import com.rackspace.papi.service.event.common.EventListener;
 import org.slf4j.Logger;
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,15 +35,24 @@ public class PowerApiUpdateManagerEventListener implements EventListener<Configu
 
         for (ParserListenerPair parserListener : listeners.values()) {
             UpdateListener updateListener = parserListener.getListener();
-
+           
             if (updateListener != null) {
                 LOG.info("Notifying " + updateListener.getClass().getName());
                 
                 currentThread.setContextClassLoader(parserListener.getClassLoader());
                 try {
                     configUpdate(updateListener, parserListener.getParser().read(e.payload()));
+                   if(parserListener.getFilterName()!=null && !parserListener.getFilterName().isEmpty() && updateListener.isInitialized() ){
+                    parserListener.getConfigurationInformation().setFilterLoadingInformation(parserListener.getFilterName(),updateListener.isInitialized(), e.payload());
+                   }else{
+                       parserListener.getConfigurationInformation().setFilterLoadingFailedInformation(parserListener.getFilterName(), e.payload(), "Failed loading File"); 
+                   }
                 }catch(Exception ex){
-                    LOG.error("Configuration update error. Reason: " + ex.getMessage(), ex);
+                    
+                   if(parserListener.getFilterName()!=null && !parserListener.getFilterName().isEmpty()){
+                    parserListener.getConfigurationInformation().setFilterLoadingFailedInformation(parserListener.getFilterName(), e.payload(), ex.getMessage()); 
+                   }
+                   LOG.error("Configuration update error. Reason: " + ex.getMessage(), ex);
                    
                 } finally {
                     currentThread.setContextClassLoader(previousClassLoader);

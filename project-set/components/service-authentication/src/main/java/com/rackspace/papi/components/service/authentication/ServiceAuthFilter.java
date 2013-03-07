@@ -35,6 +35,6 @@ public class ServiceAuthFilter implements Filter {
         configurationManager = ServletContextHelper.getInstance(filterConfig.getServletContext()).getPowerApiContext().configurationService();
         handlerFactory = new ServiceAuthHandlerFactory();
         URL xsdURL = getClass().getResource("/META-INF/schema/config/service-auth-configuration.xsd");
-        configurationManager.subscribeTo(config,xsdURL, handlerFactory, ServiceAuthenticationConfig.class);
+        configurationManager.subscribeTo(filterConfig.getFilterName(),config,xsdURL, handlerFactory, ServiceAuthenticationConfig.class);
     }
 }

@@ -6,6 +6,7 @@ import com.rackspace.papi.commons.util.pooling.ResourceContextException;
 import java.io.IOException;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import org.xml.sax.SAXParseException;
 
 public class UnmarshallerResourceContext implements ResourceContext<Unmarshaller, Object> {
 
@@ -22,7 +23,7 @@ public class UnmarshallerResourceContext implements ResourceContext<Unmarshaller
       try {
          return resource.unmarshal(cfgResource.newInputStream());
       } catch (JAXBException jaxbe) {
-         throw new ResourceContextException("Failed to unmarshall resource " + cfgResource.name()
+         throw new ResourceContextException("Failed to unmarshall resource " + cfgResource.name()+ " - "+jaxbe.getCause()
                  + " - Error code: "
                  + jaxbe.getErrorCode()
                  + " - Reason: "
