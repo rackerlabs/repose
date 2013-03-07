@@ -93,7 +93,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
          final HttpHost proxiedHost = getProxiedHost(targetHost);
          final String target = proxiedHost.toURI() + request.getRequestURI();
          final HttpComponentRequestProcessor processor = new HttpComponentRequestProcessor(request);
-         final HttpComponentProcessableRequest method = HttpComponentFactory.getMethod(request.getMethod(), target);
+         final HttpComponentProcessableRequest method = HttpComponentFactory.getMethod(request.getMethod(), processor.getUri(target));
          ((MutableHttpServletRequest)request).removeHeader("Content-Length");
 
          if (method != null) {
@@ -101,8 +101,10 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
             return executeProxyRequest(processedMethod, response);
          }
+      } catch (URISyntaxException ex) {
+        LOG.error("Error processing request", ex);
       } catch (HttpException ex) {
-         LOG.error("Error processing request", ex);
+        LOG.error("Error processing request", ex);
       }
 
       //Something exploded; return a status code that doesn't exist

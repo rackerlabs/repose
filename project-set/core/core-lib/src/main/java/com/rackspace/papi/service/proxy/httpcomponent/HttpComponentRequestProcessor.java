@@ -1,12 +1,18 @@
 package com.rackspace.papi.service.proxy.httpcomponent;
 
 import com.rackspace.papi.http.proxy.common.AbstractRequestProcessor;
-import java.io.IOException;
-import java.util.Enumeration;
-import javax.servlet.http.HttpServletRequest;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.params.BasicHttpParams;
+import org.apache.http.params.HttpParams;
+
+import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.Enumeration;
 
 /**
  * Process a request to copy over header values, query string parameters, and
@@ -32,11 +38,35 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
       while (names.hasMoreElements()) {
         String name = names.nextElement();
         String[] values = sourceRequest.getParameterValues(name);
+        HttpParams params = new BasicHttpParams();
+
         for (String value: values) {
-          method.getParams().setParameter(name, value);
+          params.setParameter(name, value);
+          //method.setParams(method.getParams()..setParameter(name, value));
         }
+
+        method.setParams(params);
       }
     }
+
+  private void setRequestParameters(URIBuilder builder) {
+    Enumeration<String> names = sourceRequest.getParameterNames();
+
+    while (names.hasMoreElements()) {
+      String name = names.nextElement();
+      String[] values = sourceRequest.getParameterValues(name);
+
+      for (String value: values) {
+        builder.addParameter(name, value);
+      }
+    }
+  }
+
+  public URI getUri(String target) throws URISyntaxException {
+    URIBuilder builder = new URIBuilder(target);
+    setRequestParameters(builder);
+    return builder.build();
+  }
     
     /**
      * Copy header values from source request to the http method.
@@ -71,7 +101,7 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
      */
     public HttpRequestBase process(HttpRequestBase method) {
       setHeaders(method);
-      setRequestParameters(method);
+      //setRequestParameters(method);
       return method;
 
     }
@@ -86,7 +116,7 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
      */
     public HttpRequestBase process(HttpEntityEnclosingRequestBase method) throws IOException {
       setHeaders(method);
-      setRequestParameters(method);
+      //setRequestParameters(method);
       method.setEntity(new InputStreamEntity(sourceRequest.getInputStream(), sourceRequest.getContentLength()));
       return method;
     }
