@@ -105,7 +105,7 @@
                             <conflicts>
                                 <conflict>repose-valve</conflict>
                             </conflicts>
-                            <preinstallscriptlet>
+                            <preinstallScriptlet>
                                  <script>
                                     getent group repose &gt;dev/null || groupadd -r repose
                                     getent passwd repose &gt;dev/null || \
@@ -113,7 +113,7 @@
                                     usermod -a -G repose tomcat
                                     exit 0
                                 </script>
-                            </preinstallscriptlet>
+                            </preinstallScriptlet>
                         </configuration>
                     </plugin>
                 </plugins>
