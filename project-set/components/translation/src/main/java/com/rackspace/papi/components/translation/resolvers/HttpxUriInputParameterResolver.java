@@ -2,6 +2,10 @@ package com.rackspace.papi.components.translation.resolvers;
 
 import com.rackspace.papi.components.translation.httpx.HttpxMarshaller;
 import com.rackspace.papi.components.translation.httpx.HttpxProducer;
+import org.openrepose.repose.httpx.v1.Headers;
+import org.openrepose.repose.httpx.v1.QueryParameters;
+import org.openrepose.repose.httpx.v1.RequestInformation;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.transform.Source;
@@ -17,6 +21,22 @@ public class HttpxUriInputParameterResolver extends SourceUriResolver {
   private HttpServletRequest request;
   private HttpServletResponse response;
   private HttpxProducer producer;
+  private Headers headers;
+
+  public void setHeaders(Headers headers) {
+    this.headers = headers;
+  }
+
+  public void setParams(QueryParameters params) {
+    this.params = params;
+  }
+
+  public void setRequestInformation(RequestInformation info) {
+    this.info = info;
+  }
+
+  private QueryParameters params;
+  private RequestInformation info;
   private final HttpxMarshaller marshaller;
  
 
@@ -35,6 +55,9 @@ public class HttpxUriInputParameterResolver extends SourceUriResolver {
     request = null;
     response = null;
     producer = null;
+    headers = null;
+    params = null;
+    info = null;
   }
 
   public void setRequest(HttpServletRequest request) {
@@ -53,6 +76,18 @@ public class HttpxUriInputParameterResolver extends SourceUriResolver {
       return producer;
   }
 
+  private Headers getHeaders() {
+    return headers != null? headers :  getProducer().getHeaders();
+  }
+
+  private RequestInformation getRequestInformation() {
+    return info != null? info :  getProducer().getRequestInformation();
+  }
+
+  private QueryParameters getRequestParameters() {
+    return params != null? params :  getProducer().getRequestParameters();
+  }
+
   @Override
   public Source resolve(String href, String base) throws TransformerException {
     
@@ -61,11 +96,11 @@ public class HttpxUriInputParameterResolver extends SourceUriResolver {
     }
 
     if (href.toLowerCase().startsWith(HEADERS_PREFIX)) {
-       return new StreamSource(marshaller.marshall(getProducer().getHeaders()));
+       return new StreamSource(marshaller.marshall(getHeaders()));
     } else if (href.toLowerCase().startsWith(REQUEST_INFO_PREFIX)) {
-       return new StreamSource(marshaller.marshall(getProducer().getRequestInformation()));
+       return new StreamSource(marshaller.marshall(getRequestInformation()));
     } else if (href.toLowerCase().startsWith(PARAMS_PREFIX)) {
-       return new StreamSource(marshaller.marshall(getProducer().getRequestParameters()));
+       return new StreamSource(marshaller.marshall(getRequestParameters()));
     }
 
     return super.resolve(href, base);

@@ -60,7 +60,7 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
       return null;
     }
     synchronized (lock) {
-      return new TranslationHandler(new ArrayList<XmlChainPool>(requestProcessorPools), new ArrayList<XmlChainPool>(responseProcessorPools));
+      return new TranslationHandler(new ArrayList<XmlChainPool>(requestProcessorPools), new ArrayList<XmlChainPool>(responseProcessorPools), configuration.isMultiMatch());
     }
   }
 

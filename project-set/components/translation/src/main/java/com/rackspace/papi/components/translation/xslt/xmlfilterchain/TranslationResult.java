@@ -64,11 +64,11 @@ public class TranslationResult {
     return null;
   }
 
-  public <T extends OutputStream> T getRequestInfo() {
+  public <T extends OutputStream> T getRequestInfoStream() {
     return getStream(REQUEST_OUTPUT);
   }
 
-  public <T extends OutputStream> T getHeaders() {
+  public <T extends OutputStream> T getHeadersStream() {
     return getStream(HEADERS_OUTPUT);
   }
 
@@ -82,24 +82,32 @@ public class TranslationResult {
     applyRequestInfo(director);
   }
 
-  private void applyRequestInfo(final FilterDirector director) {
-    ByteArrayOutputStream requestOutput = getRequestInfo();
+  public RequestInformation getRequestInfo() {
+    ByteArrayOutputStream requestOutput = getRequestInfoStream();
 
     if (requestOutput == null) {
-      return;
+      return null;
     }
 
     byte[] requestBytes = requestOutput.toByteArray();
     ByteArrayInputStream input = new ByteArrayInputStream(requestBytes);
     if (input.available() == 0) {
-      return;
+      return null;
     }
 
     if (LOG.isDebugEnabled()) {
       LOG.debug("New request info: " + new String(requestBytes));
     }
 
-    RequestInformation requestInfo = marshaller.unmarshallRequestInformation(input);
+    return marshaller.unmarshallRequestInformation(input);
+  }
+
+  private void applyRequestInfo(final FilterDirector director) {
+    RequestInformation requestInfo = getRequestInfo();
+
+    if (requestInfo == null) {
+      return;
+    }
 
     if (StringUtilities.isNotBlank(requestInfo.getUri())) {
       director.setRequestUri(requestInfo.getUri());
@@ -111,19 +119,28 @@ public class TranslationResult {
 
   }
 
-  private void applyQueryParams(final FilterDirector director) {
+  public QueryParameters getQueryParameters() {
     ByteArrayOutputStream paramsOutput = getParams();
 
     if (paramsOutput == null) {
-      return;
+      return null;
     }
 
     ByteArrayInputStream input = new ByteArrayInputStream(paramsOutput.toByteArray());
     if (input.available() == 0) {
-      return;
+      return null;
     }
 
-    QueryParameters params = marshaller.unmarshallQueryParameters(input);
+    return marshaller.unmarshallQueryParameters(input);
+
+  }
+
+  private void applyQueryParams(final FilterDirector director) {
+    QueryParameters params = getQueryParameters();
+
+    if (params == null) {
+      return;
+    }
 
     if (params.getParameter() != null) {
       StringBuilder sb = new StringBuilder();
@@ -140,23 +157,31 @@ public class TranslationResult {
     }
   }
 
-  private void applyHeaders(final FilterDirector director) {
-    ByteArrayOutputStream headersOutput = getHeaders();
+  public Headers getHeaders() {
+    ByteArrayOutputStream headersOutput = getHeadersStream();
     if (headersOutput == null) {
-      return;
+      return null;
     }
 
     byte[] out = headersOutput.toByteArray();
     ByteArrayInputStream input = new ByteArrayInputStream(out);
     if (input.available() == 0) {
-      return;
+      return null;
     }
 
     if (LOG.isDebugEnabled()) {
       LOG.debug("New headers: " + new String(out));
     }
 
-    Headers headers = marshaller.unmarshallHeaders(input);
+    return marshaller.unmarshallHeaders(input);
+  }
+
+  private void applyHeaders(final FilterDirector director) {
+    Headers headers = getHeaders();
+
+    if (headers == null) {
+      return;
+    }
 
     if (headers.getRequest() != null) {
 

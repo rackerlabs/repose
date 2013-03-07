@@ -24,6 +24,9 @@ import javax.xml.transform.stream.StreamResult;
 import net.sf.saxon.Controller;
 import net.sf.saxon.lib.OutputURIResolver;
 import org.apache.xalan.transformer.TrAXFilter;
+import org.openrepose.repose.httpx.v1.Headers;
+import org.openrepose.repose.httpx.v1.QueryParameters;
+import org.openrepose.repose.httpx.v1.RequestInformation;
 import org.slf4j.Logger;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
@@ -105,12 +108,18 @@ public class XmlFilterChainExecutor {
             headersResolver.setRequest((HttpServletRequest) input.getValue());
           } else if (input.getValue() instanceof HttpServletResponse) {
             headersResolver.setResponse((HttpServletResponse) input.getValue());
+          } else if (input.getValue() instanceof Headers) {
+            headersResolver.setHeaders((Headers) input.getValue());
+          } else if (input.getValue() instanceof QueryParameters) {
+            headersResolver.setParams((QueryParameters) input.getValue());
+          } else if (input.getValue() instanceof RequestInformation) {
+            headersResolver.setRequestInformation((RequestInformation) input.getValue());
           } else {
             param = input.getValue() != null? input.getValue().toString(): null;
           }
 
           if (param != null) {
-                  transformer.setParameter(input.getName(), param);
+            transformer.setParameter(input.getName(), param);
           }
         }
       }
@@ -124,8 +133,6 @@ public class XmlFilterChainExecutor {
       resolver.clearStreams();
 
       if (outputs != null && outputs.size() > 0) {
-
-        String uniqueId = UUID.randomUUID().toString();
 
         for (XsltParameter<? extends OutputStream> output : outputs) {
           
