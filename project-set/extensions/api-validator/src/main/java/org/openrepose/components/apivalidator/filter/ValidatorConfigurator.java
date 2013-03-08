@@ -6,13 +6,14 @@ import com.rackspace.com.papi.components.checker.handler.SaveDotHandler;
 import com.rackspace.com.papi.components.checker.handler.ServletResultHandler;
 import com.rackspace.papi.commons.util.StringUriUtilities;
 import com.rackspace.papi.commons.util.StringUtilities;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ValidatorConfigurator {
 
@@ -73,7 +74,7 @@ public class ValidatorConfigurator {
         config.setDoXSDGrammarTransform(validatorItem.isDoXsdGrammarTransform());
         config.setEnablePreProcessExtension(validatorItem.isEnablePreProcessExtension());
         config.setRemoveDups(validatorItem.isRemoveDups());
-        config.setValidateChecker(validatorItem.isValidateChecker());
+        config.setValidateChecker(true);
         config.setXSLEngine(validatorItem.getXslEngine().value());
         config.setJoinXPathChecks(validatorItem.isJoinXpathChecks());
         config.setCheckHeaders(validatorItem.isCheckHeaders());
