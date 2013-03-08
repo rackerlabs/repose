@@ -5,9 +5,10 @@ import com.rackspace.papi.commons.util.pooling.ConstructionStrategy;
 import com.rackspace.papi.components.translation.config.StyleSheet;
 import com.rackspace.papi.components.translation.config.TranslationBase;
 import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;
+import org.w3c.dom.Node;
+
 import java.util.ArrayList;
 import java.util.List;
-import org.w3c.dom.Node;
 
 public class XmlFilterChainFactory implements ConstructionStrategy<XmlFilterChain> {
 

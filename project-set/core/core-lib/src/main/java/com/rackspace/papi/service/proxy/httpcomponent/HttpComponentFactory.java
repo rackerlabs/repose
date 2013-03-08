@@ -59,7 +59,44 @@ public enum HttpComponentFactory {
     return request;
   }
 
+  private static HttpComponentProcessableRequest getInstance(HttpComponentFactory methodFactory, URI uri) {
+    HttpComponentProcessableRequest request = null;
+
+    if (methodFactory != null) {
+      try {
+        Constructor<? extends HttpRequestBase> httpConstructor = methodFactory.httpClass.getConstructor(URI.class);
+        HttpRequestBase httpMethod = httpConstructor.newInstance(uri);
+
+        Constructor<? extends HttpComponentProcessableRequest> constructor = (Constructor<? extends HttpComponentProcessableRequest>) methodFactory.wrapperClass.getConstructors()[0];
+        request = constructor.newInstance(httpMethod);
+      } catch (InvocationTargetException ex) {
+        LOG.error(CONSTRUCTION_ERROR, ex);
+      } catch (NoSuchMethodException ex) {
+        LOG.error(CONSTRUCTION_ERROR, ex);
+      } catch (InstantiationException ex) {
+        LOG.error(CONSTRUCTION_ERROR, ex);
+      } catch (IllegalAccessException ex) {
+        LOG.error(CONSTRUCTION_ERROR, ex);
+      }
+    }
+
+    return request;
+  }
+
   public static HttpComponentProcessableRequest getMethod(String method, String uri) {
+    HttpComponentFactory methodFactory = null;
+
+    for (HttpComponentFactory item : HttpComponentFactory.values()) {
+      if (item.method.equalsIgnoreCase(method)) {
+        methodFactory = item;
+        break;
+      }
+    }
+
+    return getInstance(methodFactory, uri);
+  }
+
+  public static HttpComponentProcessableRequest getMethod(String method, URI uri) {
     HttpComponentFactory methodFactory = null;
 
     for (HttpComponentFactory item : HttpComponentFactory.values()) {

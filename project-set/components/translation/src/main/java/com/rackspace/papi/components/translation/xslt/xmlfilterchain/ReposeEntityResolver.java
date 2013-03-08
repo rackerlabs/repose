@@ -1,11 +1,12 @@
 package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import org.slf4j.Logger;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 public class ReposeEntityResolver implements EntityResolver {
 

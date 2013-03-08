@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0" 
-   xmlns:xsl="http://www.w3.org/1999/XSL/Transform" 
-   xmlns:xs="http://www.w3.org/2001/XMLSchema"
-   xmlns:fn="http://www.w3.org/2005/xpath-functions"
-   xmlns:json="http://www.ibm.com/xmlns/prod/2009/jsonx">
+<xsl:stylesheet version="1.0"
+                xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns:fn="http://www.w3.org/2005/xpath-functions"
+                xmlns:json="http://www.ibm.com/xmlns/prod/2009/jsonx">
    
    <xsl:output method="xml" encoding="utf-8" indent="no" omit-xml-declaration="no" media-type="application/xml" />
 
