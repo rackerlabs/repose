@@ -238,7 +238,7 @@
                   <stringProp name="-1947475709">other : y</stringProp>
                   <stringProp name="-725697699">other2 : z;abc</stringProp>
                   <stringProp name="1413753377">agent : Mozilla/5.0 \(X11; FreeBSD amd64; rv:17.0\) Gecko/17.0 Firefox/17.0</stringProp>
-                  <stringProp name="0"></stringProp>
+                  <stringProp name="174296799">other3 : a;b=c=1</stringProp>
                 </collectionProp>
                 <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
                 <boolProp name="Assertion.assume_success">false</boolProp>

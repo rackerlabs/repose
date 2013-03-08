@@ -106,6 +106,8 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
 
     }
 
+
+
     /**
      * Process an entity enclosing http method.  These methods can handle
      * a request body.
@@ -117,7 +119,7 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
     public HttpRequestBase process(HttpEntityEnclosingRequestBase method) throws IOException {
       setHeaders(method);
       //setRequestParameters(method);
-      method.setEntity(new InputStreamEntity(sourceRequest.getInputStream(), sourceRequest.getContentLength()));
+      method.setEntity(new InputStreamEntity(sourceRequest.getInputStream(), -1));
       return method;
     }
 }
