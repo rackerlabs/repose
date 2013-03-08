@@ -41,9 +41,9 @@ public class UriNormalizationHandlerTest {
 
          final List<QueryParameterNormalizer> normalizers = new LinkedList<QueryParameterNormalizer>();
          final QueryParameterNormalizer queryParameterNormalizer = new QueryParameterNormalizer(HttpMethod.GET);
-         
+
          normalizers.add(queryParameterNormalizer);
-         
+
          final Normalizer<String> mockedNormalizer = mock(Normalizer.class);
          when(mockedNormalizer.normalize(anyString())).thenReturn("a=1");
 
@@ -69,6 +69,19 @@ public class UriNormalizationHandlerTest {
          final FilterDirectorImpl director = (FilterDirectorImpl) handler.handleRequest(mockedRequest, mock(ReadableHttpServletResponse.class));
 
          assertNull("Director must have no query string set on non-matching http method.", director.getRequestUriQuery());
+      }
+
+      @Test
+      public void shouldNotFilterOnEmptyNormalizer() {
+
+         final List<QueryParameterNormalizer> emptyNormalizers = new LinkedList<QueryParameterNormalizer>();
+         UriNormalizationHandler emptyNormalizer = new UriNormalizationHandler(emptyNormalizers, mock(MediaTypeNormalizer.class));
+         
+         when(mockedRequest.getMethod()).thenReturn("GET");
+         
+         final FilterDirectorImpl director = (FilterDirectorImpl) emptyNormalizer.handleRequest(mockedRequest, mock(ReadableHttpServletResponse.class));
+         
+         assertNull("Director will not have query parameters", director.getRequestUriQuery());
       }
    }
 }
