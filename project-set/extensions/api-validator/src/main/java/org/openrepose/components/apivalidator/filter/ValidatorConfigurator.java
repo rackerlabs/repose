@@ -30,11 +30,11 @@ public class ValidatorConfigurator {
 
     String getPath(String path){
        File file = new File(path);
-       
+
        if (!file.isAbsolute()){
           file = new File(configRoot, path);
        }
-       
+
        return file.getAbsolutePath();
     }
 
@@ -63,13 +63,13 @@ public class ValidatorConfigurator {
 
     public Config getConfiguration() {
         Config config = new Config();
+
         config.setResultHandler(getHandlers(validatorItem));
         config.setUseSaxonEEValidation(validatorItem.isUseSaxon());
         config.setCheckWellFormed(validatorItem.isCheckWellFormed());
         config.setCheckXSDGrammar(validatorItem.isCheckXsdGrammar());
         config.setCheckElements(validatorItem.isCheckElements());
         config.setXPathVersion(validatorItem.getXpathVersion());
-
         config.setCheckPlainParams(validatorItem.isCheckPlainParams());
         config.setDoXSDGrammarTransform(validatorItem.isDoXsdGrammarTransform());
         config.setEnablePreProcessExtension(validatorItem.isEnablePreProcessExtension());
