@@ -28,6 +28,10 @@ public class MultiInstanceWhiteList implements ParameterFilter {
 
    @Override
    public boolean shouldAccept(String name) {
+      
+      if(parameterList==null){
+         return false;
+      }
       for (UriParameter parameter : parameterList.getParameter()) {
          final boolean matches = parameter.isCaseSensitive() ? name.equals(parameter.getName()) : name.equalsIgnoreCase(parameter.getName());
 
