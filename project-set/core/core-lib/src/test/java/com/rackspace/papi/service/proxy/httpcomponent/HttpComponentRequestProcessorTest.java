@@ -55,7 +55,7 @@ public class HttpComponentRequestProcessorTest {
             when(request.getParameterValues(eq("param2"))).thenReturn(params2);
             when(request.getInputStream()).thenReturn(input);
             when(method.getParams()).thenReturn(methodParams);
-            processor = new HttpComponentRequestProcessor(request);
+            processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"));
         }
 
         @Test

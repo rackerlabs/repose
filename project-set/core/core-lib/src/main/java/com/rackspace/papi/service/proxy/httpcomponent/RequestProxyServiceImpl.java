@@ -92,7 +92,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
 
          final HttpHost proxiedHost = getProxiedHost(targetHost);
          final String target = proxiedHost.toURI() + request.getRequestURI();
-         final HttpComponentRequestProcessor processor = new HttpComponentRequestProcessor(request);
+         final HttpComponentRequestProcessor processor = new HttpComponentRequestProcessor(request, new URI(proxiedHost.toURI()));
          final HttpComponentProcessableRequest method = HttpComponentFactory.getMethod(request.getMethod(), processor.getUri(target));
          ((MutableHttpServletRequest)request).removeHeader("Content-Length");
 

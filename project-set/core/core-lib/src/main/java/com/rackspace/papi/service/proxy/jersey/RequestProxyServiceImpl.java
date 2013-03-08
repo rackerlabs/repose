@@ -77,7 +77,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         TargetHostInfo host = new TargetHostInfo(targetHost);
         final String target = host.getProxiedHostUrl().toExternalForm() + request.getRequestURI();
 
-        JerseyRequestProcessor processor = new JerseyRequestProcessor(request);
+        JerseyRequestProcessor processor = new JerseyRequestProcessor(request, host.getProxiedHostUri());
         try {
             WebResource resource = getClient().resource(target);
             WebResource.Builder builder = processor.process(resource);
