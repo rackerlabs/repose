@@ -1,10 +1,10 @@
 package com.rackspace.papi.components.translation.resolvers;
 
-import java.io.InputStream;
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamSource;
+import java.io.InputStream;
 
 public class ClassPathUriResolver extends SourceUriResolver {
 

@@ -4,34 +4,30 @@ import com.rackspace.papi.commons.util.io.BufferedServletInputStream;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
-import com.rackspace.papi.components.translation.config.HttpMethod;
-import com.rackspace.papi.components.translation.config.RequestTranslation;
-import com.rackspace.papi.components.translation.config.RequestTranslations;
-import com.rackspace.papi.components.translation.config.ResponseTranslation;
-import com.rackspace.papi.components.translation.config.ResponseTranslations;
-import com.rackspace.papi.components.translation.config.StyleSheet;
-import com.rackspace.papi.components.translation.config.StyleSheets;
-import com.rackspace.papi.components.translation.config.TranslationConfig;
+import com.rackspace.papi.components.translation.config.*;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.service.config.ConfigurationService;
+import org.custommonkey.xmlunit.Diff;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
+import org.xml.sax.SAXException;
+
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.StringTokenizer;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
-import org.custommonkey.xmlunit.Diff;
-import org.xml.sax.SAXException;
 
 @RunWith(Enclosed.class)
 public class TranslationHandlerTest {

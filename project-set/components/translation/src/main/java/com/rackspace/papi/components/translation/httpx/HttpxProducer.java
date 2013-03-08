@@ -1,23 +1,17 @@
 package com.rackspace.papi.components.translation.httpx;
 
-import com.rackspace.papi.commons.util.servlet.http.ResponseHeaderContainer;
-import com.rackspace.papi.commons.util.servlet.http.HeaderContainer;
-import com.rackspace.papi.commons.util.servlet.http.RequestHeaderContainer;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.header.HeaderValue;
+import com.rackspace.papi.commons.util.servlet.http.HeaderContainer;
+import com.rackspace.papi.commons.util.servlet.http.RequestHeaderContainer;
+import com.rackspace.papi.commons.util.servlet.http.ResponseHeaderContainer;
+import org.openrepose.repose.httpx.v1.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import org.openrepose.repose.httpx.v1.HeaderList;
-import org.openrepose.repose.httpx.v1.Headers;
-import org.openrepose.repose.httpx.v1.NameValuePair;
-import org.openrepose.repose.httpx.v1.ObjectFactory;
-import org.openrepose.repose.httpx.v1.QualityNameValuePair;
-import org.openrepose.repose.httpx.v1.QueryParameters;
-import org.openrepose.repose.httpx.v1.ReadOnlyRequestInformation;
-import org.openrepose.repose.httpx.v1.RequestInformation;
 
 public class HttpxProducer {
 

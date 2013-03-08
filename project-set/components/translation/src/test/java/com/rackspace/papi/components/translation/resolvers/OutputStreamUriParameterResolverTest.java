@@ -1,16 +1,18 @@
 package com.rackspace.papi.components.translation.resolvers;
 
-import com.rackspace.papi.components.translation.resolvers.OutputStreamUriParameterResolver;
-import java.io.OutputStream;
-import javax.xml.transform.Result;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.stream.StreamResult;
 import net.sf.saxon.lib.OutputURIResolver;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import javax.xml.transform.Result;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.stream.StreamResult;
+import java.io.OutputStream;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)

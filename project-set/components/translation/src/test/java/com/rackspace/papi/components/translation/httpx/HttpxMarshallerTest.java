@@ -1,18 +1,15 @@
 package com.rackspace.papi.components.translation.httpx;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.openrepose.repose.httpx.v1.Headers;
 import org.xml.sax.SAXException;
+
+import java.io.*;
+
+import static org.junit.Assert.*;
 
 @RunWith(Enclosed.class)
 public class HttpxMarshallerTest {
