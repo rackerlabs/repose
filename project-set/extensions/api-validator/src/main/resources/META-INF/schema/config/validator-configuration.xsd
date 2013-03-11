@@ -151,14 +151,6 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        <xs:attribute name="validate-checker" type="xs:boolean" use="optional" default="false">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>
-                    </html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
         <xs:attribute name="xsl-engine" type="scr:XSLEngine" use="optional" default="XalanC">
             <xs:annotation>
                 <xs:documentation>

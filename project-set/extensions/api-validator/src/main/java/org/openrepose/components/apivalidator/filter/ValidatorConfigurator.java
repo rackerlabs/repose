@@ -6,13 +6,14 @@ import com.rackspace.com.papi.components.checker.handler.SaveDotHandler;
 import com.rackspace.com.papi.components.checker.handler.ServletResultHandler;
 import com.rackspace.papi.commons.util.StringUriUtilities;
 import com.rackspace.papi.commons.util.StringUtilities;
+import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ValidatorConfigurator {
 
@@ -29,11 +30,11 @@ public class ValidatorConfigurator {
 
     String getPath(String path){
        File file = new File(path);
-       
+
        if (!file.isAbsolute()){
           file = new File(configRoot, path);
        }
-       
+
        return file.getAbsolutePath();
     }
 
@@ -62,18 +63,18 @@ public class ValidatorConfigurator {
 
     public Config getConfiguration() {
         Config config = new Config();
+
         config.setResultHandler(getHandlers(validatorItem));
         config.setUseSaxonEEValidation(validatorItem.isUseSaxon());
         config.setCheckWellFormed(validatorItem.isCheckWellFormed());
         config.setCheckXSDGrammar(validatorItem.isCheckXsdGrammar());
         config.setCheckElements(validatorItem.isCheckElements());
         config.setXPathVersion(validatorItem.getXpathVersion());
-
         config.setCheckPlainParams(validatorItem.isCheckPlainParams());
         config.setDoXSDGrammarTransform(validatorItem.isDoXsdGrammarTransform());
         config.setEnablePreProcessExtension(validatorItem.isEnablePreProcessExtension());
         config.setRemoveDups(validatorItem.isRemoveDups());
-        config.setValidateChecker(validatorItem.isValidateChecker());
+        config.setValidateChecker(true);
         config.setXSLEngine(validatorItem.getXslEngine().value());
         config.setJoinXPathChecks(validatorItem.isJoinXpathChecks());
         config.setCheckHeaders(validatorItem.isCheckHeaders());

@@ -14,7 +14,6 @@
       enable-pre-process-extension="true"
       remove-dups="true"
       xpath-version="2"
-      validate-checker="true"
       xsl-engine="XalanC"
       use-saxon="false"
       join-xpath-checks="false"/>
