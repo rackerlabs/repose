@@ -36,5 +36,10 @@
                 </style>
             </style-sheets>
         </response-translation>
+        <response-translation content-type="application/rss+xml" accept="application/xml" translated-content-type="application/xml">
+            <style-sheets>
+                <style id="ss7" href="headers-io.xsl" />
+            </style-sheets>
+        </response-translation>
     </response-translations>
 </translation>
