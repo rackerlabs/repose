@@ -270,51 +270,65 @@
             The validation component uses your validation configuration to recognize whether an API request is valid. 
             If an API request is not valid, the validation component handles it as specified in your response messaging configuration at <code>response-messaging.cfg.xml</code>. 
         </para>
+        
+        <section xml:id="Elements_of_the_Validation_Component-d1e444">
+        <title>Elements of the Validation Component</title>
+            <para>In this section, we aim to explain the
+                interconnected elements involved in the validation
+                configuration found in section 3.2. The Repose
+                validation component determines whether or not a
+                request is processed. </para>
+            <para>This component contains the following: <orderedlist>
+                    <listitem>
+                        <para>A customer request with assigned roles (
+                            R1, R2, and R3)</para>
+                    </listitem>
+                    <listitem>
+                        <para>One or more validators</para>
+                    </listitem>
+                    <listitem>
+                        <para>Validators with one or more roles (R1,
+                            R2, and R3) The validator component can
+                            have the multimatch settings to either
+                            true or false. </para>
+                        <para>When set to <guilabel>true,</guilabel>
+                            all validators are checked for a match to
+                            the client role. If no matches are found,
+                            the validator will try the default. If
+                            matches are found and none of them are
+                            valid, the default will then be tried. The
+                            default determines whether the validation
+                            process continues, if the match is
+                            rejected validation ends. When multiple
+                            roles are assigned, requests are matched
+                            to validators with the highest quality
+                            value. </para>
+                        <para>When multimatch is set to
+                                <guilabel>false</guilabel>, the first
+                            validator that matches the client request
+                            role is chosen; this match determines if
+                            the request can continue with the
+                            validation process. If the match is not
+                            deemed as valid, the request fails and
+                            validation ends. If the match is valid,
+                            the request is accepted, processed, and
+                            validation ends. If the entire list of
+                            validators fails, the default is then
+                            selected; the default determines whether
+                            the request is accepted or rejected. Once
+                            processed, validation ends.</para> 
+                    </listitem>
+                </orderedlist></para>
+        </section>
         <section xml:id="Customizing_Validation_Configuration-d1e375">
         <title>Customizing a Validation Configuration</title>
         <para> Your validation configuration in
                     <code>validator.cfg.xml</code> will resemble the
                 following example: </para>
+            
         <example>
-            <title>Validation Configuration</title>
-            <para>
-               
-              <itemizedlist>
-                        <listitem>
-                            <para> When multimatch is set to true,
-                                validation of every match of the
-                                X-Roles header will be attempted until
-                                a valid match is made; the default
-                                will always be included in this
-                                validation check. If no match is found
-                                and the default rejected, the request
-                                stops and validation ends.</para>
-                        </listitem>
-                          
-                                   <listitem>
-                                   <para> When multimatch is set to
-                                false. validation of client request
-                                and . If none are valid, the default
-                                will then be tried; if the default is
-                                valid, it will be used. If nothing,
-                                including the default, is valid, the
-                                request stops and validation
-                                ends.</para>
-                                   </listitem>
-                                  
-                                    
-                                        <listitem>
-                                            <para> When multiple
-                                                roles are assigned, validator
-                                                matches the request according to
-                                                the X-Roles header. Validator
-                                                matches the request to the role
-                                                with the highest quality value
-                                                assigned. </para>
-                                            </listitem></itemizedlist></para> 
-                                          
-                                  
-               
+            <title>Validation Configuration</title> 
+                                        
             <programlistingco> 
                 <areaspec>
                     <area xml:id="cfg.validators"
