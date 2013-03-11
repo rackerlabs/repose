@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.proxy.httpcomponent;
 
+import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.http.proxy.common.AbstractRequestProcessor;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -21,9 +22,11 @@ import java.util.Enumeration;
  */
 class HttpComponentRequestProcessor extends AbstractRequestProcessor {
     private final HttpServletRequest sourceRequest;
+    private final URI targetHost;
 
-    public HttpComponentRequestProcessor(HttpServletRequest request) {
+    public HttpComponentRequestProcessor(HttpServletRequest request, URI host) {
       this.sourceRequest = request;
+      this.targetHost = host;
     }
 
     /**
@@ -67,7 +70,27 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
     setRequestParameters(builder);
     return builder.build();
   }
-    
+
+  /**
+   * Scan header values and manipulate as necessary. Host header, if provided,
+   * may need to be updated.
+   *
+   * @param headerName
+   * @param headerValue
+   * @return
+   */
+  private String processHeaderValue(String headerName, String headerValue) {
+    String result = headerValue;
+
+    // In case the proxy host is running multiple virtual servers,
+    // rewrite the Host header to ensure that we get content from
+    // the correct virtual server
+    if (headerName.equalsIgnoreCase(CommonHttpHeader.HOST.toString())) {
+      result = targetHost.getHost() + ":" + targetHost.getPort();
+    }
+
+    return result;
+  }
     /**
      * Copy header values from source request to the http method.
      * 
@@ -87,7 +110,7 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
 
             while (headerValues.hasMoreElements()) {
                 String headerValue = headerValues.nextElement();
-                method.addHeader(headerName, headerValue);
+                method.addHeader(headerName, processHeaderValue(headerName, headerValue));
             }
         }
     }

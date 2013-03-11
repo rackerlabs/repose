@@ -52,7 +52,7 @@ public class JerseyRequestProcessorTest {
             when(request.getInputStream()).thenReturn(input);
             when(request.getMethod()).thenReturn("POST");
             
-            processor = new JerseyRequestProcessor(request);
+            processor = new JerseyRequestProcessor(request, new URI("www.openrepose.org"));
         }
         
         @Test

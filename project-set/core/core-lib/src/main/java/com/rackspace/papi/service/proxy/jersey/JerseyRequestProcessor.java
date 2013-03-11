@@ -1,10 +1,12 @@
 package com.rackspace.papi.service.proxy.jersey;
 
+import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.http.proxy.common.AbstractRequestProcessor;
 import com.sun.jersey.api.client.PartialRequestBuilder;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.api.client.WebResource.Builder;
 import java.io.*;
+import java.net.URI;
 import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.regex.Pattern;
@@ -22,12 +24,14 @@ class JerseyRequestProcessor extends AbstractRequestProcessor {
     private static final Logger LOG = LoggerFactory.getLogger(JerseyRequestProcessor.class);
     private static final int BUFFER_SIZE = 1024;
     private final HttpServletRequest request;
+    private final URI targetHost;
     private Pattern delimiter = Pattern.compile("&");
     private Pattern pair = Pattern.compile("=");
     private boolean allowBody;
 
-    public JerseyRequestProcessor(HttpServletRequest request) throws IOException {
+    public JerseyRequestProcessor(HttpServletRequest request, URI host) throws IOException {
         this.request = request;
+        this.targetHost = host;
         allowBody = "PUT".equalsIgnoreCase(request.getMethod()) || "POST".equalsIgnoreCase(request.getMethod());
     }
 
@@ -60,9 +64,29 @@ class JerseyRequestProcessor extends AbstractRequestProcessor {
     }
 
     /**
+     * Scan header values and manipulate as necessary. Host header, if provided,
+     * may need to be updated.
+     *
+     * @param headerName
+     * @param headerValue
+     * @return
+     */
+    private String processHeaderValue(String headerName, String headerValue) {
+      String result = headerValue;
+
+      // In case the proxy host is running multiple virtual servers,
+      // rewrite the Host header to ensure that we get content from
+      // the correct virtual server
+      if (headerName.equalsIgnoreCase(CommonHttpHeader.HOST.toString())) {
+        result = targetHost.getHost() + ":" + targetHost.getPort();
+      }
+
+      return result;
+    }
+
+  /**
      * Copy header values from source request to the http method.
      *
-     * @param method
      */
     private void setHeaders(PartialRequestBuilder builder) {
         final Enumeration<String> headerNames = request.getHeaderNames();
@@ -74,7 +98,7 @@ class JerseyRequestProcessor extends AbstractRequestProcessor {
                 Enumeration<String> values = request.getHeaders(header);
                 while (values.hasMoreElements()) {
                     String value = values.nextElement();
-                    builder.header(header, value);
+                    builder.header(header, processHeaderValue(header, value));
                 }
             }
         }
