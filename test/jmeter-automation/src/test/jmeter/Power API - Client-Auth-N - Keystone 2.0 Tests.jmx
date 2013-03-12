@@ -558,7 +558,7 @@ vars.put(&apos;user-token&apos;, randomValidToken());</stringProp>
                 <hashTree/>
                 <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Assert that 401 response adds appropriate header" enabled="true">
                   <collectionProp name="Asserion.test_strings">
-                    <stringProp name="-1502641879">www-authenticate: Keystone uri=&quot;https://50.57.189.15:8181/keystone&quot;</stringProp>
+                    <stringProp name="-243037365">www-authenticate</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
                   <boolProp name="Assertion.assume_success">false</boolProp>
