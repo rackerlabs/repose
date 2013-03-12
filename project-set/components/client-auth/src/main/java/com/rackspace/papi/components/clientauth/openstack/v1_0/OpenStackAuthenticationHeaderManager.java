@@ -3,6 +3,7 @@ package com.rackspace.papi.components.clientauth.openstack.v1_0;
 import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthToken;
 import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.IdentityStatus;
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
 import com.rackspace.papi.commons.util.http.PowerApiHeader;
@@ -31,8 +32,11 @@ public class OpenStackAuthenticationHeaderManager {
     // Hard code QUALITY for now as the auth component will have
     // the highest QUALITY in terms of using the user it supplies for rate limiting
     private static final String QUALITY = ";q=1.0";
+    private final String wwwAuthHeaderContents;
+    private static final String WWW_AUTHENTICATE_HEADER = "WWW-Authenticate";
 
-    public OpenStackAuthenticationHeaderManager(String authToken, AuthToken token, Boolean isDelegatable, FilterDirector filterDirector, String tenantId, List<AuthGroup> groups) {
+    public OpenStackAuthenticationHeaderManager(String authToken, AuthToken token, Boolean isDelegatable,
+            FilterDirector filterDirector, String tenantId, List<AuthGroup> groups, String wwwAuthHeaderContents) {
         this.authToken = authToken;
         this.cachableToken = token;
         this.isDelagable = isDelegatable;
@@ -40,6 +44,7 @@ public class OpenStackAuthenticationHeaderManager {
         this.tenantId = tenantId;
         this.validToken = token != null && token.getTokenId() != null;
         this.groups = groups;
+        this.wwwAuthHeaderContents = wwwAuthHeaderContents;
     }
 
     public void setFilterDirectorValues() {
@@ -60,6 +65,8 @@ public class OpenStackAuthenticationHeaderManager {
             filterDirector.setFilterAction(FilterAction.PROCESS_RESPONSE);
             setExtendedAuthorization();
             setIdentityStatus();
+        } else if (filterDirector.getResponseStatusCode() == HttpStatusCode.UNAUTHORIZED.intValue()) {
+            filterDirector.responseHeaderManager().putHeader(WWW_AUTHENTICATE_HEADER, wwwAuthHeaderContents);
         }
     }
 
