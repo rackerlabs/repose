@@ -43,6 +43,6 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
 
    @Override
    public void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable, FilterDirector filterDirector, String extractedResult, List<AuthGroup> groups) {
-      new OpenStackAuthenticationHeaderManager(authToken, cachableToken, delegatable, filterDirector, extractedResult, groups).setFilterDirectorValues();
+      new OpenStackAuthenticationHeaderManager(authToken, cachableToken, delegatable, filterDirector, extractedResult, groups, wwwAuthHeaderContents).setFilterDirectorValues();
    }
 }
