@@ -38,22 +38,35 @@
         <!-- we could specify the href as $output-headers-uri as well.  Here we use repose:output:headers.xml -->
         <xsl:result-document method="xml" include-content-type="no" href="repose:output:headers.xml">
             <httpx:headers>
-                <httpx:request>
-                    <httpx:header name="translation-header" value="test" quality="0.5"/>
-                    <xsl:apply-templates/>
-                </httpx:request>
+              <xsl:apply-templates/>
             </httpx:headers>
         </xsl:result-document>
+    </xsl:template>
+
+    <xsl:template match="httpx:request">
+      <httpx:request>
+        <httpx:header name="translation-header" value="test" quality="0.5"/>
+        <xsl:apply-templates/>
+      </httpx:request>
+    </xsl:template>
+
+    <xsl:template match="httpx:response">
+      <httpx:response>
+        <httpx:header name="translation-header" value="response" quality="0.5"/>
+        <xsl:apply-templates/>
+      </httpx:response>
     </xsl:template>
 
     <xsl:template match="httpx:header">
         <!-- If a header name begins with 'test', then ignore it.  Otherwise, write it to the output headers document -->
         <xsl:if test="not(starts-with(@name,'test'))">
+          <xsl:if test="not(starts-with(@name,'x-'))">
             <xsl:element name="httpx:header">
-                <xsl:attribute name="name"><xsl:value-of select="@name"/></xsl:attribute>
-                <xsl:attribute name="value"><xsl:value-of select="@value"/></xsl:attribute>
-                <xsl:attribute name="quality"><xsl:value-of select="@quality"/></xsl:attribute>
+	      <xsl:attribute name="name"><xsl:value-of select="@name"/></xsl:attribute>
+	      <xsl:attribute name="value"><xsl:value-of select="@value"/></xsl:attribute>
+	      <xsl:attribute name="quality"><xsl:value-of select="@quality"/></xsl:attribute>
             </xsl:element>
+          </xsl:if>
         </xsl:if>
     </xsl:template>
 
