@@ -302,7 +302,7 @@
                             rejected validation ends. When multiple
                             roles are assigned, requests are matched
                             to validators with the highest quality
-                            value. </para>
+                            value.</para>
                         <para>When multimatch is set to
                                 <guilabel>false</guilabel>, the first
                             validator that matches the client request
