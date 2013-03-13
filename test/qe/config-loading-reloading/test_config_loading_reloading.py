@@ -334,6 +334,26 @@ class TestRateLimitingConfig(TestConfigLoadingReloading, unittest.TestCase):
 
 class TestResponseMessagingConfig(TestConfigLoadingReloading,
                                   unittest.TestCase):
+    def test_start_missing(self):
+        logger.debug('test_start_missing')
+        r = None
+        try:
+            pathutil.delete_folder(self.repose_config_folder)
+            pathutil.create_folder(self.repose_config_folder)
+            conf.process_config_set(self.config_common,
+                                    params=self.config_params,
+                                    destination_path=self.repose_config_folder,
+                                    verbose=False, configs_folder=configs_folder)
+            
+            r = repose.ReposeValve(self.repose_config_folder,
+                                   stop_port=self.repose_stop_port)
+            time.sleep(self.sleep_time)
+            self.assertEquals(self.get_status_code_from_url(self.repose_url),
+                              self.get_good_response())
+        finally:
+            if r:
+                r.stop()
+    
     def get_name(self):
         return 'response-messaging'
 
