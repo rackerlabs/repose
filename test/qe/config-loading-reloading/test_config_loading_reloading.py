@@ -2,7 +2,6 @@
 
 import repose
 import conf
-import pathutil
 import requests
 import time
 import sys
@@ -78,13 +77,14 @@ def destroy_mock():
 def setUpModule():
     logger.debug('setUpModule')
     repose_conf_folder = 'etc/repose'
-    pathutil.delete_folder(repose_conf_folder)
-    pathutil.create_folder(repose_conf_folder)
-    pathutil.create_folder('usr/share/repose/filters')
-    pathutil.create_folder('var/log/repose')
-    pathutil.create_folder('var/repose')
-    #install_repose.get_repose(valve_dest='usr/share/repose',
-    #                          ear_dest='usr/share/repose/filters')
+    create_folder(repose_conf_folder)
+    clear_folder(repose_conf_folder)
+    create_folder('var/log/repose')
+    create_folder('var/repose')
+
+    # the valve jar should be 'usr/share/repose/repose-valve.jar'
+    # the filter ears should be in 'usr/share/repose/filters/'
+
     create_mock()
     logger.debug('setUpModule complete')
 
@@ -141,8 +141,8 @@ class TestConfigLoadingReloading:
         logger.debug('test_start_good')
         r = None
         try:
-            pathutil.delete_folder(self.repose_config_folder)
-            pathutil.create_folder(self.repose_config_folder)
+            create_folder(self.repose_config_folder)
+            clear_folder(self.repose_config_folder)
             conf.process_config_set(self.config_common,
                                     params=self.config_params,
                                     destination_path=self.repose_config_folder,
@@ -165,8 +165,8 @@ class TestConfigLoadingReloading:
         logger.debug('test_start_bad')
         r = None
         try:
-            pathutil.delete_folder(self.repose_config_folder)
-            pathutil.create_folder(self.repose_config_folder)
+            create_folder(self.repose_config_folder)
+            clear_folder(self.repose_config_folder)
             conf.process_config_set(self.config_common,
                                     params=self.config_params,
                                     destination_path=self.repose_config_folder,
@@ -189,8 +189,8 @@ class TestConfigLoadingReloading:
         logger.debug('test_good_to_bad')
         r = None
         try:
-            pathutil.delete_folder(self.repose_config_folder)
-            pathutil.create_folder(self.repose_config_folder)
+            create_folder(self.repose_config_folder)
+            clear_folder(self.repose_config_folder)
             conf.process_config_set(self.config_common,
                                     params=self.config_params,
                                     destination_path=self.repose_config_folder,
@@ -220,8 +220,8 @@ class TestConfigLoadingReloading:
         logger.debug('test_bad_to_good')
         r = None
         try:
-            pathutil.delete_folder(self.repose_config_folder)
-            pathutil.create_folder(self.repose_config_folder)
+            create_folder(self.repose_config_folder)
+            clear_folder(self.repose_config_folder)
             conf.process_config_set(self.config_common,
                                     params=self.config_params,
                                     destination_path=self.repose_config_folder,
@@ -253,8 +253,8 @@ class TestNonStartingOnBadConfig(TestConfigLoadingReloading):
         logger.debug('test_start_bad (2)')
         r = None
         try:
-            pathutil.delete_folder(self.repose_config_folder)
-            pathutil.create_folder(self.repose_config_folder)
+            create_folder(self.repose_config_folder)
+            clear_folder(self.repose_config_folder)
             conf.process_config_set(self.config_common,
                                     params=self.config_params,
                                     destination_path=self.repose_config_folder,
@@ -277,8 +277,8 @@ class TestNonStartingOnBadConfig(TestConfigLoadingReloading):
         logger.debug('test_bad_to_good (2)')
         r = None
         try:
-            pathutil.delete_folder(self.repose_config_folder)
-            pathutil.create_folder(self.repose_config_folder)
+            create_folder(self.repose_config_folder)
+            clear_folder(self.repose_config_folder)
             conf.process_config_set(self.config_common,
                                     params=self.config_params,
                                     destination_path=self.repose_config_folder,
@@ -355,8 +355,8 @@ class TestResponseMessagingConfig(TestConfigLoadingReloading,
         logger.debug('test_start_missing')
         r = None
         try:
-            pathutil.delete_folder(self.repose_config_folder)
-            pathutil.create_folder(self.repose_config_folder)
+            create_folder(self.repose_config_folder)
+            clear_folder(self.repose_config_folder)
             conf.process_config_set(self.config_common,
                                     params=self.config_params,
                                     destination_path=self.repose_config_folder,
