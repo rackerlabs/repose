@@ -1,0 +1,713 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE book [
+<!-- product name is likely to change; parameterize full name, abbreviated name, expanded name -->
+<!ENTITY PRODNAME "Repose">
+<!ENTITY PRODABBREV "Repose">
+<!ENTITY PRODEXPAND "REstful PrOxy Service Engine">
+    <!-- Some useful entities borrowed from HTML -->
+    <!ENTITY ndash  "&#x2013;">
+    <!ENTITY mdash  "&#x2014;">
+    <!ENTITY hellip "&#x2026;">
+
+    <!-- Useful for describing APIs -->
+    <!ENTITY GET    '<command xmlns="http://docbook.org/ns/docbook">GET</command>'>
+    <!ENTITY PUT    '<command xmlns="http://docbook.org/ns/docbook">PUT</command>'>
+    <!ENTITY POST   '<command xmlns="http://docbook.org/ns/docbook">POST</command>'>
+    <!ENTITY DELETE '<command xmlns="http://docbook.org/ns/docbook">DELETE</command>'>
+
+    <!ENTITY CHECK  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Check_mark_23x20_02.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+
+    <!ENTITY ARROW  '<inlinemediaobject xmlns="http://docbook.org/ns/docbook">
+        <imageobject>
+        <imagedata fileref="img/Arrow_east.svg"
+        format="SVG" scale="60"/>
+        </imageobject>
+        </inlinemediaobject>'>
+]>
+<!-- in BOOK below, add status="draft" to set watermark on cover and left margin -->
+<book version="5.0" xmlns="http://docbook.org/ns/docbook"
+      xmlns:xlink="http://www.w3.org/1999/xlink"
+      xmlns:xi="http://www.w3.org/2001/XInclude"
+      xmlns:svg="http://www.w3.org/2000/svg"
+      xmlns:m="http://www.w3.org/1998/Math/MathML"
+      xmlns:html="http://www.w3.org/1999/xhtml"
+      xmlns:db="http://docbook.org/ns/docbook" 
+      xml:id="Repose-Ratelimiting-Deployment-Guide">
+    <?rax pdf.url="../../repose-ratelimiting-deploy.pdf"?>
+    <title>&PRODNAME; API Validation Component Deployment Handbook</title>
+    <!-- set watermark on cover and left margin -->
+    <?rax status.bar.text.font.size="40px" status.bar.text="DRAFT"?>
+    <!-- size line1 & line2 of title on PDF cover -->
+    <?rax title.font.size="35px" subtitle.font.size="16px"?>
+    <titleabbrev>&PRODABBREV; Validation Deployment</titleabbrev>
+    <info>
+        <author>
+            <personname>
+                <firstname/>
+                <surname/>
+            </personname>
+            <affiliation>
+                <orgname>Rackspace Cloud</orgname>
+            </affiliation>
+        </author>
+        <copyright>
+            <year>2010</year>
+            <year>2011</year>
+            <year>2012</year>
+            <year>2013</year>
+            <holder>Rackspace US, Inc.</holder>
+        </copyright>
+        <releaseinfo>v2.4.1</releaseinfo>
+        <productname>&PRODNAME;</productname>
+        <pubdate>2013-03-04</pubdate>
+        <legalnotice role="apache2">
+            <annotation>
+                <remark>Copyright details are filled in by the template.</remark>
+            </annotation>
+        </legalnotice>
+        <abstract>
+            <para>This document is intended for systems administrators
+                interested in configuring their service to use the
+                API Validation component of the &PRODEXPAND;. </para>
+        </abstract>
+        <revhistory>
+            <revision>
+                <date>2013-03-04</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem>
+                            <para>Added details in 
+                                <xref linkend="Configuration-d1e365"></xref>
+                                and <xref linkend="Deployment-d1e105"></xref>.
+                            </para>
+                        </listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
+            <revision>
+                <date>2012-12-12</date>
+                <revdescription>
+                    <itemizedlist spacing="compact">
+                        <listitem>
+                            <para>Initial release as internal
+                                draft.</para>
+                        </listitem>
+                    </itemizedlist>
+                </revdescription>
+            </revision>
+        </revhistory>
+    </info>
+    <chapter xml:id="Overview-d1e85">
+        <title>About This Document</title>
+            <para> 
+                The purpose of this handbook is to facilitate deployment of &PRODNAME;'s API Validation component. This handbook is not a tutorial. It provides basic information
+                that will help you understand and deploy this &PRODNAME; component, but you must
+                adapt this information to suit your own configuration. 
+            </para>  
+            <para>
+                This handbook is focused on one &PRODNAME; component.
+                Other &PRODNAME; components are documented in companion handbooks.
+            </para>
+        <section xml:id="Document_Change_History-d1e102">
+            <title>Document Change History</title>
+            <para>This version of the handbook replaces and obsoletes all previous versions.
+            The most recent changes are described in the table below: </para>
+            <?rax revhistory?>
+        </section>
+        <xi:include href="chapters/available-doc.xml"/>
+    </chapter>
+    <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
+    <chapter xml:id="Introduction-000">
+        <title>Introduction to the API Validation Component of
+            &PRODNAME;</title>
+        <para> API validation examines an API request and confirms
+            that it is constructed correctly before forwarding it to
+            its destination. </para>
+        <para> To use &PRODNAME; for API validation, you must add the
+            API validation component as a filter in your &PRODNAME;
+            configuration. You can learn more about customizing your
+            &PRODNAME; configuration by reading the <link
+                xlink:href="http://openrepose.org/documentation/repose-deploy/content/Introduction-000.html"
+                >Repose Deployment Handbook</link> and by examining a
+                <link
+                xlink:href="https://github.com/rackspace/repose/blob/master/project-set/core/core-lib/src/main/resources/META-INF/schema/examples/system-model.cfg.xml"
+                >basic system model configuration</link> in GitHub. </para>
+        <para> 
+            To understand the &PRODNAME; API validation filter,
+            you should understand several related concepts:
+            <itemizedlist>
+                <listitem><para>Application Programming Interface (API)</para></listitem>
+                <listitem><para>Web Application Description Language (WADL)</para></listitem>
+                <listitem><para>XML Schema Definition (XSD)</para></listitem>
+                <listitem><para>stylesheets</para></listitem>
+            </itemizedlist>
+        </para>
+
+        <para>
+            An Application Programming Interface (API) can be written in several alternative styles, notably 
+            Simple Object Access Protocol (SOAP) and REpresentational State Transfer (REST).
+            &PRODNAME;, the &PRODEXPAND;, is designed to work with REST APIs only.
+        </para>
+        <para>
+            You can describe a REST API using Web Application Description Language (WADL); a description written in WADL is also referred to as a WADL.
+            A WADL document is a specialized XML document.
+        </para>
+        <para> 
+            A WADL provides a machine-readable description of
+            an HTTP-based application. For an introduction to
+            WADL, read <link
+            xlink:href="http://www.w3.org/Submission/wadl/"
+            >Web Application Description Language</link>. For
+            a discussion of how WADL can be used for API
+            validation, read the "Background" section of <link
+            xlink:href="http://www.balisage.net/Proceedings/vol8/html/Williams01/BalisageVol8-Williams01.html"
+            >Using XProc, XSLT 2.0, and XSD 1.1 to validate
+            RESTful services</link>. 
+        </para>
+        <para> An XSD formally describes the elements in an XML
+            document such as a WADL. A WADL describes valid requests
+            for an API; an XSD describes valid elements within a WADL.
+            For example, a WADL may describe a valid parameter as
+                <code>&lt;param name="userId" type="xsd:string"
+                style="template" required="true"/&gt;</code>. In this
+            case, <code>type="xsd:string"</code> indicates that this
+            parameter is a string, however <code>string</code> is
+            defined in the XSDs available to that WADL. In the same
+            WADL, <programlisting>
+<![CDATA[
+<application 
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema">         
+    <grammars>
+        <include href="../xsd/mytesting.xsd"/>
+    </grammars>
+</application>
+]]>
+            </programlisting> identifies two XSDs as descriptions
+            of the elements within the WADL:
+                <code>http://www.w3.org/2001/XMLSchema</code> is a
+            standard XSD, available to everyone;
+                <code>../xsd/mytesting.xsd</code> is a special-purpose
+            XSD, defining non-standard elements that are valid within
+            this WADL. </para>
+        <para>
+            &PRODNAME; uses XSD 1.1. A good tutorial on XSD 1.1,
+            including a comparison of XSD 1.1 and XSD 1.0, is at <link
+                xlink:href="http://www.xfront.com/xml-schema-1-1/"
+                >http://www.xfront.com/xml-schema-1-1/</link>.
+        </para>
+        <para> To validate a request, the API validation filter
+            component compares the current request to a
+            previously-established description of a valid request.
+            That description is based on one or more WADLs and one or
+            more XSDs. </para>
+        <para> For example, if an authentication service requires a
+            username in the URI for all valid requests, that
+            requirement is defined in the authentication service's
+            WADL and the &PRODNAME; API validation component is
+            configured to compare requests to that WADL. With the
+            &PRODNAME; API validation component in the filter stack,
+            authentication requests that do not include a username are
+            rejected before reaching the authentication service. This
+            protects the authentication service from the workload of
+            identifying and rejecting invalid requests. It also allows
+            the developers of the authentication service to focus on
+            developing that service's core features rather than on
+            general-purpose features such as validation. In addition,
+            the validation process can be configured so that, when a
+            request is rejected, that rejection response can provide
+            detailed information describing what was unacceptable
+            about the request. </para>
+        <tip> 
+            <para>
+                The API validation component is designed somewhat similarly to the translation component; one or the other may be ideal for your purpose.
+                <itemizedlist>
+                    <listitem>
+                        <para>To determine whether an API request is constructed correctly, use the API validation component.</para>
+                    </listitem>
+                    <listitem>
+                        <para>To alter an invalid request so that it becomes a valid API request, use the translation component.</para>
+                    </listitem>
+                </itemizedlist>
+                You can read about the translation component at 
+                <link xlink:href="http://wiki.openrepose.org/display/REPOSE/Translation">
+                http://wiki.openrepose.org/display/REPOSE/Translation</link>.
+            </para>
+            </tip>
+            <tip>
+                <para> 
+                    API validation processing is controlled by
+                    <code>validator.cfg.xml</code>; to change your
+                    validation configuration, edit
+                    <code>validator.cfg.xml</code>. You can see an
+                    annotated example of <code>validator.cfg.xml</code> in
+                    <xref linkend="Configuration-d1e365"/>. 
+                </para>
+        </tip>
+    </chapter>
+    <chapter xml:id="Configuration-d1e365">
+        <title>Configuration</title>
+        <tip>
+            <para> Before attempting to customize your validation
+                configuration and its stylesheets, familiarize
+                yourself with the basic &PRODNAME; concepts and
+                deployment methods in our <link
+                    xlink:href="http://openrepose.org/documentation/repose-intro/content/Introduction-000.html"
+                    >Getting Started</link> document. </para>
+        </tip>
+        <para> The API validation component obtains its configuration,
+            including its API endpoint, from a file named
+                <code>validator.cfg.xml</code>. We have included an
+            annotated example of a valid
+                <code>validator.cfg.xml</code> in this chapter.</para>
+        <para> To change your validation configuration, edit
+                <code>validator.cfg.xml</code> at any time. </para> 
+        <para>
+            The validation component uses your validation configuration to recognize whether an API request is valid. 
+            If an API request is not valid, the validation component handles it as specified in your response messaging configuration at <code>response-messaging.cfg.xml</code>. 
+        </para>
+        
+        <section xml:id="Elements_of_the_Validation_Component-d1e444">
+        <title>Elements of the Validation Component</title>
+            <para>In this section, we aim to explain the
+                interconnected elements involved in the validation
+                configuration found in section 3.2. The Repose
+                validation component determines whether or not a
+                request is processed. </para>
+            <para>This component contains the following: <orderedlist>
+                    <listitem>
+                        <para>A customer request with assigned roles (
+                            R1, R2, and R3)</para>
+                    </listitem>
+                    <listitem>
+                        <para>One or more validators</para>
+                    </listitem>
+                    <listitem>
+                        <para>Validators with one or more roles (R1,
+                            R2, and R3) The validator component can
+                            have the multimatch settings to either
+                            true or false. </para>
+                        <para>When set to <guilabel>true,</guilabel>
+                            all validators are checked for a match to
+                            the client role. If no matches are found,
+                            the validator will try the default. If
+                            matches are found and none of them are
+                            valid, the default will then be tried. The
+                            default determines whether the validation
+                            process continues, if the match is
+                            rejected validation ends. When multiple
+                            roles are assigned, requests are matched
+                            to validators with the highest quality
+                            value.</para>
+                        <para>When multimatch is set to
+                                <guilabel>false</guilabel>, the first
+                            validator that matches the client request
+                            role is chosen; this match determines if
+                            the request can continue with the
+                            validation process. If the match is not
+                            deemed as valid, the request fails and
+                            validation ends. If the match is valid,
+                            the request is accepted, processed, and
+                            validation ends. If the entire list of
+                            validators fails, the default is then
+                            selected; the default determines whether
+                            the request is accepted or rejected. Once
+                            processed, validation ends.</para> 
+                    </listitem>
+                </orderedlist></para>
+        </section>
+        <section xml:id="Customizing_Validation_Configuration-d1e375">
+        <title>Customizing a Validation Configuration</title>
+        <para> Your validation configuration in
+                    <code>validator.cfg.xml</code> will resemble the
+                following example: </para>
+            
+        <example>
+            <title>Validation Configuration</title> 
+                                        
+            <programlistingco> 
+                <areaspec>
+                    <area xml:id="cfg.validators"
+                        units="linecolumn" coords="4 1"/>
+                    <area xml:id="cfg.multi-role-match"
+                        units="linecolumn" coords="5 5"/>
+                    <area xml:id="cfg.validator"
+                        units="linecolumn" coords="10 5"/>
+                    <area xml:id="cfg.role" 
+                        units="linecolumn" coords="11 9"/>
+                    <area xml:id="cfg.default" 
+                        units="linecolumn" coords="12 9"/>
+                    <area xml:id="cfg.wadl" 
+                        units="linecolumn" coords="13 9"/>
+                    <area xml:id="cfg.dot-output" 
+                        units="linecolumn" coords="14 9"/>
+                    <area xml:id="cfg.check-well-formed" 
+                        units="linecolumn" coords="15 9"/>
+                    <area xml:id="cfg.check-xsd-grammar" 
+                        units="linecolumn" coords="16 9"/>
+                    <area xml:id="cfg.check-elements" 
+                        units="linecolumn" coords="17 9"/>
+                    <area xml:id="cfg.check-plain-params" 
+                        units="linecolumn" coords="18 9"/>
+                    <area xml:id="cfg.do-xsd-grammar-transform" 
+                        units="linecolumn" coords="19 9"/>
+                    <area xml:id="cfg.enable-pre-process-extension" 
+                        units="linecolumn" coords="20 9"/>
+                    <area xml:id="cfg.remove-dups" 
+                        units="linecolumn" coords="21 9"/>
+                    <area xml:id="cfg.xpath-version" 
+                        units="linecolumn" coords="22 9"/>
+                    <area xml:id="cfg.validate-checker" 
+                        units="linecolumn" coords="23 9"/>
+                    <area xml:id="cfg.xsl-engine" 
+                        units="linecolumn" coords="24 9"/>
+                    <area xml:id="cfg.use-saxon" 
+                        units="linecolumn" coords="25 9"/>
+                    <area xml:id="cfg.enable-ignore-xsd-extension" 
+                        units="linecolumn" coords="26 9"/>
+                    <area xml:id="cfg.join-xpath-checks" 
+                        units="linecolumn" coords="27 9"/>
+                    <area xml:id="cfg.check-headers" 
+                        units="linecolumn" coords="39 9"/>
+                </areaspec>
+                <programlisting language="xml">
+<xi:include href="samples/repose-apivalidation-validator.cfg.xml" parse="text"/>
+            </programlisting>
+            </programlistingco>
+        </example>
+        <para> Key elements of the preceding example are labeled with
+            callouts and explained below: </para>
+        <calloutlist>
+            <callout arearefs="cfg.validators">
+                <para> Multiple validators can be defined within this <code>&lt;validators&gt;</code> wrapper. At least one is required.</para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.multi-role-match">
+                <para>
+                    When set to <code>true</code>, validation is attempted for the <code>X-Roles</code> header; validation is attempted for every match until one is valid.
+                </para>
+                <para> Otherwise, validation is attempted for the
+                            <code>X-Roles</code> header and validation is
+                        attempted for only the first match. </para>
+                <para>
+                    If no matches are found, only the validator which specifies <code>default="true"</code> is used.
+                </para>
+                <para>
+                    If matches are found but none of them are valid, only the validator which specifies <code>default="true"</code> is used.
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.validator">
+                <para> Three validators are defined within this <code>&lt;validator&gt;</code> wrapper.
+                    </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.role">
+                <para> 
+                    When multiple roles are assigned, match this validator to requests according to the <code>X-Roles</code> header with the highest quality value.
+                    Roles are assigned quality values so that preference does not depend on the order in which they are listed.
+                </para>
+                <para>
+                    You can read more about quality values in &PRODNAME; at 
+                    <link xlink:href="http://wiki.openrepose.org/display/REPOSE/Header+Value+Quality">
+                        http://wiki.openrepose.org/display/REPOSE/Header+Value+Quality</link>.
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.default">
+                <para>  When set to <code>true</code>, match this validator to requests which do not pass an <code>X-Roles</code> header. </para>
+                <para>
+                    The <code>X-Roles</code> header can be set by the &PRODNAME; authentication component, assigning a role to a user. 
+                    It is possible that, even after processing by the &PRODNAME; authentication component, a user might not be assigned a role.
+                </para>
+                <para>
+                    You can read more about authentication in &PRODNAME; at 
+                    <link xlink:href="http://wiki.openrepose.org/display/REPOSE/Client+Authentication+Filter">
+                        http://wiki.openrepose.org/display/REPOSE/Client+Authentication+Filter</link>.
+                </para>
+                <para>
+                    Only one validator can specify <code>default="true"</code>. Marking more than one validator as <code>default="true"</code> is a severe error and 
+                    will prevent &PRODNAME; from loading.
+                    In this example, in the validator labeled "VALIDATOR 1", you can see the validator identified as the default.
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.wadl">
+                <para> This attribute specifies the location of the
+                        WADL to be examined by this validator. If a
+                        relative path is specified, then this is a URI
+                        relative to the &PRODNAME; validation
+                        configuration, <code>validator.cfg.xml</code>.
+                        To validate a WADL outside the current file
+                        system, specify the URL of that WADL. </para>
+                <para>
+                    After the WADL is validated, if an incoming call is not found within the WADL the call is rejected with an appropriate error.
+                </para>
+                <para>This attribute is
+                    <emphasis>optional</emphasis>.</para>
+                <para>
+                    If you do not use the <code>wadl</code> attribute to specify the location of an external WADL, you must embed a WADL within the <code>validator</code> element.
+                    In this example, in the validator labeled "VALIDATOR 3", you can see an embedded WADL beginning at <code>&lt;application&gt;</code>.
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.dot-output">
+                <para> This attribute specifies the location of a
+                        visual representation to be generated by this
+                        validator, describing the validated WADL as a
+                        state machine in <code>.dot</code> format. 
+                    This drawing is generated at &PRODNAME; startup.
+                    You can use this drawing to aid in debugging and optimizing the WADL.
+                    If a relative
+                        path is specified, then
+                            <code>dot-output</code> is a URI relative
+                        to the &PRODNAME; validation configuration,
+                            <code>validator.cfg.xml</code>.
+                        &PRODNAME; must have write access to the
+                        location specified by <code>dot-output</code>. </para>
+                <para>
+                    For further explanation and understanding of how state-machine works, see the "Optimization" section of 
+                    <link xlink:href="http://www.balisage.net/Proceedings/vol8/html/Williams01/BalisageVol8-Williams01.html">Using XProc, XSLT 2.0, and XSD 1.1 to validate RESTful services</link>.
+                </para>
+                <para>
+                    To see a <code>.dot</code> drawing generated to describe a WADL validated by your &PRODNAME; instance, use tools compatible with <code>.dot</code> format such as Inkscape
+                    <link xlink:href="http://inkscape.org/">http://inkscape.org/</link> 
+                    or Graphviz <link xlink:href="http://www.graphviz.org/">http://www.graphviz.org/</link>.
+                This attribute is
+                    <emphasis>optional</emphasis>.Whether or not this is set, you can always retrieve via the JMX console.
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.check-well-formed">
+                <para>
+                    When set to <code>true</code>, <code>check-well-formed</code> , all requests that accept JSON or XML will be checked for well-formedness.</para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.check-xsd-grammar">
+                <para> When set to <code>true</code>,
+                            <code>check-xsd-grammar</code> requires
+                        validation that the specified request body conforms to
+                        the XSD grammar specified within the WADL. In
+                        this example, in the validator labeled
+                        "VALIDATOR 3", you can see a grammar
+                        stylesheet specified within the embedded WADL. This applies only to XML. </para>
+                
+            </callout>
+            <callout arearefs= "cfg.check-elements"> 
+                <para> When set to <code>true</code>, the root element
+                        in the request is matched for the request type
+                        according to the service's accept type.</para>
+            </callout>
+            <callout arearefs="cfg.check-plain-params">
+                <para> When set to <code>true</code>,
+                            <code>check-plain-params</code> requires
+                        validation of plain parameters. These are
+                        grammar-agnostic assertions which can be used
+                        by non-XML media types. For example, although
+                        a WADL is defined in XML, XPath can be used to
+                        enable a WADL to validate XMLPath assertions
+                        in the WADL. Plain parameters are assertions
+                        that apply to the request body in XPath or
+                        JSONPath. XPath is currently supported. </para>
+            </callout>
+            <callout arearefs="cfg.do-xsd-grammar-transform">
+                <para> When set to <code>true</code>,
+                            <code>do-xsd-grammar-transform</code>
+                        transforms the request's XML after validation.
+                        One use of this transformation is to fill in
+                        values that would otherwise be allowed to
+                        default. Default values are specified in the
+                        XSD; the validator adds those values to the
+                        message before sending it to the service.
+                            <emphasis role="italic">This is only for
+                            XML</emphasis>. </para>
+                
+            </callout>
+            
+            <callout arearefs="cfg.enable-pre-process-extension">
+                <para>
+                    When set to <code>true</code>, <code>enable-pre-process-extension</code> enables the pre-process extension to the WADL.
+                    One use of this extension is to recognize ungrammatical elements and make them grammatical. For example, if only <code>TRUE</code>
+                    is strictly grammatical, the pre-process extension can recognize <code>True</code> and transform it to <code>TRUE</code>.
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.remove-dups">
+                <para>
+                    When set to <code>true</code>, <code>remove-dups</code> prevents duplicate nodes in the state machine. 
+                    When validation encounters a duplicate node, it removes duplicate nodes for optimization.
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.xpath-version">
+                <para>
+                    <code>xpath-version</code> specifies the XPath implementation used in validating the WADL. 
+                </para>
+                <para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>
+                                When set to <code>1</code>, <code>xpath-version</code> is the Xalan implementation. 
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para>
+                                When set to <code>2</code>, <code>xpath-version</code> is the Saxon implementation. 
+                                To use Saxon with schema awareness, you must have a Saxon license.
+                            </para>
+                        </listitem>
+                    </itemizedlist>
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.validate-checker">
+                <para>
+                    When set to <code>true</code>, <code>validate-checker</code> runs pre-validation code to validate that the validator was generated correctly. 
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.xsl-engine">
+                <para>
+                    <code>xsl-engine</code> specifies the XSL 1.0 engine used by the pre-process extension. 
+                </para>
+                <para>
+                    <itemizedlist>
+                        <listitem>
+                            <para>
+                                When set to <code>Xalan</code>, the Xalan engine is used. 
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para>
+                                When set to <code>XalanC</code>, the XalanC engine is used. 
+                            </para>
+                        </listitem>
+                        <listitem>
+                            <para>
+                                When set to <code>Saxon</code>, the Saxon engine is used. 
+                                Saxon is an XSL 2.0 engine, but it works correctly with most 1.0 XSLs.
+                            </para>
+                        </listitem>
+                    </itemizedlist>
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.use-saxon">
+                <para>
+                    When set to <code>true</code>, <code>use-saxon</code> requires use of Saxon-EE for XSD validation. 
+                    Otherwise, the Xerces validator is used for XSD validation.
+                    To use Saxon for XSD validation, you must have a Saxon license.
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.enable-ignore-xsd-extension">
+                <para>
+                    When set to <code>true</code>, <code>enable-ignore-xsd-extension</code> enables use of the <code>rax:ignoreXSD</code> extension, for some requests.
+                    This extension excludes some representations in WADLs from validation against the XSD.
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.join-xpath-checks">
+                <para>
+                    When set to <code>true</code>, <code>join-xpath-checks</code> optimizes performance of the validator
+                    by merging the <code>check-well-formed</code> and <code>multiple-XPath</code> checks into a single check. 
+                </para>
+                <para> </para>
+            </callout>
+            <callout arearefs="cfg.check-headers">
+                <para>
+                    When set to <code>true</code>, <code>join-check-headers</code> requires validation of headers. 
+                </para>
+                <para> </para>
+            </callout>
+        </calloutlist>
+        </section>
+            <section xml:id="Customizing_Response_Messaging-d1e385">
+                <title>Customizing a Response Messaging Configuration</title>
+                <para>
+                    If a request fails validation, then an appropriate <link xlink:href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec10.html">HTTP response code</link> is returned.  
+                    For example:
+                    <itemizedlist>
+                        <listitem><para>If the validator determines that the URI is invalid, a 404 is returned.</para></listitem>
+                        <listitem><para>If the validator determines that the URI is valid but the method is not appropriate for the URI, then a 405 is returned.</para></listitem>
+                    </itemizedlist>
+                    You can provide an appropriate error message along with the response code by configuring the response messaging service.
+                </para>
+                <para> 
+                    The &PRODNAME; API validation component processes invalid requests based on the response messaging configuration at <code>response-messaging.cfg.xml</code>.
+                    To change the response messaging configuration, edit <code>response-messaging.cfg.xml</code> at any time.
+                </para>
+                <para> A valid response messaging configuration resembles the following
+                example: </para>
+                <example>
+                    <title>Response Messaging Configuration</title>
+<programlisting language="xml">
+<xi:include href="samples/repose-apivalidation-response-messaging.cfg.xml" parse="text"/>
+</programlisting>
+                </example>    
+                <para>
+                    In this example, 
+                    only status code 404 receives additional message handling. 
+                    In the case of a 404 only, an XML response is formatted as XML (<code><![CDATA[<error-message>%M</error-message>]]></code>)
+                    and a JSON response is formatted as JSON (<code><![CDATA[{"error-message": "%M"}]]></code>).
+                </para>
+        </section>
+    </chapter>
+    <chapter xml:id="Deployment-d1e105">
+        <title>Deployment</title>
+        <para> 
+            The validation filter is packaged in the extensions filter bundle: <code>extensions-filter-bundle-&lt;version&gt;.ear</code>.  
+            When you initially deploy &PRODNAME;, your filter directory should contain <code>filter-bundle-&lt;version&gt;.ear</code>.
+            Copy <code>extensions-filter-bundle-&lt;version&gt;.ear</code> to your filter directory; 
+            this directory should already contain <code>filter-bundle-&lt;version&gt;.ear</code>.
+            Then update the filter chain in your <code>system-model.cfg.xml</code> to add <code>&lt;filter name="api-validator"/&gt;</code>. 
+        </para>
+        <para>
+            Once <code>validator.cfg.xml</code> is in place, the EAR file is deployed, and the filter is added to the filter chain list, 
+            the filter will begin validating requests against the configured WADLs.
+        </para>
+        <para>
+            The validation filter is dependent upon third-party libraries. 
+            When running on a servlet container such as Tomcat or Glassfish, you should increase the servlet container's <code>PermGen</code> memory size to accommodate the additional libraries used by the validator.
+            The ideal value depends upon your configuration; 
+            <code>export JAVA_OPTS="$JAVA_OPTS -XX:MaxPermSize=256m"</code> may be sufficient 
+        </para>
+    </chapter>
+    <chapter xml:id="Optimization-d1e107">
+        <title>Optimization</title>
+        <para>
+            You can make choices in your validation configuration to optimize performance. 
+            You can use what you learn from the validator to improve the design of your API.
+        </para>
+            <para>
+                For ideas about using the &PRODNAME; API validation component to help with API optimization, which can help with performance, 
+                read the "Optimization" section of 
+                <link xlink:href="http://www.balisage.net/Proceedings/vol8/html/Williams01/BalisageVol8-Williams01.html">Using XProc, XSLT 2.0, and XSD 1.1 to validate RESTful services</link>
+                at 
+                <link xlink:href="http://www.balisage.net/Proceedings/vol8/html/Williams01/BalisageVol8-Williams01.html">http://www.balisage.net/Proceedings/vol8/html/Williams01/BalisageVol8-Williams01.html</link>.
+            </para>
+        <section xml:id="Optimizing_Validator_Performance-d1e109" security="writeronly">
+            <!-- add supporting detail here later -->
+            <title>Optimizing Performance of the API Validation Component</title>
+            <para>
+                Talk about the items mentioned as optimizations in the config example.
+            </para>            
+            <para>
+                2 items in the config example relate to extensions. Are they extensions because they slow things down but can be worth it?
+            </para>
+            
+        </section>
+        <section xml:id="Optimizing_API_Design-d1e111" security="writeronly">
+            <!-- add supporting detail here later -->
+            <title>Using API Validation Results to Optimize an API</title>
+            <para>
+                Talk about how to use all the .dot drawings to improve the WADL and the API it describes.
+            </para>
+        </section>
+    </chapter>
+    <xi:include href="chapters/afterword.xml"/>
+</book>
