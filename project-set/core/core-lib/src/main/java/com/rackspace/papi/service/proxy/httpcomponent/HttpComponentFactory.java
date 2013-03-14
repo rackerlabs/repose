@@ -122,6 +122,10 @@ class EntityEnclosingDelete extends HttpEntityEnclosingRequestBase {
     }
   }
 
+  public EntityEnclosingDelete(URI uri) {
+    super.setURI(uri);
+  }
+
   @Override
   public String getMethod() {
     return "DELETE";
