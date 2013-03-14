@@ -3,19 +3,16 @@ package com.rackspace.papi.service.context;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.domain.ServicePorts;
 import com.rackspace.papi.service.context.spring.SpringContextAdapter;
-import java.io.Serializable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 
 import javax.servlet.ServletContext;
+import java.io.Serializable;
 
 public final class ServletContextHelper implements Serializable {
 
     public static final String SERVLET_CONTEXT_ATTRIBUTE_NAME = "PAPI_ServletContext";
     public static final String SERVLET_CONTEXT_HELPER = "PAPI_ServletContextHelper";
     public static final String SPRING_APPLICATION_CONTEXT_ATTRIBUTE_NAME = "PAPI_SpringApplicationContext";
-    private static final Logger LOG = LoggerFactory.getLogger(ServletContextHelper.class);
     private final ApplicationContext context;
 
     public static ServletContextHelper configureInstance(ServletContext ctx, ApplicationContext applicationContext) {

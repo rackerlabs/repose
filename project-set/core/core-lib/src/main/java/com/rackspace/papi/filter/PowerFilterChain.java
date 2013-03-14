@@ -5,27 +5,27 @@ import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.rackspace.papi.filter.resource.ResourceMonitor;
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author fran
- *
- * Cases to handle/test: 1. There are no filters in our chain but some in container's 2. There are filters in our chain
- * and in container's 3. There are no filters in our chain or container's 4. There are filters in our chain but none in
- * container's 5. If one of our filters breaks out of the chain (i.e. it doesn't call doFilter), then we shouldn't call
- * doFilter on the container's filter chain. 6. If one of the container's filters breaks out of the chain then our chain
- * should unwind correctly
- *
+ *         <p/>
+ *         Cases to handle/test: 1. There are no filters in our chain but some in container's 2. There are filters in our chain
+ *         and in container's 3. There are no filters in our chain or container's 4. There are filters in our chain but none in
+ *         container's 5. If one of our filters breaks out of the chain (i.e. it doesn't call doFilter), then we shouldn't call
+ *         doFilter on the container's filter chain. 6. If one of the container's filters breaks out of the chain then our chain
+ *         should unwind correctly
  */
 public class PowerFilterChain implements FilterChain {
 
@@ -40,20 +40,21 @@ public class PowerFilterChain implements FilterChain {
     private final PowerFilterRouter router;
     private RequestTracer tracer = null;
     private boolean filterChainAvailable;
-    private ReposeInstanceInfo instanceInfo;
 
-    public PowerFilterChain(List<FilterContext> filterChainCopy, FilterChain containerFilterChain, ResourceMonitor resourceMontior, PowerFilterRouter router, ReposeInstanceInfo instanceInfo) throws PowerFilterChainException {
+    public PowerFilterChain(List<FilterContext> filterChainCopy, FilterChain containerFilterChain,
+            ResourceMonitor resourceMontior, PowerFilterRouter router, ReposeInstanceInfo instanceInfo)
+            throws PowerFilterChainException {
 
         this.filterChainCopy = new LinkedList<FilterContext>(filterChainCopy);
         this.containerFilterChain = containerFilterChain;
         this.containerClassLoader = Thread.currentThread().getContextClassLoader();
         this.resourceMonitor = resourceMontior;
         this.router = router;
-        this.instanceInfo = instanceInfo;
         Thread.currentThread().setName(instanceInfo.toString());
     }
 
-    public void startFilterChain(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
+    public void startFilterChain(ServletRequest servletRequest, ServletResponse servletResponse)
+            throws IOException, ServletException {
         resourceMonitor.use();
 
         try {
@@ -72,7 +73,7 @@ public class PowerFilterChain implements FilterChain {
     /**
      * Find the filters that are applicable to this request based on the uri-regex specified for each filter and the
      * current request uri.
-     *
+     * <p/>
      * If a necessary filter is not available, then return an empty filter list.
      *
      * @param uri
@@ -119,8 +120,10 @@ public class PowerFilterChain implements FilterChain {
         return previousClassLoader;
     }
 
-    private void doReposeFilter(MutableHttpServletRequest mutableHttpRequest, ServletResponse servletResponse, FilterContext filterContext) throws IOException, ServletException {
-        final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) servletResponse);
+    private void doReposeFilter(MutableHttpServletRequest mutableHttpRequest, ServletResponse servletResponse,
+            FilterContext filterContext) throws IOException, ServletException {
+        final MutableHttpServletResponse mutableHttpResponse =
+                MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) servletResponse);
         ClassLoader previousClassLoader = setClassLoader(filterContext.getFilterClassLoader());
 
         mutableHttpResponse.pushOutputStream();
@@ -135,8 +138,10 @@ public class PowerFilterChain implements FilterChain {
         }
     }
 
-    private void doRouting(MutableHttpServletRequest mutableHttpRequest, ServletResponse servletResponse) throws IOException, ServletException {
-        final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) servletResponse);
+    private void doRouting(MutableHttpServletRequest mutableHttpRequest, ServletResponse servletResponse)
+            throws IOException, ServletException {
+        final MutableHttpServletResponse mutableHttpResponse =
+                MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) servletResponse);
         ClassLoader previousClassLoader = setClassLoader(containerClassLoader);
 
         try {
@@ -166,9 +171,12 @@ public class PowerFilterChain implements FilterChain {
     }
 
     @Override
-    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException, ServletException {
-        final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) servletRequest);
-        final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) servletResponse);
+    public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse)
+            throws IOException, ServletException {
+        final MutableHttpServletRequest mutableHttpRequest =
+                MutableHttpServletRequest.wrap((HttpServletRequest) servletRequest);
+        final MutableHttpServletResponse mutableHttpResponse =
+                MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) servletResponse);
 
         if (filterChainAvailable && position < currentFilters.size()) {
             FilterContext filter = currentFilters.get(position++);

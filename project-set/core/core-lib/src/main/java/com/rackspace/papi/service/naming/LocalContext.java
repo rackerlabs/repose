@@ -1,10 +1,10 @@
 package com.rackspace.papi.service.naming;
 
+import javax.naming.*;
+import javax.naming.spi.NamingManager;
 import java.util.Collections;
 import java.util.Map;
 import java.util.TreeMap;
-import javax.naming.*;
-import javax.naming.spi.NamingManager;
 
 @SuppressWarnings("UseOfObsoleteCollectionType")
 public abstract class LocalContext extends AbstractContext {
@@ -195,8 +195,6 @@ public abstract class LocalContext extends AbstractContext {
       if (objectRef instanceof Reference) {
          try {
             objectRef = NamingManager.getObjectInstance(objectRef, name, null, getEnvironment());
-         } catch (NamingException ne) {
-            throw ne;
          } catch (Exception ex) {
             throw (NamingException) new NamingException("Unable to look up name, \"" + name + "\"").initCause(ex);
          }
