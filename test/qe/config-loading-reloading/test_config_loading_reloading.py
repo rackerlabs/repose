@@ -415,6 +415,7 @@ def run():
         suite.addTest(load_tests(TestSystemModelConfig))
         suite.addTest(load_tests(TestTranslationConfig))
         suite.addTest(load_tests(TestUriIdentityConfig))
+        suite.addTest(load_tests(TestVersioningConfig))
 
         testRunner = _xmlrunner.XMLTestRunner(output='test-reports')
 
