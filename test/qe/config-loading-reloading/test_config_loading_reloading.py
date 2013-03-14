@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-import repose
-import conf
+from narwhal import repose
+from narwhal import conf
 import requests
 import time
 import sys
