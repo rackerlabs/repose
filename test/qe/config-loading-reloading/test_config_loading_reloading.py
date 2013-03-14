@@ -38,7 +38,7 @@ class MockServiceHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         # printing to stderr
         logger.info("%s - - [%s] %s\n" % (self.client_address[0],
                                           self.log_date_time_string(),
-                                          format%args))
+                                          format % args))
 
 
 def mock_service_thread():
@@ -107,7 +107,7 @@ def create_folder(folder_name):
         os.makedirs(folder_name)
 
 
-class TestConfigLoadingReloading:
+class TestConfigLoadingReloading(unittest.TestCase):
     def setUp(self):
         logger.debug('setUp (%s)' % self.__class__.__name__)
         name = self.get_name()
@@ -305,38 +305,37 @@ class TestNonStartingOnBadConfig(TestConfigLoadingReloading):
                 r.stop()
 
 
-class TestClientAuthNConfig(TestConfigLoadingReloading, unittest.TestCase):
+class TestClientAuthNConfig(TestConfigLoadingReloading):
     def get_name(self):
         return 'client-auth-n'
 
 
-class TestContainerConfig(TestNonStartingOnBadConfig, unittest.TestCase):
+class TestContainerConfig(TestNonStartingOnBadConfig):
     def get_name(self):
         return 'container'
 
 
-class TestDistDatastoreConfig(TestConfigLoadingReloading, unittest.TestCase):
+class TestDistDatastoreConfig(TestConfigLoadingReloading):
     def get_name(self):
         return 'dist-datastore'
 
 
-class TestHeaderIdentityConfig(TestConfigLoadingReloading, unittest.TestCase):
+class TestHeaderIdentityConfig(TestConfigLoadingReloading):
     def get_name(self):
         return 'header-identity'
 
 
-class TestHttpLoggingConfig(TestConfigLoadingReloading, unittest.TestCase):
+class TestHttpLoggingConfig(TestConfigLoadingReloading):
     def get_name(self):
         return 'http-logging'
 
 
-class TestIpIdentityConfig(TestConfigLoadingReloading, unittest.TestCase):
+class TestIpIdentityConfig(TestConfigLoadingReloading):
     def get_name(self):
         return 'ip-identity'
 
 
-class TestOpenstackAuthorizationConfig(TestConfigLoadingReloading,
-                                       unittest.TestCase):
+class TestOpenstackAuthorizationConfig(TestConfigLoadingReloading):
     def get_name(self):
         return 'openstack-authorization'
 
@@ -344,13 +343,12 @@ class TestOpenstackAuthorizationConfig(TestConfigLoadingReloading,
         return 401
 
 
-class TestRateLimitingConfig(TestConfigLoadingReloading, unittest.TestCase):
+class TestRateLimitingConfig(TestConfigLoadingReloading):
     def get_name(self):
         return 'rate-limiting'
 
 
-class TestResponseMessagingConfig(TestConfigLoadingReloading,
-                                  unittest.TestCase):
+class TestResponseMessagingConfig(TestConfigLoadingReloading):
     def test_start_missing(self):
         logger.debug('test_start_missing')
         r = None
@@ -360,8 +358,8 @@ class TestResponseMessagingConfig(TestConfigLoadingReloading,
             conf.process_config_set(self.config_common,
                                     params=self.config_params,
                                     destination_path=self.repose_config_folder,
-                                    verbose=False, configs_folder=configs_folder)
-            
+                                    verbose=False)
+
             r = repose.ReposeValve(self.repose_config_folder,
                                    stop_port=self.repose_stop_port)
             time.sleep(self.sleep_time)
@@ -370,27 +368,27 @@ class TestResponseMessagingConfig(TestConfigLoadingReloading,
         finally:
             if r:
                 r.stop()
-    
+
     def get_name(self):
         return 'response-messaging'
 
 
-class TestSystemModelConfig(TestNonStartingOnBadConfig, unittest.TestCase):
+class TestSystemModelConfig(TestNonStartingOnBadConfig):
     def get_name(self):
         return 'system-model'
 
 
-class TestTranslationConfig(TestConfigLoadingReloading, unittest.TestCase):
+class TestTranslationConfig(TestConfigLoadingReloading):
     def get_name(self):
         return 'translation'
 
 
-class TestUriIdentityConfig(TestConfigLoadingReloading, unittest.TestCase):
+class TestUriIdentityConfig(TestConfigLoadingReloading):
     def get_name(self):
         return 'uri-identity'
 
 
-class TestVersioningConfig(TestConfigLoadingReloading, unittest.TestCase):
+class TestVersioningConfig(TestConfigLoadingReloading):
     def get_name(self):
         return 'versioning'
 
