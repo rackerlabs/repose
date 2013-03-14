@@ -4,9 +4,7 @@ import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.components.datastore.hash.HashRingDatastore;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
-import com.rackspace.papi.filter.SystemModelInterrogator;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
-import com.rackspace.papi.model.Filter;
 import com.rackspace.papi.model.Node;
 import com.rackspace.papi.model.ReposeCluster;
 import com.rackspace.papi.model.SystemModel;
@@ -25,7 +23,7 @@ import java.util.*;
 public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilterHandlerFactory<DatastoreFilterLogicHandler> {
 
    private static final Logger LOG = LoggerFactory.getLogger(DatastoreFilterLogicHandlerFactory.class);
-   private final DatastoreAccessControl DEFAULT_DATASTORE_ACL = new DatastoreAccessControl(Collections.EMPTY_LIST, false);
+   private final DatastoreAccessControl defaultDatastoreACL = new DatastoreAccessControl(Collections.EMPTY_LIST, false);
    private final MutableClusterView clusterView;
    private final HashRingDatastore hashRingDatastore;
    private DatastoreAccessControl hostACL;
@@ -39,7 +37,7 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
       this.hashRingDatastore = hashRingDatastore;
       this.instanceInfo = instanceInfo;
 
-      hostACL = DEFAULT_DATASTORE_ACL;
+      hostACL = defaultDatastoreACL;
 
       LOG.info("By default, the distributed datastore component is configured to"
               + " start in restricted mode. Meaning that only members of the current"
