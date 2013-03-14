@@ -111,10 +111,10 @@ class TestConfigLoadingReloading:
     def setUp(self):
         logger.debug('setUp (%s)' % self.__class__.__name__)
         name = self.get_name()
-        config_base = 'config-load-test-'
-        self.config_good = config_base + name + '-good'
-        self.config_bad = config_base + name + '-bad'
-        self.config_common = config_base + name + '-common'
+        config_base = 'configs/config-load-test-'
+        self.config_good = config_base + name + '-good/.config-set.xml'
+        self.config_bad = config_base + name + '-bad/.config-set.xml'
+        self.config_common = config_base + name + '-common/.config-set.xml'
         self.repose_config_folder = 'etc/repose'
         self.repose_port = 8893
         self.repose_stop_port = 9893
