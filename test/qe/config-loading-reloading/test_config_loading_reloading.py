@@ -13,6 +13,9 @@ import logging
 import SocketServer
 import BaseHTTPServer
 import threading
+import os
+import os.path
+
 
 logger = logging.getLogger(__name__)
 
@@ -88,6 +91,20 @@ def setUpModule():
 
 def tearDownModule():
     destroy_mock()
+
+
+def clear_folder(folder_name):
+    for _name in os.listdir(folder_name):
+        name = os.path.join(folder_name, _name)
+        if os.path.isdir(name):
+            delete_folder(name)
+        else:
+            os.remove(name)
+
+
+def create_folder(folder_name):
+    if not os.path.exists(folder_name):
+        os.makedirs(folder_name)
 
 
 class TestConfigLoadingReloading:
