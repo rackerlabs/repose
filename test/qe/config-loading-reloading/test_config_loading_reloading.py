@@ -137,53 +137,41 @@ class TestConfigLoadingReloading(unittest.TestCase):
     def get_bad_response(self):
         return 503
 
-    def test_start_good(self):
+    def _test_start(self, config_folder, config_sets, params, expected_result):
         logger.debug('test_start_good')
         r = None
         try:
             create_folder(self.repose_config_folder)
             clear_folder(self.repose_config_folder)
-            conf.process_config_set(self.config_common,
-                                    params=self.config_params,
-                                    destination_path=self.repose_config_folder,
-                                    verbose=False)
-
-            conf.process_config_set(self.config_good,
-                                    params=self.config_params,
-                                    destination_path=self.repose_config_folder,
-                                    verbose=False)
-            r = repose.ReposeValve(self.repose_config_folder,
+            for config_set in config_sets:
+                conf.process_config_set(config_set,
+                                        params=params,
+                                        destination_path=config_folder,
+                                        verbose=False)
+            r = repose.ReposeValve(config_folder,
                                    stop_port=self.repose_stop_port)
             time.sleep(self.sleep_time)
-            self.assertEquals(self.get_status_code_from_url(self.repose_url),
-                              self.get_good_response())
+            try:
+                expected_code = int(expected_result)
+            except TypeError:
+                self.assertRaises(expected_result, requests.get,
+                                  self.repose_url)
+            else:
+                actual_code = self.get_status_code_from_url(self.repose_url)
+                self.assertEquals(actual_code, expected_code)
         finally:
             if r:
                 r.stop()
+
+    def test_start_good(self):
+        self._test_start(self.repose_config_folder,
+                         [self.config_common, self.config_good, ],
+                         self.config_params, self.get_good_response())
 
     def test_start_bad(self):
-        logger.debug('test_start_bad')
-        r = None
-        try:
-            create_folder(self.repose_config_folder)
-            clear_folder(self.repose_config_folder)
-            conf.process_config_set(self.config_common,
-                                    params=self.config_params,
-                                    destination_path=self.repose_config_folder,
-                                    verbose=False)
-
-            conf.process_config_set(self.config_bad,
-                                    params=self.config_params,
-                                    destination_path=self.repose_config_folder,
-                                    verbose=False)
-            r = repose.ReposeValve(self.repose_config_folder,
-                                   stop_port=self.repose_stop_port)
-            time.sleep(self.sleep_time)
-            self.assertEquals(self.get_status_code_from_url(self.repose_url),
-                              self.get_bad_response())
-        finally:
-            if r:
-                r.stop()
+        self._test_start(self.repose_config_folder,
+                         [self.config_common, self.config_bad, ],
+                         self.config_params, self.get_bad_response())
 
     def test_good_to_bad(self):
         logger.debug('test_good_to_bad')
@@ -250,28 +238,9 @@ class TestConfigLoadingReloading(unittest.TestCase):
 
 class TestNonStartingOnBadConfig(TestConfigLoadingReloading):
     def test_start_bad(self):
-        logger.debug('test_start_bad (2)')
-        r = None
-        try:
-            create_folder(self.repose_config_folder)
-            clear_folder(self.repose_config_folder)
-            conf.process_config_set(self.config_common,
-                                    params=self.config_params,
-                                    destination_path=self.repose_config_folder,
-                                    verbose=False)
-
-            conf.process_config_set(self.config_bad,
-                                    params=self.config_params,
-                                    destination_path=self.repose_config_folder,
-                                    verbose=False)
-            r = repose.ReposeValve(self.repose_config_folder,
-                                   stop_port=self.repose_stop_port)
-            time.sleep(self.sleep_time)
-            self.assertRaises(requests.ConnectionError, requests.get,
-                              self.repose_url)
-        finally:
-            if r:
-                r.stop()
+        self._test_start(self.repose_config_folder,
+                         [ self.config_common, self.config_bad, ],
+                         self.config_params, requests.ConnectionError)
 
     def test_bad_to_good(self):
         logger.debug('test_bad_to_good (2)')
