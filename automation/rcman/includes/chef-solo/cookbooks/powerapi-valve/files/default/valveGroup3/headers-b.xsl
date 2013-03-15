@@ -45,6 +45,13 @@
                   </xsl:element>
                   <xsl:apply-templates select="httpx:request//httpx:header" />
                 </httpx:request>
+                <httpx:response>
+                  <xsl:element name="httpx:header">
+                    <xsl:attribute name="name"><xsl:value-of select="'translation-response-b'"/></xsl:attribute>
+                    <xsl:attribute name="value"><xsl:value-of select="'response-b'"/></xsl:attribute>
+                  </xsl:element>
+                  <xsl:apply-templates select="httpx:request//httpx:header" />
+                </httpx:response>
             </httpx:headers>
         </xsl:result-document>
     </xsl:template>
