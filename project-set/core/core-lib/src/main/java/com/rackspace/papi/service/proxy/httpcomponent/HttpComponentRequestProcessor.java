@@ -11,9 +11,13 @@ import org.apache.http.params.HttpParams;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URLDecoder;
 import java.util.Enumeration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Process a request to copy over header values, query string parameters, and
@@ -21,6 +25,7 @@ import java.util.Enumeration;
  * 
  */
 class HttpComponentRequestProcessor extends AbstractRequestProcessor {
+    private static final String ENCODING = "UTF-8";
     private final HttpServletRequest sourceRequest;
     private final URI targetHost;
 
@@ -52,7 +57,7 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
       }
     }
 
-  private void setRequestParameters(URIBuilder builder) {
+  private void setRequestParameters(URIBuilder builder) throws URISyntaxException {
     Enumeration<String> names = sourceRequest.getParameterNames();
 
     while (names.hasMoreElements()) {
@@ -60,7 +65,11 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
       String[] values = sourceRequest.getParameterValues(name);
 
       for (String value: values) {
-        builder.addParameter(name, value);
+        try {
+          builder.addParameter(name, URLDecoder.decode(value, ENCODING));
+        } catch (UnsupportedEncodingException ex) {
+          throw new URISyntaxException(value, "Invalid value for query parameter: " + name);
+        }
       }
     }
   }

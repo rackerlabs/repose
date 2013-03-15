@@ -143,8 +143,8 @@ public class TranslationHandler extends AbstractFilterLogicHandler {
 
     try {
       filterDirector.setResponseStatusCode(response.getStatus());
-      if (response.hasBody()) {
-        InputStream in = response.getBufferedOutputAsInputStream();
+      InputStream in = response.getBufferedOutputAsInputStream();
+      if (in != null) {
 
         TranslationResult result = null;
         for (XmlChainPool pool : pools) {
