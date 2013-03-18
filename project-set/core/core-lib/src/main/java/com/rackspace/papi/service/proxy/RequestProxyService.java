@@ -10,6 +10,7 @@ public interface RequestProxyService {
 
     int proxyRequest(String targetHost, HttpServletRequest request, HttpServletResponse response) throws IOException;
     void updateConfiguration(Integer connectionTimeout, Integer readTimeout, Integer proxyThreadPool, boolean requestLogging);
+    void setRewriteHostHeader(boolean value);
     ServiceClientResponse get(String uri, Map<String, String> headers);
     ServiceClientResponse get(String baseUri, String extraUri, Map<String, String> headers);
     ServiceClientResponse delete(String baseUri, String extraUri, Map<String, String> headers);
