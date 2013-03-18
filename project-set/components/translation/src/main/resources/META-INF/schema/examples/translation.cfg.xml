@@ -13,26 +13,26 @@
         -->
         <response-translation content-type="application/json" accept="application/xml,application/atom+xml" translated-content-type="application/xml">
             <style-sheets>
-                <style id="1" href="style1.xsl" headers="true" query-params="false">
+                <style id="id1" href="style1.xsl">
                     <param name="my-param" value="some-value"/>
                 </style>
-                <style id="2" href="style2.xsl" />
-                <style id="3" href="style3.xsl" />
+                <style id="id2" href="style2.xsl" />
+                <style id="id3" href="style3.xsl" />
             </style-sheets>
         </response-translation>
         
         <response-translation content-type="application/json" accept="application/json" translated-content-type="application/json">
             <style-sheets>
-                <style id="4" href="style1.xsl">
+                <style id="id4" href="style1.xsl">
                     <param name="my-other-param" value="some-value"/>
                 </style>
-                <style id="5" href="style2.xsl">
+                <style id="id5" href="style2.xsl">
                     <param name="my-other-param" value="some-value"/>
                 </style>
-                <style id="6" href="style3.xsl">
+                <style id="id6" href="style3.xsl">
                     <param name="my-other-param" value="some-value"/>
                 </style>
-                <style id="7" href="style5.xsl">
+                <style id="id7" href="style5.xsl">
                     <param name="my-other-param" value="some-value"/>
                 </style>
             </style-sheets>
@@ -40,7 +40,7 @@
         
         <response-translation content-type="application/xml" accept="application/xml" translated-content-type="application/xml">
             <style-sheets>
-                <style id="8" href="style4.xsl">
+                <style id="id8" href="style4.xsl">
                     <param name="my-other-param" value="some-value"/>
                 </style>
             </style-sheets>
@@ -48,10 +48,10 @@
 
         <response-translation content-type="application/xml" accept="application/json" translated-content-type="application/json">
             <style-sheets>
-                <style id="9" href="style4.xsl">
+                <style id="id9" href="style4.xsl">
                     <param name="my-param" value="some-value"/>
                 </style>
-                <style id="10" href="style5.xsl"/>
+                <style id="id10" href="style5.xsl"/>
             </style-sheets>
         </response-translation>
 
