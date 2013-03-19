@@ -1,7 +1,6 @@
 package com.rackspace.papi.service.proxy.httpcomponent;
 
 import java.io.IOException;
-import java.io.PushbackInputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Arrays;
@@ -10,12 +9,10 @@ import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.http.HttpHost;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.entity.InputStreamEntity;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpParams;
 import org.junit.*;
-import static org.junit.Assert.*;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import static org.mockito.Mockito.*;
@@ -55,7 +52,7 @@ public class HttpComponentRequestProcessorTest {
             when(request.getParameterValues(eq("param2"))).thenReturn(params2);
             when(request.getInputStream()).thenReturn(input);
             when(method.getParams()).thenReturn(methodParams);
-            processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"));
+            processor = new HttpComponentRequestProcessor(request, new URI("www.openrepose.org"), true);
         }
 
         @Test
