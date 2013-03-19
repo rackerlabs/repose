@@ -23,7 +23,7 @@ import java.util.*;
 public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilterHandlerFactory<DatastoreFilterLogicHandler> {
 
    private static final Logger LOG = LoggerFactory.getLogger(DatastoreFilterLogicHandlerFactory.class);
-   private final DatastoreAccessControl DEFAULT_DATASTORE_ACL = new DatastoreAccessControl(Collections.EMPTY_LIST, false);
+   private final DatastoreAccessControl defaultDatastoreACL = new DatastoreAccessControl(Collections.EMPTY_LIST, false);
    private final MutableClusterView clusterView;
    private final HashRingDatastore hashRingDatastore;
    private DatastoreAccessControl hostACL;
@@ -37,7 +37,7 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
       this.hashRingDatastore = hashRingDatastore;
       this.instanceInfo = instanceInfo;
 
-      hostACL = DEFAULT_DATASTORE_ACL;
+      hostACL = defaultDatastoreACL;
 
       LOG.info("By default, the distributed datastore component is configured to"
               + " start in restricted mode. Meaning that only members of the current"

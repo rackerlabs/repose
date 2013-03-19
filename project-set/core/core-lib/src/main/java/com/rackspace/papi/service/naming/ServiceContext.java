@@ -183,8 +183,6 @@ public class ServiceContext implements Context {
         if (objectRef instanceof Reference) {
             try {
                 objectRef = NamingManager.getObjectInstance(objectRef, name, null, getEnvironment());
-            } catch (NamingException ne) {
-                throw ne;
             } catch (Exception ex) {
                 throw (NamingException) new NamingException("Unable to look up name, \"" + name + "\"").initCause(ex);
             }

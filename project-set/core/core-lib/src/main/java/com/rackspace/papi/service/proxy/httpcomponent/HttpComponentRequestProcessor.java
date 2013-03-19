@@ -16,12 +16,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.Enumeration;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * Process a request to copy over header values, query string parameters, and request body as necessary.
- *
+ * Process a request to copy over header values, query string parameters, and
+ * request body as necessary.
  */
 class HttpComponentRequestProcessor extends AbstractRequestProcessor {
 
@@ -51,7 +50,6 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
 
       for (String value : values) {
         params.setParameter(name, value);
-        //method.setParams(method.getParams()..setParameter(name, value));
       }
 
       method.setParams(params);
@@ -61,9 +59,9 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
   private void setRequestParameters(URIBuilder builder) throws URISyntaxException {
     Enumeration<String> names = sourceRequest.getParameterNames();
 
-    while (names.hasMoreElements()) {
-      String name = names.nextElement();
-      String[] values = sourceRequest.getParameterValues(name);
+        while (names.hasMoreElements()) {
+            String name = names.nextElement();
+            String[] values = sourceRequest.getParameterValues(name);
 
       for (String value : values) {
         try {
@@ -133,7 +131,6 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
    */
   public HttpRequestBase process(HttpRequestBase method) {
     setHeaders(method);
-    //setRequestParameters(method);
     return method;
 
   }
@@ -147,7 +144,6 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
    */
   public HttpRequestBase process(HttpEntityEnclosingRequestBase method) throws IOException {
     setHeaders(method);
-    //setRequestParameters(method);
     method.setEntity(new InputStreamEntity(sourceRequest.getInputStream(), -1));
     return method;
   }

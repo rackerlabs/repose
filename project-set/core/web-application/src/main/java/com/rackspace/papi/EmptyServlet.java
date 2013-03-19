@@ -2,13 +2,14 @@ package com.rackspace.papi;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.service.context.impl.PowerApiContextManager;
-import java.io.IOException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
 
 public final class EmptyServlet extends HttpServlet {
 
@@ -16,7 +17,7 @@ public final class EmptyServlet extends HttpServlet {
    private boolean initialized = false;
 
    private boolean isRequestFilterChainComplete(HttpServletRequest req) {
-      return Boolean.valueOf((Boolean)req.getAttribute("filterChainAvailableForRequest"));
+      return (Boolean)req.getAttribute("filterChainAvailableForRequest");
    }
 
    private boolean isPowerApiContextManagerIntiliazed() {
