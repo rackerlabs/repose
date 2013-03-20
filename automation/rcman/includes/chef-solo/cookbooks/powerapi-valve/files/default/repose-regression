@@ -20,13 +20,13 @@ startRepose()
 #    fi
     case "$1" in
         9887)
-            start-stop-daemon $START_ARGS --exec $JAVA -- -jar $JAR_DIRECTORY/repose-valve.jar START -k -p $1 -s $2 -c $CONFIG_DIRECTORY/valveGroup$3 > $LOG_PATH/valveGroup$3/current.log 2>&1 &
+            start-stop-daemon $START_ARGS --exec $JAVA -- -jar $JAR_DIRECTORY/repose-valve.jar START -k -p $1 -s $2 -c $CONFIG_DIRECTORY/valveGroup$3 -cf $4> $LOG_PATH/valveGroup$3/current.log 2>&1 &
             ;;
         9888)
-            start-stop-daemon $START_ARGS --exec $JAVA -- $JMX -jar $JAR_DIRECTORY/repose-valve.jar START -p $1 -s $2 -c $CONFIG_DIRECTORY/valveGroup$3 > $LOG_PATH/valveGroup$3/current.log 2>&1 &
+            start-stop-daemon $START_ARGS --exec $JAVA -- $JMX -jar $JAR_DIRECTORY/repose-valve.jar START -p $1 -s $2 -c $CONFIG_DIRECTORY/valveGroup$3 -cf $4> $LOG_PATH/valveGroup$3/current.log 2>&1 &
             ;;
         *)
-            start-stop-daemon $START_ARGS --exec $JAVA -- -jar $JAR_DIRECTORY/repose-valve.jar START -p $1 -s $2 -c $CONFIG_DIRECTORY/valveGroup$3 > $LOG_PATH/valveGroup$3/current.log 2>&1 &
+            start-stop-daemon $START_ARGS --exec $JAVA -- -jar $JAR_DIRECTORY/repose-valve.jar START -p $1 -s $2 -c $CONFIG_DIRECTORY/valveGroup$3 -cf $4> $LOG_PATH/valveGroup$3/current.log 2>&1 &
             ;;
     esac
 
@@ -44,10 +44,16 @@ repose()
       do
 	START=`expr $i + 9886`
 	STOP=`expr $i + 9817`
-	echo "$1 repose on port $START"
+	CF=$2
+        if [ -z "$CF" ]
+        then
+           CF="jersey"
+        fi
+        
+	echo "$1 repose on port $START: $CF"
 	case $1 in
            start)
-	      startRepose $START $STOP $i
+	      startRepose $START $STOP $i $CF
 	   ;;
            stop)
 	      stopRepose  $START $STOP $i
@@ -61,7 +67,7 @@ repose()
 
 case $1 in
    start)
-      repose $1
+      repose $1 $2
      
       ;;
 
