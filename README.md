@@ -143,7 +143,8 @@ name mappings are listed below.
 ##Repose Documentation##
 Documentation is included with the source files and may be built with the maven command:  
 <pre>
-    mvn clean install
+    export MAVEN_OPTS='-Xmx512m -XX:MaxPermSize=256m'
+    mvn clean install -Pdocbook
 </pre>
 This will build the documentation pdfs in the generated "target/docbkx/" directory.
 

@@ -4,7 +4,7 @@
     
     <groupId>com.rackspace.papi</groupId>
     <artifactId>papi</artifactId>
-    <version>2.6.11-SNAPSHOT</version>
+    <version>2.6.12-SNAPSHOT</version>
     
     <name>Repose</name>
     
@@ -14,41 +14,7 @@
         profiles.
     </description>
     
-    <packaging>pom</packaging>
-    <modules>
-        <module>project-set</module>
-    </modules>
-    
-    <profiles>
-        
-        <profile>
-            <id>docbook</id>
-            <modules>
-                <module>documentation/docbook</module>
-            </modules>
-            <build>
-                <pluginManagement>
-                    <plugins>
-                        <plugin>
-                            <groupId>org.codehaus.mojo</groupId>
-                            <artifactId>exec-maven-plugin</artifactId>
-                            
-                            <configuration>
-                                <executable>java</executable>
-                                <workingDirectory>documentation/docbook</workingDirectory>
-                                <arguments>
-                                    <argument>-Xms512m</argument>
-                                    <argument>-Xmx512m</argument>
-                                    <argument>-XX:MaxPermSize=256m</argument>
-                                    
-                                </arguments>
-                            </configuration>
-                        </plugin>
-                    </plugins>
-                </pluginManagement>
-            </build>
-        </profile>
-    </profiles>
+
     
     <organization>
         <name>Rackspace Cloud Research</name>
@@ -66,6 +32,20 @@
             <url>http://www.apache.org/licenses/LICENSE-2.0</url>
         </license>
     </licenses>
+    
+    <packaging>pom</packaging>
+    <modules>
+        <module>project-set</module>
+    </modules>
+    
+    <profiles>
+        <profile>
+            <id>docbook</id>
+            <modules>
+                <module>documentation/docbook</module>
+            </modules>
+        </profile>
+    </profiles>
     
     
     <scm>
