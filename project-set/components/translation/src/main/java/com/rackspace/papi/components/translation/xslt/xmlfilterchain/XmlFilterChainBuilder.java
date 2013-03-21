@@ -1,32 +1,8 @@
 package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
-import com.rackspace.papi.components.translation.resolvers.ClassPathUriResolver;
-import com.rackspace.papi.components.translation.resolvers.HttpxUriInputParameterResolver;
-import com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver;
-import com.rackspace.papi.components.translation.resolvers.SourceUriResolver;
-import com.rackspace.papi.components.translation.resolvers.SourceUriResolverChain;
+import com.rackspace.papi.components.translation.resolvers.*;
 import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;
 import com.rackspace.papi.components.translation.xslt.XsltException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
-import javax.xml.XMLConstants;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import javax.xml.transform.Source;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.URIResolver;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.sax.SAXTransformerFactory;
-import javax.xml.transform.stream.StreamResult;
-import javax.xml.transform.stream.StreamSource;
 import net.sf.saxon.lib.FeatureKeys;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,19 +11,38 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLFilter;
 import org.xml.sax.XMLReader;
 
+import javax.xml.XMLConstants;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.parsers.SAXParser;
+import javax.xml.parsers.SAXParserFactory;
+import javax.xml.transform.*;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.sax.SAXTransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+
 public class XmlFilterChainBuilder {
 
   private static final Logger LOG = LoggerFactory.getLogger(XmlFilterChainBuilder.class);
   private static final String CLASSPATH_PREFIX = "classpath://";
   private final SAXTransformerFactory factory;
   private final boolean allowEntities;
+  private final boolean allowDtdDeclarations;
 
-  public XmlFilterChainBuilder(SAXTransformerFactory factory, boolean allowEntities) {
+  public XmlFilterChainBuilder(SAXTransformerFactory factory, boolean allowEntities, boolean allowDeclarations) {
     this.factory = factory;
     this.allowEntities = allowEntities;
+    this.allowDtdDeclarations = allowDeclarations;
     try {
       factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-      factory.setFeature(FeatureKeys.ALLOW_EXTERNAL_FUNCTIONS, new Boolean(true));
+      factory.setFeature(FeatureKeys.ALLOW_EXTERNAL_FUNCTIONS, Boolean.TRUE);
     } catch (TransformerConfigurationException ex) {
       LOG.error("Error", ex);
     }
@@ -152,14 +147,20 @@ public class XmlFilterChainBuilder {
   }
 
   protected XMLReader getSaxReader() throws ParserConfigurationException, SAXException {
+    System.setProperty("entityExpansionLimit","10"); 
     SAXParserFactory spf = SAXParserFactory.newInstance();
     spf.setXIncludeAware(false);
     spf.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
     spf.setValidating(true);
     spf.setNamespaceAware(true);
+    spf.setFeature("http://apache.org/xml/features/disallow-doctype-decl", !allowDtdDeclarations);
     SAXParser parser = spf.newSAXParser();
     XMLReader reader = parser.getXMLReader();
     reader.setEntityResolver(new ReposeEntityResolver(reader.getEntityResolver(), allowEntities));
+
+    LOG.info("SAXParserFactory class: " + spf.getClass().getCanonicalName());
+    LOG.info("SAXParser class: " + parser.getClass().getCanonicalName());
+    LOG.info("XMLReader class: " + reader.getClass().getCanonicalName());
 
     return reader;
   }

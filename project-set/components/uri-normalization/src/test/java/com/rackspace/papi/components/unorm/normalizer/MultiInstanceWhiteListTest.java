@@ -71,5 +71,15 @@ public class MultiInstanceWhiteListTest {
             assertTrue("Should accept 'a'", whiteList.shouldAccept("c"));
          }
       }
+      
+      @Test
+      public void shouldNotAcceptAnythingWithNullParameter(){
+         
+         MultiInstanceWhiteList emptyWhiteList= new MultiInstanceWhiteList(null);
+         
+         assertFalse("Should not accept 'a'", emptyWhiteList.shouldAccept("a"));
+         assertFalse("Should not accept 'test'", emptyWhiteList.shouldAccept("test"));
+         assertFalse("Should not accept 'format'", emptyWhiteList.shouldAccept("format"));
+      }
    }
 }

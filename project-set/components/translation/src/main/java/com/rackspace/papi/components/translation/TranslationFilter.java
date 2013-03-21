@@ -6,10 +6,11 @@ import com.rackspace.papi.filter.logic.impl.FilterLogicHandlerDelegate;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServletContextHelper;
 import com.rackspace.papi.servlet.InitParameter;
+import org.slf4j.Logger;
+
+import javax.servlet.*;
 import java.io.IOException;
 import java.net.URL;
-import javax.servlet.*;
-import org.slf4j.Logger;
 
 public class TranslationFilter implements Filter {
 

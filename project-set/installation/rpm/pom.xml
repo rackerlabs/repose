@@ -5,12 +5,12 @@
     <parent>
         <groupId>com.rackspace.repose.installation</groupId>
         <artifactId>installation</artifactId>
-        <version>2.6.2-SNAPSHOT</version>
+        <version>2.6.12-SNAPSHOT</version>
     </parent>
 
     <groupId>com.rackspace.repose.installation.rpm</groupId>
     <artifactId>rpm</artifactId>
-    <version>2.6.2-SNAPSHOT</version>
+    <version>2.6.12-SNAPSHOT</version>
 
     <name>Repose - Installation RPM</name>
 
@@ -24,6 +24,7 @@
         <module>repose-war</module>
         <module>repose-filters</module>
         <module>repose-extension-filters</module>
+        <module>repose-valve</module>
         <module>cli-utils</module>
         <module>ug-repose-filters</module>
         <module>ug-repose-valve</module>

@@ -21,31 +21,33 @@ import java.io.FileOutputStream;
  */
 public class VersioningMarshaller implements ReposeMarshaller {
 
-   private static final Logger LOG = LoggerFactory.getLogger(VersioningMarshaller.class);
+    private static final Logger LOG = LoggerFactory.getLogger(VersioningMarshaller.class);
 
-   private final JAXBContext jaxbContext = JAXBContext.newInstance(ReposeConfiguration.VERSIONING.getConfigContextPath());
-   private final Marshaller marshaller = jaxbContext.createMarshaller();
-   private final ObjectFactory objectFactory = new ObjectFactory();
+    private final JAXBContext jaxbContext = JAXBContext.newInstance(ReposeConfiguration.VERSIONING.getConfigContextPath());
+    private final Marshaller marshaller = jaxbContext.createMarshaller();
+    private final ObjectFactory objectFactory = new ObjectFactory();
 
-   public VersioningMarshaller() throws JAXBException {
-      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-   }
+    public VersioningMarshaller() throws JAXBException {
+        marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+    }
 
-   @Override
-   public void marshal(String configurationRoot, Object config) throws FileNotFoundException, JAXBException {
-      if (!(config instanceof ServiceVersionMappingList)) {
-         // TODO: Clean up exception handling
-         throw new IllegalArgumentException("The config object passed is not a RateLimitingConfiguration.");
-      }
+    @Override
+    public void marshal(String configurationRoot, Object config) throws FileNotFoundException, JAXBException {
+        if (!(config instanceof ServiceVersionMappingList)) {
+            // TODO: Clean up exception handling
+            throw new IllegalArgumentException("The config object passed is not a RateLimitingConfiguration.");
+        }
 
-      marshaller.marshal(objectFactory.createVersioning((ServiceVersionMappingList) config), new FileOutputStream(configurationRoot + ReposeConfiguration.VERSIONING.getConfigFilename()));
+        marshaller.marshal(objectFactory.createVersioning((ServiceVersionMappingList) config),
+                new FileOutputStream(configurationRoot + ReposeConfiguration.VERSIONING.getConfigFilename()));
 
-      LOG.info("Created " + ReposeConfiguration.VERSIONING.getConfigFilename() + " : " + config.toString());
-   }
+        LOG.info("Created " + ReposeConfiguration.VERSIONING.getConfigFilename() + " : " + config.toString());
+    }
 
-   @Override
-   public JAXBElement<?> unmarshal(String configurationRoot) throws FileNotFoundException, JAXBException {
-      return (JAXBElement<ServiceVersionMappingList>) jaxbContext.createUnmarshaller().unmarshal(new File(configurationRoot + ReposeConfiguration.VERSIONING.getConfigFilename()));
+    @Override
+    public JAXBElement<?> unmarshal(String configurationRoot) throws FileNotFoundException, JAXBException {
+        return (JAXBElement<ServiceVersionMappingList>) jaxbContext.createUnmarshaller()
+                .unmarshal(new File(configurationRoot + ReposeConfiguration.VERSIONING.getConfigFilename()));
 
-   }
+    }
 }

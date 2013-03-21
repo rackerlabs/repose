@@ -4,34 +4,30 @@ import com.rackspace.papi.commons.util.io.BufferedServletInputStream;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
-import com.rackspace.papi.components.translation.config.HttpMethod;
-import com.rackspace.papi.components.translation.config.RequestTranslation;
-import com.rackspace.papi.components.translation.config.RequestTranslations;
-import com.rackspace.papi.components.translation.config.ResponseTranslation;
-import com.rackspace.papi.components.translation.config.ResponseTranslations;
-import com.rackspace.papi.components.translation.config.StyleSheet;
-import com.rackspace.papi.components.translation.config.StyleSheets;
-import com.rackspace.papi.components.translation.config.TranslationConfig;
+import com.rackspace.papi.components.translation.config.*;
 import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.service.config.ConfigurationService;
+import org.custommonkey.xmlunit.Diff;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
+import org.xml.sax.SAXException;
+
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.StringTokenizer;
-import javax.servlet.ServletInputStream;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.*;
-import org.custommonkey.xmlunit.Diff;
-import org.xml.sax.SAXException;
 
 @RunWith(Enclosed.class)
 public class TranslationHandlerTest {
@@ -116,7 +112,7 @@ public class TranslationHandlerTest {
 
             FilterDirector director = handler.handleResponse(mutableHttpRequest, mutableHttpResponse);
             String actual = director.getResponseMessageBody();
-            final String expected = "<add-me>\n   <root/>\n</add-me>\n";
+            final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add-me xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><root/></add-me>";
 
             Diff diff1 = new Diff(expected, actual);
 
@@ -137,8 +133,8 @@ public class TranslationHandlerTest {
 
             FilterDirector director = handler.handleResponse(mutableHttpRequest, mutableHttpResponse);
             String actual = director.getResponseMessageBody();
-            final String expected = "<add-me>\n   <root>\n    This is  a test.\n</root>\n</add-me>";
-
+            final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add-me xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><root>\n    This is  a test.\n</root></add-me>";
+            
             Diff diff1 = new Diff(expected, actual);
 
             assertEquals(director.getFilterAction(), FilterAction.PASS);
@@ -270,7 +266,7 @@ public class TranslationHandlerTest {
 
             FilterDirector director = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
             String actual = new String(RawInputStreamReader.instance().readFully(mutableHttpRequest.getInputStream()));
-            final String expected = "<add-me>\n   <root/>\n</add-me>\n";
+            final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add-me><root/></add-me>";
 
             Diff diff1 = new Diff(expected, actual);
 
@@ -290,7 +286,7 @@ public class TranslationHandlerTest {
 
             FilterDirector director = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
             String actual = new String(RawInputStreamReader.instance().readFully(mutableHttpRequest.getInputStream()));
-            final String expected = "<add-me>\n   <root>\n    This is  a test.\n</root>\n</add-me>";
+            final String expected = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><add-me xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"><root>\n    This is  a test.\n</root></add-me>";
 
             Diff diff1 = new Diff(expected, actual);
 

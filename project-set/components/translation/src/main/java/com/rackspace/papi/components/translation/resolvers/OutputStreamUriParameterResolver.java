@@ -1,13 +1,14 @@
 package com.rackspace.papi.components.translation.resolvers;
 
+import net.sf.saxon.lib.OutputURIResolver;
+
+import javax.xml.transform.Result;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.stream.StreamResult;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
-import javax.xml.transform.Result;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.stream.StreamResult;
-import net.sf.saxon.lib.OutputURIResolver;
 
 public class OutputStreamUriParameterResolver implements OutputURIResolver {
 

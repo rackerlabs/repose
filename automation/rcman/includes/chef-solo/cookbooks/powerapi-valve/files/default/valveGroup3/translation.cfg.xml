@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<translation xmlns="http://docs.rackspacecloud.com/repose/translation/v1.0">
+<translation xmlns="http://docs.rackspacecloud.com/repose/translation/v1.0" allow-doctype-decl="true">
     <response-translations>
         <response-translation content-type="application/xml" accept="application/xml" translated-content-type="application/xml">
             <style-sheets>
@@ -34,6 +34,11 @@
                         </xsl:stylesheet>
                     </xsl>
                 </style>
+            </style-sheets>
+        </response-translation>
+        <response-translation content-type="application/rss+xml" accept="application/xml" translated-content-type="application/xml">
+            <style-sheets>
+                <style id="ss7" href="headers-io.xsl" />
             </style-sheets>
         </response-translation>
     </response-translations>

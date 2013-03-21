@@ -238,7 +238,7 @@
             </XPathExtractor>
             <hashTree/>
           </hashTree>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="ValidUserInServiceList" enabled="true"/>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="ValidUserInServiceList" enabled="false"/>
           <hashTree>
             <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
               <collectionProp name="HeaderManager.headers">

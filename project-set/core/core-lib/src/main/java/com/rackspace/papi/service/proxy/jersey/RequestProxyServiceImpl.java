@@ -39,6 +39,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private final Object clientLock = new Object();
     private boolean requestLogging;
     private final ReposeInstanceInfo instanceInfo;
+    private boolean rewriteHostHeader = false;
 
     @Autowired
     public RequestProxyServiceImpl(@Qualifier("reposeInstanceInfo") ReposeInstanceInfo instanceInfo) {
@@ -77,7 +78,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         TargetHostInfo host = new TargetHostInfo(targetHost);
         final String target = host.getProxiedHostUrl().toExternalForm() + request.getRequestURI();
 
-        JerseyRequestProcessor processor = new JerseyRequestProcessor(request);
+        JerseyRequestProcessor processor = new JerseyRequestProcessor(request, host.getProxiedHostUri(), rewriteHostHeader);
         try {
             WebResource resource = getClient().resource(target);
             WebResource.Builder builder = processor.process(resource);
@@ -173,4 +174,9 @@ public class RequestProxyServiceImpl implements RequestProxyService {
             throw new ProxyRequestException("Error dispatching PUT request", ex);
         }
     }
+
+  @Override
+  public void setRewriteHostHeader(boolean value) {
+    rewriteHostHeader = value;
+  }
 }

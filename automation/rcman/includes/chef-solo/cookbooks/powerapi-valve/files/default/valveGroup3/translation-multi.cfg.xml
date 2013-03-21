@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<translation xmlns="http://docs.rackspacecloud.com/repose/translation/v1.0" allow-doctype-decl="true" multi-match="true" >
+    <request-translations>
+        <request-translation http-methods="POST" content-type="application/xml" accept="*/*" translated-content-type="application/xml">
+	  <style-sheets >
+	     <style href="headers-a.xsl" />
+	  </style-sheets>
+        </request-translation>
+        <request-translation >
+	  <style-sheets >
+	     <style href="headers-b.xsl" />
+	  </style-sheets>
+        </request-translation>
+    </request-translations>
+    <response-translations>
+        <response-translation content-type="application/atom+xml" accept="*/*" translated-content-type="application/atom+xml">
+	  <style-sheets >
+	     <style href="headers-a.xsl" />
+	  </style-sheets>
+        </response-translation>
+        <response-translation accept="application/other" >
+	  <style-sheets >
+	     <style href="headers-b.xsl" />
+	  </style-sheets>
+        </response-translation>
+    </response-translations>
+</translation>

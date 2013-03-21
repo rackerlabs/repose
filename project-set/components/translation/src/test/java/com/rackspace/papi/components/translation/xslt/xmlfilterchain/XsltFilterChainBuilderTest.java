@@ -2,19 +2,21 @@ package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
 import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;
 import com.rackspace.papi.components.translation.xslt.XsltParameter;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.sax.SAXTransformerFactory;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.sax.SAXTransformerFactory;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
+
+import static org.junit.Assert.*;
 
 @RunWith(Enclosed.class)
 public class XsltFilterChainBuilderTest {
@@ -31,7 +33,7 @@ public class XsltFilterChainBuilderTest {
 
         @Before
         public void setUp() {
-            builder = new XmlFilterChainBuilder(factory, false);
+            builder = new XmlFilterChainBuilder(factory, false, true);
         }
 
         @Test
@@ -66,7 +68,7 @@ public class XsltFilterChainBuilderTest {
 
         @Before
         public void setUp() {
-            builder = new XmlFilterChainBuilder(factory, false);
+            builder = new XmlFilterChainBuilder(factory, false, true);
             output = new ByteArrayOutputStream();
             body = getClass().getResourceAsStream("/empty.xml");
         }

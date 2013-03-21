@@ -99,7 +99,7 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
                 if (streamLimit <= 0) {
                     inputStream = new BufferedServletInputStream(super.getInputStream());
                 } else {
-                    inputStream = new ServletInputStreamWrapper((InputStream) new LimitedReadInputStream(streamLimit, super.getInputStream()));
+                    inputStream = new ServletInputStreamWrapper(new LimitedReadInputStream(streamLimit, super.getInputStream()));
                 }
             }
             return inputStream;
@@ -149,6 +149,10 @@ public class MutableHttpServletRequest extends HttpServletRequestWrapper {
     @Override
     public String getHeader(String name) {
         return values.getHeaders().getHeader(name);
+    }
+
+    public HeaderValue getHeaderValue(String name) {
+        return values.getHeaders().getHeaderValue(name);
     }
 
     @Override

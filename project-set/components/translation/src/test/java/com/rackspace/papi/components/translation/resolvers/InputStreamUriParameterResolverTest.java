@@ -1,15 +1,17 @@
 package com.rackspace.papi.components.translation.resolvers;
 
-import java.io.InputStream;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
+
 import javax.xml.transform.Source;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 import javax.xml.transform.stream.StreamSource;
-import org.junit.Before;
-import org.junit.Test;
+import java.io.InputStream;
+
 import static org.junit.Assert.*;
-import org.junit.experimental.runners.Enclosed;
-import org.junit.runner.RunWith;
 import static org.mockito.Mockito.*;
 
 @RunWith(Enclosed.class)

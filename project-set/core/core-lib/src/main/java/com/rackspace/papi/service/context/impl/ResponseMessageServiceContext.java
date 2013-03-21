@@ -45,10 +45,12 @@ public class ResponseMessageServiceContext implements ServiceContext<ResponseMes
     @Override
     public void contextInitialized(ServletContextEvent sce) {
      try{
-        if(configurationService.getResourceResolver().resolve("response-messaging.cfg.xml").exists()){
+        
         URL xsdURL = getClass().getResource("/META-INF/schema/response-messaging/response-messaging.xsd");
         configurationService.subscribeTo("response-messaging.cfg.xml", xsdURL, configListener, ResponseMessagingConfiguration.class);
-    }
+        if(!configurationService.getResourceResolver().resolve("response-messaging.cfg.xml").exists()){
+          messageService.setInitialized();
+        }
     register();
      } catch(IOException e){
         LOG.debug("Response messaging configuration file does not exist", e); 
