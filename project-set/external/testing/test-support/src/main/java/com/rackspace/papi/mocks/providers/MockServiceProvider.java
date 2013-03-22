@@ -212,9 +212,12 @@ public class MockServiceProvider {
       String resp = "";
       if (emptyBody == null) {
          resp = getEchoBody("", headers, uri, request);
+         return Response.status(status).entity(resp).build();
+      }else{
+         return Response.status(status).build();
       }
 
-      return Response.status(status).entity(resp).build();
+      
    }
 
    public Response postStatusCode(String body, String statusCode, String location, HttpHeaders headers, UriInfo uri, HttpServletRequest request) throws URISyntaxException {
