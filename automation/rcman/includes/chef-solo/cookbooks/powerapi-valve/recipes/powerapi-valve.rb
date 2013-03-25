@@ -120,6 +120,16 @@ for valveGroup in 1..3
           mode 0644
         end
       end
+      
+      #add normalization files here.  loop through all of them and add to valveGroup1
+      ["empty-uri-target-w-media-uri-normalization.xml","only-media-variant-uri-normalization.xml","no-http-methods-w-media-uri-normalization.xml","uri-normalization-w-media.xml","no-regex-w-media-uri-normalization.xml"].each do |config|
+        cookbook_file "/etc/repose/valveGroup1/#{config}" do
+          source "/valveGroup1/normalization/#{config}"
+          mode 0644
+        end
+      end
+
+
       via="via=\"Repose (Cloud Integration)\""
 
     when 2
