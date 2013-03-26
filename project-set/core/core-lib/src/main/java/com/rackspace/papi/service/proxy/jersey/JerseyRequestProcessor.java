@@ -15,151 +15,150 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Process a request to copy over header values, query string parameters, and
- * request body as necessary.
+ * Process a request to copy over header values, query string parameters, and request body as necessary.
  *
  */
 class JerseyRequestProcessor extends AbstractRequestProcessor {
 
-    private static final Logger LOG = LoggerFactory.getLogger(JerseyRequestProcessor.class);
-    private static final int BUFFER_SIZE = 1024;
-    private final HttpServletRequest request;
-    private final URI targetHost;
-    private Pattern delimiter = Pattern.compile("&");
-    private Pattern pair = Pattern.compile("=");
-    private boolean allowBody;
+  private static final Logger LOG = LoggerFactory.getLogger(JerseyRequestProcessor.class);
+  private static final int BUFFER_SIZE = 1024;
+  private final HttpServletRequest request;
+  private final URI targetHost;
+  private Pattern delimiter = Pattern.compile("&");
+  private Pattern pair = Pattern.compile("=");
+  private boolean allowBody;
+  private final boolean rewriteHostHeader;
 
-    public JerseyRequestProcessor(HttpServletRequest request, URI host) throws IOException {
-        this.request = request;
-        this.targetHost = host;
-        allowBody = "PUT".equalsIgnoreCase(request.getMethod()) || "POST".equalsIgnoreCase(request.getMethod());
-    }
+  public JerseyRequestProcessor(HttpServletRequest request, URI host, boolean rewriteHostHeader) throws IOException {
+    this.request = request;
+    this.targetHost = host;
+    this.rewriteHostHeader = rewriteHostHeader;
+    allowBody = "PUT".equalsIgnoreCase(request.getMethod()) || "POST".equalsIgnoreCase(request.getMethod());
+  }
 
-    public WebResource setRequestParameters(WebResource method) {
-        WebResource newMethod = method;
-        final String queryString = request.getQueryString();
+  public WebResource setRequestParameters(WebResource method) {
+    WebResource newMethod = method;
+    final String queryString = request.getQueryString();
 
-        if (queryString != null && queryString.length() > 0) {
-            String[] params = delimiter.split(queryString);
+    if (queryString != null && queryString.length() > 0) {
+      String[] params = delimiter.split(queryString);
 
-            for (String param : params) {
-                String[] paramPair = pair.split(param, 2);
-                if (paramPair.length == 2) {
-                    String paramValue = paramPair[1];
-                    try {
-                        paramValue = URLDecoder.decode(paramValue, "UTF-8");
-                    } catch (IllegalArgumentException ex) {
-                        LOG.warn("Error decoding query parameter named: " + paramPair[0] + " value: " + paramValue, ex);
-                    } catch (UnsupportedEncodingException ex) {
-                        LOG.warn("Error decoding query parameter named: " + paramPair[0] + " value: " + paramValue, ex);
-                    }
-                    newMethod = newMethod.queryParam(paramPair[0], paramValue);
-                } else {
-                    newMethod = newMethod.queryParam(paramPair[0], "");
-                }
-            }
+      for (String param : params) {
+        String[] paramPair = pair.split(param, 2);
+        if (paramPair.length == 2) {
+          String paramValue = paramPair[1];
+          try {
+            paramValue = URLDecoder.decode(paramValue, "UTF-8");
+          } catch (IllegalArgumentException ex) {
+            LOG.warn("Error decoding query parameter named: " + paramPair[0] + " value: " + paramValue, ex);
+          } catch (UnsupportedEncodingException ex) {
+            LOG.warn("Error decoding query parameter named: " + paramPair[0] + " value: " + paramValue, ex);
+          }
+          newMethod = newMethod.queryParam(paramPair[0], paramValue);
+        } else {
+          newMethod = newMethod.queryParam(paramPair[0], "");
         }
-
-        return newMethod;
-    }
-
-    /**
-     * Scan header values and manipulate as necessary. Host header, if provided,
-     * may need to be updated.
-     *
-     * @param headerName
-     * @param headerValue
-     * @return
-     */
-    private String processHeaderValue(String headerName, String headerValue) {
-      String result = headerValue;
-
-      // In case the proxy host is running multiple virtual servers,
-      // rewrite the Host header to ensure that we get content from
-      // the correct virtual server
-      if (headerName.equalsIgnoreCase(CommonHttpHeader.HOST.toString())) {
-        result = targetHost.getHost() + ":" + targetHost.getPort();
       }
-
-      return result;
     }
+
+    return newMethod;
+  }
 
   /**
-     * Copy header values from source request to the http method.
-     *
-     */
-    private void setHeaders(PartialRequestBuilder builder) {
-        final Enumeration<String> headerNames = request.getHeaderNames();
+   * Scan header values and manipulate as necessary. Host header, if provided, may need to be updated.
+   *
+   * @param headerName
+   * @param headerValue
+   * @return
+   */
+  private String processHeaderValue(String headerName, String headerValue) {
+    String result = headerValue;
 
-        while (headerNames.hasMoreElements()) {
-            String header = headerNames.nextElement();
-
-            if (!excludeHeader(header)) {
-                Enumeration<String> values = request.getHeaders(header);
-                while (values.hasMoreElements()) {
-                    String value = values.nextElement();
-                    builder.header(header, processHeaderValue(header, value));
-                }
-            }
-        }
+    // In case the proxy host is running multiple virtual servers,
+    // rewrite the Host header to ensure that we get content from
+    // the correct virtual server
+    if (rewriteHostHeader && headerName.equalsIgnoreCase(CommonHttpHeader.HOST.toString())) {
+      result = targetHost.getHost() + ":" + targetHost.getPort();
     }
 
-    private InputStream getRequestStream() throws IOException {
-        InputStream in = request.getInputStream();
+    return result;
+  }
 
-        if (in == null) {
-            return null;
+  /**
+   * Copy header values from source request to the http method.
+   *
+   */
+  private void setHeaders(PartialRequestBuilder builder) {
+    final Enumeration<String> headerNames = request.getHeaderNames();
+
+    while (headerNames.hasMoreElements()) {
+      String header = headerNames.nextElement();
+
+      if (!excludeHeader(header)) {
+        Enumeration<String> values = request.getHeaders(header);
+        while (values.hasMoreElements()) {
+          String value = values.nextElement();
+          builder.header(header, processHeaderValue(header, value));
         }
-        PushbackInputStream stream = new PushbackInputStream(in, 1);
+      }
+    }
+  }
 
-        int read = stream.read();
-        if (read == -1) {
-            return null;
-        }
+  private InputStream getRequestStream() throws IOException {
+    InputStream in = request.getInputStream();
 
-        stream.unread(read);
-        return stream;
+    if (in == null) {
+      return null;
+    }
+    PushbackInputStream stream = new PushbackInputStream(in, 1);
+
+    int read = stream.read();
+    if (read == -1) {
+      return null;
     }
 
-    private void consumeInput(InputStream input) throws IOException {
-        if (input == null) {
-            return;
-        }
+    stream.unread(read);
+    return stream;
+  }
 
-        byte[] buffer = new byte[BUFFER_SIZE];
-
-        int read = input.read(buffer);
-
-        while (read > 0) {
-            read = input.read(buffer);
-        }
-
-        input.close();
+  private void consumeInput(InputStream input) throws IOException {
+    if (input == null) {
+      return;
     }
 
-    /**
-     * Process an entity enclosing http method. These methods can handle a
-     * request body.
-     *
-     * @param method
-     * @return
-     * @throws IOException
-     */
-    public Builder process(WebResource method) throws IOException {
-        return process(setRequestParameters(method).getRequestBuilder());
+    byte[] buffer = new byte[BUFFER_SIZE];
+
+    int read = input.read(buffer);
+
+    while (read > 0) {
+      read = input.read(buffer);
     }
 
-    public <T extends PartialRequestBuilder> T process(T builder) throws IOException {
+    input.close();
+  }
 
-        setHeaders(builder);
-        InputStream input = getRequestStream();
-        if (input != null) {
-            if (allowBody) {
-                builder.entity(input);
-            } else {
-                consumeInput(input);
-            }
-        }
-        return builder;
+  /**
+   * Process an entity enclosing http method. These methods can handle a request body.
+   *
+   * @param method
+   * @return
+   * @throws IOException
+   */
+  public Builder process(WebResource method) throws IOException {
+    return process(setRequestParameters(method).getRequestBuilder());
+  }
+
+  public <T extends PartialRequestBuilder> T process(T builder) throws IOException {
+
+    setHeaders(builder);
+    InputStream input = getRequestStream();
+    if (input != null) {
+      if (allowBody) {
+        builder.entity(input);
+      } else {
+        consumeInput(input);
+      }
     }
+    return builder;
+  }
 }

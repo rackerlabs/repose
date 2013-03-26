@@ -42,7 +42,7 @@ public class XmlFilterChainBuilder {
     this.allowDtdDeclarations = allowDeclarations;
     try {
       factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-      factory.setFeature(FeatureKeys.ALLOW_EXTERNAL_FUNCTIONS, new Boolean(true));
+      factory.setFeature(FeatureKeys.ALLOW_EXTERNAL_FUNCTIONS, Boolean.TRUE);
     } catch (TransformerConfigurationException ex) {
       LOG.error("Error", ex);
     }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <system-model xmlns="http://docs.rackspacecloud.com/repose/system-model/v2.0">
-  <repose-cluster id="repose">
+  <repose-cluster id="repose" rewrite-host-header="false">
 
     <nodes>
       <node id="proxy-n03" hostname="<%= node[:fqdn]%>" http-port="8889"/>

@@ -67,9 +67,19 @@
                     <xs:element name="filters" type="mod:FilterList" minOccurs="0" maxOccurs="1" />
                     <xs:element name="destinations" type="mod:DestinationList" minOccurs="1" maxOccurs="1" />
                 </xs:sequence>
+
+                <xs:attribute name="rewrite-host-header" type="xs:boolean" use="optional" default="true">
+                    <xs:annotation>
+                        <xs:documentation>
+                            <html:p>Determines whether or not repose nodes in this cluster rewrite the HOST header to contain 
+                              the host and port of the origin service.  If true, repose will rewrite the HOST header.  If false, repose
+                              will pass whatever value is received on as the value for the HOST header.
+                            </html:p>
+                        </xs:documentation>
+                    </xs:annotation>
+                </xs:attribute>
             </xs:extension>
         </xs:complexContent>
-
     </xs:complexType>
 
 
@@ -311,7 +321,7 @@
                 <xs:attribute name="cluster" type="xs:IDREF" use="required">
                     <xs:annotation>
                         <xs:documentation>
-                            <html:p>Defines the endpoint's host name. Optional. If not specified, localhost is assumed.</html:p>
+                            <html:p>Defines the destination cluster.  Repose will choose a host from this cluster to handle a request.</html:p>
                         </xs:documentation>
                         <xs:appinfo>
                             <jaxb:property>

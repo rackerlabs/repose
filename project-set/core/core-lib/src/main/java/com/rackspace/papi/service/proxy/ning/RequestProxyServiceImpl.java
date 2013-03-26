@@ -33,6 +33,7 @@ public class RequestProxyServiceImpl implements RequestProxyService {
     private Integer connectionTimeout = Integer.valueOf(0);
     private Integer readTimeout = Integer.valueOf(0);
     private AsyncHttpClient client;
+    private boolean rewriteHostHeader = false;
 
     public RequestProxyServiceImpl() {
         client = new AsyncHttpClient();
@@ -155,4 +156,9 @@ public class RequestProxyServiceImpl implements RequestProxyService {
         BoundRequestBuilder builder = getClient().preparePut(StringUriUtilities.appendPath(baseUri, path));
         return executeRequest(setHeader(builder.setBody(body), headers));
     }
+
+  @Override
+  public void setRewriteHostHeader(boolean value) {
+    this.rewriteHostHeader = value;
+  }
 }
