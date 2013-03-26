@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util.io;
 
+import com.rackspace.papi.commons.util.io.charset.CharacterSets;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,7 +12,7 @@ public final class InputStreamMerger extends InputStream {
    }
 
    public static InputStream wrap(String string) {
-      return new ByteArrayInputStream(string.getBytes());
+      return new ByteArrayInputStream(string.getBytes(CharacterSets.UTF_8));
    }
    private int index = 0;
    private final InputStream[] streams;
