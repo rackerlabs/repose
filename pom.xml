@@ -1,43 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
+    
     <groupId>com.rackspace.papi</groupId>
     <artifactId>papi</artifactId>
     <version>2.6.12-SNAPSHOT</version>
-
+    
     <name>Repose</name>
-
+    
     <description>
         Master POM file to provide deployment and other useful information to
         child projects. Should not enforce version control outside of plugin
         profiles.
     </description>
+    
 
-    <packaging>pom</packaging>
-
+    
     <organization>
         <name>Rackspace Cloud Research</name>
         <url>http://research.rackspace.com/</url>
     </organization>
-
+    
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.license>apache20</project.license>
     </properties>
-
+    
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>
             <url>http://www.apache.org/licenses/LICENSE-2.0</url>
         </license>
     </licenses>
-
+    
+    <packaging>pom</packaging>
     <modules>
-        <module>documentation/docbook</module>
         <module>project-set</module>
     </modules>
-
+    
+    <profiles>
+        <profile>
+            <id>docbook</id>
+            <modules>
+                <module>documentation/docbook</module>
+            </modules>
+        </profile>
+    </profiles>
+    
+    
     <scm>
         <connection>scm:git:ssh://git@github.com/rackspace/repose.git</connection>
     </scm>
@@ -50,18 +60,18 @@
             <url>http://maven.research.rackspacecloud.com/content/groups/aggregate</url>
         </repository>
     </repositories>
-
+    
     <distributionManagement>
         <repository>
             <id>releases.maven.research.rackspace.com</id>
- 
+            
             <name>Rackspace Research Releases</name>
             <url>http://maven.research.rackspacecloud.com/content/repositories/releases</url>
         </repository>
         
         <snapshotRepository>
             <id>snapshots.maven.research.rackspace.com</id>
-
+            
             <name>Rackspace Research Snapshots</name>
             <url>http://maven.research.rackspacecloud.com/content/repositories/snapshots</url>
         </snapshotRepository>
@@ -82,4 +92,8 @@
             </plugins>
         </pluginManagement>
     </build>
+    
+    
+    
+    
 </project>
