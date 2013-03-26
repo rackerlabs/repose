@@ -2841,7 +2841,7 @@ vars.put(&apos;sourceIp&apos;, getSourceIp());</stringProp>
                 <hashTree/>
                 <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="X-Forwarded-For Header Assertion" enabled="true">
                   <collectionProp name="Asserion.test_strings">
-                    <stringProp name="-431953738">&lt;h3&gt; x-forwarded-for : 10.6.61.192,?.+&lt;/h3&gt;</stringProp>
+                    <stringProp name="-460582889">&lt;h3&gt; x-forwarded-for : 10.6.61.192,?.*&lt;/h3&gt;</stringProp>
                   </collectionProp>
                   <stringProp name="TestPlan.comments">Should contain both values</stringProp>
                   <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
