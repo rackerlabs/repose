@@ -1,10 +1,7 @@
 package com.rackspace.repose.service.ratelimit.exception;
 
 import java.util.Date;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.experimental.runners.Enclosed;
