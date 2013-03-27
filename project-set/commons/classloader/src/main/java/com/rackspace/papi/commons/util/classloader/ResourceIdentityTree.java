@@ -54,7 +54,7 @@ public class ResourceIdentityTree implements ResourceRegistry, Cloneable {
       return matches;
    }
 
-   @SuppressWarnings({"CloneDoesntCallSuperClone"})
+   @SuppressWarnings({"PMD.ProperCloneImplementation","PMD.CloneMethodMustImplementCloneable","CloneDoesntCallSuperClone"}) 
    @Override
    public Object clone() throws CloneNotSupportedException {
       return new ResourceIdentityTree(this);
