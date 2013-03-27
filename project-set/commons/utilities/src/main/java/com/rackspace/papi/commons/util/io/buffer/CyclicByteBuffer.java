@@ -220,6 +220,7 @@ public class CyclicByteBuffer implements ByteBuffer, Cloneable {
       return new CyclicByteBuffer(byteArrayProvider, this);
    }
 
+   @SuppressWarnings({"PMD.ProperCloneImplementation","PMD.CloneMethodMustImplementCloneable","CloneDoesntCallSuperClone"}) 
    @Override
    public Object clone() throws CloneNotSupportedException {
       return copy();
