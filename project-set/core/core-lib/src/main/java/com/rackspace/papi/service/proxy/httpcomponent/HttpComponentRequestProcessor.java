@@ -16,7 +16,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLDecoder;
 import java.util.Enumeration;
-import java.util.logging.Logger;
 
 /**
  * Process a request to copy over header values, query string parameters, and

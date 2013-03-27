@@ -5,12 +5,7 @@
 package com.rackspace.papi.commons.config.parser.generic;
 
 import com.rackspace.papi.commons.config.resource.ConfigurationResource;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import static org.mockito.Mockito.*;
 import static org.junit.Assert.assertNotNull;
 

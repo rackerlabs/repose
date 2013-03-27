@@ -9,7 +9,6 @@ import org.junit.runner.RunWith;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import java.io.IOException;
-import java.io.InputStream;
 import org.junit.After;
 import org.junit.AfterClass;
 

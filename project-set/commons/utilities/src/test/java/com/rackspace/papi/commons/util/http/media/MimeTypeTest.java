@@ -5,7 +5,6 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 
 import static org.junit.Assert.assertEquals;
-import org.junit.Ignore;
 
 /**
  * @author fran
