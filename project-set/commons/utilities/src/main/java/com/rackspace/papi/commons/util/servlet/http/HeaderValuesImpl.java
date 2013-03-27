@@ -128,7 +128,7 @@ public final class HeaderValuesImpl implements HeaderValues {
             }
         }
 
-        return Collections.enumeration(values != null ? values : Collections.EMPTY_SET);
+        return Collections.enumeration(values);
     }
 
     @Override
