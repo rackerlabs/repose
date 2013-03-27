@@ -20,7 +20,9 @@
         <filter name="default-router" uri-regex="/test-uri-regex-q1/.*" />
         <filter name="default-router" uri-regex="/translation/.*" />
         <filter name="dist-datastore"/>
-    </filters>
+        <filter name="translation" uri-regex='/translation/request-headers-query/.*' configuration="translation-request-headers-query.cfg.xml"/>
+        <filter name="translation" uri-regex='/translation/response-headers-query/.*' configuration="translation-response-headers-query.cfg.xml"/>
+</filters>
 
     <destinations>
       <endpoint id="service" protocol="http" hostname="50.57.189.15" root-path="/" port="8080" default="true"/>
