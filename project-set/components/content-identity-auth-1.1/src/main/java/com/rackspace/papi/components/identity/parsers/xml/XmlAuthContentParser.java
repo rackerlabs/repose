@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.identity.parsers.xml;
 
+import com.rackspace.papi.commons.util.io.charset.CharacterSets;
 import com.rackspace.papi.commons.util.transform.Transform;
 import com.rackspace.papi.components.identity.content.credentials.AuthCredentials;
 import com.rackspace.papi.components.identity.content.credentials.maps.CredentialFactory;
@@ -30,6 +31,6 @@ public class XmlAuthContentParser implements AuthContentParser {
 
    @Override
    public AuthCredentials parse(String content) {
-      return this.parse(new ByteArrayInputStream(content.getBytes()));
+      return this.parse(new ByteArrayInputStream(content.getBytes(CharacterSets.UTF_8)));
    }
 }

@@ -1,5 +1,6 @@
 package com.rackspace.cloud.valve.server;
 
+import com.rackspace.papi.commons.util.io.charset.CharacterSets;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +51,7 @@ public class MonitorThread extends Thread {
 
       try {
          accept = socket.accept();
-         BufferedReader reader = new BufferedReader(new InputStreamReader(accept.getInputStream()));
+         BufferedReader reader = new BufferedReader(new InputStreamReader(accept.getInputStream(),CharacterSets.UTF_8));
          reader.readLine();
          LOG.info("Stopping Repose...");
          serverInstance.stop();

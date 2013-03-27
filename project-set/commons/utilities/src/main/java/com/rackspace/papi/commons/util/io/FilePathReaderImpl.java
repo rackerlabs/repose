@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util.io;
 
+import com.rackspace.papi.commons.util.io.charset.CharacterSets;
 import java.io.*;
 
 /**
@@ -26,7 +27,7 @@ public class FilePathReaderImpl extends FileReader {
     @Override
     protected BufferedReader getReader() throws IOException {
         return new BufferedReader(new InputStreamReader(
-                    FileReaderImpl.class.getResource(filePath).openStream()));
+                    FileReaderImpl.class.getResource(filePath).openStream(),CharacterSets.UTF_8));
     }
 
     public InputStream getResourceAsStream() {

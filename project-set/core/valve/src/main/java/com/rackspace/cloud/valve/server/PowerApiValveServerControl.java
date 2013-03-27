@@ -5,6 +5,7 @@ import com.rackspace.papi.commons.config.ConfigurationResourceException;
 import com.rackspace.papi.commons.config.parser.ConfigurationParserFactory;
 import com.rackspace.papi.commons.config.parser.jaxb.JaxbConfigurationParser;
 import com.rackspace.papi.commons.config.resource.impl.BufferedURLConfigurationResource;
+import com.rackspace.papi.commons.util.io.charset.CharacterSets;
 import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.SslConfiguration;
 import com.rackspace.papi.domain.Port;
@@ -119,7 +120,7 @@ public class PowerApiValveServerControl {
 
          LOG.info("Sending Repose stop request");
 
-         out.write(("\r\n").getBytes());
+         out.write(("\r\n").getBytes(CharacterSets.UTF_8));
          out.flush();
          s.close();
       } catch (IOException ioex) {

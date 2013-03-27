@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
+import com.rackspace.papi.commons.util.io.charset.CharacterSets;
 import org.slf4j.Logger;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -27,6 +28,6 @@ public class ReposeEntityResolver implements EntityResolver {
          return parent.resolveEntity(publicId, systemId);
       }
 
-      return allowEntities ? null : new InputSource(new ByteArrayInputStream("".getBytes()));
+      return allowEntities ? null : new InputSource(new ByteArrayInputStream("".getBytes(CharacterSets.UTF_8)));
    }
 }

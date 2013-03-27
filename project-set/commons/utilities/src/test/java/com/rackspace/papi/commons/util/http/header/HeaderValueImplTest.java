@@ -127,5 +127,12 @@ public class HeaderValueImplTest {
 
             assertEquals("Header value should only contain value when no parameters are present.", "value", headerValue.toString());
         }
+        
+        @Test
+        public void shouldOutPutEmptyWithNullValue() {
+            final HeaderValueImpl headerValue = new HeaderValueImpl(null, Collections.EMPTY_MAP);
+
+            assertEquals("Header value should be blank when passed null.", "", headerValue.toString());
+        }
     }
 }

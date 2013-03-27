@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.datastore.impl;
 
+import com.rackspace.papi.commons.util.io.charset.CharacterSets;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.StoredElement;
@@ -31,7 +32,7 @@ public abstract class AbstractHashedDatastore implements Datastore {
    }
 
    private byte[] getHash(String key) {
-      final byte[] stringBytes = (datasetPrefix + key).getBytes();
+      final byte[] stringBytes = (datasetPrefix + key).getBytes(CharacterSets.UTF_8);
 
       try {
          return hashProvider.newMessageDigest().digest(stringBytes);
