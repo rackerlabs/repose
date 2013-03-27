@@ -209,7 +209,7 @@
           </ConfigTestElement>
           <hashTree/>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Data Fuzzing: Auth Token" enabled="false"/> 
-<!--          <hashTree>
+          <hashTree>
             <BSFSampler guiclass="TestBeanGUI" testclass="BSFSampler" testname="JS: Generate Random Token" enabled="true">
               <stringProp name="TestPlan.comments">Generates a random token that does not violate token format and content expectations</stringProp>
               <stringProp name="filename"></stringProp>
@@ -246,10 +246,10 @@ function randomValidToken() {
 vars.put(&apos;user-token&apos;, randomValidToken());</stringProp>
             </BSFSampler>
             <hashTree/>
-          </hashTree>-->
-<!--          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Get User Token" enabled="true">
+          </hashTree>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Get User Token" enabled="true">
             <stringProp name="TestPlan.comments">This module attempts to auth against an OpenStack ID endpoint. The resulting auth token is stored as an internal variable callled &apos;user-token&apos;</stringProp>
-          </GenericController>-->
+          </GenericController>
           <hashTree>
             <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
               <collectionProp name="HeaderManager.headers">
@@ -696,7 +696,7 @@ vars.put(&apos;user-token&apos;, randomValidToken());</stringProp>
           </ConfigTestElement>
           <hashTree/>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Data Fuzzing: Auth Token" enabled="false"/> 
-         <!-- <hashTree>
+          <hashTree>
            <BSFSampler guiclass="TestBeanGUI" testclass="BSFSampler" testname="JS: Generate Random Token" enabled="true">
               <stringProp name="TestPlan.comments">Generates a random token that does not violate token format and content expectations</stringProp>
               <stringProp name="filename"></stringProp>
@@ -733,10 +733,10 @@ function randomValidToken() {
 vars.put(&apos;user-token&apos;, randomValidToken());</stringProp>
             </BSFSampler>
             <hashTree/>
-          </hashTree>-->
-         <!-- <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Get Impersonated User Token" enabled="true">
+          </hashTree>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Get Impersonated User Token" enabled="true">
             <stringProp name="TestPlan.comments">This module attempts to auth against an OpenStack ID endpoint. The resulting auth token is stored as an internal variable callled &apos;user-token&apos;</stringProp>
-          </GenericController>-->
+          </GenericController>
           <hashTree>
             <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
               <collectionProp name="HeaderManager.headers">
@@ -978,7 +978,7 @@ vars.put(&apos;user-token&apos;, randomValidToken());</stringProp>
           </ConfigTestElement>
           <hashTree/>
           <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Data Fuzzing: Auth Token" enabled="false"/>
-         <!-- <hashTree>
+          <hashTree>
             <BSFSampler guiclass="TestBeanGUI" testclass="BSFSampler" testname="JS: Generate Random Token" enabled="true">
               <stringProp name="TestPlan.comments">Generates a random token that does not violate token format and content expectations</stringProp>
               <stringProp name="filename"></stringProp>
@@ -1015,10 +1015,10 @@ function randomValidToken() {
 vars.put(&apos;user-token&apos;, randomValidToken());</stringProp>
             </BSFSampler>
             <hashTree/>
-          </hashTree>-->
-          <!--<GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Get User Token" enabled="true">
+          </hashTree>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Get User Token" enabled="true">
             <stringProp name="TestPlan.comments">This module attempts to auth against an OpenStack ID endpoint. The resulting auth token is stored as an internal variable callled &apos;user-token&apos;</stringProp>
-          </GenericController>-->
+          </GenericController>
           <hashTree>
             <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
               <collectionProp name="HeaderManager.headers">
