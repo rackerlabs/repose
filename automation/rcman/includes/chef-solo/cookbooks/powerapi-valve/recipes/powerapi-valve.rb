@@ -164,7 +164,7 @@ for valveGroup in 1..3
         mode 0644
       end
       via=""
-      cbrl="content-body-read-limit=\"256\""
+      cbrl="content-body-read-limit=\"768\""
   end
 
   ["container.cfg.xml"].each do |config|
