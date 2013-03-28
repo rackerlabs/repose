@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<jmeterTestPlan version="1.2" properties="2.1">
+<jmeterTestPlan version="1.2" properties="2.3">
   <hashTree>
     <TestPlan guiclass="TestPlanGui" testclass="TestPlan" testname="Test Plan" enabled="true">
       <stringProp name="TestPlan.comments"></stringProp>
@@ -208,7 +208,7 @@
             <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
           </ConfigTestElement>
           <hashTree/>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Data Fuzzing: Auth Token" enabled="false"/>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Data Fuzzing: Auth Token" enabled="true"/>
           <hashTree>
             <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
               <collectionProp name="HeaderManager.headers">
@@ -307,7 +307,7 @@
               <stringProp name="HTTPSampler.response_timeout"></stringProp>
               <stringProp name="HTTPSampler.protocol"></stringProp>
               <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-              <stringProp name="HTTPSampler.path">/client-auth-n/v1/${name}</stringProp>
+              <stringProp name="HTTPSampler.path">/v1/${name}</stringProp>
               <stringProp name="HTTPSampler.method">GET</stringProp>
               <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
               <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
@@ -423,7 +423,7 @@
                 <hashTree/>
                 <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="www-authenticate exists" enabled="true">
                   <collectionProp name="Asserion.test_strings">
-                    <stringProp name="-717003012">www-authenticate: Keystone uri=http://50.57.189.15:8080/keystone</stringProp>
+                    <stringProp name="-721442965">www-authenticate: Keystone uri=https://50.57.189.15:8181/keystone</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
                   <boolProp name="Assertion.assume_success">false</boolProp>
@@ -477,7 +477,7 @@
                 <hashTree/>
                 <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="www-authenticate exists" enabled="true">
                   <collectionProp name="Asserion.test_strings">
-                    <stringProp name="-717003012">www-authenticate: Keystone uri=http://50.57.189.15:8080/keystone</stringProp>
+                    <stringProp name="-721442965">www-authenticate: Keystone uri=https://50.57.189.15:8181/keystone</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
                   <boolProp name="Assertion.assume_success">false</boolProp>
@@ -553,7 +553,7 @@
                 <hashTree/>
                 <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="www-authenticate exists" enabled="true">
                   <collectionProp name="Asserion.test_strings">
-                    <stringProp name="-717003012">www-authenticate: Keystone uri=http://50.57.189.15:8080/keystone</stringProp>
+                    <stringProp name="-721442965">www-authenticate: Keystone uri=https://50.57.189.15:8181/keystone</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
                   <boolProp name="Assertion.assume_success">false</boolProp>
@@ -611,7 +611,7 @@
                 <hashTree/>
                 <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="www-authenticate exists" enabled="true">
                   <collectionProp name="Asserion.test_strings">
-                    <stringProp name="-717003012">www-authenticate: Keystone uri=http://50.57.189.15:8080/keystone</stringProp>
+                    <stringProp name="-721442965">www-authenticate: Keystone uri=https://50.57.189.15:8181/keystone</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
                   <boolProp name="Assertion.assume_success">false</boolProp>
@@ -669,7 +669,7 @@
                 <hashTree/>
                 <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="www-authenticate exists" enabled="true">
                   <collectionProp name="Asserion.test_strings">
-                    <stringProp name="-717003012">www-authenticate: Keystone uri=http://50.57.189.15:8080/keystone</stringProp>
+                    <stringProp name="-721442965">www-authenticate: Keystone uri=https://50.57.189.15:8181/keystone</stringProp>
                   </collectionProp>
                   <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
                   <boolProp name="Assertion.assume_success">false</boolProp>
@@ -699,7 +699,7 @@
             <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
           </ConfigTestElement>
           <hashTree/>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Data Fuzzing: Auth Token" enabled="false"/>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Data Fuzzing: Auth Token" enabled="true"/>
           <hashTree>
             <HeaderManager guiclass="HeaderPanel" testclass="HeaderManager" testname="HTTP Header Manager" enabled="true">
               <collectionProp name="HeaderManager.headers">
