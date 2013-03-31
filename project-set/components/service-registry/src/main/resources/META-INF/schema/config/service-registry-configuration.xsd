@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.rackspacecloud.com/repose/service-registry/v1.0"
+           xmlns:sr="http://docs.rackspacecloud.com/repose/service-registry/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+   <xs:element name="service-registry" type="sr:service-registry-config" />
+
+    <xs:simpleType name="regionType">
+      <xs:restriction base="xs:string">
+        <xs:enumeration value="us" />
+        <xs:enumeration value="uk" />
+      </xs:restriction>
+    </xs:simpleType>
+
+    <xs:complexType name="service-registry-config">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>This is the type def for a service registry config</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="auth" type="sr:auth" minOccurs="1" maxOccurs="1" />
+            <xs:element name="service" type="sr:service" minOccurs="1" maxOccurs="1" />
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="auth">
+        <xs:attribute name="username" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Rackspace Cloud API username used for authentication.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="api-key" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Rackspace Cloud API key used for authentication.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="region" type="sr:regionType" use="optional" default="us">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Account region.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
+    <xs:complexType name="service">
+        <xs:attribute name="id" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Service ID.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="heartbeat_timeout" type="xs:integer" use="optional" default="20">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Service heartbeat timeout.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+</xs:schema>
