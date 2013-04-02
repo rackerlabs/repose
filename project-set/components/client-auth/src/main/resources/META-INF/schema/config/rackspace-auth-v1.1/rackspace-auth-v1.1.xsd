@@ -59,6 +59,14 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
+                                       
+            <xs:attribute name="request-groups" type="xs:boolean" use="optional" default="true">
+                <xs:annotation>
+                    <xs:documentation>
+                     c   <html:p>Tells the service whether or not to make get Groups call to Auth</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
             
             <xs:attribute name="include-query-params" type="xs:boolean" use="optional" default="false">
                 <xs:annotation>
