@@ -6,16 +6,29 @@ import com.rackspace.papi.service.datastore.StoredElement;
 import com.rackspace.papi.service.datastore.impl.StoredElementImpl;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.jmx.export.annotation.ManagedResource;
+import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
-public class EHCacheDatastore implements Datastore {
+@Component("ehCacheDatastore")
+@ManagedResource(objectName = "com.rackspace.papi.service.datastore.impl.ehcache.EHCacheDatastore", description = "EHCacheDatastore MBean.")
+public class EHCacheDatastore implements Datastore, EHCacheDatastoreMBean {
 
    private final Cache ehCacheInstance;
 
-   public EHCacheDatastore(Cache ehCacheInstance) {
+    @Autowired
+   public EHCacheDatastore(@Qualifier("ehCacheInstance") Cache ehCacheInstance) {
       this.ehCacheInstance = ehCacheInstance;
    }
+
+    @ManagedOperation
+    public void removeAllCachedData() {
+        ehCacheInstance.removeAll();
+    }
 
    @Override
    public StoredElement get(String key) throws DatastoreOperationException {
