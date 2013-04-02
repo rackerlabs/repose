@@ -1,6 +1,7 @@
 package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
 import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.commons.util.io.charset.CharacterSets;
 import com.rackspace.papi.components.translation.httpx.HttpxMarshaller;
 import com.rackspace.papi.components.translation.xslt.XsltParameter;
 import com.rackspace.papi.filter.logic.FilterDirector;
@@ -92,7 +93,7 @@ public class TranslationResult {
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("New request info: " + new String(requestBytes));
+            LOG.debug("New request info: " + new String(requestBytes,CharacterSets.UTF_8));
         }
 
         return marshaller.unmarshallRequestInformation(input);
@@ -166,7 +167,7 @@ public class TranslationResult {
         }
 
         if (LOG.isDebugEnabled()) {
-            LOG.debug("New headers: " + new String(out));
+            LOG.debug("New headers: " + new String(out,CharacterSets.UTF_8));
         }
 
         return marshaller.unmarshallHeaders(input);

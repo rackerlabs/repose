@@ -27,7 +27,6 @@ import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.springframework.context.ApplicationContext;
 import static org.mockito.Mockito.*;
-import org.openrepose.components.datastore.replicated.config.ReplicatedDatastoreConfiguration;
 
 /**
  *

@@ -7,7 +7,6 @@ import com.rackspace.papi.service.event.common.EventListener;
 import org.slf4j.Logger;
 
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 

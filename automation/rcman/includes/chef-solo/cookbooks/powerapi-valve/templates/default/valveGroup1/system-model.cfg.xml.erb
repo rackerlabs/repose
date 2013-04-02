@@ -9,8 +9,13 @@
         <filter name="dist-datastore" />
         <filter name="versioning" />
         <filter name="client-auth" configuration="client-auth-v1.1.cfg.xml" />
-        <filter name="uri-normalization" />
         <filter name="header-normalization"/>
+        <filter name="uri-normalization" />
+        <filter name="uri-normalization" uri-regex='/only_media_variant/.*' configuration='only-media-variant-uri-normalization.xml'/>
+        <filter name="uri-normalization" uri-regex='/uri_normalization_with_media/.*' configuration='uri-normalization-w-media.xml'/>
+        <filter name="uri-normalization" uri-regex='/empty_uri_target_with_media/.*' configuration='empty-uri-target-w-media-uri-normalization.xml'/>
+        <filter name="uri-normalization" uri-regex='/no_http_methods_with_media/.*' configuration='no-http-methods-w-media-uri-normalization.xml'/>
+        <filter name="uri-normalization" uri-regex='/no_regex_with_media/.*' configuration='no-regex-w-media-uri-normalization.xml'/>
     </filters>
     <destinations>
       <endpoint id="service1" protocol="http" hostname="50.57.189.15" root-path="/v1" port="8080" default="true"/>

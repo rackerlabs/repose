@@ -103,8 +103,7 @@ public final class HeaderValuesImpl implements HeaderValues {
 
     @Override
     public HeaderValue getHeaderValue(String name) {
-        HeaderValue value = fromMap(headers, name.toLowerCase());
-        return value;
+        return fromMap(headers, name.toLowerCase());
     }
 
     static <T> T fromMap(Map<String, List<T>> headers, String headerName) {
@@ -129,7 +128,7 @@ public final class HeaderValuesImpl implements HeaderValues {
             }
         }
 
-        return Collections.enumeration(values != null ? values : Collections.EMPTY_SET);
+        return Collections.enumeration(values);
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.media.MediaRangeProcessor;
 import com.rackspace.papi.commons.util.http.media.MediaType;
 import com.rackspace.papi.commons.util.http.media.MimeType;
+import com.rackspace.papi.commons.util.io.charset.CharacterSets;
 import com.rackspace.papi.commons.util.logging.apache.HttpLogFormatter;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
@@ -149,7 +150,7 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
 
       // TODO:Enhancement - Update formatter logic for streaming
       // TODO:Enhancement - Update getBytes(...) to use requested content encoding
-      response.getOutputStream().write(formattedOutput.getBytes());
+      response.getOutputStream().write(formattedOutput.getBytes(CharacterSets.UTF_8));
    }
 
    private boolean configSetToIfEmpty(StatusCodeMatcher matchedCode) {
@@ -157,6 +158,12 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
    }
 
    private boolean hasBody(HttpServletResponse response) {
-      return ((MutableHttpServletResponse)response).hasBody();
+      boolean hasBody = false;
+      try{
+         hasBody = ((MutableHttpServletResponse)response).getBufferedOutputAsInputStream().available() > 0;
+      }catch(IOException e){
+         LOG.warn("Unable to retrieve response body input stream");
+      }
+      return hasBody;
    }      
 }

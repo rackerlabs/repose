@@ -49,6 +49,7 @@ public class RequestHeaderContainer implements HeaderContainer {
     return valueMap;
   }
 
+  @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
   @Override
   public List<String> getHeaderNames() {
     return headerNames;

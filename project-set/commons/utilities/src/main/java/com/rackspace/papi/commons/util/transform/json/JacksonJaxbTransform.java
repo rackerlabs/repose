@@ -1,5 +1,6 @@
 package com.rackspace.papi.commons.util.transform.json;
 
+import com.rackspace.papi.commons.util.io.charset.CharacterSets;
 import org.codehaus.jackson.map.AnnotationIntrospector;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.xc.JaxbAnnotationIntrospector;
@@ -26,7 +27,7 @@ public class JacksonJaxbTransform {
    }
 
    public <T> T deserialize(String input, Class<T> target) {
-      return deserialize(new ByteArrayInputStream(input.getBytes()), target);
+      return deserialize(new ByteArrayInputStream(input.getBytes(CharacterSets.UTF_8)), target);
    }
    
    public <T> T deserialize(InputStream input, Class<T> target) {
