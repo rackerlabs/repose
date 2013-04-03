@@ -167,9 +167,76 @@ class TestMultipleMethodsForTheSameLimitGroup(unittest.TestCase):
             self.deproxy.shutdown_all_endpoints()
 
 
+class TestLimitsResetAfterTime(unittest.TestCase):
+    def setUp(self):
+        logger.debug('setUp')
+
+        self.deproxy = deproxy.Deproxy()
+        self.end_point = self.deproxy.add_endpoint(('localhost', deproxy_port))
+
+        pathutil.clear_folder(config_dir)
+        params = {
+            'port': repose_port,
+            'target_hostname': 'localhost',
+            'target_port': deproxy_port,
+            'deployment_dir': deployment_dir,
+            'artifact_dir': artifact_dir,
+            'log_file': log_file
+        }
+        apply_config_set('configs/one-node/.config-set.xml', params=params)
+        self.valve = repose.ReposeValve(config_dir=config_dir,
+                                         stop_port=stop_port)
+        time.sleep(10)
+
+    def test_reset(self):
+        """Rate limiting is configured for 5 requests per second, of any HTTP
+        method. Making 5 requests in succession should succeed with 200's, and
+        a sixth request should go over the limit, resulting in a 413. If we
+        sleep for 1 second after that, limits should reset."""
+
+        logger.debug('test_a_simple_limit')
+
+        url = 'http://localhost:%i/' % repose_port
+        logger.debug('url = %s' % url)
+
+        time.sleep(1)
+
+        for i in xrange(5):
+            logger.debug('%i\'th request, should pass' % i)
+            mc = self.deproxy.make_request(method='GET', url=url, headers=headers)
+            self.assertEqual(mc.received_response.code, '200', msg=mc)
+            self.assertEqual(len(mc.handlings), 1, msg=mc)
+
+        logger.debug('last request, should bounce')
+        mc = self.deproxy.make_request(method='GET', url=url, headers=headers)
+        self.assertEqual(mc.received_response.code, '413', msg=mc)
+        self.assertEqual(len(mc.handlings), 0, msg=mc)
+
+        time.sleep(1)
+
+        for i in xrange(5):
+            logger.debug('%i\'th request, should pass' % i)
+            mc = self.deproxy.make_request(method='GET', url=url, headers=headers)
+            self.assertEqual(mc.received_response.code, '200', msg=mc)
+            self.assertEqual(len(mc.handlings), 1, msg=mc)
+
+        logger.debug('last request, should bounce')
+        mc = self.deproxy.make_request(method='GET', url=url, headers=headers)
+        self.assertEqual(mc.received_response.code, '413', msg=mc)
+        self.assertEqual(len(mc.handlings), 0, msg=mc)
+
+    def tearDown(self):
+        logger.debug('tearDown')
+        if self.valve is not None:
+            self.valve.stop()
+        if self.deproxy is not None:
+            self.deproxy.shutdown_all_endpoints()
+
+
 available_test_cases = [
     TestSimpleLimitGroup,
     TestMultipleMethodsForTheSameLimitGroup,
+    TestLimitsResetAfterTime,
 ]
 
 
