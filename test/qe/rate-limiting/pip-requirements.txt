@@ -1,0 +1,5 @@
+requests
+argparse
+unittest-xml-reporting
+narwhal
+deproxy
