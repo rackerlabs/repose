@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 from narwhal import repose
-import requests
 import unittest
 from narwhal import conf
 from narwhal import pathutil
@@ -23,8 +22,6 @@ repose_port = 8888
 stop_port = 7777
 deproxy_port = 9999
 headers = {'X-PP-User': 'user'}
-
-session = requests.Session()
 
 
 def setUpModule():
@@ -104,6 +101,7 @@ class TestMultipleMethodsForTheSameLimitGroup(unittest.TestCase):
     """Rate limiting is configured for 5 requests per second, of any HTTP
     method. Making requests of different methods should still count towards
     the limit in the usual way, and the sixth request should fail."""
+
     def setUp(self):
         logger.debug('setUp')
 
@@ -126,7 +124,6 @@ class TestMultipleMethodsForTheSameLimitGroup(unittest.TestCase):
         time.sleep(10)
 
     def test_different_methods(self):
-
         url = 'http://localhost:%i/' % repose_port
 
         time.sleep(1)
@@ -191,7 +188,7 @@ class TestLimitsResetAfterTime(unittest.TestCase):
         time.sleep(10)
 
     def test_reset(self):
-        logger.debug('test_a_simple_limit')
+        logger.debug('test_reset')
 
         url = 'http://localhost:%i/' % repose_port
         logger.debug('url = %s' % url)
@@ -199,13 +196,11 @@ class TestLimitsResetAfterTime(unittest.TestCase):
         time.sleep(1)
 
         for i in xrange(5):
-            logger.debug('%i\'th request, should pass' % i)
             mc = self.deproxy.make_request(method='GET', url=url,
                                            headers=headers)
             self.assertEqual(mc.received_response.code, '200', msg=mc)
             self.assertEqual(len(mc.handlings), 1, msg=mc)
 
-        logger.debug('last request, should bounce')
         mc = self.deproxy.make_request(method='GET', url=url, headers=headers)
         self.assertEqual(mc.received_response.code, '413', msg=mc)
         self.assertEqual(len(mc.handlings), 0, msg=mc)
@@ -213,13 +208,11 @@ class TestLimitsResetAfterTime(unittest.TestCase):
         time.sleep(1)
 
         for i in xrange(5):
-            logger.debug('%i\'th request, should pass' % i)
             mc = self.deproxy.make_request(method='GET', url=url,
                                            headers=headers)
             self.assertEqual(mc.received_response.code, '200', msg=mc)
             self.assertEqual(len(mc.handlings), 1, msg=mc)
 
-        logger.debug('last request, should bounce')
         mc = self.deproxy.make_request(method='GET', url=url, headers=headers)
         self.assertEqual(mc.received_response.code, '413', msg=mc)
         self.assertEqual(len(mc.handlings), 0, msg=mc)
