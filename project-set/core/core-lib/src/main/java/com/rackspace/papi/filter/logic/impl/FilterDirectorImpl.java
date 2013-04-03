@@ -3,6 +3,7 @@ package com.rackspace.papi.filter.logic.impl;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
+import com.rackspace.papi.commons.util.io.charset.CharacterSets;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import com.rackspace.papi.commons.util.servlet.http.RouteDestination;
@@ -139,7 +140,7 @@ public class FilterDirectorImpl implements FilterDirector {
         final byte[] bytesWritten = directorOutputStream.toByteArray();
 
         if (bytesWritten.length > 0) {
-            return new String(bytesWritten);
+            return new String(bytesWritten,CharacterSets.UTF_8);
         }
 
         return "";

@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.translation.httpx;
 
+import com.rackspace.papi.commons.util.io.charset.CharacterSets;
 import org.openrepose.repose.httpx.v1.Headers;
 import org.openrepose.repose.httpx.v1.ObjectFactory;
 import org.openrepose.repose.httpx.v1.QueryParameters;
@@ -131,7 +132,7 @@ public class HttpxMarshaller {
   }
 
   public <T> T unmarshall(String xml) {
-    return unmarshall(new ByteArrayInputStream(xml.getBytes()));
+    return unmarshall(new ByteArrayInputStream(xml.getBytes(CharacterSets.UTF_8)));
   }
 
   public <T> T unmarshall(InputStream xml) {
@@ -192,7 +193,7 @@ public class HttpxMarshaller {
     marshall(o, out);
 
     if (LOG.isDebugEnabled()) {
-      LOG.debug(new String(out.toByteArray()));
+      LOG.debug(new String(out.toByteArray(),CharacterSets.UTF_8));
     }
 
     return new ByteArrayInputStream(out.toByteArray());

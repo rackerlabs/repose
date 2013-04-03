@@ -7,7 +7,6 @@ import com.rackspace.com.papi.components.checker.servlet.CheckerServletResponse;
 import com.rackspace.com.papi.components.checker.step.Result;
 import javax.servlet.FilterChain;
 import org.junit.*;
-import static org.junit.Assert.*;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
 import org.w3c.dom.Document;

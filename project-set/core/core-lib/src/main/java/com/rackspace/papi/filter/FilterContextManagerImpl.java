@@ -4,8 +4,6 @@ import com.oracle.javaee6.FilterType;
 import com.oracle.javaee6.ParamValueType;
 import com.rackspace.papi.commons.util.classloader.ear.EarClassLoaderContext;
 import com.rackspace.papi.model.Filter;
-import com.rackspace.papi.service.context.ContextAdapter;
-import com.rackspace.papi.service.context.ServletContextHelper;
 import java.util.*;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletContext;

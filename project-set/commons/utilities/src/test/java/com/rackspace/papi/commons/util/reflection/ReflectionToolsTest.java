@@ -8,7 +8,6 @@ import org.junit.runner.RunWith;
 
 import java.lang.reflect.Constructor;
 
-import static junit.framework.Assert.assertEquals;
 import static org.junit.Assert.*;
 
 /**

@@ -1,6 +1,7 @@
 package com.rackspace.papi.service.context.banner;
 
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
+import com.rackspace.papi.commons.util.io.charset.CharacterSets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +20,7 @@ public final class PapiBanner {
             final InputStream bannerInputStream = PapiBanner.class.getResourceAsStream("papi.banner");
 
             if (bannerInputStream != null) {
-                final String bannerString = new String(RawInputStreamReader.instance().readFully(bannerInputStream));
+                final String bannerString = new String(RawInputStreamReader.instance().readFully(bannerInputStream),CharacterSets.UTF_8);
                 log.info(bannerString);
             }
         } catch (IOException ioe) {

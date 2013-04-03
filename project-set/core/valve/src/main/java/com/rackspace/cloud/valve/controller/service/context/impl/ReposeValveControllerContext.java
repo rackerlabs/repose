@@ -12,7 +12,6 @@ import com.rackspace.cloud.valve.controller.service.ControllerService;
 import com.rackspace.papi.commons.util.net.NetUtilities;
 import com.rackspace.papi.commons.util.regex.ExtractorResult;
 import com.rackspace.papi.container.config.ContainerConfiguration;
-import com.rackspace.papi.service.deploy.ContainerConfigurationListener;
 import com.rackspace.papi.servlet.InitParameter;
 import java.net.URL;
 import java.util.HashMap;

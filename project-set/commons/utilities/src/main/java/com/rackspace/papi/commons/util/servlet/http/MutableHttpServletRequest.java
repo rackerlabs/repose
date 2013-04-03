@@ -5,7 +5,6 @@ import com.rackspace.papi.commons.util.io.BufferedServletInputStream;
 import com.rackspace.papi.commons.util.io.stream.LimitedReadInputStream;
 import com.rackspace.papi.commons.util.io.stream.ServletInputStreamWrapper;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.*;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;

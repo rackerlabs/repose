@@ -7,8 +7,6 @@ import com.rackspace.papi.jetty.JettyTestingContext;
 import com.rackspace.papi.service.context.impl.PowerApiContextManager;
 import com.rackspace.papi.servlet.InitParameter;
 import com.rackspace.papi.test.DummyServlet;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 public class StandAloneVersioningServer extends JettyTestingContext {
 
