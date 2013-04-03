@@ -35,9 +35,8 @@ def setUpModule():
     pathutil.create_folder(os.path.dirname(log_file))
 
 
-
-
 config_verbose = False
+
 
 def apply_config_set(config_set_name, params=None):
     if params is None:
@@ -69,7 +68,7 @@ class TestSimpleLimitGroup(unittest.TestCase):
         }
         apply_config_set('configs/one-node/.config-set.xml', params=params)
         self.valve = repose.ReposeValve(config_dir=config_dir,
-                                         stop_port=stop_port)
+                                        stop_port=stop_port)
         time.sleep(10)
 
     def test_a_simple_limit(self):
@@ -82,7 +81,8 @@ class TestSimpleLimitGroup(unittest.TestCase):
 
         for i in xrange(5):
             logger.debug('%i\'th request, should pass' % i)
-            mc = self.deproxy.make_request(method='GET', url=url, headers=headers)
+            mc = self.deproxy.make_request(method='GET', url=url,
+                                           headers=headers)
             self.assertEqual(mc.received_response.code, '200', msg=mc)
             self.assertEqual(len(mc.handlings), 1, msg=mc)
 
@@ -108,7 +108,8 @@ class TestMultipleMethodsForTheSameLimitGroup(unittest.TestCase):
         logger.debug('setUp')
 
         self.deproxy = deproxy.Deproxy()
-        self.end_point = self.deproxy.add_endpoint(('localhost', deproxy_port - 1))
+        self.end_point = self.deproxy.add_endpoint(('localhost',
+                                                    deproxy_port - 1))
 
         pathutil.clear_folder(config_dir)
         params = {
@@ -121,7 +122,7 @@ class TestMultipleMethodsForTheSameLimitGroup(unittest.TestCase):
         }
         apply_config_set('configs/one-node/.config-set.xml', params=params)
         self.valve = repose.ReposeValve(config_dir=config_dir,
-                                         stop_port=stop_port)
+                                        stop_port=stop_port)
         time.sleep(10)
 
     def test_different_methods(self):
@@ -142,7 +143,8 @@ class TestMultipleMethodsForTheSameLimitGroup(unittest.TestCase):
         self.assertEqual(mc.received_response.code, '200', msg=mc)
         self.assertEqual(len(mc.handlings), 1, msg=mc)
 
-        mc = self.deproxy.make_request(method='DELETE', url=url, headers=headers)
+        mc = self.deproxy.make_request(method='DELETE', url=url,
+                                       headers=headers)
         self.assertEqual(mc.received_response.code, '200', msg=mc)
         self.assertEqual(len(mc.handlings), 1, msg=mc)
 
@@ -185,7 +187,7 @@ class TestLimitsResetAfterTime(unittest.TestCase):
         }
         apply_config_set('configs/one-node/.config-set.xml', params=params)
         self.valve = repose.ReposeValve(config_dir=config_dir,
-                                         stop_port=stop_port)
+                                        stop_port=stop_port)
         time.sleep(10)
 
     def test_reset(self):
@@ -198,7 +200,8 @@ class TestLimitsResetAfterTime(unittest.TestCase):
 
         for i in xrange(5):
             logger.debug('%i\'th request, should pass' % i)
-            mc = self.deproxy.make_request(method='GET', url=url, headers=headers)
+            mc = self.deproxy.make_request(method='GET', url=url,
+                                           headers=headers)
             self.assertEqual(mc.received_response.code, '200', msg=mc)
             self.assertEqual(len(mc.handlings), 1, msg=mc)
 
@@ -211,7 +214,8 @@ class TestLimitsResetAfterTime(unittest.TestCase):
 
         for i in xrange(5):
             logger.debug('%i\'th request, should pass' % i)
-            mc = self.deproxy.make_request(method='GET', url=url, headers=headers)
+            mc = self.deproxy.make_request(method='GET', url=url,
+                                           headers=headers)
             self.assertEqual(mc.received_response.code, '200', msg=mc)
             self.assertEqual(len(mc.handlings), 1, msg=mc)
 
