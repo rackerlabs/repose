@@ -321,7 +321,7 @@
                 <xs:attribute name="cluster" type="xs:IDREF" use="required">
                     <xs:annotation>
                         <xs:documentation>
-                            <html:p>Defines the endpoint's host name. Optional. If not specified, localhost is assumed.</html:p>
+                            <html:p>Defines the destination cluster.  Repose will choose a host from this cluster to handle a request.</html:p>
                         </xs:documentation>
                         <xs:appinfo>
                             <jaxb:property>

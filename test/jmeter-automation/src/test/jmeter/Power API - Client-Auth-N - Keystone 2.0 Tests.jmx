@@ -208,7 +208,7 @@
             <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
           </ConfigTestElement>
           <hashTree/>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Data Fuzzing: Auth Token" enabled="false"/>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Data Fuzzing: Auth Token" enabled="false"/> 
           <hashTree>
             <BSFSampler guiclass="TestBeanGUI" testclass="BSFSampler" testname="JS: Generate Random Token" enabled="true">
               <stringProp name="TestPlan.comments">Generates a random token that does not violate token format and content expectations</stringProp>
@@ -695,9 +695,9 @@ vars.put(&apos;user-token&apos;, randomValidToken());</stringProp>
             <stringProp name="HTTPSampler.concurrentPool">4</stringProp>
           </ConfigTestElement>
           <hashTree/>
-          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Data Fuzzing: Auth Token" enabled="false"/>
+          <GenericController guiclass="LogicControllerGui" testclass="GenericController" testname="Data Fuzzing: Auth Token" enabled="false"/> 
           <hashTree>
-            <BSFSampler guiclass="TestBeanGUI" testclass="BSFSampler" testname="JS: Generate Random Token" enabled="true">
+           <BSFSampler guiclass="TestBeanGUI" testclass="BSFSampler" testname="JS: Generate Random Token" enabled="true">
               <stringProp name="TestPlan.comments">Generates a random token that does not violate token format and content expectations</stringProp>
               <stringProp name="filename"></stringProp>
               <stringProp name="scriptLanguage">javascript</stringProp>

@@ -157,6 +157,12 @@ public class ResponseMessageServiceImpl implements ResponseMessageService {
    }
 
    private boolean hasBody(HttpServletResponse response) {
-      return ((MutableHttpServletResponse)response).hasBody();
+      boolean hasBody = false;
+      try{
+         hasBody = ((MutableHttpServletResponse)response).getBufferedOutputAsInputStream().available() > 0;
+      }catch(IOException e){
+         LOG.warn("Unable to retrieve response body input stream");
+      }
+      return hasBody;
    }      
 }

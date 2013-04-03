@@ -19,12 +19,14 @@ import org.junit.runner.RunWith;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
+import javax.servlet.ServletInputStream;
 
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
@@ -86,7 +88,9 @@ public class ResponseMessageServiceImplTest {
          // Hook up response body stream to mocked response
          final ByteBuffer internalBuffer = new CyclicByteBuffer();
          final ServletOutputStream outputStream = new ByteBufferServletOutputStream(internalBuffer);
+         final ByteBufferInputStream inputStream = new ByteBufferInputStream(internalBuffer);
          when(mockedResponse.getOutputStream()).thenReturn(outputStream);
+         when(mockedResponse.getBufferedOutputAsInputStream()).thenReturn(inputStream);
         
 
          rmsImpl.handle(mockedRequest, mockedResponse);
@@ -103,6 +107,8 @@ public class ResponseMessageServiceImplTest {
          final ByteBuffer internalBuffer = new CyclicByteBuffer();
          internalBuffer.put("hello there".getBytes());
          final ServletOutputStream outputStream = new ByteBufferServletOutputStream(internalBuffer);
+         final ByteBufferInputStream inputStream = new ByteBufferInputStream(internalBuffer);
+         when(mockedResponse.getBufferedOutputAsInputStream()).thenReturn(inputStream);
          when(mockedResponse.getOutputStream()).thenReturn(outputStream);
         
          rmsImpl.handle(mockedRequest, mockedResponse);
