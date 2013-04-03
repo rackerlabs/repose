@@ -105,7 +105,7 @@ for valveGroup in 1..3
       end
       #Client Auth for RS Cloud Auth 1.1 And Client Auth for OpenStack Identity
 
-      ["client-auth-keystone.cfg.xml", "client-auth-v1.1.cfg.xml","dist-datastore.cfg.xml"].each do |config|
+      ["client-auth-keystone.cfg.xml","client-auth-keystone-no-groups.cfg.xml", "client-auth-v1.1.cfg.xml","client-auth-v1.1-no-groups.cfg.xml","dist-datastore.cfg.xml"].each do |config|
         cookbook_file "/etc/repose/valveGroup1/#{config}" do
           source "/valveGroup1/#{config}"
           mode 0644
@@ -114,7 +114,7 @@ for valveGroup in 1..3
 
       end
 
-      ["header-normalization.cfg.xml", "uri-normalization.cfg.xml","openstack-authorization.cfg.xml"].each do |config|
+      ["header-normalization.cfg.xml", "uri-normalization.cfg.xml","openstack-authorization.cfg.xml","openstack-authorization-no-groups.cfg.xml"].each do |config|
         cookbook_file "/etc/repose/valveGroup1/#{config}" do
           source "#{config}"
           mode 0644

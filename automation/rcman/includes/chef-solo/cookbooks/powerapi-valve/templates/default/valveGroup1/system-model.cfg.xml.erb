@@ -9,6 +9,7 @@
         <filter name="dist-datastore" />
         <filter name="versioning" />
         <filter name="client-auth" configuration="client-auth-v1.1.cfg.xml" />
+        <filter name="client-auth" configuration="client-auth-v1.1-no-groups.cfg.xml" uri-regex='/no_groups/.*'  />
         <filter name="header-normalization"/>
         <filter name="uri-normalization" />
         <filter name="uri-normalization" uri-regex='/only_media_variant/.*' configuration='only-media-variant-uri-normalization.xml'/>
@@ -32,6 +33,7 @@
         <filter name="dist-datastore" />
         <filter name="versioning" />
         <filter name="client-auth" configuration="client-auth-keystone.cfg.xml"/>
+        <filter name="client-auth" configuration="client-auth-keystone-no-groups.cfg.xml" uri-regex='/no_groups/.*'  />
         <filter name="client-authorization" />
         <filter name="uri-normalization" />
         <filter name="header-normalization"/>

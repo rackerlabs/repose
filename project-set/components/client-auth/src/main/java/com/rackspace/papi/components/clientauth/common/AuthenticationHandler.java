@@ -45,6 +45,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
    private final boolean tenanted;
    private final long groupCacheTtl;
    private final long userCacheTtl;
+   private final boolean requestGroups;
 
    protected AuthenticationHandler(Configurables configurables, AuthTokenCache cache, AuthGroupCache grpCache, UriMatcher uriMatcher) {
       this.delegable = configurables.isDelegable();
@@ -55,6 +56,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       this.tenanted = configurables.isTenanted();
       this.groupCacheTtl = configurables.getGroupCacheTtl();
       this.userCacheTtl = configurables.getUserCacheTtl();
+      this.requestGroups= configurables.isRequestGroups();
    }
 
    @Override
@@ -119,7 +121,8 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
             }
          }
       }
-
+          
+         
       List<AuthGroup> groups = getAuthGroups(token);
 
       setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(), groups);
@@ -128,7 +131,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
    }
 
    private List<AuthGroup> getAuthGroups(AuthToken token) {
-      if (token != null) {
+      if (token != null && requestGroups) {
 
          AuthGroups authGroups = checkGroupCache(token);
 
