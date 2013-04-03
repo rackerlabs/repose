@@ -23,6 +23,8 @@ stop_port = 7777
 deproxy_port = 9999
 headers = {'X-PP-User': 'user'}
 
+startup_wait_time = 15
+
 
 def setUpModule():
     # Set up folder hierarchy
@@ -66,7 +68,7 @@ class TestSimpleLimitGroup(unittest.TestCase):
         apply_config_set('configs/one-node/.config-set.xml', params=params)
         self.valve = repose.ReposeValve(config_dir=config_dir,
                                         stop_port=stop_port)
-        time.sleep(10)
+        time.sleep(startup_wait_time)
 
     def test_a_simple_limit(self):
         logger.debug('test_a_simple_limit')
@@ -121,7 +123,7 @@ class TestMultipleMethodsForTheSameLimitGroup(unittest.TestCase):
         apply_config_set('configs/one-node/.config-set.xml', params=params)
         self.valve = repose.ReposeValve(config_dir=config_dir,
                                         stop_port=stop_port)
-        time.sleep(10)
+        time.sleep(startup_wait_time)
 
     def test_different_methods(self):
         url = 'http://localhost:%i/' % repose_port
@@ -185,7 +187,7 @@ class TestLimitsResetAfterTime(unittest.TestCase):
         apply_config_set('configs/one-node/.config-set.xml', params=params)
         self.valve = repose.ReposeValve(config_dir=config_dir,
                                         stop_port=stop_port)
-        time.sleep(10)
+        time.sleep(startup_wait_time)
 
     def test_reset(self):
         logger.debug('test_reset')
