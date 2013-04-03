@@ -22,6 +22,7 @@ log_file = pathutil.join(os.getcwd(), 'var/log/repose/current.log')
 repose_port = 8888
 stop_port = 7777
 deproxy_port = 9999
+headers = {'X-PP-User': 'user'}
 
 session = requests.Session()
 
@@ -34,13 +35,7 @@ def setUpModule():
     pathutil.create_folder(os.path.dirname(log_file))
 
 
-headers = {'X-PP-User': 'user'}
 
-
-def get_status_code_from_url(url, timeout=None):
-    logger.debug('get_status_code_from_url(url="%s")' % url)
-    resp = session.get(url, headers=headers, timeout=timeout, verify=False)
-    return resp.status_code
 
 config_verbose = False
 
