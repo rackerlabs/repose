@@ -52,6 +52,11 @@ def apply_config_set(config_set_name, params=None):
 
 
 class TestSimpleLimitGroup(unittest.TestCase):
+    """Rate limiting is configured for 5 requests per second, of any HTTP
+    method. Making 5 requests in succession should succeed with 200's, and
+    a sixth request should go over the limit, resulting in a 413. The
+    failing request should _not_ be sent to the origin service."""
+
     def setUp(self):
         logger.debug('setUp')
 
@@ -73,11 +78,6 @@ class TestSimpleLimitGroup(unittest.TestCase):
         time.sleep(10)
 
     def test_a_simple_limit(self):
-        """Rate limiting is configured for 5 requests per second, of any HTTP
-        method. Making 5 requests in succession should succeed with 200's, and
-        a sixth request should go over the limit, resulting in a 413. The
-        failing request should _not_ be sent to the origin service."""
-
         logger.debug('test_a_simple_limit')
 
         url = 'http://localhost:%i/' % repose_port
@@ -106,6 +106,9 @@ class TestSimpleLimitGroup(unittest.TestCase):
 
 
 class TestMultipleMethodsForTheSameLimitGroup(unittest.TestCase):
+    """Rate limiting is configured for 5 requests per second, of any HTTP
+    method. Making requests of different methods should still count towards
+    the limit in the usual way, and the sixth request should fail."""
     def setUp(self):
         logger.debug('setUp')
 
@@ -127,9 +130,6 @@ class TestMultipleMethodsForTheSameLimitGroup(unittest.TestCase):
         time.sleep(10)
 
     def test_different_methods(self):
-        """Rate limiting is configured for 5 requests per second, of any HTTP
-        method. Making requests of different methods should still count towards
-        the limit in the usual way, and the sixth request should fail."""
 
         url = 'http://localhost:%i/' % repose_port
 
@@ -168,6 +168,11 @@ class TestMultipleMethodsForTheSameLimitGroup(unittest.TestCase):
 
 
 class TestLimitsResetAfterTime(unittest.TestCase):
+    """Rate limiting is configured for 5 requests per second, of any HTTP
+    method. Making 5 requests in succession should succeed with 200's, and
+    a sixth request should go over the limit, resulting in a 413. If we
+    sleep for 1 second after that, limits should reset."""
+
     def setUp(self):
         logger.debug('setUp')
 
@@ -189,11 +194,6 @@ class TestLimitsResetAfterTime(unittest.TestCase):
         time.sleep(10)
 
     def test_reset(self):
-        """Rate limiting is configured for 5 requests per second, of any HTTP
-        method. Making 5 requests in succession should succeed with 200's, and
-        a sixth request should go over the limit, resulting in a 413. If we
-        sleep for 1 second after that, limits should reset."""
-
         logger.debug('test_a_simple_limit')
 
         url = 'http://localhost:%i/' % repose_port
