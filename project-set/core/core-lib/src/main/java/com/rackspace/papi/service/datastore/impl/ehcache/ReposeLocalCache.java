@@ -16,7 +16,8 @@ import org.springframework.stereotype.Component;
 import java.security.NoSuchAlgorithmException;
 
 @Component("reposeLocalDatastore")
-@ManagedResource(objectName = "com.rackspace.papi.service.datastore.impl.ehcache:type=ReposeLocalCache", description = "Repose local datastore MBean.")
+@ManagedResource(objectName = "com.rackspace.papi.service.datastore.impl.ehcache:type=ReposeLocalCache",
+                 description = "Repose local datastore MBean.")
 public class ReposeLocalCache implements ReposeLocalCacheMBean {
 
     private static final Logger LOG = LoggerFactory.getLogger(ReposeLocalCache.class);
@@ -42,7 +43,8 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
     }
 
     private String getEncodedUserCacheKey(String user) throws NoSuchAlgorithmException {
-        final byte[] hashBytes = MD5MessageDigestFactory.getInstance().newMessageDigest().digest(user.getBytes(CharacterSets.UTF_8));
+        final byte[] hashBytes =
+                MD5MessageDigestFactory.getInstance().newMessageDigest().digest(user.getBytes(CharacterSets.UTF_8));
 
         return UUIDEncodingProvider.getInstance().encode(hashBytes);
     }
@@ -50,9 +52,11 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
     @Override
     @ManagedOperation
     public boolean removeTokenAndRoles(String tenantId, String token) {
-        boolean removed = datastoreService.defaultDatastore().getDatastore().remove(AUTH_TOKEN_CACHE_PREFIX + "." + getCacheKey(tenantId, token));
+        boolean removed = datastoreService.defaultDatastore().getDatastore()
+                .remove(AUTH_TOKEN_CACHE_PREFIX + "." + getCacheKey(tenantId, token));
 
-        LOG.info("Removed token from cache: " + removed + (StringUtilities.isNotBlank(tenantId) ? " (" + tenantId + ")" : ""));
+        LOG.info("Removed token from cache: " + removed +
+                         (StringUtilities.isNotBlank(tenantId) ? " (" + tenantId + ")" : ""));
 
         return removed;
     }
@@ -60,9 +64,11 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
     @Override
     @ManagedOperation
     public boolean removeGroups(String tenantId, String token) {
-        boolean removed = datastoreService.defaultDatastore().getDatastore().remove(AUTH_GROUP_CACHE_PREFIX + "." + getCacheKey(tenantId, token));
+        boolean removed = datastoreService.defaultDatastore().getDatastore()
+                .remove(AUTH_GROUP_CACHE_PREFIX + "." + getCacheKey(tenantId, token));
 
-        LOG.info("Removed groups from cache: " + removed + (StringUtilities.isNotBlank(tenantId) ? " (" + tenantId + ")" : ""));
+        LOG.info("Removed groups from cache: " + removed +
+                         (StringUtilities.isNotBlank(tenantId) ? " (" + tenantId + ")" : ""));
 
         return removed;
     }
@@ -79,6 +85,12 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
         return removed;
     }
 
+    @Override
+    @ManagedOperation
+    public void removeAllCacheData() {
+        datastoreService.getDatastore(DatastoreService.DEFAULT_LOCAL).getDatastore().removeAllCacheData();
+    }
+
     private boolean removeWithUnencodedUser(String userId) {
         return datastoreService.defaultDatastore().getDatastore().remove(userId);
     }
@@ -89,7 +101,8 @@ public class ReposeLocalCache implements ReposeLocalCacheMBean {
         try {
             removed = datastoreService.defaultDatastore().getDatastore().remove(getEncodedUserCacheKey(userId));
 
-            LOG.info("Removed rate limits from cache: " + removed + (StringUtilities.isNotBlank(userId) ? " (" + userId + ")" : ""));
+            LOG.info("Removed rate limits from cache: " + removed +
+                             (StringUtilities.isNotBlank(userId) ? " (" + userId + ")" : ""));
         } catch (NoSuchAlgorithmException e) {
             LOG.error("Your instance of the Java Runtime Environment does not support the MD5 hash algorithm.", e);
         }
