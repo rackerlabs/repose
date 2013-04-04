@@ -1,4 +1,4 @@
-narwhal>=0.1.5
+narwhal>=0.1.6
 deproxy>=0.1.5
 requests
 argparse
