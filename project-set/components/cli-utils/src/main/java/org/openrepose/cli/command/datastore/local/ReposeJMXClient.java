@@ -23,9 +23,9 @@ public class ReposeJMXClient implements ReposeLocalCacheMBean {
         final MBeanServerConnection reposeConnection = jmxc.getMBeanServerConnection();
 
         reposeLocalCacheMBeanProxy = JMX.newMBeanProxy(reposeConnection,
-                new ObjectName(ReposeLocalCacheMBean.OBJECT_NAME),
-                ReposeLocalCacheMBean.class,
-                true);
+                                                       new ObjectName(ReposeLocalCacheMBean.OBJECT_NAME),
+                                                       ReposeLocalCacheMBean.class,
+                                                       true);
     }
 
     @Override
