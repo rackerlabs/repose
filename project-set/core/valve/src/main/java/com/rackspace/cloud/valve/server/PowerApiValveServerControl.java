@@ -85,7 +85,7 @@ public class PowerApiValveServerControl {
         }
 
         throw new ConfigurationResourceException(
-                "Container configuration is not valid. Please check your configuration.");
+                "Container configuration is not valid. Please check yodur configuration.");
     }
 
     public void startPowerApiValve() {
