@@ -11,40 +11,40 @@ import java.util.concurrent.TimeUnit;
 
 public class EHCacheDatastore implements Datastore {
 
-   private final Cache ehCacheInstance;
+    private final Cache ehCacheInstance;
 
-   public EHCacheDatastore(Cache ehCacheInstance) {
-      this.ehCacheInstance = ehCacheInstance;
-   }
+    public EHCacheDatastore(Cache ehCacheInstance) {
+        this.ehCacheInstance = ehCacheInstance;
+    }
 
-   @Override
-   public StoredElement get(String key) throws DatastoreOperationException {
-      final Element element = ehCacheInstance.get(key);
+    @Override
+    public StoredElement get(String key) throws DatastoreOperationException {
+        final Element element = ehCacheInstance.get(key);
 
-      if (element != null) {
-         return new StoredElementImpl(key, (byte[]) element.getValue());
-      }
+        if (element != null) {
+            return new StoredElementImpl(key, (byte[]) element.getValue());
+        }
 
-      return new StoredElementImpl(key, null);
-   }
+        return new StoredElementImpl(key, null);
+    }
 
-   @Override
-   public boolean remove(String key) throws DatastoreOperationException {
-      return ehCacheInstance.remove(key);
-   }
+    @Override
+    public boolean remove(String key) throws DatastoreOperationException {
+        return ehCacheInstance.remove(key);
+    }
 
-   @Override
-   public void put(String key, byte[] value) throws DatastoreOperationException {
-      ehCacheInstance.put(new Element(key, value));
-   }
+    @Override
+    public void put(String key, byte[] value) throws DatastoreOperationException {
+        ehCacheInstance.put(new Element(key, value));
+    }
 
-   @Override
-   public void put(String key, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
-      final Element putMe = new Element(key, value);
-      putMe.setTimeToLive((int) TimeUnit.SECONDS.convert(ttl, timeUnit));
+    @Override
+    public void put(String key, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
+        final Element putMe = new Element(key, value);
+        putMe.setTimeToLive((int) TimeUnit.SECONDS.convert(ttl, timeUnit));
 
-      ehCacheInstance.put(putMe);
-   }
+        ehCacheInstance.put(putMe);
+    }
 
     @Override
     public boolean remove(String key, boolean notify) throws DatastoreOperationException {
@@ -57,7 +57,13 @@ public class EHCacheDatastore implements Datastore {
     }
 
     @Override
-    public void put(String key, byte[] value, int ttl, TimeUnit timeUnit, boolean notify) throws DatastoreOperationException {
+    public void put(String key, byte[] value, int ttl, TimeUnit timeUnit, boolean notify)
+            throws DatastoreOperationException {
         put(key, value, ttl, timeUnit);
+    }
+
+    @Override
+    public void removeAllCacheData() {
+        ehCacheInstance.removeAll();
     }
 }

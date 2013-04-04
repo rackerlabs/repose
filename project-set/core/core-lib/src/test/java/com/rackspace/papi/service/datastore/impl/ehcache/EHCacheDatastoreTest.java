@@ -1,18 +1,20 @@
 package com.rackspace.papi.service.datastore.impl.ehcache;
 
 import com.rackspace.papi.service.datastore.StoredElement;
-import java.util.UUID;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import org.junit.AfterClass;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.experimental.runners.Enclosed;
 import org.junit.runner.RunWith;
+
+import java.util.UUID;
+
+import static org.junit.Assert.*;
 
 @RunWith(Enclosed.class)
 public class EHCacheDatastoreTest {
@@ -81,9 +83,6 @@ public class EHCacheDatastoreTest {
             assertNotNull(element);
             assertTrue(element instanceof StoredElement);
             assertTrue(element.elementIsNull());
-            
         }
-   
     }
-
 }
