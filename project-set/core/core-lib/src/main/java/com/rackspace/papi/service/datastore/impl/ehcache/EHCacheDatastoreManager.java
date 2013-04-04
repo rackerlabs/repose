@@ -3,6 +3,8 @@ package com.rackspace.papi.service.datastore.impl.ehcache;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.DatastoreService;
+import com.yammer.metrics.core.Histogram;
+import com.yammer.metrics.core.MetricsRegistry;
 import java.util.UUID;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Ehcache;
@@ -20,7 +22,7 @@ public class EHCacheDatastoreManager implements DatastoreManager {
    public EHCacheDatastoreManager(CacheManager cacheManagerInstance) {
       this.cacheManagerInstance = cacheManagerInstance;
 
-      cacheName = cacheManagerInstance.getName() + CACHE_NAME_PREFIX + UUID.randomUUID().toString();
+      cacheName = CACHE_NAME_PREFIX + cacheManagerInstance.getName();
 
       init();
    }
@@ -31,6 +33,7 @@ public class EHCacheDatastoreManager implements DatastoreManager {
 
       this.instrumentedCache = InstrumentedEhcache.instrument(cache);
       available = true;
+      
    }
 
    @Override
@@ -53,7 +56,7 @@ public class EHCacheDatastoreManager implements DatastoreManager {
 
    @Override
    public Datastore getDatastore() {
-      return new EHCacheDatastore(cacheManagerInstance.getCache(cacheName));
+      return new EHCacheDatastore(instrumentedCache);
    }
 
    @Override

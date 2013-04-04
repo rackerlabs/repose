@@ -5,6 +5,8 @@ import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.impl.ehcache.EHCacheDatastoreManager;
+import com.rackspace.papi.service.reporting.metrics.MetricsRegistryService;
+import com.yammer.metrics.core.Histogram;
 
 import javax.servlet.ServletContextEvent;
 import net.sf.ehcache.CacheManager;
@@ -27,7 +29,6 @@ public class DatastoreServiceContext implements ServiceContext<DatastoreService>
     private final ServiceRegistry registry;
     private CacheManager ehCacheManager;
     private ReposeInstanceInfo instanceInfo;
-
     @Autowired
     public DatastoreServiceContext(
             @Qualifier("datastoreService") DatastoreService datastoreService,

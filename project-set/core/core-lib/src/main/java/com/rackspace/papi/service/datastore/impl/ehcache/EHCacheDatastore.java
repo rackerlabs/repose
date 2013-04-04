@@ -4,17 +4,18 @@ import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.StoredElement;
 import com.rackspace.papi.service.datastore.impl.StoredElementImpl;
-import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
+import net.sf.ehcache.Ehcache;
 
 import java.util.concurrent.TimeUnit;
 
 public class EHCacheDatastore implements Datastore {
 
-   private final Cache ehCacheInstance;
+   private final Ehcache ehCacheInstance;
 
-   public EHCacheDatastore(Cache ehCacheInstance) {
+   public EHCacheDatastore(Ehcache ehCacheInstance ) {
       this.ehCacheInstance = ehCacheInstance;
+      
    }
 
    @Override
@@ -42,7 +43,6 @@ public class EHCacheDatastore implements Datastore {
    public void put(String key, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException {
       final Element putMe = new Element(key, value);
       putMe.setTimeToLive((int) TimeUnit.SECONDS.convert(ttl, timeUnit));
-
       ehCacheInstance.put(putMe);
    }
 

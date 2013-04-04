@@ -1,4 +1,3 @@
-
 package com.rackspace.papi.service.context.impl;
 
 import com.rackspace.papi.service.ServiceRegistry;
@@ -11,25 +10,25 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component("metricsRegistryServiceContext")
-public class MetricsRegistryServiceContext implements ServiceContext<MetricsRegistryService>{
-   
+public class MetricsRegistryServiceContext implements ServiceContext<MetricsRegistryService> {
+
    private MetricsRegistryService metricsRegistryService;
    private final String serviceName = "MetricsRegistryService";
    private final ServiceRegistry registry;
-   
+
    @Autowired
    public MetricsRegistryServiceContext(@Qualifier("metricsRegistry") MetricsRegistryService metricsRegistryService,
-           @Qualifier("serviceRegistry") ServiceRegistry registry){
-      
+           @Qualifier("serviceRegistry") ServiceRegistry registry) {
+
       this.metricsRegistryService = metricsRegistryService;
       this.registry = registry;
    }
-   
+
    private void register() {
-        if (registry != null) {
-            registry.addService(this);
-        }
-    }
+      if (registry != null) {
+         registry.addService(this);
+      }
+   }
 
    @Override
    public String getServiceName() {
@@ -43,10 +42,8 @@ public class MetricsRegistryServiceContext implements ServiceContext<MetricsRegi
 
    @Override
    public void contextInitialized(ServletContextEvent sce) {
-      
-      if(metricsRegistryService == null){
-         metricsRegistryService = new MetricsRegistryServiceImpl();
-      }
+      metricsRegistryService = new MetricsRegistryServiceImpl();
+
       register();
    }
 
@@ -54,5 +51,4 @@ public class MetricsRegistryServiceContext implements ServiceContext<MetricsRegi
    public void contextDestroyed(ServletContextEvent sce) {
       // Nothing really to destroy
    }
-   
 }

@@ -1,6 +1,8 @@
 package com.rackspace.papi.service.datastore.impl.ehcache;
 
 import com.rackspace.papi.service.datastore.StoredElement;
+import com.yammer.metrics.core.Histogram;
+import com.yammer.metrics.core.MetricsRegistry;
 import java.util.UUID;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -22,6 +24,8 @@ public class EHCacheDatastoreTest {
         private Cache cache;
         private EHCacheDatastore instance;
         private static final String CACHE_NAME = "TEST";
+        private MetricsRegistry registry;
+        private Histogram histogram;
 
         @BeforeClass
         public static void setUpClass() {
@@ -41,6 +45,8 @@ public class EHCacheDatastoreTest {
 
         @Before
         public void setUp() {
+           registry = new MetricsRegistry();
+           histogram = registry.newHistogram(EHCacheDatastoreTest.class, "testHistogram");
             cache = new Cache(UUID.randomUUID().toString(), 20000, false, false, 5, 2);
             cacheManager.addCache(cache);
             instance = new EHCacheDatastore(cache);
