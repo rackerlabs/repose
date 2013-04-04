@@ -12,6 +12,7 @@ import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
 import com.rackspace.papi.service.datastore.impl.ehcache.EHCacheDatastoreManager;
 import com.rackspace.papi.service.proxy.jersey.RequestProxyServiceImpl;
+import com.yammer.metrics.core.MetricsRegistry;
 import net.sf.ehcache.CacheManager;
 
 import java.io.ByteArrayOutputStream;
@@ -66,6 +67,7 @@ public class SingleKeyContentionInserter {
    public static void main(String[] args) throws Exception {
       final ReposeInstanceInfo instanceInfo = new ReposeInstanceInfo("SingleKeyContentionInserter", "node");
       final MutableClusterView view = new ThreadSafeClusterView(getHttpPortList(20000));
+
       final EHCacheDatastoreManager localManager = new EHCacheDatastoreManager(new CacheManager());
       final HashRingDatastoreManager remoteManager = new HashRingDatastoreManager(new RequestProxyServiceImpl(instanceInfo), "", UUIDEncodingProvider.getInstance(), MD5MessageDigestFactory.getInstance(), view, localManager.getDatastore());
       final Datastore datastore = remoteManager.getDatastore();
