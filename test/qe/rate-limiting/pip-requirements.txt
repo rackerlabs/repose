@@ -1,5 +1,5 @@
+narwhal>=0.1.5
+deproxy>=0.1.5
 requests
 argparse
 unittest-xml-reporting
-narwhal
-deproxy
