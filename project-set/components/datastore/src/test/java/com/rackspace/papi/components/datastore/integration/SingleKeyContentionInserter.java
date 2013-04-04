@@ -12,7 +12,6 @@ import com.rackspace.papi.service.datastore.encoding.UUIDEncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MD5MessageDigestFactory;
 import com.rackspace.papi.service.datastore.impl.ehcache.EHCacheDatastoreManager;
 import com.rackspace.papi.service.proxy.jersey.RequestProxyServiceImpl;
-import com.yammer.metrics.core.MetricsRegistry;
 import net.sf.ehcache.CacheManager;
 
 import java.io.ByteArrayOutputStream;
