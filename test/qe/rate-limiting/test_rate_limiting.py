@@ -20,7 +20,7 @@ artifact_dir = pathutil.join(os.getcwd(), 'usr/share/repose/filters')
 log_file = pathutil.join(os.getcwd(), 'var/log/repose/current.log')
 repose_port = 8888
 stop_port = 7777
-deproxy_port = 9999
+deproxy_port_base = 9999
 headers = {'X-PP-User': 'user'}
 
 startup_wait_time = 15
@@ -52,6 +52,8 @@ class TestSimpleLimitGroup(unittest.TestCase):
 
     def setUp(self):
         logger.debug('setUp')
+
+        deproxy_port = deproxy_port_base - 0
 
         self.deproxy = deproxy.Deproxy()
         self.end_point = self.deproxy.add_endpoint(('localhost', deproxy_port))
@@ -107,15 +109,16 @@ class TestMultipleMethodsForTheSameLimitGroup(unittest.TestCase):
     def setUp(self):
         logger.debug('setUp')
 
+        deproxy_port = deproxy_port_base - 1
+
         self.deproxy = deproxy.Deproxy()
-        self.end_point = self.deproxy.add_endpoint(('localhost',
-                                                    deproxy_port - 1))
+        self.end_point = self.deproxy.add_endpoint(('localhost', deproxy_port))
 
         pathutil.clear_folder(config_dir)
         params = {
             'port': repose_port,
             'target_hostname': 'localhost',
-            'target_port': deproxy_port - 1,
+            'target_port': deproxy_port,
             'deployment_dir': deployment_dir,
             'artifact_dir': artifact_dir,
             'log_file': log_file
@@ -172,6 +175,8 @@ class TestLimitsResetAfterTime(unittest.TestCase):
     def setUp(self):
         logger.debug('setUp')
 
+        deproxy_port = deproxy_port_base - 2
+
         self.deproxy = deproxy.Deproxy()
         self.end_point = self.deproxy.add_endpoint(('localhost', deproxy_port))
 
@@ -227,10 +232,67 @@ class TestLimitsResetAfterTime(unittest.TestCase):
             self.deproxy.shutdown_all_endpoints()
 
 
+class TestMultipleNodes(unittest.TestCase):
+    """Rate limit info should be shared among multiple nodes that are
+    configured to use the distributed datastore. Requests over the prescribed
+    limit should be rejected, no matter which node serviced them."""
+
+    def setUp(self):
+        logger.debug('setUp')
+
+        deproxy_port = deproxy_port_base - 3
+
+        self.deproxy = deproxy.Deproxy()
+        self.end_point = self.deproxy.add_endpoint(('localhost', deproxy_port))
+
+        pathutil.clear_folder(config_dir)
+        params = {
+            'port1': repose_port,
+            'port2': repose_port + 1,
+            'target_hostname': 'localhost',
+            'target_port': deproxy_port,
+            'deployment_dir': deployment_dir,
+            'artifact_dir': artifact_dir,
+            'log_file': log_file
+        }
+        apply_config_set('configs/two-nodes/.config-set.xml', params=params)
+        self.valve = repose.ReposeValve(config_dir=config_dir,
+                                        stop_port=stop_port)
+        time.sleep(startup_wait_time)
+
+    def test_reset(self):
+        logger.debug('test_reset')
+
+        url1 = 'http://localhost:%i/' % repose_port
+        url2 = 'http://localhost:%i/' % (repose_port + 1)
+        logger.debug('url1 = %s' % url1)
+        logger.debug('url2 = %s' % url2)
+
+        time.sleep(1)
+
+        for i in xrange(5):
+            mc = self.deproxy.make_request(method='GET', url=url1,
+                                           headers=headers)
+            self.assertEqual(mc.received_response.code, '200', msg=mc)
+            self.assertEqual(len(mc.handlings), 1, msg=mc)
+
+        mc = self.deproxy.make_request(method='GET', url=url2, headers=headers)
+        self.assertEqual(mc.received_response.code, '413', msg=mc)
+        self.assertEqual(len(mc.handlings), 0, msg=mc)
+
+    def tearDown(self):
+        logger.debug('tearDown')
+        if self.valve is not None:
+            self.valve.stop()
+        if self.deproxy is not None:
+            self.deproxy.shutdown_all_endpoints()
+
+
 available_test_cases = [
     TestSimpleLimitGroup,
     TestMultipleMethodsForTheSameLimitGroup,
     TestLimitsResetAfterTime,
+    TestMultipleNodes,
 ]
 
 
