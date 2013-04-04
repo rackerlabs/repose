@@ -60,4 +60,9 @@ public class EHCacheDatastore implements Datastore {
     public void put(String key, byte[] value, int ttl, TimeUnit timeUnit, boolean notify) throws DatastoreOperationException {
         put(key, value, ttl, timeUnit);
     }
+
+    @Override
+    public void removeAllCacheData() {
+        ehCacheInstance.removeAll();
+    }
 }

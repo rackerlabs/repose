@@ -14,13 +14,14 @@ import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
 import com.rackspace.papi.service.datastore.impl.AbstractHashedDatastore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.math.BigInteger;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.concurrent.TimeUnit;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class HashRingDatastore extends AbstractHashedDatastore {
 
@@ -204,5 +205,10 @@ public class HashRingDatastore extends AbstractHashedDatastore {
     @Override
     public void put(String key, byte[] value, int ttl, TimeUnit timeUnit, boolean notify) {
         throw new UnsupportedOperationException("Not supported yet.");
+    }
+
+    @Override
+    protected void removeAllCachedData() {
+        localDatastore.removeAllCacheData();
     }
 }

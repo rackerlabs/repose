@@ -42,4 +42,9 @@ public class ReposeJMXClient implements ReposeLocalCacheMBean {
     public boolean removeLimits(String encodedUserId) {
         return reposeLocalCacheMBeanProxy.removeLimits(encodedUserId);
     }
+
+    @Override
+    public void removeAllCacheData() {
+        reposeLocalCacheMBeanProxy.removeAllCacheData();
+    }
 }

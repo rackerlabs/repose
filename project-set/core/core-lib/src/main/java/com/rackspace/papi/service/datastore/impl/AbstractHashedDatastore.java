@@ -67,9 +67,16 @@ public abstract class AbstractHashedDatastore implements Datastore {
       put(encodingProvider.encode(keyHash), keyHash, value, ttl, timeUnit);
    }
 
-   protected abstract StoredElement get(String name, byte[] id) throws DatastoreOperationException;
+    @Override
+     public void removeAllCacheData() {
+        removeAllCachedData();
+    }
+
+    protected abstract StoredElement get(String name, byte[] id) throws DatastoreOperationException;
 
    protected abstract boolean remove(String name, byte[] id) throws DatastoreOperationException;
 
    protected abstract void put(String name, byte[] id, byte[] value, int ttl, TimeUnit timeUnit) throws DatastoreOperationException;
+
+    protected abstract void removeAllCachedData();
 }

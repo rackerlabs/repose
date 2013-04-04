@@ -13,15 +13,16 @@ import com.rackspace.papi.service.datastore.impl.replicated.data.Subscriber;
 import com.rackspace.papi.service.datastore.impl.replicated.notification.in.ChannelledUpdateListener;
 import com.rackspace.papi.service.datastore.impl.replicated.notification.out.UpdateNotifier;
 import com.rackspace.papi.service.datastore.impl.replicated.subscriptions.UdpSubscriptionListener;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore {
 
@@ -196,4 +197,8 @@ public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore {
         }
     }
 
+    @Override
+    public void removeAllCacheData() {
+        cache.removeAll();
+    }
 }

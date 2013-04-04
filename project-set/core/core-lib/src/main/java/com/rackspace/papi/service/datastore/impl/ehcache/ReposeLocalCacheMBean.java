@@ -5,4 +5,5 @@ public interface ReposeLocalCacheMBean {
     boolean removeTokenAndRoles(String tenantId, String token);
     boolean removeGroups(String tenantId, String token);
     boolean removeLimits(String userId);
+    void removeAllCacheData();
 }
