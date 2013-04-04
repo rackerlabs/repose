@@ -65,6 +65,7 @@
             <xs:extension base="mod:Cluster">
                 <xs:sequence>
                     <xs:element name="filters" type="mod:FilterList" minOccurs="0" maxOccurs="1" />
+                    <xs:element name="services" type="mod:ServicesList" minOccurs="0" maxOccurs="1" />
                     <xs:element name="destinations" type="mod:DestinationList" minOccurs="1" maxOccurs="1" />
                 </xs:sequence>
 
@@ -208,6 +209,40 @@
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
+    
+     <xs:complexType name="ServicesList">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>List of services that the proxy will then execute in order of definition</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:sequence>
+            <xs:element name="service" type="mod:Service" minOccurs="0" maxOccurs="unbounded" />
+        </xs:sequence>
+        
+        <xs:assert vc:minVersion="1.1" test="count(distinct-values(mod:service/@name)) = count(mod:service/@name)"
+            xerces:message="Services must have name unique within their containing service list"
+            saxon:message="Services must have name unique within their containing service list">
+        </xs:assert>
+    
+    </xs:complexType>
+      
+    <xs:complexType name="Service">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Defines a filter that can be used to process and route requests</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        
+        <xs:attribute name="name" type="xs:string" use="required">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>The system context specific name of the service to be used</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>    
 
     <xs:complexType name="DestinationList">
         <xs:annotation>
