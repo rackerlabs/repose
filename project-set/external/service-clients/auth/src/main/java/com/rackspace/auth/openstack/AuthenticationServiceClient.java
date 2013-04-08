@@ -1,10 +1,6 @@
 package com.rackspace.auth.openstack;
 
-import com.rackspace.auth.AuthGroup;
-import com.rackspace.auth.AuthGroups;
-import com.rackspace.auth.AuthServiceException;
-import com.rackspace.auth.AuthToken;
-import com.rackspace.auth.ResponseUnmarshaller;
+import com.rackspace.auth.*;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Group;
 import com.rackspace.docs.identity.api.ext.rax_ksgrp.v1.Groups;
 import com.rackspace.papi.commons.util.StringUtilities;
@@ -17,7 +13,10 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.core.MediaType;
 import javax.xml.bind.JAXBElement;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author fran
@@ -36,10 +35,11 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
    public AuthenticationServiceClient(String targetHostUri, String username, String password, String tenantId,
            ResponseUnmarshaller openStackCoreResponseUnmarshaller,
-           ResponseUnmarshaller openStackGroupsResponseUnmarshaller) {
+           ResponseUnmarshaller openStackGroupsResponseUnmarshaller,
+            ServiceClient serviceClient) {
       this.openStackCoreResponseUnmarshaller = openStackCoreResponseUnmarshaller;
       this.openStackGroupsResponseUnmarshaller = openStackGroupsResponseUnmarshaller;
-      this.serviceClient = new ServiceClient();
+      this.serviceClient = serviceClient;
       this.targetHostUri = targetHostUri;
 
       ObjectFactory objectFactory = new ObjectFactory();
@@ -92,11 +92,11 @@ public class AuthenticationServiceClient implements AuthenticationService {
 
          case INTERNAL_SERVER_ERROR:
             // Internal server error from auth
-            LOG.warn("Internal server error from auth. " + serviceResponse.getStatusCode());
+            LOG.warn("Authentication Service returned internal server error: " + serviceResponse.getStatusCode());
             break;
 
          default:
-            LOG.warn("Unexpected response status code: " + serviceResponse.getStatusCode());
+            LOG.warn("Authentication Service returned an unexpected response status code: " + serviceResponse.getStatusCode());
             break;
       }
 
