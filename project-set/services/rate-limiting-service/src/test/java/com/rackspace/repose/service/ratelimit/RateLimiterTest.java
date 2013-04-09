@@ -29,12 +29,25 @@ public class RateLimiterTest {
       private final Pattern pattern = Pattern.compile("/some/uri/(.*)");
       private final Matcher uriMatcher = pattern.matcher(URI);
       private final ConfiguredRatelimit configuredRateLimit = RateLimitingTestSupport.defaultRateLimitingConfiguration().getLimitGroup().get(0).getLimit().get(0);
-      private final String key;
+      private String key;
 
       public WhenHandlingRateLimits() {
          uriMatcher.matches();
-         key = limitKey.getLimitKey(URI, uriMatcher);
+         key = limitKey.getLimitKey(URI, uriMatcher,true);
       }
+      
+      @Test(expected=OverLimitException.class)
+      public void noCaptureGroupshouldThrowOverLimitException() throws IOException, OverLimitException {
+
+         final RateLimiter rateLimiter = new RateLimiter(mockedCache);
+
+         when(mockedCache.updateLimit(any(HttpMethod.class), any(String.class), any(String.class),
+                                      any(ConfiguredRatelimit.class))).thenReturn(new NextAvailableResponse(false, new Date(), 10));
+
+         key = limitKey.getLimitKey(URI, uriMatcher,false);
+         rateLimiter.handleRateLimit(USER, key, configuredRateLimit);
+      }
+
 
       @Test(expected=OverLimitException.class)
       public void shouldThrowOverLimitException() throws IOException, OverLimitException {

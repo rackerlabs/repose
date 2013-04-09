@@ -55,6 +55,18 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        
+        <xs:attribute name="use-capture-groups" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        Determines whether or not capture groups will be used to evalute limits
+                        from uri-regex
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+        
     </xs:complexType>
 
     <xs:complexType name="RequestEndpoint">

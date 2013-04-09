@@ -2,6 +2,9 @@ package com.rackspace.repose.service.ratelimit;
 
 import com.rackspace.repose.service.limits.schema.HttpMethod;
 import com.rackspace.repose.service.limits.schema.RateLimitList;
+import static com.rackspace.repose.service.ratelimit.RateLimitTestContext.COMPLEX_URI;
+import static com.rackspace.repose.service.ratelimit.RateLimitTestContext.COMPLEX_URI_REGEX;
+import static com.rackspace.repose.service.ratelimit.RateLimitTestContext.newLimitFor;
 import com.rackspace.repose.service.ratelimit.cache.CachedRateLimit;
 import com.rackspace.repose.service.ratelimit.cache.ManagedRateLimitCache;
 import com.rackspace.repose.service.ratelimit.cache.NextAvailableResponse;
@@ -42,6 +45,7 @@ public class RateLimitingServiceImplTest {
 
          cache = mock(ManagedRateLimitCache.class);
          config = new RateLimitingConfiguration();
+         config.setUseCaptureGroups(Boolean.TRUE);
 
          cacheMap = new HashMap<String, CachedRateLimit>();
          configuredLimitGroup = new ConfiguredLimitGroup();
@@ -63,6 +67,9 @@ public class RateLimitingServiceImplTest {
          configuredLimitGroup.getLimit().add(newLimitFor(COMPLEX_URI, COMPLEX_URI_REGEX, HttpMethod.DELETE));
          configuredLimitGroup.getLimit().add(newLimitFor(COMPLEX_URI, COMPLEX_URI_REGEX, HttpMethod.PUT));
          configuredLimitGroup.getLimit().add(newLimitFor(COMPLEX_URI, COMPLEX_URI_REGEX, HttpMethod.POST));
+         
+         
+         configuredLimitGroup.getLimit().add(newLimitFor(GROUPS_URI, GROUPS_URI_REGEX, HttpMethod.GET));
 
          config.getLimitGroup().add(configuredLimitGroup);
 
@@ -93,16 +100,18 @@ public class RateLimitingServiceImplTest {
 
       }
 
-      @Test
-      public void shouldTrackLimits() throws IOException, OverLimitException{
-         List<String> groups = new ArrayList<String>();
-         groups.add("configure-limit-group");
+        @Test
+        public void shouldTrackLimits() throws IOException, OverLimitException{
+           List<String> groups = new ArrayList<String>();
+           groups.add("configure-limit-group");
 
-         when(cache.updateLimit(any(HttpMethod.class), any(String.class), any(String.class),
-                 any(ConfiguredRatelimit.class))).thenReturn(new NextAvailableResponse(true, new Date(), 10));
-         
-         rateLimitingService.trackLimits("user", groups, "/loadbalancer/something", "GET");
-      }
+              when(cache.updateLimit(any(HttpMethod.class), any(String.class), any(String.class),
+                      any(ConfiguredRatelimit.class))).thenReturn(new NextAvailableResponse(true, new Date(), 10));
+
+              rateLimitingService.trackLimits("user", groups, "/loadbalancer/something", "GET");
+         }
+      
+      
       
       @Test
       public void shouldThrowOverLimits() throws IOException, OverLimitException{
@@ -135,5 +144,17 @@ public class RateLimitingServiceImplTest {
          rateLimitingService.trackLimits(null, groups, "/loadbalancer/something", "GET");
       }
       
+      
+        @Test
+        public void shouldTrackNOGROUOSLimits() throws IOException, OverLimitException{
+           List<String> groups = new ArrayList<String>();
+           config.setUseCaptureGroups(Boolean.FALSE);
+           groups.add("configure-limit-group");
+
+              when(cache.updateLimit(any(HttpMethod.class), any(String.class), any(String.class),
+                      any(ConfiguredRatelimit.class))).thenReturn(new NextAvailableResponse(true, new Date(), 10));
+
+              rateLimitingService.trackLimits("user", groups, "/loadbalancer/something/1234", "GET");
+         } 
    }
 }
