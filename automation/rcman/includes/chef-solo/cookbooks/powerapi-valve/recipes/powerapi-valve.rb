@@ -137,7 +137,7 @@ for valveGroup in 1..3
       ["uri-identity.cfg.xml", "content-normalization.cfg.xml", "response-messaging.cfg.xml", "ip-identity.cfg.xml",
        "header-identity.cfg.xml", "rate-limiting.cfg.xml", "rate-limiting-2.cfg.xml", "dist-datastore.cfg.xml",
        "responsefor5xx", "content-identity-auth-1-1.cfg.xml", "header-id-mapping.cfg.xml", "default.wadl",
-       "group1.wadl", "group2.wadl", "test.xsd", "validator.cfg.xml", "keystone-auth.cfg.xml","client-auth-keystone-no-groups.cfg.xml","client-auth-v1.1-no-groups.cfg.xml","openstack-authorization-no-groups.cfg.xml"].each do |config|
+       "group1.wadl", "group2.wadl", "test.xsd", "validator.cfg.xml", "keystone-auth.cfg.xml","client-auth-keystone-no-groups.cfg.xml","client-auth-v1.1-no-groups.cfg.xml"].each do |config|
         cookbook_file "/etc/repose/valveGroup2/#{config}" do
           source "/valveGroup2/#{config}"
           mode 0644
