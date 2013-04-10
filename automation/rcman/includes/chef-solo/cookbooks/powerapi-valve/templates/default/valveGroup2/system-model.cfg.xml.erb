@@ -15,10 +15,12 @@
         <filter name="uri-identity"/>
         <filter name="header-identity"/>
         <filter name="header-id-mapping"/>
-         <filter name="content-identity-auth-1.1"/>
+        <filter name="content-identity-auth-1.1"/>
         <filter name="rate-limiting"/>
- 	<filter name="rate-limiting" configuration="rate-limiting-2.cfg.xml" uri-regex="/rate2/.*" />
+        <filter name="rate-limiting" configuration="rate-limiting-2.cfg.xml" uri-regex="/rate2/.*" />
       	<filter name="client-auth" configuration="keystone-auth.cfg.xml" uri-regex="/keystone-auth/.*"/>
+        <filter name="client-auth" configuration="client-auth-keystone-no-groups.cfg.xml" uri-regex='/no_groups/.*'  />
+        <filter name="client-auth" configuration="client-auth-v1.1-no-groups.cfg.xml" uri-regex='/no_groups/.*'  />
 
     </filters>
 
