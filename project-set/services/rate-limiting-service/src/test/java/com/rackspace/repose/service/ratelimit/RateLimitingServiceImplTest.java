@@ -146,7 +146,7 @@ public class RateLimitingServiceImplTest {
       
       
         @Test
-        public void shouldTrackNOGROUOSLimits() throws IOException, OverLimitException{
+        public void shouldTrackNOGROUPSLimits() throws IOException, OverLimitException{
            List<String> groups = new ArrayList<String>();
            config.setUseCaptureGroups(Boolean.FALSE);
            groups.add("configure-limit-group");

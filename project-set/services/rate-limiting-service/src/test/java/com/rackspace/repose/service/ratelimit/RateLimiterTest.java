@@ -33,7 +33,7 @@ public class RateLimiterTest {
 
       public WhenHandlingRateLimits() {
          uriMatcher.matches();
-         key = limitKey.getLimitKey(URI, uriMatcher,true);
+         key = limitKey.getLimitKey(URI, uriMatcher, true);
       }
       
       @Test(expected=OverLimitException.class)
@@ -44,7 +44,7 @@ public class RateLimiterTest {
          when(mockedCache.updateLimit(any(HttpMethod.class), any(String.class), any(String.class),
                                       any(ConfiguredRatelimit.class))).thenReturn(new NextAvailableResponse(false, new Date(), 10));
 
-         key = limitKey.getLimitKey(URI, uriMatcher,false);
+         key = limitKey.getLimitKey(URI, uriMatcher, false);
          rateLimiter.handleRateLimit(USER, key, configuredRateLimit);
       }
 
