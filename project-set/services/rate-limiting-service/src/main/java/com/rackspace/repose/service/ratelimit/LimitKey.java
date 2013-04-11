@@ -12,7 +12,7 @@ public class LimitKey {
    public LimitKey() {
    }
 
-   public String getLimitKey(String uri, Matcher uriMatcher) {
+   public String getLimitKey(String uri, Matcher uriMatcher, boolean useCaptureGroups) {
       // The group count represents the number of elments that will go into
       // generating the unique cache id for the requested URI
       final int groupCount = uriMatcher.groupCount();
@@ -24,9 +24,15 @@ public class LimitKey {
 
          // Since these are regex groups we start at 1 since regex group 0 always
          // stands for the entire expression
+       if(useCaptureGroups){   
          for (int i = 1; i <= groupCount; i++) {
-            cacheIdBuffer.append(uriMatcher.group(i));
-         }
+           
+                cacheIdBuffer.append(uriMatcher.group(i));
+         }  
+         }else{
+                cacheIdBuffer.append(uriMatcher.pattern().toString());
+             }
+      
       } else {
          // We default to the whole URI in the case where no regex group info was provided
          LOG.warn("Using regex capture groups is recommended to help Repose build replicable, meaningful cache IDs for rate limits. Please update your config.");
