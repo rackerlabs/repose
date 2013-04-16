@@ -5,5 +5,7 @@
         <authentication-server username="auth" password="auth123" uri="http://50.57.189.15:8080/v1.1" />
         <account-mapping id-regex="/v\d/([\w-]+)/?" type="CLOUD"/>
         <account-mapping id-regex="/([a-zA-Z\-][a-zA-Z\-]+\d+)[^\w]/?" type="CLOUD"/>
+         <account-mapping id-regex="/no_groups/([\w-]+)/?" type="CLOUD"/>
+
     </rackspace-auth>
 </client-auth>
