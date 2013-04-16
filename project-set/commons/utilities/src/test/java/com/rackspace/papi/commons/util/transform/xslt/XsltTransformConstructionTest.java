@@ -34,7 +34,6 @@ public class XsltTransformConstructionTest {
         @Test
         public void shouldReturnTypePool() throws Exception {
             when(templates.newTransformer()).thenReturn(transformer);
-            templates.newTransformer();
             assertThat(xsltTransformConstruction.generateXsltResourcePool(templates), is(instanceOf(Pool.class)));
         }
     }
