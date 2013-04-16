@@ -372,91 +372,6 @@
               </ResponseAssertion>
               <hashTree/>
             </hashTree>
-            <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="Valid User With Valid Token -NoGroupsCall-200" enabled="true">
-              <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-                <collectionProp name="Arguments.arguments"/>
-              </elementProp>
-              <stringProp name="HTTPSampler.domain"></stringProp>
-              <stringProp name="HTTPSampler.port"></stringProp>
-              <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-              <stringProp name="HTTPSampler.response_timeout"></stringProp>
-              <stringProp name="HTTPSampler.protocol"></stringProp>
-              <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-              <stringProp name="HTTPSampler.path">/v1/${name}/no_groups/</stringProp>
-              <stringProp name="HTTPSampler.method">GET</stringProp>
-              <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-              <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-              <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-              <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-              <stringProp name="HTTPSampler.implementation">Java</stringProp>
-              <boolProp name="HTTPSampler.monitor">false</boolProp>
-              <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-            </HTTPSamplerProxy>
-            <hashTree>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Code" enabled="true">
-                <collectionProp name="Asserion.test_strings">
-                  <stringProp name="1477249802">200 OK</stringProp>
-                </collectionProp>
-                <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
-                <boolProp name="Assertion.assume_success">false</boolProp>
-                <intProp name="Assertion.test_type">2</intProp>
-              </ResponseAssertion>
-              <hashTree/>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion - tenant, tenant-id and role" enabled="false">
-                <collectionProp name="Asserion.test_strings">
-                  <stringProp name="-947491732">X-IDENTITY-STATUS</stringProp>
-                  <stringProp name="-1792560193">X-TENANT</stringProp>
-                  <stringProp name="1462694377">X-TENANT-ID</stringProp>
-                  <stringProp name="-1731429344">X-USER</stringProp>
-                  <stringProp name="-1731522357">X-ROLE</stringProp>
-                  <stringProp name="2142282985">X-GROUPS</stringProp>
-                </collectionProp>
-                <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
-                <boolProp name="Assertion.assume_success">false</boolProp>
-                <intProp name="Assertion.test_type">2</intProp>
-              </ResponseAssertion>
-              <hashTree/>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="false">
-                <collectionProp name="Asserion.test_strings">
-                  <stringProp name="-1926470151">&lt;h1&gt;Servlet version at /_${version}/${name}&lt;/h1&gt;</stringProp>
-                </collectionProp>
-                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-                <boolProp name="Assertion.assume_success">false</boolProp>
-                <intProp name="Assertion.test_type">2</intProp>
-              </ResponseAssertion>
-              <hashTree/>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion - tenant, tenant-id and role" enabled="false">
-                <collectionProp name="Asserion.test_strings">
-                  <stringProp name="912632629">&lt;h2&gt;x-tenant : ${name}&lt;/h2&gt;</stringProp>
-                  <stringProp name="-1897740094">&lt;h2&gt;x-tenant-id : usertest1&lt;/h2&gt;</stringProp>
-                  <stringProp name="1193658140">&lt;h2&gt;x-role : sysadmin&lt;/h2&gt;</stringProp>
-                </collectionProp>
-                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-                <boolProp name="Assertion.assume_success">false</boolProp>
-                <intProp name="Assertion.test_type">2</intProp>
-              </ResponseAssertion>
-              <hashTree/>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Impersonator Assertion" enabled="true">
-                <collectionProp name="Asserion.test_strings">
-                  <stringProp name="-1246318001">impersonator</stringProp>
-                </collectionProp>
-                <stringProp name="TestPlan.comments">Should not contain impersonator headers for non-impersonated tokens</stringProp>
-                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-                <boolProp name="Assertion.assume_success">false</boolProp>
-                <intProp name="Assertion.test_type">20</intProp>
-              </ResponseAssertion>
-              <hashTree/>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
-                <collectionProp name="Asserion.test_strings">
-                  <stringProp name="256320300">x-pp-groups</stringProp>
-                </collectionProp>
-                <stringProp name="TestPlan.comments">Should not contain group header </stringProp>
-                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-                <boolProp name="Assertion.assume_success">false</boolProp>
-                <intProp name="Assertion.test_type">6</intProp>
-              </ResponseAssertion>
-              <hashTree/>
-            </hashTree>
           </hashTree>
           <IfController guiclass="IfControllerPanel" testclass="IfController" testname="Unhappy Paths - Non Delegatable" enabled="true">
             <stringProp name="IfController.condition">true</stringProp>
@@ -903,50 +818,6 @@
                 <intProp name="Assertion.test_type">2</intProp>
               </ResponseAssertion>
               <hashTree/>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion - tenant, tenant-id and role" enabled="false">
-                <collectionProp name="Asserion.test_strings">
-                  <stringProp name="-947491732">X-IDENTITY-STATUS</stringProp>
-                  <stringProp name="-1792560193">X-TENANT</stringProp>
-                  <stringProp name="1462694377">X-TENANT-ID</stringProp>
-                  <stringProp name="-1731429344">X-USER</stringProp>
-                  <stringProp name="-1731522357">X-ROLE</stringProp>
-                  <stringProp name="2142282985">X-GROUPS</stringProp>
-                </collectionProp>
-                <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
-                <boolProp name="Assertion.assume_success">false</boolProp>
-                <intProp name="Assertion.test_type">2</intProp>
-              </ResponseAssertion>
-              <hashTree/>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="false">
-                <collectionProp name="Asserion.test_strings">
-                  <stringProp name="-1926470151">&lt;h1&gt;Servlet version at /_${version}/${name}&lt;/h1&gt;</stringProp>
-                </collectionProp>
-                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-                <boolProp name="Assertion.assume_success">false</boolProp>
-                <intProp name="Assertion.test_type">2</intProp>
-              </ResponseAssertion>
-              <hashTree/>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion - tenant, tenant-id and role" enabled="false">
-                <collectionProp name="Asserion.test_strings">
-                  <stringProp name="912632629">&lt;h2&gt;x-tenant : ${name}&lt;/h2&gt;</stringProp>
-                  <stringProp name="-1897740094">&lt;h2&gt;x-tenant-id : usertest1&lt;/h2&gt;</stringProp>
-                  <stringProp name="1193658140">&lt;h2&gt;x-role : sysadmin&lt;/h2&gt;</stringProp>
-                </collectionProp>
-                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-                <boolProp name="Assertion.assume_success">false</boolProp>
-                <intProp name="Assertion.test_type">2</intProp>
-              </ResponseAssertion>
-              <hashTree/>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Impersonator Assertion" enabled="true">
-                <collectionProp name="Asserion.test_strings">
-                  <stringProp name="-1246318001">impersonator</stringProp>
-                </collectionProp>
-                <stringProp name="TestPlan.comments">Should not contain impersonator headers for non-impersonated tokens</stringProp>
-                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-                <boolProp name="Assertion.assume_success">false</boolProp>
-                <intProp name="Assertion.test_type">20</intProp>
-              </ResponseAssertion>
-              <hashTree/>
               <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Response Assertion" enabled="true">
                 <collectionProp name="Asserion.test_strings">
                   <stringProp name="256320300">x-pp-groups</stringProp>
@@ -1137,16 +1008,6 @@
                 <stringProp name="Assertion.test_field">Assertion.response_headers</stringProp>
                 <boolProp name="Assertion.assume_success">false</boolProp>
                 <intProp name="Assertion.test_type">2</intProp>
-              </ResponseAssertion>
-              <hashTree/>
-              <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="Impersonator Header Assertion" enabled="true">
-                <collectionProp name="Asserion.test_strings">
-                  <stringProp name="-139804814">&lt;h3&gt; x-impersonator-id : impersonator-id&lt;/h3&gt;</stringProp>
-                  <stringProp name="-138819530">&lt;h3&gt; x-impersonator-name : impersonator&lt;/h3&gt;</stringProp>
-                </collectionProp>
-                <stringProp name="Assertion.test_field">Assertion.response_data</stringProp>
-                <boolProp name="Assertion.assume_success">false</boolProp>
-                <intProp name="Assertion.test_type">16</intProp>
               </ResponseAssertion>
               <hashTree/>
               <ResponseAssertion guiclass="AssertionGui" testclass="ResponseAssertion" testname="No Group Header Assertion" enabled="true">
