@@ -50,6 +50,8 @@ class TestSimpleLimitGroup(unittest.TestCase):
     a sixth request should go over the limit, resulting in a 413. The
     failing request should _not_ be sent to the origin service."""
 
+    long_message = True
+
     def setUp(self):
         logger.debug('setUp')
 
@@ -84,14 +86,14 @@ class TestSimpleLimitGroup(unittest.TestCase):
             logger.debug('%i\'th request, should pass' % i)
             mc = self.deproxy.make_request(method='GET', url=url,
                                            headers=headers)
-            self.assertEqual(mc.received_response.code, '200', msg=mc)
-            self.assertEqual(len(mc.handlings), 1, msg=mc)
+            self.assertEqual(mc.received_response.code, '200')
+            self.assertEqual(len(mc.handlings), 1)
 
         # the sixth request will not go through
         logger.debug('last request, should bounce')
         mc = self.deproxy.make_request(method='GET', url=url, headers=headers)
-        self.assertEqual(mc.received_response.code, '413', msg=mc)
-        self.assertEqual(len(mc.handlings), 0, msg=mc)
+        self.assertEqual(mc.received_response.code, '413')
+        self.assertEqual(len(mc.handlings), 0)
 
     def tearDown(self):
         logger.debug('tearDown')
@@ -105,6 +107,8 @@ class TestMultipleMethodsForTheSameLimitGroup(unittest.TestCase):
     """Rate limiting is configured for 5 requests per second, of any HTTP
     method. Making requests of different methods should still count towards
     the limit in the usual way, and the sixth request should fail."""
+
+    long_message = True
 
     def setUp(self):
         logger.debug('setUp')
@@ -134,29 +138,29 @@ class TestMultipleMethodsForTheSameLimitGroup(unittest.TestCase):
         time.sleep(1)
 
         mc = self.deproxy.make_request(method='GET', url=url, headers=headers)
-        self.assertEqual(mc.received_response.code, '200', msg=mc)
-        self.assertEqual(len(mc.handlings), 1, msg=mc)
+        self.assertEqual(mc.received_response.code, '200')
+        self.assertEqual(len(mc.handlings), 1)
 
         mc = self.deproxy.make_request(method='POST', url=url, headers=headers)
-        self.assertEqual(mc.received_response.code, '200', msg=mc)
-        self.assertEqual(len(mc.handlings), 1, msg=mc)
+        self.assertEqual(mc.received_response.code, '200')
+        self.assertEqual(len(mc.handlings), 1)
 
         mc = self.deproxy.make_request(method='PUT', url=url, headers=headers)
-        self.assertEqual(mc.received_response.code, '200', msg=mc)
-        self.assertEqual(len(mc.handlings), 1, msg=mc)
+        self.assertEqual(mc.received_response.code, '200')
+        self.assertEqual(len(mc.handlings), 1)
 
         mc = self.deproxy.make_request(method='DELETE', url=url,
                                        headers=headers)
-        self.assertEqual(mc.received_response.code, '200', msg=mc)
-        self.assertEqual(len(mc.handlings), 1, msg=mc)
+        self.assertEqual(mc.received_response.code, '200')
+        self.assertEqual(len(mc.handlings), 1)
 
         mc = self.deproxy.make_request(method='HEAD', url=url, headers=headers)
-        self.assertEqual(mc.received_response.code, '200', msg=mc)
-        self.assertEqual(len(mc.handlings), 1, msg=mc)
+        self.assertEqual(mc.received_response.code, '200')
+        self.assertEqual(len(mc.handlings), 1)
 
         mc = self.deproxy.make_request(method='GET', url=url, headers=headers)
-        self.assertEqual(mc.received_response.code, '413', msg=mc)
-        self.assertEqual(len(mc.handlings), 0, msg=mc)
+        self.assertEqual(mc.received_response.code, '413')
+        self.assertEqual(len(mc.handlings), 0)
 
     def tearDown(self):
         logger.debug('tearDown')
@@ -171,6 +175,8 @@ class TestLimitsResetAfterTime(unittest.TestCase):
     method. Making 5 requests in succession should succeed with 200's, and
     a sixth request should go over the limit, resulting in a 413. If we
     sleep for 1 second after that, limits should reset."""
+
+    long_message = True
 
     def setUp(self):
         logger.debug('setUp')
@@ -205,24 +211,24 @@ class TestLimitsResetAfterTime(unittest.TestCase):
         for i in xrange(5):
             mc = self.deproxy.make_request(method='GET', url=url,
                                            headers=headers)
-            self.assertEqual(mc.received_response.code, '200', msg=mc)
-            self.assertEqual(len(mc.handlings), 1, msg=mc)
+            self.assertEqual(mc.received_response.code, '200')
+            self.assertEqual(len(mc.handlings), 1)
 
         mc = self.deproxy.make_request(method='GET', url=url, headers=headers)
-        self.assertEqual(mc.received_response.code, '413', msg=mc)
-        self.assertEqual(len(mc.handlings), 0, msg=mc)
+        self.assertEqual(mc.received_response.code, '413')
+        self.assertEqual(len(mc.handlings), 0)
 
         time.sleep(1)
 
         for i in xrange(5):
             mc = self.deproxy.make_request(method='GET', url=url,
                                            headers=headers)
-            self.assertEqual(mc.received_response.code, '200', msg=mc)
-            self.assertEqual(len(mc.handlings), 1, msg=mc)
+            self.assertEqual(mc.received_response.code, '200')
+            self.assertEqual(len(mc.handlings), 1)
 
         mc = self.deproxy.make_request(method='GET', url=url, headers=headers)
-        self.assertEqual(mc.received_response.code, '413', msg=mc)
-        self.assertEqual(len(mc.handlings), 0, msg=mc)
+        self.assertEqual(mc.received_response.code, '413')
+        self.assertEqual(len(mc.handlings), 0)
 
     def tearDown(self):
         logger.debug('tearDown')
@@ -236,6 +242,8 @@ class TestMultipleNodes(unittest.TestCase):
     """Rate limit info should be shared among multiple nodes that are
     configured to use the distributed datastore. Requests over the prescribed
     limit should be rejected, no matter which node serviced them."""
+
+    long_message = True
 
     def setUp(self):
         logger.debug('setUp')
@@ -273,12 +281,12 @@ class TestMultipleNodes(unittest.TestCase):
         for i in xrange(5):
             mc = self.deproxy.make_request(method='GET', url=url1,
                                            headers=headers)
-            self.assertEqual(mc.received_response.code, '200', msg=mc)
-            self.assertEqual(len(mc.handlings), 1, msg=mc)
+            self.assertEqual(mc.received_response.code, '200')
+            self.assertEqual(len(mc.handlings), 1)
 
         mc = self.deproxy.make_request(method='GET', url=url2, headers=headers)
-        self.assertEqual(mc.received_response.code, '413', msg=mc)
-        self.assertEqual(len(mc.handlings), 0, msg=mc)
+        self.assertEqual(mc.received_response.code, '413')
+        self.assertEqual(len(mc.handlings), 0)
 
     def tearDown(self):
         logger.debug('tearDown')
