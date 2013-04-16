@@ -88,7 +88,7 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
       }
 
       public void setSuccessConfigurationLoadinginformation(Map successConfigurationLoadinginformation) {
-         this.successConfigurationLoadinginformation = (HashMap) successConfigurationLoadinginformation;
+         this.successConfigurationLoadinginformation = successConfigurationLoadinginformation;
       }
 
       public Map<String, String[]> getFailedConfigurationLoadingInformation() {

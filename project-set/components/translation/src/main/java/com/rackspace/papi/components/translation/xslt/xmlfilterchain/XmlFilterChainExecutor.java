@@ -130,8 +130,6 @@ public class XmlFilterChainExecutor {
 
       if (outputs != null && outputs.size() > 0) {
 
-        String uniqueId = UUID.randomUUID().toString();
-
         for (XsltParameter<? extends OutputStream> output : outputs) {
           
           String paramName = resolver.addStream(output.getValue(), output.getName());
