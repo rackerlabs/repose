@@ -260,7 +260,7 @@ class TestMultipleNodes(unittest.TestCase):
                                         stop_port=stop_port)
         time.sleep(startup_wait_time)
 
-    def test_reset(self):
+    def test_multiple_node(self):
         logger.debug('test_reset')
 
         url1 = 'http://localhost:%i/' % repose_port
