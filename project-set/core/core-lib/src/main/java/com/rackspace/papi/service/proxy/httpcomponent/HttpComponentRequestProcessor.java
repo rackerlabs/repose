@@ -6,8 +6,6 @@ import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.entity.InputStreamEntity;
-import org.apache.http.params.BasicHttpParams;
-import org.apache.http.params.HttpParams;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -32,27 +30,6 @@ class HttpComponentRequestProcessor extends AbstractRequestProcessor {
     this.sourceRequest = request;
     this.targetHost = host;
     this.rewriteHostHeader = rewriteHostHeader;
-  }
-
-  /**
-   * Copy request parameters (query string) from source request to the http method.
-   *
-   * @param method
-   */
-  private void setRequestParameters(HttpRequestBase method) {
-    Enumeration<String> names = sourceRequest.getParameterNames();
-
-    while (names.hasMoreElements()) {
-      String name = names.nextElement();
-      String[] values = sourceRequest.getParameterValues(name);
-      HttpParams params = new BasicHttpParams();
-
-      for (String value : values) {
-        params.setParameter(name, value);
-      }
-
-      method.setParams(params);
-    }
   }
 
   private void setRequestParameters(URIBuilder builder) throws URISyntaxException {

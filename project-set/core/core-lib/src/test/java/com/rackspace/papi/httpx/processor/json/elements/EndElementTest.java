@@ -5,9 +5,10 @@
 package com.rackspace.papi.httpx.processor.json.elements;
 
 import org.junit.Test;
-import static org.junit.Assert.*;
 import org.xml.sax.ContentHandler;
-import static org.mockito.Mockito.*;
+
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.mock;
 
 
 /**
@@ -23,7 +24,7 @@ public class EndElementTest {
     public void testOutputElement() throws Exception {
      
         ContentHandler handler = mock(ContentHandler.class);
-        EndElement instance = new EndElement(BaseElement.JSONX_URI,"nid");
+        EndElement instance = new EndElement(BaseElement.JSONX_URI);
         instance.outputElement(handler);
         assertEquals(BaseElement.JSONX_URI, instance.getElement());
         
