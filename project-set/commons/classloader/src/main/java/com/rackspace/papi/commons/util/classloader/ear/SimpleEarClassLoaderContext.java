@@ -3,24 +3,38 @@ package com.rackspace.papi.commons.util.classloader.ear;
 import com.rackspace.papi.commons.util.plugin.archive.ArchiveEntryDescriptor;
 
 import java.io.File;
+import java.security.PrivilegedAction;
+
+import static java.security.AccessController.doPrivileged;
 
 public class SimpleEarClassLoaderContext implements EarClassLoaderContext {
 
-    private final EarClassLoader childContext, parentContext;
+    private EarClassLoader childContext;
+    private EarClassLoader parentContext;
     private final EarDescriptor earDescriptor;
 
-    public SimpleEarClassLoaderContext(File deploymentRoot) {
+    public SimpleEarClassLoaderContext(final File deploymentRoot) {
         earDescriptor = new EarDescriptor();
 
-        parentContext = new EarClassLoader(deploymentRoot);
-        childContext = new EarClassLoader(parentContext, deploymentRoot);
+        doPrivileged(new PrivilegedAction() {
+            public Object run() {
+                parentContext = new EarClassLoader(deploymentRoot);
+                childContext = new EarClassLoader(parentContext, deploymentRoot);
+                return null;
+            }
+        });
     }
 
-    public SimpleEarClassLoaderContext(ClassLoader absoluteParent, File deploymentRoot) {
+    public SimpleEarClassLoaderContext(final ClassLoader absoluteParent, final File deploymentRoot) {
         earDescriptor = new EarDescriptor();
 
-        parentContext = new EarClassLoader(absoluteParent, deploymentRoot);
-        childContext = new EarClassLoader(parentContext, deploymentRoot);
+        doPrivileged(new PrivilegedAction() {
+            public Object run() {
+                parentContext = new EarClassLoader(absoluteParent, deploymentRoot);
+                childContext = new EarClassLoader(parentContext, deploymentRoot);
+                return null;
+            }
+        });
     }
 
     public EarClassLoader getClassLoaderForEntry(ArchiveEntryDescriptor entryDescriptor) {
