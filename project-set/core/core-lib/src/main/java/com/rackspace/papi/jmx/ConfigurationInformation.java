@@ -95,7 +95,7 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
          return failedConfigurationLoadingInformation;
       }
 
-      public void setFailedConfigurationLoadingInformation(HashMap failedConfigurationLoadingInformation) {
+      public void setFailedConfigurationLoadingInformation(Map failedConfigurationLoadingInformation) {
          this.failedConfigurationLoadingInformation = failedConfigurationLoadingInformation;
       }
    }

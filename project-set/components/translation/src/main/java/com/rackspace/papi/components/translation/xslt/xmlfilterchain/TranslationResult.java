@@ -11,9 +11,7 @@ import org.slf4j.Logger;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 public class TranslationResult {
 
@@ -33,14 +31,6 @@ public class TranslationResult {
         this.success = success;
         this.outputs = outputs;
         this.marshaller = new HttpxMarshaller();
-    }
-
-    private static Set<String> add(String value) {
-
-        Set<String> result = new HashSet<String>();
-        result.add(value.toLowerCase());
-
-        return result;
     }
 
     public boolean isSuccess() {

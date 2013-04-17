@@ -2,7 +2,6 @@ package com.rackspace.cloud.valve.jetty;
 
 import com.rackspace.cloud.valve.controller.service.context.impl.ReposeValveControllerContextManager;
 import com.rackspace.cloud.valve.jetty.servlet.ControllerServlet;
-import com.rackspace.papi.container.config.SslConfiguration;
 import com.rackspace.papi.servlet.InitParameter;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -14,7 +13,7 @@ public class ValveControllerServerBuilder {
     private final String connectionFramework;
     private final boolean insecure;
 
-    public ValveControllerServerBuilder(String configPath, SslConfiguration sslConfiguration,
+    public ValveControllerServerBuilder(String configPath,
             String connectionFramework, boolean insecure) {
         this.configurationPathAndFile = configPath;
         this.connectionFramework = connectionFramework;

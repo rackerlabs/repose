@@ -92,9 +92,9 @@ public class PowerApiValveServerControl {
         Server serverInstance = null;
 
         try {
+            validateSsl();
             serverInstance = new ValveControllerServerBuilder(
                     commandLineArgs.getConfigDirectory(),
-                    validateSsl(),
                     commandLineArgs.getConnectionFramework(),
                     commandLineArgs.getInsecure())
                     .newServer();

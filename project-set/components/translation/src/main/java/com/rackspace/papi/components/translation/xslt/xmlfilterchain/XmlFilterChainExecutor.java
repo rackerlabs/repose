@@ -25,7 +25,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
 import java.util.Properties;
-import java.util.UUID;
 
 public class XmlFilterChainExecutor {
 
@@ -73,21 +72,11 @@ public class XmlFilterChainExecutor {
 
     return null;
   }
-  
-  private String getRequestId(List<XsltParameter> inputs) {
-    for (XsltParameter param: inputs) {
-      if (REQUEST_ID_PARAM.equalsIgnoreCase(param.getName()) && param.getValue() != null) {
-        return param.getValue().toString();
-      }
-    }
-    
-    return UUID.randomUUID().toString();
-  }
 
   protected void setInputParameters(String id, Transformer transformer, List<XsltParameter> inputs) {
 
     SourceUriResolverChain resolverChain = getResolverChain(transformer);
-    com.rackspace.papi.components.translation.resolvers.InputStreamUriParameterResolver resolver = resolverChain.getResolverOfType(InputStreamUriParameterResolver.class);
+    InputStreamUriParameterResolver resolver = resolverChain.getResolverOfType(InputStreamUriParameterResolver.class);
     resolver.clearStreams();
     
     if (inputs != null && inputs.size() > 0) {
