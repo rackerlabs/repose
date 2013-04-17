@@ -4,7 +4,6 @@ import com.rackspace.papi.commons.util.logging.jersey.LoggingFilter;
 import com.rackspace.papi.domain.ReposeInstanceInfo;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
-import java.util.UUID;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.Element;
@@ -12,6 +11,8 @@ import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.UUID;
 
 public class ClientWrapper {
 
@@ -42,7 +43,7 @@ public class ClientWrapper {
     }
 
     @Override
-    public void finalize() throws Throwable {
+    protected void finalize() throws Throwable {
         cacheManager.removalAll();
         cacheManager.shutdown();
         super.finalize();
