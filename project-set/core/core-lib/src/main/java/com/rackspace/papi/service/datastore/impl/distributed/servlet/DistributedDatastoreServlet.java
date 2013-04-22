@@ -32,7 +32,6 @@ import javax.servlet.ServletException;
 public class DistributedDatastoreServlet extends HttpServlet {
 
    private static final Logger LOG = LoggerFactory.getLogger(DistributedDatastoreServlet.class);
-   private boolean initialized = false;
    private DatastoreAccessControl hostAcl;
    private HashRingDatastore hashRingDatastore;
    private EncodingProvider encodingProvider;
@@ -48,11 +47,6 @@ public class DistributedDatastoreServlet extends HttpServlet {
    @Override
    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
-//      if (isAllowed(req)) {
-//         resp.setStatus(200);
-//      } else {
-//         resp.setStatus(401);
-//      }
       if (isRequestValid(req,resp)) {
          CacheRequest cacheGet = CacheRequest.marshallCacheRequest(req);
          final StoredElement element = hashRingDatastore.get(cacheGet.getCacheKey(), encodingProvider.decode(cacheGet.getCacheKey()), cacheGet.getRequestedRemoteBehavior());
