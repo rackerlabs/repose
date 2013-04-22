@@ -2,12 +2,8 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.rackspace.repose.service.distributeddatastore.common;
+package com.rackspace.papi.service.datastore.impl.distributed.common;
 
-import com.rackspace.papi.service.datastore.impl.distributed.common.RemoteBehavior;
-import com.rackspace.papi.service.datastore.impl.distributed.common.DatastoreHeader;
-import com.rackspace.papi.service.datastore.impl.distributed.common.CacheRequest;
-import com.rackspace.papi.service.datastore.impl.distributed.common.MalformedCacheRequestException;
 import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
 import com.rackspace.papi.commons.util.io.stream.ServletInputStreamWrapper;
 import java.io.ByteArrayInputStream;
@@ -16,10 +12,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.UnknownHostException;
 import javax.servlet.http.HttpServletRequest;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Ignore;
