@@ -1,7 +1,7 @@
 package com.rackspace.papi.service.datastore.impl.distributed.cluster;
 
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
-import com.rackspace.repose.service.distributeddatastore.DatastoreAccessControl;
+import com.rackspace.papi.service.datastore.impl.distributed.DatastoreAccessControl;
 import java.net.InetSocketAddress;
 import java.util.List;
 

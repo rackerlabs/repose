@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.ning.http.client.RequestBuilder;
 import com.rackspace.papi.http.proxy.common.AbstractRequestProcessor;
-import com.rackspace.papi.service.proxy.TargetHostInfo;
+import com.rackspace.papi.commons.util.proxy.TargetHostInfo;
 import java.nio.ByteBuffer;
 import javax.servlet.ServletInputStream;
 

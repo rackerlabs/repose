@@ -1,12 +1,12 @@
 package com.rackspace.papi.service.datastore.impl.distributed.hash;
 
 import com.rackspace.papi.commons.util.io.ObjectSerializer;
-import com.rackspace.repose.service.distributeddatastore.common.RemoteBehavior;
-import com.rackspace.repose.service.distributeddatastore.hash.remote.RemoteCommandExecutor;
-import com.rackspace.repose.service.distributeddatastore.hash.remote.RemoteConnectionException;
-import com.rackspace.repose.service.distributeddatastore.hash.remote.command.Delete;
-import com.rackspace.repose.service.distributeddatastore.hash.remote.command.Get;
-import com.rackspace.repose.service.distributeddatastore.hash.remote.command.Put;
+import com.rackspace.papi.service.datastore.impl.distributed.common.RemoteBehavior;
+import com.rackspace.papi.service.datastore.impl.distributed.hash.remote.RemoteCommandExecutor;
+import com.rackspace.papi.service.datastore.impl.distributed.hash.remote.RemoteConnectionException;
+import com.rackspace.papi.service.datastore.impl.distributed.hash.remote.command.Delete;
+import com.rackspace.papi.service.datastore.impl.distributed.hash.remote.command.Get;
+import com.rackspace.papi.service.datastore.impl.distributed.hash.remote.command.Put;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.StoredElement;

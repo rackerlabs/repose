@@ -12,7 +12,7 @@ import com.rackspace.papi.service.filterchain.GarbageCollectionService;
 import com.rackspace.papi.service.headers.request.RequestHeaderService;
 import com.rackspace.papi.service.headers.response.ResponseHeaderService;
 import com.rackspace.papi.service.logging.LoggingService;
-import com.rackspace.papi.service.proxy.RequestProxyService;
+import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import com.rackspace.papi.service.reporting.ReportingService;
 import com.rackspace.papi.service.rms.ResponseMessageService;
 import com.rackspace.papi.service.routing.RoutingService;

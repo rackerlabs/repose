@@ -1,4 +1,4 @@
-package com.rackspace.repose.service.distributeddatastore.common;
+package com.rackspace.papi.service.datastore.impl.distributed.common;
 
 /**
  *

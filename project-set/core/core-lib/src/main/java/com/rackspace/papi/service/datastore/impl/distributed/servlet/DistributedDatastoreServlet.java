@@ -8,8 +8,8 @@ import com.rackspace.papi.service.datastore.DatastoreService;
 import com.rackspace.papi.service.datastore.StoredElement;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
-import com.rackspace.repose.service.distributeddatastore.DatastoreAccessControl;
-import com.rackspace.repose.service.distributeddatastore.common.CacheRequest;
+import com.rackspace.papi.service.datastore.impl.distributed.DatastoreAccessControl;
+import com.rackspace.papi.service.datastore.impl.distributed.common.CacheRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

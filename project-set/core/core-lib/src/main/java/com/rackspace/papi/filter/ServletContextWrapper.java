@@ -1,7 +1,7 @@
 package com.rackspace.papi.filter;
 
 import com.rackspace.papi.http.proxy.HttpRequestDispatcher;
-import com.rackspace.papi.service.proxy.RequestProxyService;
+import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URI;

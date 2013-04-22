@@ -6,6 +6,6 @@
         schemaLocation="dist-datastore-configuration.xsd">
             
     <schemaBindings>
-        <package name="com.rackspace.repose.service.distributeddatastore.config" />
+        <package name="com.rackspace.papi.service.datastore.impl.distributed.config" />
     </schemaBindings>
 </bindings>

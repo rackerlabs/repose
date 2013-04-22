@@ -144,10 +144,6 @@
          <version>2.2.0</version>
       </dependency>
 
-      <dependency>
-         <groupId>com.rackspace.repose.services</groupId>
-         <artifactId>distributed-datastore-service</artifactId>
-      </dependency>
    </dependencies>
 
    <build>
@@ -177,6 +173,11 @@
                      <dir>src/main/resources/META-INF/schema/response-messaging</dir>
                      <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
                      <outputDir>${project.build.directory}/generated-resources/xml/xslt/response-messaging</outputDir>
+                  </transformationSet>
+                  <transformationSet>
+                     <dir>src/main/resources/META-INF/schema/distributed-datastore</dir>
+                     <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                     <outputDir>${project.build.directory}/generated-resources/xml/xslt/distributed-datastore</outputDir>
                   </transformationSet>
                </transformationSets>
             </configuration>

@@ -1,12 +1,12 @@
 package com.rackspace.papi.service.datastore.impl.distributed.hash;
 
-import com.rackspace.repose.service.distributeddatastore.hash.remote.RemoteCommandExecutor;
+import com.rackspace.papi.service.datastore.impl.distributed.hash.remote.RemoteCommandExecutor;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.DatastoreManager;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.encoding.EncodingProvider;
 import com.rackspace.papi.service.datastore.hash.MessageDigestFactory;
-import com.rackspace.papi.service.proxy.RequestProxyService;
+import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 
 public class HashRingDatastoreManager implements DatastoreManager {
 

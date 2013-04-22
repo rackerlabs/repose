@@ -4,6 +4,10 @@
  */
 package com.rackspace.repose.service.distributeddatastore.common;
 
+import com.rackspace.papi.service.datastore.impl.distributed.common.RemoteBehavior;
+import com.rackspace.papi.service.datastore.impl.distributed.common.DatastoreHeader;
+import com.rackspace.papi.service.datastore.impl.distributed.common.CacheRequest;
+import com.rackspace.papi.service.datastore.impl.distributed.common.MalformedCacheRequestException;
 import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
 import com.rackspace.papi.commons.util.io.stream.ServletInputStreamWrapper;
 import java.io.ByteArrayInputStream;

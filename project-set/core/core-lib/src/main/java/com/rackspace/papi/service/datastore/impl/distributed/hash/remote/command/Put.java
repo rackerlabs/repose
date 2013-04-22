@@ -1,11 +1,11 @@
-package com.rackspace.repose.service.distributeddatastore.hash.remote.command;
+package com.rackspace.papi.service.datastore.impl.distributed.hash.remote.command;
 
 import com.rackspace.papi.commons.util.http.ExtendedHttpHeader;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
-import com.rackspace.repose.service.distributeddatastore.common.RemoteBehavior;
+import com.rackspace.papi.commons.util.proxy.RequestProxyService;
+import com.rackspace.papi.service.datastore.impl.distributed.common.RemoteBehavior;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
-import com.rackspace.papi.service.proxy.RequestProxyService;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Map;

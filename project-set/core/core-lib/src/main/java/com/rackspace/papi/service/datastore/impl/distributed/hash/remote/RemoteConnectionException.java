@@ -1,4 +1,4 @@
-package com.rackspace.repose.service.distributeddatastore.hash.remote;
+package com.rackspace.papi.service.datastore.impl.distributed.hash.remote;
 
 import com.rackspace.papi.commons.util.pooling.ResourceContextException;
 

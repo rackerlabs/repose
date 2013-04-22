@@ -1,6 +1,6 @@
 package com.rackspace.papi.service.datastore.impl.distributed.hash;
 
-import com.rackspace.repose.service.distributeddatastore.common.RemoteBehavior;
+import com.rackspace.papi.service.datastore.impl.distributed.common.RemoteBehavior;
 
 import java.net.InetSocketAddress;
 
