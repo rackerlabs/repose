@@ -297,11 +297,8 @@ class TestMultipleNodes(unittest.TestCase):
 
 
 available_test_cases = [
-    TestSimpleLimitGroup,
-    TestMultipleMethodsForTheSameLimitGroup,
-    TestLimitsResetAfterTime,
-    TestMultipleNodes,
-]
+    v for v in globals().values()
+        if type(v) == type and issubclass(v, unittest.TestCase)]
 
 
 def run():
