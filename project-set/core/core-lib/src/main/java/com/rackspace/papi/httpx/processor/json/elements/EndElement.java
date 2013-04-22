@@ -6,7 +6,8 @@ import org.xml.sax.SAXException;
 
 public class EndElement extends BaseElement implements Element {
 
-   public EndElement(String element) {
+    //Do not remove the string from the list of parameters.
+   public EndElement(String element, String name) {
       super(element);
    }
 
