@@ -7,8 +7,8 @@
    
 
    <port-config>
-        <port cluster="38">3888</port>
-        <port cluster="40" node="8">3999</port>
-        <port cluster="40">4000</port>
+        <port port="3888" cluster="38" />
+        <port port="3999" cluster="40" node="8" />
+        <port port="4000" cluster="40" />
    </port-config>
 </distributed-datastore>
