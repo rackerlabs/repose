@@ -13,9 +13,12 @@ import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.datastore.cluster.MutableClusterView;
 import com.rackspace.papi.service.datastore.cluster.ThreadSafeClusterView;
 import com.rackspace.papi.service.datastore.impl.distributed.DatastoreAccessControl;
+import com.rackspace.papi.service.datastore.impl.distributed.cluster.utils.AccessListDeterminator;
+import com.rackspace.papi.service.datastore.impl.distributed.cluster.utils.ClusterMemberDeterminator;
 import com.rackspace.papi.service.datastore.impl.distributed.config.DistributedDatastoreConfiguration;
 import com.rackspace.papi.service.datastore.impl.distributed.config.HostAccessControl;
 import com.rackspace.papi.service.datastore.impl.distributed.config.Port;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.URL;
@@ -46,18 +49,18 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
    private MutableClusterView clusterView;
    private ReposeInstanceInfo reposeInstanceInfo;
    private ServiceRegistry registry;
-   
+
    @Autowired
    public DistributedDatastoreServiceClusterContext(@Qualifier("configurationManager") ConfigurationService configurationManager,
-   @Qualifier("clusterViewService") DistributedDatastoreServiceClusterViewService service,
-   @Qualifier("reposeInstanceInfo") ReposeInstanceInfo reposeInstanceInfo,
-   @Qualifier("serviceRegistry") ServiceRegistry registry){
+           @Qualifier("clusterViewService") DistributedDatastoreServiceClusterViewService service,
+           @Qualifier("reposeInstanceInfo") ReposeInstanceInfo reposeInstanceInfo,
+           @Qualifier("serviceRegistry") ServiceRegistry registry) {
       this.configurationManager = configurationManager;
       this.service = service;
       this.reposeInstanceInfo = reposeInstanceInfo;
       this.registry = registry;
    }
-   
+
    @Override
    public String getServiceName() {
       return SERVICE_NAME;
@@ -67,13 +70,13 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
    public DistributedDatastoreServiceClusterViewService getService() {
       return service;
    }
-   
+
    public void register() {
       if (registry != null) {
          registry.addService(this);
       }
    }
-   
+
    private class DistributedDatastoreConfigurationListener implements UpdateListener<DistributedDatastoreConfiguration> {
 
       private boolean isInitialized = false;
@@ -83,10 +86,10 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
 
          synchronized (configLock) {
             curDistributedDatastoreConfiguration = configurationObject;
-            if(curDistributedDatastoreConfiguration != null){
+            if (curDistributedDatastoreConfiguration != null) {
                isInitialized = true;
-               
-               if(systemModelUpdateListener.isInitialized()){
+
+               if (systemModelUpdateListener.isInitialized()) {
                   updateCluster();
                }
             }
@@ -98,7 +101,7 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
          return isInitialized;
       }
    }
-   
+
    private class SystemModelUpdateListener implements UpdateListener<SystemModel> {
 
       private boolean isInitialized = false;
@@ -108,10 +111,10 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
 
          synchronized (configLock) {
             curSystemModel = configurationObject;
-            if(curSystemModel != null){
+            if (curSystemModel != null) {
                isInitialized = true;
-               
-               if(distributedDatastoreConfigurationListener.isInitialized()){
+
+               if (distributedDatastoreConfigurationListener.isInitialized()) {
                   updateCluster();
                }
             }
@@ -123,129 +126,42 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
          return isInitialized;
       }
    }
-   
+
    /*
     * updates the hashring cluster view and the host access list
     */
-   public void updateCluster(){
-      
+   public void updateCluster() {
+
       updateClusterMembers();
       updateAccessList();
-      
+
    }
-   
+
    protected void updateClusterMembers() {
-      try {
-         final List<InetSocketAddress> cacheSiblings = new LinkedList<InetSocketAddress>();
 
-         ReposeCluster cluster = getCurrentCluster(curSystemModel.getReposeCluster(), reposeInstanceInfo.getClusterId());
 
-         //Adding all members of the current Repose Cluster to clusterView
-         if (cluster != null) {
-            for (Node node : cluster.getNodes().getNode()) {
-
-               final InetAddress hostAddress = InetAddress.getByName(node.getHostname());
-               final int port = getNodeDDPort(cluster.getId(), node.getId());
-               final InetSocketAddress hostSocketAddress = new InetSocketAddress(hostAddress, port);
-               cacheSiblings.add(hostSocketAddress);
-            }
-         }
-
-         service.updateClusterView(cacheSiblings);
-      } catch (UnknownHostException uhe) {
-         LOG.error(uhe.getMessage(), uhe);
-      }
-   }
-   
-   private int getNodeDDPort(String clusterId, String nodeId){
-      
-      int port = -1;
-         for (Port curPort : curDistributedDatastoreConfiguration.getPortConfig().getPort()) {
-            if (curPort.getCluster().equalsIgnoreCase(clusterId)) {
-               port = curPort.getPort();
-               if (curPort.getNode().equalsIgnoreCase(nodeId)) {
-                  break;
-               }
-            }
-         }
-         return port;
-   }
-   
-   private List<InetAddress> getClusterMembers() {
-
-      ReposeCluster cluster = getCurrentCluster(curSystemModel.getReposeCluster(), reposeInstanceInfo.getClusterId());
-      final List<InetAddress> reposeClusterMembers = new LinkedList<InetAddress>();
-
-      for (Node node : cluster.getNodes().getNode()) {
-         try {
-            final InetAddress hostAddress = InetAddress.getByName(node.getHostname());
-            reposeClusterMembers.add(hostAddress);
-         } catch (UnknownHostException e) {
-            LOG.warn("Unable to resolve host: " + node.getHostname() + "for Node " + node.getId() + " in Repose Cluster " + reposeInstanceInfo.getClusterId());
-         }
-
-      }
-
-      return reposeClusterMembers;
-   }
-   
-   private ReposeCluster getCurrentCluster(List<ReposeCluster> clusters, String clusterId) {
-
-      for (ReposeCluster cluster : clusters) {
-
-         if (StringUtilities.nullSafeEquals(clusterId, cluster.getId())) {
-            return cluster;
-         }
-      }
-
-      return null;
-   }
-   
-   private List<InetAddress> getConfiguredAllowedHosts() {
-
-      final List<InetAddress> configuredAllowedHosts = new LinkedList<InetAddress>();
-
-      for (HostAccessControl host : curDistributedDatastoreConfiguration.getAllowedHosts().getAllow()) {
-         try {
-            final InetAddress hostAddress = InetAddress.getByName(host.getHost());
-            configuredAllowedHosts.add(hostAddress);
-         } catch (UnknownHostException e) {
-            LOG.warn("Unable to resolve host: " + host.getHost());
-         }
-      }
-
-      return configuredAllowedHosts;
+      List<InetSocketAddress> cacheSiblings = ClusterMemberDeterminator.getClusterMembers(curSystemModel, curDistributedDatastoreConfiguration, reposeInstanceInfo.getClusterId());
+      service.updateClusterView(cacheSiblings);
    }
 
    private void updateAccessList() {
 
       synchronized (configLock) {
-         List<InetAddress> hostAccessList = new LinkedList<InetAddress>();
-         boolean allowAll = false;
+         List<InetAddress> clusterMembers = new LinkedList<InetAddress>();
+
          if (curSystemModel != null) {
-            hostAccessList.addAll(getClusterMembers());
-         }
-         if (curDistributedDatastoreConfiguration != null) {
-
-            allowAll = curDistributedDatastoreConfiguration.getAllowedHosts().isAllowAll();
-            hostAccessList.addAll(getConfiguredAllowedHosts());
+            clusterMembers = AccessListDeterminator.getClusterMembers(curSystemModel, reposeInstanceInfo.getClusterId());
          }
 
-         if (allowAll) {
-            LOG.info("The distributed datastore component is configured in allow-all mode meaning that any host can access, store and delete cached objects.");
-         } else {
-            LOG.info("The distributed datastore component has access controls configured meaning that only the configured hosts and cluster members "
-                    + "can access, store and delete cached objects.");
-         }
-         LOG.debug("Allowed Hosts: " + hostAccessList.toString());
-         hostACL =new DatastoreAccessControl(hostAccessList, allowAll);
+         hostACL = AccessListDeterminator.getAccessList(curDistributedDatastoreConfiguration, clusterMembers);
+         
          service.updateAccessList(hostACL);
       }
    }
 
    @Override
    public void contextInitialized(ServletContextEvent sce) {
-      
+
       hostACL = new DatastoreAccessControl(Collections.EMPTY_LIST, false);
       String ddPort = sce.getServletContext().getInitParameter("datastoreServicePort");
       ServicePorts servicePorts = new ServicePorts();
@@ -255,21 +171,20 @@ public class DistributedDatastoreServiceClusterContext implements ServiceContext
       systemModelUpdateListener = new SystemModelUpdateListener();
       distributedDatastoreConfigurationListener = new DistributedDatastoreConfigurationListener();
       URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
-      configurationManager.subscribeTo("system-model.cfg.xml",xsdURL, systemModelUpdateListener, SystemModel.class);
-      
+      configurationManager.subscribeTo("system-model.cfg.xml", xsdURL, systemModelUpdateListener, SystemModel.class);
+
       URL dXsdURL = getClass().getResource("/META-INF/schema/system-model/dist-datastore-configuration.xsd");
-      configurationManager.subscribeTo("dist-datastore.cfg.xml",dXsdURL, distributedDatastoreConfigurationListener, DistributedDatastoreConfiguration.class);
-      
+      configurationManager.subscribeTo("dist-datastore.cfg.xml", dXsdURL, distributedDatastoreConfigurationListener, DistributedDatastoreConfiguration.class);
+
       sce.getServletContext().setAttribute("ddClusterViewService", service);
       register();
    }
 
    @Override
    public void contextDestroyed(ServletContextEvent sce) {
-      if(configurationManager != null){
+      if (configurationManager != null) {
          configurationManager.unsubscribeFrom("system-model.cfg.xml", systemModelUpdateListener);
          configurationManager.unsubscribeFrom("dist-datastore.cfg.xml", distributedDatastoreConfigurationListener);
       }
    }
-   
 }
