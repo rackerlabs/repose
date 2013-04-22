@@ -37,6 +37,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
    private EncodingProvider encodingProvider;
    DatastoreService datastore;
    private DistributedDatastoreServiceClusterViewService clusterView;
+   private static final String DATASTORE_MANAGER_NAME = "distributed/hash-ring";
 
    public DistributedDatastoreServlet(DatastoreService datastore) {
       hostAcl = new DatastoreAccessControl(null, false);
@@ -90,7 +91,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
       HashRingDatastoreManager manager = new HashRingDatastoreManager(contextAdapter.requestProxyService(), "", encodingProvider, MD5MessageDigestFactory.getInstance(),
               clusterView.getClusterView(), localDatastoreManager.getDatastore());
       hostAcl = clusterView.getAccessControl();
-      datastore.registerDatastoreManager("distributed/hash-ring", manager);
+      datastore.registerDatastoreManager(DATASTORE_MANAGER_NAME, manager);
       hashRingDatastore = (HashRingDatastore) manager.getDatastore();
    }
 
@@ -156,8 +157,7 @@ public class DistributedDatastoreServlet extends HttpServlet {
    @Override
    public void destroy(){
       super.destroy();
-      String buff = "#############################################################";
-      LOG.info(buff+ "Unregistering Datastore: " + datastore.hashCode() + buff);
-      datastore.unregisterDatastoreManager("distributed/hash-ring");
+      LOG.info("Unregistering Datastore: " + DATASTORE_MANAGER_NAME);
+      datastore.unregisterDatastoreManager(DATASTORE_MANAGER_NAME);
    }
 }
