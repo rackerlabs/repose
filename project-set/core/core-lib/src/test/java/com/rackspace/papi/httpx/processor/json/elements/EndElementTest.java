@@ -24,7 +24,7 @@ public class EndElementTest {
     public void testOutputElement() throws Exception {
      
         ContentHandler handler = mock(ContentHandler.class);
-        EndElement instance = new EndElement(BaseElement.JSONX_URI);
+        EndElement instance = new EndElement(BaseElement.JSONX_URI,"nid");
         instance.outputElement(handler);
         assertEquals(BaseElement.JSONX_URI, instance.getElement());
         

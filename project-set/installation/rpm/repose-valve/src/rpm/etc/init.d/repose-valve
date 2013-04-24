@@ -20,7 +20,14 @@ PID_FILE=/var/run/repose-valve.pid
 DAEMON_HOME=/usr/share/lib/repose
 CLEAN=/usr/local/bin/clean-repose-deploy
 
-# Source. Previously /etc/repose/repose.conf
+# Set sensible defaults 
+
+daemonize=/usr/sbin/daemonize
+daemonize_opts="-c $DAEMON_HOME -p $PID_FILE -u $USER -o $LOG_PATH/stdout.log -e $LOG_PATH/stderr.log -l /var/lock/subsys/$NAME"
+run_opts="-s $SHUTDOWN_PORT -p $RUN_PORT -c $CONFIG_DIRECTORY"
+java_opts=""
+
+# Can override the defaults in /etc/sysconfig
 . /etc/sysconfig/repose
 
 if [ ! -d $DAEMON_HOME ]; then
@@ -38,15 +45,12 @@ if [ ! -d $LOG_PATH ]; then
   exit 1
 fi
 
-daemonize=/usr/sbin/daemonize
-daemonize_opts="-c $DAEMON_HOME -p $PID_FILE -u $USER -o $LOG_PATH/stdout.log -e $LOG_PATH/stderr.log -l /var/lock/subsys/$NAME"
-run_opts="-s $SHUTDOWN_PORT -p $RUN_PORT -c $CONFIG_DIRECTORY"
 
 start()
 {
   echo -n "Starting $NAME: "
   $CLEAN $CONFIG_DIRECTORY > /dev/null 2>&1
-  daemon $daemonize $daemonize_opts /usr/bin/java -jar $DAEMON_HOME/$NAME.jar START $run_opts
+  daemon $daemonize $daemonize_opts /usr/bin/java $java_opts -jar $DAEMON_HOME/$NAME.jar START $run_opts
   echo
 }
 
