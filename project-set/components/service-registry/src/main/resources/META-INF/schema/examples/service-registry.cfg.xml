@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<service-registry xmlns="http://docs.rackspacecloud.com/repose/service-registry/v1.0">
+    <auth>
+        <username>rackspace-cloud-username</username>
+        <api-key>rackspace-cloud-api-key</api-key>
+        <region>us</region>
+    </auth>
+
+    <service>
+        <id>my-repose-instance-1</id>
+        <heartbeat_timeout>15</heartbeat_timeout>
+        <tags>
+            <tag>repose</tag>
+            <tag>dfw</tag>
+            <tag>maas</tag>
+            <tag>staging</tag>
+        </tags>
+    </service>
+</service-registry>
