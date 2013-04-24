@@ -30,7 +30,6 @@ public class ThreadSafeClusterViewTest {
         int i;
         NetworkInterfaceProvider networkInterfaceProvider;
 
-
         @Before
         public void setUp() throws Exception {
             servicePorts = mock(ServicePorts.class);
