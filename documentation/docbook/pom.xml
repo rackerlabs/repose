@@ -36,8 +36,8 @@
                             <!-- for WebHelp: -->
                             <!-- enableDisqus turns on Disqus feature for feedback if any value other than 0; "intranet" for posting on our internal docs-beta.rackspace.com for internal review --> 
                             <!-- disqusShortname = Disqus account where moderator is collecting this feedback -->
-                            <enableDisqus>intranet</enableDisqus>
-                            <disqusShortname>rc-integration</disqusShortname>
+                            <enableDisqus>1</enableDisqus>
+                            <disqusShortname>openrepose</disqusShortname>
                             <feedbackEmail>rose.coste@rackspace.com</feedbackEmail>
                             <!-- to open Webhelp at the front matter (copyright page, list of tables, list of figures, list of examples) <webhelpDefaultTopic>index.html</webhelpDefaultTopic> -->
                             <!-- otherwise, specify a starting page found in all the books -->
@@ -48,9 +48,9 @@
                             <failOnValidationError>no</failOnValidationError> -->
                             <glossaryCollection>${project.build.directory}/../src/resources/repose-glossary.xml</glossaryCollection>
                             <!-- use <includes> to specify one book to build (saves time & OutOfMemoryError) -->
-                            <!-- to build everything found in <sourceDirectory>, comment out includes -->
+                            <!-- to build everything found in <sourceDirectory>, comment out includes--> 
                             <includes>
-                                repose-apivalidation-deploy.xml
+                                repose-deploy.xml
                             </includes>
                         </configuration>
                     </execution>

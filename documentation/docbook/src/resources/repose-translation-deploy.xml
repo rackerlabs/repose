@@ -124,16 +124,20 @@
     <!-- naming this section xml:id="Introduction-000" to make it the first page opened in HTML, matching <webhelpDefaultTopic>Introduction-000.html</webhelpDefaultTopic> in pom.xml -->
     <chapter xml:id="Introduction-000">
         <title>Introduction to the Translation Component of &PRODNAME;</title>
-        <para> Translation changes the format of a request or response so that it meets the expectations of the service or client that receives it.
-            You can use
-            &PRODNAME;'s translation filter to transform XML into JSON. 
-            You can also use
-            &PRODNAME;'s translation filter to transform JSON into JSONx, which is formatted like XML.
-            Whether or not you transform the body of the message into another format, you can use the translation filter to remove elements that are invalid for the receiver
-            or to add elements that are required by the receiver. 
-            This means you can choose components to combine in a stack based on their core features; 
-            without the &PRODNAME; translation filter, incompatible standards for output and input might make some otherwise-beneficial combinations impractical. 
-        </para>
+        <para> Translation changes the format of a request or response
+            so that it meets the expectations of the service or client
+            that receives it. You can use &PRODNAME;'s translation
+            filter to transform XML into JSON. You can also use
+            &PRODNAME;'s translation filter to transform JSON into
+            JSONx, which is formatted like XML. Whether or not you
+            transform the body of the message into another format, you
+            can use the translation filter to remove elements that are
+            invalid for the receiver or to add elements that are
+            required by the receiver. This means you can choose
+            components to combine in a stack based on their core
+            features; without the &PRODNAME; translation filter,
+            incompatible standards for output and input might make
+            some otherwise-beneficial combinations impractical.</para>
         <para>
             To use &PRODNAME; for translation, you must add the translation component as a filter in your &PRODNAME; configuration. 
             You can learn more about customizing your &PRODNAME; configuration 
@@ -197,7 +201,20 @@
                 <code>translation.cfg.xml</code> at any time. Within
                 <code>translation.cfg.xml</code>, you can specify
             which stylesheets are to be applied under what
-            circumstances; as with the translation configuration, you can edit your stylesheets to make changes at runtime. </para> 
+            circumstances; as with the translation configuration, you
+            can edit your stylesheets to make changes at runtime.                                                         </para>
+        <para>The translation component configuration files:</para>
+        <para>   - translation.cfg.xml </para>
+        <para>   - translation.xsd</para>
+        <para>    - xproc.xsd</para>
+        <para> are compiled through XJC to create a translation config
+            Java object that is used by the translation component. The
+            translation.cfg.xml file should be placed in the same
+            configuration directory as the other Repose configuration
+            files; for example, /etc/powerapi. The translation files
+            consumed by the translation component (for example,
+            some-translation-file.xsl) may be placed at any valid href
+            location accessible by the Repose node.</para> 
         <section xml:id="Customizing_Translation_Configuration-d1e375">
         <title>Customizing a Translation Configuration</title>
         <para>
@@ -296,6 +313,98 @@
             <callout arearefs="cfg.value">
                 <para>
                     This is the value of a parameter to be passed in. </para>
+                    <db:para/>
+                    <db:para> The translation element also includes
+                        the following attributes: <emphasis
+                            role="bold">allow-doc
+                        type-dec</emphasis>l: If false, then any
+                        request/response body that contains an DOCTYPE
+                        section will be rejected. If true, then
+                        DOCTYPE sections will be allowed. However,
+                        repose will limit the entity definitions
+                        allowed in these sections. Default is false.
+                            <emphasis role="bold"
+                            >multi-match:</emphasis> If true, then all
+                        translation chains that match the request will
+                        be applied in the order in which they are
+                        defined in the configuration. If false, then
+                        only the first translation chain to match the
+                        request will be applied. Default is false.
+                        This attribute was added in version
+                        2.6.8.</db:para>
+                    <db:para>  For response translations, the user can
+                        specify the following information: </db:para>
+                    <db:para><emphasis role="bold"
+                            >&lt;response-translation>:</emphasis>
+                        Response translation specifies a chain of
+                        stylesheets to be applied to a response body
+                        and the criteria for when the chain should be
+                        applied. All of the criteria must match before
+                        a chain is applied.</db:para>
+                    <db:para>
+                        <emphasis role="italic">code-regex</emphasis>:
+                        Code regex specifies for which response codes
+                        this style sheet chain should be applied. This
+                        is a regex. For example, 4[\d]{2} would
+                        match all response codes in the range from 400
+                        to 499.</db:para>
+                    <db:para>
+                        <emphasis role="italic"
+                            >content-type</emphasis>:Content type
+                        specifies for which response content types
+                        this style sheet chain should be applied. For
+                        example, application/xml. </db:para>
+                    <db:para>
+                        <emphasis role="italic"
+                        >accept</emphasis>:Specifies to which Accept
+                        type this chain should be applied. For
+                        example, application/xml. </db:para>
+                    <db:para>
+                        <emphasis role="italic"
+                            >translated-content-type:</emphasis>
+                        Specifies the content-type which is output by
+                        this chain. The response content-type is set
+                        to this if the style sheets are
+                        applied successfully.</db:para>
+                    <db:para>
+                        <emphasis role="bold"
+                            >&lt;style-sheets>:</emphasis> This
+                        element contains the list of style sheets to
+                        be applied for this translation
+                        chain.</db:para>
+                    <db:para><emphasis role="bold">
+                            &lt;style></emphasis>: This element
+                        specifies one style sheet within the
+                        chain.</db:para>
+                    <db:para>
+                        <emphasis role="italic">id</emphasis>:a unique
+                        id for this style sheet. </db:para>
+                    <db:para>
+                        <emphasis role="italic">href</emphasis>:URI
+                        which specifies the location of the style
+                        sheet. If a relative path is specified, then
+                        this will be relative to the REPOSE
+                        configuration
+                        directory.</db:para>
+                    <db:para>
+                        <emphasis role="bold">&lt;param>:</emphasis> A
+                        style sheet can accept any number of
+                        parameters. These parameters will be passed
+                        into the transform associated with the style
+                        sheet.</db:para>
+                    <db:para>
+                        <emphasis role="italic">name </emphasis>: Name
+                        of the parameter to be passed in. </db:para>
+                    <db:para>
+                        <emphasis role="italic">value</emphasis> :
+                        Value of the parameter to be passed in. </db:para>
+                    <db:para><emphasis role="bold"
+                        >&lt;xsl></emphasis>: A style sheet can
+                        contain an embedded XSL. The embedded XSL
+                        would be placed within an xsl element within
+                        the style element. If the XSL is embedded,
+                        then the href attribute of the style element
+                        would not be specified. </db:para>
                 <para> </para>
             </callout>
         </calloutlist>
@@ -309,8 +418,10 @@
                     <link xlink:href="http://www.w3schools.com/xsl/xsl_w3celementref.asp">XSLT Elements Reference</link>.
                 </para>
                 <para> You can create and combine multiple stylesheets
-                to accomplish the translation you require. To make
-                stylesheets active within your &PRODNAME;
+                to accomplish the translation you require. The
+                translation component allows dynamic updates so that
+                the translation XSL files can be updated at runtime.
+                To make stylesheets active within your &PRODNAME;
                 configuration, specify the stylesheets in
                     <code>translation.cfg.xml</code> as shown at <xref
                     linkend="Customizing_Translation_Configuration-d1e375"
@@ -341,7 +452,7 @@
         </section>
     </chapter>
     <chapter xml:id="Change_Format-d1e105">
-        <title>OLD Changing a Message's Format</title>
+        <title>Changing Any Message's Format</title>
         <para> You can translate an XML message from JSON, Atom, or
             HTML. You can translate a JSON message to JSONx, which
             resembles XML; you can also translate a JSONX message to
@@ -430,60 +541,56 @@
 <xi:include href="samples/repose-translation-XML2html.xml" parse="text"/>
 </programlisting>
             </example>
-            <para>
-                You can use cURL to confirm
-                that you have the stylesheet and the translation configuration set up correctly; if they are correct,
-                the XML input you provide will be echoed as HTML. 
-                <example>
-                    <title>cURL Confirming Translation from XML to HTML</title>
+            <para> You can use cURL to confirm that you have the
+                stylesheet and the translation configuration set up
+                correctly; if they are correct, the XML input you
+                provide will be echoed as HTML. <example>
+                    <title>cURL Confirming Translation from XML to
+                        HTML</title>
                     <important>
                         <para> This cURL example requires a file named
-                            <code>version.xml</code>. You can
-                            see an example of
-                            <code>version.xml</code> attached
-                            to the translation component's wiki page at
-                            <link
+                                <code>version.xml</code>. You can see
+                            an example of <code>version.xml</code>
+                            attached to the translation component's
+                            wiki page at <link
                                 xlink:href="http://wiki.openrepose.org/display/REPOSE/Translation"
-                                >http://wiki.openrepose.org/display/REPOSE/Translation</link>; 
-                            that wiki page also explains where to place <code>version.xml</code>. 
-                        </para>
+                                >http://wiki.openrepose.org/display/REPOSE/Translation</link>;
+                            that wiki page also explains where to
+                            place <code>version.xml</code>. </para>
                     </important>
                     <programlisting language="xml">
 <xi:include href="samples/repose-translation-curl-confirm-xml2html.xml" parse="text"/>
 </programlisting>
-                </example>
-            </para>
-        </section>
-        <section xml:id="Translate_JSON2JSONX-d1e123">
-            <title>Translating JSON to JSONx</title>
-            <para> 
-                You can use the 
-                &PRODNAME; translation component to turn all elements found in JSON input into XML-shaped JSONx output.            
-                <table border="1" frame="box">
-                    <?dbfo keep-together="always"?>
-                    <caption>JSON Input Becomes JSONx Output</caption>
-                    <thead>
-                        <tr>
-                            <th>Input: JSON</th>
-                            <th>Translation</th>
-                            <th>Output: JSONx</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <programlisting language="javascript">
+                </example></para></section></chapter>
+
+<chapter xml:id="Working_JSON-111">
+            <title>Working With JSON</title>
+                   <para>You can use the &PRODNAME; translation
+            component to turn all elements found in JSON input into
+            XML-shaped JSONx output. <table border="1" frame="box">
+                <?dbfo keep-together="always"?>
+                <caption>JSON Input Becomes JSONx Output</caption>
+                <thead>
+                    <tr>
+                        <th>Input: JSON</th>
+                        <th>Translation</th>
+                        <th>Output: JSONx</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <programlisting language="javascript">
 <![CDATA[        
 {"field1": "value1", "field2": "value2"}
 ]]>
 </programlisting>
-                            </td>
-                            <td>Apply stylesheet as
-                                defined in translation
-                                configuration.</td>
-                            <td>
-                                <!-- if no CDATA here, DocBook tries & fails to interpret <json:object> as markup -->
-                                <programlisting language="xml">
+                        </td>
+                        <td>Apply stylesheet as defined in translation
+                            configuration.</td>
+                        <td>
+                            <!-- if no CDATA here, DocBook tries & fails to interpret <json:object> as markup -->
+                            <programlisting language="xml">
 <![CDATA[    
 <json:object xmlns:json="http://www.ibm.com/xmlns/prod/2009/jsonx" 
              xmlns:xsd="http://www.w3.org/2001/XMLSchema">
@@ -492,11 +599,11 @@
 </json:object>
 ]]>
 </programlisting>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </para>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </para>
             <para> To make this possible, create a stylesheet to
                 define the transformation, and call for that
                 stylesheet in your translation configuration,
@@ -552,9 +659,10 @@
 </programlisting>
                 </example>
             </para>
-            </section>   
-        <section xml:id="Translate_JSON2JSONX2JSON-d1e125">
-            <title>Translating JSON to JSONx to JSON</title>         
+               
+        
+    <section xml:id="Translate_JSON2JSONX-d1e123">
+        <title>Translating JSON to JSONX</title>
             <para> You can use the &PRODNAME; translation component to
                 turn all elements found in JSON input into XML-shaped
                 JSONx output and then back into JSON. For details
@@ -562,24 +670,35 @@
                 <xref linkend="Translate_JSON2JSONX-d1e123"></xref>.
             </para>
 
-            <para>
-                You can use cURL to confirm
-                that you have the stylesheet and the translation configuration set up correctly; if they are correct,
-                the JSON input you provide will be echoed as JSON. 
-                <example>
+            <para> You can use cURL to confirm that you have the
+                stylesheet and the translation configuration set up
+                correctly; if they are correct, the JSON input you
+                provide will be echoed as JSON. The translation
+                component allows services to receive request message
+                content as JSONx when the message content of the
+                request that is sent to the service is JSON. JSON
+                content will automatically be converted to JSONx when
+                the request or response body contains JSON data. See
+                below for an example. Click here to read more about
+                JSONx. JSONx content can be converted back to JSON by
+                using the jsonx2json.xsl style sheet.<example>
                     <title>cURL Confirming Translation from JSON to
                         JSONx to JSON</title>
                     <programlisting language="xml">
 <xi:include href="samples/repose-translation-curl-confirm-json2jsonx2json.xml" parse="text"/>
 </programlisting>
                 </example>
-            </para>
-        </section>
-    </chapter>
+            </para> </section>
+            </chapter>
+
     <chapter xml:id="Change_Content-d1e125">
-        <title>OLD Changing a Message's Content</title>
+        <title> Accessing and Modifying Request Data</title>
         <para> You can use the translation component to rewrite the
-            same message with some content added or removed. </para>
+            same message with some content added or removed. As of
+            Repose 2.6.0, the translation component will automatically
+            remove, without expanding, user defined entities from
+            requests and responses. This is to prevent XXE attacks
+            against Repose or any service behind Repose.</para>
         <section xml:id="Adding_Content-d1e127">
             <title>Adding Content to a Message</title>
             <para> You can use the &PRODNAME; translation component to

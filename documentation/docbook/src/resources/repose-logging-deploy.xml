@@ -158,8 +158,8 @@
                 startup and &PRODNAME; will exit. </para>
         </important>
         <para> To configure the &PRODNAME; HTTP logging component,
-            edit the <code>http-logging.cfg.xml</code> file. Within
-                <code>http-logging.cfg.xml</code>, you can specify
+            edit the <code>system-model.cfg.xml</code> file. Within
+                <code>system-model.cfg.xml</code>, you can specify
             multiple logs by repeating the <code>http-log</code>
             element; within each <code>http-log</code>, use
                 <code>format</code> to specify what to log for each
