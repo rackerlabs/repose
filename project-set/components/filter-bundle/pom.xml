@@ -129,7 +129,7 @@
 
         <dependency>
             <groupId>com.rackspace.papi.components</groupId>
-            <artifactId>content-compression</artifactId>
+            <artifactId>compression</artifactId>
         </dependency>
     </dependencies>
 
@@ -240,7 +240,7 @@
 
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
-                            <artifactId>content-compression</artifactId>
+                            <artifactId>compression</artifactId>
                         </jarModule>
                     </modules>
                 </configuration>

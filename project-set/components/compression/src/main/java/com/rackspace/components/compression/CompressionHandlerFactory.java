@@ -2,15 +2,11 @@ package com.rackspace.components.compression;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.components.compression.util.CompressionConfigWrapper;
-import com.rackspace.papi.filter.FilterConfigWrapper;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import java.util.Map;
 import javax.servlet.FilterConfig;
 import com.planetj.servlet.filter.compression.CompressingFilter;
 import com.rackspace.components.compression.util.CompressionParameters;
-import com.rackspace.papi.commons.util.net.IpAddressRange;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -18,15 +14,15 @@ import javax.servlet.ServletException;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
-public class ContentCompressionHandlerFactory extends AbstractConfiguredFilterHandlerFactory<ContentCompressionHandler> {
+public class CompressionHandlerFactory extends AbstractConfiguredFilterHandlerFactory<CompressionHandler> {
 
-   private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ContentCompressionHandlerFactory.class);
+   private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(CompressionHandlerFactory.class);
    private CompressionConfigWrapper config;
    private Compression contentCompressionConfig;
    private CompressingFilter filter;
-   private ContentCompressionHandler handler;
+   private CompressionHandler handler;
 
-   public ContentCompressionHandlerFactory(FilterConfig config) {
+   public CompressionHandlerFactory(FilterConfig config) {
 
       this.config = new CompressionConfigWrapper(config);
       this.config.setInitParameter(CompressionParameters.STATS_ENABLED.getParam(), "true");
@@ -38,7 +34,7 @@ public class ContentCompressionHandlerFactory extends AbstractConfiguredFilterHa
          filter = new CompressingFilter();
          filter.init(config);
       } catch (ServletException ex) {
-         Logger.getLogger(ContentCompressionHandlerFactory.class.getName()).log(Level.SEVERE, null, ex);
+         Logger.getLogger(CompressionHandlerFactory.class.getName()).log(Level.SEVERE, null, ex);
       }
    }
 
@@ -58,7 +54,7 @@ public class ContentCompressionHandlerFactory extends AbstractConfiguredFilterHa
             config.setInitParameter(CompressionParameters.INCLUDE_CONTENT_TYPES.getParam(), StringUtils.collectionToCommaDelimitedString(contentCompressionConfig.getIncludeContentTypes()));
 
          }
-         if (!contentCompressionConfig.getIncludeContentTypes().isEmpty()) {
+         if (!contentCompressionConfig.getExcludeContentTypes().isEmpty()) {
             config.setInitParameter(CompressionParameters.EXCLUDE_CONTENT_TYPES.getParam(), StringUtils.collectionToCommaDelimitedString(contentCompressionConfig.getExcludeContentTypes()));
 
          }
@@ -91,12 +87,12 @@ public class ContentCompressionHandlerFactory extends AbstractConfiguredFilterHa
    }
 
    @Override
-   protected ContentCompressionHandler buildHandler() {
+   protected CompressionHandler buildHandler() {
 
       if (!this.isInitialized()) {
          return null;
       } else {
-         return new ContentCompressionHandler(filter);
+         return new CompressionHandler(filter);
       }
    }
 

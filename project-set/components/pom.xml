@@ -261,7 +261,7 @@
 
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
-                <artifactId>content-compression</artifactId>
+                <artifactId>compression</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>

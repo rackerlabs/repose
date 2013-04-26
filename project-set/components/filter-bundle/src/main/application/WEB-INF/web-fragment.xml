@@ -111,7 +111,7 @@
     </filter>
 
     <filter>
-        <filter-name>content-compression</filter-name>
-        <filter-class>com.rackspace.components.compression.ContentCompressionFilter</filter-class>
+        <filter-name>compression</filter-name>
+        <filter-class>com.rackspace.components.compression.CompressionFilter</filter-class>
     </filter>
 </web-fragment>

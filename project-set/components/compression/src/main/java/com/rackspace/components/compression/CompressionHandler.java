@@ -17,13 +17,13 @@ import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import org.slf4j.LoggerFactory;
 
-public class ContentCompressionHandler extends AbstractFilterLogicHandler {
+public class CompressionHandler extends AbstractFilterLogicHandler {
 
-   private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ContentCompressionHandler.class);
+   private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(CompressionHandler.class);
    CompressingFilter filter;
    FilterChain chain;
 
-   public ContentCompressionHandler(CompressingFilter filter) {
+   public CompressionHandler(CompressingFilter filter) {
       this.filter = filter;
    }
 
