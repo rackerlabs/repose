@@ -60,7 +60,8 @@ module ReposeBuilder
         puts "Building #{serverName}..."
 
         cs = loginCs
-        server = buildServer(cs,serverName,104,5) 
+        server = buildServer(cs,serverName,104,2) 
+
         logger.info("Repose instance built: #{server.ip} : #{server.password} : #{server.getId}")
 
         waitForServer server
