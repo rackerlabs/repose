@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<validators xmlns='http://openrepose.org/repose/validator/v1.0'>
-  <validator role="role-1" wadl="p-pass.wadl" default="false" use-saxon="false" />
-</validators>
