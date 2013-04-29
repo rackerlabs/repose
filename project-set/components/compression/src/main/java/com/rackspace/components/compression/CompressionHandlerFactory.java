@@ -8,8 +8,6 @@ import javax.servlet.FilterConfig;
 import com.planetj.servlet.filter.compression.CompressingFilter;
 import com.rackspace.components.compression.util.CompressionParameters;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.servlet.ServletException;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
@@ -20,7 +18,6 @@ public class CompressionHandlerFactory extends AbstractConfiguredFilterHandlerFa
    private CompressionConfigWrapper config;
    private Compression contentCompressionConfig;
    private CompressingFilter filter;
-   private CompressionHandler handler;
 
    public CompressionHandlerFactory(FilterConfig config) {
 
@@ -34,7 +31,7 @@ public class CompressionHandlerFactory extends AbstractConfiguredFilterHandlerFa
          filter = new CompressingFilter();
          filter.init(config);
       } catch (ServletException ex) {
-         Logger.getLogger(CompressionHandlerFactory.class.getName()).log(Level.SEVERE, null, ex);
+         LOG.error("Unable to initialize CompressingFilter: ", ex);
       }
    }
 

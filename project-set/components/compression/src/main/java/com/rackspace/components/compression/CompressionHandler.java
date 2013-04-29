@@ -5,6 +5,7 @@
 package com.rackspace.components.compression;
 
 import com.planetj.servlet.filter.compression.CompressingFilter;
+import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.filter.logic.FilterAction;
@@ -36,8 +37,14 @@ public class CompressionHandler extends AbstractFilterLogicHandler {
       
       final FilterDirector myDirector = new FilterDirectorImpl();
       final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
-      
       myDirector.setFilterAction(FilterAction.RETURN);
+      
+      if(chain == null){
+         myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+         return myDirector;
+      }
+      
+      
       try {
 
 
@@ -45,8 +52,10 @@ public class CompressionHandler extends AbstractFilterLogicHandler {
          myDirector.setResponseStatusCode(response.getStatus());
       } catch (IOException ex) {
          LOG.error("IOException with Compression filter", ex);
+         myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
       } catch (ServletException ex) {
          LOG.error("Servlet error within Compression Filter", ex);
+         myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
       return myDirector;
 
