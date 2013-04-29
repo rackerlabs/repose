@@ -21,26 +21,27 @@ module ReposeBuilder
     def buildReposeBox1
 
         serverName = Time.new.strftime("rcman-%d%b%y-%H%M%S-#{Etc.getlogin}-1")
-
         puts "Building #{serverName}..."
+
         cs = loginCs
         server = buildServer(cs,serverName,104,3) 
+
         logger.info("Repose instance built: #{server.ip} : #{server.password} : #{server.getId}")
+
         waitForServer server
-        puts "Building #{serverName}...done!"
+
+        p "done!"
+
 
         puts "Uploading install files..."
         uploadChefFiles(server)
-        puts "Uploading install files...done!"
+        p "done!"
 
-        puts "Installing Repose..."
         installRepose(server,"papi_node")
-        puts "Installing Repose...done!"
 
         puts "Starting repose..."
         valveNodes(server, "start")
         tomcatNodes(server,"restart")
-        puts "Starting repose...done!"
 
         logger.info("Repose instance built: #{server.ip} : #{server.password} : #{server.getId}")
 
@@ -56,26 +57,28 @@ module ReposeBuilder
     def buildReposeBox2
 
         serverName = Time.new.strftime("rcman-%d%b%y-%H%M%S-#{Etc.getlogin}-2")
-
         puts "Building #{serverName}..."
+
         cs = loginCs
         server = buildServer(cs,serverName,104,5) 
         logger.info("Repose instance built: #{server.ip} : #{server.password} : #{server.getId}")
+
         waitForServer server
-        puts "Building #{serverName}...done!"
+
+        p "done!"
+
 
         puts "Uploading install files..."
         uploadChefFiles(server)
-        puts "Uploading install files...done!"
+        p "done!"
 
-        puts "Installing Repose..."
+        #executeCommand(server,"tar -C /root -xzvf /root/chef-solo.tar") 
+
         installRepose(server,"papi_node2")
-        puts "Installing Repose...done!"
 
         puts "Starting repose..."
         valveNodes2(server, "start")
         tomcatNodes(server,"restart")
-        puts "Starting repose...done!"
 
         logger.info("Repose instance built: #{server.ip} : #{server.password} : #{server.getId}")
 
@@ -89,15 +92,11 @@ module ReposeBuilder
 
         puts "Installing ruby and chef..."
         executeCommand(server,"/bin/bash /root/chef-solo/install.sh")
-        puts "Installing ruby and chef...done"
 
         puts "Installing repose..."
         executeCommand(server,"/usr/bin/chef-solo -c /root/chef-solo/solo.rb -j /root/chef-solo/#{cookbook}.json")
-        puts "Installing repose...done"
 
-        puts "Installing repose again..."
         executeCommand(server,"/usr/bin/chef-solo -c /root/chef-solo/solo.rb -j /root/chef-solo/#{cookbook}.json")
-        puts "Installing repose again...done"
     end
 
     def valveNodes(server,command)
@@ -115,7 +114,7 @@ module ReposeBuilder
     def waitForRepose(node,portList)
         portList.each do |i|
             uri = URI("http://#{node}:#{i}/v1/usertest1")
-            print "Waiting for repose to start on port #{i} (#{uri})"
+            print "Waiting for repose to start on port #{i} "
             count=0
             begin
                 if count>60
@@ -138,7 +137,7 @@ module ReposeBuilder
             server = File.open("/tmp/rsInstances",'r').readlines[0].split(/,/)
             server.each do |s|
                 s=s.strip
-                puts s
+                p s
                 begin
                     deleteServer(cs,s)
                 rescue CloudServers::Exception::ItemNotFound
