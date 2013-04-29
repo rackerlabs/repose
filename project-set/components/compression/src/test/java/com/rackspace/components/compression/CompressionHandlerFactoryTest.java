@@ -49,17 +49,12 @@ public class CompressionHandlerFactoryTest {
       ServletContext ctx = mock(ServletContext.class);
       when(filterConfig.getServletContext()).thenReturn(ctx);
       factory = new CompressionHandlerFactory(filterConfig);
-
-
-
-
    }
 
    @Test
    public void shouldInitializeCompressionHandlerFactory() {
 
       factory.configurationUpdated(config);
-
       assertTrue("Should initialize new content compression handler factory", factory.isInitialized());
    }
 
@@ -74,7 +69,6 @@ public class CompressionHandlerFactoryTest {
 
       factory.configurationUpdated(config);
       CompressionHandler handler = factory.buildHandler();
-
       assertNotNull("Should build new compression handler", handler);
    }
 }

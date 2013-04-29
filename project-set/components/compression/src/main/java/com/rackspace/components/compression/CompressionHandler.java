@@ -43,11 +43,9 @@ public class CompressionHandler extends AbstractFilterLogicHandler {
          myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
          return myDirector;
       }
-      
-      
+  
       try {
-
-
+         
          filter.doFilter(mutableHttpRequest, response, chain);
          myDirector.setResponseStatusCode(response.getStatus());
       } catch (IOException ex) {

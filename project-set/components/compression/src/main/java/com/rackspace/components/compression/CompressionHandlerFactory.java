@@ -27,7 +27,6 @@ public class CompressionHandlerFactory extends AbstractConfiguredFilterHandlerFa
       this.config.setInitParameter(CompressionParameters.DEBUG.getParam(), "true");
       try {
 
-
          filter = new CompressingFilter();
          filter.init(config);
       } catch (ServletException ex) {
@@ -62,10 +61,8 @@ public class CompressionHandlerFactory extends AbstractConfiguredFilterHandlerFa
          }
          if (!contentCompressionConfig.getIncludeContentTypes().isEmpty()) {
             config.setInitParameter(CompressionParameters.INCLUDE_USER_AGENT_PATTERNS.getParam(), StringUtils.collectionToCommaDelimitedString(contentCompressionConfig.getExcludeUserAgentPatterns()));
-
          }
-         
-         
+            
          filter = new CompressingFilter();
          try {
             filter.init(config);
@@ -73,8 +70,6 @@ public class CompressionHandlerFactory extends AbstractConfiguredFilterHandlerFa
          } catch (ServletException ex) {
             LOG.error("Unable to initialize content compression filter");
          }
-
-
       }
 
       @Override

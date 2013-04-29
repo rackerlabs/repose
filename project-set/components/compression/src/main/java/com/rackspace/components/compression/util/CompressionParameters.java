@@ -2,7 +2,6 @@ package com.rackspace.components.compression.util;
 
 
 public enum CompressionParameters {
-
    
    DEBUG("debug"),
    COMPRESSION_THRESHHOLD("compressionThreshold"),
@@ -16,7 +15,6 @@ public enum CompressionParameters {
    JAVA_UTIL_LOGGER("javaUtilLogger"),
    JAKARTA_COMMONS_LOGGER("jakartaCommonsLogger");
    
-   
    private final String param;
 
    private CompressionParameters(String param) {
@@ -26,6 +24,4 @@ public enum CompressionParameters {
    public String getParam(){
       return param;
    }
-   
-   
 }
