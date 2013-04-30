@@ -84,7 +84,7 @@ for valveGroup in 1..3
   end
 
 
-  ["rate-limiting.cfg.xml", "content-normalization.cfg.xml"].each do |config|
+  ["content-compression.cfg.xml","rate-limiting.cfg.xml", "content-normalization.cfg.xml"].each do |config|
     cookbook_file "/etc/repose/valveGroup#{valveGroup}/#{config}" do
       source config
       mode 0644
@@ -129,6 +129,13 @@ for valveGroup in 1..3
         end
       end
 
+      #add data files here to valveGroup1
+      ["request_sample.json","request_sample.json.Z","response_sample2.json.gz"].each do |data_file|
+        cookbook_file "/etc/repose/valveGroup1/#{data_file}" do
+          source "/valveGroup1/data_files/#{data_file}"
+          mode 0644
+        end
+      end
 
       via="via=\"Repose (Cloud Integration)\""
 
