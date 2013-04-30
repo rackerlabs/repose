@@ -1,71 +1,228 @@
 #!/usr/bin/env python
 
+"""
+This is a test of the API Validator component, it's multimatch feature in
+particular. We constructed a set of patterns
+
+ -> Not considered (N)
+ -> Considered (C)      -> Skipped (S)
+ -> Considered (C)      -> Tried (T)    -> Passed (P)
+ -> Considered (C)      -> Tried (T)    -> Failed (F)
+
+transitions from one state to another
+
+multimatch disabled: SSPNN, P, F
+multimatch enabled: SSFSFFPNN, P, F
+
+As an optimization, we create a separate validator.cfg.xml file and WADL files
+for each pattern, and run them simultaneously in six separate clusters within
+the system model.
+"""
+
+from narwhal import repose
+import unittest
+from narwhal import conf
+from narwhal import pathutil
+import xmlrunner as _xmlrunner
+import logging
+import time
 import argparse
-import multimatch
+import os
+import deproxy
 import itertools
 
-
-def count_true(*iterables):
-    c = 0
-    for x in itertools.ifilter(None, itertools.chain(*iterables)):
-        c += 1
-    return c
+logger = logging.getLogger(__name__)
 
 
-def count_false(*iterables):
-    c = 0
-    for x in itertools.ifilterfalse(None, itertools.chain(*iterables)):
-        c += 1
-    return c
+#this 
 
-parser = argparse.ArgumentParser()
-parser.add_argument(metavar='target-addr', dest='target_addr',
-                    help='Hostname or IP address of the target Repose node')
-parser.add_argument(metavar='target-port', dest='target_port',
-                    help='Port of the target Repose node', type=int,
-                    default=8080, nargs='?')
-parser.add_argument('protocol',
-                    help='Protocol to use to connect to the Repose node',
-                    choices=['http', 'https'], default='http', nargs='?')
-parser.add_argument('--print-bad-response',
-                    help='Print out the response if it fails.',
-                    action='store_true')
-parser.add_argument('--test', help='Select the test case to run',
-                    choices=['all', 'sspnn', 'f', 'p', 'mssfsffpnn', 'mf',
-                             'mp'],
-                    default='all')
+config_dir = pathutil.join(os.getcwd(), 'etc/repose')
+deployment_dir = pathutil.join(os.getcwd(), 'var/repose')
+artifact_dir = pathutil.join(os.getcwd(), 'usr/share/repose/filters')
+log_file = pathutil.join(os.getcwd(), 'var/log/repose/current.log')
+repose_port = 5555
+stop_port = 7777
+deproxy_port = 10101
+d = None
+params = {
+    'target_hostname': 'localhost',
+    'target_port': deproxy_port,
+    'port': repose_port,
+    'repose_port': repose_port,
+}
 
-args = parser.parse_args()
 
-protocol = args.protocol
-host = args.target_addr
-port = args.target_port
-pbr = args.print_bad_response
+def setUpModule():
+    # Set up folder hierarchy
+    logger.debug('setUpModule')
+    pathutil.create_folder(deployment_dir)
+    pathutil.create_folder(os.path.dirname(log_file))
 
-test = args.test
+    global d
+    if d is None:
+        d = deproxy.Deproxy()
+        d.add_endpoint(('localhost', deproxy_port))
 
-res = []
 
-if test == 'all' or test == 'sspnn':
-    res.append(multimatch.check_sspnn(protocol, host, port, pbr))
+def tearDownModule():
+    logger.debug('')
+    if d is not None:
+        logger.debug('shutting down deproxy')
+        d.shutdown_all_endpoints()
+        logger.debug('deproxy shut down')
 
-if test == 'all' or test == 'p':
-    res.append(multimatch.check_p(protocol, host, port, pbr))
 
-if test == 'all' or test == 'f':
-    res.append(multimatch.check_f(protocol, host, port, pbr))
+def apply_configs(folder):
+    conf.process_folder_contents(folder=folder, dest_path='etc/repose',
+                                 params=params)
 
-if test == 'all' or test == 'mssfsffpnn':
-    res.append(multimatch.check_mssfsffpnn(protocol, host, port, pbr))
 
-if test == 'all' or test == 'mp':
-    res.append(multimatch.check_mp(protocol, host, port, pbr))
+def start_repose():
+    return repose.ReposeValve(config_dir='etc/repose', stop_port=stop_port,
+                              wait_on_start=True, port=repose_port)
 
-if test == 'all' or test == 'mf':
-    res.append(multimatch.check_mf(protocol, host, port, pbr))
 
-total_correct = count_true(*res)
-total_incorrect = count_false(*res)
+class TestSspnn(unittest.TestCase):
+    def setUp(self):
+        logger.debug('')
+        self.url = 'http://localhost:%i/multimatch/sspnn' % repose_port
 
-print '%i correct' % total_correct
-print '%i incorrect' % total_incorrect
+        # set the common config files, like system model and container
+        apply_configs(folder='configs/common')
+
+        # set the validator and wadl file for this specific pattern
+        apply_configs(folder='configs/sspnn')
+
+        self.repose = start_repose()
+
+    def test_unlisted_role(self):
+        # role-0 is not mentioned in the validator.cfg.xlm file
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-0'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    def test_s1(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-1'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    def test_s2(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-2'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    def test_p(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-3'})
+        self.assertEqual(mc.received_response.code, '200')
+        self.assertEqual(len(mc.handlings), 1)
+
+    def test_n1(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-4'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    def test_n2(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-5'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    # the following test_* methods check how it responds to multiple roles in
+    # different orders
+
+    def test_pass_first_of_two(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-3,role-4'})
+        self.assertEqual(mc.received_response.code, '200')
+        self.assertEqual(len(mc.handlings), 1)
+
+    def test_pass_second_of_two(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-4,role-3'})
+        self.assertEqual(mc.received_response.code, '200')
+        self.assertEqual(len(mc.handlings), 1)
+
+    def test_fail_first_of_two(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-2,role-3'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    def test_fail_second_of_two(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-3,role-2'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    def tearDown(self):
+        logger.debug('stopping repose')
+        self.repose.stop()
+        logger.debug('repose stopped')
+
+
+class TestP(unittest.TestCase):
+
+    def setUp(self):
+        logger.debug('')
+        self.url = 'http://localhost:%i/multimatch/p' % repose_port
+
+        # set the common config files, like system model and container
+        apply_configs(folder='configs/common')
+
+        # set the validator and wadl file for this specific pattern
+        apply_configs(folder='configs/p')
+
+        self.repose = start_repose()
+
+    def test_unlisted_role(self):
+        # role-0 is not mentioned in the validator.cfg.xlm file
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-0'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    def test_p(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-1'})
+        self.assertEqual(mc.received_response.code, '200')
+        self.assertEqual(len(mc.handlings), 1)
+
+    def tearDown(self):
+        logger.debug('stopping repose')
+        self.repose.stop()
+        logger.debug('repose stopped')
+
+
+#class TestF(unittest.TestCase):
+#    pass
+#
+#class TestMssfsffpnn(unittest.TestCase):
+#    pass
+#
+#class TestMp(unittest.TestCase):
+#    pass
+#
+#class TestMf(unittest.TestCase):
+#    pass
+
+
+
+
+def run():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--print-log', action='store_true',
+                        help='Print the log.')
+    args = parser.parse_args()
+
+    if args.print_log:
+        logging.basicConfig(level=logging.DEBUG,
+                            format=('%(asctime)s %(levelname)s:%(name)s:'
+                                    '%(funcName)s:'
+                                    '%(filename)s(%(lineno)d):'
+                                    '%(threadName)s(%(thread)d):%(message)s'))
+
+    setUpModule()
+    try:
+        unittest.main(argv=[''])
+    finally:
+        tearDownModule()
+
+if __name__ == '__main__':
+    run()
+
+
+
+
