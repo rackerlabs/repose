@@ -130,7 +130,7 @@ for valveGroup in 1..3
       end
 
       #add data files here to valveGroup1
-      ["request_sample.json","request_sample.json.Z","response_sample2.json.gz"].each do |data_file|
+      ["deflated.file","request_sample.json","request_sample.json.Z","response_sample2.json.gz"].each do |data_file|
         cookbook_file "/etc/repose/valveGroup1/#{data_file}" do
           source "/valveGroup1/data_files/#{data_file}"
           mode 0644
