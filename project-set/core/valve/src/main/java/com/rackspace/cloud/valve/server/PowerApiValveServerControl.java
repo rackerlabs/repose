@@ -85,16 +85,16 @@ public class PowerApiValveServerControl {
         }
 
         throw new ConfigurationResourceException(
-                "Container configuration is not valid. Please check your configuration.");
+                "Container configuration is not valid. Please check yodur configuration.");
     }
 
     public void startPowerApiValve() {
         Server serverInstance = null;
 
         try {
+            validateSsl();
             serverInstance = new ValveControllerServerBuilder(
                     commandLineArgs.getConfigDirectory(),
-                    validateSsl(),
                     commandLineArgs.getConnectionFramework(),
                     commandLineArgs.getInsecure())
                     .newServer();

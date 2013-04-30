@@ -103,11 +103,13 @@ public class RackspaceAuthenticationHandlerTest {
             whiteListRegexPatterns = new ArrayList<Pattern>();
             whiteListRegexPatterns.add(Pattern.compile("/v1.0/application\\.wadl"));
 
-            Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, true, AUTH_GROUP_CACHE_TTL, AUTH_TOKEN_CACHE_TTL);
+            Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, true, AUTH_GROUP_CACHE_TTL, AUTH_TOKEN_CACHE_TTL,requestGroups());
             handler = new RackspaceAuthenticationHandler(configurables, authServiceClient, null, null, new UriMatcher(whiteListRegexPatterns));
         }
 
         protected abstract boolean delegable();
+        
+        protected abstract boolean requestGroups();
 
     }
 
@@ -115,6 +117,11 @@ public class RackspaceAuthenticationHandlerTest {
 
         @Override
         protected boolean delegable() {
+            return true;
+        }
+        
+       @Override
+        protected boolean requestGroups() {
             return true;
         }
 
@@ -191,6 +198,11 @@ public class RackspaceAuthenticationHandlerTest {
         @Override
         protected boolean delegable() {
             return false;
+        }
+        
+        @Override
+        protected boolean requestGroups() {
+            return true;
         }
 
         @Test
@@ -278,6 +290,11 @@ public class RackspaceAuthenticationHandlerTest {
         protected boolean delegable() {
             return true;
         }
+        
+        @Override
+        protected boolean requestGroups() {
+            return true;
+        }
 
         @Test
         public void shouldModifyDelegatedWwwAuthenticateHeaderOn401() {
@@ -320,6 +337,11 @@ public class RackspaceAuthenticationHandlerTest {
         protected boolean delegable() {
             return false;
         }
+        
+       @Override
+        protected boolean requestGroups() {
+            return false;
+        }
 
         @Test
         public void shouldReturn500OnAuthFailureWith401() {
@@ -357,6 +379,11 @@ public class RackspaceAuthenticationHandlerTest {
         protected boolean delegable() {
             return false;
         }
+        
+        @Override
+        protected boolean requestGroups() {
+            return true;
+        }
 
         @Test
         public void shouldPassUriOnWhiteList() {
@@ -377,6 +404,11 @@ public class RackspaceAuthenticationHandlerTest {
 
         @Override
         protected boolean delegable() {
+            return true;
+        }
+        
+        @Override
+        protected boolean requestGroups() {
             return true;
         }
 

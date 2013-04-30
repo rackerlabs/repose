@@ -8,19 +8,17 @@ import com.rackspace.papi.commons.util.io.ByteBufferServletOutputStream;
 import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.commons.util.io.buffer.ByteBuffer;
 import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
-import java.io.*;
-import java.util.ArrayDeque;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.Enumeration;
-import java.util.List;
-import java.util.UUID;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.util.*;
 
 // This class is non-final so that we can mock it in unit tests.  We cannot
 // mock classes that are marked as final.
@@ -218,7 +216,7 @@ public class MutableHttpServletResponse extends HttpServletResponseWrapper imple
       if (inputStream != null) {
         inputStream.close();
         InputStream is = setInputStream(null);
-        if (is != null && is != inputStream) {
+        if (is != null && !is.equals(inputStream)) {
           is.close();
         }
       }

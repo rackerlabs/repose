@@ -161,4 +161,8 @@ public class RequestProxyServiceImpl implements RequestProxyService {
   public void setRewriteHostHeader(boolean value) {
     this.rewriteHostHeader = value;
   }
+  
+  public boolean getRewriteHostHeader() {
+    return this.rewriteHostHeader;
+  }
 }

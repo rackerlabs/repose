@@ -11,6 +11,10 @@ import com.rackspace.papi.container.config.ContainerConfiguration;
 import com.rackspace.papi.container.config.SslConfiguration;
 import com.rackspace.papi.domain.Port;
 import com.rackspace.papi.model.Node;
+import org.eclipse.jetty.server.Server;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -20,9 +24,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import org.eclipse.jetty.server.Server;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Component;
 
 @Component("controllerService")
 public class ControllerServiceImpl implements ControllerService {
@@ -30,6 +31,7 @@ public class ControllerServiceImpl implements ControllerService {
    //TODO: Find a better way than using a ConcurrentHashMap for this.
    private Map<String, Server> managedServers = new ConcurrentHashMap<String, Server>();
    private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(ControllerServiceImpl.class);
+    private static final String REPOSE_NODE = "Repose node ";
    private String configDir;
    private String connectionFramework;
    private boolean isInsecure;
@@ -156,19 +158,19 @@ public class ControllerServiceImpl implements ControllerService {
          }
 
          if (sslConfiguration == null) {
-            throw new ConfigurationResourceException("Repose node "+ node.getId() + " is configured to run on https but the ssl configuration is not in container.cfg.xml.");
+            throw new ConfigurationResourceException(REPOSE_NODE + node.getId() + " is configured to run on https but the ssl configuration is not in container.cfg.xml.");
          }
 
          if (sslConfiguration.getKeystoreFilename() == null) {
-            throw new ConfigurationResourceException("Repose node "+ node.getId() + " is configured to run on https but the ssl keystore filename is not in container.cfg.xml.");
+            throw new ConfigurationResourceException(REPOSE_NODE + node.getId() + " is configured to run on https but the ssl keystore filename is not in container.cfg.xml.");
          }
 
          if (sslConfiguration.getKeystorePassword() == null) {
-            throw new ConfigurationResourceException("Repose node "+ node.getId() + " is configured to run on https but the ssl keystore password is not in container.cfg.xml.");
+            throw new ConfigurationResourceException(REPOSE_NODE + node.getId() + " is configured to run on https but the ssl keystore password is not in container.cfg.xml.");
          }
 
          if (sslConfiguration.getKeyPassword() == null) {
-            throw new ConfigurationResourceException("Repose node "+ node.getId() + " is configured to run on https but the ssl key password is not in container.cfg.xml.");
+            throw new ConfigurationResourceException(REPOSE_NODE + node.getId() + " is configured to run on https but the ssl key password is not in container.cfg.xml.");
          }
       }
 

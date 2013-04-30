@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://docs.api.rackspacecloud.com/repose/content-compression/v1.0"
+           xmlns:content-compression="http://docs.api.rackspacecloud.com/repose/content-compression/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:atom="http://www.w3.org/2005/Atom"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/">
+
+   <!-- Content Compression Configuration -->
+   <xs:element name="content-compression" type="content-compression:ContentCompressionConfig" />
+
+
+   <xs:complexType name="ContentCompressionConfig">
+      
+      <xs:annotation>
+         <xs:documentation>
+            <html:p></html:p>
+         </xs:documentation>
+      </xs:annotation>
+      
+      <xs:sequence>
+         <xs:element name="compression" type="content-compression:Compression" minOccurs="1" maxOccurs="1"/>
+      </xs:sequence>
+      
+   </xs:complexType>
+   <xs:complexType name="Compression">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>Exposes compressing filter configuration</html:p>
+         </xs:documentation>
+      </xs:annotation>
+
+
+      <xs:attribute name="debug" type="xs:boolean" use="optional" default="false">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Debug to servlet log</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      
+      <xs:attribute name="compression-threshold" type="xs:int" use="optional" default="1024">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>sets the size of the smallest response that will be compressed, in bytes. That is, if less than compressionThreshold bytes are written to 
+                  the response, it will not be compressed and the response will go to the client unmodified. If 0, compression always begins immediately. 
+                  Defaults to 1024.</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      
+      <xs:attribute name="statsEnabled" type="xs:boolean" use="optional" default="false">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>enables collection of statistics.</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      
+      <xs:attribute name="include-content-types" type="content-compression:CompressionAlgorithmsList" use="optional">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>enables collection of statistics.</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      
+      <xs:attribute name="exclude-content-types" type="content-compression:CompressionAlgorithmsList" use="optional">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>enables collection of statistics.</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      
+      <xs:attribute name="include-user-agent-patterns" type="content-compression:StringList" use="optional">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>enables collection of statistics.</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      
+      <xs:attribute name="exclude-user-agent-patterns" type="content-compression:StringList" use="optional">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>enables collection of statistics.</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>  
+      
+      <xs:assert vc:minVersion="1.1" test="if (@include-content-types) then not (@exclude-content-types) else true()"
+         xerces:message="Enumerating include-content-type and exclude-content-type is now allowed."
+         saxon:message="Enumerating include-content-type and exclude-content-type is now allowed"/>
+      <xs:assert vc:minVersion="1.1" test="if (@exclude-content-types) then not (@include-content-types) else true()"
+         xerces:message="Enumerating include-content-type and exclude-content-type is now allowed."
+         saxon:message="Enumerating include-content-type and exclude-content-type is now allowed"/>
+      
+      <xs:assert vc:minVersion="1.1" test="if (@include-user-agent-patterns) then not (@exclude-user-agent-patterns) else true()"
+         xerces:message="Enumerating include-content-type and exclude-content-type is now allowed."
+         saxon:message="Enumerating include-content-type and exclude-content-type is now allowed"/>
+      <xs:assert vc:minVersion="1.1" test="if (@exclude-user-agent-patterns) then not (@include-user-agent-patterns) else true()"
+         xerces:message="Enumerating include-user-agent-patterns and exclude-user-agent-patterns is now allowed."
+         saxon:message="Enumerating exclude-user-agent-patterns and include-user-agent-patterns is now allowed"/>
+      
+   </xs:complexType>
+   
+   <xs:simpleType name="CompressionAlgorithmsList">
+        <xs:list itemType="content-compression:CompressionAlgorithms"/>
+    </xs:simpleType>
+   
+   
+   <xs:simpleType name="CompressionAlgorithms">
+      <xs:restriction base="xs:string">
+         <xs:enumeration value="gzip"/>
+         <xs:enumeration value="x-gzip"/>
+         <xs:enumeration value="compress"/>
+         <xs:enumeration value="x-compress"/>
+         <xs:enumeration value="deflate"/>
+         <xs:enumeration value="identity"/>
+      </xs:restriction>
+   </xs:simpleType>
+   
+   <xs:simpleType name="StringList">
+      <xs:list itemType="xs:string"/>
+   </xs:simpleType>
+    
+</xs:schema>

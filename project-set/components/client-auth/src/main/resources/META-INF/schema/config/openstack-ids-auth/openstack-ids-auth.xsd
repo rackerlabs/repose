@@ -60,6 +60,15 @@
                     </xs:documentation>
                 </xs:annotation>
             </xs:attribute>
+            
+                      
+            <xs:attribute name="request-groups" type="xs:boolean" use="optional" default="true">
+                <xs:annotation>
+                    <xs:documentation>
+                     c   <html:p>Tells the service whether or not to make get Groups call to Auth</html:p>
+                    </xs:documentation>
+                </xs:annotation>
+            </xs:attribute>
             <!-- Review assertion -->
             <xs:assert vc:minVersion="1.1" test="xs:boolean(@tenanted) eq true() and count(os-ids-auth:client-mapping) > 0 or xs:boolean(@tenanted) eq false()"
                        xerces:message="If tenanted = true then there should be at least one client mapping."
@@ -89,6 +98,8 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+        
+  
 
         <xs:attribute name="uri" type="xs:anyURI" use="required">
             <xs:annotation>

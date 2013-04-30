@@ -102,7 +102,7 @@ public class OpenStackAuthenticationHandlerTest {
             whiteListRegexPatterns = new ArrayList<Pattern>();
             whiteListRegexPatterns.add(Pattern.compile("/v1.0/application\\.wadl"));
 
-            Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, isTenanted(), AUTH_GROUP_CACHE_TTL, AUTH_TOKEN_CACHE_TTL);
+            Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, isTenanted(), AUTH_GROUP_CACHE_TTL, AUTH_TOKEN_CACHE_TTL,requestGroups());
             handler = new OpenStackAuthenticationHandler(configurables, authService, null, null, new UriMatcher(whiteListRegexPatterns));
 
 
@@ -115,6 +115,8 @@ public class OpenStackAuthenticationHandlerTest {
         }
 
         protected abstract boolean delegable();
+        
+        protected abstract boolean requestGroups();
 
         protected boolean isTenanted() {
             return true;
@@ -158,6 +160,11 @@ public class OpenStackAuthenticationHandlerTest {
 
         @Override
         protected boolean delegable() {
+            return false;
+        }
+        
+        @Override
+        protected boolean requestGroups() {
             return false;
         }
 
@@ -265,6 +272,11 @@ public class OpenStackAuthenticationHandlerTest {
         protected boolean delegable() {
             return false;
         }
+        
+        @Override
+        protected boolean requestGroups() {
+            return true;
+        }
 
         @Before
         public void standUp() throws DatatypeConfigurationException {
@@ -353,12 +365,82 @@ public class OpenStackAuthenticationHandlerTest {
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
     }
+    
+   public static class WhenNoGroupInfo extends TestParent {
+    private DatatypeFactory dataTypeFactory;
+    AuthenticateResponse authResponse;
+    Groups groups;
+    Group group;
+
+    @Override
+    protected boolean delegable() {
+        return true;
+    }
+
+    @Override
+    protected boolean requestGroups() {
+        return false;
+    }
+
+    @Before
+    public void standUp() throws DatatypeConfigurationException {
+        dataTypeFactory = DatatypeFactory.newInstance();
+        when(request.getRequestURI()).thenReturn("/start/104772/resource");
+        when(request.getHeader(anyString())).thenReturn("tokenId");
+
+        Calendar expires = getCalendarWithOffset(1000);
+
+        authResponse = new AuthenticateResponse();
+        UserForAuthenticateResponse userForAuthenticateResponse = new UserForAuthenticateResponse();
+        userForAuthenticateResponse.setId("104772");
+        userForAuthenticateResponse.setName("user2");
+
+        userForAuthenticateResponse.setRoles(new RoleList());
+
+                 
+        Token token = new Token();
+        token.setId("tokenId");
+        TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
+        tenant.setId("tenantId");
+        tenant.setName("tenantName");
+        token.setTenant(tenant);
+        token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
+
+        authResponse.setToken(token);
+        authResponse.setUser(userForAuthenticateResponse);
+    }
+
+   
+    @Test
+    public void shouldNotUseCachedGroupInfoForExpired() throws InterruptedException {
+        final AuthToken user = new OpenStackToken(authResponse);
+        when(authService.validateToken(anyString(), anyString())).thenReturn(user);
+
+        StoredElement element = mock(StoredElement.class);
+        when(element.elementIsNull()).thenReturn(false);
+        //when(element.elementAs(AuthGroups.class)).thenReturn(null);
+
+        when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".tenantId"))).thenReturn(null);
+
+        final FilterDirector director = handlerWithCache.handleRequest(request, response);
+
+        verify(store, times(1)).get(eq(AUTH_TOKEN_CACHE_PREFIX +".104772"+":" + user.getTokenId()));
+        // Service should be called since token has expired
+        verify(authService, times(0)).getGroups(anyString());
+        assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
+    }
+    }
 
     public static class WhenAuthenticatingDelegatableRequests extends TestParent {
 
         @Override
         protected boolean delegable() {
             return true;
+        }
+        
+        @Override
+        protected boolean requestGroups() {
+            return false;
         }
 
         @Before
@@ -379,12 +461,18 @@ public class OpenStackAuthenticationHandlerTest {
             final FilterDirector requestDirector = handler.handleRequest(request, response);
             assertEquals("Auth component must reject requests with invalid credentials", FilterAction.RETURN, requestDirector.getFilterAction());
         }
-    }
+        
+     }
 
     public static class WhenAuthenticatingNonDelegatableRequests extends TestParent {
 
         @Override
         protected boolean delegable() {
+            return false;
+        }
+        
+        @Override
+        protected boolean requestGroups() {
             return false;
         }
 
@@ -417,6 +505,11 @@ public class OpenStackAuthenticationHandlerTest {
         @Override
         protected boolean delegable() {
             return true;
+        }
+        
+        @Override
+        protected boolean requestGroups() {
+            return false;
         }
 
         @Test
@@ -471,6 +564,11 @@ public class OpenStackAuthenticationHandlerTest {
         protected boolean delegable() {
             return false;
         }
+        
+        @Override
+        protected boolean requestGroups() {
+            return false;
+        }
 
         @Test
         public void shouldReturn501OnAuthFailureWithNonDelegatedWwwAuthenticateHeaderSet() {
@@ -507,6 +605,11 @@ public class OpenStackAuthenticationHandlerTest {
         protected boolean delegable() {
             return false;
         }
+        
+        @Override
+        protected boolean requestGroups() {
+            return true;
+        }
 
         @Test
         public void shouldPassUriOnWhiteList() {
@@ -529,6 +632,11 @@ public class OpenStackAuthenticationHandlerTest {
         protected boolean delegable() {
             return true;
         }
+        
+        @Override
+        protected boolean requestGroups() {
+            return true;
+        }
 
         @Test
         public void shouldPassUriOnWhiteList() {
@@ -549,6 +657,11 @@ public class OpenStackAuthenticationHandlerTest {
 
         @Override
         protected boolean delegable() {
+            return true;
+        }
+        
+        @Override
+        protected boolean requestGroups() {
             return true;
         }
 

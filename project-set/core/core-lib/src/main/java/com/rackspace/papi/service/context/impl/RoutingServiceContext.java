@@ -12,6 +12,7 @@ import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
 import com.rackspace.papi.service.routing.RoutingService;
 import com.rackspace.papi.servlet.InitParameter;
+import java.net.URL;
 import javax.servlet.ServletContext;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -144,8 +145,8 @@ public class RoutingServiceContext implements ServiceContext<RoutingService> {
          instanceInfo.setClusterId(clusterId);
          instanceInfo.setNodeId(nodeId);
       }
-
-      configurationManager.subscribeTo("system-model.cfg.xml", configListener, SystemModel.class);
+      URL xsdURL = getClass().getResource("/META-INF/schema/system-model/system-model.xsd");
+      configurationManager.subscribeTo("system-model.cfg.xml",xsdURL, configListener, SystemModel.class);
       register();
    }
 

@@ -13,15 +13,16 @@ import com.rackspace.papi.service.datastore.impl.replicated.data.Subscriber;
 import com.rackspace.papi.service.datastore.impl.replicated.notification.in.ChannelledUpdateListener;
 import com.rackspace.papi.service.datastore.impl.replicated.notification.out.UpdateNotifier;
 import com.rackspace.papi.service.datastore.impl.replicated.subscriptions.UdpSubscriptionListener;
+import net.sf.ehcache.Cache;
+import net.sf.ehcache.Element;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import net.sf.ehcache.Cache;
-import net.sf.ehcache.Element;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore {
 
@@ -33,20 +34,22 @@ public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore {
     private final Thread updateListenerThread;
     private final Notifier updateNotifier;
 
-    public ReplicatedDatastoreImpl(String subscriptionAddress, int subscriptionPort, Cache ehCacheInstance) throws IOException {
+    public ReplicatedDatastoreImpl(String subscriptionAddress, int subscriptionPort, Cache ehCacheInstance)
+            throws IOException {
         this(null, subscriptionAddress, subscriptionPort, ehCacheInstance, 0);
     }
-    
-    public ReplicatedDatastoreImpl(Set<Subscriber> subscribers, String address, int subscriptionPort, Cache ehCacheInstance, int maxQueueSize) throws IOException {
+
+    public ReplicatedDatastoreImpl(Set<Subscriber> subscribers, String address, int subscriptionPort,
+            Cache ehCacheInstance, int maxQueueSize) throws IOException {
         LOG.info("Replicated Datastore Socket (udp): " + address + ":" + subscriptionPort);
         this.cache = ehCacheInstance;
         this.updateNotifier = new UpdateNotifier(subscribers, maxQueueSize);
         this.subscriptionListener = new UdpSubscriptionListener(this, updateNotifier, address, subscriptionPort);
         this.updateListener = new ChannelledUpdateListener(this, address);
-        this.subscriberThread = new Thread((Runnable)subscriptionListener);
+        this.subscriberThread = new Thread((Runnable) subscriptionListener);
         this.updateListenerThread = new Thread(updateListener);
     }
-    
+
     Notifier getUpdateNotifier() {
         return updateNotifier;
     }
@@ -77,14 +80,14 @@ public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore {
     public void addSubscribers(Collection<Subscriber> subscribers) {
         updateNotifier.addSubscribers(subscribers);
     }
-    
+
     @Override
     public void removeSubscriber(Subscriber subscriber) {
         updateNotifier.removeSubscriber(subscriber);
     }
 
     @Override
-    public void finalize() throws Throwable {
+    protected void finalize() throws Throwable {
         updateListener.done();
         super.finalize();
     }
@@ -122,34 +125,34 @@ public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore {
     public void sync(Subscriber subscriber) throws IOException {
         cache.evictExpiredElements();
         Map<Object, Element> all = cache.getAll(cache.getKeysWithExpiryCheck());
-        
+
         if (all.isEmpty()) {
             return;
         }
-        
+
         Set<Object> keySet = all.keySet();
         Collection<Element> values = all.values();
-        
+
         Operation[] operation = new Operation[keySet.size()];
         String[] keys = new String[keySet.size()];
         byte[][] data = new byte[values.size()][];
         int[] ttl = new int[values.size()];
-        
+
         int index = 0;
-        for (Object key: keySet) {
-            keys[index++] = (String)key;
+        for (Object key : keySet) {
+            keys[index++] = (String) key;
             operation[index] = Operation.PUT;
         }
-        
+
         index = 0;
-        
-        for (Element element: values) {
+
+        for (Element element : values) {
 
             data[index] = (byte[]) element.getValue();
             ttl[index] = element.getTimeToLive();
             index++;
         }
-        
+
         updateNotifier.notifyNode(operation, subscriber, keys, data, ttl);
 
     }
@@ -177,7 +180,8 @@ public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore {
     }
 
     @Override
-    public void put(String key, byte[] value, int ttl, TimeUnit timeUnit, boolean notify) throws DatastoreOperationException {
+    public void put(String key, byte[] value, int ttl, TimeUnit timeUnit, boolean notify)
+            throws DatastoreOperationException {
         try {
             final Element putMe = new Element(key, value);
             long convertedTtl = TimeUnit.SECONDS.convert(ttl, timeUnit);
@@ -196,4 +200,8 @@ public class ReplicatedDatastoreImpl implements Datastore, ReplicatedDatastore {
         }
     }
 
+    @Override
+    public void removeAllCacheData() {
+        cache.removeAll();
+    }
 }

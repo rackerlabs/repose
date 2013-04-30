@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<client-auth xmlns="http://docs.rackspacecloud.com/repose/client-auth/v1.0">
+    <rackspace-auth delegable="false" xmlns="http://docs.rackspacecloud.com/repose/client-auth/rs-auth-1.1/v1.0">
+        <authentication-server username="auth" password="auth123" uri="http://50.57.189.15:8080/v1.1" />
+        <account-mapping id-regex="/v\d/([\w-]+)/?" type="CLOUD"/>
+        <account-mapping id-regex="/([a-zA-Z\-][a-zA-Z\-]+\d+)[^\w]/?" type="CLOUD"/>
+         <account-mapping id-regex="/no_groups/([\w-]+)/?" type="CLOUD"/>
+
+    </rackspace-auth>
+</client-auth>
