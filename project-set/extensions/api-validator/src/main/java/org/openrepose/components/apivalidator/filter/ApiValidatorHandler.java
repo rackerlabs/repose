@@ -81,9 +81,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
    }
 
    private ErrorResult getErrorResult(Result lastResult) {
-      if (lastResult instanceof MultiFailResult) {
-         return (ErrorResult) ((MultiFailResult) lastResult).reduce().get();
-      } else if (lastResult instanceof ErrorResult) {
+      if (lastResult instanceof ErrorResult) {
          return (ErrorResult) lastResult;
       }
 
