@@ -26,7 +26,7 @@ public class FileLogger implements SimpleLogger {
     private final String possibleCause= "Possible Causes: Exception coming from HTTP logging Filter, while writing to log buffer." + "\n\t\t" +
             " 1. Please put Distributed Datastore filter first in the list of filters in System model, if you are using it." + "\n\t\t" +
             " 2. Please modify your Rate Limiting configuration file (If Rate limiting filter is being used) to not have broad capture groups, that can fill the datastore and eventually logs."  + "\n\t\t"+
-            " 3. Please check your disk space and http logs size where repose HTTP loggin filter is writing to."+ "\n\t\t";
+            " 3. Please check your disk space and http logs size where repose HTTP logging filter is writing to."+ "\n\t\t";
 
     public FileLogger(File f) {
         this.f = f;
