@@ -4,7 +4,8 @@
  */
 package com.rackspace.components.compression;
 
-import com.planetj.servlet.filter.compression.CompressingFilter;
+
+import com.rackspace.external.pjlcompression.CompressingFilter;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;

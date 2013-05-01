@@ -1,11 +1,11 @@
 package com.rackspace.components.compression;
 
+import com.rackspace.external.pjlcompression.CompressingFilter;
 import com.rackspace.papi.commons.config.manager.UpdateListener;
 import com.rackspace.components.compression.util.CompressionConfigWrapper;
 import com.rackspace.papi.filter.logic.AbstractConfiguredFilterHandlerFactory;
 import java.util.Map;
 import javax.servlet.FilterConfig;
-import com.planetj.servlet.filter.compression.CompressingFilter;
 import com.rackspace.components.compression.util.CompressionParameters;
 import java.util.HashMap;
 import javax.servlet.ServletException;
