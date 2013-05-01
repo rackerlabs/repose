@@ -85,7 +85,7 @@ def start_repose():
 class TestSspnn(unittest.TestCase):
     def setUp(self):
         logger.debug('')
-        self.url = 'http://localhost:%i/multimatch/sspnn' % repose_port
+        self.url = 'http://localhost:%i/single-match/sspnn' % repose_port
 
         # set the common config files, like system model and container
         apply_configs(folder='configs/common')
@@ -158,7 +158,7 @@ class TestSspnn(unittest.TestCase):
 class TestP(unittest.TestCase):
     def setUp(self):
         logger.debug('')
-        self.url = 'http://localhost:%i/multimatch/p' % repose_port
+        self.url = 'http://localhost:%i/single-match/p' % repose_port
 
         # set the common config files, like system model and container
         apply_configs(folder='configs/common')
@@ -188,7 +188,7 @@ class TestP(unittest.TestCase):
 class TestF(unittest.TestCase):
     def setUp(self):
         logger.debug('')
-        self.url = 'http://localhost:%i/multimatch/f' % repose_port
+        self.url = 'http://localhost:%i/single-match/f' % repose_port
 
         # set the common config files, like system model and container
         apply_configs(folder='configs/common')
@@ -218,7 +218,7 @@ class TestF(unittest.TestCase):
 class TestMssfsffpnn(unittest.TestCase):
     def setUp(self):
         logger.debug('')
-        self.url = 'http://localhost:%i/multimatch/mssfsffpnn' % repose_port
+        self.url = 'http://localhost:%i/multi-match/mssfsffpnn' % repose_port
 
         # set the common config files, like system model and container
         apply_configs(folder='configs/common')
@@ -311,7 +311,7 @@ class TestMssfsffpnn(unittest.TestCase):
 class TestMp(unittest.TestCase):
     def setUp(self):
         logger.debug('')
-        self.url = 'http://localhost:%i/multimatch/mp' % repose_port
+        self.url = 'http://localhost:%i/multi-match/mp' % repose_port
 
         # set the common config files, like system model and container
         apply_configs(folder='configs/common')
@@ -341,7 +341,7 @@ class TestMp(unittest.TestCase):
 class TestMf(unittest.TestCase):
     def setUp(self):
         logger.debug('')
-        self.url = 'http://localhost:%i/multimatch/mf' % repose_port
+        self.url = 'http://localhost:%i/multi-match/mf' % repose_port
 
         # set the common config files, like system model and container
         apply_configs(folder='configs/common')
