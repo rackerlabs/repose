@@ -156,7 +156,6 @@ class TestSspnn(unittest.TestCase):
 
 
 class TestP(unittest.TestCase):
-
     def setUp(self):
         logger.debug('')
         self.url = 'http://localhost:%i/multimatch/p' % repose_port
@@ -186,17 +185,187 @@ class TestP(unittest.TestCase):
         logger.debug('repose stopped')
 
 
-#class TestF(unittest.TestCase):
-#    pass
-#
-#class TestMssfsffpnn(unittest.TestCase):
-#    pass
-#
-#class TestMp(unittest.TestCase):
-#    pass
-#
-#class TestMf(unittest.TestCase):
-#    pass
+class TestF(unittest.TestCase):
+    def setUp(self):
+        logger.debug('')
+        self.url = 'http://localhost:%i/multimatch/f' % repose_port
+
+        # set the common config files, like system model and container
+        apply_configs(folder='configs/common')
+
+        # set the validator and wadl file for this specific pattern
+        apply_configs(folder='configs/f')
+
+        self.repose = start_repose()
+
+    def test_unlisted_role(self):
+        # role-0 is not mentioned in the validator.cfg.xlm file
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-0'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    def test_f(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-1'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    def tearDown(self):
+        logger.debug('stopping repose')
+        self.repose.stop()
+        logger.debug('repose stopped')
+
+
+class TestMssfsffpnn(unittest.TestCase):
+    def setUp(self):
+        logger.debug('')
+        self.url = 'http://localhost:%i/multimatch/mssfsffpnn' % repose_port
+
+        # set the common config files, like system model and container
+        apply_configs(folder='configs/common')
+
+        # set the validator and wadl file for this specific pattern
+        apply_configs(folder='configs/mssfsffpnn')
+
+        self.repose = start_repose()
+
+    def test_unlisted_role(self):
+        # role-0 is not mentioned in the validator.cfg.xlm file
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-0'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    def test_s1(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-1'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    def test_s2(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-2'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    def test_f1(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-3'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    def test_s3(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-4'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    def test_f2(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-5'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    def test_f3(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-6'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    def test_p(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-7'})
+        self.assertEqual(mc.received_response.code, '200')
+        self.assertEqual(len(mc.handlings), 1)
+
+    def test_n1(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-8'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    def test_n2(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-9'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    # the following test_* methods check how it responds to multiple roles in
+    # different orders
+
+    def test_multi_fffp(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-3,role-5,role-6,role-7'})
+        self.assertEqual(mc.received_response.code, '200')
+        self.assertEqual(len(mc.handlings), 1)
+
+    def test_multi_fff(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-3,role-5,role-6'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    def test_multi_pn(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-7,role-8'})
+        self.assertEqual(mc.received_response.code, '200')
+        self.assertEqual(len(mc.handlings), 1)
+
+    def test_multi_order(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-7,role-3'})
+        self.assertEqual(mc.received_response.code, '200')
+        self.assertEqual(len(mc.handlings), 1)
+
+    def tearDown(self):
+        logger.debug('stopping repose')
+        self.repose.stop()
+        logger.debug('repose stopped')
+
+
+class TestMp(unittest.TestCase):
+    def setUp(self):
+        logger.debug('')
+        self.url = 'http://localhost:%i/multimatch/mp' % repose_port
+
+        # set the common config files, like system model and container
+        apply_configs(folder='configs/common')
+
+        # set the validator and wadl file for this specific pattern
+        apply_configs(folder='configs/mp')
+
+        self.repose = start_repose()
+
+    def test_unlisted_role(self):
+        # role-0 is not mentioned in the validator.cfg.xlm file
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-0'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    def test_p(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-1'})
+        self.assertEqual(mc.received_response.code, '200')
+        self.assertEqual(len(mc.handlings), 1)
+
+    def tearDown(self):
+        logger.debug('stopping repose')
+        self.repose.stop()
+        logger.debug('repose stopped')
+
+
+class TestMf(unittest.TestCase):
+    def setUp(self):
+        logger.debug('')
+        self.url = 'http://localhost:%i/multimatch/mf' % repose_port
+
+        # set the common config files, like system model and container
+        apply_configs(folder='configs/common')
+
+        # set the validator and wadl file for this specific pattern
+        apply_configs(folder='configs/mf')
+
+        self.repose = start_repose()
+
+    def test_unlisted_role(self):
+        # role-0 is not mentioned in the validator.cfg.xlm file
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-0'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    def test_f(self):
+        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-1'})
+        self.assertIn(mc.received_response.code, ['403', '404', '405' ])
+        self.assertEqual(len(mc.handlings), 0)
+
+    def tearDown(self):
+        logger.debug('stopping repose')
+        self.repose.stop()
+        logger.debug('repose stopped')
 
 
 
