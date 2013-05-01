@@ -1,0 +1,4 @@
+deproxy>=0.3
+narwhal>=0.2
+requests==1.2.0
+unittest-xml-reporting==1.4.3
