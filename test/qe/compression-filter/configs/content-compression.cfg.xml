@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<content-compression xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://docs.api.rackspacecloud.com/repose/content-compression/v1.0"
+ xmlns="http://docs.api.rackspacecloud.com/repose/content-compression/v1.0" >
+    <compression statsEnabled="true" compression-threshold="100" debug="true"/>
+</content-compression>
