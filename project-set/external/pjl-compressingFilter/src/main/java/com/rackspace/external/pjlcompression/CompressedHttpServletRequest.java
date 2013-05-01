@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.rackspace.components.compression.pjlcompression;
+package com.rackspace.external.pjlcompression;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.ServletRequest;
@@ -100,14 +100,14 @@ final class CompressedHttpServletRequest extends HttpServletRequestWrapper {
 		return isFilteredHeader(header) ? null : super.getHeader(header);
 	}
 
-	@Override
-	public Enumeration<String> getHeaders(String header) {
-		Enumeration<?> original = super.getHeaders(header);
-		if (original == null) {
-			return null; // match container's behavior exactly in this case
-		}
-		return isFilteredHeader(header) ? EmptyEnumeration.getInstance() : original;
-	}
+//	@Override
+//	public Enumeration<String> getHeaders(String header) {
+//		Enumeration<String> original = super.getHeaders(header);
+//		if (original == null) {
+//			return null; // match container's behavior exactly in this case
+//		}
+//		return isFilteredHeader(header) ? EmptyEnumeration.getInstance() : original;
+//	}
 
 	@Override
 	public long getDateHeader(String header) {
@@ -119,21 +119,21 @@ final class CompressedHttpServletRequest extends HttpServletRequestWrapper {
 		return isFilteredHeader(header) ? -1 : super.getIntHeader(header);
 	}
 
-	@Override
-	public Enumeration<String> getHeaderNames() {
-		Enumeration<String> original = super.getHeaderNames();
-		if (original == null) {
-			return null; // match container's behavior exactly in this case
-		}
-		Collection<String> headerNames = new ArrayList<String>();
-		while (original.hasMoreElements()) {
-			String headerName = (String) original.nextElement();
-			if (!isFilteredHeader(headerName)) {
-				headerNames.add(headerName);
-			}
-		}
-		return new IteratorEnumeration(headerNames.iterator());
-	}
+//	@Override
+//	public Enumeration<String> getHeaderNames() {
+//		Enumeration<String> original = super.getHeaderNames();
+//		if (original == null) {
+//			return null; // match container's behavior exactly in this case
+//		}
+//		Collection<String> headerNames = new ArrayList<String>();
+//		while (original.hasMoreElements()) {
+//			String headerName = (String) original.nextElement();
+//			if (!isFilteredHeader(headerName)) {
+//				headerNames.add(headerName);
+//			}
+//		}
+//		return new IteratorEnumeration(headerNames.iterator());
+//	}
 
 	@Override
 	public String toString() {

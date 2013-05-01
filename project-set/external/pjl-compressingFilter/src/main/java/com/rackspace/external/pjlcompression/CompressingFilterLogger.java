@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.rackspace.components.compression.pjlcompression;
+package com.rackspace.external.pjlcompression;
 
 public interface CompressingFilterLogger {
 	void log(String message);

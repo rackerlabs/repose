@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.rackspace.components.compression.pjlcompression;
+package com.rackspace.external.pjlcompression;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.rackspace.components.compression.pjlcompression;
+package com.rackspace.external.pjlcompression;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

@@ -15,7 +15,7 @@
  */
 
 
-package com.rackspace.components.compression.pjlcompression;
+package com.rackspace.external.pjlcompression;
 
 import java.io.IOException;
 import java.io.InputStream;

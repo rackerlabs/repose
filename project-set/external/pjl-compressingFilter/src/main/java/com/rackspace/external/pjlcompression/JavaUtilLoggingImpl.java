@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.rackspace.components.compression.pjlcompression;
+package com.rackspace.external.pjlcompression;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
