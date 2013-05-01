@@ -49,7 +49,7 @@
     
     
     <scm>
-        <connection>scm:git:ssh://git@github.com/rackspace/repose.git</connection>
+        <connection>scm:git:ssh://git@github.com/rackerlabs/repose.git</connection>
     </scm>
     
     <repositories>
