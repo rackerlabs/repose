@@ -51,7 +51,7 @@ public class CompressionHandler extends AbstractFilterLogicHandler {
          myDirector.setResponseStatusCode(response.getStatus());
       } catch (IOException ex) {
          LOG.error("IOException with Compression filter", ex);
-         myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
+         myDirector.setResponseStatus(HttpStatusCode.fromInt(response.getStatus()));
       } catch (ServletException ex) {
          LOG.error("Servlet error within Compression Filter", ex);
          myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
