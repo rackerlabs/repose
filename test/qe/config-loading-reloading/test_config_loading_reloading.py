@@ -6,7 +6,6 @@ import requests
 import time
 import sys
 import unittest
-#import install_repose
 import xmlrunner as _xmlrunner
 import logging
 import SocketServer
@@ -14,6 +13,7 @@ import BaseHTTPServer
 import threading
 import os
 import os.path
+import argparse
 
 
 logger = logging.getLogger(__name__)
@@ -347,31 +347,23 @@ class TestVersioningConfig(TestConfigLoadingReloading):
 
 
 def run():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--print-log', action='store_true',
+                        help='Print the log.')
+    args = parser.parse_args()
+
+    if args.print_log:
+        logging.basicConfig(level=logging.DEBUG,
+                            format=('%(asctime)s %(levelname)s:%(name)s:'
+                                    '%(funcName)s:'
+                                    '%(filename)s(%(lineno)d):'
+                                    '%(threadName)s(%(thread)d):%(message)s'))
+
+    test_runner = _xmlrunner.XMLTestRunner(output='test-reports')
+
     try:
         setUpModule()
-
-        suite = unittest.TestSuite()
-
-        loader = unittest.TestLoader()
-        load_tests = loader.loadTestsFromTestCase
-        suite.addTest(load_tests(TestClientAuthNConfig))
-        suite.addTest(load_tests(TestContainerConfig))
-        suite.addTest(load_tests(TestDistDatastoreConfig))
-        suite.addTest(load_tests(TestHeaderIdentityConfig))
-        suite.addTest(load_tests(TestHttpLoggingConfig))
-        suite.addTest(load_tests(TestIpIdentityConfig))
-        suite.addTest(load_tests(TestOpenstackAuthorizationConfig))
-        suite.addTest(load_tests(TestRateLimitingConfig))
-        suite.addTest(load_tests(TestResponseMessagingConfig))
-        suite.addTest(load_tests(TestSystemModelConfig))
-        suite.addTest(load_tests(TestTranslationConfig))
-        suite.addTest(load_tests(TestUriIdentityConfig))
-        suite.addTest(load_tests(TestVersioningConfig))
-
-        testRunner = _xmlrunner.XMLTestRunner(output='test-reports')
-
-        result = testRunner.run(suite)
-
+        unittest.main(argv=[''], testRunner=test_runner)
     finally:
         tearDownModule()
 

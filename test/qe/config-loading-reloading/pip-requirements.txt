@@ -1,3 +1,4 @@
 unittest-xml-reporting
 requests
 narwhal
+argparse
