@@ -81,7 +81,7 @@ repose_url = 'http://localhost:%s' % repose_port
 config_params = {'port': str(repose_port),
                  'target_hostname': 'localhost',
                  'target_port': mock_port}
-sleep_time = 25
+sleep_time = 35
 request_timeout = 30
 
 
