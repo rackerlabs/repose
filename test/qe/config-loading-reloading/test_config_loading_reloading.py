@@ -14,6 +14,7 @@ import threading
 import os
 import os.path
 import argparse
+import deproxy
 
 
 logger = logging.getLogger(__name__)
@@ -23,29 +24,6 @@ mock_service = None
 mock_url = 'http://localhost:%i/' % mock_port
 
 
-class MockService(SocketServer.ThreadingMixIn, BaseHTTPServer.HTTPServer):
-    pass
-
-
-class MockServiceHandler(BaseHTTPServer.BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        return
-
-    def log_message(self, format, *args):
-        # override the log_message method to prevent the base class from
-        # printing to stderr
-        logger.info("%s - - [%s] %s\n" % (self.client_address[0],
-                                          self.log_date_time_string(),
-                                          format % args))
-
-
-def mock_service_thread():
-    logger.debug('thread created for mock service')
-    mock_service.serve_forever()
-
-
 def create_mock():
     # create a simple HTTP server that returns a 200 response to all requests
     logger.debug('create_mock')
@@ -53,25 +31,14 @@ def create_mock():
     if mock_service is not None:
         return
 
-    # create the mock service object, but don't start it yet
-    mock_service = MockService(('localhost', mock_port), MockServiceHandler)
-    logger.debug('mock service created')
-
-    # start the mock server on a separate thread, so that we can make
-    # requests at the same time that i's serving them.
-    t = threading.Thread(target=mock_service_thread)
-    t.daemon = True
-    t.start()
-
-    requests.get(mock_url)
-    logger.debug('mock service is serving requests.')
+    mock_service = deproxy.Deproxy()
+    mock_service.add_endpoint(('localhost', mock_port))
 
 
 def destroy_mock():
-    global mock_service
     if mock_service is None:
         return
-    mock_service.shutdown()
+    mock_service.shutdown_all_endpoints()
 
 
 def setUpModule():
