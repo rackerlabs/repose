@@ -87,6 +87,10 @@ request_timeout = 30
 
 class TestConfigLoadingReloading(unittest.TestCase):
     def setUp(self):
+        if self.__class__.__name__ in { 'TestConfigLoadingReloading',
+                                        'TestNonStartingOnBadConfig' }:
+            self.skipTest('Abstract base class')
+            return
         logger.debug('setUp (%s)' % self.__class__.__name__)
         name = self.get_name()
         self.config_good = 'configs/%s-good/.config-set.xml' % name
