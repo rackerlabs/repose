@@ -3,7 +3,7 @@
 
 unittest-xml-reporting==1.4.3
 requests==1.2.0
-narwhal==0.2
+narwhal==0.3
 argparse==1.2.1
 deproxy==0.3
 
