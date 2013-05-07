@@ -197,6 +197,8 @@ public final class CompressingFilter implements Filter {
    static final String VERSION_STRING = CompressingFilter.class.getName() + '/' + VERSION;
    private CompressingFilterContext context;
    private CompressingFilterLogger logger;
+   //Flag to indicate whether this request is being run through Repose
+   private boolean isForRepose = false;
 
    public void init(FilterConfig config) throws ServletException {
       assert config != null;
@@ -238,9 +240,11 @@ public final class CompressingFilter implements Filter {
       if (attemptingToCompressResponse) {
 
          //Repose does not write to the output stream unless data is written. This is for performance (since we don't always read the response body)
-         //This is the modification to CompressingFilter where we manually flush the output stream so as teh CompressingHttpServletResponse can comrpess the response.
-         MutableHttpServletResponse resp = MutableHttpServletResponse.wrap((HttpServletRequest) request, (HttpServletResponse) chainResponse);
-         resp.commitBufferToServletOutputStream();
+         //This is the modification to CompressingFilter where we manually flush the output stream so as the CompressingHttpServletResponse can comrpess the response.
+         if (isForRepose) {
+            MutableHttpServletResponse resp = MutableHttpServletResponse.wrap((HttpServletRequest) request, (HttpServletResponse) chainResponse);
+            resp.commitBufferToServletOutputStream();
+         }
          CompressingHttpServletResponse compressingResponse = (CompressingHttpServletResponse) chainResponse;
 
 
@@ -291,7 +295,7 @@ public final class CompressingFilter implements Filter {
          logger.logDebug("Can't decompress request with encoding: " + contentEncoding);
          return null;
       }
-      
+
       if (CompressingStreamFactory.NO_ENCODING.equalsIgnoreCase(contentEncoding)) {
          logger.logDebug("Can't decompress request with encoding: " + contentEncoding);
          return null;
@@ -422,5 +426,9 @@ public final class CompressingFilter implements Filter {
    @Override
    public String toString() {
       return VERSION_STRING;
+   }
+   
+   public void setForRepose() {
+      isForRepose = true;
    }
 }
