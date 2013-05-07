@@ -34,8 +34,6 @@ import itertools
 logger = logging.getLogger(__name__)
 
 
-#this 
-
 config_dir = pathutil.join(os.getcwd(), 'etc/repose')
 deployment_dir = pathutil.join(os.getcwd(), 'var/repose')
 artifact_dir = pathutil.join(os.getcwd(), 'usr/share/repose/filters')
@@ -183,12 +181,14 @@ class TestMssfsffpnn(unittest.TestCase):
         cls.repose = configure_and_start_repose(folder='configs/mssfsffpnn')
 
     def test_mssfsffpnn(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-3,role-5,role-6,role-7'})
+        mc = d.make_request(url=url, headers={'X-Roles':
+                                              'role-3,role-5,role-6,role-7'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
     def test_mssfsffsss(self):
-        mc = d.make_request(url=url, headers={'X-Roles': 'role-3,role-5,role-6'})
+        mc = d.make_request(url=url, headers={'X-Roles':
+                                              'role-3,role-5,role-6'})
         self.assertEqual(mc.received_response.code, '405')
         self.assertEqual(len(mc.handlings), 0)
 
@@ -250,8 +250,6 @@ class TestMf(unittest.TestCase):
         logger.debug('repose stopped')
 
 
-
-
 def run():
     global deproxy_port
     global stop_port
@@ -293,7 +291,3 @@ def run():
 
 if __name__ == '__main__':
     run()
-
-
-
-
