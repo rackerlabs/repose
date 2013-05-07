@@ -20,7 +20,7 @@ the system model.
 """
 
 from narwhal import repose
-import unittest
+import unittest2 as unittest
 from narwhal import conf
 from narwhal import pathutil
 import xmlrunner as xmlrunner
