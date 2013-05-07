@@ -8,9 +8,7 @@
     <grammars>
     </grammars>
     <resources base="http://localhost:${port}/">
-        <resource path="multi-match">
-            <resource path="mf">
-            </resource>
+        <resource path="resource">
         </resource>
     </resources>
 </application>

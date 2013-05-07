@@ -8,11 +8,9 @@
     <grammars>
     </grammars>
     <resources base="http://localhost:${port}/">
-        <resource path="single-match">
-            <resource path="p">
-                    <method name="GET" id="getContainer">
-                    </method>
-            </resource>
+        <resource path="resource">
+            <method name="GET" id="getContainer">
+            </method>
         </resource>
     </resources>
 </application>

@@ -23,7 +23,7 @@ from narwhal import repose
 import unittest
 from narwhal import conf
 from narwhal import pathutil
-import xmlrunner as _xmlrunner
+import xmlrunner as xmlrunner
 import logging
 import time
 import argparse
@@ -44,6 +44,7 @@ repose_port = 5555
 stop_port = 7777
 deproxy_port = 10101
 d = None
+url = None
 params = {
     'target_hostname': 'localhost',
     'target_port': deproxy_port,
@@ -62,6 +63,9 @@ def setUpModule():
     if d is None:
         d = deproxy.Deproxy()
         d.add_endpoint(('localhost', deproxy_port))
+
+    global url
+    url = 'http://localhost:%i/resource' % repose_port
 
 
 def tearDownModule():
@@ -85,7 +89,6 @@ def start_repose():
 class TestSspnn(unittest.TestCase):
     def setUp(self):
         logger.debug('')
-        self.url = 'http://localhost:%i/single-match/sspnn' % repose_port
 
         # set the common config files, like system model and container
         apply_configs(folder='configs/common')
@@ -97,32 +100,32 @@ class TestSspnn(unittest.TestCase):
 
     def test_unlisted_role(self):
         # role-0 is not mentioned in the validator.cfg.xlm file
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-0'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-0'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
     def test_s1(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-1'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-1'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
     def test_s2(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-2'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-2'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
     def test_p(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-3'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-3'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
     def test_n1(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-4'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-4'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
     def test_n2(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-5'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-5'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
@@ -130,22 +133,22 @@ class TestSspnn(unittest.TestCase):
     # different orders
 
     def test_pass_first_of_two(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-3,role-4'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-3,role-4'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
     def test_pass_second_of_two(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-4,role-3'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-4,role-3'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
     def test_fail_first_of_two(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-2,role-3'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-2,role-3'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
     def test_fail_second_of_two(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-3,role-2'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-3,role-2'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
@@ -158,7 +161,6 @@ class TestSspnn(unittest.TestCase):
 class TestP(unittest.TestCase):
     def setUp(self):
         logger.debug('')
-        self.url = 'http://localhost:%i/single-match/p' % repose_port
 
         # set the common config files, like system model and container
         apply_configs(folder='configs/common')
@@ -170,12 +172,12 @@ class TestP(unittest.TestCase):
 
     def test_unlisted_role(self):
         # role-0 is not mentioned in the validator.cfg.xlm file
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-0'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-0'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
     def test_p(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-1'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-1'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
@@ -188,7 +190,6 @@ class TestP(unittest.TestCase):
 class TestF(unittest.TestCase):
     def setUp(self):
         logger.debug('')
-        self.url = 'http://localhost:%i/single-match/f' % repose_port
 
         # set the common config files, like system model and container
         apply_configs(folder='configs/common')
@@ -200,12 +201,12 @@ class TestF(unittest.TestCase):
 
     def test_unlisted_role(self):
         # role-0 is not mentioned in the validator.cfg.xlm file
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-0'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-0'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
     def test_f(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-1'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-1'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
@@ -218,7 +219,6 @@ class TestF(unittest.TestCase):
 class TestMssfsffpnn(unittest.TestCase):
     def setUp(self):
         logger.debug('')
-        self.url = 'http://localhost:%i/multi-match/mssfsffpnn' % repose_port
 
         # set the common config files, like system model and container
         apply_configs(folder='configs/common')
@@ -230,52 +230,52 @@ class TestMssfsffpnn(unittest.TestCase):
 
     def test_unlisted_role(self):
         # role-0 is not mentioned in the validator.cfg.xlm file
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-0'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-0'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
     def test_s1(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-1'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-1'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
     def test_s2(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-2'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-2'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
     def test_f1(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-3'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-3'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
     def test_s3(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-4'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-4'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
     def test_f2(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-5'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-5'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
     def test_f3(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-6'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-6'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
     def test_p(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-7'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-7'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
     def test_n1(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-8'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-8'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
     def test_n2(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-9'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-9'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
@@ -283,22 +283,22 @@ class TestMssfsffpnn(unittest.TestCase):
     # different orders
 
     def test_multi_fffp(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-3,role-5,role-6,role-7'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-3,role-5,role-6,role-7'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
     def test_multi_fff(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-3,role-5,role-6'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-3,role-5,role-6'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
     def test_multi_pn(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-7,role-8'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-7,role-8'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
     def test_multi_order(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-7,role-3'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-7,role-3'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
@@ -311,7 +311,6 @@ class TestMssfsffpnn(unittest.TestCase):
 class TestMp(unittest.TestCase):
     def setUp(self):
         logger.debug('')
-        self.url = 'http://localhost:%i/multi-match/mp' % repose_port
 
         # set the common config files, like system model and container
         apply_configs(folder='configs/common')
@@ -323,12 +322,12 @@ class TestMp(unittest.TestCase):
 
     def test_unlisted_role(self):
         # role-0 is not mentioned in the validator.cfg.xlm file
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-0'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-0'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
     def test_p(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-1'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-1'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
@@ -341,7 +340,6 @@ class TestMp(unittest.TestCase):
 class TestMf(unittest.TestCase):
     def setUp(self):
         logger.debug('')
-        self.url = 'http://localhost:%i/multi-match/mf' % repose_port
 
         # set the common config files, like system model and container
         apply_configs(folder='configs/common')
@@ -353,12 +351,12 @@ class TestMf(unittest.TestCase):
 
     def test_unlisted_role(self):
         # role-0 is not mentioned in the validator.cfg.xlm file
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-0'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-0'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
     def test_f(self):
-        mc = d.make_request(url=self.url, headers={'X-Roles': 'role-1'})
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-1'})
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
@@ -371,7 +369,21 @@ class TestMf(unittest.TestCase):
 
 
 def run():
+    global deproxy_port
+    global stop_port
+    global repose_port
+
     parser = argparse.ArgumentParser()
+    parser.add_argument('--repose-port', help='The port Repose will listen on '
+                        'for requests. The default is %i.' % repose_port,
+                        default=repose_port, type=int)
+    parser.add_argument('--stop-port', help='The port Repose will listen on '
+                        'for the stop command. The default is %i.' % stop_port,
+                        default=stop_port, type=int)
+    parser.add_argument('--deproxy-port', help='The port Deproxy will listen '
+                        'on for requests forwarded from Repose. The default '
+                        'is %i.' % deproxy_port, default=deproxy_port,
+                        type=int)
     parser.add_argument('--print-log', action='store_true',
                         help='Print the log.')
     args = parser.parse_args()
@@ -383,9 +395,15 @@ def run():
                                     '%(filename)s(%(lineno)d):'
                                     '%(threadName)s(%(thread)d):%(message)s'))
 
-    setUpModule()
+    deproxy_port = args.deproxy_port
+    repose_port = args.repose_port
+    stop_port = args.stop_port
+
+    test_runner = xmlrunner.XMLTestRunner(output='test-reports')
+
     try:
-        unittest.main(argv=[''])
+        setUpModule()
+        unittest.main(argv=[''], testRunner=test_runner)
     finally:
         tearDownModule()
 
