@@ -40,6 +40,16 @@
             </plugin>
         </plugins>
     </build>
+
+    <repositories>
+        <repository>
+            <id>jboss-third-pary</id>
+            
+            <name>JBoss Thirdparty Releases</name>
+            <url>https://repository.jboss.org/nexus/content/repositories/thirdparty-releases</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>com.rackspace.papi.commons</groupId>
@@ -47,5 +57,21 @@
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>
+
+        <dependency>
+          <groupId>com.mockrunner</groupId>
+          <artifactId>mockrunner</artifactId>
+          <version>0.4.1</version>
+          <scope>test</scope>
+        </dependency>
+
+        <dependency>
+           <groupId>org.jboss.spec</groupId>
+           <artifactId>jboss-javaee-6.0</artifactId>
+           <version>1.0.0.Final</version>
+           <type>pom</type>
+           <scope>test</scope>
+        </dependency>
+
     </dependencies>
 </project>
