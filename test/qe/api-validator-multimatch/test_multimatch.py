@@ -291,6 +291,78 @@ class TestMf(unittest.TestCase):
         logger.debug('repose stopped')
 
 
+class TestMultimatchMatchDefaults1(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        logger.debug('')
+        cls.repose = configure_and_start_repose(folder='configs/m-default-1')
+
+    def test_ssf_default_p(self):
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-3'})
+        self.assertEqual(mc.received_response.code, '200')
+        self.assertEqual(len(mc.handlings), 1)
+
+    @classmethod
+    def tearDownClass(cls):
+        logger.debug('stopping repose')
+        cls.repose.stop()
+        logger.debug('repose stopped')
+
+
+class TestMultimatchMatchDefaults2(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        logger.debug('')
+        cls.repose = configure_and_start_repose(folder='configs/m-default-2')
+
+    def test_ssp_default_f(self):
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-3'})
+        self.assertEqual(mc.received_response.code, '200')
+        self.assertEqual(len(mc.handlings), 1)
+
+    @classmethod
+    def tearDownClass(cls):
+        logger.debug('stopping repose')
+        cls.repose.stop()
+        logger.debug('repose stopped')
+
+
+class TestMultimatchMatchDefaults3(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        logger.debug('')
+        cls.repose = configure_and_start_repose(folder='configs/m-default-3')
+
+    def test_ssf_default_f(self):
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-3'})
+        self.assertEqual(mc.received_response.code, '405')
+        self.assertEqual(len(mc.handlings), 0)
+
+    @classmethod
+    def tearDownClass(cls):
+        logger.debug('stopping repose')
+        cls.repose.stop()
+        logger.debug('repose stopped')
+
+
+class TestMultimatchMatchDefaults4(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        logger.debug('')
+        cls.repose = configure_and_start_repose(folder='configs/m-default-4')
+
+    def test_sss_default_f(self):
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-0'})
+        self.assertEqual(mc.received_response.code, '404')
+        self.assertEqual(len(mc.handlings), 0)
+
+    @classmethod
+    def tearDownClass(cls):
+        logger.debug('stopping repose')
+        cls.repose.stop()
+        logger.debug('repose stopped')
+
+
 def run():
     global deproxy_port
     global stop_port
