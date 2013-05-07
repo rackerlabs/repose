@@ -118,8 +118,6 @@
       <xs:restriction base="xs:string">
          <xs:enumeration value="gzip"/>
          <xs:enumeration value="x-gzip"/>
-         <xs:enumeration value="compress"/>
-         <xs:enumeration value="x-compress"/>
          <xs:enumeration value="deflate"/>
          <xs:enumeration value="identity"/>
       </xs:restriction>
