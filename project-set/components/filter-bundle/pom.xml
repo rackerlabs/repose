@@ -127,6 +127,11 @@
             <artifactId>flush-output</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.rackspace.papi.components</groupId>
+            <artifactId>compression</artifactId>
+        </dependency>
+
     </dependencies>
 
     <build>
@@ -232,6 +237,11 @@
                         <jarModule>
                             <groupId>com.rackspace.papi.components</groupId>
                             <artifactId>client-authorization</artifactId>
+                        </jarModule>
+
+                        <jarModule>
+                            <groupId>com.rackspace.papi.components</groupId>
+                            <artifactId>compression</artifactId>
                         </jarModule>
                     </modules>
                 </configuration>
