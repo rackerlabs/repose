@@ -87,7 +87,8 @@ def start_repose():
 
 
 class TestSspnn(unittest.TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         logger.debug('')
 
         # set the common config files, like system model and container
@@ -96,7 +97,7 @@ class TestSspnn(unittest.TestCase):
         # set the validator and wadl file for this specific pattern
         apply_configs(folder='configs/sspnn')
 
-        self.repose = start_repose()
+        cls.repose = start_repose()
 
     def test_unlisted_role(self):
         # role-0 is not mentioned in the validator.cfg.xlm file
@@ -152,14 +153,16 @@ class TestSspnn(unittest.TestCase):
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
         logger.debug('stopping repose')
-        self.repose.stop()
+        cls.repose.stop()
         logger.debug('repose stopped')
 
 
 class TestP(unittest.TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         logger.debug('')
 
         # set the common config files, like system model and container
@@ -168,7 +171,7 @@ class TestP(unittest.TestCase):
         # set the validator and wadl file for this specific pattern
         apply_configs(folder='configs/p')
 
-        self.repose = start_repose()
+        cls.repose = start_repose()
 
     def test_unlisted_role(self):
         # role-0 is not mentioned in the validator.cfg.xlm file
@@ -181,14 +184,16 @@ class TestP(unittest.TestCase):
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
         logger.debug('stopping repose')
-        self.repose.stop()
+        cls.repose.stop()
         logger.debug('repose stopped')
 
 
 class TestF(unittest.TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         logger.debug('')
 
         # set the common config files, like system model and container
@@ -197,7 +202,7 @@ class TestF(unittest.TestCase):
         # set the validator and wadl file for this specific pattern
         apply_configs(folder='configs/f')
 
-        self.repose = start_repose()
+        cls.repose = start_repose()
 
     def test_unlisted_role(self):
         # role-0 is not mentioned in the validator.cfg.xlm file
@@ -210,14 +215,16 @@ class TestF(unittest.TestCase):
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
         logger.debug('stopping repose')
-        self.repose.stop()
+        cls.repose.stop()
         logger.debug('repose stopped')
 
 
 class TestMssfsffpnn(unittest.TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         logger.debug('')
 
         # set the common config files, like system model and container
@@ -226,7 +233,7 @@ class TestMssfsffpnn(unittest.TestCase):
         # set the validator and wadl file for this specific pattern
         apply_configs(folder='configs/mssfsffpnn')
 
-        self.repose = start_repose()
+        cls.repose = start_repose()
 
     def test_unlisted_role(self):
         # role-0 is not mentioned in the validator.cfg.xlm file
@@ -302,14 +309,16 @@ class TestMssfsffpnn(unittest.TestCase):
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
         logger.debug('stopping repose')
-        self.repose.stop()
+        cls.repose.stop()
         logger.debug('repose stopped')
 
 
 class TestMp(unittest.TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         logger.debug('')
 
         # set the common config files, like system model and container
@@ -318,7 +327,7 @@ class TestMp(unittest.TestCase):
         # set the validator and wadl file for this specific pattern
         apply_configs(folder='configs/mp')
 
-        self.repose = start_repose()
+        cls.repose = start_repose()
 
     def test_unlisted_role(self):
         # role-0 is not mentioned in the validator.cfg.xlm file
@@ -331,14 +340,16 @@ class TestMp(unittest.TestCase):
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
         logger.debug('stopping repose')
-        self.repose.stop()
+        cls.repose.stop()
         logger.debug('repose stopped')
 
 
 class TestMf(unittest.TestCase):
-    def setUp(self):
+    @classmethod
+    def setUpClass(cls):
         logger.debug('')
 
         # set the common config files, like system model and container
@@ -347,7 +358,7 @@ class TestMf(unittest.TestCase):
         # set the validator and wadl file for this specific pattern
         apply_configs(folder='configs/mf')
 
-        self.repose = start_repose()
+        cls.repose = start_repose()
 
     def test_unlisted_role(self):
         # role-0 is not mentioned in the validator.cfg.xlm file
@@ -360,9 +371,10 @@ class TestMf(unittest.TestCase):
         self.assertIn(mc.received_response.code, ['403', '404', '405' ])
         self.assertEqual(len(mc.handlings), 0)
 
-    def tearDown(self):
+    @classmethod
+    def tearDownClass(cls):
         logger.debug('stopping repose')
-        self.repose.stop()
+        cls.repose.stop()
         logger.debug('repose stopped')
 
 
