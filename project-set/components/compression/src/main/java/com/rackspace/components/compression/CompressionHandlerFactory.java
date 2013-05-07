@@ -66,6 +66,7 @@ public class CompressionHandlerFactory extends AbstractConfiguredFilterHandlerFa
          filter = new CompressingFilter();
          try {
             filter.init(config);
+            filter.setForRepose();
             isInitialized = true;
          } catch (ServletException ex) {
             LOG.error("Unable to initialize content compression filter");
