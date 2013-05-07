@@ -192,6 +192,29 @@ class TestSfn(unittest.TestCase):
         logger.debug('repose stopped')
 
 
+class TestSingleMatchDefaults(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        logger.debug('')
+        cls.repose = configure_and_start_repose(folder='configs/s-default')
+
+    def test_normal(self):
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-1'})
+        self.assertEqual(mc.received_response.code, '404')
+        self.assertEqual(len(mc.handlings), 0)
+
+    def test_activate_default(self):
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-0'})
+        self.assertEqual(mc.received_response.code, '405')
+        self.assertEqual(len(mc.handlings), 0)
+
+    @classmethod
+    def tearDownClass(cls):
+        logger.debug('stopping repose')
+        cls.repose.stop()
+        logger.debug('repose stopped')
+
+
 class TestMssfsffpnn(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
