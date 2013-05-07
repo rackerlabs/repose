@@ -86,18 +86,19 @@ def start_repose():
                               wait_on_start=True, port=repose_port)
 
 
+def configure_and_start_repose(folder):
+    # set the common config files, like system model and container
+    apply_configs(folder='configs/common')
+    # set the pattern-specific config files, i.e. validator.cfg.xml
+    apply_configs(folder=folder)
+    return start_repose()
+
+
 class TestSspnn(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-
-        # set the common config files, like system model and container
-        apply_configs(folder='configs/common')
-
-        # set the validator and wadl file for this specific pattern
-        apply_configs(folder='configs/sspnn')
-
-        cls.repose = start_repose()
+        cls.repose = configure_and_start_repose(folder='configs/sspnn')
 
     def test_unlisted_role(self):
         # role-0 is not mentioned in the validator.cfg.xlm file
@@ -164,14 +165,7 @@ class TestP(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-
-        # set the common config files, like system model and container
-        apply_configs(folder='configs/common')
-
-        # set the validator and wadl file for this specific pattern
-        apply_configs(folder='configs/p')
-
-        cls.repose = start_repose()
+        cls.repose = configure_and_start_repose(folder='configs/p')
 
     def test_unlisted_role(self):
         # role-0 is not mentioned in the validator.cfg.xlm file
@@ -195,14 +189,7 @@ class TestF(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-
-        # set the common config files, like system model and container
-        apply_configs(folder='configs/common')
-
-        # set the validator and wadl file for this specific pattern
-        apply_configs(folder='configs/f')
-
-        cls.repose = start_repose()
+        cls.repose = configure_and_start_repose(folder='configs/f')
 
     def test_unlisted_role(self):
         # role-0 is not mentioned in the validator.cfg.xlm file
@@ -226,14 +213,7 @@ class TestMssfsffpnn(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-
-        # set the common config files, like system model and container
-        apply_configs(folder='configs/common')
-
-        # set the validator and wadl file for this specific pattern
-        apply_configs(folder='configs/mssfsffpnn')
-
-        cls.repose = start_repose()
+        cls.repose = configure_and_start_repose(folder='configs/mssfsffpnn')
 
     def test_unlisted_role(self):
         # role-0 is not mentioned in the validator.cfg.xlm file
@@ -320,14 +300,7 @@ class TestMp(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-
-        # set the common config files, like system model and container
-        apply_configs(folder='configs/common')
-
-        # set the validator and wadl file for this specific pattern
-        apply_configs(folder='configs/mp')
-
-        cls.repose = start_repose()
+        cls.repose = configure_and_start_repose(folder='configs/mp')
 
     def test_unlisted_role(self):
         # role-0 is not mentioned in the validator.cfg.xlm file
@@ -351,14 +324,7 @@ class TestMf(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-
-        # set the common config files, like system model and container
-        apply_configs(folder='configs/common')
-
-        # set the validator and wadl file for this specific pattern
-        apply_configs(folder='configs/mf')
-
-        cls.repose = start_repose()
+        cls.repose = configure_and_start_repose(folder='configs/mf')
 
     def test_unlisted_role(self):
         # role-0 is not mentioned in the validator.cfg.xlm file
