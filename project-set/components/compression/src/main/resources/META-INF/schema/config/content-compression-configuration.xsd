@@ -61,7 +61,7 @@
          </xs:annotation>
       </xs:attribute>
       
-      <xs:attribute name="include-content-types" type="content-compression:CompressionAlgorithmsList" use="optional">
+      <xs:attribute name="include-content-types" type="content-compression:StringList" use="optional">
          <xs:annotation>
             <xs:documentation>
                <html:p>enables collection of statistics.</html:p>
@@ -69,7 +69,7 @@
          </xs:annotation>
       </xs:attribute>
       
-      <xs:attribute name="exclude-content-types" type="content-compression:CompressionAlgorithmsList" use="optional">
+      <xs:attribute name="exclude-content-types" type="content-compression:StringList" use="optional">
          <xs:annotation>
             <xs:documentation>
                <html:p>enables collection of statistics.</html:p>

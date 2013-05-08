@@ -38,7 +38,7 @@ public class CompressionHandlerFactoryTest {
       comp = new Compression();
       comp.setCompressionThreshold(1024);
       comp.setDebug(Boolean.TRUE);
-      comp.getIncludeContentTypes().add(CompressionAlgorithms.GZIP);
+      comp.getIncludeContentTypes().add("application/xml");
 
       config = new ContentCompressionConfig();
       config.setCompression(comp);
