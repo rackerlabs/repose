@@ -13,7 +13,7 @@ if ! test -f "$chef_binary"; then
         --force-yes -fuy dist-upgrade &&
     # Install Ruby and Chef
     aptitude install -y ruby1.9.1 ruby1.9.1-dev make rubygems1.9.1 libopenssl-ruby1.9.1 &&
-    sudo gem1.9.1 install --no-rdoc --no-ri chef --version 10.16.4
+    sudo gem1.9.1 install --no-rdoc --no-ri chef --version 10.12.0
 fi 
 ln -s /var/lib/gems/1.9.1/bin/chef-solo /usr/bin/chef-solo 
 ln -s /usr/bin/ruby1.9.1 /usr/bin/ruby
