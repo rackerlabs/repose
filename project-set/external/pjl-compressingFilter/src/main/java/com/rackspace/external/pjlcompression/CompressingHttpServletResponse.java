@@ -457,6 +457,7 @@ final class CompressingHttpServletResponse extends HttpServletResponseWrapper {
 	}
 
 	private boolean mustNotCompress() {
+     contentTypeOK = isCompressableContentType(this.httpResponse.getHeader("content-type"));
 		if (!contentTypeOK) {
 			logger.logDebug("Will not compress since configuration excludes this content type");
 			return true;
