@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<application xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+   xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+   xmlns:rax="http://docs.rackspace.com/api"
+   xmlns="http://wadl.dev.java.net/2009/02"
+   xmlns:test="http://test.openrespose/test/v1.1" >
+
+    <grammars>
+    </grammars>
+    <resources base="http://localhost:${port}/">
+        <resource path="resource">
+            <method name="GET" id="getContainer">
+            </method>
+        </resource>
+    </resources>
+</application>
