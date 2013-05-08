@@ -242,7 +242,7 @@ class TestSspnn(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-        cls.repose = configure_and_start_repose(folder='configs/sspnn')
+        cls.repose = configure_and_start_repose(folder='configs/f4f4pf5f5')
 
     def test_sspnn(self):
         mc = d.make_request(url=url, headers={'X-Roles': 'role-3'})
@@ -306,7 +306,7 @@ class TestF(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-        cls.repose = configure_and_start_repose(folder='configs/f')
+        cls.repose = configure_and_start_repose(folder='configs/f4')
 
     def test_f(self):
         mc = d.make_request(url=url, headers={'X-Roles': 'role-1'})
@@ -324,7 +324,7 @@ class TestSfn(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-        cls.repose = configure_and_start_repose(folder='configs/sfn')
+        cls.repose = configure_and_start_repose(folder='configs/pf4f5')
 
     def test_sfn(self):
         mc = d.make_request(url=url, headers={'X-Roles': 'role-2'})
@@ -365,7 +365,8 @@ class TestMssfsffpnn(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-        cls.repose = configure_and_start_repose(folder='configs/mssfsffpnn')
+        cls.repose = configure_and_start_repose(
+                        folder='configs/mf4f4f5f4f5f5pf4f4')
 
     def test_mssfsffpnn(self):
         mc = d.make_request(url=url, headers={'X-Roles':
@@ -423,7 +424,7 @@ class TestMf(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-        cls.repose = configure_and_start_repose(folder='configs/mf')
+        cls.repose = configure_and_start_repose(folder='configs/mf4')
 
     def test_f(self):
         mc = d.make_request(url=url, headers={'X-Roles': 'role-1'})
