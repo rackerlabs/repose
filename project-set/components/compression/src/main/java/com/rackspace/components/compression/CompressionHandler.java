@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
 import java.io.IOException;
+import java.util.zip.ZipException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,10 @@ public class CompressionHandler extends AbstractFilterLogicHandler {
          
          filter.doFilter(mutableHttpRequest, response, chain);
          myDirector.setResponseStatusCode(response.getStatus());
-      } catch (IOException ex) {
+      } catch(ZipException zp){
+         LOG.warn("Unable to Decompress request message");
+         myDirector.setResponseStatus(HttpStatusCode.BAD_REQUEST);
+      }catch (IOException ex) {
          LOG.error("IOException with Compression filter", ex);
          myDirector.setResponseStatus(HttpStatusCode.fromInt(response.getStatus()));
       } catch (ServletException ex) {

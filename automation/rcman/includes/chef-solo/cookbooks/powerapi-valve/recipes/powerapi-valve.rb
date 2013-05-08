@@ -84,7 +84,7 @@ for valveGroup in 1..3
   end
 
 
-  ["content-compression.cfg.xml","rate-limiting.cfg.xml", "content-normalization.cfg.xml"].each do |config|
+  ["rate-limiting.cfg.xml", "content-normalization.cfg.xml"].each do |config|
     cookbook_file "/etc/repose/valveGroup#{valveGroup}/#{config}" do
       source config
       mode 0644
@@ -159,7 +159,11 @@ for valveGroup in 1..3
 
     when 3
       #Distirubted Datastore
-      ["add-element.xsl", "identity.xsl","headers.xsl","queries.xsl", "headers-io.xsl", "remove-element.xsl", "translation.cfg.xml","translation-request-headers-query.cfg.xml","translation-response-headers-query.cfg.xml", "translation-request.cfg.xml","translation-request-docfalse.cfg.xml","translation-response-docfalse.cfg.xml", "translation-multi.cfg.xml", "headers-a.xsl", "headers-b.xsl", "ip-identity.cfg.xml", "ip-identity2.cfg.xml", "client-auth-n.cfg.xml", "dist-datastore.cfg.xml"].each do |config|
+      ["compression.cfg.xml","add-element.xsl", "identity.xsl","headers.xsl","queries.xsl", "headers-io.xsl", "remove-element.xsl",
+          "translation.cfg.xml","translation-request-headers-query.cfg.xml","translation-response-headers-query.cfg.xml", 
+          "translation-request.cfg.xml","translation-request-docfalse.cfg.xml","translation-response-docfalse.cfg.xml", 
+          "translation-multi.cfg.xml", "headers-a.xsl", "headers-b.xsl", "ip-identity.cfg.xml", "ip-identity2.cfg.xml", 
+          "client-auth-n.cfg.xml", "dist-datastore.cfg.xml"].each do |config|
         cookbook_file "/etc/repose/valveGroup3/#{config}" do
           source "/valveGroup3/#{config}"
           mode 0644

@@ -15,6 +15,7 @@
  */
 package com.rackspace.external.pjlcompression;
 
+import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -235,6 +236,12 @@ public final class CompressingFilter implements Filter {
       }
 
       request.setAttribute(ALREADY_APPLIED_KEY, Boolean.TRUE);
+      
+      //Causing this filter to write out input stream so as we can catch exceptions earlier.
+      if(isForRepose){
+         MutableHttpServletRequest mutableHttpServletRequest = MutableHttpServletRequest.wrap((HttpServletRequest)chainRequest);
+         mutableHttpServletRequest.setInputStream(chainRequest.getInputStream());
+      }
       chain.doFilter(chainRequest, chainResponse);
 
       if (attemptingToCompressResponse) {
