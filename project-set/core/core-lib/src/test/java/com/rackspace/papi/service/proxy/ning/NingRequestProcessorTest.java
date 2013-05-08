@@ -3,7 +3,7 @@ package com.rackspace.papi.service.proxy.ning;
 import com.ning.http.client.BodyGenerator;
 import com.ning.http.client.RequestBuilder;
 import com.rackspace.papi.commons.util.io.buffer.CyclicByteBuffer;
-import com.rackspace.papi.service.proxy.TargetHostInfo;
+import com.rackspace.papi.commons.util.proxy.TargetHostInfo;
 import com.rackspace.papi.service.proxy.ning.NingRequestProcessor.RequestBody;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

@@ -45,7 +45,7 @@ public class PowerApiContextManager implements ServletContextListener {
       configureReposeInfo(applicationContext);
       return this;
    }
-   
+
    private AbstractApplicationContext initApplicationContext(ServletContext servletContext) {
       final String connectionFrameworkProp = InitParameter.CONNECTION_FRAMEWORK.getParameterName();
       final String connectionFramework = System.getProperty(connectionFrameworkProp, servletContext.getInitParameter(connectionFrameworkProp));
@@ -64,9 +64,9 @@ public class PowerApiContextManager implements ServletContextListener {
       configureReposeInfo(context);
       Thread.currentThread().setName(instanceInfo.toString());
       context.getBean("exporter");
-      
+
       return context;
-       
+
    }
 
    private void configurePorts(ApplicationContext context) {
@@ -116,18 +116,19 @@ public class PowerApiContextManager implements ServletContextListener {
       ca.getContext(ReportingServiceContext.class).contextInitialized(sce);
       ca.getContext(RequestHeaderServiceContext.class).contextInitialized(sce);
       ca.getContext(ResponseHeaderServiceContext.class).contextInitialized(sce);
+      ca.getContext(DistributedDatastoreServiceContext.class).contextInitialized(sce);
 
       // Start management server
       if (isManagementServerEnabled()) {
          ca.getContext(ManagementServiceContext.class).contextInitialized(sce);
       }
-      
+
       Map<String, ServletContextAware> contextAwareBeans = applicationContext.getBeansOfType(ServletContextAware.class);
-      
-      for (ServletContextAware bean: contextAwareBeans.values()) {
-          bean.contextInitialized(sce);
+
+      for (ServletContextAware bean : contextAwareBeans.values()) {
+         bean.contextInitialized(sce);
       }
-      
+
    }
 
    private boolean isManagementServerEnabled() {
@@ -172,11 +173,11 @@ public class PowerApiContextManager implements ServletContextListener {
       contextInitialized = false;
 
       Map<String, ServletContextAware> contextAwareBeans = applicationContext.getBeansOfType(ServletContextAware.class);
-      
-      for (ServletContextAware bean: contextAwareBeans.values()) {
-          bean.contextDestroyed(sce);
+
+      for (ServletContextAware bean : contextAwareBeans.values()) {
+         bean.contextDestroyed(sce);
       }
-      
+
       ServiceRegistry registry = applicationContext.getBean("serviceRegistry", ServiceRegistry.class);
       for (ServiceContext ctx : registry.getServices()) {
          ctx.contextDestroyed(sce);

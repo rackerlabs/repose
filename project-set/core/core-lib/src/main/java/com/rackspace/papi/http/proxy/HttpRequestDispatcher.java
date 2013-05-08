@@ -1,7 +1,7 @@
 package com.rackspace.papi.http.proxy;
 
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
-import com.rackspace.papi.service.proxy.RequestProxyService;
+import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
