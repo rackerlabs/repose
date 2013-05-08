@@ -6,7 +6,13 @@
       <boolProp name="TestPlan.functional_mode">false</boolProp>
       <boolProp name="TestPlan.serialize_threadgroups">false</boolProp>
       <elementProp name="TestPlan.user_defined_variables" elementType="Arguments" guiclass="ArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-        <collectionProp name="Arguments.arguments"/>
+        <collectionProp name="Arguments.arguments">
+          <elementProp name="dir" elementType="Argument">
+            <stringProp name="Argument.name">dir</stringProp>
+            <stringProp name="Argument.value">${__P(curDir,/tmp)}</stringProp>
+            <stringProp name="Argument.metadata">=</stringProp>
+          </elementProp>
+        </collectionProp>
       </elementProp>
       <stringProp name="TestPlan.user_define_classpath"></stringProp>
     </TestPlan>
@@ -709,8 +715,8 @@
                 <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
                 <elementProp name="HTTPsampler.Files" elementType="HTTPFileArgs">
                   <collectionProp name="HTTPFileArgs.files">
-                    <elementProp name="/tmp/response_sample2.json.gz" elementType="HTTPFileArg">
-                      <stringProp name="File.path">/tmp/response_sample2.json.gz</stringProp>
+                    <elementProp name="${dir}/data_files/response_sample2.json.gz" elementType="HTTPFileArg">
+                      <stringProp name="File.path">${dir}/data_files/response_sample2.json.gz</stringProp>
                       <stringProp name="File.paramname"></stringProp>
                       <stringProp name="File.mimetype">application/gzip</stringProp>
                     </elementProp>
@@ -767,8 +773,8 @@
                 <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
                 <elementProp name="HTTPsampler.Files" elementType="HTTPFileArgs">
                   <collectionProp name="HTTPFileArgs.files">
-                    <elementProp name="/tmp/response_sample2.json.gz" elementType="HTTPFileArg">
-                      <stringProp name="File.path">/tmp/response_sample2.json.gz</stringProp>
+                    <elementProp name="${dir}/data_files/response_sample2.json.gz" elementType="HTTPFileArg">
+                      <stringProp name="File.path">${dir}/data_files/response_sample2.json.gz</stringProp>
                       <stringProp name="File.paramname"></stringProp>
                       <stringProp name="File.mimetype">application/x-gzip</stringProp>
                     </elementProp>
@@ -883,8 +889,8 @@
                 <stringProp name="HTTPSampler.implementation">HttpClient4</stringProp>
                 <elementProp name="HTTPsampler.Files" elementType="HTTPFileArgs">
                   <collectionProp name="HTTPFileArgs.files">
-                    <elementProp name="/tmp/deflated.file" elementType="HTTPFileArg">
-                      <stringProp name="File.path">/tmp/deflated.file</stringProp>
+                    <elementProp name="${dir}/data_files/deflated.file" elementType="HTTPFileArg">
+                      <stringProp name="File.path">${dir}/data_files/deflated.file</stringProp>
                       <stringProp name="File.paramname"></stringProp>
                       <stringProp name="File.mimetype">application/deflate</stringProp>
                     </elementProp>
@@ -940,8 +946,8 @@
                 <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                 <elementProp name="HTTPsampler.Files" elementType="HTTPFileArgs">
                   <collectionProp name="HTTPFileArgs.files">
-                    <elementProp name="/tmp/request_sample.json" elementType="HTTPFileArg">
-                      <stringProp name="File.path">/tmp/request_sample.json</stringProp>
+                    <elementProp name="${dir}/data_files/request_sample.json" elementType="HTTPFileArg">
+                      <stringProp name="File.path">${dir}/data_files/request_sample.json</stringProp>
                       <stringProp name="File.paramname"></stringProp>
                       <stringProp name="File.mimetype"></stringProp>
                     </elementProp>
@@ -1055,8 +1061,8 @@
                 <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
                 <elementProp name="HTTPsampler.Files" elementType="HTTPFileArgs">
                   <collectionProp name="HTTPFileArgs.files">
-                    <elementProp name="/tmp/request_sample.json" elementType="HTTPFileArg">
-                      <stringProp name="File.path">/tmp/request_sample.json</stringProp>
+                    <elementProp name="${dir}/data_files/request_sample.json" elementType="HTTPFileArg">
+                      <stringProp name="File.path">${dir}/data_files/request_sample.json</stringProp>
                       <stringProp name="File.paramname"></stringProp>
                       <stringProp name="File.mimetype">application/gzip</stringProp>
                     </elementProp>
