@@ -60,7 +60,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
          }
 
          if (multiRoleMatch && !validatorList.contains(defaultValidator)) {
-            validatorList.add(defaultValidator);
+            validatorList.add(0, defaultValidator);
          }
       }
    }
