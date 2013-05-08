@@ -46,11 +46,11 @@ public class CompressionHandlerFactory extends AbstractConfiguredFilterHandlerFa
          config.setInitParameter(CompressionParameters.JAVA_UTIL_LOGGER.getParam(), LOG.getName());
          config.setInitParameter(CompressionParameters.DEBUG.getParam(), String.valueOf(contentCompressionConfig.isDebug()));
          config.setInitParameter(CompressionParameters.COMPRESSION_THRESHHOLD.getParam(), String.valueOf(contentCompressionConfig.getCompressionThreshold()));
+         
          if (!contentCompressionConfig.getIncludeContentTypes().isEmpty()) {
             config.setInitParameter(CompressionParameters.INCLUDE_CONTENT_TYPES.getParam(), StringUtils.collectionToCommaDelimitedString(contentCompressionConfig.getIncludeContentTypes()));
 
-         }
-         if (!contentCompressionConfig.getExcludeContentTypes().isEmpty()) {
+         }else if (!contentCompressionConfig.getExcludeContentTypes().isEmpty()) {
             config.setInitParameter(CompressionParameters.EXCLUDE_CONTENT_TYPES.getParam(), StringUtils.collectionToCommaDelimitedString(contentCompressionConfig.getExcludeContentTypes()));
 
          }
@@ -58,9 +58,8 @@ public class CompressionHandlerFactory extends AbstractConfiguredFilterHandlerFa
          if (!contentCompressionConfig.getIncludeUserAgentPatterns().isEmpty()) {
             config.setInitParameter(CompressionParameters.INCLUDE_USER_AGENT_PATTERNS.getParam(), StringUtils.collectionToCommaDelimitedString(contentCompressionConfig.getIncludeUserAgentPatterns()));
 
-         }
-         if (!contentCompressionConfig.getIncludeContentTypes().isEmpty()) {
-            config.setInitParameter(CompressionParameters.INCLUDE_USER_AGENT_PATTERNS.getParam(), StringUtils.collectionToCommaDelimitedString(contentCompressionConfig.getExcludeUserAgentPatterns()));
+         } else if (!contentCompressionConfig.getExcludeUserAgentPatterns().isEmpty()) {
+            config.setInitParameter(CompressionParameters.EXCLUDE_USER_AGENT_PATTERNS.getParam(), StringUtils.collectionToCommaDelimitedString(contentCompressionConfig.getExcludeUserAgentPatterns()));
          }
             
          filter = new CompressingFilter();
