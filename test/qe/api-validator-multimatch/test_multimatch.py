@@ -438,6 +438,24 @@ class TestMf(unittest.TestCase):
         logger.debug('repose stopped')
 
 
+class TestMsp(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        logger.debug('')
+        cls.repose = configure_and_start_repose(folder='configs/mf4p')
+
+    def test_msp(self):
+        mc = d.make_request(url=url, headers={'X-Roles': 'role-2'})
+        self.assertEqual(mc.received_response.code, '200')
+        self.assertEqual(len(mc.handlings), 1)
+
+    @classmethod
+    def tearDownClass(cls):
+        logger.debug('stopping repose')
+        cls.repose.stop()
+        logger.debug('repose stopped')
+
+
 class TestMultimatchMatchDefaults1(unittest.TestCase):
     """This TestCase checks that the default runs after skips and failures."""
     @classmethod
