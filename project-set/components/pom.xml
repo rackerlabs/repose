@@ -39,6 +39,7 @@
         <module>header-normalization</module>
         <module>uri-normalization</module>
         <module>replicated-datastore</module>
+        <module>compression</module>
     </modules>
 
     <dependencyManagement>
@@ -102,6 +103,11 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>com.rackspace.papi.external</groupId>
+                <artifactId>pjl-compressingFilter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <!--<dependency>-->
             <!--<groupId>com.rackspace.cloud.services.clients</groupId>-->
             <!--<artifactId>rackspace-auth-v1.1</artifactId>-->
@@ -255,6 +261,12 @@
             <dependency>
                 <groupId>com.rackspace.papi.components</groupId>
                 <artifactId>client-authorization</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.rackspace.papi.components</groupId>
+                <artifactId>compression</artifactId>
                 <version>${project.version}</version>
             </dependency>
         </dependencies>
