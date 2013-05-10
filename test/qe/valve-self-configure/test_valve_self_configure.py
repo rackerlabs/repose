@@ -633,7 +633,11 @@ def run():
     args = parser.parse_args()
 
     if args.print_log:
-        logging.basicConfig(level=logging.DEBUG)
+        logging.basicConfig(level=logging.DEBUG,
+                            format=('%(asctime)s %(levelname)s:%(name)s:'
+                                    '%(funcName)s:'
+                                    '%(filename)s(%(lineno)d):'
+                                    '%(threadName)s(%(thread)d):%(message)s'))
 
     test_runner = _xmlrunner.XMLTestRunner(output='test-reports')
 
