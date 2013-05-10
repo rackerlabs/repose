@@ -17,7 +17,9 @@ public enum ServiceContextName {
     REQUEST_HEADER_SERVICE_CONTEXT("requestHeaderServiceContext"),
     RESPONSE_HEADER_SERVICE_CONTEXT("responseHeaderServiceContext"),
     POWER_FILTER_CHAIN_BUILDER("powerFilterChainBuilder"),
-    REPOSE_CONFIGURATION_INFORMATION("reposeConfigurationInformation");
+    REPOSE_CONFIGURATION_INFORMATION("reposeConfigurationInformation"),
+    DISTRIBUTED_DATASTORE_SERVICE_CONTEXT("distributedDatastoreServiceContext"),
+    DISTRIBUTED_DATASTORE_SERVICE_CLUSTER_CONTEXT("distributedDatastoreServiceClusterContext"),;
     private String serviceContextName;
 
     ServiceContextName(String serviceContextName) {

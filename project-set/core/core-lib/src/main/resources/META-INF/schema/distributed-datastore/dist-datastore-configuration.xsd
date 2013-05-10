@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<xs:schema elementFormDefault="qualified" attributeFormDefault="unqualified"
+           targetNamespace="http://openrepose.org/repose/distributed-datastore/v1.0"
+           xmlns:dds="http://openrepose.org/repose/distributed-datastore/v1.0"
+           xmlns:html="http://www.w3.org/1999/xhtml"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/"
+           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+   <!-- Configuration Schema Definitions -->
+   <xs:element name="distributed-datastore" type="dds:DistributedDatastoreConfiguration" />
+
+   <xs:complexType name="DistributedDatastoreConfiguration">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>
+               Defines a collection of configuration options for the distirubted
+               datastore component.
+            </html:p>
+         </xs:documentation>
+      </xs:annotation>
+
+      <xs:sequence>
+         <xs:element name="allowed-hosts" type="dds:HostAccessControlList" minOccurs="1" maxOccurs="1" />
+         <xs:element name="port-config" type="dds:PortConfiguration" minOccurs="0" maxOccurs="1" />
+      </xs:sequence>
+   </xs:complexType>
+    
+   <xs:complexType name="HostAccessControlList">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>
+               Defines a list of hosts who has access to the distributed datastore
+               API calls. This does not add the host to the participating data 
+               storage nodes.
+            </html:p>
+         </xs:documentation>
+      </xs:annotation>
+
+      <xs:sequence>
+         <xs:element name="allow" type="dds:HostAccessControl" minOccurs="0" maxOccurs="unbounded" />
+      </xs:sequence>
+
+      <xs:attribute name="allow-all" type="xs:boolean" use="optional" default="false">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>
+                  Setting allow-all to true will turn off host ACL checking.
+               </html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      <!--
+   <xs:assert vc:minVersion="1.1" test="if (xs:boolean(@allow-all)) then count(dds:allow) = 0 else true()"
+      xerces:message="If allow-all is true then allow elements not allowed."
+      saxon:message="If allow-all is true then allow elements not allowed."/>
+      -->
+   </xs:complexType>
+   
+   <xs:complexType name="HostAccessControl">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>
+               An allow access control defines a set of parameters that must be
+               met for an API request to be allowed.
+            </html:p>
+         </xs:documentation>
+      </xs:annotation>
+
+      <xs:attribute name="host" type="xs:string" use="required">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>
+                  Defines a host who has access to the distributed datastore API.
+               </html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+   </xs:complexType>
+   
+   
+   <xs:complexType name="PortConfiguration">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>
+               Defines a list of hosts who has access to the distributed datastore
+               API calls. This does not add the host to the participating data 
+               storage nodes.
+            </html:p>
+         </xs:documentation>
+      </xs:annotation>
+
+      <xs:sequence>
+         <xs:element name="port" type="dds:Port" minOccurs="1" maxOccurs="unbounded" />
+      </xs:sequence>
+   </xs:complexType>
+   
+   <xs:complexType name="Port">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>
+               An allow access control defines a set of parameters that must be
+               met for an API request to be allowed.
+            </html:p>
+         </xs:documentation>
+      </xs:annotation>
+
+      <xs:attribute name="cluster" type="xs:string" use="required">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>
+                  Defines the cluster which this datastore is tied.
+               </html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      
+      <xs:attribute name="node" type="xs:string" use="optional" default="-1">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>
+                  Defines the node which this datastore is tied.
+               </html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+      
+      <xs:attribute name="port" type="xs:int" use="required">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>
+                  Defines the port on which this datastore will listen
+               </html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+   </xs:complexType>
+</xs:schema>
