@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.proxy;
+package com.rackspace.papi.commons.util.proxy;
 
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
