@@ -83,7 +83,7 @@
             </executions>
             <configuration>   
               <propertiesUser>
-                <some.property.name>value</some.property.name>
+                  <curDir>${basedir}</curDir>
               </propertiesUser>
               <reportConfig>
                 <enable>true</enable> 

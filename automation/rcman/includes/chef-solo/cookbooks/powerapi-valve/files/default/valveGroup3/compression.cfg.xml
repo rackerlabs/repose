@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<content-compression xmlns="http://docs.api.rackspacecloud.com/repose/content-compression/v1.0">
+    <compression exclude-user-agent-patterns="test" exclude-content-types="application/form" compression-threshold="100" debug="true" />
+</content-compression>

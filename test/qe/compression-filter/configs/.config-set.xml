@@ -1,0 +1,10 @@
+<config-set>
+  <folder>
+    <file src="container.cfg.xml" />
+    <file src="log4j.properties" />
+    <file src="content-compression.cfg.xml" />
+    <file src="http-logging.cfg.xml" />
+    <file src="response-messaging.cfg.xml" />
+    <file src="system-model.cfg.xml" />
+  </folder>
+</config-set>
