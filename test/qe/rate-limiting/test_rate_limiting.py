@@ -71,7 +71,8 @@ class TestSimpleLimitGroup(unittest.TestCase):
         }
         apply_config_set('configs/one-node/.config-set.xml', params=params)
         self.valve = repose.ReposeValve(config_dir=config_dir,
-                                        stop_port=stop_port)
+                                        stop_port=stop_port, port=repose_port,
+                                        wait_on_start=True)
         time.sleep(startup_wait_time)
 
     def test_a_simple_limit(self):
@@ -129,7 +130,8 @@ class TestMultipleMethodsForTheSameLimitGroup(unittest.TestCase):
         }
         apply_config_set('configs/one-node/.config-set.xml', params=params)
         self.valve = repose.ReposeValve(config_dir=config_dir,
-                                        stop_port=stop_port)
+                                        stop_port=stop_port, port=repose_port,
+                                        wait_on_start=True)
         time.sleep(startup_wait_time)
 
     def test_different_methods(self):
@@ -197,7 +199,8 @@ class TestLimitsResetAfterTime(unittest.TestCase):
         }
         apply_config_set('configs/one-node/.config-set.xml', params=params)
         self.valve = repose.ReposeValve(config_dir=config_dir,
-                                        stop_port=stop_port)
+                                        stop_port=stop_port, port=repose_port,
+                                        wait_on_start=True)
         time.sleep(startup_wait_time)
 
     def test_reset(self):
@@ -266,6 +269,9 @@ class TestMultipleNodes(unittest.TestCase):
         apply_config_set('configs/two-nodes/.config-set.xml', params=params)
         self.valve = repose.ReposeValve(config_dir=config_dir,
                                         stop_port=stop_port)
+        repose.wait_for_node_to_start(port=repose_port)
+        repose.wait_for_node_to_start(port=repose_port + 1)
+
         time.sleep(startup_wait_time)
 
     def test_multiple_node(self):
