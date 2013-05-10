@@ -60,7 +60,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
          }
 
          if (multiRoleMatch && !validatorList.contains(defaultValidator)) {
-            validatorList.add(defaultValidator);
+            validatorList.add(0, defaultValidator);
          }
       }
    }
@@ -81,9 +81,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
    }
 
    private ErrorResult getErrorResult(Result lastResult) {
-      if (lastResult instanceof MultiFailResult) {
-         return (ErrorResult) ((MultiFailResult) lastResult).reduce().get();
-      } else if (lastResult instanceof ErrorResult) {
+      if (lastResult instanceof ErrorResult) {
          return (ErrorResult) lastResult;
       }
 

@@ -39,6 +39,18 @@ public class ConfigurationParserFactoryTest {
          assertSame(IllegalArgumentException.class, caught.getClass());
     }
 
+    @Test
+    public void testNewConfigurationParserWithRawType() {
+        ConfigurationParser result = ConfigurationParserFactory.newConfigurationParser(ConfigurationParserType.RAW, null);
+        assertThat(result, IsInstanceOf.instanceOf(InputStreamConfigurationParser.class));
+    }
+
+    @Test
+    public void testNewConfigurationParserWithPropertiesType() {
+        ConfigurationParser result = ConfigurationParserFactory.newConfigurationParser(ConfigurationParserType.PROPERTIES, null);
+        assertThat(result, IsInstanceOf.instanceOf(PropertiesFileConfigurationParser.class));
+    }
+
     /**
      * Test of newInputStreamConfigurationParser method, of class ConfigurationParserFactory.
      */

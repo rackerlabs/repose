@@ -8,9 +8,9 @@ import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import com.rackspace.papi.http.proxy.HttpException;
 import com.rackspace.papi.http.proxy.common.HttpResponseCodeProcessor;
-import com.rackspace.papi.service.proxy.ProxyUtilities;
-import com.rackspace.papi.service.proxy.RequestProxyService;
-import com.rackspace.papi.service.proxy.TargetHostInfo;
+import com.rackspace.papi.commons.util.proxy.ProxyUtilities;
+import com.rackspace.papi.commons.util.proxy.RequestProxyService;
+import com.rackspace.papi.commons.util.proxy.TargetHostInfo;
 
 import java.io.IOException;
 import java.util.Map;
@@ -160,5 +160,9 @@ public class RequestProxyServiceImpl implements RequestProxyService {
   @Override
   public void setRewriteHostHeader(boolean value) {
     this.rewriteHostHeader = value;
+  }
+  
+  public boolean getRewriteHostHeader() {
+    return this.rewriteHostHeader;
   }
 }

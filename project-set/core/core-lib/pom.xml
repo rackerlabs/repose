@@ -5,7 +5,7 @@
    <parent>
       <groupId>com.rackspace.papi.core</groupId>
       <artifactId>core-support</artifactId>
-      <version>2.6.12-SNAPSHOT</version>
+      <version>2.6.13-SNAPSHOT</version>
    </parent>
 
    <groupId>com.rackspace.papi.core</groupId>
@@ -131,14 +131,19 @@
          <artifactId>jetty-servlet</artifactId>
          <version>8.0.1.v20110908</version>
       </dependency>
-      <!--
+      
       <dependency>
-          <groupId>com.rackspace.papi.core</groupId>
-          <artifactId>valve</artifactId>
-          <version>2.5.1-SNAPSHOT</version>
-          <type>jar</type>
+         <groupId>com.yammer.metrics</groupId>
+         <artifactId>metrics-core</artifactId>
+         <version>2.2.0</version>
       </dependency>
-      -->
+      
+      <dependency>
+         <groupId>com.yammer.metrics</groupId>
+         <artifactId>metrics-ehcache</artifactId>
+         <version>2.2.0</version>
+      </dependency>
+
    </dependencies>
 
    <build>
@@ -168,6 +173,11 @@
                      <dir>src/main/resources/META-INF/schema/response-messaging</dir>
                      <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
                      <outputDir>${project.build.directory}/generated-resources/xml/xslt/response-messaging</outputDir>
+                  </transformationSet>
+                  <transformationSet>
+                     <dir>src/main/resources/META-INF/schema/distributed-datastore</dir>
+                     <stylesheet>src/main/resources/META-INF/schema/xsl/remove-1.1-elements.xsl</stylesheet>
+                     <outputDir>${project.build.directory}/generated-resources/xml/xslt/distributed-datastore</outputDir>
                   </transformationSet>
                </transformationSets>
             </configuration>

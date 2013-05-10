@@ -129,15 +129,22 @@ for valveGroup in 1..3
         end
       end
 
+      #add data files here to valveGroup1
+      ["deflated.file","request_sample.json","request_sample.json.Z","response_sample2.json.gz"].each do |data_file|
+        cookbook_file "/etc/repose/valveGroup1/#{data_file}" do
+          source "/valveGroup1/data_files/#{data_file}"
+          mode 0644
+        end
+      end
 
       via="via=\"Repose (Cloud Integration)\""
 
     when 2
       #Client IP Identity Node
       ["uri-identity.cfg.xml", "content-normalization.cfg.xml", "response-messaging.cfg.xml", "ip-identity.cfg.xml",
-       "header-identity.cfg.xml", "rate-limiting.cfg.xml", "rate-limiting-2.cfg.xml", "dist-datastore.cfg.xml",
+       "header-identity.cfg.xml", "rate-limiting.cfg.xml", "rate-limiting-2.cfg.xml", "rate-limiting-3.cfg.xml" , "dist-datastore.cfg.xml",
        "responsefor5xx", "content-identity-auth-1-1.cfg.xml", "header-id-mapping.cfg.xml", "default.wadl",
-       "group1.wadl", "group2.wadl", "test.xsd", "validator.cfg.xml", "keystone-auth.cfg.xml"].each do |config|
+       "group1.wadl", "group2.wadl", "test.xsd", "validator.cfg.xml", "keystone-auth.cfg.xml","client-auth-keystone-no-groups.cfg.xml","client-auth-v1.1-no-groups.cfg.xml"].each do |config|
         cookbook_file "/etc/repose/valveGroup2/#{config}" do
           source "/valveGroup2/#{config}"
           mode 0644
@@ -152,7 +159,11 @@ for valveGroup in 1..3
 
     when 3
       #Distirubted Datastore
-      ["add-element.xsl", "identity.xsl","headers.xsl","queries.xsl", "headers-io.xsl", "remove-element.xsl", "translation.cfg.xml","translation-request-headers-query.cfg.xml","translation-response-headers-query.cfg.xml", "translation-request.cfg.xml","translation-request-docfalse.cfg.xml","translation-response-docfalse.cfg.xml", "translation-multi.cfg.xml", "headers-a.xsl", "headers-b.xsl", "ip-identity.cfg.xml", "ip-identity2.cfg.xml", "client-auth-n.cfg.xml", "dist-datastore.cfg.xml"].each do |config|
+      ["compression.cfg.xml","add-element.xsl", "identity.xsl","headers.xsl","queries.xsl", "headers-io.xsl", "remove-element.xsl",
+          "translation.cfg.xml","translation-request-headers-query.cfg.xml","translation-response-headers-query.cfg.xml", 
+          "translation-request.cfg.xml","translation-request-docfalse.cfg.xml","translation-response-docfalse.cfg.xml", 
+          "translation-multi.cfg.xml", "headers-a.xsl", "headers-b.xsl", "ip-identity.cfg.xml", "ip-identity2.cfg.xml", 
+          "client-auth-n.cfg.xml", "dist-datastore.cfg.xml","translation-compression.cfg.xml"].each do |config|
         cookbook_file "/etc/repose/valveGroup3/#{config}" do
           source "/valveGroup3/#{config}"
           mode 0644

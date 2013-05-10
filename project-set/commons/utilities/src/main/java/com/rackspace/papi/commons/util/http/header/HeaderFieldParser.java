@@ -13,7 +13,10 @@ import java.util.regex.Pattern;
  */
 public class HeaderFieldParser {
 
-  Pattern date = Pattern.compile("[^\\d]{3},\\s*[\\d]{2}\\s*[^\\d]{3}\\s*[\\d]{4}\\s*[\\d]{2}:[\\d]{2}:[\\d]{2}\\s*GMT");
+  private Pattern date = Pattern.compile("[^\\d]{3},\\s*[\\d]{2}\\s*[^\\d]{3}\\s*[\\d]{4}\\s*[\\d]{2}:[\\d]{2}:[\\d]{2}\\s*GMT");
+
+
+   
   private final List<String> headerValueStrings;
 
   private HeaderFieldParser() {
@@ -37,7 +40,8 @@ public class HeaderFieldParser {
       }
     }
   }
-
+  
+  
   public HeaderFieldParser(Collection<String> headers) {
     this();
 
@@ -74,4 +78,9 @@ public class HeaderFieldParser {
 
     return headerValues;
   }
+  
+  public Pattern getDate() {
+        return date;
+    }
+
 }

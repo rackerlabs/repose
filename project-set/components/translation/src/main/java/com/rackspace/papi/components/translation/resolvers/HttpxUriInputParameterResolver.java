@@ -88,21 +88,18 @@ public class HttpxUriInputParameterResolver extends SourceUriResolver {
     return params != null? params :  getProducer().getRequestParameters();
   }
 
-  @Override
-  public Source resolve(String href, String base) throws TransformerException {
-    
-    if (href == null) {
-      return super.resolve(href, base);
-    }
+    @Override
+    public Source resolve(String href, String base) throws TransformerException {
 
-    if (href.toLowerCase().startsWith(HEADERS_PREFIX)) {
-       return new StreamSource(marshaller.marshall(getHeaders()));
-    } else if (href.toLowerCase().startsWith(REQUEST_INFO_PREFIX)) {
-       return new StreamSource(marshaller.marshall(getRequestInformation()));
-    } else if (href.toLowerCase().startsWith(PARAMS_PREFIX)) {
-       return new StreamSource(marshaller.marshall(getRequestParameters()));
+        if (href != null) {
+            if (href.toLowerCase().startsWith(HEADERS_PREFIX)) {
+                return new StreamSource(marshaller.marshall(getHeaders()));
+            } else if (href.toLowerCase().startsWith(REQUEST_INFO_PREFIX)) {
+                return new StreamSource(marshaller.marshall(getRequestInformation()));
+            } else if (href.toLowerCase().startsWith(PARAMS_PREFIX)) {
+                return new StreamSource(marshaller.marshall(getRequestParameters()));
+            }
+        }
+        return super.resolve(href, base);
     }
-
-    return super.resolve(href, base);
-  }
 }

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- http://wiki.openrepose.org/display/REPOSE/HTTP+Logging+Filter -->
+<http-logging xmlns="http://docs.rackspacecloud.com/repose/http-logging/v1.0">
+        <http-log id="my-special-log" format="Response Time=%T seconds\tResponse Time=%D microseconds\tResponse Code Modifiers=%200,201U\tModifier Negation=%!401a\tRemote IP=%a\tLocal IP=%A\tResponse Size(bytes)=%b\tRemote Host=%hRequest Line=&quot;%r&quot;\tRequest Method=%m\tRequest Protocol=%H\tServer Port=%p\tQuery String=%q\tTime Request Received=%t\tStatus=%s\tRemote User=%u\tURL Path Requested=%U\n">
+            <targets>
+                <!-- The actual log file -->
+                <file location="/var/log/repose/http_repose.log"/>
+            </targets>
+        </http-log>
+
+        <http-log id="credentials-log" format="Credentials from %a : %{x-auth-token}i\t%q">
+            <targets>
+                <!-- The actual log file -->
+                <file location="/var/log/repose/credentials.log"/>
+            </targets>
+        </http-log>
+
+</http-logging>

@@ -105,8 +105,14 @@
         <filter-name>ip-identity</filter-name>
         <filter-class>com.rackspace.papi.components.identity.ip.IpIdentityFilter</filter-class>
     </filter>
+
     <filter>
         <filter-name>flush-output</filter-name>
         <filter-class>org.openrepose.components.flush.FlushOutputFilter</filter-class>
+    </filter>
+
+    <filter>
+        <filter-name>compression</filter-name>
+        <filter-class>com.rackspace.components.compression.CompressionFilter</filter-class>
     </filter>
 </web-fragment>

@@ -30,9 +30,9 @@ public class ReposeCacheJMXClient implements ReposeLocalCacheMBean {
         final MBeanServerConnection reposeConnection = jmxc.getMBeanServerConnection();
 
         reposeLocalCacheMBeanProxy = JMX.newMBeanProxy(reposeConnection,
-                new ObjectName(ReposeLocalCacheMBean.OBJECT_NAME),
-                ReposeLocalCacheMBean.class,
-                true);
+                                                       new ObjectName(ReposeLocalCacheMBean.OBJECT_NAME),
+                                                       ReposeLocalCacheMBean.class,
+                                                       true);
     }
 
     private String getReposeJMXPort() {
@@ -52,5 +52,10 @@ public class ReposeCacheJMXClient implements ReposeLocalCacheMBean {
     @Override
     public boolean removeLimits(String userId) {
         return reposeLocalCacheMBeanProxy.removeLimits(userId);
+    }
+
+    @Override
+    public void removeAllCacheData() {
+        reposeLocalCacheMBeanProxy.removeAllCacheData();
     }
 }

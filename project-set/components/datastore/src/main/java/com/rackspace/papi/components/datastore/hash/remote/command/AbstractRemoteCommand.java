@@ -5,7 +5,7 @@ import com.rackspace.papi.components.datastore.common.CacheRequest;
 import com.rackspace.papi.components.datastore.common.DatastoreHeader;
 import com.rackspace.papi.components.datastore.common.RemoteBehavior;
 import com.rackspace.papi.components.datastore.hash.remote.RemoteCommand;
-import com.rackspace.papi.service.proxy.RequestProxyService;
+import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
