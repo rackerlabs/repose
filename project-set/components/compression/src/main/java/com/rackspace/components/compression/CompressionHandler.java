@@ -4,8 +4,8 @@
  */
 package com.rackspace.components.compression;
 
-
 import com.rackspace.external.pjlcompression.CompressingFilter;
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletRequest;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.util.zip.ZipException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import org.eclipse.jetty.util.StringUtil;
 import org.slf4j.LoggerFactory;
 
 public class CompressionHandler extends AbstractFilterLogicHandler {
@@ -36,31 +37,44 @@ public class CompressionHandler extends AbstractFilterLogicHandler {
 
    @Override
    public FilterDirector handleRequest(HttpServletRequest request, ReadableHttpServletResponse response) {
-      
+
       final FilterDirector myDirector = new FilterDirectorImpl();
       final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
       myDirector.setFilterAction(FilterAction.RETURN);
-      
-      if(chain == null){
+
+      if (chain == null) {
          myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
          return myDirector;
       }
-  
+
       try {
-         
+
          filter.doFilter(mutableHttpRequest, response, chain);
          myDirector.setResponseStatusCode(response.getStatus());
-      } catch(ZipException zp){
-         LOG.warn("Unable to Decompress request message");
-         myDirector.setResponseStatus(HttpStatusCode.BAD_REQUEST);
-      }catch (IOException ex) {
-         LOG.error("IOException with Compression filter", ex);
-         myDirector.setResponseStatus(HttpStatusCode.fromInt(response.getStatus()));
+      } catch (IOException ex) {
+
+         if (isUserGzipError(ex)) {
+            LOG.warn("Unable to decompress message. Bad request body or content-encoding");
+            LOG.debug("Gzip Error:",ex);
+            myDirector.setResponseStatus(HttpStatusCode.BAD_REQUEST);
+         } else {
+            LOG.error("IOException with Compression filter" + ex.getClass(), ex);
+            myDirector.setResponseStatus(HttpStatusCode.fromInt(response.getStatus()));
+         }
       } catch (ServletException ex) {
          LOG.error("Servlet error within Compression Filter", ex);
          myDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
       }
       return myDirector;
+
+   }
+
+   //What we receive from the compressing filter is an IOException. This method will parse the message to see if the error
+   //was caused by a bad request body + content-encoding
+   private boolean isUserGzipError(IOException ex) {
+
+
+      return StringUtilities.nullSafeEqualsIgnoreCase(ex.getMessage(), "Not in GZIP format") ? true : false;
 
    }
 }
