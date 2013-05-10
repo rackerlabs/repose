@@ -3,7 +3,7 @@ package com.rackspace.papi.service.headers.response;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.commons.util.servlet.http.MutableHttpServletResponse;
-import com.rackspace.papi.service.proxy.TargetHostInfo;
+import com.rackspace.papi.commons.util.proxy.TargetHostInfo;
 import java.net.MalformedURLException;
 import java.net.URL;
 import javax.servlet.http.HttpServletRequest;

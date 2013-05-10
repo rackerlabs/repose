@@ -39,37 +39,35 @@ public class FilterLogicHandlerDelegate {
 
       final MutableHttpServletRequest mutableHttpRequest = MutableHttpServletRequest.wrap((HttpServletRequest) request);
       final MutableHttpServletResponse mutableHttpResponse = MutableHttpServletResponse.wrap(mutableHttpRequest, (HttpServletResponse) response);
-      
-      if(handler == null){
-           mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Error creating filter chain, check your configuration files.");
-          
-      }
-      
-      else{
-      final FilterDirector requestFilterDirector = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
 
-      switch (requestFilterDirector.getFilterAction()) {
-         case NOT_SET:
-            chain.doFilter(request, response);
-            break;
+      if (handler == null) {
+         mutableHttpResponse.sendError(HttpStatusCode.SERVICE_UNAVAIL.intValue(), "Error creating filter chain, check your configuration files.");
 
-         case PASS:
-            requestFilterDirector.applyTo(mutableHttpRequest);
-            chain.doFilter(mutableHttpRequest, mutableHttpResponse);
-            break;
+      } else {
+         final FilterDirector requestFilterDirector = handler.handleRequest(mutableHttpRequest, mutableHttpResponse);
 
-         case PROCESS_RESPONSE:
-            requestFilterDirector.applyTo(mutableHttpRequest);
-            chain.doFilter(mutableHttpRequest, mutableHttpResponse);
+         switch (requestFilterDirector.getFilterAction()) {
+            case NOT_SET:
+               chain.doFilter(request, response);
+               break;
 
-            final FilterDirector responseDirector = handler.handleResponse(mutableHttpRequest, mutableHttpResponse);
-            responseDirector.applyTo(mutableHttpResponse);
-            break;
+            case PASS:
+               requestFilterDirector.applyTo(mutableHttpRequest);
+               chain.doFilter(mutableHttpRequest, mutableHttpResponse);
+               break;
 
-         case RETURN:
-            requestFilterDirector.applyTo(mutableHttpResponse);
-            break;
+            case PROCESS_RESPONSE:
+               requestFilterDirector.applyTo(mutableHttpRequest);
+               chain.doFilter(mutableHttpRequest, mutableHttpResponse);
+
+               final FilterDirector responseDirector = handler.handleResponse(mutableHttpRequest, mutableHttpResponse);
+               responseDirector.applyTo(mutableHttpResponse);
+               break;
+
+            case RETURN:
+               requestFilterDirector.applyTo(mutableHttpResponse);
+               break;
+         }
       }
    }
-  }
 }

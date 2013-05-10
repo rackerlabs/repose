@@ -8,7 +8,7 @@ import com.rackspace.papi.model.SystemModel;
 import com.rackspace.papi.service.ServiceRegistry;
 import com.rackspace.papi.service.config.ConfigurationService;
 import com.rackspace.papi.service.context.ServiceContext;
-import com.rackspace.papi.service.proxy.RequestProxyService;
+import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import javax.servlet.ServletContextEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

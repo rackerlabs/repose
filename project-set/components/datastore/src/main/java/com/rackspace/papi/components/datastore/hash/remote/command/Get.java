@@ -6,7 +6,7 @@ import com.rackspace.papi.commons.util.io.RawInputStreamReader;
 import com.rackspace.papi.components.datastore.common.RemoteBehavior;
 import com.rackspace.papi.service.datastore.DatastoreOperationException;
 import com.rackspace.papi.service.datastore.impl.StoredElementImpl;
-import com.rackspace.papi.service.proxy.RequestProxyService;
+import com.rackspace.papi.commons.util.proxy.RequestProxyService;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.InetSocketAddress;

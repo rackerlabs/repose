@@ -29,6 +29,18 @@
       <servlet-name>ResponseSizeServlet</servlet-name>
       <url-pattern>/ResponseSizeServlet/*</url-pattern>
    </servlet-mapping>
+   <filter>
+  <filter-name>CompressingFilter</filter-name>
+  <filter-class>com.planetj.servlet.filter.compression.CompressingFilter</filter-class>
+    <init-param>
+   <param-name>excludeContentTypes</param-name>
+   <param-value>application/form</param-value>
+  </init-param>
+ </filter>
+  <filter-mapping>
+  <filter-name>CompressingFilter</filter-name>
+  <url-pattern>/*</url-pattern>
+ </filter-mapping>
    <security-constraint> 
       <web-resource-collection>
          <web-resource-name>Protected Resource</web-resource-name>

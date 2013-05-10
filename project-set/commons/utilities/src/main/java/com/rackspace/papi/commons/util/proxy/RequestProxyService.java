@@ -1,4 +1,4 @@
-package com.rackspace.papi.service.proxy;
+package com.rackspace.papi.commons.util.proxy;
 
 import com.rackspace.papi.commons.util.http.ServiceClientResponse;
 import java.io.IOException;

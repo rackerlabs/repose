@@ -88,6 +88,11 @@
          <artifactId>rate-limiting</artifactId>
          <version>${project.version}</version>
       </dependency>
+      <dependency>
+        <groupId>net.sourceforge.pjl-comp-filter</groupId>
+        <artifactId>pjl-comp-filter</artifactId>
+        <version>1.7</version>
+    </dependency>
    </dependencies>
 
    <build>
