@@ -40,8 +40,8 @@ def get_status_code_from_url(url, timeout=None):
 def apply_config_set(config_set_name, params=None):
     if params is None:
         params = {}
-    conf.process_config_set(config_set_name, verbose=False,
-                            destination_path=config_dir, params=params)
+    conf.process_folder_contents(folder='configs/%s' % config_set_name, verbose=False,
+                                 dest_path=config_dir, params=params)
 
 
 class TestMultiClusterMultiNode(unittest.TestCase):
