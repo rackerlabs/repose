@@ -1,3 +1,4 @@
 requests
 argparse
 unittest-xml-reporting
+narwhal==0.4

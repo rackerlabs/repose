@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
-import repose
+from narwhal import repose
 import requests
 import unittest
-import conf
-import pathutil
+from narwhal import conf
+from narwhal import pathutil
 import xmlrunner as _xmlrunner
 import logging
 import time
