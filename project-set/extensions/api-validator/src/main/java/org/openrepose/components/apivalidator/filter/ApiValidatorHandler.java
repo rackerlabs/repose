@@ -2,7 +2,6 @@ package org.openrepose.components.apivalidator.filter;
 
 import com.rackspace.com.papi.components.checker.Validator;
 import com.rackspace.com.papi.components.checker.step.ErrorResult;
-import com.rackspace.com.papi.components.checker.step.MultiFailResult;
 import com.rackspace.com.papi.components.checker.step.Result;
 import com.rackspace.papi.commons.util.http.HttpStatusCode;
 import com.rackspace.papi.commons.util.http.OpenStackServiceHeader;
@@ -14,14 +13,15 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ApiValidatorHandler extends AbstractFilterLogicHandler {
 
@@ -60,7 +60,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
          }
 
          if (multiRoleMatch && !validatorList.contains(defaultValidator)) {
-            validatorList.add(defaultValidator);
+            validatorList.add(0, defaultValidator);
          }
       }
    }
@@ -81,9 +81,7 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
    }
 
    private ErrorResult getErrorResult(Result lastResult) {
-      if (lastResult instanceof MultiFailResult) {
-         return (ErrorResult) ((MultiFailResult) lastResult).reduce().get();
-      } else if (lastResult instanceof ErrorResult) {
+      if (lastResult instanceof ErrorResult) {
          return (ErrorResult) lastResult;
       }
 
