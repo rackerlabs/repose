@@ -117,7 +117,8 @@ class TestConfigLoadingReloading(unittest.TestCase):
                                         destination_path=config_folder,
                                         verbose=False)
             r = repose.ReposeValve(config_folder,
-                                   stop_port=repose_stop_port)
+                                   stop_port=repose_stop_port,
+                                   port=repose_port, wait_on_start=True)
             time.sleep(sleep_time)
             try:
                 expected_code = int(expected_result)
@@ -147,7 +148,8 @@ class TestConfigLoadingReloading(unittest.TestCase):
                                         destination_path=repose_config_folder,
                                         verbose=False)
             r = repose.ReposeValve(repose_config_folder,
-                                   stop_port=repose_stop_port)
+                                   stop_port=repose_stop_port,
+                                   port=repose_port, wait_on_start=True)
             time.sleep(sleep_time)
 
             try:
