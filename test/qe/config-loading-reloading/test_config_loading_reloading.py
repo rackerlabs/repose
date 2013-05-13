@@ -95,6 +95,7 @@ class TestConfigLoadingReloading(unittest.TestCase):
         self.config_good = 'configs/%s-good/.config-set.xml' % name
         self.config_bad = 'configs/%s-bad/.config-set.xml' % name
         self.config_common = 'configs/%s-common/.config-set.xml' % name
+        self.wait_on_start = True
 
     def get_status_code_from_url(self, url):
         return requests.get(url, timeout=request_timeout).status_code
@@ -106,6 +107,7 @@ class TestConfigLoadingReloading(unittest.TestCase):
         return 503
 
     def _test_start(self, config_folder, config_sets, params, expected_result):
+        logger.debug('_test_start (%s)' % self.__class__.__name__)
         r = None
         try:
             create_folder(repose_config_folder)
@@ -117,7 +119,11 @@ class TestConfigLoadingReloading(unittest.TestCase):
                                         verbose=False)
             r = repose.ReposeValve(config_folder,
                                    stop_port=repose_stop_port,
-                                   port=repose_port, wait_on_start=True)
+                                   port=repose_port,
+                                   wait_on_start=self.wait_on_start)
+            if not self.wait_on_start:
+                time.sleep(sleep_time)
+
             try:
                 expected_code = int(expected_result)
             except TypeError:
@@ -130,12 +136,10 @@ class TestConfigLoadingReloading(unittest.TestCase):
             if r:
                 r.stop()
 
-    def _test_transition(self,
-                         config_params,
-                         starting_config_sets,
-                         expected_response_on_start,
-                         transition_config_sets,
+    def _test_transition(self, config_params, starting_config_sets,
+                         expected_response_on_start, transition_config_sets,
                          expected_response_on_transition):
+        logger.debug('_test_transition (%s)' % self.__class__.__name__)
         r = None
         try:
             create_folder(repose_config_folder)
@@ -147,7 +151,10 @@ class TestConfigLoadingReloading(unittest.TestCase):
                                         verbose=False)
             r = repose.ReposeValve(repose_config_folder,
                                    stop_port=repose_stop_port,
-                                   port=repose_port, wait_on_start=True)
+                                   port=repose_port,
+                                   wait_on_start=self.wait_on_start)
+            if not self.wait_on_start:
+                time.sleep(sleep_time)
 
             try:
                 expected_code = int(expected_response_on_start)
@@ -178,16 +185,19 @@ class TestConfigLoadingReloading(unittest.TestCase):
                 r.stop()
 
     def test_start_good(self):
+        logger.debug('test_start_good (%s)' % self.__class__.__name__)
         self._test_start(repose_config_folder,
                          [self.config_common, self.config_good, ],
                          config_params, self.get_good_response())
 
     def test_start_bad(self):
+        logger.debug('test_start_bad (%s)' % self.__class__.__name__)
         self._test_start(repose_config_folder,
                          [self.config_common, self.config_bad, ],
                          config_params, self.get_bad_response())
 
     def test_good_to_bad(self):
+        logger.debug('test_good_to_bad (%s)' % self.__class__.__name__)
         self._test_transition(
             config_params=config_params,
             starting_config_sets=[
@@ -199,6 +209,7 @@ class TestConfigLoadingReloading(unittest.TestCase):
             expected_response_on_transition=self.get_good_response())
 
     def test_bad_to_good(self):
+        logger.debug('test_bad_to_good (%s)' % self.__class__.__name__)
         self._test_transition(
             config_params=config_params,
             starting_config_sets=[
@@ -212,11 +223,15 @@ class TestConfigLoadingReloading(unittest.TestCase):
 
 class TestNonStartingOnBadConfig(TestConfigLoadingReloading):
     def test_start_bad(self):
+        logger.debug('test_start_bad (%s)' % self.__class__.__name__)
+        self.wait_on_start = False
         self._test_start(repose_config_folder,
                          [self.config_common, self.config_bad],
                          config_params, requests.ConnectionError)
 
     def test_bad_to_good(self):
+        logger.debug('test_bad_to_good (%s)' % self.__class__.__name__)
+        self.wait_on_start = False
         self._test_transition(
             config_params=config_params,
             starting_config_sets=[
