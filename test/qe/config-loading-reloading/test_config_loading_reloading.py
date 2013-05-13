@@ -119,7 +119,6 @@ class TestConfigLoadingReloading(unittest.TestCase):
             r = repose.ReposeValve(config_folder,
                                    stop_port=repose_stop_port,
                                    port=repose_port, wait_on_start=True)
-            time.sleep(sleep_time)
             try:
                 expected_code = int(expected_result)
             except TypeError:
@@ -150,7 +149,6 @@ class TestConfigLoadingReloading(unittest.TestCase):
             r = repose.ReposeValve(repose_config_folder,
                                    stop_port=repose_stop_port,
                                    port=repose_port, wait_on_start=True)
-            time.sleep(sleep_time)
 
             try:
                 expected_code = int(expected_response_on_start)
@@ -288,7 +286,6 @@ class TestResponseMessagingConfig(TestConfigLoadingReloading):
 
             r = repose.ReposeValve(repose_config_folder,
                                    stop_port=repose_stop_port)
-            time.sleep(sleep_time)
             self.assertEquals(self.get_status_code_from_url(repose_url),
                               self.get_good_response())
         finally:
