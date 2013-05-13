@@ -42,8 +42,7 @@ public class FilterContextInitializer {
 
           //Message to let users know DD filter is deprecated.
           if (!StringUtilities.isBlank(papiFilter.getName()) && papiFilter.getName().equals("dist-datastore")) {
-              LOG.warn("Use of the dist-datastore filter is deprecated. Please use the dist-datastore service.");
-              continue;
+              LOG.warn("Use of the dist-datastore filter is deprecated. Please use the distributed datastore service.");
           }
 
          if (StringUtilities.isBlank(papiFilter.getName())) {
