@@ -299,7 +299,12 @@ class TestResponseMessagingConfig(TestConfigLoadingReloading):
                                     verbose=False)
 
             r = repose.ReposeValve(repose_config_folder,
-                                   stop_port=repose_stop_port)
+                                   stop_port=repose_stop_port,
+                                   port=repose_port,
+                                   wait_on_start=self.wait_on_start)
+            if not self.wait_on_start:
+                time.sleep(sleep_time)
+
             self.assertEquals(self.get_status_code_from_url(repose_url),
                               self.get_good_response())
         finally:
