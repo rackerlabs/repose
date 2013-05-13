@@ -23,6 +23,16 @@ mock_port = 8894
 mock_service = None
 mock_url = 'http://localhost:%i/' % mock_port
 
+repose_config_folder = 'etc/repose'
+repose_port = 8893
+repose_stop_port = 9893
+repose_url = 'http://localhost:%s' % repose_port
+config_params = {'port': str(repose_port),
+                 'target_hostname': 'localhost',
+                 'target_port': mock_port}
+sleep_time = 35
+request_timeout = 30
+
 
 def create_mock():
     # create a simple HTTP server that returns a 200 response to all requests
@@ -72,17 +82,6 @@ def clear_folder(folder_name):
 def create_folder(folder_name):
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
-
-
-repose_config_folder = 'etc/repose'
-repose_port = 8893
-repose_stop_port = 9893
-repose_url = 'http://localhost:%s' % repose_port
-config_params = {'port': str(repose_port),
-                 'target_hostname': 'localhost',
-                 'target_port': mock_port}
-sleep_time = 35
-request_timeout = 30
 
 
 class TestConfigLoadingReloading(unittest.TestCase):
