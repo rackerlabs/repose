@@ -1,5 +1,6 @@
 package com.rackspace.papi.service.proxy.jersey;
 
+import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
 import com.rackspace.papi.http.proxy.common.AbstractRequestProcessor;
 import com.sun.jersey.api.client.PartialRequestBuilder;
@@ -91,9 +92,12 @@ class JerseyRequestProcessor extends AbstractRequestProcessor {
   private void setHeaders(PartialRequestBuilder builder) {
     final Enumeration<String> headerNames = request.getHeaderNames();
 
+    boolean hasAccept=false;
     while (headerNames.hasMoreElements()) {
       String header = headerNames.nextElement();
-
+      if(StringUtilities.nullSafeEquals(header, "accept")){
+         hasAccept=true;
+      }
       if (!excludeHeader(header)) {
         Enumeration<String> values = request.getHeaders(header);
         while (values.hasMoreElements()) {
@@ -101,6 +105,12 @@ class JerseyRequestProcessor extends AbstractRequestProcessor {
           builder.header(header, processHeaderValue(header, value));
         }
       }
+    }
+    
+    //Jersey Client will fill the accept header with 'text/html, image/gif, image/jpeg, *; q=.2, */*; q=.2' if none is provided
+    //This logic will cause an empty accept header to be sent instead.
+    if(!hasAccept){
+       builder.accept("");
     }
   }
 
