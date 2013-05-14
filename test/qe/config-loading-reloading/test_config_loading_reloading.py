@@ -5,7 +5,7 @@ from narwhal import conf
 import requests
 import time
 import sys
-import unittest
+import unittest2 as unittest
 import xmlrunner as _xmlrunner
 import logging
 import SocketServer
