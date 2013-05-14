@@ -29,10 +29,8 @@ public final class ProxyApp {
 
       try {
          cmdLineParser.parseArgument(args);
-        List<OptionHandler> option= cmdLineParser.getArguments();  
-        option.toString();
-      } catch (CmdLineException e) {
-            
+       } catch (CmdLineException e) {
+           
          displayUsage(cmdLineParser, e);
          return;
       }
