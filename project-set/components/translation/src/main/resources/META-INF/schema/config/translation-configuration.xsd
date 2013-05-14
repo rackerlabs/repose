@@ -6,8 +6,16 @@
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
+
     <!-- Configuration -->
     <xs:element name="translation" type="trans-config:TranslationConfig" />
+
+    <xs:simpleType name="XSLEngine">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="SaxonHE"/>
+            <xs:enumeration value="SaxonEE"/>
+        </xs:restriction>
+    </xs:simpleType>
 
     <xs:complexType name="TranslationConfig">
         <xs:annotation>
@@ -41,14 +49,12 @@
             </xs:annotation>
         </xs:attribute>
 
-        <xs:attribute name="use-saxon" type="xs:boolean" use="optional" default="false">
+         <xs:attribute name="xsl-engine" type="trans-config:XSLEngine" use="optional" default="SaxonHE">
             <xs:annotation>
                 <xs:documentation>
                     <html:p>
-                        If true then the translation component will
-                        attempt to use SaxonEE features -- including
-                        initial support for XSLT 3.0. A Saxon license
-                        is required to use this feature.
+                        Select the XSL parser.  SaxonHE is the default.  SaxonEE
+                        has initial support for XSLT 3.0 and requires a Saxon license.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>

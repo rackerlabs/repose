@@ -154,7 +154,7 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
       synchronized (lock) {
         configuration = newConfig;
 
-        if (configuration.isUseSaxon()) {
+        if (configuration.getXslEngine() == XSLEngine.SAXON_EE ) {
            updateTransformerFactory("com.saxonica.config.EnterpriseTransformerFactory");
         } else {
            updateTransformerFactory("net.sf.saxon.TransformerFactoryImpl");
