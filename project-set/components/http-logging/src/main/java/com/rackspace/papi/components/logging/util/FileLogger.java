@@ -37,11 +37,16 @@ public class FileLogger implements SimpleLogger {
     @Override
     public void log(String st) {
         final byte[] stringBytes = st.getBytes(CHAR_SET);
-
+     
+      FileOutputStream fileOutputStream =null;
+      FileChannel channel =null;
+       
+               
         try {
-            final FileOutputStream fileOutputStream = new FileOutputStream(f, true);
-            final FileChannel channel = fileOutputStream.getChannel();
-
+            
+            fileOutputStream = new FileOutputStream(f, true);
+            channel = fileOutputStream.getChannel();
+            
             int index = buffer.arrayOffset();
 
             while (index < stringBytes.length) {
@@ -68,16 +73,27 @@ public class FileLogger implements SimpleLogger {
                 channel.write(NEWLINE);
                 NEWLINE.rewind();
             }
-
-         
-            channel.close();
-            fileOutputStream.close();
+    
             
         } catch (BufferOverflowException ioe) {
             LOG.error(possibleCause+ioe.getMessage(), ioe);
         } catch (IOException ioe) {
             LOG.error(ioe.getMessage(), ioe);
+        } finally {
+            buffer.clear();
+           
+            try{
+                if(channel!=null){ 
+                   channel.close();
+                 }
+                if(fileOutputStream!=null){
+                  fileOutputStream.close();
+                }
+            }catch(IOException ioe) {
+              LOG.error(ioe.getMessage(), ioe);
+            }
         }
+       
     }
 
     int getRemainderAvailable(int remainder) {
