@@ -115,7 +115,7 @@ public class PowerApiConfigurationManager implements ConfigurationService {
                 }else{
                        getConfigurationInformation().setFilterLoadingFailedInformation(filterName, resource,"Failed loading File"); 
                 }
-
+            //Don't only log an error for illegal arguments, also throw an exception to prevent future requests.
             } catch (IllegalArgumentException ex) {
                 throw new IllegalArgumentException(ex.getMessage());
             } catch (Exception ex) {
