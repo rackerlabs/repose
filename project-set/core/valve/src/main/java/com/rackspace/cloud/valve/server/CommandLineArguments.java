@@ -11,33 +11,32 @@ public class CommandLineArguments {
     private static final int DEFAULT_STOP_PORT = 8818;
     private static final boolean DEFAULT_INSECURE = false;
 
-    @Option(name = "-p", aliases = {"--http-port"},
+    @Option(name = "-p",  aliases = {"--http-port"},
             usage = "*DEPRECATED* Repose http port number " + DEFAULT_HTTP_PORT_INFO)
     private Integer httpPort;
 
-    @Option(name = "-ps", aliases = {"--https-port"},
+    @Option(name = "-ps",  aliases = {"--https-port"},
             usage = "*DEPRECATED* Repose https port number " + DEFAULT_HTTPS_PORT_INFO)
     private Integer httpsPort;
 
-    @Option(name = "-s", aliases = {"--shutdown-port"},
-            usage = "The port used to communicate a shutdown to Repose " + DEFAULT_HTTP_PORT_INFO)
+    @Option(name = "-s",  aliases = {"--shutdown-port"},
+            usage = "The port used to communicate a shutdown to Repose (Example: java -jar repose-valve.jar start -s 8818), default port if not specified is " + DEFAULT_STOP_PORT  +" "+ DEFAULT_HTTP_PORT_INFO)
     private Integer stopPort = DEFAULT_STOP_PORT;
 
-    @Option(name = "-c", aliases = {"--config-file"},
-            usage = "The location of the Repose configuration file")
+    @Option(name = "-c",  aliases = {"--config-file"},
+            usage = "The location of the Repose configuration file (Default config directory: /etc/repose) (java -jar repose-valve.jar start -c /etc/repose/config)")
     private String configDirectory;
 
     @Option(name = "-cf", aliases = {"--connection-framework"},
-            usage = "The http connection framework. Available values are jersey, ning, apache.")
+            usage = "The http connection framework. Available values are jersey, ning, apache (Example: java -jar repose-valve.jar start -c /etc/repose/config  -cf apache).")
     private String connectionFramework;
 
     @Option(name = "-k", aliases = {"--insecure"},
-            usage = "Allows Repose to connect to SSL servers (e.g. auth, origin service) without certs.")
+            usage = "Allows Repose to connect to SSL servers (e.g. auth, origin service) without certs, use this option if you have specified https port for node in system model configuration file. (Example: java -jar repose-valve.jar start -c /etc/repose/config -k).")
     private Boolean insecure = DEFAULT_INSECURE;
 
-    @Argument(usage = "Action to take - start | stop", required = true)
-    private String action = ACTION_START;
-
+    @Argument(metaVar="start | stop",  usage = "Action to take - start | stop (Example: java -jar repose-valve.jar start -c /etc/repose/config (or) java -jar repose-valve.jar stop -s <stop port specified on start default 8818 ) ", required = true)
+    private String action;
     @Deprecated
     public Integer getHttpPort() {
         return httpPort;
