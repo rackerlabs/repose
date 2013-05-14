@@ -1,0 +1,18 @@
+*.py[cod]
+
+# virtualenv
+.Python
+bin/
+include/
+lib/
+
+# narwhal
+etc/
+usr/
+var/
+
+# novaclient
+novaclient/
+
+# test scripts
+test-reports/
