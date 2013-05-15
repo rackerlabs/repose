@@ -75,28 +75,8 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
          //Adding all members of the current Repose Cluster to clusterView
          if (cluster != null) {
 
-             //Check for both dd filter and dd service.
-             Boolean ddFilterPresent = false;
-             Boolean ddServicePresent = false;
-
-             for (Filter filter : cluster.getFilters().getFilter()) {
-                 if (filter.getName() != null && filter.getName().equals("dist-datastore")) {
-                     ddFilterPresent = true;
-                 }
-             }
-
-             for (Service service : cluster.getServices().getService()) {
-                 if (service.getName() != null && service.getName().equals("distributed-datastore")) {
-                     ddServicePresent = true;
-                 }
-             }
-
-             //If both are present throw a clear error.
-             if (ddFilterPresent == true && ddServicePresent == true) {
-                 throw new IllegalArgumentException(
-                         "The distributed datastore filter and service can not be used at the same time, " +
-                                 "within the same cluster. Please check your configuration.");
-             }
+             //Make sure the DD service and filter are not running at the same time.
+             checkForDDFilterAndService(cluster);
 
              for (Node node : cluster.getNodes().getNode()) {
 
@@ -112,7 +92,37 @@ public class DatastoreFilterLogicHandlerFactory extends AbstractConfiguredFilter
       }
    }
 
-   private class DistributedDatastoreConfigurationListener implements UpdateListener<DistributedDatastoreConfiguration> {
+    private void checkForDDFilterAndService(ReposeCluster cluster) {
+
+        //Check for both dd filter and dd service.
+        Boolean ddFilterPresent = false;
+        Boolean ddServicePresent = false;
+
+        if (cluster.getFilters() != null && cluster.getFilters().getFilter() != null) {
+            for (Filter filter : cluster.getFilters().getFilter()) {
+                if (filter.getName() != null && filter.getName().equals("dist-datastore")) {
+                    ddFilterPresent = true;
+                }
+            }
+        }
+
+        if (cluster.getServices() != null && cluster.getServices().getService() != null) {
+            for (Service service : cluster.getServices().getService()) {
+                if (service.getName() != null && service.getName().equals("distributed-datastore")) {
+                    ddServicePresent = true;
+                }
+            }
+        }
+
+        //If both are present throw a clear error.
+        if (ddFilterPresent == true && ddServicePresent == true) {
+            throw new IllegalArgumentException(
+                    "The distributed datastore filter and service can not be used at the same time, " +
+                            "within the same cluster. Please check your configuration.");
+        }
+    }
+
+    private class DistributedDatastoreConfigurationListener implements UpdateListener<DistributedDatastoreConfiguration> {
 
       private boolean isInitialized = false;
 
