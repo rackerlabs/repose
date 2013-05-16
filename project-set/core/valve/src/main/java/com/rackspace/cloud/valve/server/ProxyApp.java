@@ -3,8 +3,10 @@ package com.rackspace.cloud.valve.server;
 import com.rackspace.cloud.valve.logging.DefaultLogConfigurator;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
+import org.kohsuke.args4j.spi.OptionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +29,8 @@ public final class ProxyApp {
 
       try {
          cmdLineParser.parseArgument(args);
-      } catch (CmdLineException e) {
+       } catch (CmdLineException e) {
+           
          displayUsage(cmdLineParser, e);
          return;
       }
@@ -35,8 +38,14 @@ public final class ProxyApp {
       if (!validPorts(commandLineArgs)) {
          return;
       }
-
-      validateConfigDirectory(commandLineArgs);
+      
+      try{
+        validateConfigDirectory(commandLineArgs);
+      }catch(IOException e){
+        System.err.println(e.getMessage());
+        cmdLineParser.printUsage(System.err);
+        return;
+      }
 
       final PowerApiValveServerControl serverControl = new PowerApiValveServerControl(commandLineArgs);
 

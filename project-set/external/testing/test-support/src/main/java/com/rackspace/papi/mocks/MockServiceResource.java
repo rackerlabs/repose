@@ -29,6 +29,16 @@ public class MockServiceResource {
     public Response delete(String body, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
         return echoBody(body == null || body.trim().isEmpty()? "no body": body, headers, uriInfo);
     }
+    
+    
+    
+    @POST
+    @Path("/emptyresponsebody")
+    public Response emptyResponseBody(String body, @Context HttpHeaders headers, @Context UriInfo uriInfo) throws MalformedURLException, URISyntaxException {
+        Response.ResponseBuilder response = Response.ok();
+        return response.build();
+    }
+    
 
     @POST
     @Path("/echobody")
@@ -150,6 +160,9 @@ public class MockServiceResource {
         final String data = provider.getEchoBody(body, headers, uri, request);
         return streamBytes(data.getBytes());
     }
+    
+
+    
 
     @GET
     @Path("/responsesize/{size}")
