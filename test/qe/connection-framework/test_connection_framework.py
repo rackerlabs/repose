@@ -120,6 +120,63 @@ class TestJersey(unittest.TestCase):
         else:
             self.assertIn('Accept', mc.handlings[0].request.headers)
 
+    def test_jersey_with_star_star_accept_header(self):
+        url = 'http://localhost:{}/'.format(self.repose_port)
+        host_header = 'localhost:{}'.format(self.repose_port)
+        headers = {'Host': host_header, 'User-Agent': deproxy.version_string,
+                   'Accept': '*/*'}
+
+        logger.debug('making a request')
+        mc = self.deproxy.make_request(url=url, headers=headers,
+                                       add_default_headers=False)
+
+        if 'Accept' in mc.handlings[0].request.headers:
+            self.assertEqual(mc.handlings[0].request.headers['Accept'],
+                             '*/*')
+        elif 'accept' in mc.handlings[0].request.headers:
+            self.assertEqual(mc.handlings[0].request.headers['accept'],
+                             '*/*')
+        else:
+            self.assertIn('Accept', mc.handlings[0].request.headers)
+
+    def test_jersey_with_type_star_accept_header(self):
+        url = 'http://localhost:{}/'.format(self.repose_port)
+        host_header = 'localhost:{}'.format(self.repose_port)
+        headers = {'Host': host_header, 'User-Agent': deproxy.version_string,
+                   'Accept': 'text/*'}
+
+        logger.debug('making a request')
+        mc = self.deproxy.make_request(url=url, headers=headers,
+                                       add_default_headers=False)
+
+        if 'Accept' in mc.handlings[0].request.headers:
+            self.assertEqual(mc.handlings[0].request.headers['Accept'],
+                             'text/*')
+        elif 'accept' in mc.handlings[0].request.headers:
+            self.assertEqual(mc.handlings[0].request.headers['accept'],
+                             'text/*')
+        else:
+            self.assertIn('Accept', mc.handlings[0].request.headers)
+
+    def test_jersey_with_type_subtype_accept_header(self):
+        url = 'http://localhost:{}/'.format(self.repose_port)
+        host_header = 'localhost:{}'.format(self.repose_port)
+        headers = {'Host': host_header, 'User-Agent': deproxy.version_string,
+                   'Accept': 'text/plain'}
+
+        logger.debug('making a request')
+        mc = self.deproxy.make_request(url=url, headers=headers,
+                                       add_default_headers=False)
+
+        if 'Accept' in mc.handlings[0].request.headers:
+            self.assertEqual(mc.handlings[0].request.headers['Accept'],
+                             'text/plain')
+        elif 'accept' in mc.handlings[0].request.headers:
+            self.assertEqual(mc.handlings[0].request.headers['accept'],
+                             'text/plain')
+        else:
+            self.assertIn('Accept', mc.handlings[0].request.headers)
+
     def tearDown(self):
         logger.debug('tearDown')
         if self.valve is not None:
