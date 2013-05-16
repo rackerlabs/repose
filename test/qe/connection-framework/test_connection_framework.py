@@ -25,6 +25,7 @@ stop_port = 7777
 port_base = 9999
 port_port = None
 
+
 def get_next_open_port(start=None):
     global port_port
     if start is not None:
@@ -65,7 +66,7 @@ class TestJersey(unittest.TestCase):
         self.repose_port = get_next_open_port()
         self.stop_port = get_next_open_port()
         self.deproxy_port = get_next_open_port()
-        
+
         logger.debug('repose port: %s' % self.repose_port)
         logger.debug('stop port: %s' % self.stop_port)
         logger.debug('deproxy port: %s' % self.deproxy_port)
@@ -81,7 +82,7 @@ class TestJersey(unittest.TestCase):
             'deployment_dir': deploy_dir,
             'artifact_dir': artifact_dir,
             'log_file': log_file,
-            'port' : self.repose_port,
+            'port': self.repose_port,
         }
         apply_configs('configs', params=self.params)
 
@@ -125,7 +126,6 @@ class TestJersey(unittest.TestCase):
             self.valve.stop()
         if self.deproxy is not None:
             self.deproxy.shutdown_all_endpoints()
-
 
 
 def run():
