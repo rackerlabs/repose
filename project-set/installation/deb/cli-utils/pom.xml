@@ -49,7 +49,7 @@
                             <execution>
 
                                 <configuration>
-                                    <deb>[[buildDir]]/repose-[[artifactId]]-[[version]]-${git.commit.id.abbrev}.deb</deb>
+                                    <deb>[[buildDir]]/repose-[[artifactId]]-[[version]].deb</deb>
                                     <timestamped>true</timestamped>
                                     
                                     <dataSet>
