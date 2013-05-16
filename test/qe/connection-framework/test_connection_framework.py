@@ -88,9 +88,10 @@ class TestJersey(unittest.TestCase):
 
         self.valve = valve.Valve(config_dir=config_dir,
                                  stop_port=self.stop_port,
-                                 port=self.repose_port, wait_on_start=True)
+                                 port=self.repose_port, wait_on_start=True,
+                                 conn_fw='jersey')
 
-    def test_jersey_with_no_accept_header(self):
+    def test_no_accept_header(self):
 
         url = 'http://localhost:{}/'.format(self.repose_port)
         host_header = 'localhost:{}'.format(self.repose_port)
@@ -103,7 +104,7 @@ class TestJersey(unittest.TestCase):
         self.assertNotIn('Accept', mc.handlings[0].request.headers)
         self.assertNotIn('accept', mc.handlings[0].request.headers)
 
-    def test_jersey_with_empty_accept_header(self):
+    def test_empty_accept_header(self):
         url = 'http://localhost:{}/'.format(self.repose_port)
         host_header = 'localhost:{}'.format(self.repose_port)
         headers = {'Host': host_header, 'User-Agent': deproxy.version_string,
@@ -120,7 +121,7 @@ class TestJersey(unittest.TestCase):
         else:
             self.assertIn('Accept', mc.handlings[0].request.headers)
 
-    def test_jersey_with_star_star_accept_header(self):
+    def test_star_star_accept_header(self):
         url = 'http://localhost:{}/'.format(self.repose_port)
         host_header = 'localhost:{}'.format(self.repose_port)
         headers = {'Host': host_header, 'User-Agent': deproxy.version_string,
@@ -139,7 +140,7 @@ class TestJersey(unittest.TestCase):
         else:
             self.assertIn('Accept', mc.handlings[0].request.headers)
 
-    def test_jersey_with_type_star_accept_header(self):
+    def test_type_star_accept_header(self):
         url = 'http://localhost:{}/'.format(self.repose_port)
         host_header = 'localhost:{}'.format(self.repose_port)
         headers = {'Host': host_header, 'User-Agent': deproxy.version_string,
@@ -158,7 +159,7 @@ class TestJersey(unittest.TestCase):
         else:
             self.assertIn('Accept', mc.handlings[0].request.headers)
 
-    def test_jersey_with_type_subtype_accept_header(self):
+    def test_type_subtype_accept_header(self):
         url = 'http://localhost:{}/'.format(self.repose_port)
         host_header = 'localhost:{}'.format(self.repose_port)
         headers = {'Host': host_header, 'User-Agent': deproxy.version_string,
