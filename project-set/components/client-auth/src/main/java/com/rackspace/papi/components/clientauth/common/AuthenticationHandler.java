@@ -25,6 +25,7 @@ import java.util.List;
 
 /**
  * @author fran
+ *
  */
 public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
@@ -46,8 +47,9 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
    private final long groupCacheTtl;
    private final long userCacheTtl;
    private final boolean requestGroups;
+   private final AuthUserCache usrCache;
 
-   protected AuthenticationHandler(Configurables configurables, AuthTokenCache cache, AuthGroupCache grpCache, UriMatcher uriMatcher) {
+   protected AuthenticationHandler(Configurables configurables, AuthTokenCache cache, AuthGroupCache grpCache, AuthUserCache usrCache, UriMatcher uriMatcher) {
       this.delegable = configurables.isDelegable();
       this.keyedRegexExtractor = configurables.getKeyedRegexExtractor();
       this.cache = cache;
@@ -56,7 +58,8 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       this.tenanted = configurables.isTenanted();
       this.groupCacheTtl = configurables.getGroupCacheTtl();
       this.userCacheTtl = configurables.getUserCacheTtl();
-      this.requestGroups= configurables.isRequestGroups();
+      this.requestGroups = configurables.isRequestGroups();
+      this.usrCache = usrCache;
    }
 
    @Override
@@ -91,7 +94,6 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       ExtractorResult<String> account = null;
       AuthToken token = null;
 
-
       if (tenanted) {
          account = extractAccountIdentification(request);
       }
@@ -104,25 +106,24 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
          if (token == null) {
             try {
                token = validateToken(account, StringUriUtilities.encodeUri(authToken));
-               cacheUserInfo(token);
+               cacheUserInfoNewStrategy(token);
             } catch (ClientHandlerException ex) {
                LOG.error("Failure communicating with the auth service: " + ex.getMessage(), ex);
                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
             } catch (AuthServiceException ex) {
                LOG.error("Failure in Auth-N: " + ex.getMessage());
                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-            }catch (IllegalArgumentException ex){
+            } catch (IllegalArgumentException ex) {
                LOG.error("Failure in Auth-N: " + ex.getMessage());
                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
-            } 
-            catch (Exception ex) {
+            } catch (Exception ex) {
                LOG.error("Failure in auth: " + ex.getMessage(), ex);
                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
             }
          }
       }
-          
-         
+
+
       List<AuthGroup> groups = getAuthGroups(token);
 
       setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(), groups);
@@ -211,6 +212,55 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       } catch (IOException ex) {
          LOG.warn("Unable to cache user token information: " + user.getUserId() + " Reason: " + ex.getMessage(), ex);
       }
+   }
+
+   /*
+    * New caching strategy:
+    * Tokens (TokenId) will be mapped to AuthToken object.
+    * TenantId will be mapped to List of TokenIds
+    */
+   private void cacheUserInfoNewStrategy(AuthToken user) {
+
+      if (user == null || cache == null) {
+         return;
+      }
+
+      String userKey = user.getTenantId();
+      String tokenKey = user.getTokenId();
+
+      //Adds auth token object to cache.
+      try {
+         long ttl = userCacheTtl > 0 ? Math.min(userCacheTtl, user.tokenTtl().intValue()) : user.tokenTtl().intValue();
+         cache.storeToken(tokenKey, user, Long.valueOf(ttl).intValue());
+      } catch (IOException ex) {
+         LOG.warn("Unable to cache user token information: " + user.getUserId() + " Reason: " + ex.getMessage(), ex);
+      }
+
+      List<String> userTokenList = getUserTokenList(userKey);
+
+      userTokenList.add(tokenKey);
+
+      try {
+         long ttl = userCacheTtl > 0 ? Math.min(userCacheTtl, user.tokenTtl().intValue()) : user.tokenTtl().intValue();
+         usrCache.storeUserTokenList(userKey, userTokenList, Long.valueOf(ttl).intValue());
+      } catch (IOException ex) {
+         LOG.warn("Unable to cache user token information: " + user.getUserId() + " Reason: " + ex.getMessage(), ex);
+      }
+      //TODO: Search cache for user object. 
+      // Present: Add token to user token list
+      // Not Present: Add token to new user token list and add new user token list to cache
+   }
+
+   private List<String> getUserTokenList(String userKey) {
+
+      List<String> userTokenList = usrCache.getUserTokenList(userKey);
+
+
+      if (userTokenList == null) {
+         userTokenList = new ArrayList<String>();
+      }
+
+      return userTokenList;
    }
 
    private String getGroupCacheKey(AuthToken token) {

@@ -12,6 +12,7 @@ import com.rackspace.papi.service.datastore.Datastore;
 public final class OpenStackAuthenticationHandlerFactory {
     private static final String AUTH_TOKEN_CACHE_PREFIX = "openstack.identity.token";
     private static final String AUTH_GROUP_CACHE_PREFIX = "openstack.identity.group";
+    private static final String AUTH_USER_CACHE_PREFIX = "openstack.identity.user";
 
     private OpenStackAuthenticationHandlerFactory() {
     }
@@ -19,6 +20,7 @@ public final class OpenStackAuthenticationHandlerFactory {
     public static AuthenticationHandler newInstance(ClientAuthConfig config, KeyedRegexExtractor accountRegexExtractor, Datastore datastore, UriMatcher uriMatcher) {
         final AuthTokenCache cache = new AuthTokenCache(datastore, AUTH_TOKEN_CACHE_PREFIX);
         final AuthGroupCache grpCache = new AuthGroupCache(datastore, AUTH_GROUP_CACHE_PREFIX);
+        final AuthUserCache usrCache = new AuthUserCache(datastore, AUTH_USER_CACHE_PREFIX);
         final OpenstackAuth authConfig = config.getOpenstackAuth();
         final OpenStackIdentityService ids = authConfig.getIdentityService();
         final AuthenticationService authService = new AuthenticationServiceFactory().build(ids.getUri(), ids.getUsername(), ids.getPassword(),ids.getTenantId());
@@ -30,6 +32,6 @@ public final class OpenStackAuthenticationHandlerFactory {
                 authConfig.getTokenCacheTimeout(),
                 authConfig.isRequestGroups());
 
-        return new OpenStackAuthenticationHandler(configurables, authService, cache, grpCache, uriMatcher);
+        return new OpenStackAuthenticationHandler(configurables, authService, cache, grpCache, usrCache, uriMatcher);
     }
 }

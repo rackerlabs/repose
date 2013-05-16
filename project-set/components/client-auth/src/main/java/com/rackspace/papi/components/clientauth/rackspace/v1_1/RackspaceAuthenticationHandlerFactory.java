@@ -11,7 +11,8 @@ import com.rackspace.papi.service.datastore.Datastore;
 public final class RackspaceAuthenticationHandlerFactory {
     private static final String AUTH_TOKEN_CACHE_PREFIX = "rackspace.v1.1.token";
     private static final String AUTH_GROUP_CACHE_PREFIX = "rackspace.v1.1.group";
-
+    private static final String AUTH_USER_CACHE_PREFIX = "rackspace.v1.1.user";
+    
     private RackspaceAuthenticationHandlerFactory() {
     }
 
@@ -19,6 +20,7 @@ public final class RackspaceAuthenticationHandlerFactory {
         final RackspaceAuth authConfig = cfg.getRackspaceAuth();
         final AuthTokenCache cache = new AuthTokenCache(datastore, AUTH_TOKEN_CACHE_PREFIX);
         final AuthGroupCache grpCache = new AuthGroupCache(datastore, AUTH_GROUP_CACHE_PREFIX);
+        final AuthUserCache usrCache = new AuthUserCache(datastore, AUTH_USER_CACHE_PREFIX);
 
         final AuthenticationService serviceClient = new AuthenticationServiceFactory().build(
                 authConfig.getAuthenticationServer().getUri(), authConfig.getAuthenticationServer().getUsername(), authConfig.getAuthenticationServer().getPassword());
@@ -32,7 +34,7 @@ public final class RackspaceAuthenticationHandlerFactory {
                 authConfig.getTokenCacheTimeout(),
                 authConfig.isRequestGroups()); 
 
-        return new RackspaceAuthenticationHandler(configurables, serviceClient, cache, grpCache, uriMatcher);
+        return new RackspaceAuthenticationHandler(configurables, serviceClient, cache, grpCache, usrCache, uriMatcher);
     }
 
 }

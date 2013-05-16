@@ -20,8 +20,8 @@ public class OpenStackAuthenticationHandler extends AuthenticationHandler {
    private final String wwwAuthHeaderContents;
    private final AuthenticationService authenticationService;
 
-   public OpenStackAuthenticationHandler(Configurables cfg, AuthenticationService serviceClient, AuthTokenCache cache, AuthGroupCache grpCache, UriMatcher uriMatcher) {
-      super(cfg, cache, grpCache, uriMatcher);
+   public OpenStackAuthenticationHandler(Configurables cfg, AuthenticationService serviceClient, AuthTokenCache cache, AuthGroupCache grpCache,AuthUserCache usrCache, UriMatcher uriMatcher) {
+      super(cfg, cache, grpCache, usrCache, uriMatcher);
       this.authenticationService = serviceClient;
       this.wwwAuthHeaderContents = WWW_AUTH_PREFIX + cfg.getAuthServiceUri();
    }

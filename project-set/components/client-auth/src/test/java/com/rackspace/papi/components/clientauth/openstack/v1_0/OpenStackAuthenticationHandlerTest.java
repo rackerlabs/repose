@@ -15,6 +15,7 @@ import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
 import com.rackspace.papi.commons.util.servlet.http.ReadableHttpServletResponse;
 import com.rackspace.papi.components.clientauth.common.AuthGroupCache;
 import com.rackspace.papi.components.clientauth.common.AuthTokenCache;
+import com.rackspace.papi.components.clientauth.common.AuthUserCache;
 import com.rackspace.papi.components.clientauth.common.Configurables;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.components.clientauth.openstack.config.ClientMapping;
@@ -57,7 +58,8 @@ public class OpenStackAuthenticationHandlerTest {
     @Ignore
     public static abstract class TestParent {
         protected static final String AUTH_TOKEN_CACHE_PREFIX = "openstack.identity.token";
-        protected static final String AUTH_GROUP_CACHE_PREFIX = "openstack.identity.group";        
+        protected static final String AUTH_GROUP_CACHE_PREFIX = "openstack.identity.group";   
+        protected static final String AUTH_USER_CACHE_PREFIX = "openstack.identity.user";  
         protected static final long AUTH_GROUP_CACHE_TTL = 600000;
         protected static final long AUTH_TOKEN_CACHE_TTL = 5000;
 
@@ -103,15 +105,16 @@ public class OpenStackAuthenticationHandlerTest {
             whiteListRegexPatterns.add(Pattern.compile("/v1.0/application\\.wadl"));
 
             Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, isTenanted(), AUTH_GROUP_CACHE_TTL, AUTH_TOKEN_CACHE_TTL,requestGroups());
-            handler = new OpenStackAuthenticationHandler(configurables, authService, null, null, new UriMatcher(whiteListRegexPatterns));
+            handler = new OpenStackAuthenticationHandler(configurables, authService, null, null,null, new UriMatcher(whiteListRegexPatterns));
 
 
             // Handler with cache
             store = mock(Datastore.class);
             AuthTokenCache cache = new AuthTokenCache(store, AUTH_TOKEN_CACHE_PREFIX);
             AuthGroupCache grpCache = new AuthGroupCache(store, AUTH_GROUP_CACHE_PREFIX);
+            AuthUserCache usrCache = new AuthUserCache(store, AUTH_USER_CACHE_PREFIX);
 
-            handlerWithCache = new OpenStackAuthenticationHandler(configurables, authService, cache, grpCache, new UriMatcher(whiteListRegexPatterns));
+            handlerWithCache = new OpenStackAuthenticationHandler(configurables, authService, cache, grpCache,usrCache, new UriMatcher(whiteListRegexPatterns));
         }
 
         protected abstract boolean delegable();

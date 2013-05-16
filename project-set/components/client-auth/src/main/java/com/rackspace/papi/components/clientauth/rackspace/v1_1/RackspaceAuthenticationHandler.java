@@ -19,8 +19,8 @@ public class RackspaceAuthenticationHandler extends AuthenticationHandler {
    private final AuthenticationService authenticationService;
    private static final String WWW_AUTH_HEADER_CONTENTS = "RackAuth Realm=\"API Realm\"";
 
-   public RackspaceAuthenticationHandler(Configurables cfg, AuthenticationService authenticationService, AuthTokenCache cache, AuthGroupCache grpCache, UriMatcher uriMatcher) {
-      super(cfg, cache, grpCache, uriMatcher);
+   public RackspaceAuthenticationHandler(Configurables cfg, AuthenticationService authenticationService, AuthTokenCache cache, AuthGroupCache grpCache,AuthUserCache usrCache, UriMatcher uriMatcher) {
+      super(cfg, cache, grpCache, usrCache, uriMatcher);
       this.authenticationService = authenticationService;
    }
 
