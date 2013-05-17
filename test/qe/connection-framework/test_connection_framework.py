@@ -93,8 +93,8 @@ class TestJersey(unittest.TestCase):
 
     def test_no_accept_header(self):
 
-        url = 'http://localhost:{}/'.format(self.repose_port)
-        host_header = 'localhost:{}'.format(self.repose_port)
+        url = 'http://localhost:{0}/'.format(self.repose_port)
+        host_header = 'localhost:{0}'.format(self.repose_port)
         headers = {'Host': host_header, 'User-Agent': deproxy.version_string}
 
         logger.debug('making a request')
@@ -111,8 +111,8 @@ class TestJersey(unittest.TestCase):
             self.assertIn('Accept', mc.handlings[0].request.headers)
 
     def test_empty_accept_header(self):
-        url = 'http://localhost:{}/'.format(self.repose_port)
-        host_header = 'localhost:{}'.format(self.repose_port)
+        url = 'http://localhost:{0}/'.format(self.repose_port)
+        host_header = 'localhost:{0}'.format(self.repose_port)
         headers = {'Host': host_header, 'User-Agent': deproxy.version_string,
                    'Accept': ''}
 
@@ -128,8 +128,8 @@ class TestJersey(unittest.TestCase):
             self.assertIn('Accept', mc.handlings[0].request.headers)
 
     def test_star_star_accept_header(self):
-        url = 'http://localhost:{}/'.format(self.repose_port)
-        host_header = 'localhost:{}'.format(self.repose_port)
+        url = 'http://localhost:{0}/'.format(self.repose_port)
+        host_header = 'localhost:{0}'.format(self.repose_port)
         headers = {'Host': host_header, 'User-Agent': deproxy.version_string,
                    'Accept': '*/*'}
 
@@ -147,8 +147,8 @@ class TestJersey(unittest.TestCase):
             self.assertIn('Accept', mc.handlings[0].request.headers)
 
     def test_type_star_accept_header(self):
-        url = 'http://localhost:{}/'.format(self.repose_port)
-        host_header = 'localhost:{}'.format(self.repose_port)
+        url = 'http://localhost:{0}/'.format(self.repose_port)
+        host_header = 'localhost:{0}'.format(self.repose_port)
         headers = {'Host': host_header, 'User-Agent': deproxy.version_string,
                    'Accept': 'text/*'}
 
@@ -166,8 +166,8 @@ class TestJersey(unittest.TestCase):
             self.assertIn('Accept', mc.handlings[0].request.headers)
 
     def test_type_subtype_accept_header(self):
-        url = 'http://localhost:{}/'.format(self.repose_port)
-        host_header = 'localhost:{}'.format(self.repose_port)
+        url = 'http://localhost:{0}/'.format(self.repose_port)
+        host_header = 'localhost:{0}'.format(self.repose_port)
         headers = {'Host': host_header, 'User-Agent': deproxy.version_string,
                    'Accept': 'text/plain'}
 
@@ -226,8 +226,8 @@ class TestApache(unittest.TestCase):
 
     def test_no_accept_header(self):
 
-        url = 'http://localhost:{}/'.format(self.repose_port)
-        host_header = 'localhost:{}'.format(self.repose_port)
+        url = 'http://localhost:{0}/'.format(self.repose_port)
+        host_header = 'localhost:{0}'.format(self.repose_port)
         headers = {'Host': host_header, 'User-Agent': deproxy.version_string}
 
         logger.debug('making a request')
@@ -238,8 +238,8 @@ class TestApache(unittest.TestCase):
         self.assertNotIn('accept', mc.handlings[0].request.headers)
 
     def test_empty_accept_header(self):
-        url = 'http://localhost:{}/'.format(self.repose_port)
-        host_header = 'localhost:{}'.format(self.repose_port)
+        url = 'http://localhost:{0}/'.format(self.repose_port)
+        host_header = 'localhost:{0}'.format(self.repose_port)
         headers = {'Host': host_header, 'User-Agent': deproxy.version_string,
                    'Accept': ''}
 
@@ -255,8 +255,8 @@ class TestApache(unittest.TestCase):
             self.assertIn('Accept', mc.handlings[0].request.headers)
 
     def test_star_star_accept_header(self):
-        url = 'http://localhost:{}/'.format(self.repose_port)
-        host_header = 'localhost:{}'.format(self.repose_port)
+        url = 'http://localhost:{0}/'.format(self.repose_port)
+        host_header = 'localhost:{0}'.format(self.repose_port)
         headers = {'Host': host_header, 'User-Agent': deproxy.version_string,
                    'Accept': '*/*'}
 
@@ -274,8 +274,8 @@ class TestApache(unittest.TestCase):
             self.assertIn('Accept', mc.handlings[0].request.headers)
 
     def test_type_star_accept_header(self):
-        url = 'http://localhost:{}/'.format(self.repose_port)
-        host_header = 'localhost:{}'.format(self.repose_port)
+        url = 'http://localhost:{0}/'.format(self.repose_port)
+        host_header = 'localhost:{0}'.format(self.repose_port)
         headers = {'Host': host_header, 'User-Agent': deproxy.version_string,
                    'Accept': 'text/*'}
 
@@ -293,8 +293,8 @@ class TestApache(unittest.TestCase):
             self.assertIn('Accept', mc.handlings[0].request.headers)
 
     def test_type_subtype_accept_header(self):
-        url = 'http://localhost:{}/'.format(self.repose_port)
-        host_header = 'localhost:{}'.format(self.repose_port)
+        url = 'http://localhost:{0}/'.format(self.repose_port)
+        host_header = 'localhost:{0}'.format(self.repose_port)
         headers = {'Host': host_header, 'User-Agent': deproxy.version_string,
                    'Accept': 'text/plain'}
 
