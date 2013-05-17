@@ -85,6 +85,18 @@ public class JerseyRequestProcessorTest {
             
             verify(builder).accept("");
         }
+        
+        @Test
+        public void shouldSetEmptyAcceptHeaderOnEmptyAcceptCollections() throws IOException{
+           
+           when(request.getHeaders(eq("accept"))).thenReturn(Collections.enumeration(Arrays.asList("")));
+           when(input.read()).thenReturn(-1);
+            processor.process(builder);
+            
+            verify(request).getHeaderNames();
+            
+            verify(builder).accept("");
+        }
 
         @Test
         public void shouldSetInputStream() throws IOException {

@@ -95,11 +95,15 @@ class JerseyRequestProcessor extends AbstractRequestProcessor {
     boolean hasAccept=false;
     while (headerNames.hasMoreElements()) {
       String header = headerNames.nextElement();
-      if(StringUtilities.nullSafeEquals(header, "accept")){
+      if(StringUtilities.nullSafeEquals(header, CommonHttpHeader.ACCEPT.name())){
          hasAccept=true;
       }
       if (!excludeHeader(header)) {
         Enumeration<String> values = request.getHeaders(header);
+        //Need to catch that they passed in an empty accept header
+        if(StringUtilities.nullSafeEquals(header, CommonHttpHeader.ACCEPT.name()) && !values.hasMoreElements()){
+           hasAccept=false;
+        }
         while (values.hasMoreElements()) {
           String value = values.nextElement();
           builder.header(header, processHeaderValue(header, value));
