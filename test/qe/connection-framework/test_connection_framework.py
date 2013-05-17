@@ -101,8 +101,14 @@ class TestJersey(unittest.TestCase):
         mc = self.deproxy.make_request(url=url, headers=headers,
                                        add_default_headers=False)
 
-        self.assertNotIn('Accept', mc.handlings[0].request.headers)
-        self.assertNotIn('accept', mc.handlings[0].request.headers)
+        # Repose will add an accept header in order to get around the bug in
+        # jersey, so here we test for empty rather than non-existent
+        if 'Accept' in mc.handlings[0].request.headers:
+            self.assertEqual(mc.handlings[0].request.headers['Accept'], '')
+        elif 'accept' in mc.handlings[0].request.headers:
+            self.assertEqual(mc.handlings[0].request.headers['accept'], '')
+        else:
+            self.assertIn('Accept', mc.handlings[0].request.headers)
 
     def test_empty_accept_header(self):
         url = 'http://localhost:{}/'.format(self.repose_port)
