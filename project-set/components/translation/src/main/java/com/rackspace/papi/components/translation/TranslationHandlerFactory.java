@@ -21,6 +21,9 @@ import java.util.Map;
 
 public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<TranslationHandler> {
 
+  public static final String SAXON_HE_FACTORY_NAME = "net.sf.saxon.TransformerFactoryImpl";
+  public static final String SAXON_EE_FACTORY_NAME = "com.saxonica.config.EnterpriseTransformerFactory";
+
   private final List<XmlChainPool> responseProcessorPools;
   private final List<XmlChainPool> requestProcessorPools;
   private final String configurationRoot;
@@ -32,7 +35,9 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
   private XmlFilterChainBuilder xsltChainBuilder;
 
   public TranslationHandlerFactory(ConfigurationService configService, String configurationRoot, String config) {
-    transformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
+
+    transformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance(SAXON_HE_FACTORY_NAME, null);
+
     requestProcessorPools = new ArrayList<XmlChainPool>();
     responseProcessorPools = new ArrayList<XmlChainPool>();
     this.configurationRoot = configurationRoot;
@@ -139,7 +144,7 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
     }
   }
 
-  private void updateTransformerFactory (String transFactoryClass) {
+  private void updateTransformerPool (String transFactoryClass) {
      if (!transformerFactory.getClass().getCanonicalName().equals(transFactoryClass)) {
         transformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance(transFactoryClass, null);
      }
@@ -155,9 +160,9 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
         configuration = newConfig;
 
         if (configuration.getXslEngine() == XSLEngine.SAXON_EE ) {
-           updateTransformerFactory("com.saxonica.config.EnterpriseTransformerFactory");
+           updateTransformerPool( SAXON_EE_FACTORY_NAME );
         } else {
-           updateTransformerFactory("net.sf.saxon.TransformerFactoryImpl");
+            updateTransformerPool(SAXON_HE_FACTORY_NAME);
         }
 
         xslListener.unsubscribe();

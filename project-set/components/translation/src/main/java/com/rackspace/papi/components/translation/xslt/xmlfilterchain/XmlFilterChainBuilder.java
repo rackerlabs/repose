@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
+import com.rackspace.papi.components.translation.TranslationHandlerFactory;
 import com.rackspace.papi.components.translation.resolvers.*;
 import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;
 import com.rackspace.papi.components.translation.xslt.XsltException;
@@ -33,6 +34,33 @@ public class XmlFilterChainBuilder {
   private static final Logger LOG = LoggerFactory.getLogger(XmlFilterChainBuilder.class);
   private static final String CLASSPATH_PREFIX = "classpath://";
   private final SAXTransformerFactory factory;
+
+    //
+    // TODO_SAXON_WORKAROUND
+    // A bug in SaxonEE 9.4 causes a license to be required for IdentityTransformer, even when it is not required.
+    // This is fixed in 9.5, until then we use the XalanC Transformer in place of SaxonHE for Identity transforms.
+    // This same procedure is used in api-checker to get around this issue.
+    // When adding SaxonEE 9.5, need to update all sections tagged with TODO_SAXON_WORKAROUND
+    //
+    private static final String XALANC_FACTORY_NAME = "org.apache.xalan.xsltc.trax.TransformerFactoryImpl";
+    private static SAXTransformerFactory XALANC_TRANSFORMER_FACTORY;
+    static {
+
+        try {
+
+            XALANC_TRANSFORMER_FACTORY =
+                    (SAXTransformerFactory) TransformerFactory.newInstance( XALANC_FACTORY_NAME, null );
+
+            XALANC_TRANSFORMER_FACTORY.setFeature( XMLConstants.FEATURE_SECURE_PROCESSING, true );
+
+        } catch (TransformerConfigurationException ex) {
+
+            LOG.error( "Error", ex );
+        }
+    }
+    //
+    //
+
   private final boolean allowEntities;
   private final boolean allowDtdDeclarations;
 
@@ -48,6 +76,21 @@ public class XmlFilterChainBuilder {
     }
     addUriResolvers();
   }
+
+
+  //
+  // TODO_SAXON_WORKAROUND
+  // A bug in SaxonEE 9.4 causes a license to be required for IdentityTransformer, even when it is not required.
+  // This is fixed in 9.5, until then we use the XalanC Transformer in place of SaxonHE for Identity transforms.
+  // This same procedure is used in api-checker to get around this issue.
+  // When adding SaxonEE 9.5, need to update all sections tagged with TODO_SAXON_WORKAROUND
+  //
+  private SAXTransformerFactory getFactoryForIdentityTransform() {
+
+      return factory.getClass().getCanonicalName().equals(TranslationHandlerFactory.SAXON_HE_FACTORY_NAME ) ?
+              XALANC_TRANSFORMER_FACTORY : factory;
+  }
+  //
 
   private void addUriResolvers() {
     URIResolver resolver = factory.getURIResolver();
@@ -85,7 +128,16 @@ public class XmlFilterChainBuilder {
         filters.add(new XmlFilterReference(null, lastReader));
       }
 
-      return new XmlFilterChain(factory, filters);
+      //
+      // TODO_SAXON_WORKAROUND
+      // A bug in SaxonEE 9.4 causes a license to be required for IdentityTransformer, even when it is not required.
+      // This is fixed in 9.5, until then we use the XalanC Transformer in place of SaxonHE for Identity transforms.
+      // This same procedure is used in api-checker to get around this issue.
+      // When adding SaxonEE 9.5, need to update all sections tagged with TODO_SAXON_WORKAROUND
+      //
+      return new XmlFilterChain( getFactoryForIdentityTransform(), filters );
+      //return new XmlFilterChain(factory, filters);
+
     } catch (ParserConfigurationException ex) {
       throw new XsltException(ex);
     } catch (SAXException ex) {
@@ -116,7 +168,16 @@ public class XmlFilterChainBuilder {
       StreamResult result = new StreamResult(stringWriter);
 
       // Create a Transformer to serialize the document
-      Transformer transformer = factory.newTransformer();
+
+        //
+        // TODO_SAXON_WORKAROUND
+        // A bug in SaxonEE 9.4 causes a license to be required for IdentityTransformer, even when it is not required.
+        // This is fixed in 9.5, until then we use the XalanC Transformer in place of SaxonHE for Identity transforms.
+        // This same procedure is used in api-checker to get around this issue.
+        // When adding SaxonEE 9.5, need to update all sections tagged with TODO_SAXON_WORKAROUND
+        //
+        Transformer transformer = getFactoryForIdentityTransform().newTransformer();
+//      Transformer transformer = factory.newTransformer();
 
       // Transform the document to the result stream
       transformer.transform(domSource, result);
