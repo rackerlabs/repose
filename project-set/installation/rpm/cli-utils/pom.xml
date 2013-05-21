@@ -38,7 +38,7 @@
 
                         <configuration>
 
-                            <name>cli-utils</name>
+                            <name>repose-cli-utils</name>
 
                             <mappings>
                                 <mapping>
