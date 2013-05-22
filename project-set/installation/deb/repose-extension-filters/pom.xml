@@ -53,7 +53,7 @@
                                     <dataSet>
                                         <!-- The jar file -->
                                         <data>
-                                            <src>${basedir}/../../../components/filter-bundle/target/extensions-filter-bundle-${project.version}.ear</src>
+                                            <src>${basedir}/../../../extensions/extensions-filter-bundle/target/extensions-filter-bundle-${project.version}.ear</src>
                                             <type>file</type>
                                             <mapper>
                                                 <type>perm</type>
