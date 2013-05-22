@@ -11,6 +11,8 @@ import com.rackspace.papi.jmx.ConfigurationInformation;
 import com.rackspace.papi.service.config.ConfigurationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import java.io.FileNotFoundException;
@@ -18,8 +20,6 @@ import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 
 @Component("configurationManager")
 public class PowerApiConfigurationManager implements ConfigurationService {
@@ -115,8 +115,10 @@ public class PowerApiConfigurationManager implements ConfigurationService {
                 }else{
                        getConfigurationInformation().setFilterLoadingFailedInformation(filterName, resource,"Failed loading File"); 
                 }
-                
-                } catch (Exception ex) {
+            //Don't only log an error for illegal arguments, also throw an exception to prevent future requests.
+            } catch (IllegalArgumentException ex) {
+                throw new IllegalArgumentException(ex.getMessage());
+            } catch (Exception ex) {
                     if(filterName!=null && !filterName.isEmpty()){
                      getConfigurationInformation().setFilterLoadingFailedInformation(filterName, resource, ex.getMessage()); 
                     }
