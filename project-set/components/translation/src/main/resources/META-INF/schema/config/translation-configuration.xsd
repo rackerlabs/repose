@@ -40,6 +40,19 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
+        <xs:attribute name="use-saxon" type="xs:boolean" use="optional" default="false">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>
+                        If true then the translation component will
+                        attempt to use SaxonEE features -- including
+                        initial support for XSLT 3.0. A Saxon license
+                        is required to use this feature.
+                    </html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
     </xs:complexType>
 
     <xs:complexType name="RequestTranslations">

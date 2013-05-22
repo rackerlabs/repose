@@ -21,13 +21,13 @@ import java.util.Map;
 
 public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<TranslationHandler> {
 
-  private final SAXTransformerFactory transformerFactory;
   private final List<XmlChainPool> responseProcessorPools;
   private final List<XmlChainPool> requestProcessorPools;
   private final String configurationRoot;
   private final Object lock = new Object();
   private final XslUpdateListener xslListener;
   private final String config;
+  private SAXTransformerFactory transformerFactory;
   private TranslationConfig configuration;
   private XmlFilterChainBuilder xsltChainBuilder;
 
@@ -139,6 +139,12 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
     }
   }
 
+  private void updateTransformerFactory (String transFactoryClass) {
+     if (!transformerFactory.getClass().getCanonicalName().equals(transFactoryClass)) {
+        transformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance(transFactoryClass, null);
+     }
+  }
+
   class TranslationConfigurationListener implements UpdateListener<TranslationConfig> {
 
     private boolean isInitialized = false;
@@ -147,6 +153,13 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
     public void configurationUpdated(TranslationConfig newConfig) {
       synchronized (lock) {
         configuration = newConfig;
+
+        if (configuration.isUseSaxon()) {
+           updateTransformerFactory("com.saxonica.config.EnterpriseTransformerFactory");
+        } else {
+           updateTransformerFactory("net.sf.saxon.TransformerFactoryImpl");
+        }
+
         xslListener.unsubscribe();
         try {
           xsltChainBuilder = new XmlFilterChainBuilder(transformerFactory, false, configuration.isAllowDoctypeDecl());
