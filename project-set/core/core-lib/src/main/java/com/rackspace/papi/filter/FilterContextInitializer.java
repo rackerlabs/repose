@@ -38,27 +38,39 @@ public class FilterContextInitializer {
          throw new IllegalArgumentException("Domain and host cannot be null");
       }
 
-      for (com.rackspace.papi.model.Filter papiFilter : domain.getFilters().getFilter()) {
-         if (StringUtilities.isBlank(papiFilter.getName())) {
-            LOG.error("Filter declaration has a null or empty name value - please check your system model configuration");
-            continue;
-         }
+       if (domain.getFilters() != null && domain.getFilters().getFilter() != null) {
+           for (com.rackspace.papi.model.Filter papiFilter : domain.getFilters().getFilter()) {
 
-         if (classLoaderContextManager.hasFilter(papiFilter.getName())) {
-            final FilterContext context = getFilterContext(classLoaderContextManager, papiFilter);
+               //Message to let users know DD filter is deprecated.
+               if (!StringUtilities.isBlank(papiFilter.getName()) && papiFilter.getName().equals("dist-datastore")) {
+                   LOG.warn(
+                           "Use of the dist-datastore filter is deprecated. Please use the distributed datastore service.");
+               }
 
-            if (context != null) {
-               filterContexts.add(context);
-            } else {
-               filterContexts.add(new FilterContext(null, null, papiFilter));
-            }
-         } else {
-            LOG.error("Unable to satisfy requested filter chain - none of the loaded artifacts supply a filter named " + papiFilter.getName());
-            filterContexts.add(new FilterContext(null, null, papiFilter));
-         }
-      }
+               if (StringUtilities.isBlank(papiFilter.getName())) {
+                   LOG.error(
+                           "Filter declaration has a null or empty name value - please check your system model configuration");
+                   continue;
+               }
 
-      return filterContexts;
+               if (classLoaderContextManager.hasFilter(papiFilter.getName())) {
+                   final FilterContext context = getFilterContext(classLoaderContextManager, papiFilter);
+
+                   if (context != null) {
+                       filterContexts.add(context);
+                   } else {
+                       filterContexts.add(new FilterContext(null, null, papiFilter));
+                   }
+               } else {
+                   LOG.error(
+                           "Unable to satisfy requested filter chain - none of the loaded artifacts supply a filter named " +
+                                   papiFilter.getName());
+                   filterContexts.add(new FilterContext(null, null, papiFilter));
+               }
+           }
+       }
+
+       return filterContexts;
    }
 
    public FilterContext getFilterContext(ClassLoaderManagerService classLoaderContextManager, Filter papiFilter) {
