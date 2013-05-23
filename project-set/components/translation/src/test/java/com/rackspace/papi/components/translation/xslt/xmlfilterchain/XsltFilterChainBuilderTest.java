@@ -1,5 +1,6 @@
 package com.rackspace.papi.components.translation.xslt.xmlfilterchain;
 
+import com.rackspace.papi.components.translation.TranslationHandlerFactory;
 import com.rackspace.papi.components.translation.xslt.StyleSheetInfo;
 import com.rackspace.papi.components.translation.xslt.XsltParameter;
 import org.junit.Before;
@@ -27,7 +28,7 @@ public class XsltFilterChainBuilderTest {
 
         @BeforeClass
         public static void before() {
-            System.setProperty("javax.xml.transform.TransformerFactory", "net.sf.saxon.TransformerFactoryImpl");
+            System.setProperty("javax.xml.transform.TransformerFactory", TranslationHandlerFactory.SAXON_HE_FACTORY_NAME);
             factory = (SAXTransformerFactory) TransformerFactory.newInstance();
         }
 
@@ -62,7 +63,7 @@ public class XsltFilterChainBuilderTest {
 
         @BeforeClass
         public static void before() {
-            System.setProperty("javax.xml.transform.TransformerFactory", "net.sf.saxon.TransformerFactoryImpl");
+            System.setProperty("javax.xml.transform.TransformerFactory", TranslationHandlerFactory.SAXON_HE_FACTORY_NAME);
             factory = (SAXTransformerFactory) TransformerFactory.newInstance();
         }
 
