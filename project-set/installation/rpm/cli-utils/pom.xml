@@ -10,7 +10,6 @@
 
     <groupId>com.rackspace.repose.installation.rpm.cli-utils</groupId>
     <artifactId>repose-cli-utils</artifactId>
-    <version>2.6.13-SNAPSHOT</version>
 
     <name>Repose - Installation Cloud Integration CLI-Utils RPM</name>
 
