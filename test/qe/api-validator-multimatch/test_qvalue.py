@@ -96,7 +96,7 @@ def setUpModule():
         deproxy_object.add_endpoint(('localhost', deproxy_port))
 
 
-class TestSingleMatchQvalue(unittest.TestCase):
+class TestSingleMatchQvalueAndAllGoodRoles(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('setting up')
@@ -131,6 +131,13 @@ class TestSingleMatchQvalue(unittest.TestCase):
         mc = deproxy_object.make_request(url=self.url, headers=headers)
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
+
+    def test_use_all_good_roles(self):
+        r""" f4f5p\3q0.9,2q0.1,1q0.9 -> f4 """
+        headers = {'X-Roles': 'role-3; q=0.9, role-2; q=0.1; role-1; q=0.9'}
+        mc = deproxy_object.make_request(url=self.url, headers=headers)
+        self.assertEqual(mc.received_response.code, '404')
+        self.assertEqual(len(mc.handlings), 0)
 
     @classmethod
     def tearDownClass(cls):
