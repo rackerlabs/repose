@@ -9,8 +9,8 @@
     </parent>
 
     <groupId>com.rackspace.repose.installation.rpm.cli-utils</groupId>
-    <artifactId>cli-utils</artifactId>
-    <version>2.7.1-SNAPSHOT</version>
+    <artifactId>repose-cli-utils</artifactId>
+    <version>2.6.13-SNAPSHOT</version>
 
     <name>Repose - Installation Cloud Integration CLI-Utils RPM</name>
 
@@ -38,7 +38,7 @@
 
                         <configuration>
 
-                            <name>cli-utils</name>
+                            <name>repose-cli-utils</name>
 
                             <mappings>
                                 <mapping>

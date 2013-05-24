@@ -48,7 +48,7 @@
                             <execution>
 
                                 <configuration>
-                                    <deb>[[buildDir]]/[[artifactId]]-[[version]]-${git.commit.id.abbrev}.deb</deb>
+                                    <deb>[[buildDir]]/[[artifactId]]-[[version]].deb</deb>
                                     <timestamped>true</timestamped>
                                     <dataSet>
                                         <!-- The jar file -->
