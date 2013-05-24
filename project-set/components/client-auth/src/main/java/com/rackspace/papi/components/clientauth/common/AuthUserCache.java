@@ -11,7 +11,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Cache for Auth user. 
  */
-public class AuthUserCache {
+public class AuthUserCache implements DeleteableCache {
    
    private final Datastore store;
    private final String cachePrefix;
@@ -34,6 +34,11 @@ public class AuthUserCache {
       byte[] data = ObjectSerializer.instance().writeObject((Serializable)tokens);
       
       store.put(cachePrefix + "." + userId, data, ttl, TimeUnit.MILLISECONDS);
+   }
+   
+   @Override
+   public boolean deleteCacheItem(String userId){
+      return store.remove(cachePrefix + userId);
    }
    
    public List<String> getUserTokenList(String userId) {

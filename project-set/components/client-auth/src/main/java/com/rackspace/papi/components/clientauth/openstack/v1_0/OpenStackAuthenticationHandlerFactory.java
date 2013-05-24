@@ -10,17 +10,15 @@ import com.rackspace.papi.components.clientauth.openstack.config.OpenstackAuth;
 import com.rackspace.papi.service.datastore.Datastore;
 
 public final class OpenStackAuthenticationHandlerFactory {
-    private static final String AUTH_TOKEN_CACHE_PREFIX = "openstack.identity.token";
-    private static final String AUTH_GROUP_CACHE_PREFIX = "openstack.identity.group";
-    private static final String AUTH_USER_CACHE_PREFIX = "openstack.identity.user";
+
 
     private OpenStackAuthenticationHandlerFactory() {
     }
 
     public static AuthenticationHandler newInstance(ClientAuthConfig config, KeyedRegexExtractor accountRegexExtractor, Datastore datastore, UriMatcher uriMatcher) {
-        final AuthTokenCache cache = new AuthTokenCache(datastore, AUTH_TOKEN_CACHE_PREFIX);
-        final AuthGroupCache grpCache = new AuthGroupCache(datastore, AUTH_GROUP_CACHE_PREFIX);
-        final AuthUserCache usrCache = new AuthUserCache(datastore, AUTH_USER_CACHE_PREFIX);
+        final AuthTokenCache cache = new AuthTokenCache(datastore, OsAuthCachePrefix.TOKEN.toString());
+        final AuthGroupCache grpCache = new AuthGroupCache(datastore, OsAuthCachePrefix.GROUP.toString());
+        final AuthUserCache usrCache = new AuthUserCache(datastore, OsAuthCachePrefix.USER.toString());
         final OpenstackAuth authConfig = config.getOpenstackAuth();
         final OpenStackIdentityService ids = authConfig.getIdentityService();
         final AuthenticationService authService = new AuthenticationServiceFactory().build(ids.getUri(), ids.getUsername(), ids.getPassword(),ids.getTenantId());

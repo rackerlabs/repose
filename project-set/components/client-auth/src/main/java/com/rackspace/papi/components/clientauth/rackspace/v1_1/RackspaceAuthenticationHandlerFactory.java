@@ -18,9 +18,9 @@ public final class RackspaceAuthenticationHandlerFactory {
 
     public static AuthenticationHandler newInstance(ClientAuthConfig cfg, KeyedRegexExtractor accountRegexExtractor, Datastore datastore, UriMatcher uriMatcher) {
         final RackspaceAuth authConfig = cfg.getRackspaceAuth();
-        final AuthTokenCache cache = new AuthTokenCache(datastore, AUTH_TOKEN_CACHE_PREFIX);
-        final AuthGroupCache grpCache = new AuthGroupCache(datastore, AUTH_GROUP_CACHE_PREFIX);
-        final AuthUserCache usrCache = new AuthUserCache(datastore, AUTH_USER_CACHE_PREFIX);
+        final AuthTokenCache cache = new AuthTokenCache(datastore, RsAuthCachePrefix.TOKEN.toString());
+        final AuthGroupCache grpCache = new AuthGroupCache(datastore, RsAuthCachePrefix.GROUP.toString());
+        final AuthUserCache usrCache = new AuthUserCache(datastore, RsAuthCachePrefix.USER.toString());
 
         final AuthenticationService serviceClient = new AuthenticationServiceFactory().build(
                 authConfig.getAuthenticationServer().getUri(), authConfig.getAuthenticationServer().getUsername(), authConfig.getAuthenticationServer().getPassword());

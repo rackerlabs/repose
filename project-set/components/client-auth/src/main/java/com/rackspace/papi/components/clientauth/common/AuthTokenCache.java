@@ -8,7 +8,7 @@ import com.rackspace.papi.service.datastore.StoredElement;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-public class AuthTokenCache {
+public class AuthTokenCache implements DeleteableCache{
 
    private final Datastore store;
    private final String cachePrefix;
@@ -36,6 +36,11 @@ public class AuthTokenCache {
       byte[] data = ObjectSerializer.instance().writeObject(token);
       
       store.put(cachePrefix + "." + userId, data, ttl, TimeUnit.MILLISECONDS);
+   }
+   
+   @Override
+   public boolean deleteCacheItem(String userId){
+      return store.remove(cachePrefix + "." + userId);
    }
 
    public boolean validateToken(AuthToken cachedValue, String passedValue) {
