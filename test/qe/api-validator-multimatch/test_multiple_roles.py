@@ -1,5 +1,6 @@
-"""
+#!/usr/bin/env python
 
+"""
 Multiple Roles Tests
 --------------------
 
@@ -81,7 +82,6 @@ This requires only one request:
 
 If the filter were looping through incoming roles first, then the 2 would match
 the f4, when the 1 should match the p.
-
 """
 
 
