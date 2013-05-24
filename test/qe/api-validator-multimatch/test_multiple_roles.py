@@ -77,7 +77,7 @@ bad:
 
 This requires only one request:
 
-    p{1}f4{1,2}\2,1 -> p
+    p{2}f4{1,2}\1,2 -> p
 
 If the filter were looping through incoming roles first, then the 2 would match
 the f4, when the 1 should match the p.
@@ -191,6 +191,49 @@ class TestMultipleRoles(unittest.TestCase):
 
     def test_both_roles(self):
         r""" p{1,2}\1,2 -> p """
+        mc = deproxy_object.make_request(url=self.url,
+                                         headers={'X-Roles': 'role-1,role-2'})
+        self.assertEqual(mc.received_response.code, '200')
+        self.assertEqual(len(mc.handlings), 1)
+
+    @classmethod
+    def tearDownClass(cls):
+        logger.debug('stopping repose')
+        cls.repose.stop()
+        logger.debug('repose stopped')
+
+
+class TestRoleOrder(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        logger.debug('setting up')
+
+        repose_port = get_next_open_port()
+        stop_port = get_next_open_port()
+
+        params = {
+            'target_hostname': 'localhost',
+            'target_port': deproxy_port,
+            'port': repose_port,
+            'repose_port': repose_port,
+        }
+
+        cls.url = 'http://localhost:{0}/resource'.format(repose_port)
+
+        # set the common config files, like system model and container
+        conf.process_folder_contents(folder='configs/common',
+                                     dest_path='etc/repose', params=params)
+
+        # set the specific config files, i.e. validator.cfg.xml
+        conf.process_folder_contents(folder='configs/p{2}f4{1,2}',
+                                     dest_path='etc/repose', params=params)
+
+        cls.repose = repose.ReposeValve(config_dir='etc/repose',
+                                        stop_port=stop_port,
+                                        wait_on_start=True, port=repose_port)
+
+    def test_role_order(self):
+        r""" p{2}f4{1,2}\1,2 -> p """
         mc = deproxy_object.make_request(url=self.url,
                                          headers={'X-Roles': 'role-1,role-2'})
         self.assertEqual(mc.received_response.code, '200')
