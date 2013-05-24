@@ -8,6 +8,7 @@ import com.rackspace.papi.components.clientauth.rackspace.v1_1.RsAuthCachePrefix
 import com.rackspace.papi.service.datastore.Datastore;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.slf4j.LoggerFactory;
 
 /*
@@ -72,7 +73,7 @@ public class FeedCacheInvalidator implements Runnable {
          List<String> userKeys = new ArrayList<String>();
          List<String> tokenKeys = new ArrayList<String>();
 
-
+         // Iterate through atom feeds to retrieve tokens and users to invalidate from Repose cache
          for (AuthFeedReader rdr : feeds) {
             CacheKeys keys = rdr.getCacheKeys();
 
@@ -90,8 +91,6 @@ public class FeedCacheInvalidator implements Runnable {
             LOG.debug("Feed Cache Invalidator Thread interruption", ex);
             Thread.currentThread().interrupt();
          }
-
-
       }
    }
 
@@ -100,13 +99,12 @@ public class FeedCacheInvalidator implements Runnable {
 
       List<String> tokenKeys = new ArrayList<String>();
       for (String key : keys) {
-         List<String> tkns = usrCache.getUserTokenList(key);
+         Set<String> tkns = usrCache.getUserTokenList(key);
          if (tkns != null) {
             tokenKeys.addAll(tkns);
             usrCache.deleteCacheItem(key); //removes user item from cache
+            LOG.debug("Invalidating tokens from user " + key);
          }
-         LOG.debug("Invalidating tokens from user " + key);
-
       }
 
       return tokenKeys;

@@ -21,7 +21,9 @@ import org.slf4j.Logger;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author fran
@@ -106,7 +108,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
          if (token == null) {
             try {
                token = validateToken(account, StringUriUtilities.encodeUri(authToken));
-               cacheUserInfoNewStrategy(token);
+               cacheUserInfo(token);
             } catch (ClientHandlerException ex) {
                LOG.error("Failure communicating with the auth service: " + ex.getMessage(), ex);
                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -195,31 +197,12 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       return cache.getUserToken(key, token);
    }
 
-   private void cacheUserInfo(AuthToken user) {
-      if (user == null || cache == null) {
-         return;
-      }
-      String key;
-      if (tenanted) {
-         key = user.getTenantId() + ":" + user.getTokenId();
-      } else {
-         key = user.getTokenId();
-      }
-
-      try {
-         long ttl = userCacheTtl > 0 ? Math.min(userCacheTtl, user.tokenTtl().intValue()) : user.tokenTtl().intValue();
-         cache.storeToken(key, user, Long.valueOf(ttl).intValue());
-      } catch (IOException ex) {
-         LOG.warn("Unable to cache user token information: " + user.getUserId() + " Reason: " + ex.getMessage(), ex);
-      }
-   }
-
    /*
     * New caching strategy:
     * Tokens (TokenId) will be mapped to AuthToken object.
     * TenantId will be mapped to List of TokenIds
     */
-   private void cacheUserInfoNewStrategy(AuthToken user) {
+   private void cacheUserInfo(AuthToken user) {
 
       if (user == null || cache == null) {
          return;
@@ -236,7 +219,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
          LOG.warn("Unable to cache user token information: " + user.getUserId() + " Reason: " + ex.getMessage(), ex);
       }
 
-      List<String> userTokenList = getUserTokenList(userKey);
+      Set<String> userTokenList = getUserTokenList(userKey);
 
       userTokenList.add(tokenKey);
 
@@ -251,13 +234,13 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       // Not Present: Add token to new user token list and add new user token list to cache
    }
 
-   private List<String> getUserTokenList(String userKey) {
+   private Set<String> getUserTokenList(String userKey) {
 
-      List<String> userTokenList = usrCache.getUserTokenList(userKey);
+      Set<String> userTokenList = usrCache.getUserTokenList(userKey);
 
 
       if (userTokenList == null) {
-         userTokenList = new ArrayList<String>();
+         userTokenList = new HashSet<String>();
       }
 
       return userTokenList;

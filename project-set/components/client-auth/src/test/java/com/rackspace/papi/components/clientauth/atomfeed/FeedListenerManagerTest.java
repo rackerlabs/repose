@@ -14,21 +14,24 @@ import com.rackspace.papi.components.clientauth.common.AuthUserCache;
 import com.rackspace.papi.components.clientauth.openstack.v1_0.OsAuthCachePrefix;
 import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.impl.ehcache.EHCacheDatastore;
-import java.util.List;
-import org.junit.Before;
-import org.junit.Test;
-import static org.junit.Assert.*;
 import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import org.openstack.docs.identity.api.v2.AuthenticateResponse;
@@ -44,12 +47,11 @@ import org.openstack.docs.identity.api.v2.UserForAuthenticateResponse;
  *
  * @author malconis
  */
-public class AuthFeedListenerTest {
-
+public class FeedListenerManagerTest {
+   
    private Datastore datastore;
    private FeedCacheInvalidator listener;
    private AuthFeedReader rdr;
-   private String data1;
    private AuthTokenCache tkn;
    private AuthUserCache usr;
    private AuthGroupCache grp;
@@ -142,28 +144,27 @@ public class AuthFeedListenerTest {
 
       return rsp;
    }
-
+   
    @Test
-   public void shouldDeleteCacheKeysFromAuthFeedResults() throws InterruptedException {
-
+   public void shouldStartAndStopFeedListener(){
+      
       assertNotNull("Token1 should be present in cache", tkn.getUserToken("token1", "tokenid"));
       assertNotNull("Token2 should be present in cache", tkn.getUserToken("token2", "tokenid"));
       List<AuthFeedReader> feeds = new ArrayList<AuthFeedReader>();
       feeds.add(rdr);
-
-      listener.setFeeds(feeds);
-
-      Thread thread = new Thread(listener);
-      thread.start();
-
+      
+      Long checkInterval = new Long("1000");
+      FeedListenerManager manager = new FeedListenerManager(datastore, feeds, checkInterval);
+      
+      manager.startReading();
+      
       try {
          Thread.sleep(1000);
       } catch (InterruptedException e) {
       }
-
-      listener.done();
-      thread.join();
-
+      
+      manager.stopReading();
+      
       tkn = new AuthTokenCache(datastore, OsAuthCachePrefix.TOKEN.toString());
       grp = new AuthGroupCache(datastore, OsAuthCachePrefix.GROUP.toString());
       usr = new AuthUserCache(datastore, OsAuthCachePrefix.USER.toString());
@@ -171,8 +172,5 @@ public class AuthFeedListenerTest {
 
       assertNull("token1 should have been deleted from cache", tkn.getUserToken("token1", "tokenid"));
       assertNull("token2 should have been deleted from cache", tkn.getUserToken("token2", "tokenid"));
-
-
-
    }
 }
