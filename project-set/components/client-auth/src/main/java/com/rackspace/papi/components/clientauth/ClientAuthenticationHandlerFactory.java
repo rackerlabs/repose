@@ -1,10 +1,16 @@
 package com.rackspace.papi.components.clientauth;
 
 import com.rackspace.papi.commons.config.manager.UpdateListener;
+import com.rackspace.papi.commons.util.StringUtilities;
+import com.rackspace.papi.commons.util.http.ServiceClient;
 import com.rackspace.papi.commons.util.regex.KeyedRegexExtractor;
+import com.rackspace.papi.components.clientauth.atomfeed.FeedListenerManager;
+import com.rackspace.papi.components.clientauth.atomfeed.AuthFeedReader;
+import com.rackspace.papi.components.clientauth.atomfeed.sax.SaxAuthFeedReader;
 import com.rackspace.papi.components.clientauth.common.AuthenticationHandler;
 import com.rackspace.papi.components.clientauth.common.UriMatcher;
 import com.rackspace.papi.components.clientauth.config.ClientAuthConfig;
+import com.rackspace.papi.components.clientauth.config.RackspaceIdentityFeed;
 import com.rackspace.papi.components.clientauth.config.URIPattern;
 import com.rackspace.papi.components.clientauth.config.WhiteList;
 import com.rackspace.papi.components.clientauth.openstack.config.ClientMapping;
@@ -37,6 +43,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
    private KeyedRegexExtractor<String> accountRegexExtractor = new KeyedRegexExtractor<String>();
    private UriMatcher uriMatcher;
    private final Datastore datastore;
+   private FeedListenerManager manager;
 
    public ClientAuthenticationHandlerFactory(Datastore datastore) {
       this.datastore = datastore;
@@ -70,6 +77,11 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
             for (ClientMapping clientMapping : modifiedConfig.getOpenstackAuth().getClientMapping()) {
                accountRegexExtractor.addPattern(clientMapping.getIdRegex());
             }
+            if(modifiedConfig.getAtomFeeds() != null){
+               activateOpenstackAtomFeedListener(modifiedConfig);
+            } else if(manager != null){ //Case where the user has an active feed manager, but has edited their config to not listen to atom feeds
+               manager.stopReading();
+            }
          } else if (modifiedConfig.getHttpBasicAuth() != null) {
             // TODO: Create handler for HttpBasic
             authenticationModule = null;
@@ -77,8 +89,39 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
             LOG.error("Authentication module is not understood or supported. Please check your configuration.");
          }
          
+         
+         
           isInitialized = true;
 
+      }
+      
+      //Launch listener for atom-feeds if config present
+      private void activateOpenstackAtomFeedListener(ClientAuthConfig modifiedConfig){
+         
+         if(manager != null){ //If we have an existing manager we will shutdown the already running thread
+            manager.stopReading();
+         }
+         List<AuthFeedReader> listeners = new ArrayList<AuthFeedReader>();
+            
+            for(RackspaceIdentityFeed feed : modifiedConfig.getAtomFeeds().getRsIdentityFeed()){
+               SaxAuthFeedReader rdr = new SaxAuthFeedReader(new ServiceClient(), feed.getUri());
+               
+               //if the atom feed is authed, but no auth uri, user, and pass are configured we will use the same credentials we use for auth admin operations
+               if(feed.isIsAuthed()){ 
+                  if(!StringUtilities.isBlank(feed.getAuthUrl())){
+                     rdr.setAuthed(feed.getAuthUrl(), feed.getUser(), feed.getPassword());
+                  }else{
+                     rdr.setAuthed(modifiedConfig.getOpenstackAuth().getIdentityService().getUri(), modifiedConfig.getOpenstackAuth().getIdentityService().getUsername(),
+                             modifiedConfig.getOpenstackAuth().getIdentityService().getPassword());
+                  }
+               }
+               
+               
+               listeners.add(rdr);
+            }
+            
+            manager = new FeedListenerManager(datastore, listeners, modifiedConfig.getAtomFeeds().getCheckInterval());
+            manager.startReading();
       }
       
      @Override
