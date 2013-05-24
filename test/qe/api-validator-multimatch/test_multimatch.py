@@ -163,6 +163,19 @@ multi-match with default:
     MP(F4)F5\3 = MF4PF4F5\1,4   MF4SSF5                 F5
     MP(F4)P\0 = MF4PF4P\1       MF4SSS                  F4
 
+
+
+Future, outside-the-box considerations
+--------------------------------------
+  roles
+    are leading and trailing spaces trimmed?
+    can tabs work as well as spaces?
+    are leading and trailing tabs trimmed?
+    what about other unicode whitespace?
+  qvalue
+    make sure not specifying q actually translates to the default of 1
+    what happens if q is < 0 or > 1?
+    what happens if q is not a number?
 """
 
 from narwhal import repose
