@@ -96,6 +96,49 @@ def setUpModule():
         deproxy_object.add_endpoint(('localhost', deproxy_port))
 
 
+class TestSingleMatchQvalue(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        logger.debug('setting up')
+
+        repose_port = get_next_open_port()
+        stop_port = get_next_open_port()
+
+        params = {
+            'target_hostname': 'localhost',
+            'target_port': deproxy_port,
+            'port': repose_port,
+            'repose_port': repose_port,
+        }
+
+        cls.url = 'http://localhost:{0}/resource'.format(repose_port)
+
+        # set the common config files, like system model and container
+        conf.process_folder_contents(folder='configs/common',
+                                     dest_path='etc/repose', params=params)
+
+        # set the specific config files, i.e. validator.cfg.xml
+        conf.process_folder_contents(folder='configs/f4f5p',
+                                     dest_path='etc/repose', params=params)
+
+        cls.repose = repose.ReposeValve(config_dir='etc/repose',
+                                        stop_port=stop_port,
+                                        wait_on_start=True, port=repose_port)
+
+    def test_single_match_qvalue(self):
+        r""" f4f5p\1q0.1,3q0.9 -> p """
+        headers = {'X-Roles': 'role-1; q=0.1, role-3; q=0.9'}
+        mc = deproxy_object.make_request(url=self.url, headers=headers)
+        self.assertEqual(mc.received_response.code, '200')
+        self.assertEqual(len(mc.handlings), 1)
+
+    @classmethod
+    def tearDownClass(cls):
+        logger.debug('stopping repose')
+        cls.repose.stop()
+        logger.debug('repose stopped')
+
+
 def tearDownModule():
     logger.debug('tearing down')
     if deproxy_object is not None:
