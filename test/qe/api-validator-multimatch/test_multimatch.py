@@ -176,6 +176,7 @@ Future, outside-the-box considerations
     make sure not specifying q actually translates to the default of 1
     what happens if q is < 0 or > 1?
     what happens if q is not a number?
+
 """
 
 from narwhal import repose
