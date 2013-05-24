@@ -122,9 +122,12 @@ public class ConfigurationInformation implements ConfigurationInformationMBean, 
          synchronized (filters) {
             filters.clear();
 
-            for (Filter filter : cluster.getFilters().getFilter()) {
-               filters.add(new FilterInformation(filter.getId(), filter.getName(), filter.getUriRegex(), filter.getConfiguration(), false));
-            }
+             if (cluster.getFilters() != null && cluster.getFilters().getFilter() != null) {
+                 for (Filter filter : cluster.getFilters().getFilter()) {
+                     filters.add(new FilterInformation(filter.getId(), filter.getName(), filter.getUriRegex(),
+                                                       filter.getConfiguration(), false));
+                 }
+             }
          }
 
          initialized = true;

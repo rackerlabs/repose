@@ -21,18 +21,23 @@ import java.util.Map;
 
 public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFactory<TranslationHandler> {
 
-  private final SAXTransformerFactory transformerFactory;
+  public static final String SAXON_HE_FACTORY_NAME = "net.sf.saxon.TransformerFactoryImpl";
+  public static final String SAXON_EE_FACTORY_NAME = "com.saxonica.config.EnterpriseTransformerFactory";
+
   private final List<XmlChainPool> responseProcessorPools;
   private final List<XmlChainPool> requestProcessorPools;
   private final String configurationRoot;
   private final Object lock = new Object();
   private final XslUpdateListener xslListener;
   private final String config;
+  private SAXTransformerFactory transformerFactory;
   private TranslationConfig configuration;
   private XmlFilterChainBuilder xsltChainBuilder;
 
   public TranslationHandlerFactory(ConfigurationService configService, String configurationRoot, String config) {
-    transformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance("net.sf.saxon.TransformerFactoryImpl", null);
+
+    transformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance(SAXON_HE_FACTORY_NAME, null);
+
     requestProcessorPools = new ArrayList<XmlChainPool>();
     responseProcessorPools = new ArrayList<XmlChainPool>();
     this.configurationRoot = configurationRoot;
@@ -139,6 +144,12 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
     }
   }
 
+  private void updateTransformerPool (String transFactoryClass) {
+     if (!transformerFactory.getClass().getCanonicalName().equals(transFactoryClass)) {
+        transformerFactory = (SAXTransformerFactory) TransformerFactory.newInstance(transFactoryClass, null);
+     }
+  }
+
   class TranslationConfigurationListener implements UpdateListener<TranslationConfig> {
 
     private boolean isInitialized = false;
@@ -147,6 +158,13 @@ public class TranslationHandlerFactory extends AbstractConfiguredFilterHandlerFa
     public void configurationUpdated(TranslationConfig newConfig) {
       synchronized (lock) {
         configuration = newConfig;
+
+        if (configuration.getXslEngine() == XSLEngine.SAXON_EE ) {
+           updateTransformerPool( SAXON_EE_FACTORY_NAME );
+        } else {
+            updateTransformerPool(SAXON_HE_FACTORY_NAME);
+        }
+
         xslListener.unsubscribe();
         try {
           xsltChainBuilder = new XmlFilterChainBuilder(transformerFactory, false, configuration.isAllowDoctypeDecl());
