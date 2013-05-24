@@ -22,6 +22,8 @@ import com.sun.org.apache.xerces.internal.jaxp.datatype.XMLGregorianCalendarImpl
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
@@ -77,7 +79,7 @@ public class AuthFeedListenerTest {
       AuthGroups group = mock(AuthGroups.class);
       grp.storeGroups("group1", group, 1000000);
 
-      List<String> tokens = new ArrayList<String>();
+      Set<String> tokens = new HashSet<String>();
       tokens.add("token2");
 
       AuthToken token2 = new OpenStackToken(getServiceResponse());

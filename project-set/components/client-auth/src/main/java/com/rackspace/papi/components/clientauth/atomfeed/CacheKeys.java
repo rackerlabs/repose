@@ -1,6 +1,5 @@
 package com.rackspace.papi.components.clientauth.atomfeed;
 
-import java.util.List;
 import java.util.Set;
 
 public interface CacheKeys {

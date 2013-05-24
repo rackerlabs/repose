@@ -5,7 +5,7 @@ import com.rackspace.papi.service.datastore.Datastore;
 import com.rackspace.papi.service.datastore.StoredElement;
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -21,11 +21,11 @@ public class AuthUserCache implements DeleteableCache {
       this.cachePrefix = cachePrefix;
    }
    
-   private List<String> getElementAsType(StoredElement element) {
-      return element == null || element.elementIsNull() ? null : element.elementAs(List.class);
+   private Set<String> getElementAsType(StoredElement element) {
+      return element == null || element.elementIsNull() ? null : element.elementAs(Set.class);
    }
    
-   public void storeUserTokenList(String userId, List<String> tokens, int ttl) throws IOException {
+   public void storeUserTokenList(String userId, Set<String> tokens, int ttl) throws IOException {
       if (userId == null || tokens == null || ttl < 0) {
          // TODO Should we throw an exception here?
          return;
@@ -41,8 +41,8 @@ public class AuthUserCache implements DeleteableCache {
       return store.remove(cachePrefix + userId);
    }
    
-   public List<String> getUserTokenList(String userId) {
-      List<String> candidate = getElementAsType(store.get(cachePrefix + "." + userId));
+   public Set<String> getUserTokenList(String userId) {
+      Set<String> candidate = getElementAsType(store.get(cachePrefix + "." + userId));
       return candidate;
    }
 }
