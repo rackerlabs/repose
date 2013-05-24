@@ -9,133 +9,133 @@
            xmlns:saxon="http://saxon.sf.net/"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">    
 
-    <!-- Configuration -->
-    <xs:element name="openstack-auth">
-        <xs:complexType>
+   <!-- Configuration -->
+   <xs:element name="openstack-auth">
+      <xs:complexType>
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Defines an OpenStack Identity Service authentication configuration</html:p>
+            </xs:documentation>
+         </xs:annotation>
+
+         <xs:all vc:minVersion="1.1">
+            <xs:element name="identity-service" type="os-ids-auth:OpenStackIdentityService" minOccurs="1" maxOccurs="1" />
+            <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0" maxOccurs="unbounded" />
+         </xs:all>
+            
+         <!-- Order matters in 1.0 land :-( -->
+         <xs:sequence vc:minVersion="1.0" vc:maxVersion="1.1">
+            <xs:element name="identity-service" type="os-ids-auth:OpenStackIdentityService" minOccurs="1" maxOccurs="1" />
+            <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0" maxOccurs="unbounded" />
+         </xs:sequence>
+
+         <xs:attribute name="delegable" type="xs:boolean" use="optional" default="false">
             <xs:annotation>
-                <xs:documentation>
-                    <html:p>Defines an OpenStack Identity Service authentication configuration</html:p>
-                </xs:documentation>
+               <xs:documentation>
+                  <html:p>Tells the service whether or not to support auth delegation.</html:p>
+               </xs:documentation>
             </xs:annotation>
+         </xs:attribute>
 
-            <xs:all vc:minVersion="1.1">
-                <xs:element name="identity-service" type="os-ids-auth:OpenStackIdentityService" minOccurs="1" maxOccurs="1" />
-                <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0" maxOccurs="unbounded" />
-            </xs:all>
+         <xs:attribute name="token-cache-timeout" type="os-ids-auth:longGTEZero" use="optional" default="0">
+            <xs:annotation>
+               <xs:documentation>
+                  <html:p>Time in milliseconds to cache auth token.</html:p>
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+
+         <xs:attribute name="group-cache-timeout" type="os-ids-auth:longGTEZero" use="optional" default="600000">
+            <xs:annotation>
+               <xs:documentation>
+                  <html:p>Time in milliseconds to cache auth groups.</html:p>
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
             
-            <!-- Order matters in 1.0 land :-( -->
-            <xs:sequence vc:minVersion="1.0" vc:maxVersion="1.1">
-                <xs:element name="identity-service" type="os-ids-auth:OpenStackIdentityService" minOccurs="1" maxOccurs="1" />
-                <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0" maxOccurs="unbounded" />
-            </xs:sequence>
-
-            <xs:attribute name="delegable" type="xs:boolean" use="optional" default="false">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>Tells the service whether or not to support auth delegation.</html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:attribute>
-
-            <xs:attribute name="token-cache-timeout" type="os-ids-auth:longGTEZero" use="optional" default="0">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>Time in milliseconds to cache auth token.</html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:attribute>
-
-            <xs:attribute name="group-cache-timeout" type="os-ids-auth:longGTEZero" use="optional" default="600000">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>Time in milliseconds to cache auth groups.</html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:attribute>
-            
-            <xs:attribute name="tenanted" type="xs:boolean" use="optional" default="true">
-                <xs:annotation>
-                    <xs:documentation>
-                        <html:p>Option to include the query strings to find extract the client id</html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:attribute>
+         <xs:attribute name="tenanted" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+               <xs:documentation>
+                  <html:p>Option to include the query strings to find extract the client id</html:p>
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
             
                       
-            <xs:attribute name="request-groups" type="xs:boolean" use="optional" default="true">
-                <xs:annotation>
-                    <xs:documentation>
-                     c   <html:p>Tells the service whether or not to make get Groups call to Auth</html:p>
-                    </xs:documentation>
-                </xs:annotation>
-            </xs:attribute>
-            <!-- Review assertion -->
-            <xs:assert vc:minVersion="1.1" test="xs:boolean(@tenanted) eq true() and count(os-ids-auth:client-mapping) > 0 or xs:boolean(@tenanted) eq false()"
-                       xerces:message="If tenanted = true then there should be at least one client mapping."
-                       saxon:message="If tenanted = true then there should be at least one client mapping."/>
-        </xs:complexType>
-    </xs:element>
+         <xs:attribute name="request-groups" type="xs:boolean" use="optional" default="true">
+            <xs:annotation>
+               <xs:documentation>
+                  c   <html:p>Tells the service whether or not to make get Groups call to Auth</html:p>
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
+         <!-- Review assertion -->
+         <xs:assert vc:minVersion="1.1" test="xs:boolean(@tenanted) eq true() and count(os-ids-auth:client-mapping) > 0 or xs:boolean(@tenanted) eq false()"
+                    xerces:message="If tenanted = true then there should be at least one client mapping."
+                    saxon:message="If tenanted = true then there should be at least one client mapping."/>
+      </xs:complexType>
+   </xs:element>
 
-    <xs:complexType name="OpenStackIdentityService">
-        <xs:annotation>
+   <xs:complexType name="OpenStackIdentityService">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>Describes an OpenStack Identity Service endpoint</html:p>
+         </xs:documentation>
+      </xs:annotation>
+
+      <xs:attribute name="username" type="xs:string" use="required">
+         <xs:annotation>
             <xs:documentation>
-                <html:p>Describes an OpenStack Identity Service endpoint</html:p>
+               <html:p>Username to use</html:p>
             </xs:documentation>
-        </xs:annotation>
+         </xs:annotation>
+      </xs:attribute>
 
-        <xs:attribute name="username" type="xs:string" use="required">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>Username to use</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-
-        <xs:attribute name="password" type="xs:string" use="required">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>Password to use</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
+      <xs:attribute name="password" type="xs:string" use="required">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Password to use</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
         
   
 
-        <xs:attribute name="uri" type="xs:anyURI" use="required">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>Target URI for authentication requests</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-        <xs:attribute name="tenantId" type="xs:string" use="optional">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>The tenantId with admin permission used by the Keystone implementation perform admin tasks.</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-    </xs:complexType>
-
-    <xs:complexType name="ClientMapping">
-        <xs:annotation>
+      <xs:attribute name="uri" type="xs:anyURI" use="required">
+         <xs:annotation>
             <xs:documentation>
-                <html:p>Describes how to extract the client id from a given URI</html:p>
+               <html:p>Target URI for authentication requests</html:p>
             </xs:documentation>
-        </xs:annotation>
+         </xs:annotation>
+      </xs:attribute>
+      <xs:attribute name="tenantId" type="xs:string" use="optional">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>The tenantId with admin permission used by the Keystone implementation perform admin tasks.</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+   </xs:complexType>
 
-        <xs:attribute name="id-regex" type="xs:string" use="required">
-            <xs:annotation>
-                <xs:documentation>
-                    <html:p>Regex used to extract the client id from a given URI</html:p>
-                </xs:documentation>
-            </xs:annotation>
-        </xs:attribute>
-    </xs:complexType>
+   <xs:complexType name="ClientMapping">
+      <xs:annotation>
+         <xs:documentation>
+            <html:p>Describes how to extract the client id from a given URI</html:p>
+         </xs:documentation>
+      </xs:annotation>
+
+      <xs:attribute name="id-regex" type="xs:string" use="required">
+         <xs:annotation>
+            <xs:documentation>
+               <html:p>Regex used to extract the client id from a given URI</html:p>
+            </xs:documentation>
+         </xs:annotation>
+      </xs:attribute>
+   </xs:complexType>
     
-    <xs:simpleType name="longGTEZero">
-        <xs:restriction base="xs:long">
-            <xs:minInclusive value="0"/>
-        </xs:restriction>
-    </xs:simpleType>
+   <xs:simpleType name="longGTEZero">
+      <xs:restriction base="xs:long">
+         <xs:minInclusive value="0"/>
+      </xs:restriction>
+   </xs:simpleType>
 </xs:schema>
