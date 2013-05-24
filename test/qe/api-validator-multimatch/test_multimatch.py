@@ -378,8 +378,8 @@ class TestMssfsffpnn(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         logger.debug('')
-        cls.repose = configure_and_start_repose(
-                        folder='configs/mf4f4f5f4f5f5pf4f4')
+        cls.repose = configure_and_start_repose(folder='configs/'
+                                                'mf4f4f5f4f5f5pf4f4')
 
     def test_mssfsffpnn(self):
         mc = d.make_request(url=url, headers={'X-Roles':
