@@ -169,28 +169,28 @@ class TestMultipleRoles(unittest.TestCase):
                                         wait_on_start=True, port=repose_port)
 
     def test_neither_role(self):
-        """ p{1,2}\\0 -> f3 """
+        r""" p{1,2}\0 -> f3 """
         mc = deproxy_object.make_request(url=self.url,
                                          headers={'X-Roles': 'role-0'})
         self.assertEqual(mc.received_response.code, '403')
         self.assertEqual(len(mc.handlings), 0)
 
     def test_first_role(self):
-        """ p{1,2}\\1 -> p    """
+        r""" p{1,2}\1 -> p """
         mc = deproxy_object.make_request(url=self.url,
                                          headers={'X-Roles': 'role-1'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
     def test_second_role(self):
-        """ p{1,2}\\2 -> p """
+        r""" p{1,2}\2 -> p """
         mc = deproxy_object.make_request(url=self.url,
                                          headers={'X-Roles': 'role-2'})
         self.assertEqual(mc.received_response.code, '200')
         self.assertEqual(len(mc.handlings), 1)
 
     def test_both_roles(self):
-        """ p{1,2}\\1,2 -> p """
+        r""" p{1,2}\1,2 -> p """
         mc = deproxy_object.make_request(url=self.url,
                                          headers={'X-Roles': 'role-1,role-2'})
         self.assertEqual(mc.received_response.code, '200')
