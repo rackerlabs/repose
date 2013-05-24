@@ -106,7 +106,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
          if (token == null) {
             try {
                token = validateToken(account, StringUriUtilities.encodeUri(authToken));
-               cacheUserInfoNewStrategy(token);
+               cacheUserInfo(token);
             } catch (ClientHandlerException ex) {
                LOG.error("Failure communicating with the auth service: " + ex.getMessage(), ex);
                filterDirector.setResponseStatus(HttpStatusCode.INTERNAL_SERVER_ERROR);
@@ -195,31 +195,12 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       return cache.getUserToken(key, token);
    }
 
-   private void cacheUserInfo(AuthToken user) {
-      if (user == null || cache == null) {
-         return;
-      }
-      String key;
-      if (tenanted) {
-         key = user.getTenantId() + ":" + user.getTokenId();
-      } else {
-         key = user.getTokenId();
-      }
-
-      try {
-         long ttl = userCacheTtl > 0 ? Math.min(userCacheTtl, user.tokenTtl().intValue()) : user.tokenTtl().intValue();
-         cache.storeToken(key, user, Long.valueOf(ttl).intValue());
-      } catch (IOException ex) {
-         LOG.warn("Unable to cache user token information: " + user.getUserId() + " Reason: " + ex.getMessage(), ex);
-      }
-   }
-
    /*
     * New caching strategy:
     * Tokens (TokenId) will be mapped to AuthToken object.
     * TenantId will be mapped to List of TokenIds
     */
-   private void cacheUserInfoNewStrategy(AuthToken user) {
+   private void cacheUserInfo(AuthToken user) {
 
       if (user == null || cache == null) {
          return;
