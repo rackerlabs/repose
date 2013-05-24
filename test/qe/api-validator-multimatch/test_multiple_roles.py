@@ -18,7 +18,7 @@ Description:
     The @role attribute will be modified so that it supports a space-separated
     list of roles, instead of just a single role.
 
-New Notation:
+Notation:
 
     When a validator designation (f4, f5, or p) is followed by a pair of
     braces { } which contain a comma-separated list of tokens, the list
