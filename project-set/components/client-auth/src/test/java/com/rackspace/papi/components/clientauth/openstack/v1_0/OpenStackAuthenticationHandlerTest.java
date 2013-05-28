@@ -62,6 +62,7 @@ public class OpenStackAuthenticationHandlerTest {
         protected static final String AUTH_USER_CACHE_PREFIX = "openstack.identity.user";  
         protected static final long AUTH_GROUP_CACHE_TTL = 600000;
         protected static final long AUTH_TOKEN_CACHE_TTL = 5000;
+        protected static final long AUTH_USER_CACHE_TTL = 5000;
 
         protected HttpServletRequest request;
         protected ReadableHttpServletResponse response;
@@ -104,7 +105,8 @@ public class OpenStackAuthenticationHandlerTest {
             whiteListRegexPatterns = new ArrayList<Pattern>();
             whiteListRegexPatterns.add(Pattern.compile("/v1.0/application\\.wadl"));
 
-            Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, isTenanted(), AUTH_GROUP_CACHE_TTL, AUTH_TOKEN_CACHE_TTL,requestGroups());
+            Configurables configurables = new Configurables(delegable(), "http://some.auth.endpoint", keyedRegexExtractor, isTenanted(), AUTH_GROUP_CACHE_TTL,
+                    AUTH_TOKEN_CACHE_TTL,AUTH_USER_CACHE_TTL,requestGroups());
             handler = new OpenStackAuthenticationHandler(configurables, authService, null, null,null, new UriMatcher(whiteListRegexPatterns));
 
 

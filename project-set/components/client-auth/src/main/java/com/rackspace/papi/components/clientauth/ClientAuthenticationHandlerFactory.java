@@ -108,8 +108,8 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
                
                //if the atom feed is authed, but no auth uri, user, and pass are configured we will use the same credentials we use for auth admin operations
                if(feed.isIsAuthed()){ 
-                  if(!StringUtilities.isBlank(feed.getAuthUrl())){
-                     rdr.setAuthed(feed.getAuthUrl(), feed.getUser(), feed.getPassword());
+                  if(!StringUtilities.isBlank(feed.getAuthUri())){
+                     rdr.setAuthed(feed.getAuthUri(), feed.getUser(), feed.getPassword());
                   }else{
                      rdr.setAuthed(modifiedConfig.getOpenstackAuth().getIdentityService().getUri(), modifiedConfig.getOpenstackAuth().getIdentityService().getUsername(),
                              modifiedConfig.getOpenstackAuth().getIdentityService().getPassword());
