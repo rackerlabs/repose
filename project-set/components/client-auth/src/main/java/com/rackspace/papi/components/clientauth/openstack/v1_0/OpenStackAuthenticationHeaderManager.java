@@ -35,6 +35,7 @@ public class OpenStackAuthenticationHeaderManager {
     private final String wwwAuthHeaderContents;
     private static final String WWW_AUTHENTICATE_HEADER = "WWW-Authenticate";
 
+    //add base 64 string in here
     public OpenStackAuthenticationHeaderManager(String authToken, AuthToken token, Boolean isDelegatable,
             FilterDirector filterDirector, String tenantId, List<AuthGroup> groups, String wwwAuthHeaderContents) {
         this.authToken = authToken;
@@ -47,8 +48,8 @@ public class OpenStackAuthenticationHeaderManager {
         this.wwwAuthHeaderContents = wwwAuthHeaderContents;
     }
 
+    //set header with base64 string here
     public void setFilterDirectorValues() {
-
         if (validToken) {
             filterDirector.setFilterAction(FilterAction.PASS);
             setExtendedAuthorization();

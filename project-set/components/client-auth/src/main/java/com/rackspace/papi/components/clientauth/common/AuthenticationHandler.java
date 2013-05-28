@@ -2,8 +2,8 @@ package com.rackspace.papi.components.clientauth.common;
 
 import com.rackspace.auth.AuthGroup;
 import com.rackspace.auth.AuthGroups;
-import com.rackspace.auth.AuthToken;
 import com.rackspace.auth.AuthServiceException;
+import com.rackspace.auth.AuthToken;
 import com.rackspace.papi.commons.util.StringUriUtilities;
 import com.rackspace.papi.commons.util.StringUtilities;
 import com.rackspace.papi.commons.util.http.CommonHttpHeader;
@@ -99,7 +99,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       final boolean allow = allowAccount(account);
 
       if ((!StringUtilities.isBlank(authToken) && allow)) {
-         token = checkToken(account, authToken);
+         token = checkToken(account, authToken);//looking into cache for token
 
          if (token == null) {
             try {
@@ -124,7 +124,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
           
          
       List<AuthGroup> groups = getAuthGroups(token);
-
+//probable point of entry for logic
       setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(), groups);
 
       return filterDirector;
