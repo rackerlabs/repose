@@ -7,7 +7,10 @@
            xmlns:os-ids-auth="http://docs.openrepose.org/repose/client-auth/os-ids-auth/v1.0"
            xmlns:auth-http-basic="http://docs.rackspacecloud.com/repose/client-auth/http-basic/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
-           xmlns:xs="http://www.w3.org/2001/XMLSchema">
+           xmlns:xs="http://www.w3.org/2001/XMLSchema"
+           xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+           xmlns:xerces="http://xerces.apache.org"
+           xmlns:saxon="http://saxon.sf.net/">
     
    <!-- Rackspace Cloud Auth v1.1 -->
    <xs:import namespace="http://docs.rackspacecloud.com/repose/client-auth/rs-auth-1.1/v1.0" schemaLocation="./rackspace-auth-v1.1/rackspace-auth-v1.1.xsd" />
@@ -114,12 +117,34 @@
                      <html:p>Configure whether or not this feed requires auth credentials</html:p>
                   </xs:documentation>
                </xs:annotation>
-            </xs:attribute>
+            </xs:attribute> 
+            
+            <xs:assert vc:minVersion="1.1" test="if (@auth-url) then (xs:boolean(@isAuthed)) else true()"
+                                  xerces:message="isAuthed must be configured true to configure an auth url for the rs atom feed"
+                                  saxon:message="isAuthed must be configured true to configure an auth url for the rs atom feed"/>
+         
+            <xs:assert vc:minVersion="1.1" test="if (@auth-url) then (@user) else true()"
+                 xerces:message="If auth-url is configured then user and password must be supplied"
+                 saxon:message="If auth-url is configured then user and password must be supplied"/>
+         
+            <xs:assert vc:minVersion="1.1" test="if (@auth-url) then (@password) else true()"
+                 xerces:message="If auth-url is configured then user and password must be supplied"
+                 saxon:message="If auth-url is configured then user and password must be supplied"/>
+            
+            <xs:assert vc:minVersion="1.1" test="if (@user) then (@auth-url) else true()"
+               xerces:message="If user is configured then auth-url must be configured"
+               saxon:message="If auth-url is configured then user and password must be supplied"/>
+            
+            <xs:assert vc:minVersion="1.1" test="if (@password) then (@auth-url) else true()"
+               xerces:message="If user is configured then auth-url must be configured"
+               saxon:message="If auth-url is configured then user and password must be supplied"/>
+            
             
          </xs:extension>
          
-
       </xs:complexContent>
+      
+      
       
       
       <!-- TODO: add check that if auth-url is configured then user and password must be configured -->
