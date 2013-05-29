@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<validators xmlns='http://openrepose.org/repose/validator/v1.0'>
+    <validator role="role-a"/>
+    <validator role="role-b"/>
+    <validator role="role-c"/>
+</validators>
