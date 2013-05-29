@@ -70,9 +70,12 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
       Set<String> roles = getRolesAsSet(listRoles);
 
       for (ValidatorInfo validator : validators) {
-         if (roles.contains(validator.getRole())) {
+          
+        for (String validatorRoles : validator.getRoles()) { 
+         if (roles.contains(validatorRoles)) {
             validatorList.add(validator);
          }
+        }
       }
 
       appendDefaultValidator(validatorList);

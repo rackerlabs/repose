@@ -3,6 +3,7 @@ package org.openrepose.components.apivalidator.filter;
 import com.rackspace.com.papi.components.checker.Config;
 import com.rackspace.com.papi.components.checker.Validator;
 import com.rackspace.papi.commons.util.StringUtilities;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Node;
@@ -16,34 +17,35 @@ public class ValidatorInfo {
 
     private static final Logger LOG = LoggerFactory.getLogger(ValidatorInfo.class);
     private final String uri;
-    private final String role;
+    private final List<String> roles;
     private final Config config;
     private Validator validator;
     private final Node wadl;
     private final String systemId;
     private final String name;
 
-    public ValidatorInfo(String role, String wadlUri, Config config, String name) {
+    public ValidatorInfo(List<String> roles, String wadlUri, Config config, String name) {
         this.uri = wadlUri;
-        this.role = role;
+        this.roles = roles;
         this.config = config;
         this.wadl = null;
         this.systemId = null;
-        if (StringUtilities.isEmpty(name)) {
-            this.name = role;
+       
+        if (StringUtilities.isEmpty(name) && !roles.isEmpty() && roles.size()>0) {
+             this.name =getNameFromRoles(roles);
         } else {
             this.name = name;
         }
     }
 
-    public ValidatorInfo(String role, Node wadl, String systemId, Config config, String name) {
-        this.role = role;
+    public ValidatorInfo(List<String> roles, Node wadl, String systemId, Config config, String name) {
+        this.roles = roles;
         this.config = config;
         this.wadl = wadl;
         this.systemId = systemId;
         this.uri = null;
-        if (StringUtilities.isEmpty(name)) {
-            this.name = role;
+        if (StringUtilities.isEmpty(name) && !roles.isEmpty() && roles.size()>0) {
+            this.name =getNameFromRoles(roles);
         } else {
             this.name = name;
         }
@@ -101,8 +103,8 @@ public class ValidatorInfo {
         return validator;
     }
 
-    public String getRole() {
-        return role;
+    public List<String> getRoles() {
+        return roles;
     }
 
     public String getUri() {
@@ -111,5 +113,13 @@ public class ValidatorInfo {
 
     public String getName() {
         return name;
+    }
+    
+    String getNameFromRoles(List<String> roles){
+        StringBuilder name=new StringBuilder();
+        for(String role:roles){
+            name.append(role+"_");
+        }
+        return name.toString();
     }
 }
