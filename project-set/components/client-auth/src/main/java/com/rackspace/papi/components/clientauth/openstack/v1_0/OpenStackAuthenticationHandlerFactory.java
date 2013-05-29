@@ -26,8 +26,9 @@ public final class OpenStackAuthenticationHandlerFactory {
                 ids.getUri(),
                 accountRegexExtractor,
                 authConfig.isTenanted(), 
-                authConfig.getGroupCacheTimeout(), 
+                authConfig.getGroupCacheTimeout(),
                 authConfig.getTokenCacheTimeout(),
+                authConfig.getUserCacheTimeout(),
                 authConfig.isRequestGroups());
 
         return new OpenStackAuthenticationHandler(configurables, authService, cache, grpCache, usrCache, uriMatcher);

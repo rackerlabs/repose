@@ -47,6 +47,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
    private final UriMatcher uriMatcher;
    private final boolean tenanted;
    private final long groupCacheTtl;
+   private final long tokenCacheTtl;
    private final long userCacheTtl;
    private final boolean requestGroups;
    private final AuthUserCache usrCache;
@@ -59,6 +60,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       this.uriMatcher = uriMatcher;
       this.tenanted = configurables.isTenanted();
       this.groupCacheTtl = configurables.getGroupCacheTtl();
+      this.tokenCacheTtl = configurables.getTokenCacheTtl();
       this.userCacheTtl = configurables.getUserCacheTtl();
       this.requestGroups = configurables.isRequestGroups();
       this.usrCache = usrCache;
@@ -213,7 +215,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
       //Adds auth token object to cache.
       try {
-         long ttl = userCacheTtl > 0 ? Math.min(userCacheTtl, user.tokenTtl().intValue()) : user.tokenTtl().intValue();
+         long ttl = tokenCacheTtl > 0 ? Math.min(tokenCacheTtl, user.tokenTtl().intValue()) : user.tokenTtl().intValue();
          cache.storeToken(tokenKey, user, Long.valueOf(ttl).intValue());
       } catch (IOException ex) {
          LOG.warn("Unable to cache user token information: " + user.getUserId() + " Reason: " + ex.getMessage(), ex);

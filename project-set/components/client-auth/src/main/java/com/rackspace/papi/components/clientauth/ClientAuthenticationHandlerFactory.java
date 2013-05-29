@@ -44,6 +44,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
    private UriMatcher uriMatcher;
    private final Datastore datastore;
    private FeedListenerManager manager;
+   private static final Long minInterval = new Long("10000");
 
    public ClientAuthenticationHandlerFactory(Datastore datastore) {
       this.datastore = datastore;
@@ -108,8 +109,8 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
                
                //if the atom feed is authed, but no auth uri, user, and pass are configured we will use the same credentials we use for auth admin operations
                if(feed.isIsAuthed()){ 
-                  if(!StringUtilities.isBlank(feed.getAuthUrl())){
-                     rdr.setAuthed(feed.getAuthUrl(), feed.getUser(), feed.getPassword());
+                  if(!StringUtilities.isBlank(feed.getAuthUri())){
+                     rdr.setAuthed(feed.getAuthUri(), feed.getUser(), feed.getPassword());
                   }else{
                      rdr.setAuthed(modifiedConfig.getOpenstackAuth().getIdentityService().getUri(), modifiedConfig.getOpenstackAuth().getIdentityService().getUsername(),
                              modifiedConfig.getOpenstackAuth().getIdentityService().getPassword());
@@ -120,7 +121,7 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
                listeners.add(rdr);
             }
             
-            manager = new FeedListenerManager(datastore, listeners, modifiedConfig.getAtomFeeds().getCheckInterval());
+            manager = new FeedListenerManager(datastore, listeners, getMinimumCheckInterval(modifiedConfig.getAtomFeeds().getCheckInterval()));
             manager.startReading();
       }
       
@@ -128,8 +129,19 @@ public class ClientAuthenticationHandlerFactory extends AbstractConfiguredFilter
       public boolean isInitialized(){
           return isInitialized;
       }
-      
-  
+     
+     //If the user configures repose to poll more often than every 10000 milliseconds (10 seconds) we will override this and set it to our minimum.
+     private long getMinimumCheckInterval(long interval){
+        
+        if(interval > minInterval){
+           LOG.debug("Repose will poll Atom Feeds every " + minInterval + " milliseconds for invalidated users and tokens");
+           return interval;
+        }else{
+           LOG.warn("Configured minimum check interval to poll Atom Feeds set less than " + minInterval + " milliseconds. To prevent flooding the atom endpoint with"
+                   + " requests, Repose will poll the Atom Feeds every " + minInterval + " instead.");
+           return minInterval;
+        }
+     }
    }
 
    private void updateUriMatcher(WhiteList whiteList) {

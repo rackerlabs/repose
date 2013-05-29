@@ -36,6 +36,14 @@
                </xs:documentation>
             </xs:annotation>
          </xs:attribute>
+         
+         <xs:attribute name="user-cache-timeout" type="os-ids-auth:longGTEZero" use="optional" default="60000">
+            <xs:annotation>
+               <xs:documentation>
+                  <html:p>Time in milliseconds to cache auth token.</html:p>
+               </xs:documentation>
+            </xs:annotation>
+         </xs:attribute>
 
          <xs:attribute name="token-cache-timeout" type="os-ids-auth:longGTEZero" use="optional" default="0">
             <xs:annotation>

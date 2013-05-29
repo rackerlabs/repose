@@ -59,7 +59,7 @@
          <xs:element name="rs-identity-feed" type="auth:Rackspace-Identity-Feed" minOccurs="1" maxOccurs="unbounded"/>
       </xs:sequence>
       
-      <xs:attribute name="checkInterval" type="auth:longMinTenThou" use="optional" default="60000">
+      <xs:attribute name="check-interval" type="auth:longMinTenThou" use="optional" default="60000">
          <xs:annotation>
             <xs:documentation>
                <html:p>Interval between requesting atom feeds to purge cache. Default is one minute</html:p>
@@ -87,7 +87,7 @@
       <xs:complexContent>
          <xs:extension base="auth:AtomFeed">
             
-            <xs:attribute name="auth-url" type="xs:anyURI" use="optional">
+            <xs:attribute name="auth-uri" type="xs:anyURI" use="optional">
                <xs:annotation>
                   <xs:documentation>
                      <html:p>URL to auth against if different from client-auth url</html:p>
@@ -120,24 +120,24 @@
             </xs:attribute> 
             
             <xs:assert vc:minVersion="1.1" test="if (@auth-url) then (xs:boolean(@isAuthed)) else true()"
-                                  xerces:message="isAuthed must be configured true to configure an auth url for the rs atom feed"
-                                  saxon:message="isAuthed must be configured true to configure an auth url for the rs atom feed"/>
+                       xerces:message="isAuthed must be configured true to configure an auth url for the rs atom feed"
+                       saxon:message="isAuthed must be configured true to configure an auth url for the rs atom feed"/>
          
             <xs:assert vc:minVersion="1.1" test="if (@auth-url) then (@user) else true()"
-                 xerces:message="If auth-url is configured then user and password must be supplied"
-                 saxon:message="If auth-url is configured then user and password must be supplied"/>
+                       xerces:message="If auth-url is configured then user and password must be supplied"
+                       saxon:message="If auth-url is configured then user and password must be supplied"/>
          
             <xs:assert vc:minVersion="1.1" test="if (@auth-url) then (@password) else true()"
-                 xerces:message="If auth-url is configured then user and password must be supplied"
-                 saxon:message="If auth-url is configured then user and password must be supplied"/>
+                       xerces:message="If auth-url is configured then user and password must be supplied"
+                       saxon:message="If auth-url is configured then user and password must be supplied"/>
             
             <xs:assert vc:minVersion="1.1" test="if (@user) then (@auth-url) else true()"
-               xerces:message="If user is configured then auth-url must be configured"
-               saxon:message="If auth-url is configured then user and password must be supplied"/>
+                       xerces:message="If user is configured then auth-url must be configured"
+                       saxon:message="If auth-url is configured then user and password must be supplied"/>
             
             <xs:assert vc:minVersion="1.1" test="if (@password) then (@auth-url) else true()"
-               xerces:message="If user is configured then auth-url must be configured"
-               saxon:message="If auth-url is configured then user and password must be supplied"/>
+                       xerces:message="If user is configured then auth-url must be configured"
+                       saxon:message="If auth-url is configured then user and password must be supplied"/>
             
             
          </xs:extension>
@@ -168,12 +168,16 @@
          
          <xs:element name="atom-feeds" type="auth:AtomFeeds" minOccurs="0" maxOccurs="1"/>
       </xs:sequence>
+      
+      <!--xs:assert  vc:minVersion="1.1" test="if count(auth:rs-identity-feed) > 0 then count(os-ids-auth:openstack-auth) > 0 else true()"
+                  xerces:message="the rs-identity-feed can only be configured for openstack-auth"
+                  saxon:message="the rs-identity-feed can only be configured for openstack-auth"/-->
 
    </xs:complexType>
    
    <xs:simpleType name="longMinTenThou">
       <xs:restriction base="xs:long">
-         <xs:minInclusive value="10000"/>
+         <xs:minInclusive value="0"/>
       </xs:restriction>
    </xs:simpleType>
 </xs:schema>
