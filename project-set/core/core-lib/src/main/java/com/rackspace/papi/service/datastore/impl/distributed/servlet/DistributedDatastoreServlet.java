@@ -55,15 +55,15 @@ public class DistributedDatastoreServlet extends HttpServlet {
          if (!element.elementIsNull()) {
             try {
                resp.getOutputStream().write(element.elementBytes());
-               resp.setStatus(200);
+               resp.setStatus(HttpServletResponse.SC_OK);
 
             } catch (IOException ioe) {
                LOG.error(ioe.getMessage(), ioe);
-               resp.sendError(500);
+               resp.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
             }
          } else {
-            resp.setStatus(404);
+            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
          }
       }
    }
@@ -100,9 +100,9 @@ public class DistributedDatastoreServlet extends HttpServlet {
       if (CacheRequest.isCacheRequest(req)) {
          final CacheRequest cachePut = CacheRequest.marshallCachePutRequest(req);
          hashRingDatastore.put(cachePut.getCacheKey(), encodingProvider.decode(cachePut.getCacheKey()), cachePut.getPayload(), cachePut.getTtlInSeconds(), TimeUnit.SECONDS, cachePut.getRequestedRemoteBehavior());
-         resp.setStatus(202);
+         resp.setStatus(HttpServletResponse.SC_ACCEPTED);
       } else {
-         resp.setStatus(404);
+         resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
       }
    }
 
@@ -111,10 +111,10 @@ public class DistributedDatastoreServlet extends HttpServlet {
       if (CacheRequest.isCacheRequest(req)) {
          final CacheRequest cacheDelete = CacheRequest.marshallCacheRequest(req);
          hashRingDatastore.remove(cacheDelete.getCacheKey(), encodingProvider.decode(cacheDelete.getCacheKey()), cacheDelete.getRequestedRemoteBehavior());
-         resp.setStatus(202);
+         resp.setStatus(HttpServletResponse.SC_ACCEPTED);
       }else
       {
-         resp.setStatus(404);
+         resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
       }
       //TODO: Move over hashring datastore and perform object remove
       
@@ -144,9 +144,9 @@ public class DistributedDatastoreServlet extends HttpServlet {
    private boolean isRequestValid(HttpServletRequest req, HttpServletResponse resp){
       boolean valid = false;
       if(!isAllowed(req)){
-         resp.setStatus(401);
+         resp.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
       }else if(!CacheRequest.isCacheRequest(req)){
-         resp.setStatus(404);
+         resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
       }else{
          valid = true;
       }
