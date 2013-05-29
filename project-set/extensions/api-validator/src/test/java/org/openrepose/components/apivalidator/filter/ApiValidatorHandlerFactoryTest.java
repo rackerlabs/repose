@@ -15,6 +15,7 @@ import org.openrepose.components.apivalidator.servlet.config.ValidatorItem;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -38,12 +39,15 @@ public class ApiValidatorHandlerFactoryTest {
             ValidatorConfiguration config = new ValidatorConfiguration();
             ValidatorItem item = new ValidatorItem();
             item.setWadl(wadl);
-            item.setRole(role);
+            List<String> role1=item.getRole();
+            role1.add(role);
             config.getValidator().add(item);
 
             ValidatorItem defaultItem = new ValidatorItem();
             defaultItem.setWadl(wadl);
-            defaultItem.setRole(defaultRole);
+            List<String> role2=defaultItem.getRole();
+            role2.add(defaultRole);
+        
             defaultItem.setDefault(Boolean.TRUE);
             defaultItem.setDotOutput(dot);
             config.getValidator().add(defaultItem);
@@ -71,7 +75,7 @@ public class ApiValidatorHandlerFactoryTest {
             assertNotNull(validatorsForRole);
             
             for(ValidatorInfo validatorForRole : validatorsForRole){
-             assertEquals("Should get validator for role", role, validatorForRole.getRole());
+             assertEquals("Should get validator for role", role, validatorForRole.getRoles().get(0));
             }
             verify(configService, times(2)).subscribeTo(eq("api-validator"),eq(instance.getWadlPath(wadl)), any(ApiValidatorHandlerFactory.ApiValidatorWadlListener.class), any(GenericResourceConfigurationParser.class));
 
@@ -84,7 +88,7 @@ public class ApiValidatorHandlerFactoryTest {
             assertNotNull("Should build handler", handler);
             List<ValidatorInfo> validatorsForRole = handler.getValidatorsForRole(new ArrayList<HeaderValue>());
             assertNotNull(validatorsForRole);
-            assertEquals("Should get validator for default role", defaultRole, validatorsForRole.get(0).getRole());
+            assertEquals("Should get validator for default role", defaultRole, validatorsForRole.get(0).getRoles().get(0));
         }
     }
     
@@ -109,12 +113,12 @@ public class ApiValidatorHandlerFactoryTest {
             List<ValidatorInfo> validators = new ArrayList<ValidatorInfo>();
             info1 = mock(ValidatorInfo.class);
             when(info1.getUri()).thenReturn(instance.getWadlPath(wadl1));
-            when(info1.getRole()).thenReturn(role1);
+            when(info1.getRoles()).thenReturn(Arrays.asList(role1));
             validators.add(info1);
             
             info2 = mock(ValidatorInfo.class);
             when(info2.getUri()).thenReturn(instance.getWadlPath(wadl2));
-            when(info2.getRole()).thenReturn(role2);
+            when(info2.getRoles()).thenReturn(Arrays.asList(role2));
             validators.add(info2);
             
             
