@@ -7,7 +7,7 @@
       <node id="node" hostname="localhost" http-port="${repose_port}"/>
     </nodes>
     <filters>
-        <filter name="api-validator" configuration="validator.cfg.xml" />  
+        <filter name="api-validator"/>
     </filters>
     <destinations>
       <endpoint id="service" protocol="http" hostname="${target_hostname}" root-path="/" port="${target_port}" default="true"/>

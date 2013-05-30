@@ -1,27 +1,21 @@
-package features.filters.apivalidator
+package features.filters
+import framework.ReposeValveTest
+import framework.client.http.HttpRequestParams
+import framework.client.jmx.JmxClient
 
-import framework.ConfigHelper
-import framework.ReposeClient
-import framework.ReposeLauncher
-import framework.ValveLauncher
-import spock.lang.Specification
-
-class ApiValidatorJMXTest extends Specification {
+class ApiValidatorJMXTest extends ReposeValveTest {
 
     def X_ROLES = "X-Roles"
 
-    def configDirectory = System.getProperty("repose.config.directory")
-    def configSamples = System.getProperty("repose.config.samples")
-
-    def ReposeLauncher reposeLauncher
-    def ReposeClient reposeClient = new ReposeClient()
-    def ConfigHelper configHelper = new ConfigHelper(configDirectory, configSamples)
+    def JmxClient jmxClient
 
     def setup() {
         configHelper.prepConfiguration("api-validator/common", "api-validator/jmx")
 
-        reposeLauncher = new ValveLauncher()
+        reposeLauncher.enableJmx(true)
         reposeLauncher.start()
+
+        jmxClient = new JmxClient(properties.getProperty("repose.jmxUrl"))
     }
 
     def cleanup() {
@@ -31,12 +25,18 @@ class ApiValidatorJMXTest extends Specification {
     def "registers JMX beans for loaded validators"() {
 
         given:
-        reposeClient.setHeader(X_ROLES, "role-a, role-b, role-c")
+
+        def HttpRequestParams requestParams = new HttpRequestParams()
+        requestParams.headers.put(X_ROLES, "role-a, role-b, role-c")
 
         when: "a request is submitted that causes validators to be initialized"
-        reposeClient.doGet("/")
+
+        reposeClient.doGet("/", requestParams)
 
         then:
+        def mbean = jmxClient.getMBean("repose-node-com.rackspace.papi.jmx")
+        mbean.getProperty("bar") == "yah man!"
+
         // verify the JMX beans are registered
         1 == 1
     }

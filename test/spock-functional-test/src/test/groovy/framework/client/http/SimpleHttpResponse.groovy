@@ -2,9 +2,6 @@ package framework.client.http
 
 import org.apache.http.Header
 
-/**
- * TODO: Add comments here
- */
 class SimpleHttpResponse {
 
     def String responseBody

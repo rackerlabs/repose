@@ -6,4 +6,5 @@ interface ReposeLauncher {
 
     void stop();
 
+    void enableJmx(boolean isEnabled)
 }

@@ -50,7 +50,18 @@
             <groupId>org.linkedin</groupId>
             <artifactId>org.linkedin.util-groovy</artifactId>
             <version>1.8.0</version>
+            <scope>test</scope>
+
         </dependency>
+
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.2.5</version>
+            <scope>test</scope>
+        </dependency>
+
+
     </dependencies>
 
     <profiles>
@@ -72,6 +83,7 @@
                 <filter.extensions.ear>extensions-filter-bundle-${project.version}.ear</filter.extensions.ear>
 
                 <repose_port>8888</repose_port>
+                <repose_jmx_port>9001</repose_jmx_port>
                 <target_hostname>localhost</target_hostname>
                 <target_port>9999</target_port>
 
@@ -85,6 +97,13 @@
 
     <build>
         <testResources>
+
+
+            <testResource>
+                <directory>${project.basedir}/src/test/resources</directory>
+                <filtering>true</filtering>
+                <targetPath>${project.build.directory}/test-classes</targetPath>
+            </testResource>
 
             <testResource>
                 <directory>${project.basedir}/src/test/resources/configs</directory>
@@ -155,24 +174,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.9</version>
-                <configuration>
-                    <systemProperties>
-                        <property>
-                            <name>repose.config.directory</name>
-                            <value>${repose.config.directory}</value>
-                        </property>
-                        <property>
-                            <name>repose.config.samples</name>
-                            <value>${repose.config.samples}</value>
-                        </property>
-                    </systemProperties>
-                </configuration>
             </plugin>
 
         </plugins>

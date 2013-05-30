@@ -1,11 +1,10 @@
 package framework.client.http
-
-import java.nio.charset.Charset
 import org.apache.http.client.HttpClient
+import org.apache.http.client.methods.*
 import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client.DefaultHttpClient
-import org.apache.http.impl.client.DefaultRedirectStrategy
-import org.apache.http.client.methods.*
+
+import java.nio.charset.Charset
 
 abstract class SimpleHttpClient {
 
@@ -24,7 +23,7 @@ abstract class SimpleHttpClient {
     }
 
 
-    def makeCall(HttpUriRequest httpMethod, HashMap requestParams, String requestPath) {
+    def makeCall(HttpUriRequest httpMethod, HttpRequestParams requestParams, String requestPath) {
         RequestState requestState = new RequestState()
         requestState.requestParams = requestParams
         requestState.requestPath = requestPath
@@ -35,23 +34,9 @@ abstract class SimpleHttpClient {
         try {
             client = new DefaultHttpClient()
 
-            if (requestParams.followRedirects == false){
-                client.setRedirectStrategy(new DefaultRedirectStrategy() {
-                    public boolean isRedirected(request, response, context) {
-                        return false;
-                    }
-                });
+            requestParams.headers.each { key, value ->
+                httpMethod.addHeader(key, value)
             }
-
-
-            if (requestParams.accept)
-                httpMethod.addHeader("Accept", requestParams.accept)
-
-            if (requestParams.contentType)
-                httpMethod.addHeader("Content-Type", requestParams.contentType)
-
-            if (requestParams.authToken)
-                httpMethod.addHeader("X-Auth-Token", requestParams.authToken)
 
             def response = client.execute(httpMethod)
 
@@ -73,7 +58,7 @@ abstract class SimpleHttpClient {
         return simpleResponse
     }
 
-    def doGet(String path, HashMap requestParams) {
+    def doGet(String path, HttpRequestParams requestParams) {
 
         def String requestPath
 
@@ -85,14 +70,11 @@ abstract class SimpleHttpClient {
 
         HttpGet httpGet = new HttpGet(requestPath)
 
-        if (requestParams.followRedirects == "false")
-            httpGet.setFollowRedirects(false)
-
         makeCall(httpGet, requestParams, requestPath)
     }
 
 
-    def doPut(String path, HashMap requestParams) {
+    def doPut(String path, HttpRequestParams requestParams) {
         def requestPath = endpoint + path
 
         HttpPut httpPut = new HttpPut(requestPath)
@@ -103,7 +85,7 @@ abstract class SimpleHttpClient {
         makeCall(httpPut, requestParams, requestPath)
     }
 
-    def doDelete(String path, HashMap requestParams) {
+    def doDelete(String path, HttpRequestParams requestParams) {
         def requestPath = endpoint + path
 
          EntityEnclosingDelete httpDelete = new EntityEnclosingDelete()
@@ -118,7 +100,7 @@ abstract class SimpleHttpClient {
 
 
 
-    def doPost(String path, HashMap requestParams) {
+    def doPost(String path, HttpRequestParams requestParams) {
         def requestPath = endpoint + path
 
         HttpPost httpPost = new HttpPost(requestPath)
@@ -143,7 +125,7 @@ abstract class SimpleHttpClient {
             printf("   REQUEST #" + counter + "\n")
             printf("   ==============================================\n")
             printf("   %18s: %s\n", "Request URL", it.requestPath)
-            it.requestParams.each() { key, value ->
+            it.requestParams.headers.each() { key, value ->
                 printf("   %18s: %s\n", key, value)
             }
 
@@ -167,7 +149,7 @@ abstract class SimpleHttpClient {
 
 class RequestState {
     String requestPath
-    Map<String, String> requestParams
+    HttpRequestParams requestParams
     SimpleHttpResponse response
     String method
 }

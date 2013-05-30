@@ -1,10 +1,11 @@
 package framework
 
-class ReposeClient {
-    def setHeader(String name, String value) {}
+import framework.client.http.SimpleHttpClient
 
-    def doGet(String s) {
+class ReposeClient extends SimpleHttpClient {
 
-
+    ReposeClient(String endpoint) {
+        super(endpoint)
     }
+
 }
