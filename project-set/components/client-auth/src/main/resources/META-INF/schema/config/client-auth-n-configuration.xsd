@@ -169,9 +169,9 @@
          <xs:element name="atom-feeds" type="auth:AtomFeeds" minOccurs="0" maxOccurs="1"/>
       </xs:sequence>
       
-      <!--xs:assert  vc:minVersion="1.1" test="if count(auth:rs-identity-feed) > 0 then count(os-ids-auth:openstack-auth) > 0 else true()"
+      <xs:assert  vc:minVersion="1.1" test="if (auth:atom-feeds/auth:rs-identity-feed) then (os-ids-auth:openstack-auth) else true()"
                   xerces:message="the rs-identity-feed can only be configured for openstack-auth"
-                  saxon:message="the rs-identity-feed can only be configured for openstack-auth"/-->
+                  saxon:message="the rs-identity-feed can only be configured for openstack-auth"/>
 
    </xs:complexType>
    

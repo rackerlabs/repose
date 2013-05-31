@@ -179,7 +179,7 @@ public class OpenStackAuthenticationHandlerTest {
             when(request.getRequestURI()).thenReturn("/start/104772/resource");
             when(request.getHeader(anyString())).thenReturn("tokenId");
 
-            Calendar expires = getCalendarWithOffset(1000);
+            Calendar expires = getCalendarWithOffset(10000000);
 
             authResponse = new AuthenticateResponse();
             UserForAuthenticateResponse userForAuthenticateResponse = new UserForAuthenticateResponse();
@@ -192,7 +192,7 @@ public class OpenStackAuthenticationHandlerTest {
             token.setId("tokenId");
             token.setExpires(dataTypeFactory.newXMLGregorianCalendar((GregorianCalendar) expires));
             TenantForAuthenticateResponse tenant = new TenantForAuthenticateResponse();
-            tenant.setId("tenantId");
+            tenant.setId("104772");
             tenant.setName("tenantName");
             token.setTenant(tenant);
 
@@ -209,7 +209,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
-            verify(store).get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772" + ":" + user.getTokenId()));
+            verify(store).get(eq(AUTH_TOKEN_CACHE_PREFIX + "." + user.getTokenId()));
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
 
@@ -221,7 +221,7 @@ public class OpenStackAuthenticationHandlerTest {
             when(element.elementAs(AuthToken.class)).thenReturn(user);
             when(authService.validateToken(anyString(), anyString())).thenReturn(user);
 
-            when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".104772" + ":" + user.getTokenId()))).thenReturn(element);
+            when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + "." + user.getTokenId()))).thenReturn(element);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
@@ -324,7 +324,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
-            verify(store, times(1)).get(eq(AUTH_GROUP_CACHE_PREFIX + "." + "tenantId" + ":" + user.getTokenId()));
+            verify(store, times(1)).get(eq(AUTH_GROUP_CACHE_PREFIX + "." + user.getTokenId()));
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
         }
 
@@ -342,7 +342,7 @@ public class OpenStackAuthenticationHandlerTest {
             when(element.elementIsNull()).thenReturn(false);
             when(element.elementAs(AuthGroups.class)).thenReturn(groups);
 
-            when(store.get(eq(AUTH_GROUP_CACHE_PREFIX + "." + "tenantId" + ":" + user.getTokenId()))).thenReturn(element);
+            when(store.get(eq(AUTH_GROUP_CACHE_PREFIX + "." + user.getTokenId()))).thenReturn(element);
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
@@ -364,7 +364,7 @@ public class OpenStackAuthenticationHandlerTest {
 
             final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
-            verify(store, times(1)).get(eq(AUTH_GROUP_CACHE_PREFIX + "." + "tenantId" + ":" + user.getTokenId()));
+            verify(store, times(1)).get(eq(AUTH_GROUP_CACHE_PREFIX + "."  + user.getTokenId()));
             // Service should be called since token has expired
             verify(authService, times(1)).getGroups(anyString());
             assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());
@@ -425,11 +425,11 @@ public class OpenStackAuthenticationHandlerTest {
         when(element.elementIsNull()).thenReturn(false);
         //when(element.elementAs(AuthGroups.class)).thenReturn(null);
 
-        when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + ".tenantId"))).thenReturn(null);
+        when(store.get(eq(AUTH_TOKEN_CACHE_PREFIX + user.getTokenId()))).thenReturn(null);
 
         final FilterDirector director = handlerWithCache.handleRequest(request, response);
 
-        verify(store, times(1)).get(eq(AUTH_TOKEN_CACHE_PREFIX +".104772"+":" + user.getTokenId()));
+        verify(store, times(1)).get(eq(AUTH_TOKEN_CACHE_PREFIX +"." + user.getTokenId()));
         // Service should be called since token has expired
         verify(authService, times(0)).getGroups(anyString());
         assertEquals("Auth component must pass valid requests", FilterAction.PASS, director.getFilterAction());

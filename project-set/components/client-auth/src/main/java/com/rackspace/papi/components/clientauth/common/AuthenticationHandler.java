@@ -176,33 +176,36 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       }
    }
 
+   /*
+    * New caching strategy:
+    * If running in tenanted mode we will look into the user cache for list of tokens, if passed token is present we will look to the token cache and return the Auth
+    * token object. If running in non-tenanted mode we 
+    */
    private AuthToken checkToken(ExtractorResult<String> account, String authToken) {
-      if (tenanted) {
-         return checkUserCache(account.getResult(), authToken);
-      } else {
-         return checkUserCache("", authToken);
+      
+      AuthToken token = checkTokenCache(authToken);
+      if(token != null){
+         if(tenanted){
+            
+            return StringUtilities.nullSafeEqualsIgnoreCase(account.getResult(), token.getTenantId()) ? token : null;
+         }
       }
+      return token;
+      
+      
    }
 
-   private AuthToken checkUserCache(String tenantId, String token) {
+   private AuthToken checkTokenCache(String token) {
       if (cache == null) {
          return null;
       }
-
-      String key;
-      if (StringUtilities.isNotBlank(tenantId)) {
-         key = tenantId + ":" + token;
-      } else {
-         key = token;
-      }
-
-      return cache.getUserToken(key, token);
+      return cache.getUserToken(token, token);
    }
 
    /*
     * New caching strategy:
     * Tokens (TokenId) will be mapped to AuthToken object.
-    * TenantId will be mapped to List of TokenIds
+    * userId will be mapped to List of TokenIds
     */
    private void cacheUserInfo(AuthToken user) {
 
@@ -210,7 +213,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
          return;
       }
 
-      String userKey = user.getTenantId();
+      String userKey = user.getUserId();
       String tokenKey = user.getTokenId();
 
       //Adds auth token object to cache.
@@ -226,7 +229,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       userTokenList.add(tokenKey);
 
       try {
-         long ttl = userCacheTtl > 0 ? Math.min(userCacheTtl, user.tokenTtl().intValue()) : user.tokenTtl().intValue();
+         long ttl = userCacheTtl;
          usrCache.storeUserTokenList(userKey, userTokenList, Long.valueOf(ttl).intValue());
       } catch (IOException ex) {
          LOG.warn("Unable to cache user token information: " + user.getUserId() + " Reason: " + ex.getMessage(), ex);
@@ -249,7 +252,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
    }
 
    private String getGroupCacheKey(AuthToken token) {
-      return token.getTenantId() + ":" + token.getTokenId();
+      return token.getTokenId();
    }
 
    private AuthGroups checkGroupCache(AuthToken token) {
