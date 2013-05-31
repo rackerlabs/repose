@@ -55,6 +55,9 @@ public class ApiValidatorHandlerFactory extends AbstractConfiguredFilterHandlerF
                 if (StringUtilities.isNotBlank(info.getUri())) {
                     manager.unsubscribeFrom(info.getUri(), wadlListener);
                 }
+                if (info.getValidator() != null) {
+                    info.getValidator().destroy();
+                }
             }
         }
     }
