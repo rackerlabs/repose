@@ -1,5 +1,6 @@
 package framework
 
+import deproxy.GDeproxy
 import spock.lang.Shared
 import spock.lang.Specification
 
@@ -8,10 +9,9 @@ abstract class ReposeValveTest extends Specification {
 
     @Shared def configDirectory
     @Shared def configSamples
-    @Shared def ReposeConfigurationProvider reposeConfigProvider
 
-    @Shared def ReposeLauncher reposeLauncher
-    @Shared def ReposeClient reposeClient
+    @Shared def ReposeValveLauncher repose
+    @Shared def GDeproxy deproxy
 
     @Shared def Properties properties
 
@@ -20,12 +20,12 @@ abstract class ReposeValveTest extends Specification {
         properties.load(ClassLoader.getSystemResource("test.properties").openStream())
         configDirectory = properties.getProperty("repose.config.directory")
         configSamples = properties.getProperty("repose.config.samples")
-        reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configSamples)
-        reposeLauncher = new ReposeValveLauncher()
-        reposeClient = new ReposeClient(properties.getProperty("repose.endpoint"))
+        ReposeConfigurationProvider reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configSamples)
+        repose = new ReposeValveLauncher(reposeConfigProvider)
+        deproxy = new GDeproxy(properties.getProperty("repose.endpoint"))
     }
 
     def teardownSpec() {
-        reposeLauncher.stop()
+        repose.stop()
     }
 }
