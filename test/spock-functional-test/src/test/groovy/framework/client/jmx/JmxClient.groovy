@@ -1,11 +1,15 @@
 package framework.client.jmx
 
+import org.linkedin.util.clock.SystemClock
+
 import javax.management.ObjectName
 import javax.management.remote.JMXConnectorFactory
 import javax.management.remote.JMXServiceURL
 
+import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
+
 /**
- * TODO: Add comments here
+ * Simple JMX client
  */
 class JmxClient {
 
@@ -15,16 +19,46 @@ class JmxClient {
         this.jmxUrl = jmxUrl
     }
 
-    def GroovyMBean getMBean(String beanName) {
+    /**
+     * Connects via JMX to a Java Application and queries all MBeans matching the provided beanName
+     *
+     * Conditional wait allows for some latency between time of request and MBeans being available in JMX
+     *
+     * @param beanName
+     * @return
+     */
+    def getMBean(String beanName) {
+
         def server = JMXConnectorFactory.connect(new JMXServiceURL(jmxUrl)).MBeanServerConnection
+        server.queryMBeans(new ObjectName(beanName), null)
+    }
 
-        def query = new ObjectName("repose*")
+    /**
+     * Accounting for some test flakiness caused by some latency in MBeans being available to JMX clients.
+     *
+     * Either this is due to async processing with the JMX mbean registration, or there is some latency
+     * with an MBean being visible to a client.
+     *
+     */
+    def getMBeanCount(domain, expectedClassName, expectedCount) {
 
+        def totalFound
 
-        server.queryMBeans(query)
-
-        def foundBean = new GroovyMBean(server, beanName)
-        foundBean
+        def clock = new SystemClock()
+        try {
+            waitForCondition(clock, '15s', '1s', {
+                def mbeans = getMBean(domain)
+                totalFound = 0
+                mbeans.each {
+                    if (it.className == expectedClassName)
+                        totalFound++
+                }
+                totalFound == expectedCount
+            })
+        } catch (TimeoutException) {
+            // ignore this and simply return the total mbeans found
+        }
+        totalFound
     }
 
 }

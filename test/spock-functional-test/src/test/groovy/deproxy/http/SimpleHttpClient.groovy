@@ -1,4 +1,4 @@
-package framework.client.http
+package deproxy.http
 import org.apache.http.client.HttpClient
 import org.apache.http.client.methods.*
 import org.apache.http.entity.StringEntity
@@ -23,9 +23,9 @@ abstract class SimpleHttpClient {
     }
 
 
-    def makeCall(HttpUriRequest httpMethod, HttpRequestParams requestParams, String requestPath) {
+    def makeCall(HttpUriRequest httpMethod, Map requestHeaders, String requestPath) {
         RequestState requestState = new RequestState()
-        requestState.requestParams = requestParams
+        requestState.requestHeaders = requestHeaders
         requestState.requestPath = requestPath
 
         def SimpleHttpResponse simpleResponse = new SimpleHttpResponse()
@@ -34,7 +34,7 @@ abstract class SimpleHttpClient {
         try {
             client = new DefaultHttpClient()
 
-            requestParams.headers.each { key, value ->
+            requestHeaders.each { key, value ->
                 httpMethod.addHeader(key, value)
             }
 
@@ -58,7 +58,7 @@ abstract class SimpleHttpClient {
         return simpleResponse
     }
 
-    def doGet(String path, HttpRequestParams requestParams) {
+    def doGet(String path, Map headers = new HashMap()) {
 
         def String requestPath
 
@@ -70,45 +70,45 @@ abstract class SimpleHttpClient {
 
         HttpGet httpGet = new HttpGet(requestPath)
 
-        makeCall(httpGet, requestParams, requestPath)
+        makeCall(httpGet, headers, requestPath)
     }
 
 
-    def doPut(String path, HttpRequestParams requestParams) {
+    def doPut(String path, Map headers, String payload) {
         def requestPath = endpoint + path
 
         HttpPut httpPut = new HttpPut(requestPath)
-        if (requestParams.payload) {
-            httpPut.setEntity(new StringEntity(requestParams.payload, Charset.forName("UTF-8")))
+        if (payload) {
+            httpPut.setEntity(new StringEntity(payload, Charset.forName("UTF-8")))
         }
 
-        makeCall(httpPut, requestParams, requestPath)
+        makeCall(httpPut, headers, requestPath)
     }
 
-    def doDelete(String path, HttpRequestParams requestParams) {
+    def doDelete(String path, Map headers, String payload) {
         def requestPath = endpoint + path
 
          EntityEnclosingDelete httpDelete = new EntityEnclosingDelete()
          URI uri = URI.create(requestPath)
          httpDelete.setURI(uri)
-        if (requestParams.payload) {
-            httpDelete.setEntity(new StringEntity(requestParams.payload, Charset.forName("UTF-8")))
+        if (payload) {
+            httpDelete.setEntity(new StringEntity(payload, Charset.forName("UTF-8")))
         }
 
-        makeCall(httpDelete, requestParams, requestPath)
+        makeCall(httpDelete, headers, requestPath)
     }
 
 
 
-    def doPost(String path, HttpRequestParams requestParams) {
+    def doPost(String path, Map headers, String payload) {
         def requestPath = endpoint + path
 
         HttpPost httpPost = new HttpPost(requestPath)
-        if (requestParams.payload) {
-            httpPost.setEntity(new StringEntity(requestParams.payload, Charset.forName("UTF-8")))
+        if (payload) {
+            httpPost.setEntity(new StringEntity(payload, Charset.forName("UTF-8")))
         }
 
-        makeCall(httpPost, requestParams, requestPath)
+        makeCall(httpPost, headers, requestPath)
     }
 
     String logState() {
@@ -125,7 +125,7 @@ abstract class SimpleHttpClient {
             printf("   REQUEST #" + counter + "\n")
             printf("   ==============================================\n")
             printf("   %18s: %s\n", "Request URL", it.requestPath)
-            it.requestParams.headers.each() { key, value ->
+            it.requestHeaders.each() { key, value ->
                 printf("   %18s: %s\n", key, value)
             }
 
@@ -149,7 +149,7 @@ abstract class SimpleHttpClient {
 
 class RequestState {
     String requestPath
-    HttpRequestParams requestParams
+    Map<String,String> requestHeaders
     SimpleHttpResponse response
     String method
 }

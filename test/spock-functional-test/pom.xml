@@ -87,6 +87,8 @@
                 <target_hostname>localhost</target_hostname>
                 <target_port>9999</target_port>
 
+
+
                 <repose.config.directory>${project.build.directory}/repose_home/configs</repose.config.directory>
                 <repose.config.samples>${project.build.directory}/configs</repose.config.samples>
             </properties>
@@ -106,7 +108,7 @@
             </testResource>
 
             <testResource>
-                <directory>${project.basedir}/src/test/resources/configs</directory>
+                <directory>${project.basedir}/src/test/configs</directory>
                 <filtering>true</filtering>
                 <targetPath>${project.build.directory}/configs</targetPath>
             </testResource>
