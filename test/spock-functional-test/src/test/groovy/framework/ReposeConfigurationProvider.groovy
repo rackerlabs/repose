@@ -18,7 +18,7 @@ class ReposeConfigurationProvider {
      * Prepare the configs using the configuration locations specified
      * @param configLocations directories where Repose configuration files live
      */
-    void applyConfigurations(String[] configLocations) {
+    void applyConfigs(String[] configLocations) {
 
         FileUtils.deleteDirectory(reposeConfigDir)
 
@@ -32,7 +32,7 @@ class ReposeConfigurationProvider {
         }
     }
 
-    void updateConfigurations(String[] configLocations) {
+    void updateConfigs(String[] configLocations) {
         configLocations.each { configs ->
             FileUtils.copyDirectory(new File(samplesDir.absolutePath + "/" + configs), reposeConfigDir)
         }

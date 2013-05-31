@@ -9,7 +9,7 @@ import javax.management.remote.JMXServiceURL
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
 
 /**
- * TODO: Add comments here
+ * Simple JMX client
  */
 class JmxClient {
 
@@ -40,7 +40,7 @@ class JmxClient {
      * with an MBean being visible to a client.
      *
      */
-    def verifyMBeanCount(domain, expectedClassName, expectedCount) {
+    def getMBeanCount(domain, expectedClassName, expectedCount) {
 
         def totalFound
 

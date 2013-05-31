@@ -1,6 +1,5 @@
 package framework
 
-import framework.client.http.HttpRequestParams
 import org.linkedin.util.clock.SystemClock
 
 import static org.linkedin.groovy.util.concurrent.GroovyConcurrentUtils.waitForCondition
@@ -48,7 +47,7 @@ class ReposeValveLauncher implements ReposeLauncher {
         }
 
         try {
-            def response = reposeClient.doGet("/", new HttpRequestParams())
+            def response = reposeClient.doGet("/")
             return response.getHeader("Via").contains("Repose")
         } catch (Exception e) {
         }
