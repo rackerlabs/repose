@@ -21,12 +21,14 @@
             <xs:all vc:minVersion="1.1">
                 <xs:element name="identity-service" type="os-ids-auth:OpenStackIdentityService" minOccurs="1" maxOccurs="1" />
                 <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0" maxOccurs="unbounded" />
+                <xs:element name="endpoints-in-header" type="os-ids-auth:Endpoints" minOccurs="0" maxOccurs="1"/>
             </xs:all>
             
             <!-- Order matters in 1.0 land :-( -->
             <xs:sequence vc:minVersion="1.0" vc:maxVersion="1.1">
                 <xs:element name="identity-service" type="os-ids-auth:OpenStackIdentityService" minOccurs="1" maxOccurs="1" />
                 <xs:element name="client-mapping" type="os-ids-auth:ClientMapping" minOccurs="0" maxOccurs="unbounded" />
+                <xs:element name="endpoints-in-header" type="os-ids-auth:Endpoints" minOccurs="0" maxOccurs="1"/>
             </xs:sequence>
 
             <xs:attribute name="delegable" type="xs:boolean" use="optional" default="false">
@@ -98,8 +100,6 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
-        
-  
 
         <xs:attribute name="uri" type="xs:anyURI" use="required">
             <xs:annotation>
@@ -108,6 +108,7 @@
                 </xs:documentation>
             </xs:annotation>
         </xs:attribute>
+
         <xs:attribute name="tenantId" type="xs:string" use="optional">
             <xs:annotation>
                 <xs:documentation>
@@ -132,7 +133,40 @@
             </xs:annotation>
         </xs:attribute>
     </xs:complexType>
-    
+
+    <!--This will be used to put the endpoints catalog in a x-catalog header.-->
+    <xs:complexType name="Endpoints">
+        <xs:annotation>
+            <xs:documentation>
+                <html:p>Determines whether or not to include endpoints in a headers, what format, what identity contract version, and cache timeout.</html:p>
+            </xs:documentation>
+        </xs:annotation>
+
+        <xs:attribute name="format" type="xs:string" use="optional" default="json">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Determines endpoint header format.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="cache-timeout" type="os-ids-auth:longGTEZero" use="optional" default="600000">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Determines cache timeout.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+
+        <xs:attribute name="identity-contract-version" type="xs:integer" use="optional" default="2">
+            <xs:annotation>
+                <xs:documentation>
+                    <html:p>Determines the contract identity version.</html:p>
+                </xs:documentation>
+            </xs:annotation>
+        </xs:attribute>
+    </xs:complexType>
+
     <xs:simpleType name="longGTEZero">
         <xs:restriction base="xs:long">
             <xs:minInclusive value="0"/>

@@ -34,29 +34,39 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
    protected abstract AuthGroups getGroups(String group);
 
+   protected abstract String getEndpointsBase64(String token, EndpointsConfiguration endpointsConfiguration);
+
    protected abstract FilterDirector processResponse(ReadableHttpServletResponse response);
 
-   protected abstract void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable, FilterDirector filterDirector, String extractedResult, List<AuthGroup> groups);
+   protected abstract void setFilterDirectorValues(String authToken, AuthToken cachableToken, Boolean delegatable, FilterDirector filterDirector, String extractedResult, List<AuthGroup> groups, String endpointsBase64);
+
    private final boolean delegable;
    private final KeyedRegexExtractor<String> keyedRegexExtractor;
    private final AuthTokenCache cache;
    private final AuthGroupCache grpCache;
+   private final EndpointsCache endpointsCache;
    private final UriMatcher uriMatcher;
    private final boolean tenanted;
    private final long groupCacheTtl;
+   private final long endpointsCacheTtl;
    private final long userCacheTtl;
    private final boolean requestGroups;
+   private final EndpointsConfiguration endpointsConfiguration;
 
-   protected AuthenticationHandler(Configurables configurables, AuthTokenCache cache, AuthGroupCache grpCache, UriMatcher uriMatcher) {
+    protected AuthenticationHandler(Configurables configurables, AuthTokenCache cache, AuthGroupCache grpCache,
+            EndpointsCache endpointsCache, UriMatcher uriMatcher) {
       this.delegable = configurables.isDelegable();
       this.keyedRegexExtractor = configurables.getKeyedRegexExtractor();
       this.cache = cache;
       this.grpCache = grpCache;
+        this.endpointsCache = endpointsCache;
       this.uriMatcher = uriMatcher;
       this.tenanted = configurables.isTenanted();
       this.groupCacheTtl = configurables.getGroupCacheTtl();
+      this.endpointsCacheTtl = configurables.getEndpointsConfiguration().getCacheTimeout();
       this.userCacheTtl = configurables.getUserCacheTtl();
       this.requestGroups= configurables.isRequestGroups();
+      this.endpointsConfiguration = configurables.getEndpointsConfiguration();
    }
 
    @Override
@@ -91,7 +101,6 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       ExtractorResult<String> account = null;
       AuthToken token = null;
 
-
       if (tenanted) {
          account = extractAccountIdentification(request);
       }
@@ -99,7 +108,7 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       final boolean allow = allowAccount(account);
 
       if ((!StringUtilities.isBlank(authToken) && allow)) {
-         token = checkToken(account, authToken);//looking into cache for token
+         token = checkToken(account, authToken);
 
          if (token == null) {
             try {
@@ -121,16 +130,47 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
             }
          }
       }
-          
-         
-      List<AuthGroup> groups = getAuthGroups(token);
-//probable point of entry for logic
-      setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(), groups);
 
-      return filterDirector;
+       List<AuthGroup> groups = getAuthGroups(token); // copy this pattern
+
+       //getting the encoded endpoints to pass into the header
+       String endpointsInBase64 = getEndpointsInBase64(token);
+
+       setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(),
+                               groups, endpointsInBase64);
+
+       return filterDirector;
    }
 
-   private List<AuthGroup> getAuthGroups(AuthToken token) {
+    //check for null, check for it already in cache
+    private String getEndpointsInBase64(AuthToken token) {
+        String tokenId = null;
+
+        if (token != null) {
+            tokenId = token.getTokenId();
+        }
+
+        String endpoints = checkEndpointsCache(tokenId);
+
+        //if endpoints are not already in the cache then make a call for them and cache what comes back
+        if (endpoints == null) {
+            endpoints = getEndpointsBase64(tokenId, endpointsConfiguration);
+            cacheEndpoints(tokenId, endpoints);
+        }
+
+        return endpoints;
+    }
+
+    //cache check for endpoints
+    private String checkEndpointsCache(String token) {
+        if (endpointsCache == null) {
+            return null;
+        }
+
+        return endpointsCache.getEndpoints(token);
+    }
+
+    private List<AuthGroup> getAuthGroups(AuthToken token) {
       if (token != null && requestGroups) {
 
          AuthGroups authGroups = checkGroupCache(token);
@@ -237,6 +277,19 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
       }
    }
 
+    //store endpoints in cache
+    private void cacheEndpoints(String token, String endpoints) {
+        if (token == null || endpointsCache == null) {
+            return;
+        }
+
+        try {
+            endpointsCache.storeEndpoints(token, endpoints, safeEndpointsTtl());
+        } catch (IOException ex) {
+            LOG.warn("Unable to cache endpoints information: " + token + " Reason: " + ex.getMessage(), ex);
+        }
+    }
+
    private int safeGroupTtl() {
       final Long grpTtl = this.groupCacheTtl;
 
@@ -246,4 +299,15 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
 
       return grpTtl.intValue();
    }
+
+   //get the ttl but prevent bad integers
+    private int safeEndpointsTtl() {
+        final Long endpointsTtl = this.endpointsCacheTtl;
+
+        if (endpointsTtl >= Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+
+        return endpointsTtl.intValue();
+    }
 }
