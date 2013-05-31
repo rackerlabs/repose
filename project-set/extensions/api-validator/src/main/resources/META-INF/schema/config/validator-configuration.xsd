@@ -5,6 +5,11 @@
            xmlns:scr="http://openrepose.org/repose/validator/v1.0"
            xmlns:html="http://www.w3.org/1999/xhtml"
            xmlns:xs="http://www.w3.org/2001/XMLSchema">
+    
+       <!-- Enumeration and SimpleType definitions -->
+    <xs:simpleType name="StringList">
+        <xs:list itemType="xs:string"/>
+    </xs:simpleType>
 
     <!-- Configuration Schema Definitions -->
     <xs:element name="validators" type="scr:ValidatorConfiguration"/>
@@ -46,10 +51,10 @@
             <xs:any minOccurs="0" namespace="##any" processContents="skip"/>
         </xs:sequence>
 
-        <xs:attribute name="role" type="xs:string" use="required">
+        <xs:attribute name="role" type="scr:StringList" use="required">
             <xs:annotation>
                 <xs:documentation>
-                    <html:p>
+                    <html:p>List of roles that are applied on single validator.
                     </html:p>
                 </xs:documentation>
             </xs:annotation>
