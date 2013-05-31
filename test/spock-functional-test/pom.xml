@@ -84,12 +84,14 @@
 
                 <repose_port>8888</repose_port>
                 <repose_jmx_port>9001</repose_jmx_port>
+                <repose_shutdown_port>9999</repose_shutdown_port>
                 <target_hostname>localhost</target_hostname>
-                <target_port>9999</target_port>
+                <target_port>10001</target_port>
 
 
-
-                <repose.config.directory>${project.build.directory}/repose_home/configs</repose.config.directory>
+                <repose.home>${project.build.directory}/repose_home</repose.home>
+                <repose.config.directory>${repose.home}/configs</repose.config.directory>
+                <repose.valve.jar.location>${repose.home}/${repose.valve.jar}</repose.valve.jar.location>
                 <repose.config.samples>${project.build.directory}/configs</repose.config.samples>
             </properties>
         </profile>

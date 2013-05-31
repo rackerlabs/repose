@@ -10,14 +10,15 @@ class ReposeValveLauncher implements ReposeLauncher {
     def JmxClient jmx
     def String jmxUrl
 
-    def String reposeJar = "/Users/lisa/workspace/repose/test/spock-functional-test/target/repose_home/repose-valve.jar"
-    def String configDir = "/Users/lisa/workspace/repose/test/spock-functional-test/target/repose_home/configs"
+    def String reposeJar
+    def String configDir
 
     def GDeproxy reposeClient
     def clock = new SystemClock()
 
-    def int shutdownPort = 9999
-    def int jmxPort = 9001
+    def reposeEndpoint
+    def int shutdownPort
+    def int jmxPort
     def jmxprops = ""
 
     def ReposeConfigurationProvider configurationProvider
@@ -66,7 +67,7 @@ class ReposeValveLauncher implements ReposeLauncher {
     private boolean isRunning() {
 
         if (reposeClient == null) {
-            reposeClient = new GDeproxy("http://localhost:8888")
+            reposeClient = new GDeproxy(reposeEndpoint)
         }
 
         try {

@@ -21,11 +21,20 @@ abstract class ReposeValveTest extends Specification {
         configDirectory = properties.getProperty("repose.config.directory")
         configSamples = properties.getProperty("repose.config.samples")
         ReposeConfigurationProvider reposeConfigProvider = new ReposeConfigurationProvider(configDirectory, configSamples)
+
         repose = new ReposeValveLauncher(reposeConfigProvider)
+        repose.configDir = configDirectory
+        repose.jmxPort = properties.getProperty("repose.jmxport")
+        repose.shutdownPort = properties.getProperty("repose.shutdown.port")
+        repose.reposeEndpoint = properties.getProperty("repose.endpoint")
+
         deproxy = new GDeproxy(properties.getProperty("repose.endpoint"))
     }
 
     def teardownSpec() {
         repose.stop()
     }
+
+    abstract def foo()
+
 }

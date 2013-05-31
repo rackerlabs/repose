@@ -2,6 +2,9 @@ package framework
 
 import org.apache.commons.io.FileUtils
 
+/**
+ * Responsible for applying and updating configuration files for an instance of Repose
+ */
 class ReposeConfigurationProvider {
 
     def File reposeConfigDir

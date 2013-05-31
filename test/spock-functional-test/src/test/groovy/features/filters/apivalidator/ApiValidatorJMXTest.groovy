@@ -19,6 +19,9 @@ class ApiValidatorJMXTest extends ReposeValveTest {
 
     def "when loading validators, should register MXBeans"() {
 
+        given:
+        Foo foo
+
         when:
         deproxy.doGet("/", ['X-Roles': "role-1, role-2, role-3"])
         def totalMXBeans = repose.jmx.getMBeanCount(validatorBeanDomain, validatorClassName, 3)
@@ -43,4 +46,12 @@ class ApiValidatorJMXTest extends ReposeValveTest {
         totalMXBeans == 2
     }
 
+
+}
+
+class TestableFoo extends Foo {
+
+    def TestableFoo(String bar) {
+        super(bar)
+    }
 }
