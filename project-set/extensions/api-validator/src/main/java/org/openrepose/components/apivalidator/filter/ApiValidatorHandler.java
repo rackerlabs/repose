@@ -13,14 +13,15 @@ import com.rackspace.papi.filter.logic.FilterAction;
 import com.rackspace.papi.filter.logic.FilterDirector;
 import com.rackspace.papi.filter.logic.common.AbstractFilterLogicHandler;
 import com.rackspace.papi.filter.logic.impl.FilterDirectorImpl;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.FilterChain;
+import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import javax.servlet.FilterChain;
-import javax.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ApiValidatorHandler extends AbstractFilterLogicHandler {
 
@@ -69,9 +70,12 @@ public class ApiValidatorHandler extends AbstractFilterLogicHandler {
       Set<String> roles = getRolesAsSet(listRoles);
 
       for (ValidatorInfo validator : validators) {
-         if (roles.contains(validator.getRole())) {
+          
+        for (String validatorRoles : validator.getRoles()) { 
+         if (roles.contains(validatorRoles)) {
             validatorList.add(validator);
          }
+        }
       }
 
       appendDefaultValidator(validatorList);

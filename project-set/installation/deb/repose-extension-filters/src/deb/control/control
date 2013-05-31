@@ -1,0 +1,9 @@
+Package: repose-filter-bundle
+Version: [[version]]
+Section: misc
+Priority: optional
+Architecture: all
+Maintainer: Repose Dev <repose-dev@openrepose.org>
+Description: Debian Packge for the Repose Filter Bundle
+Homepage: http://openrepose.org
+Depends: java6-runtime-headless, repose-valve

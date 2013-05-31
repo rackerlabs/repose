@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 
 import javax.servlet.FilterChain;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertEquals;
@@ -45,24 +46,24 @@ public class ApiValidatorHandlerTest {
             response = mock(MutableHttpServletResponse.class);
 
             defaultValidator = mock(Validator.class);
-            defaultValidatorInfo = new ValidatorInfo("defaultrole", "defaultwadl", null, null);
+            defaultValidatorInfo = new ValidatorInfo(Arrays.asList("defaultrole"), "defaultwadl", null, null);
             defaultValidatorInfo.setValidator(defaultValidator);
             
             role1Validator = mock(Validator.class);
-            role1ValidatorInfo = new ValidatorInfo("role1", "role1wadl", null, null);
+            role1ValidatorInfo = new ValidatorInfo(Arrays.asList("role1"), "role1wadl", null, null);
             role1ValidatorInfo.setValidator(role1Validator);
             
             role2Validator = mock(Validator.class);
-            role2ValidatorInfo = new ValidatorInfo("role2", "role2wadl", null, null);
+            role2ValidatorInfo = new ValidatorInfo(Arrays.asList("role2"), "role2wadl", null, null);
             role2ValidatorInfo.setValidator(role2Validator);
             
             nullValidatorInfo = mock(ValidatorInfo.class);
-            when(nullValidatorInfo.getRole()).thenReturn("nullValidator");
+            when(nullValidatorInfo.getRoles()).thenReturn(Arrays.asList("nullValidator"));
             when(nullValidatorInfo.getValidator()).thenReturn(null);
             
             blowupValidator = mock(Validator.class);
             when(blowupValidator.validate(request, response, chain)).thenThrow(new RuntimeException("Test"));
-            blowupValidatorInfo = new ValidatorInfo("blowupValidator", "blowupWadl", null, null);
+            blowupValidatorInfo = new ValidatorInfo(Arrays.asList("blowupValidator"), "blowupWadl", null, null);
             blowupValidatorInfo.setValidator(blowupValidator);
 
             List<ValidatorInfo> validators = new ArrayList<ValidatorInfo>();
