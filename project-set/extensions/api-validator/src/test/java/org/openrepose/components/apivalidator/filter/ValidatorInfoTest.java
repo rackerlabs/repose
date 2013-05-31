@@ -20,7 +20,7 @@ public class ValidatorInfoTest {
 
     public static class WhenLoadingValidators {
 
-        private final String role = "someRole";
+        private final List<String> role = new ArrayList<String>();
         private final String wadl = "default.wadl";
         private final String name = "testName";
         private Config config;
@@ -41,6 +41,8 @@ public class ValidatorInfoTest {
             config.setCheckWellFormed(true);
             config.setCheckXSDGrammar(true);
             config.setCheckElements(true);
+            role.add("someRole");
+            role.add("someRole2");
             URL resource = this.getClass().getClassLoader().getResource(wadl);
 
             this.instance = new ValidatorInfo(role, resource.toExternalForm(), config, null);
@@ -64,7 +66,7 @@ public class ValidatorInfoTest {
 
         @Test
         public void shouldGenerateValidatorNameWhenPassedNull() {
-            assertEquals(instance.getName(), instance.getRole());
+            assertEquals(instance.getName(), instance.getNameFromRoles(instance.getRoles()));
         }
 
         @Test
