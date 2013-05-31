@@ -129,10 +129,13 @@ public abstract class AuthenticationHandler extends AbstractFilterLogicHandler {
          }
       }
 
-       List<AuthGroup> groups = getAuthGroups(token); // copy this pattern
+       List<AuthGroup> groups = getAuthGroups(token);
 
-       //getting the encoded endpoints to pass into the header
-       String endpointsInBase64 = getEndpointsInBase64(token);
+       //getting the encoded endpoints to pass into the header, if the endpoints config is not null
+       String endpointsInBase64 = null;
+       if (endpointsConfiguration != null){
+           endpointsInBase64 = getEndpointsInBase64(token);
+       }
 
        setFilterDirectorValues(authToken, token, delegable, filterDirector, account == null ? "" : account.getResult(),
                                groups, endpointsInBase64);
